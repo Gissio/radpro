@@ -47,6 +47,7 @@ __Notice:__ Installing this software *voids* the warranty of your device.
 * Optional mod: if the Geiger-Müller tube is mounted vertically like in the previous picture, use a heat gun/glue gun to align the Geiger-Müller tube to the holes of the back case. Be careful, the tube's glass is very delicate.
 * Optional mod: some rechargeable AA batteries do not make contact with the battery holder's pads; apply some solder to the pads and it will work.
 * Optional mod: volume too low? Make a hole on the back case just where the buzzer is.
+* Optional mod for FS2011: add a female USB port to your device and connect GND and +5V to the 0V and 5V pads of the electronics boards; your FS2011 is now able to run continuously and can even charge Ni-MH batteries.
 * Connect the ST-Link V2 device to XS1. Pins from top to bottom are:
   * GND
   * SWCLK
