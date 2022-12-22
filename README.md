@@ -15,7 +15,7 @@ Features:
 * Overload alert.
 * Configurable rate and dose alarms.
 * Configurable pulse click sounds: off, quiet, loud.
-* Configurable backlight timer: off, 5 s, 30 s, always on.
+* Configurable backlight timer: off, on for 10 seconds, on for 60 seconds, always on.
 * Configurable battery type for battery level.
 * Device life statistics.
 * 40% longer battery life.
