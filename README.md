@@ -60,7 +60,7 @@ __Notice:__ Installing this software *voids* the warranty of your device.
 ## Usage
 
 * Long-press the POWER key to turn on/off.
-* Short-press the POWEr key to turn on backlight (if enabled).
+* Short-press the POWER key to turn on backlight (if enabled).
 
 * Press the UP and DOWN keys to change modes.
 
