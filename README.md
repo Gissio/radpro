@@ -2,13 +2,7 @@
 
 FS2011 Pro is a custom firmware for the FS2011/FS2011+ radiation detector/Geiger counter.
 
-[![FS2011 Pro Demonstration](docs/img/fs2011pro-video.webp)](https://www.youtube.com/watch?v=7dpVG1jSLn8)
-
-<iframe width="560" height="315"
-src="https://www.youtube.com/embed/7dpVG1jSLn8" 
-frameborder="0" 
-allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
-allowfullscreen></iframe>
+[![FS2011 Pro Demonstration](docs/img/fs2011pro-video.jpg)](https://www.youtube.com/watch?v=7dpVG1jSLn8)
 
 Features:
 
