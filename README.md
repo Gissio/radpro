@@ -30,6 +30,7 @@ __Notice:__ Installing this software *voids* the warranty of your device.
 
 ### Requirements
 
+* Philips screwdriver
 * Soldering iron
 * Solder
 * 4-pin header
