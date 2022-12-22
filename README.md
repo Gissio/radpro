@@ -9,11 +9,11 @@ Features:
 * Instantaneous rate, average rate, dose and history modes.
 * Intuitive user interface.
 * Measurements in Sievert, rem, cpm and cps.
+* Multiple history periods: 2 minute, 10 minute, 1 hour, 6 hour and 24 hour.
 * 95% confidence intervals.
 * Measurement hold for instantaneous rate, average rate, dose.
 * Overload alert.
 * Configurable rate and dose alarms.
-* Multiple history periods: 2 minute, 10 minute, 1 hour, 6 hour and 24 hour.
 * Configurable pulse click sounds: off, quiet, loud.
 * Configurable backlight timer: off, 5 s, 30 s, always on.
 * Configurable battery type for battery level.
