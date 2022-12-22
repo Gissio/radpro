@@ -104,4 +104,4 @@ Special thanks to the u8g2 team.
 
 [stlinkv2-link]: https://www.st.com/en/development-tools/stm32cubeprog.html
 [cubeide-link]: https://www.st.com/en/development-tools/stm32cubeide.html
-[releases-link]: releases
+[releases-link]: https://github.com/Gissio/fs2011pro/releases
