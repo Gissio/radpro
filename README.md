@@ -96,7 +96,7 @@ History is calculated from the instantaneous rate sampled each second.
 
 ## Compiling
 
-Download [STMCubeIDE][cubeide-link], open the cubeide folder.
+Download [STM32CubeIDE][cubeide-link], open the cubeide folder.
 
 ## Thanks
 
