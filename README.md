@@ -35,7 +35,7 @@ __Notice:__ Installing this software *voids* the warranty of your device.
 * Solder
 * 4-pin header
 * ST-Link V2 USB dongle (or clone)
-* [STM32CubeProgrammer][stlinkv2-link] software
+* [STM32CubeProgrammer][stlinkv2-link]
 
 ### Instructions
 
