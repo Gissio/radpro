@@ -8,6 +8,7 @@
  */
 
 #include <limits.h>
+#include <stdbool.h>
 #include <stdio.h>
 
 #ifndef SDL_MODE
@@ -40,12 +41,12 @@ extern IWDG_HandleTypeDef hiwdg;
 #define BATTERY_ALKALINE_VALUE_RANGE (ADC_FACTOR * (BATTERY_ALKALINE_VOLTAGE_MAX - BATTERY_ALKALINE_VOLTAGE_MIN))
 
 // First order filter (N: time constant in taps): k = e^(-1 / N)
-// For N = 30 (seconds):
-#define BATTERY_FILTER_CONSTANT 0.967F
+// For N = 60 (seconds):
+#define BATTERY_FILTER_CONSTANT 0.98347F
 
 struct Power
 {
-    int batteryState;
+    bool isBatteryValueInitialized;
     float batteryValue;
 } power;
 
@@ -90,6 +91,9 @@ void initPower()
 #ifndef SDL_MODE
     HAL_ADCEx_Calibration_Start(&hadc);
 #endif
+
+    // Fixes erroneous first value
+    getBatteryValue();
 }
 
 void waitForInterrupt()
@@ -132,23 +136,21 @@ void powerDown(int ms)
 
 void updateBattery()
 {
-    switch (power.batteryState)
+    if (!power.isBatteryValueInitialized)
     {
-    case 0:
-        power.batteryState++;
-        power.batteryValue = getBatteryValue();
-        break;
-
-    case 1:
+    	power.isBatteryValueInitialized = true;
+    	power.batteryValue = getBatteryValue();
+    }
+    else
+    {
         power.batteryValue = (BATTERY_FILTER_CONSTANT * power.batteryValue +
                               (1.0F - BATTERY_FILTER_CONSTANT) * getBatteryValue());
-        break;
     }
 }
 
 signed char getBatteryLevel()
 {
-    if (power.batteryState == 0)
+    if (!power.isBatteryValueInitialized)
         return -1;
 
 #ifndef SDL_MODE

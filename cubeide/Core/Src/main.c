@@ -101,7 +101,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   onBuzzerOff();
 }
 
-uint32_t const volatile validCRC __attribute__((section(".crc"))) = 0x283428e6;
+uint32_t const volatile validCRC __attribute__((section(".crc"))) = 0x687e36a6;
 
 /* USER CODE END 0 */
 
@@ -149,7 +149,7 @@ int main(void)
   initPower();
   initDisplay();
 
-  if (false)// crc != validCRC)
+  if (crc != validCRC)
   {
     drawSelfTestError(crc);
     updateDisplay();

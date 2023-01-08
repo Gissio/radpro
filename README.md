@@ -26,7 +26,7 @@ Features:
 
 __Disclaimer:__ Under no circumstances are the authors responsible or liable in any way for any claims, damages, losses, expenses, costs or liability whatsoever resulting or arising directly or indirectly from the use of this software.
 
-__Notice:__ Installing this software *voids* the warranty of your device.
+__Notice:__ Installing this software will void the warranty of your device.
 
 ### Requirements
 
@@ -39,62 +39,62 @@ __Notice:__ Installing this software *voids* the warranty of your device.
 
 ### Instructions
 
-* Remove the battery cover and batteries. Remove the four screws holding the back case. Remove the four screws holding the electronics board on the front case.
-* Remove the electronics board; make sure it looks like this (if it doesn't, you probably have a different hardware version and this firmware will most likely break your device):
+* Remove the battery cover and batteries, remove the four screws holding the back case, remove the four screws holding the electronics board on the front case.
+* Remove the electronics board and make sure it looks like the following picture (if it doesn't, you probably have a different hardware version and this firmware will most likely break your device):
 
 ![FS2011 circuit board](docs/img/fs2011-board.jpg)
 
 * Solder the 4-pin header to XS1.
 * Optional mod: if the Geiger-Müller tube is mounted vertically like in the previous picture, use a heat gun/glue gun to align the Geiger-Müller tube to the holes of the back case. Be careful, the tube's glass is very delicate.
-* Optional mod: some rechargeable AA batteries do not make contact with the battery holder's pads; apply some solder to the pads and it will work.
-* Optional mod: volume too low? Make a hole on the back case just where the buzzer is.
-* Optional mod for FS2011: add a female USB port to your device and connect GND and +5V to the 0V and 5V pads of the electronics boards; your FS2011 is now able to run continuously and can even charge Ni-MH batteries.
+* Optional mod: apply solder on the battery holder's pads so low-profile AA batteries make good electrical contact.
+* Optional mod: increase the volume by drilling a hole on the back case in front of the buzzer.
+* Optional mod: add a female USB port and connect GND and +5V to the 0V and 5V pads of the electronics boards. Your FS2011 is now able to run continuously and can even charge Ni-MH batteries.
 * Connect the ST-Link V2 device to XS1. Pins from top to bottom are:
   * GND
   * SWCLK
   * SWDIO
   * +3V3
-* Back up your original firmware using STM32CubeProgrammer: connect to the ST-Link V2 device; select the "Memory & file editing" view; enter "0x8000000" in "Address" and "0x10000" in "Size"; click the read button; click on the black triangle on the "Read" button and select "Save As...".
-* Download the latest FS2011 Pro firmware from the [releases][releases-link]; in the STM32CubeProgrammer, click on "Erasing & programming"; select the firmware with the "Browse" button; enter "0x8000000" in "Start address"; mark both "Verify programming" and "Run after programming"; click on "Start Programming".
+* Back up your original firmware using STM32CubeProgrammer: connect to the ST-Link V2 device, select the "Memory & file editing" view, enter "0x8000000" in "Address" and "0x10000" in "Size", click the read button, click on the black triangle on the "Read" button and select "Save As...".
+* Download the latest FS2011 Pro firmware (or update) from the [releases][releases-link]: in the STM32CubeProgrammer, click on "Erasing & programming", select the firmware/update with the "Browse" button, enter "0x8000000" in "Start address", mark both "Verify programming" and "Run after programming", and click on "Start Programming".
 
 ## Usage
 
-* Long-press the POWER key to turn on/off.
-* Short-press the POWER key to turn on backlight (if enabled).
+* Long-press the POWER key to turn the device on and off.
+* Short-press the POWER key to turn the backlight on (if the backlight is enabled).
 
-* Press the UP and DOWN keys to change modes.
+* Press the UP and DOWN keys to change the mode.
 
-* Short-press the PLAY/PAUSE key to hold/unhold the current measurement (in instantaneous rate, average rate and dose view).
-* Long-press the PLAY/PAUSE key to reset the measurement.
+* Short-press the PLAY/PAUSE key to hold/unhold the current measurement (instantaneous rate, average rate and dose views only).
+* Long-press the PLAY/PAUSE key to reset the mode's measurements.
 
-* Press the MENU/OK key to enter the menu and select options.
-* Press the PLAY/PAUSE key to go back in a menu/an option.
+* Press the MENU/OK key to enter the menu/select a menu option.
+* Press the PLAY/PAUSE key to go back from a menu/menu option.
 
 ## Measurement
 
 ### Instantaneous rate
 
-Instantaneous rate is always measured between pulses, not over fixed time periods.
+The instantaneous rate is calculated as the average between the first pulse and the most recent pulse.
 
 If there are more than 11 pulses in 5 seconds, instantaneous rate is calculated over the pulses within the 5 second window. Otherwise it is calculated over the most recent 11 pulses.
 
-The 95% confidence intervals assume a constant level of radiation over the time window.
+The 95% confidence intervals assume a constant level of radiation over the averaging period.
 
 ### Average rate
 
-Average rate is measured between pulses, not over a fixed time period.
+The average rate is calculated as the pulse average between the first and last pulse.
 
 The 95% confidence intervals assume a constant level of radiation over the averaging period.
 
 ### Dose
 
-Dose is calculated from the number of pulses.
+The dose is calculated from the number of pulses.
 
 ### History
 
-History is calculated from the instantaneous rate sampled each second.
+The history is calculated from the instantaneous rate, sampled once per second.
 
-## Compiling
+## Building
 
 Download [STM32CubeIDE][cubeide-link], open the cubeide folder.
 

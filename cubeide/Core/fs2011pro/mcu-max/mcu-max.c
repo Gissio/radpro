@@ -65,7 +65,7 @@ struct
 } mcumax;
 
 // Piece values (king is marked negative as it loses game)
-static const char mcumax_piece_values[] = {
+static const signed char mcumax_piece_values[] = {
     // 0, 2, 2, -1, 7, 8, 12, 23}; // For underpromotion
     0, 2, 2, 7, -1, 8, 12, 23};
 
@@ -88,7 +88,7 @@ static const mcumax_direction mcumax_step_vectors[] = {
     // Rook
     -16, 1, 16, -1, 0};
 
-static const char mcumax_board_setup[] =
+static const unsigned char mcumax_board_setup[] =
     {
         MCUMAX_ROOK,
         MCUMAX_KNIGHT,

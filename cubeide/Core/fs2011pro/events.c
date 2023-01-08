@@ -20,12 +20,12 @@
 #include "buzzer.h"
 #include "ui.h"
 
-#define PULSE_SOUND_CLICK_TIME 0.001F
-#define PULSE_SOUND_BEEP_TIME 0.01F
+#define PULSE_SOUND_CLICK_TIME 0.0015F
+#define PULSE_SOUND_BEEP_TIME 0.015F
 #define ALARM_TIME 0.25F
 
-#define PULSE_SOUND_CLICK_TICKS (int)(BUZZER_TICK_FREQUENCY * PULSE_SOUND_CLICK_TIME)
-#define PULSE_SOUND_BEEP_TICKS (int)(BUZZER_TICK_FREQUENCY * PULSE_SOUND_BEEP_TIME)
+#define PULSE_SOUND_QUIET_TICKS (int)(BUZZER_TICK_FREQUENCY * PULSE_SOUND_CLICK_TIME)
+#define PULSE_SOUND_LOUD_TICKS (int)(BUZZER_TICK_FREQUENCY * PULSE_SOUND_BEEP_TIME)
 #define ALARM_TICKS (int)(BUZZER_TICK_FREQUENCY * ALARM_TIME)
 
 struct Events
@@ -82,11 +82,11 @@ void triggerPulse()
     switch (settings.pulseSound)
     {
     case PULSE_SOUND_QUIET:
-        triggerBuzzer(PULSE_SOUND_CLICK_TICKS);
+        triggerBuzzer(PULSE_SOUND_QUIET_TICKS);
         break;
 
     case PULSE_SOUND_LOUD:
-        triggerBuzzer(PULSE_SOUND_BEEP_TICKS);
+        triggerBuzzer(PULSE_SOUND_LOUD_TICKS);
         break;
     }
 }

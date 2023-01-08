@@ -273,7 +273,8 @@ void drawGameView()
             int index = start + 2 * y + x;
 
             if ((index < game.moveIndex) &&
-                (index < GAME_HISTORY_SIZE))
+                (index < GAME_HISTORY_SIZE) &&
+                game.history[index].from != MCUMAX_INVALID)
                 formatGameMove(game.history[index], moves[y][x]);
             else
                 strcpy(moves[y][x], "");
