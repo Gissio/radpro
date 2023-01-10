@@ -40,10 +40,11 @@ __Notice:__ Installing this software will void the warranty of your device.
 ### Instructions
 
 * Remove the battery cover and batteries, remove the four screws holding the back case, remove the four screws holding the electronics board on the front case.
-* Remove the electronics board and make sure it looks like the following picture (if it doesn't, you probably have a different hardware version and this firmware will most likely break your device):
+* Remove the electronics board and make sure it looks like this (the Geiger-Müller tube might be larger and/or mounted differently):
 
 ![FS2011 circuit board](docs/img/fs2011-board.jpg)
 
+* If the board doesn't look like this, you probably have a different hardware version and this firmware will most likely break your device.
 * Solder the 4-pin header to XS1.
 * Optional mod: if the Geiger-Müller tube is mounted vertically like in the previous picture, use a heat gun/glue gun to align the Geiger-Müller tube to the holes of the back case. Be careful, the tube's glass is very delicate.
 * Optional mod: apply solder on the battery holder's pads so low-profile AA batteries make good electrical contact.
@@ -54,17 +55,19 @@ __Notice:__ Installing this software will void the warranty of your device.
   * SWCLK
   * SWDIO
   * +3V3
-* Back up your original firmware using STM32CubeProgrammer: connect to the ST-Link V2 device, select the "Memory & file editing" view, enter "0x8000000" in "Address" and "0x10000" in "Size", click the read button, click on the black triangle on the "Read" button and select "Save As...".
-* Download the latest FS2011 Pro firmware (or update) from the [releases][releases-link]: in the STM32CubeProgrammer, click on "Erasing & programming", select the firmware/update with the "Browse" button, enter "0x8000000" in "Start address", mark both "Verify programming" and "Run after programming", and click on "Start Programming".
+* Before installing FS2011 Pro for the first time, back up the original firmware: open the STM32CubeProgrammer, press the "Connect" button to connect to the ST-Link V2 device, select the "Memory & file editing" view, enter "0x8000000" as "Address" and "0x10000" as "Size", click the read button, click the black triangle on the "Read" button, and select "Save As...".
+* Download the latest FS2011 Pro firmware from the [releases][releases-link]: if your Geiger-Müller tube is 48 mm long, download the HH614 firmware; if it is 10.5 mm long, download the M4011 firmware.
+* To install FS2011 Pro for the first time: open the STM32CubeProgrammer, press the "Connect" button to connect to the ST-Link V2 device, select the "Erasing & programming" view, check "Full chip erase", choose the firmware/update with the "Browse" button, enter "0x8000000" in "Start address", check both "Verify programming" and "Run after programming", click on "Start automatic mode", wait for the operation to complete, and click on "Stop automatic mode".
+* To update FS2011 Pro: open the STM32CubeProgrammer, press the "Connect" button to connect to the ST-Link V2 device, select the "Erasing & programming" view, choose the firmware/update with the "Browse" button, enter "0x8000000" in "Start address", check both "Verify programming" and "Run after programming", and click on "Start Programming".
 
 ## Usage
 
 * Long-press the POWER key to turn the device on and off.
 * Short-press the POWER key to turn the backlight on (if the backlight is enabled).
 
-* Press the UP and DOWN keys to change the mode.
+* Press the UP and DOWN keys to change the mode/selection.
 
-* Short-press the PLAY/PAUSE key to hold/unhold the current measurement (instantaneous rate, average rate and dose views only).
+* Short-press the PLAY/PAUSE key to hold/unhold the current measurement (in instantaneous rate, average rate and dose mode).
 * Long-press the PLAY/PAUSE key to reset the mode's measurements.
 
 * Press the MENU/OK key to enter the menu/select a menu option.
@@ -74,21 +77,21 @@ __Notice:__ Installing this software will void the warranty of your device.
 
 ### Instantaneous rate
 
-The instantaneous rate is calculated as the average between the first pulse and the most recent pulse.
+The instantaneous rate is calculated as the average between a first pulse and the most recent pulse.
 
-If there are more than 11 pulses in 5 seconds, instantaneous rate is calculated over the pulses within the 5 second window. Otherwise it is calculated over the most recent 11 pulses.
+If there are more than 11 pulses in 5 seconds, the first pulse is the first one to occur within the 5 second window. Otherwise it is the first one of the most recent 11 pulses.
 
 The 95% confidence intervals assume a constant level of radiation over the averaging period.
 
 ### Average rate
 
-The average rate is calculated as the pulse average between the first and last pulse.
+The average rate is calculated as the pulse average between the first and last pulse in the time window.
 
 The 95% confidence intervals assume a constant level of radiation over the averaging period.
 
 ### Dose
 
-The dose is calculated from the number of pulses.
+The dose is calculated from the number of pulses in the time window.
 
 ### History
 

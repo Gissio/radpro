@@ -46,7 +46,6 @@ extern IWDG_HandleTypeDef hiwdg;
 
 struct Power
 {
-    bool isBatteryValueInitialized;
     float batteryValue;
 } power;
 
@@ -84,6 +83,9 @@ float getBatteryValue()
 
 void initPower()
 {
+    // Sample the batttery voltage initially before turning on the devices
+    power.batteryValue = getBatteryValue();
+
     setPower(true);
     setBacklight(false);
     setHighVoltageGenerator(true);
@@ -91,9 +93,6 @@ void initPower()
 #ifndef SDL_MODE
     HAL_ADCEx_Calibration_Start(&hadc);
 #endif
-
-    // Fixes erroneous first value
-    getBatteryValue();
 }
 
 void waitForInterrupt()
@@ -136,23 +135,12 @@ void powerDown(int ms)
 
 void updateBattery()
 {
-    if (!power.isBatteryValueInitialized)
-    {
-    	power.isBatteryValueInitialized = true;
-    	power.batteryValue = getBatteryValue();
-    }
-    else
-    {
-        power.batteryValue = (BATTERY_FILTER_CONSTANT * power.batteryValue +
-                              (1.0F - BATTERY_FILTER_CONSTANT) * getBatteryValue());
-    }
+    power.batteryValue = (BATTERY_FILTER_CONSTANT * power.batteryValue +
+                          (1.0F - BATTERY_FILTER_CONSTANT) * getBatteryValue());
 }
 
 signed char getBatteryLevel()
 {
-    if (!power.isBatteryValueInitialized)
-        return -1;
-
 #ifndef SDL_MODE
     if (!HAL_GPIO_ReadPin(PWR_CHRG_GPIO_Port, PWR_CHRG_Pin))
         return BATTERY_LEVEL_CHARGING;

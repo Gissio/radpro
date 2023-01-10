@@ -14,7 +14,10 @@
 
 #include "events.h"
 
-#define CPM_PER_USVH 80.F
+// M4011 tube:
+// #define CPM_PER_USVH 153.8F
+// HH614 tube:
+#define CPM_PER_USVH 60.0F
 
 #define HISTORY_BUFFER_SIZE 120
 #define HISTORY_CPS_MIN 0.01F

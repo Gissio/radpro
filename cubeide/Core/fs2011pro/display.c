@@ -72,7 +72,7 @@
 u8g2_t u8g2;
 
 const char *const firmwareName = "FS2011 Pro";
-const char *const firmwareVersion = "1.0.1";
+const char *const firmwareVersion = "1.0.2";
 
 #ifndef SDL_MODE
 uint8_t onDisplayMessage(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr)

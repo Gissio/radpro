@@ -158,10 +158,10 @@ SECTIONS
     . = ALIGN(4);
   } >FLASH
 
-  .fill :
+  /*.fill :
   {
     FILL(0xff);
     . = ORIGIN(FLASH) + LENGTH(FLASH) - 1;
     BYTE(0xff);
-  } >FLASH
+  } >FLASH*/
 }
