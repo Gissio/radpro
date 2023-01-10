@@ -83,9 +83,6 @@ float getBatteryValue()
 
 void initPower()
 {
-    // Sample the batttery voltage initially before turning on the devices
-    power.batteryValue = getBatteryValue();
-
     setPower(true);
     setBacklight(false);
     setHighVoltageGenerator(true);
@@ -93,6 +90,15 @@ void initPower()
 #ifndef SDL_MODE
     HAL_ADCEx_Calibration_Start(&hadc);
 #endif
+
+    float batteryValue = 0;
+    for (int i = 0; i < 100; i++)
+    {
+        batteryValue += getBatteryValue();
+        HAL_Delay(1);
+    }
+
+    power.batteryValue = batteryValue / 100.0F;
 }
 
 void waitForInterrupt()
