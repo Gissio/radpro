@@ -11,9 +11,9 @@
 
 typedef const struct
 {
-    unsigned short sampleNum;
-    unsigned char lowerInterval;
-    unsigned short upperInterval;
+    uint16_t sampleNum;
+    uint8_t lowerInterval;
+    uint16_t upperInterval;
 } ConfidenceInterval;
 
 ConfidenceInterval confidenceIntervals[] = {
@@ -122,7 +122,7 @@ ConfidenceInterval confidenceIntervals[] = {
 
 #define CONFIDENCE_INTERVALS_SIZE (sizeof(confidenceIntervals) / sizeof(ConfidenceInterval))
 
-void getConfidenceIntervals(unsigned int sampleNum,
+void getConfidenceIntervals(uint32_t sampleNum,
                             int *lowerConfidenceInterval,
                             int *upperConfidenceInterval)
 {
@@ -133,7 +133,7 @@ void getConfidenceIntervals(unsigned int sampleNum,
     while (left <= right)
     {
         int mid = (left + right) / 2;
-        unsigned int confidenceSampleNum = confidenceIntervals[mid].sampleNum;
+        uint32_t confidenceSampleNum = confidenceIntervals[mid].sampleNum;
 
         if (confidenceSampleNum < sampleNum)
             left = mid + 1;

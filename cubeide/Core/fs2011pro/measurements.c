@@ -28,77 +28,77 @@
 
 typedef struct
 {
-    unsigned int firstPulseTick;
-    unsigned int pulseCount;
+    uint32_t firstPulseTick;
+    uint32_t pulseCount;
 } PeriodStats;
 
 struct InstantaneousRate
 {
-    unsigned int tick;
-    unsigned int lastPulseTick;
+    uint32_t tick;
+    uint32_t lastPulseTick;
 
     PeriodStats current;
     PeriodStats history[INSTANTANEOUS_RATE_HISTORY_STATS_NUM];
 
-    unsigned int pulseTicksCount;
-    unsigned int pulseTicksIndex;
-    unsigned int pulseTicks[INSTANTANEOUS_RATE_PULSE_NUM];
+    uint32_t pulseTicksCount;
+    uint32_t pulseTicksIndex;
+    uint32_t pulseTicks[INSTANTANEOUS_RATE_PULSE_NUM];
 
-    unsigned int snapshotTime;
-    unsigned int snapshotCount;
-    unsigned int snapshotTicks;
+    uint32_t snapshotTime;
+    uint32_t snapshotCount;
+    uint32_t snapshotTicks;
     float snapshotValue;
     float snapshotMaxValue;
 
     bool isHold;
-    unsigned int holdTime;
-    unsigned int holdCount;
+    uint32_t holdTime;
+    uint32_t holdCount;
     float holdValue;
 } instantaneousRate;
 
 struct AverageRate
 {
-    unsigned int tick;
-    unsigned int lastPulseTick;
-    unsigned int firstPulseTick;
-    unsigned int pulseCount;
+    uint32_t tick;
+    uint32_t lastPulseTick;
+    uint32_t firstPulseTick;
+    uint32_t pulseCount;
 
-    unsigned int snapshotTime;
-    unsigned int snapshotCount;
-    unsigned int snapshotTicks;
+    uint32_t snapshotTime;
+    uint32_t snapshotCount;
+    uint32_t snapshotTicks;
     float snapshotValue;
 
     bool isHold;
-    unsigned int holdTime;
-    unsigned int holdCount;
+    uint32_t holdTime;
+    uint32_t holdCount;
     float holdValue;
 } averageRate;
 
 struct Dose
 {
-    unsigned int pulseCount;
+    uint32_t pulseCount;
 
-    unsigned int snapshotTime;
-    unsigned int snapshotValue;
+    uint32_t snapshotTime;
+    uint32_t snapshotValue;
 
     bool isHold;
-    unsigned int holdTime;
-    unsigned int holdValue;
+    uint32_t holdTime;
+    uint32_t holdValue;
 } dose;
 
 typedef const struct
 {
     char *const name;
-    unsigned int samplesPerDataPoint;
+    uint32_t samplesPerDataPoint;
 } History;
 
 typedef struct
 {
     float sampleSum;
-    unsigned int sampleNum;
+    uint32_t sampleNum;
 
-    unsigned char bufferIndex;
-    unsigned char buffer[HISTORY_BUFFER_SIZE];
+    uint8_t bufferIndex;
+    uint8_t buffer[HISTORY_BUFFER_SIZE];
 } HistoryState;
 
 History histories[HISTORY_NUM] = {
@@ -109,7 +109,7 @@ History histories[HISTORY_NUM] = {
     {"History (24h)", 720},
 };
 HistoryState historyStates[HISTORY_NUM];
-unsigned int historySampleIndex;
+uint32_t historySampleIndex;
 
 // Reset
 
@@ -132,12 +132,12 @@ void resetInstantaneousRate()
     instantaneousRate.tick = 0;
     instantaneousRate.lastPulseTick = 0;
     resetPeriodStats(&instantaneousRate.current);
-    for (unsigned int i = 0; i < INSTANTANEOUS_RATE_HISTORY_STATS_NUM; i++)
+    for (uint32_t i = 0; i < INSTANTANEOUS_RATE_HISTORY_STATS_NUM; i++)
         resetPeriodStats(&instantaneousRate.history[i]);
 
     instantaneousRate.pulseTicksCount = 0;
     instantaneousRate.pulseTicksIndex = 0;
-    for (unsigned int i = 0; i < INSTANTANEOUS_RATE_PULSE_NUM; i++)
+    for (uint32_t i = 0; i < INSTANTANEOUS_RATE_PULSE_NUM; i++)
         instantaneousRate.pulseTicks[i] = 0;
 
     instantaneousRate.snapshotTime = 0;
@@ -173,7 +173,7 @@ void resetDose()
 
 void resetHistory()
 {
-    for (unsigned int i = 0; i < HISTORY_NUM; i++)
+    for (uint32_t i = 0; i < HISTORY_NUM; i++)
     {
         HistoryState *historyState = &historyStates[i];
 
@@ -181,7 +181,7 @@ void resetHistory()
         historyState->sampleNum = 0;
 
         historyState->bufferIndex = 0;
-        for (unsigned int i = 0; i < HISTORY_BUFFER_SIZE; i++)
+        for (uint32_t i = 0; i < HISTORY_BUFFER_SIZE; i++)
             historyState->buffer[i] = 0;
     }
 
@@ -190,7 +190,7 @@ void resetHistory()
 
 // Callbacks
 
-void onMeasurementTick(unsigned int pulseCount)
+void onMeasurementTick(uint32_t pulseCount)
 {
     if (pulseCount)
     {
@@ -203,7 +203,7 @@ void onMeasurementTick(unsigned int pulseCount)
             instantaneousRate.pulseTicksCount + pulseCount;
         if (instantaneousRate.pulseTicksCount > INSTANTANEOUS_RATE_PULSE_NUM)
             instantaneousRate.pulseTicksCount = INSTANTANEOUS_RATE_PULSE_NUM;
-        for (unsigned int i = 0; i < pulseCount; i++)
+        for (uint32_t i = 0; i < pulseCount; i++)
         {
             instantaneousRate.pulseTicks[instantaneousRate.pulseTicksIndex] =
                 instantaneousRate.tick;
@@ -236,19 +236,19 @@ void onMeasurementTick(unsigned int pulseCount)
 
 void onMeasurementOneSecond()
 {
-    unsigned int firstPulseTick;
-    unsigned int pulseCount;
-    unsigned int ticks;
+    uint32_t firstPulseTick;
+    uint32_t pulseCount;
+    uint32_t ticks;
 
     // Instantaneous rate
-    for (unsigned int i = INSTANTANEOUS_RATE_HISTORY_STATS_NUM - 1; i > 0; i--)
+    for (uint32_t i = INSTANTANEOUS_RATE_HISTORY_STATS_NUM - 1; i > 0; i--)
         instantaneousRate.history[i] = instantaneousRate.history[i - 1];
     instantaneousRate.history[0] = instantaneousRate.current;
     resetPeriodStats(&instantaneousRate.current);
 
     firstPulseTick = 0;
     pulseCount = 0;
-    for (unsigned int i = 0; i < INSTANTANEOUS_RATE_HISTORY_STATS_NUM; i++)
+    for (uint32_t i = 0; i < INSTANTANEOUS_RATE_HISTORY_STATS_NUM; i++)
     {
         if (instantaneousRate.history[i].pulseCount)
         {
@@ -259,10 +259,10 @@ void onMeasurementOneSecond()
 
     if (pulseCount < INSTANTANEOUS_RATE_PULSE_NUM)
     {
-        unsigned int pulseTicksIndex = (INSTANTANEOUS_RATE_PULSE_NUM +
-                                        instantaneousRate.pulseTicksIndex -
-                                        instantaneousRate.pulseTicksCount) %
-                                       INSTANTANEOUS_RATE_PULSE_NUM;
+        uint32_t pulseTicksIndex = (INSTANTANEOUS_RATE_PULSE_NUM +
+                                    instantaneousRate.pulseTicksIndex -
+                                    instantaneousRate.pulseTicksCount) %
+                                   INSTANTANEOUS_RATE_PULSE_NUM;
         firstPulseTick = instantaneousRate.pulseTicks[pulseTicksIndex];
         pulseCount = instantaneousRate.pulseTicksCount;
     }
@@ -324,7 +324,7 @@ void updateMeasurements()
     // History
     historySampleIndex =
         (historySampleIndex + 1) % histories[HISTORY_LAST].samplesPerDataPoint;
-    for (unsigned int i = 0; i < HISTORY_NUM; i++)
+    for (uint32_t i = 0; i < HISTORY_NUM; i++)
     {
         History *history = &histories[i];
         HistoryState *historyState = &historyStates[i];
@@ -338,7 +338,7 @@ void updateMeasurements()
             int value = (int)(HISTORY_VALUE_DECADE * log10f(average / HISTORY_CPS_MIN));
             value = (value < 0) ? 0 : (value > UCHAR_MAX) ? UCHAR_MAX
                                                           : value;
-            historyState->buffer[historyState->bufferIndex] = (unsigned char)value;
+            historyState->buffer[historyState->bufferIndex] = (uint8_t)value;
 
             historyState->sampleSum = 0;
             historyState->sampleNum = 0;
@@ -366,7 +366,7 @@ bool isDoseAlarm()
     return doseSv >= getDoseAlarmSv(settings.doseAlarm);
 }
 
-unsigned char getHistoryDataPoint(int dataIndex)
+uint8_t getHistoryDataPoint(int dataIndex)
 {
     HistoryState *historyState = &historyStates[settings.history];
 
@@ -383,7 +383,7 @@ const char *getHistoryName(int historyIndex)
 
 // UI
 
-void drawTitleWithTime(const char *title, unsigned int time)
+void drawTitleWithTime(const char *title, uint32_t time)
 {
     char timeString[16];
     formatTime(time, timeString);
@@ -394,7 +394,7 @@ void drawTitleWithTime(const char *title, unsigned int time)
     drawTitle(titleString);
 }
 
-void drawRate(float rate, unsigned int rateCount)
+void drawRate(float rate, uint32_t rateCount)
 {
     char mantissa[32];
     char characteristic[32];
@@ -406,7 +406,7 @@ void drawRate(float rate, unsigned int rateCount)
         drawConfidenceIntervals(rateCount);
 }
 
-void drawDose(unsigned int dose)
+void drawDose(uint32_t dose)
 {
     char mantissa[32];
     char characteristic[32];
@@ -429,8 +429,8 @@ void drawRateMax(float rateMax)
 
 void drawInstantaneousRateView()
 {
-    unsigned int time;
-    unsigned int count;
+    uint32_t time;
+    uint32_t count;
     float value;
 
     if (!instantaneousRate.isHold)
@@ -461,8 +461,8 @@ void drawInstantaneousRateView()
 
 void drawAverageRateView()
 {
-    unsigned int time;
-    unsigned int count;
+    uint32_t time;
+    uint32_t count;
     float value;
 
     if (!averageRate.isHold)
@@ -492,8 +492,8 @@ void drawAverageRateView()
 
 void drawDoseView()
 {
-    unsigned int time;
-    unsigned int value;
+    uint32_t time;
+    uint32_t value;
 
     if (!dose.isHold)
     {

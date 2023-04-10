@@ -26,11 +26,13 @@ int u8g_sdl_get_key();
 
 void onSDLTick()
 {
+    const float cpmPerUSVh = 60.0F;
+
     if (sdlTimer < SDL_GetTicks())
     {
         u8g_sdl_get_key();
 
-        simPulses(0.1F * CPM_PER_USVH / 60);
+        simPulses(1.0F * cpmPerUSVh / 60);
         onEventsTick();
 
         sdlTimer++;

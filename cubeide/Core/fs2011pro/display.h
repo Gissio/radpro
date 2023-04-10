@@ -11,6 +11,9 @@
 #define DRAW_H
 
 #include <stdbool.h>
+#include <stdint.h>
+
+#include "menus.h"
 
 #define HISTORY_VIEW_HEIGHT 40
 
@@ -18,14 +21,15 @@
 
 #define MENU_VIEW_LINE_NUM 4
 
-typedef const char *GetMenuOption(void *userdata, unsigned int index);
-
 void initDisplay();
 void setDisplay(bool value);
 void clearDisplay();
 void updateDisplay();
 
-void drawSelfTestError(unsigned value);
+void setBacklight(bool value);
+bool isBacklightOn();
+
+void drawSelfTestError(uint32_t crc);
 
 void drawWelcome();
 void drawStatusBar();
@@ -44,6 +48,6 @@ void drawGameBoard(const char board[8][9],
                    const char moveHistory[GAME_MOVES_LINE_NUM][2][6],
                    const char *buttonText, bool buttonSelected);
 
-void drawMenu(GetMenuOption getMenuOption, void *userdate, int startIndex, int selectedIndex);
+void drawMenu(const struct Menu *menu, uint8_t startIndex, uint8_t selectedIndex);
 
 #endif

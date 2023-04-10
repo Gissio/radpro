@@ -46,7 +46,7 @@ char getMetricPrefix(int exponent)
 
 const char *const formatHexDigit = "0123456789abcdef";
 
-void formatHex(unsigned int value, char *buffer)
+void formatHex(uint32_t value, char *buffer)
 {
     for (int i = 7; i >= 0; i--)
     {
@@ -57,9 +57,9 @@ void formatHex(unsigned int value, char *buffer)
     buffer[8] = '\0';
 }
 
-void formatUnsignedLongLong(unsigned long long value, char *buffer)
+void formatUnsignedLongLong(uint64_t value, char *buffer)
 {
-    unsigned long long shiftRegister = value;
+    uint64_t shiftRegister = value;
 
     do
     {
@@ -153,7 +153,7 @@ void formatRate(float rate,
         sprintf(mantissa, "-.---");
 }
 
-void formatDose(unsigned int count,
+void formatDose(uint32_t count,
                 char *mantissa, char *characteristic)
 {
     Unit *unit = &units[settings.units].dose;
@@ -164,7 +164,7 @@ void formatDose(unsigned int count,
                                     mantissa, characteristic);
 }
 
-void formatTime(unsigned int time,
+void formatTime(uint32_t time,
                 char *buffer)
 {
     unsigned int secs = time % 60;
@@ -172,7 +172,7 @@ void formatTime(unsigned int time,
     unsigned int hours = time / 3600;
 
     if (hours == 0)
-        sprintf(buffer, "%02d:%02d", mins, secs);
+        sprintf(buffer, "%02u:%02u", mins, secs);
     else
-        sprintf(buffer, "%d:%02d:%02d", hours, mins, secs);
+        sprintf(buffer, "%u:%02u:%02u", hours, mins, secs);
 }

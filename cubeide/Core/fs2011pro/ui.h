@@ -10,6 +10,8 @@
 #ifndef UI_H
 #define UI_H
 
+#include <stdint.h>
+
 enum ViewIndex
 {
     VIEW_WELCOME,
@@ -22,7 +24,7 @@ enum ViewIndex
     VIEW_GAME,
 };
 
-void setView(unsigned char viewIndex);
+void setView(uint8_t viewIndex);
 int getView();
 void updateView();
 

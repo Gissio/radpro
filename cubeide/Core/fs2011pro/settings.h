@@ -10,6 +10,8 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
+#include <stdint.h>
+
 enum UnitsSetting
 {
     UNITS_SIEVERTS,
@@ -19,14 +21,14 @@ enum UnitsSetting
     UNITS_NUM,
 };
 
-typedef const struct
+typedef struct
 {
     char *const name;
     float scale;
     int minExponent;
 } Unit;
 
-typedef const struct
+typedef struct
 {
     Unit rate;
     Unit dose;
@@ -92,6 +94,13 @@ enum BatteryTypeSetting
     BATTERY_ALKALINE,
 };
 
+enum TubeTypeSetting
+{
+    TUBE_HH614,
+    TUBE_M4011,
+    TUBE_SI3BG,
+};
+
 enum GameSkillLevelSetting
 {
     GAME_SKILLLEVEL_1,
@@ -122,20 +131,22 @@ typedef struct
     unsigned int pulseSound : 2;
     unsigned int backlight : 2;
     unsigned int batteryType : 1;
+    unsigned int tubeType : 4;
     unsigned int gameSkillLevel : 3;
     unsigned int validState : 1;
 
-    unsigned int lifeTimer;
-    unsigned long long lifeCounts;
+    uint32_t lifeTimer;
+    uint64_t lifeCounts;
 } Settings;
 
 extern Settings settings;
 
+void updateSettings();
 void readSettings();
 void writeSettings();
 
-float getRateAlarmSvH(unsigned int index);
-float getDoseAlarmSv(unsigned int index);
-int getBacklightTime(unsigned int index);
+float getRateAlarmSvH(uint32_t index);
+float getDoseAlarmSv(uint32_t index);
+int getBacklightTime(uint32_t index);
 
 #endif

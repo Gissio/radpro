@@ -10,7 +10,9 @@
 #ifndef CONFIDENCE_H
 #define CONFIDENCE_H
 
-void getConfidenceIntervals(unsigned int sampleNum,
+#include <stdint.h>
+
+void getConfidenceIntervals(uint32_t sampleNum,
                             int *lowerConfidenceInterval,
                             int *upperConfidenceInterval);
 

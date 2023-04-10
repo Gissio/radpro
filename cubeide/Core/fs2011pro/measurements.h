@@ -11,13 +11,9 @@
 #define MEASUREMENT_H
 
 #include <stdbool.h>
+#include <stdint.h>
 
 #include "events.h"
-
-// M4011 tube:
-// #define CPM_PER_USVH 153.8F
-// HH614 tube:
-#define CPM_PER_USVH 60.0F
 
 #define HISTORY_BUFFER_SIZE 120
 #define HISTORY_CPS_MIN 0.01F
@@ -30,14 +26,14 @@ void resetAverageRate();
 void resetDose();
 void resetHistory();
 
-void onMeasurementTick(unsigned int pulseCount);
+void onMeasurementTick(uint32_t pulseCount);
 void onMeasurementOneSecond();
 void updateMeasurements();
 
 bool isInstantaneousRateAlarm();
 bool isDoseAlarm();
 
-unsigned char getHistoryDataPoint(int dataIndex);
+uint8_t getHistoryDataPoint(int dataIndex);
 
 void drawInstantaneousRateView();
 void drawAverageRateView();

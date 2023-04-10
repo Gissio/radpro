@@ -12,6 +12,8 @@
 
 #ifndef SDL_MODE
 #include "main.h"
+
+extern TIM_HandleTypeDef htim2;
 #endif
 
 #include "u8g2/u8g2.h"
@@ -69,10 +71,14 @@
 #define MENU_VIEW_LINE_HEIGHT 12
 #define MENU_VIEW_LINE_TEXT_X 6
 
-u8g2_t u8g2;
+struct
+{
+    u8g2_t u8g2;
+    bool isBacklightOn;
+} display;
 
 const char *const firmwareName = "FS2011 Pro";
-const char *const firmwareVersion = "1.0.2";
+const char *const firmwareVersion = "1.0.3";
 
 #ifndef SDL_MODE
 uint8_t onDisplayMessage(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr)
@@ -108,10 +114,9 @@ uint8_t onDisplayByte(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr)
         for (int i = 0; i < arg_int; i++, p++)
         {
             uint8_t value = *p;
-            GPIOA->BSRR = (0b1001111100000000 << 16) |
-                          ((value << 8) & 0b1001111100000000);
-            GPIOF->BSRR = (0b0000000011000000 << 16) |
-                          ((value << 1) & 0b0000000011000000);
+
+            GPIOA->BSRR = (0b10011111 << 24) | ((value & 0b10011111) << 8);
+            GPIOF->BSRR = (0b01100000 << 17) | ((value & 0b01100000) << 1);
 
             asm("nop");
             LCD_EN_GPIO_Port->BSRR = LCD_EN_Pin;
@@ -268,9 +273,9 @@ void setupU8G2()
 {
     uint8_t tile_buf_height;
     uint8_t *buf;
-    u8g2_SetupDisplay(&u8g2, setupU8X8, u8x8_cad_001, onDisplayByte, onDisplayMessage);
+    u8g2_SetupDisplay(&display.u8g2, setupU8X8, u8x8_cad_001, onDisplayByte, onDisplayMessage);
     buf = u8g2_m_16_8_f(&tile_buf_height);
-    u8g2_SetupBuffer(&u8g2, buf, tile_buf_height, u8g2_ll_hvline_vertical_top_lsb, U8G2_R0);
+    u8g2_SetupBuffer(&display.u8g2, buf, tile_buf_height, u8g2_ll_hvline_vertical_top_lsb, U8G2_R0);
 }
 
 #endif
@@ -278,74 +283,98 @@ void setupU8G2()
 void initDisplay()
 {
 #ifdef SDL_MODE
-    u8g2_SetupBuffer_SDL_128x64(&u8g2, U8G2_R0);
+    u8g2_SetupBuffer_SDL_128x64(&display.u8g2, U8G2_R0);
 #else
-    // u8g2_Setup_st7567_enh_dg128064_f(&u8g2, U8G2_R0, onDisplayByte, onDisplayMessage);
+    // u8g2_Setup_st7567_enh_dg128064_f(&display.u8g2, U8G2_R0, onDisplayByte, onDisplayMessage);
     setupU8G2();
 #endif
 
-    u8g2_InitDisplay(&u8g2);
-    u8g2_SetPowerSave(&u8g2, 0);
+    u8g2_InitDisplay(&display.u8g2);
+    u8g2_SetPowerSave(&display.u8g2, 0);
 }
 
 void setDisplay(bool value)
 {
-    u8g2_SetPowerSave(&u8g2, !value);
+    u8g2_SetPowerSave(&display.u8g2, !value);
 }
 
 void clearDisplay()
 {
-    u8g2_ClearBuffer(&u8g2);
+    u8g2_ClearBuffer(&display.u8g2);
 }
 
 void updateDisplay()
 {
-    u8g2_SendBuffer(&u8g2);
+    u8g2_SendBuffer(&display.u8g2);
+}
+
+void setBacklight(bool value)
+{
+#ifndef SDL_MODE
+    if (value)
+        HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
+    else
+        HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_2);
+#else
+    // printf("Set backlight: %d\n", value);
+#endif
+    display.isBacklightOn = value;
+}
+
+bool isBacklightOn()
+{
+    return display.isBacklightOn;
 }
 
 void drawTextLeft(const char *str, int x, int y)
 {
-    u8g2_DrawStr(&u8g2, x, y, str);
+    u8g2_DrawStr(&display.u8g2, x, y, str);
 }
 
 void drawTextCenter(const char *str, int x, int y)
 {
-    u8g2_DrawStr(&u8g2, x - u8g2_GetStrWidth(&u8g2, str) / 2, y, str);
+    u8g2_DrawStr(&display.u8g2, x - u8g2_GetStrWidth(&display.u8g2, str) / 2, y, str);
 }
 
 void drawTextRight(const char *str, int x, int y)
 {
-    u8g2_DrawStr(&u8g2, x - u8g2_GetStrWidth(&u8g2, str), y, str);
+    u8g2_DrawStr(&display.u8g2, x - u8g2_GetStrWidth(&display.u8g2, str), y, str);
 }
 
-void drawSelfTestError(unsigned int value)
+void drawSelfTestError(uint32_t crc)
 {
     char subtitle[32];
     strcpy(subtitle, "Self-test failed: ");
-    formatHex(value, subtitle + 18);
+    formatHex(crc, subtitle + 18);
 
-    u8g2_SetFont(&u8g2, font_helvR08);
+    u8g2_SetFont(&display.u8g2, font_helvR08);
     drawTextCenter(firmwareName, LCD_CENTER_X, LCD_CENTER_Y - 3);
 
-    u8g2_SetFont(&u8g2, font_tiny5);
+    u8g2_SetFont(&display.u8g2, font_tiny5);
     drawTextCenter(subtitle, LCD_CENTER_X, LCD_CENTER_Y + 11);
 }
 
 void drawWelcome()
 {
-    u8g2_SetFont(&u8g2, font_helvR08);
+    u8g2_SetFont(&display.u8g2, font_helvR08);
     drawTextCenter(firmwareName, LCD_CENTER_X, LCD_CENTER_Y - 3);
 
-    u8g2_SetFont(&u8g2, font_tiny5);
+    u8g2_SetFont(&display.u8g2, font_tiny5);
     drawTextCenter(firmwareVersion, LCD_CENTER_X, LCD_CENTER_Y + 11);
 }
 
+uint32_t getBatteryValue();
+
 void drawStatusBar()
 {
-    signed char batteryLevel = getBatteryLevel();
+    // +++ TEST
+    char title[32];
+    sprintf(title, "ADC=%d", (int)getBatteryValue());
+    u8g2_SetFont(&display.u8g2, font_tiny5);
+    drawTextCenter(title, LCD_CENTER_X, 6);
+    // --- TEST
 
-    if (batteryLevel < 0)
-        return;
+    uint8_t batteryLevel = getBatteryLevel();
 
     char statusBar[8];
     char alarmIcon = (settings.rateAlarm || settings.doseAlarm) ? '<' : ' ';
@@ -353,31 +382,30 @@ void drawStatusBar()
     char batteryIcon = (batteryLevel == BATTERY_LEVEL_CHARGING) ? ':' : '0' + batteryLevel;
     sprintf(statusBar, "%c?%c", alarmIcon, batteryIcon);
 
-    u8g2_SetFont(&u8g2, font_icons);
-
+    u8g2_SetFont(&display.u8g2, font_icons);
     drawTextRight(statusBar, LCD_WIDTH - 4, 8);
 }
 
 void drawTitle(const char *title)
 {
-    u8g2_SetFont(&u8g2, font_tiny5);
+    u8g2_SetFont(&display.u8g2, font_tiny5);
     drawTextCenter(title, LCD_CENTER_X, TITLE_Y);
 }
 
 void drawSubtitle(const char *subtitle)
 {
-    u8g2_SetFont(&u8g2, font_tiny5);
+    u8g2_SetFont(&display.u8g2, font_tiny5);
     drawTextCenter(subtitle, LCD_CENTER_X, SUBTITLE_Y);
 }
 
 void drawMeasurementValue(const char *mantissa, const char *characteristic)
 {
     // Value
-    u8g2_SetFont(&u8g2, font_helvR24);
+    u8g2_SetFont(&display.u8g2, font_helvR24);
     drawTextLeft(mantissa, MEASUREMENT_VALUE_X, MEASUREMENT_VALUE_Y);
 
     // Units
-    u8g2_SetFont(&u8g2, font_helvR08);
+    u8g2_SetFont(&display.u8g2, font_helvR08);
     drawTextLeft(characteristic, MEASUREMENT_VALUE_SIDE_X, MEASUREMENT_VALUE_Y - 16);
 }
 
@@ -390,7 +418,7 @@ void drawConfidenceIntervals(int sampleNum)
     int upperConfidenceInterval;
     getConfidenceIntervals(sampleNum, &lowerConfidenceInterval, &upperConfidenceInterval);
 
-    u8g2_SetFont(&u8g2, font_tiny5);
+    u8g2_SetFont(&display.u8g2, font_tiny5);
 
     char confidenceInterval[16];
 
@@ -405,8 +433,8 @@ void drawHistory(const char *minLabel, const char *maxLabel,
                  int offset, int range)
 {
     // Plot separators
-    u8g2_DrawHLine(&u8g2, 0, HISTORY_VIEW_Y_TOP, LCD_WIDTH);
-    u8g2_DrawHLine(&u8g2, 0, HISTORY_VIEW_Y_BOTTOM, LCD_WIDTH);
+    u8g2_DrawHLine(&display.u8g2, 0, HISTORY_VIEW_Y_TOP, LCD_WIDTH);
+    u8g2_DrawHLine(&display.u8g2, 0, HISTORY_VIEW_Y_BOTTOM, LCD_WIDTH);
 
     // Data
     // uint8_t lastX = LCD_WIDTH;
@@ -421,33 +449,33 @@ void drawHistory(const char *minLabel, const char *maxLabel,
         int y = (value + offset) * HISTORY_VALUE_DECADE / HISTORY_VIEW_HEIGHT / range;
 
         // Pixel
-        // u8g2_DrawPixel(&u8g2, x, HISTORY_VIEW_Y_BOTTOM - y);
+        // u8g2_DrawPixel(&display.u8g2, x, HISTORY_VIEW_Y_BOTTOM - y);
         // Solid
-        u8g2_DrawVLine(&u8g2, x, HISTORY_VIEW_Y_BOTTOM - y, y);
+        u8g2_DrawVLine(&display.u8g2, x, HISTORY_VIEW_Y_BOTTOM - y, y);
         // Line
-        // u8g2_DrawLine(&u8g2, x, HISTORY_VIEW_Y_BOTTOM - y,
+        // u8g2_DrawLine(&display.u8g2, x, HISTORY_VIEW_Y_BOTTOM - y,
         //               lastX, HISTORY_VIEW_Y_BOTTOM - lastY);
         // lastX = x;
         // lastY = y;
     }
 
     // Time divisors
-    u8g2_SetDisplayRotation(&u8g2, U8G2_R1);
+    u8g2_SetDisplayRotation(&display.u8g2, U8G2_R1);
     for (int i = 0; i < 7; i++)
     {
         int x = (i + 1) * LCD_WIDTH / 8 - 1;
-        u8g2_DrawXBM(&u8g2, HISTORY_VIEW_Y_TOP + 1, x, HISTORY_VIEW_HEIGHT - 1, 1, dotted4_bits);
+        u8g2_DrawXBM(&display.u8g2, HISTORY_VIEW_Y_TOP + 1, x, HISTORY_VIEW_HEIGHT - 1, 1, dotted4_bits);
     }
-    u8g2_SetDisplayRotation(&u8g2, U8G2_R0);
+    u8g2_SetDisplayRotation(&display.u8g2, U8G2_R0);
 
     // Value divisors
     for (int i = 0; i < (range - 1); i++)
     {
         int y = HISTORY_VIEW_Y_TOP + (i + 1) * HISTORY_VIEW_HEIGHT / range;
-        u8g2_DrawXBM(&u8g2, 0, y, LCD_WIDTH, 1, dotted4_bits);
+        u8g2_DrawXBM(&display.u8g2, 0, y, LCD_WIDTH, 1, dotted4_bits);
     }
 
-    u8g2_SetFont(&u8g2, font_tiny5);
+    u8g2_SetFont(&display.u8g2, font_tiny5);
 
     drawTextLeft(minLabel, 1, HISTORY_VIEW_Y_BOTTOM + 1 + 6);
     drawTextLeft(maxLabel, 1, HISTORY_VIEW_Y_TOP - 1);
@@ -458,7 +486,7 @@ void drawStats()
     char data[32];
     char line[64];
 
-    u8g2_SetFont(&u8g2, font_tiny5);
+    u8g2_SetFont(&display.u8g2, font_tiny5);
 
     formatTime(settings.lifeTimer, data);
     sprintf(line, "Life timer: %s", data);
@@ -474,11 +502,11 @@ void drawGameBoard(const char board[8][9],
                    const char moveHistory[GAME_MOVES_LINE_NUM][2][6],
                    const char *buttonText, bool buttonSelected)
 {
-    u8g2_SetFont(&u8g2, font_icons);
+    u8g2_SetFont(&display.u8g2, font_icons);
     for (int y = 0; y < 8; y++)
         drawTextLeft(board[y], GAME_VIEW_BOARD_X, GAME_VIEW_BOARD_Y + 8 * y);
 
-    u8g2_SetFont(&u8g2, font_tiny5);
+    u8g2_SetFont(&display.u8g2, font_tiny5);
     drawTextLeft(time[0], GAME_VIEW_TIME_X, GAME_VIEW_TIME_UPPER_Y);
     drawTextLeft(time[1], GAME_VIEW_TIME_X, GAME_VIEW_TIME_LOWER_Y);
 
@@ -495,41 +523,41 @@ void drawGameBoard(const char board[8][9],
     if (buttonText)
     {
         if (buttonSelected)
-            u8g2_DrawRBox(&u8g2, GAME_VIEW_BUTTON_X, GAME_VIEW_BUTTON_Y,
+            u8g2_DrawRBox(&display.u8g2, GAME_VIEW_BUTTON_X, GAME_VIEW_BUTTON_Y,
                           GAME_VIEW_BUTTON_WIDTH, GAME_VIEW_BUTTON_HEIGHT, 1);
         else
-            u8g2_DrawRFrame(&u8g2, GAME_VIEW_BUTTON_X, GAME_VIEW_BUTTON_Y,
+            u8g2_DrawRFrame(&display.u8g2, GAME_VIEW_BUTTON_X, GAME_VIEW_BUTTON_Y,
                             GAME_VIEW_BUTTON_WIDTH, GAME_VIEW_BUTTON_HEIGHT, 1);
 
-        u8g2_SetDrawColor(&u8g2, !buttonSelected);
+        u8g2_SetDrawColor(&display.u8g2, !buttonSelected);
         drawTextCenter(buttonText, GAME_VIEW_BUTTON_X + GAME_VIEW_BUTTON_WIDTH / 2, GAME_VIEW_BUTTON_Y + 7);
 
-        u8g2_SetDrawColor(&u8g2, 1);
+        u8g2_SetDrawColor(&display.u8g2, 1);
     }
 }
 
-void drawMenu(GetMenuOption getMenuOption, void *userdata, int startIndex, int selectedIndex)
+void drawMenu(const struct Menu *menu, uint8_t startIndex, uint8_t selectedIndex)
 {
-    u8g2_SetFont(&u8g2, font_helvR08);
+    u8g2_SetFont(&display.u8g2, font_helvR08);
 
-    for (int i = 0, y = MENU_VIEW_Y_TOP;
+    for (uint8_t i = 0, y = MENU_VIEW_Y_TOP;
          i < MENU_VIEW_LINE_NUM;
          i++, y += MENU_VIEW_LINE_HEIGHT)
     {
         uint8_t index = startIndex + i;
 
-        const char *name = getMenuOption(userdata, index);
+        const char *name = menu->getMenuOption(menu, index);
         if (!name)
             break;
 
         uint8_t selected = (index == selectedIndex);
 
-        u8g2_SetDrawColor(&u8g2, selected);
-        u8g2_DrawBox(&u8g2, 0, y, LCD_WIDTH, MENU_VIEW_LINE_HEIGHT);
+        u8g2_SetDrawColor(&display.u8g2, selected);
+        u8g2_DrawBox(&display.u8g2, 0, y, LCD_WIDTH, MENU_VIEW_LINE_HEIGHT);
 
-        u8g2_SetDrawColor(&u8g2, !selected);
+        u8g2_SetDrawColor(&display.u8g2, !selected);
         drawTextLeft(name, MENU_VIEW_LINE_TEXT_X, y + MENU_VIEW_LINE_HEIGHT - 2);
     }
 
-    u8g2_SetDrawColor(&u8g2, 1);
+    u8g2_SetDrawColor(&display.u8g2, 1);
 }

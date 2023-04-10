@@ -25,13 +25,13 @@ void onSDLTick();
 
 struct UI
 {
-    unsigned char currentView;
+    uint8_t currentView;
     bool updateView;
 
     bool backKeyDown;
 } ui;
 
-void setView(unsigned char viewIndex)
+void setView(uint8_t viewIndex)
 {
     ui.currentView = viewIndex;
     ui.backKeyDown = false;

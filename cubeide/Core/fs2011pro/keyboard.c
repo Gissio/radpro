@@ -8,6 +8,7 @@
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 
 #ifndef SDL_MODE
@@ -30,17 +31,18 @@ struct Keyboard
     bool wasKeyDown[KEY_NUM];
 
     signed char pressedKey;
-    unsigned int pressedTicks;
-    unsigned int pressedRepeatTicks;
+    uint32_t pressedTicks;
+    uint32_t pressedRepeatTicks;
 } keyboard;
 
 void initKeyboard()
 {
 #ifndef SDL_MODE
-    HAL_Delay(250);
-    updateWatchdog();
-    HAL_Delay(250);
-    updateWatchdog();
+    for (int i = 0; i < 5; i++)
+    {
+        HAL_Delay(100);
+        updateWatchdog();
+    }
 #endif
 
     keyboard.wasKeyDown[KEY_POWER] = 1;

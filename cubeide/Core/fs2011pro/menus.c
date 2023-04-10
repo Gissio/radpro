@@ -7,6 +7,7 @@
  * License: MIT
  */
 
+#include <stdint.h>
 #include <stdio.h>
 
 #include "display.h"
@@ -18,32 +19,18 @@
 #include "settings.h"
 #include "ui.h"
 
-typedef struct
-{
-    unsigned char startIndex;
-    unsigned char selectedIndex;
-} MenuState;
-
-typedef const struct
-{
-    char *title;
-    GetMenuOption *getMenuOption;
-    const char *const *options;
-    MenuState *state;
-} Menu;
-
 struct Menus
 {
-    Menu *currentMenu;
+    const struct Menu *currentMenu;
 
     char menuOption[16];
 
-    unsigned char measurementView;
+    uint8_t measurementView;
 } menus;
 
-const char *getMenuOption(void *userdata, unsigned int index)
+const char *getMenuOption(const struct Menu *menu, uint8_t index)
 {
-    return ((Menu *)userdata)->options[index];
+    return menu->options[index];
 }
 
 const char *const unitsMenuOptions[] = {
@@ -56,7 +43,7 @@ const char *const unitsMenuOptions[] = {
 
 MenuState unitsMenuState;
 
-Menu unitsMenu = {
+const struct Menu unitsMenu = {
     "Units",
     getMenuOption,
     unitsMenuOptions,
@@ -74,14 +61,14 @@ const char *const historyMenuOptions[] = {
 
 MenuState historyMenuState;
 
-Menu historyMenu = {
+const struct Menu historyMenu = {
     "History",
     getMenuOption,
     historyMenuOptions,
     &historyMenuState,
 };
 
-const char *getRateAlarmMenuOption(void *userdata, unsigned int index)
+const char *getRateAlarmMenuOption(const struct Menu *menu, uint8_t index)
 {
     if (!index)
         return "Off";
@@ -101,14 +88,14 @@ const char *getRateAlarmMenuOption(void *userdata, unsigned int index)
 
 MenuState rateAlarmMenuState;
 
-Menu rateAlarmMenu = {
+const struct Menu rateAlarmMenu = {
     "Rate alarm",
     getRateAlarmMenuOption,
     NULL,
     &rateAlarmMenuState,
 };
 
-const char *getDoseAlarmMenuOption(void *userdata, unsigned int index)
+const char *getDoseAlarmMenuOption(const struct Menu *menu, uint8_t index)
 {
     if (!index)
         return "Off";
@@ -128,7 +115,7 @@ const char *getDoseAlarmMenuOption(void *userdata, unsigned int index)
 
 MenuState doseAlarmMenuState;
 
-Menu doseAlarmMenu = {
+const struct Menu doseAlarmMenu = {
     "Dose alarm",
     getDoseAlarmMenuOption,
     NULL,
@@ -144,8 +131,8 @@ const char *const pulseSoundMenuOptions[] = {
 
 MenuState pulseSoundMenuState;
 
-Menu pulseSoundMenu = {
-    "Pulse sound",
+const struct Menu pulseSoundMenu = {
+    "Pulse clicks",
     getMenuOption,
     pulseSoundMenuOptions,
     &pulseSoundMenuState,
@@ -161,7 +148,7 @@ const char *const backlightMenuOptions[] = {
 
 MenuState backlightMenuState;
 
-Menu backlightMenu = {
+const struct Menu backlightMenu = {
     "Backlight",
     getMenuOption,
     backlightMenuOptions,
@@ -176,11 +163,27 @@ const char *const batteryTypeMenuOptions[] = {
 
 MenuState batteryTypeMenuState;
 
-Menu batteryTypeMenu = {
+const struct Menu batteryTypeMenu = {
     "Battery type",
     getMenuOption,
     batteryTypeMenuOptions,
     &batteryTypeMenuState,
+};
+
+const char *const tubeTypeMenuOptions[] = {
+    "HH614 (60 cpm/\x7fSv/h)",
+    "M4011 (153 cpm/\x7fSv/h)",
+    "SI-3BG (2 cpm/\x7fSv/h)",
+    NULL,
+};
+
+MenuState tubeTypeMenuState;
+
+const struct Menu tubeTypeMenu = {
+    "Geiger tube type",
+    getMenuOption,
+    tubeTypeMenuOptions,
+    &tubeTypeMenuState,
 };
 
 const char *const gameStartMenuOptions[] = {
@@ -192,7 +195,7 @@ const char *const gameStartMenuOptions[] = {
 
 MenuState gameStartMenuState;
 
-Menu gameStartMenu = {
+const struct Menu gameStartMenu = {
     "Game",
     getMenuOption,
     gameStartMenuOptions,
@@ -208,7 +211,7 @@ const char *const gameContinueMenuOptions[] = {
 
 MenuState gameContinueMenuState;
 
-Menu gameContinueMenu = {
+const struct Menu gameContinueMenu = {
     "Game",
     getMenuOption,
     gameContinueMenuOptions,
@@ -229,8 +232,8 @@ const char *const gameSkillMenuOptions[] = {
 
 MenuState gameSkillMenuState;
 
-Menu gameSkillMenu = {
-    "Game Skill",
+const struct Menu gameSkillMenu = {
+    "Skill level",
     getMenuOption,
     gameSkillMenuOptions,
     &gameSkillMenuState,
@@ -244,6 +247,7 @@ const char *const settingsMenuOptions[] = {
     "Pulse clicks",
     "Backlight",
     "Battery type",
+    "Geiger tube type",
     "Statistics",
     "Game",
     NULL,
@@ -251,17 +255,17 @@ const char *const settingsMenuOptions[] = {
 
 MenuState settingsMenuState;
 
-Menu settingsMenu = {
+const struct Menu settingsMenu = {
     "Settings",
     getMenuOption,
     settingsMenuOptions,
     &settingsMenuState,
 };
 
-void selectMenuIndex(Menu *menu, int selectedIndex)
+void selectMenuIndex(const struct Menu *menu, int selectedIndex)
 {
-    int optionsNum = 0;
-    while (menu->getMenuOption((void *)menu, optionsNum) != NULL)
+    uint8_t optionsNum = 0;
+    while (menu->getMenuOption(menu, optionsNum) != NULL)
         optionsNum++;
 
     menu->state->selectedIndex = selectedIndex;
@@ -284,12 +288,13 @@ void initMenus()
     selectMenuIndex(&pulseSoundMenu, settings.pulseSound);
     selectMenuIndex(&backlightMenu, settings.backlight);
     selectMenuIndex(&batteryTypeMenu, settings.batteryType);
+    selectMenuIndex(&tubeTypeMenu, settings.tubeType);
 
     selectMenuIndex(&gameStartMenu, 0);
     selectMenuIndex(&gameContinueMenu, 0);
 }
 
-void setMenu(Menu *menu)
+void setMenu(const struct Menu *menu)
 {
     menus.currentMenu = menu;
 
@@ -312,76 +317,85 @@ void openGameMenu()
         gameContinueMenuState.selectedIndex = 0;
     }
     else
-    {
-
         setMenu(&gameContinueMenu);
-    }
 }
 
 void drawMenuView()
 {
-    drawTitle(menus.currentMenu->title);
-    drawMenu(menus.currentMenu->getMenuOption,
-             (void *)menus.currentMenu,
-             menus.currentMenu->state->startIndex,
-             menus.currentMenu->state->selectedIndex);
+    const struct Menu *currentMenu = menus.currentMenu;
+
+    drawTitle(currentMenu->title);
+    drawMenu(currentMenu,
+             currentMenu->state->startIndex,
+             currentMenu->state->selectedIndex);
 }
 
 void updateMenuOption()
 {
-    if ((menus.currentMenu == &settingsMenu) ||
-        (menus.currentMenu == &gameStartMenu) ||
-        (menus.currentMenu == &gameContinueMenu))
+    const struct Menu *currentMenu = menus.currentMenu;
+
+    if ((currentMenu == &settingsMenu) ||
+        (currentMenu == &gameStartMenu) ||
+        (currentMenu == &gameContinueMenu))
         return;
+
+    uint8_t selectedIndex = currentMenu->state->selectedIndex;
 
     switch (settingsMenuState.selectedIndex)
     {
     case 0:
-        settings.units = menus.currentMenu->state->selectedIndex;
+        settings.units = selectedIndex;
         break;
 
     case 1:
-        settings.history = menus.currentMenu->state->selectedIndex;
+        settings.history = selectedIndex;
         break;
 
     case 2:
-        settings.rateAlarm = menus.currentMenu->state->selectedIndex;
+        settings.rateAlarm = selectedIndex;
         break;
 
     case 3:
-        settings.doseAlarm = menus.currentMenu->state->selectedIndex;
+        settings.doseAlarm = selectedIndex;
         break;
 
     case 4:
-        settings.pulseSound = menus.currentMenu->state->selectedIndex;
+        settings.pulseSound = selectedIndex;
         break;
 
     case 5:
-        settings.backlight = menus.currentMenu->state->selectedIndex;
+        settings.backlight = selectedIndex;
         triggerBacklight();
         break;
 
     case 6:
-        settings.batteryType = menus.currentMenu->state->selectedIndex;
+        settings.batteryType = selectedIndex;
         break;
 
-    case 8:
-        settings.gameSkillLevel = menus.currentMenu->state->selectedIndex;
+    case 7:
+        settings.tubeType = selectedIndex;
+        updateSettings();
+        break;
+
+    case 9:
+        settings.gameSkillLevel = selectedIndex;
         break;
     }
 }
 
 void onMenuViewKey(int key)
 {
+    const struct Menu *currentMenu = menus.currentMenu;
+
     switch (key)
     {
     case KEY_UP:
-        if (menus.currentMenu->state->selectedIndex > 0)
+        if (currentMenu->state->selectedIndex > 0)
         {
-            menus.currentMenu->state->selectedIndex--;
+            currentMenu->state->selectedIndex--;
 
-            if (menus.currentMenu->state->selectedIndex < menus.currentMenu->state->startIndex)
-                menus.currentMenu->state->startIndex--;
+            if (currentMenu->state->selectedIndex < currentMenu->state->startIndex)
+                currentMenu->state->startIndex--;
         }
 
         updateMenuOption();
@@ -390,14 +404,14 @@ void onMenuViewKey(int key)
         break;
 
     case KEY_DOWN:
-        if (menus.currentMenu->getMenuOption((void *)menus.currentMenu,
-                                             menus.currentMenu->state->selectedIndex + 1))
+        if (currentMenu->getMenuOption(currentMenu,
+                                       currentMenu->state->selectedIndex + 1))
         {
-            menus.currentMenu->state->selectedIndex++;
+            currentMenu->state->selectedIndex++;
 
-            if (menus.currentMenu->state->selectedIndex >
-                (menus.currentMenu->state->startIndex + MENU_VIEW_LINE_NUM - 1))
-                menus.currentMenu->state->startIndex++;
+            if (currentMenu->state->selectedIndex >
+                (currentMenu->state->startIndex + MENU_VIEW_LINE_NUM - 1))
+                currentMenu->state->startIndex++;
         }
 
         updateMenuOption();
@@ -406,9 +420,9 @@ void onMenuViewKey(int key)
         break;
 
     case KEY_SELECT:
-        if (menus.currentMenu == &settingsMenu)
+        if (currentMenu == &settingsMenu)
         {
-            switch (menus.currentMenu->state->selectedIndex)
+            switch (currentMenu->state->selectedIndex)
             {
             case 0:
                 setMenu(&unitsMenu);
@@ -439,21 +453,25 @@ void onMenuViewKey(int key)
                 break;
 
             case 7:
-                setView(VIEW_STATS);
+                setMenu(&tubeTypeMenu);
                 break;
 
             case 8:
+                setView(VIEW_STATS);
+                break;
+
+            case 9:
                 openGameMenu();
                 break;
             }
         }
-        else if (menus.currentMenu == &gameStartMenu)
+        else if (currentMenu == &gameStartMenu)
         {
-            switch (menus.currentMenu->state->selectedIndex)
+            switch (currentMenu->state->selectedIndex)
             {
             case 0:
             case 1:
-                resetGame(menus.currentMenu->state->selectedIndex);
+                resetGame(currentMenu->state->selectedIndex);
                 setView(VIEW_GAME);
                 break;
 
@@ -462,9 +480,9 @@ void onMenuViewKey(int key)
                 break;
             }
         }
-        else if (menus.currentMenu == &gameContinueMenu)
+        else if (currentMenu == &gameContinueMenu)
         {
-            switch (menus.currentMenu->state->selectedIndex)
+            switch (currentMenu->state->selectedIndex)
             {
             case 0:
                 setView(VIEW_GAME);
@@ -483,9 +501,9 @@ void onMenuViewKey(int key)
         break;
 
     case KEY_BACK:
-        if (menus.currentMenu == &gameSkillMenu)
+        if (currentMenu == &gameSkillMenu)
             openGameMenu();
-        else if (menus.currentMenu == &settingsMenu)
+        else if (currentMenu == &settingsMenu)
             setView(menus.measurementView);
         else
             setMenu(&settingsMenu);

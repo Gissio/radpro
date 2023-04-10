@@ -10,7 +10,9 @@
 #ifndef CMATH_H
 #define CMATH_H
 
-void addClamped(unsigned int *x, unsigned int y);
+#include <stdint.h>
+
+void addClamped(uint32_t *x, uint32_t y);
 int getExponent(float value);
 float getPowerOfTen(int value);
 int divideDown(int x, int y);

@@ -10,8 +10,10 @@
 #ifndef FORMAT_H
 #define FORMAT_H
 
-void formatHex(unsigned int value, char *buffer);
-void formatUnsignedLongLong(unsigned long long value, char *buffer);
+#include <stdint.h>
+
+void formatHex(uint32_t value, char *buffer);
+void formatUnsignedLongLong(uint64_t value, char *buffer);
 void formatMantissaAndCharacteristic(const char *unitName, float value, int minExponent,
                                      char *mantissaBuffer, char *characteristicBuffer);
 void formatValue(const char *unitName, float value, int minExponent,
@@ -20,9 +22,9 @@ void formatMultiplier(const char *unitName, int exponent, int minExponent,
                       char *buffer);
 void formatRate(float rate,
                 char *mantissa, char *characteristic);
-void formatDose(unsigned int count,
+void formatDose(uint32_t count,
                 char *mantissa, char *characteristic);
-void formatTime(unsigned int time,
+void formatTime(uint32_t time,
                 char *buffer);
 
 #endif

@@ -12,9 +12,9 @@
 
 #include "cmath.h"
 
-void addClamped(unsigned int *x, unsigned int y)
+void addClamped(uint32_t *x, uint32_t y)
 {
-    unsigned int result = *x + y;
+    uint32_t result = *x + y;
 
     // Overflow when MSB changes from 1 to 0
     if (((*x) & (~result)) >> 31)

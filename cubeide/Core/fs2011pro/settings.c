@@ -18,10 +18,10 @@
 #include "settings.h"
 
 UnitType units[] = {
-    {{"Sv/h", (60 * 1E-6F) / CPM_PER_USVH, -6},
-     {"Sv", (60 * 1E-6F / 3600) / CPM_PER_USVH, -6}},
-    {{"rem/h", (60 * 1E-4F) / CPM_PER_USVH, -6},
-     {"rem", (60 * 1E-4F / 3600) / CPM_PER_USVH, -6}},
+    {{"Sv/h", (60 * 1E-6F), -6},
+     {"Sv", (60 * 1E-6F / 3600), -6}},
+    {{"rem/h", (60 * 1E-4F), -6},
+     {"rem", (60 * 1E-4F / 3600), -6}},
     {{"cpm", 60, 0},
      {"counts", 1, 0}},
     {{"cps", 1, 0},
@@ -54,7 +54,7 @@ const float doseAlarmsSv[] = {
     1000E-6F,
 };
 
-const unsigned int backlightTime[] = {
+const uint32_t backlightTime[] = {
     0,
     10,
     60,
@@ -68,7 +68,7 @@ Settings settings;
 #else
 #include <stdio.h>
 
-unsigned char eeprom[65536];
+uint8_t eeprom[65536];
 #define SETTINGS_PAGE_BASE eeprom
 #endif
 
@@ -77,9 +77,34 @@ unsigned char eeprom[65536];
 #define SETTINGS_PAGE_END 0x40
 #define SETTINGS_PER_PAGE (SETTINGS_PAGE_SIZE / sizeof(settings))
 
-unsigned char *getSettingsAddress(unsigned int pageIndex, unsigned int index)
+void updateSettings()
 {
-    return (unsigned char *)SETTINGS_PAGE_BASE +
+    float cpmPerUSvH = 1;
+
+    switch (settings.tubeType)
+    {
+    case TUBE_HH614:
+        cpmPerUSvH = 60.0F;
+        break;
+
+    case TUBE_M4011:
+        cpmPerUSvH = 153.84F;
+        break;
+
+    case TUBE_SI3BG:
+        cpmPerUSvH = 2.024291498F;
+        break;
+    }
+
+    units[0].rate.scale = (60 * 1E-6F) / cpmPerUSvH;
+    units[0].dose.scale = (60 * 1E-6F / 3600) / cpmPerUSvH;
+    units[1].rate.scale = (60 * 1E-4F) / cpmPerUSvH;
+    units[1].dose.scale = (60 * 1E-4F / 3600) / cpmPerUSvH;
+}
+
+uint8_t *getSettingsAddress(uint32_t pageIndex, uint32_t index)
+{
+    return (uint8_t *)SETTINGS_PAGE_BASE +
            SETTINGS_PAGE_SIZE * pageIndex +
            sizeof(settings) * index;
 }
@@ -129,7 +154,7 @@ bool eraseSettingsPage(int pageIndex)
 #else
     // printf("Erasing page %d\n", pageIndex);
 
-    unsigned char *dest = getSettingsAddress(pageIndex, 0);
+    uint8_t *dest = getSettingsAddress(pageIndex, 0);
     for (int i = 0; i < SETTINGS_PAGE_SIZE; i++)
         dest[i] = 0xff;
 
@@ -141,8 +166,8 @@ bool writeSettingsToPage(int pageIndex, int index)
 {
     bool success = true;
 
-    unsigned int *source = (unsigned int *)&settings;
-    unsigned int *dest = (unsigned int *)getSettingsAddress(pageIndex, index);
+    uint32_t *source = (uint32_t *)&settings;
+    uint32_t *dest = (uint32_t *)getSettingsAddress(pageIndex, index);
 
 #ifndef SDL_MODE
     for (int i = 0; i < (sizeof(settings) / 4); i++)
@@ -151,7 +176,7 @@ bool writeSettingsToPage(int pageIndex, int index)
                                       source[i]) == HAL_OK);
 #else
     // printf("Writing settings to pageIndex %d, index %d, address %04x\n",
-    //        pageIndex, index, (int)((unsigned char *)dest - eeprom));
+    //        pageIndex, index, (int)((uint8_t *)dest - eeprom));
 
     *((Settings *)dest) = *((Settings *)source);
     success = true;
@@ -169,6 +194,7 @@ void readSettings()
     settings.pulseSound = PULSE_SOUND_QUIET;
     settings.backlight = BACKLIGHT_10S;
     settings.batteryType = BATTERY_NI_MH;
+    settings.tubeType = TUBE_HH614;
     settings.gameSkillLevel = 0;
 
     settings.lifeTimer = 0;
@@ -185,7 +211,7 @@ void readSettings()
     if (pageIndex >= 0)
     {
         int index = getLatestSettingsIndex(pageIndex);
-        unsigned char *source = getSettingsAddress(pageIndex, index);
+        uint8_t *source = getSettingsAddress(pageIndex, index);
 
 #ifdef SDL_MODE
         // printf("Reading settings from pageIndex %d, index %d, address %04x\n",
@@ -193,6 +219,8 @@ void readSettings()
 #endif
         settings = *((Settings *)source);
     }
+
+    updateSettings();
 }
 
 void writeSettings()
@@ -243,17 +271,17 @@ void writeSettings()
 #endif
 }
 
-float getRateAlarmSvH(unsigned int index)
+float getRateAlarmSvH(uint32_t index)
 {
     return rateAlarmsSvH[index];
 }
 
-float getDoseAlarmSv(unsigned int index)
+float getDoseAlarmSv(uint32_t index)
 {
     return doseAlarmsSv[index];
 }
 
-int getBacklightTime(unsigned int index)
+int getBacklightTime(uint32_t index)
 {
     return backlightTime[index];
 }

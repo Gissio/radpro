@@ -8,9 +8,10 @@
  */
 
 #include <stdbool.h>
+#include <stdint.h>
 
-#include "backlight.h"
 #include "cmath.h"
+#include "display.h"
 #include "events.h"
 #include "game.h"
 #include "keyboard.h"
@@ -33,21 +34,21 @@ struct Events
     bool isInitialized;
     bool isWelcomed;
 
-    unsigned int tick;
+    uint32_t tick;
 
-    unsigned int pulseCount;
-    unsigned int lastPulseCount;
+    uint32_t pulseCount;
+    uint32_t lastPulseCount;
 
-    unsigned int keyTimer;
-    volatile unsigned char keyUpdatePush;
-    volatile unsigned char keyUpdatePull;
+    uint32_t keyTimer;
+    volatile uint8_t keyUpdatePush;
+    volatile uint8_t keyUpdatePull;
 
     bool backlightTimerEnabled;
-    unsigned int backlightTimer;
+    uint32_t backlightTimer;
 
-    unsigned int oneSecondTimer;
-    volatile unsigned char oneSecondPush;
-    volatile unsigned char oneSecondPull;
+    uint32_t oneSecondTimer;
+    volatile uint8_t oneSecondPush;
+    volatile uint8_t oneSecondPull;
 } events;
 
 void initEvents()
@@ -63,12 +64,12 @@ void initEvents()
     triggerBacklight();
 }
 
-unsigned int getEventsTick()
+uint32_t getEventsTick()
 {
     return events.tick;
 }
 
-bool isTimerElapsed(unsigned int tick)
+bool isTimerElapsed(uint32_t tick)
 {
     int deltaTime = events.tick - tick;
 
@@ -110,8 +111,8 @@ void onEventsTick()
         return;
 
     // Pulses
-    unsigned int pulseCount = events.pulseCount;
-    unsigned int newPulses = pulseCount - events.lastPulseCount;
+    uint32_t pulseCount = events.pulseCount;
+    uint32_t newPulses = pulseCount - events.lastPulseCount;
     events.lastPulseCount = pulseCount;
 
     onMeasurementTick(newPulses);
@@ -156,7 +157,7 @@ void onEventsTick()
 
 void updateEvents()
 {
-    unsigned char oneSecondPush = events.oneSecondPush;
+    uint8_t oneSecondPush = events.oneSecondPush;
     if (events.oneSecondPull != oneSecondPush)
     {
         events.oneSecondPull = oneSecondPush;
@@ -182,7 +183,7 @@ void updateEvents()
 
 int getEventsKey()
 {
-    unsigned char keyUpdatePush = events.keyUpdatePush;
+    uint8_t keyUpdatePush = events.keyUpdatePush;
     if (events.keyUpdatePull != keyUpdatePush)
     {
         events.keyUpdatePull = keyUpdatePush;

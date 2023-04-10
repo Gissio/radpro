@@ -17,13 +17,13 @@ extern TIM_HandleTypeDef htim6;
 
 #include "buzzer.h"
 
-void triggerBuzzer(int buzzerTicks)
+void triggerBuzzer(uint32_t buzzerTicks)
 {
 #ifndef SDL_MODE
     __disable_irq();
 
-    int counter = __HAL_TIM_GET_COUNTER(&htim6);
-    int autoreload = __HAL_TIM_GET_AUTORELOAD(&htim6);
+    uint32_t counter = __HAL_TIM_GET_COUNTER(&htim6);
+    uint32_t autoreload = __HAL_TIM_GET_AUTORELOAD(&htim6);
 
     if ((counter == 0) || ((autoreload - counter) < buzzerTicks))
     {

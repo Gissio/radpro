@@ -101,7 +101,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   onBuzzerOff();
 }
 
-uint32_t const volatile validCRC __attribute__((section(".crc"))) = 0x6025cf39;
+uint32_t const volatile validCRC __attribute__((section(".crc"))) = 0;
 
 /* USER CODE END 0 */
 
@@ -141,7 +141,7 @@ int main(void)
   MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
   __HAL_TIM_CLEAR_IT(&htim6, TIM_IT_UPDATE);
-  __HAL_TIM_ENABLE_IT(&htim6,TIM_IT_UPDATE);
+  __HAL_TIM_ENABLE_IT(&htim6, TIM_IT_UPDATE);
 
   uint32_t crc = HAL_CRC_Calculate(&hcrc, (uint32_t *)FLASH_BASE, (uint32_t)(&validCRC) - FLASH_BASE);
 
@@ -154,7 +154,7 @@ int main(void)
     drawSelfTestError(crc);
     updateDisplay();
 
-    powerDown(5000);
+    powerDown(10000);
   }
 
   readSettings();

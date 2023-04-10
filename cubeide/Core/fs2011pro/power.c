@@ -19,7 +19,6 @@ extern ADC_HandleTypeDef hadc;
 extern IWDG_HandleTypeDef hiwdg;
 #endif
 
-#include "backlight.h"
 #include "display.h"
 #include "power.h"
 #include "settings.h"
@@ -70,40 +69,36 @@ void setHighVoltageGenerator(bool value)
 #endif
 }
 
-float getBatteryValue()
+uint32_t getBatteryValue()
 {
 #ifndef SDL_MODE
     HAL_ADC_Start(&hadc);
-    HAL_ADC_PollForConversion(&hadc, 0);
-    return HAL_ADC_GetValue(&hadc);
+    HAL_ADC_PollForConversion(&hadc, 2);
+    int value = HAL_ADC_GetValue(&hadc);
+    HAL_ADC_Stop(&hadc);
+    return value;
 #else
-    return (ADC_FACTOR * 1.27F);
+    return (uint32_t)(ADC_FACTOR * 1.27F);
 #endif
 }
 
 void initPower()
 {
     setPower(true);
-    setBacklight(false);
-    setHighVoltageGenerator(true);
 
 #ifndef SDL_MODE
     HAL_ADCEx_Calibration_Start(&hadc);
 #endif
 
-    float batteryValue = 0;
-    for (int i = 0; i < 100; i++)
-    {
-        batteryValue += getBatteryValue();
-        HAL_Delay(1);
-    }
+    power.batteryValue = (float)getBatteryValue();
 
-    power.batteryValue = batteryValue / 100.0F;
+    setHighVoltageGenerator(true);
 }
 
 void waitForInterrupt()
 {
 #ifndef SDL_MODE
+    // HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
     __WFI();
 #endif
 }
@@ -145,7 +140,7 @@ void updateBattery()
                           (1.0F - BATTERY_FILTER_CONSTANT) * getBatteryValue());
 }
 
-signed char getBatteryLevel()
+uint8_t getBatteryLevel()
 {
 #ifndef SDL_MODE
     if (!HAL_GPIO_ReadPin(PWR_CHRG_GPIO_Port, PWR_CHRG_Pin))
@@ -156,13 +151,13 @@ signed char getBatteryLevel()
     switch (settings.batteryType)
     {
     case BATTERY_NI_MH:
-        value = BATTERY_LEVEL_MAX * (power.batteryValue - BATTERY_NI_MH_VALUE_MIN) /
-                BATTERY_NI_MH_VALUE_RANGE;
+        value = (int)(BATTERY_LEVEL_MAX * (power.batteryValue - BATTERY_NI_MH_VALUE_MIN) /
+                      BATTERY_NI_MH_VALUE_RANGE);
         break;
 
     case BATTERY_ALKALINE:
-        value = BATTERY_LEVEL_MAX * (power.batteryValue - BATTERY_ALKALINE_VALUE_MIN) /
-                BATTERY_ALKALINE_VALUE_RANGE;
+        value = (int)(BATTERY_LEVEL_MAX * (power.batteryValue - BATTERY_ALKALINE_VALUE_MIN) /
+                      BATTERY_ALKALINE_VALUE_RANGE);
         break;
 
     default:

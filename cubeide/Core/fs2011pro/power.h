@@ -10,6 +10,8 @@
 #ifndef BATTERY_H
 #define BATTERY_H
 
+#include <stdint.h>
+
 #define BATTERY_LEVEL_MAX 9
 #define BATTERY_LEVEL_CHARGING 10
 
@@ -19,6 +21,6 @@ void updateWatchdog();
 void powerDown(int ms);
 
 void updateBattery();
-signed char getBatteryLevel();
+uint8_t getBatteryLevel();
 
 #endif
