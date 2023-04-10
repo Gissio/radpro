@@ -1,0 +1,2 @@
+#!/bin/bash
+./sign-crc ../cubeide/Release/FS2011\ Pro.bin fs2011pro-1.0.3
