@@ -1,6 +1,6 @@
 ## Overview
 
-FS2011 Pro is an advanced firmware that enhances the performance of the FS2011/FS2011+ radiation detector/Geiger counter. This firmware offers a range of new features and improved functionality that enables users to measure radiation levels accurately and efficiently.
+FS2011 Pro is an advanced firmware that enhances the capabilities of the FS2011/FS2011+ radiation detector/Geiger counter.
 
 Watch a demonstration of FS2011 Pro in action:
 
