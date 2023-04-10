@@ -82,7 +82,7 @@ If your board looks different, you may have a different hardware version and thi
 
 ## Usage
 
-To use the device, follow these instructions:
+To use this firmware, follow these instructions:
 
 * To turn the device on and off, long-press the POWER key.
 * To turn the backlight on (if the backlight is enabled), short-press the POWER key.
