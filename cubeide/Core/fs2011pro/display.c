@@ -341,29 +341,35 @@ void drawTextRight(const char *str, int x, int y)
     u8g2_DrawStr(&display.u8g2, x - u8g2_GetStrWidth(&display.u8g2, str), y, str);
 }
 
+void drawFirmwareName()
+{
+    u8g2_SetFont(&display.u8g2, font_helvR08);
+    drawTextCenter(firmwareName, LCD_CENTER_X, LCD_CENTER_Y - 5);
+}
+
 void drawSelfTestError(uint32_t crc)
 {
-    char subtitle[32];
-    strcpy(subtitle, "Self-test failed: ");
-    formatHex(crc, subtitle + 18);
-
-    u8g2_SetFont(&display.u8g2, font_helvR08);
-    drawTextCenter(firmwareName, LCD_CENTER_X, LCD_CENTER_Y - 3);
+    drawFirmwareName();
 
     u8g2_SetFont(&display.u8g2, font_tiny5);
-    drawTextCenter(subtitle, LCD_CENTER_X, LCD_CENTER_Y + 11);
+
+    char subtitle[32];
+    strcpy(subtitle, "Self-test failed: ");
+    formatHex(crc, subtitle + strlen(subtitle));
+    drawTextCenter(subtitle, LCD_CENTER_X, LCD_CENTER_Y + 9);
 }
 
 void drawWelcome()
 {
-    u8g2_SetFont(&display.u8g2, font_helvR08);
-    drawTextCenter(firmwareName, LCD_CENTER_X, LCD_CENTER_Y - 3);
+    drawFirmwareName();
 
     u8g2_SetFont(&display.u8g2, font_tiny5);
     drawTextCenter(firmwareVersion, LCD_CENTER_X, LCD_CENTER_Y + 11);
 }
 
+// +++ TEST
 uint32_t getBatteryValue();
+// --- TEST
 
 void drawStatusBar()
 {

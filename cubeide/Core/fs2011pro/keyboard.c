@@ -37,13 +37,7 @@ struct Keyboard
 
 void initKeyboard()
 {
-#ifndef SDL_MODE
-    for (int i = 0; i < 5; i++)
-    {
-        HAL_Delay(100);
-        updateWatchdog();
-    }
-#endif
+    powerWait(500);
 
     keyboard.wasKeyDown[KEY_POWER] = 1;
 

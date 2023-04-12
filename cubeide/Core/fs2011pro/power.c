@@ -75,7 +75,7 @@ uint32_t getBatteryValue()
     HAL_ADC_Start(&hadc);
     HAL_ADC_PollForConversion(&hadc, 2);
     int value = HAL_ADC_GetValue(&hadc);
-    HAL_ADC_Stop(&hadc);
+    // HAL_ADC_Stop(&hadc);
     return value;
 #else
     return (uint32_t)(ADC_FACTOR * 1.27F);
@@ -110,28 +110,34 @@ void updateWatchdog()
 #endif
 }
 
-void powerDown(int ms)
+void powerWait(uint32_t delay)
 {
 #ifndef SDL_MODE
-    uint32_t startTick = uwTick;
+    int n = (delay + 99) / 100;
+    for (int i = 0; i < n; i++)
+    {
+        HAL_Delay(100);
+        updateWatchdog();
+    }
 #endif
+}
 
+void powerHalt()
+{
     while (true)
     {
 #ifndef SDL_MODE
-        waitForInterrupt();
-
-        int deltaTime = (uwTick - startTick);
-        if (deltaTime >= ms)
-        {
-            setBacklight(false);
-            setDisplay(false);
-            setPower(false);
-        }
-        else
-            updateWatchdog();
+        updateWatchdog();
 #endif
     }
+}
+
+void powerDown()
+{
+    setBacklight(false);
+    setDisplay(false);
+    setPower(false);
+    powerHalt();
 }
 
 void updateBattery()

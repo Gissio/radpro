@@ -30,7 +30,6 @@ void setBacklight(bool value);
 bool isBacklightOn();
 
 void drawSelfTestError(uint32_t crc);
-
 void drawWelcome();
 void drawStatusBar();
 void drawTitle(const char *title);

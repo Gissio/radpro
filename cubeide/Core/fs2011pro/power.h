@@ -18,7 +18,9 @@
 void initPower();
 void waitForInterrupt();
 void updateWatchdog();
-void powerDown(int ms);
+void powerWait(uint32_t delay);
+void powerHalt();
+void powerDown();
 
 void updateBattery();
 uint8_t getBatteryLevel();

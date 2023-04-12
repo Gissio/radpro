@@ -19,7 +19,7 @@ Watch a demonstration of FS2011 Pro in action:
 * Configurable pulse click sounds: off, quiet, loud.
 * Configurable backlight timer: off, on for 10 seconds, on for 60 seconds, or always on.
 * Configurable battery type for battery level monitoring.
-* Configurable Geiger-Müller tube: HH614 (48 mm long), M4011 (105 mm long), SI-3BG (5 mm long).
+* Configurable Geiger-Müller tube: HH614 (48 mm long), M4011 (105 mm long), SBM-20 (108 mm long), SI-3BG (50 mm long).
 * Device life statistics for monitoring usage.
 * 40% more battery life compared to the original firmware.
 * Power-on self-test and safety watchdog.

@@ -513,7 +513,7 @@ int Search(int Alpha, int Beta, int Eval, int epSqr, int LastTo, int Depth)
     // +++ mcu-max changed
     if (mcumax.user_callback)
         mcumax.user_callback(mcumax.user_callback_userdata);
-        // --- mcu-max changed
+    // --- mcu-max changed
 
 #ifdef MCUMAX_HASHING_ENABLED
     /* lookup pos. in hash table */

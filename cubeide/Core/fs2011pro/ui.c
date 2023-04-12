@@ -75,7 +75,7 @@ void updateUI()
     {
         writeSettings();
 
-        powerDown(0);
+        powerDown();
     }
 
     if (key >= 0)

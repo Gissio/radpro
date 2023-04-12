@@ -98,6 +98,7 @@ enum TubeTypeSetting
 {
     TUBE_HH614,
     TUBE_M4011,
+    TUBE_SBM20,
     TUBE_SI3BG,
 };
 
@@ -141,7 +142,8 @@ typedef struct
 
 extern Settings settings;
 
-void updateSettings();
+void updateTubeType();
+
 void readSettings();
 void writeSettings();
 

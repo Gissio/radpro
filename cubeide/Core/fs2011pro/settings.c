@@ -77,22 +77,26 @@ uint8_t eeprom[65536];
 #define SETTINGS_PAGE_END 0x40
 #define SETTINGS_PER_PAGE (SETTINGS_PAGE_SIZE / sizeof(settings))
 
-void updateSettings()
+void updateTubeType()
 {
     float cpmPerUSvH = 1;
 
     switch (settings.tubeType)
     {
     case TUBE_HH614:
-        cpmPerUSvH = 60.0F;
+        cpmPerUSvH = 68.4F;
         break;
 
     case TUBE_M4011:
-        cpmPerUSvH = 153.84F;
+        cpmPerUSvH = 153.F;
+        break;
+
+    case TUBE_SBM20:
+        cpmPerUSvH = 150.F;
         break;
 
     case TUBE_SI3BG:
-        cpmPerUSvH = 2.024291498F;
+        cpmPerUSvH = 1.61F;
         break;
     }
 
@@ -220,7 +224,7 @@ void readSettings()
         settings = *((Settings *)source);
     }
 
-    updateSettings();
+    updateTubeType();
 }
 
 void writeSettings()

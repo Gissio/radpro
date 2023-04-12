@@ -171,9 +171,10 @@ const struct Menu batteryTypeMenu = {
 };
 
 const char *const tubeTypeMenuOptions[] = {
-    "HH614 (60 cpm/\x7fSv/h)",
+    "HH614 (68.4 cpm/\x7fSv/h)",
     "M4011 (153 cpm/\x7fSv/h)",
-    "SI-3BG (2 cpm/\x7fSv/h)",
+    "SBM-20 (150 cpm/\x7fSv/h)",
+    "SI-3BG (1.61 cpm/\x7fSv/h)",
     NULL,
 };
 
@@ -374,13 +375,15 @@ void updateMenuOption()
 
     case 7:
         settings.tubeType = selectedIndex;
-        updateSettings();
+        updateTubeType();
         break;
 
     case 9:
         settings.gameSkillLevel = selectedIndex;
         break;
     }
+
+    writeSettings();
 }
 
 void onMenuViewKey(int key)
