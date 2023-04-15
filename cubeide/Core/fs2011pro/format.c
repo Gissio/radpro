@@ -40,7 +40,10 @@ char getMetricPrefix(int exponent)
         return 'G';
 
     default:
-        return '?';
+        if (metricPrefix < -4)
+            return '-';
+        else
+            return '+';
     }
 }
 
@@ -92,12 +95,21 @@ void formatMantissaAndCharacteristic(const char *unitName, float value, int minE
 {
     int exponent = getExponent(value);
 
+    int mantissa = (int)(value * getPowerOfTen(3 - exponent) + 0.5F);
+    if (mantissa >= 10000)
+    {
+        mantissa /= 10;
+        exponent++;
+    }
+
     if (exponent < minExponent)
+    {
+        mantissa /= (int)getPowerOfTen(minExponent - exponent);
         exponent = minExponent;
+    }
 
     formatUnits(unitName, exponent, characteristicBuffer);
 
-    int mantissa = (int)(value * getPowerOfTen(3 - exponent));
     int decimalPoint = remainderDown(exponent, 3);
     switch (decimalPoint)
     {
@@ -161,7 +173,8 @@ void formatDose(uint32_t count,
     formatMantissaAndCharacteristic(unit->name,
                                     unit->scale * count,
                                     unit->minExponent,
-                                    mantissa, characteristic);
+                                    mantissa,
+                                    characteristic);
 }
 
 void formatTime(uint32_t time,

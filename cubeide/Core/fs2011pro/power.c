@@ -73,10 +73,8 @@ uint32_t getBatteryValue()
 {
 #ifndef SDL_MODE
     HAL_ADC_Start(&hadc);
-    HAL_ADC_PollForConversion(&hadc, 2);
-    int value = HAL_ADC_GetValue(&hadc);
-    HAL_ADC_Stop(&hadc);
-    return value;
+    HAL_ADC_PollForConversion(&hadc, HAL_MAX_DELAY);
+    return HAL_ADC_GetValue(&hadc);
 #else
     return (uint32_t)(ADC_FACTOR * 1.27F);
 #endif
@@ -88,6 +86,7 @@ void initPower()
 
 #ifndef SDL_MODE
     HAL_ADCEx_Calibration_Start(&hadc);
+    // HAL_ADC_Start(&hadc); // For continuous mode
 #endif
 
     power.batteryValue = (float)getBatteryValue();

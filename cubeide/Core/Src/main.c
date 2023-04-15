@@ -108,25 +108,25 @@ void onHardFaultBit(int value)
     int offTime;
     switch (value)
     {
-        case 0:
-            onTime = 100;
-            offTime = HARDFAULT_BIT_LENGTH - 100;
-            break;
+    case 0:
+        onTime = 100;
+        offTime = HARDFAULT_BIT_LENGTH - 100;
+        break;
 
-        case 1:
-            onTime = 1000;
-            offTime = HARDFAULT_BIT_LENGTH - 1000;
-            break;
+    case 1:
+        onTime = 1000;
+        offTime = HARDFAULT_BIT_LENGTH - 1000;
+        break;
 
-        default:
-            onTime = 0;
-            offTime = 4 * HARDFAULT_BIT_LENGTH;
-            break;
+    case 2:
+        onTime = 0;
+        offTime = 4 * HARDFAULT_BIT_LENGTH;
+        break;
 
-        default:
-            onTime = 32 * HARDFAULT_BIT_LENGTH;
-            offTime = 0;
-            break;
+    default:
+        onTime = 32 * HARDFAULT_BIT_LENGTH;
+        offTime = 0;
+        break;
     }
 
     HAL_GPIO_WritePin(BUZZ_GPIO_Port, BUZZ_Pin, GPIO_PIN_SET);
@@ -154,7 +154,7 @@ void onHardFault(uint32_t *args)
         }
     }
 
-    powerHalt();
+    NVIC_SystemReset();
 }
 
 uint32_t const volatile validCRC __attribute__((section(".crc"))) = 0;

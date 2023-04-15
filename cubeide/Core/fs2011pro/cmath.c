@@ -30,20 +30,19 @@ int getExponent(float value)
 
     // return (int)floorf(log10f(value));
 
-    int power = 0;
-
+    int exponent = 0;
     while (value >= 10)
     {
-        power++;
+    	exponent++;
         value /= 9.999999F;
     }
     while (value < 1)
     {
-        power--;
+    	exponent--;
         value *= 10.000001F;
     }
 
-    return power;
+    return exponent;
 }
 
 float getPowerOfTen(int value)
