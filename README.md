@@ -16,6 +16,8 @@ Watch a demonstration of FS2011 Pro in action:
 * Measurement hold for instantaneous rate, average rate, and dose.
 * Overload alert to prevent damage to the device.
 * Customizable rate and dose alarms for personalized use.
+* Password generator with true RNG.
+* Nuclear chess.
 * Configurable pulse click sounds: off, quiet, loud.
 * Configurable backlight timer: off, on for 10 seconds, on for 60 seconds, or always on.
 * Configurable battery type for battery level monitoring.
@@ -23,7 +25,6 @@ Watch a demonstration of FS2011 Pro in action:
 * Device life statistics for monitoring usage.
 * 40% more battery life compared to the original firmware.
 * Power-on self-test and safety watchdog.
-* Nuclear chess.
 
 ## Installation
 
@@ -120,7 +121,7 @@ The history is calculated from the instantaneous rate, sampled once per second.
 
 ## Building
 
-To build the software, download [STM32CubeIDE][cubeide-link] and open the cubeide folder.
+To get started with building the software, you'll need to install two key tools: [Visual Studio Code][vscode-link] and the [platform.io][pio-link] extension. Once you have these installed, open the platform.io folder to begin building.
 
 ## Thanks
 
@@ -128,5 +129,6 @@ To build the software, download [STM32CubeIDE][cubeide-link] and open the cubeid
 * Special thanks to Alfred90 for device testing.
 
 [stlink-link]: https://github.com/stlink-org/stlink/releases
-[cubeide-link]: https://www.st.com/en/development-tools/stm32cubeide.html
 [releases-link]: https://github.com/Gissio/fs2011pro/releases
+[vscode-link]: https://code.visualstudio.com/
+[pio-link]: https://platform.io/
