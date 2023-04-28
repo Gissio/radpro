@@ -49,7 +49,7 @@ void updateUI(void)
     {
         writeSettings();
 
-        setEventsEnabled(false);
+        disableEvents();
         waitSysTicks(1);
         disableBacklight();
         setDisplay(false);

@@ -13,13 +13,16 @@
 #include "main.h"
 
 #define FIRMWARE_BASE FLASH_BASE
-#define FIRMWARE_SIZE (0xc000 - 0x4)
+#define FIRMWARE_SIZE (0x8000 - 0x4)
 
 void checkFirmware(void)
 {
-#ifndef SDL_MODE
+#ifdef CHECK_FIRMWARE
     rcc_periph_clock_enable(RCC_CRC);
+
+    crc_reset();
     uint32_t crc = crc_calculate_block(FIRMWARE_BASE, FIRMWARE_SIZE / 4);
+
     rcc_periph_clock_disable(RCC_CRC);
 
     uint32_t validCRC = *(uint32_t *)(FIRMWARE_BASE + FIRMWARE_SIZE);

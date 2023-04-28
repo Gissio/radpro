@@ -18,7 +18,7 @@ struct GM
 void initGM(void)
 {
 #ifndef SDL_MODE
-    // High voltage
+    // High voltage generation
     rcc_periph_clock_enable(RCC_TIM3);
 
     gpio_mode_setup(GM_HV_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, GM_HV_PIN);

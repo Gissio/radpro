@@ -58,7 +58,7 @@ void initPower(void)
     rcc_periph_clock_enable(RCC_ADC1);
 
     adc_set_sample_time_on_all_channels(ADC1, ADC_SMPTIME_055DOT5);
-    adc_set_regular_sequence(ADC1, 1, &powerADCChannels);
+    adc_set_regular_sequence(ADC1, 1, (uint8_t *) &powerADCChannels);
 
     adc_calibrate_async(ADC1);
     uint32_t calibrationTimeout = 100;
@@ -67,7 +67,10 @@ void initPower(void)
         waitSysTicks(1);
         calibrationTimeout--;
     }
+
+    // +++
     adc_power_on(ADC1);
+    // ---
 
     waitSysTicks(10);
 #endif
@@ -90,6 +93,9 @@ void setPower(bool value)
 uint32_t getBatteryValue(void)
 {
 #ifndef SDL_MODE
+    // +++
+    // adc_power_on(ADC1);
+    // ---
     adc_start_conversion_regular(ADC1);
 
     uint32_t timeout = 100;
@@ -99,7 +105,13 @@ uint32_t getBatteryValue(void)
         timeout--;
     }
 
-    return adc_read_regular(ADC1);
+    uint32_t value = adc_read_regular(ADC1);
+    // +++
+    // adc_power_off(ADC1);
+    // ---
+
+    return value;
+
 #else
     return (uint32_t)(ADC_FACTOR * 1.27F);
 #endif

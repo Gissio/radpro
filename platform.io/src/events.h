@@ -23,14 +23,15 @@
 
 void initEvents(void);
 
-void setEventsEnabled(bool value);
+void enableEvents(void);
+void disableEvents(void);
 
 void waitSysTicks(uint32_t value);
 
 void updateBacklight(void);
 void disableBacklight(void);
 
-void startBuzzerTimer(uint32_t value);
+void startBuzzerTimer(int value);
 
 void updateEvents(void);
 

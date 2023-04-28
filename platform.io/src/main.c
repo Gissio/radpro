@@ -46,8 +46,6 @@ int main(void)
     beep();
     initSettings();
     beep();
-    initDisplay();
-    beep();
     initGM();
     beep();
     initMeasurement();
@@ -55,8 +53,11 @@ int main(void)
     initMenus();
     beep();
     initKeyboard();
+    beep();
+    initDisplay();
 
     // Welcome screen
+    clearDisplayBuffer();
     drawWelcome();
     sendDisplayBuffer();
     updateBacklight();
@@ -64,7 +65,7 @@ int main(void)
     waitSysTicks(1000);
 
     // Initialize view
-    setEventsEnabled(true);
+    enableEvents();
     setView(VIEW_INSTANTANEOUS_RATE);
 
     // Message loop

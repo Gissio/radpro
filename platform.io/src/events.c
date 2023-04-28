@@ -33,12 +33,12 @@ struct Events
 
     uint32_t lastPulseCount;
 
-    uint32_t keyTimer;
+    volatile int keyTimer;
 
     volatile int backlightTimer;
     bool backlightPWMState;
 
-    int buzzerTimer;
+    volatile int buzzerTimer;
 
     int oneSecondTimer;
     volatile uint8_t oneSecondUpdate;
@@ -57,20 +57,27 @@ void initEvents(void)
     systick_counter_enable();
 
     // Watchdog
+    // +++
     // iwdg_set_period_ms(500);
     // iwdg_start();
+    // ---
 #endif
 
     events.keyTimer = KEY_TICKS;
     events.oneSecondTimer = SYS_TICK_FREQUENCY;
 }
 
-void setEventsEnabled(bool value)
+void enableEvents(void)
 {
-    events.isEventsEnabled = value;
+    events.isEventsEnabled = true;
 }
 
-static bool isTimerElapsed(int *timer)
+void disableEvents(void)
+{
+    events.isEventsEnabled = true;
+}
+
+static bool isTimerElapsed(volatile int *timer)
 {
     if ((*timer) <= 0)
         return false;
@@ -132,11 +139,15 @@ void waitSysTicks(uint32_t value)
 #ifndef SDL_MODE
     uint32_t tickStart = events.sysTickValue;
 
+    // +++
     // iwdg_reset();
+    // ---
     while ((events.sysTickValue - tickStart) < value)
     {
+        // +++
         // asm("wfi")
         // iwdg_reset();
+        // ---
     }
 #else
     uint32_t tickStart = SDL_GetTicks();
@@ -189,7 +200,7 @@ void disableBacklight(void)
     events.backlightTimer = 1;
 }
 
-void startBuzzerTimer(uint32_t value)
+void startBuzzerTimer(int value)
 {
     if (events.buzzerTimer < value)
         events.buzzerTimer = value;

@@ -122,8 +122,6 @@ void initDisplay(void)
     u8g2_InitDisplay(&display.u8g2);
 
     setDisplay(true);
-    clearDisplayBuffer();
-    sendDisplayBuffer();
 }
 
 #ifndef SDL_MODE
