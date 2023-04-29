@@ -121,7 +121,9 @@ The history is calculated from the instantaneous rate, sampled once per second.
 
 ## Building
 
-To get started with building the software, you'll need to install two key tools: [Visual Studio Code][vscode-link] and the [platform.io][pio-link] extension. Once you have these installed, open the platform.io folder to begin building.
+To start building the software, you'll need to install these tools: [Visual Studio Code][vscode-link] and the [platform.io][pio-link] extension. Once installed, open the platform.io folder to begin building.
+
+Once you've built the firmware, you'll need to sign the resulting binary using Python and the `tools/sign.py` script.
 
 ## Thanks
 
