@@ -17,7 +17,7 @@ Watch a demonstration of FS2011 Pro in action:
 * Provides measurement hold for instantaneous rate, average rate, and dose.
 * Features an overload alert to prevent damage to the device.
 * Enables customizable rate and dose alarms.
-* Offers a unique feature among radiation meters: Nuclear chess.
+* Offers a unique and fun feature: Nuclear chess.
 * Allows configurable pulse click sounds: off, quiet, loud.
 * Includes a configurable backlight timer: off, on for 10 seconds, on for 60 seconds, or always on.
 * Allows configurable battery type for battery level monitoring.
