@@ -123,7 +123,7 @@ The history is calculated from the instantaneous rate, sampled once per second.
 
 The random number generator is a tool that generates random numbers for various purposes, such as generating secure passwords, random hexadecimal and decimal numbers, 6-sided dice throws, and coin flips. It works by comparing the period between the last two pulses to the period between the second pulse and the third last pulse, producing one bit for every pulse. The periods are determined with an accuracy of 1 µs.
 
-To ensure high-quality randomness, if the last and previous-to-last periods have the same period counts, the bit is discarded. Moreover, to prevent bias, every second bit is flipped. The number of bits required to generate different symbols varies depending on the application: letters and numbers require approximately 6 bits per symbol, full ASCII requires 7 bits, hexadecimal and decimal require 4 bits, 6-sided dice require 3 bits, and coin flips require 1 bit.
+To ensure high-quality randomness, if the last and previous-to-last periods have the same period counts, the bit is discarded. Moreover, to prevent bias, every second bit is flipped. The number of bits required to generate different symbols varies depending on the application: letters and numbers require approximately 6 bits per symbol, full ASCII requires 7 bits, hexadecimal and decimal require 4 bits, 6-sided dice throws require 3 bits, and coin flips require 1 bit.
 
 To generate bits more quickly, a radioactive source can be used.
 
