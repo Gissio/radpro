@@ -20,7 +20,9 @@ void initPower(void);
 void setPower(bool value);
 
 void updateBattery(void);
+// +++ TEST
 uint32_t getBatteryValue(void);
+// --- TEST
 uint8_t getBatteryLevel(void);
 
 #endif

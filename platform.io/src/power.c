@@ -59,11 +59,11 @@ void initPower(void)
     adc_set_regular_sequence(ADC1, 1, (uint8_t *)&powerADCChannels);
 
     adc_calibrate_async(ADC1);
-    uint32_t calibrationTimeout = 100;
-    while (adc_is_calibrating(ADC1) && (calibrationTimeout > 0))
+    uint32_t adcCalibrationTimeout = 100;
+    while (adc_is_calibrating(ADC1) && (adcCalibrationTimeout > 0))
     {
         waitSysTicks(1);
-        calibrationTimeout--;
+        adcCalibrationTimeout--;
     }
 
     // +++
@@ -96,11 +96,11 @@ uint32_t getBatteryValue(void)
     // ---
     adc_start_conversion_regular(ADC1);
 
-    uint32_t timeout = 100;
-    while (!adc_eoc(ADC1) && (timeout > 0))
+    uint32_t adcReadTimeout = 100;
+    while (!adc_eoc(ADC1) && (adcReadTimeout > 0))
     {
         waitSysTicks(1);
-        timeout--;
+        adcReadTimeout--;
     }
 
     uint32_t value = adc_read_regular(ADC1);

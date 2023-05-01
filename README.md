@@ -8,23 +8,23 @@ Watch a demonstration of FS2011 Pro in action:
 
 ## Features
 
-* Instantaneous rate, average rate, dose, and history modes.
-* Intuitive user interface for easy navigation.
-* Measurements in Sievert, rem, cpm and cps.
-* Multiple history periods, including 2-minute, 10-minute, 1-hour, 6-hour and 24-hour options.
-* 95% confidence intervals to ensure accurate readings.
-* Measurement hold for instantaneous rate, average rate, and dose.
-* Overload alert to prevent damage to the device.
-* Customizable rate and dose alarms for personalized use.
-* Password generator with true RNG.
-* Nuclear chess.
-* Configurable pulse click sounds: off, quiet, loud.
-* Configurable backlight timer: off, on for 10 seconds, on for 60 seconds, or always on.
-* Configurable battery type for battery level monitoring.
-* Configurable Geiger-Müller tube: HH614 (48 mm long), M4011 (105 mm long), SBM-20 (108 mm long), SI-3BG (50 mm long).
-* Device life statistics for monitoring usage.
-* 40% more battery life compared to the original firmware.
-* Power-on self-test and safety watchdog.
+* Provides instantaneous rate, average rate, dose, and history modes.
+* Incorporates a true random number generator to generate secure passwords (letters & numbres, full ASCII), random hexadecimal and decimal numbres, 6-sided dice throws, and coin flips.
+* Includes an intuitive user interface for easy navigation and hassle-free use.
+* Supports measurements in Sievert, rem, cpm and cps.
+* Offers multiple history periods, including 2-minute, 10-minute, 1-hour, 6-hour and 24-hour options.
+* Presents 95% confidence intervals to ensure accurate readings.
+* Provides measurement hold for instantaneous rate, average rate, and dose.
+* Features an overload alert to prevent damage to the device.
+* Enables customizable rate and dose alarms.
+* Offers a unique feature among radiation meters: Nuclear chess.
+* Allows configurable pulse click sounds: off, quiet, loud.
+* Includes a configurable backlight timer: off, on for 10 seconds, on for 60 seconds, or always on.
+* Allows configurable battery type for battery level monitoring.
+* Supports multiple Geiger-Müller tubes: HH614 (48 mm long), M4011 (105 mm long), SBM-20 (108 mm long), SI-3BG (50 mm long).
+* Provides device life statistics for monitoring usage and performance of the device.
+* Offers 40% more battery life compared to the original firmware.
+* Features a power-on self-test and safety watchdog.
 
 ## Installation
 
@@ -95,7 +95,7 @@ To use this firmware, follow these instructions:
 
 * To enter the menu/select a menu option, press the MENU/OK key. To go back from a menu/menu option, press the PLAY/PAUSE key.
 
-## Measurement
+## Measurements
 
 The software measures the radiation in the following modes:
 
@@ -118,6 +118,14 @@ The dose is calculated from the number of pulses in the time window.
 ### History
 
 The history is calculated from the instantaneous rate, sampled once per second.
+
+### Random number generator
+
+The random number generator is a tool that generates random numbers for various purposes, such as generating secure passwords, random hexadecimal and decimal numbers, 6-sided dice throws, and coin flips. It works by comparing the period between the last two pulses to the period between the second pulse and the third last pulse, producing one bit for every pulse. The periods are determined with an accuracy of 1 µs.
+
+To ensure high-quality randomness, if the last and previous-to-last periods have the same period counts, the bit is discarded. Moreover, to prevent bias, every second bit is flipped. The number of bits required to generate different symbols varies depending on the application: letters and numbers require approximately 6 bits per symbol, full ASCII requires 7 bits, hexadecimal and decimal require 4 bits, 6-sided dice require 3 bits, and coin flips require 1 bit.
+
+To generate bits more quickly, a radioactive source can be used.
 
 ## Building
 

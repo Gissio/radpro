@@ -49,9 +49,8 @@ void initEvents(void)
 {
 #ifndef SDL_MODE
     // SysTick
-    systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
-    systick_clear();
     systick_set_frequency(SYS_TICK_FREQUENCY, rcc_ahb_frequency);
+    systick_clear();
 
     systick_interrupt_enable();
     systick_counter_enable();
