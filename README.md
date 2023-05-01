@@ -127,7 +127,7 @@ To build the software, follow these steps:
 * From Visual Studio Code, install the [platform.io][pio-link] extension.
 * Open the `platform.io` folder to begin building the firmware.
 * Once you've built the firmware, you'll need to sign the resulting binary using Python and the `tools/sign.py` script.
-* You can also build the software as a simulator by opening the root folder of the project from withing Visual Studio Code. Make sure that `sdl2` is installed on your system, which you can install using the [vcpkg][vcpkg-link] package manager.
+* You can also build the software as a simulator by opening the project's root folder from Visual Studio Code. Make sure that `sdl2` is installed on your system, which you can install using the [vcpkg][vcpkg-link] package manager.
 
 ## Thanks
 
