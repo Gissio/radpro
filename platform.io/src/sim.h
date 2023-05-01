@@ -12,6 +12,6 @@
 
 #include <stdint.h>
 
-uint32_t simPulses(uint32_t n);
+uint32_t simPulses();
 
 #endif

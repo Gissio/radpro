@@ -13,7 +13,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "events.h"
+#include "keyboard.h"
 
 #define HISTORY_BUFFER_SIZE 120
 #define HISTORY_CPS_MIN 0.01F
@@ -33,12 +33,12 @@ void updateMeasurement(void);
 bool isInstantaneousRateAlarm(void);
 bool isDoseAlarm(void);
 
-uint8_t getHistoryDataPoint(int dataIndex);
+uint8_t getHistoryDataPoint(uint32_t dataIndex);
 
 void drawInstantaneousRateView(void);
 void drawAverageRateView(void);
 void drawDoseView(void);
 void drawHistoryView(void);
-void onMeasurementViewKey(int keyEvent);
+void onMeasurementViewKey(KeyEvent keyEvent);
 
 #endif

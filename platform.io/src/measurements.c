@@ -8,16 +8,14 @@
  */
 
 #include <limits.h>
-#include <stdio.h>
 #include <string.h>
 
 #include "cmath.h"
 #include "display.h"
+#include "events.h"
 #include "format.h"
-#include "keyboard.h"
 #include "measurements.h"
 #include "settings.h"
-#include "sim.h"
 #include "ui.h"
 
 #define OVERLOAD_RATE 500
@@ -188,28 +186,22 @@ void resetHistory(void)
     historySampleIndex = 0;
 }
 
-// Callbacks
-
-void onMeasurementTick(uint32_t pulseCountDelta)
+void onMeasurementTick(uint32_t pulseNum)
 {
-#ifdef SIMULATE_PULSES
-    pulseCountDelta += simPulses(1);
-#endif
-
-    if (pulseCountDelta)
+    if (pulseNum)
     {
-        settings.lifeCounts += pulseCountDelta;
+        settings.lifeCounts += pulseNum;
 
         // Instantaneous rate
         if (!instantaneousRate.current.pulseCount)
             instantaneousRate.current.firstPulseTick = instantaneousRate.tick;
-        addClamped(&instantaneousRate.current.pulseCount, pulseCountDelta);
+        addClamped(&instantaneousRate.current.pulseCount, pulseNum);
 
         instantaneousRate.pulseTicksCount =
-            instantaneousRate.pulseTicksCount + pulseCountDelta;
+            instantaneousRate.pulseTicksCount + pulseNum;
         if (instantaneousRate.pulseTicksCount > INSTANTANEOUS_RATE_PULSE_NUM)
             instantaneousRate.pulseTicksCount = INSTANTANEOUS_RATE_PULSE_NUM;
-        for (uint32_t i = 0; i < pulseCountDelta; i++)
+        for (uint32_t i = 0; i < pulseNum; i++)
         {
             instantaneousRate.pulseTicks[instantaneousRate.pulseTicksIndex] =
                 instantaneousRate.tick;
@@ -224,14 +216,14 @@ void onMeasurementTick(uint32_t pulseCountDelta)
         {
             if (!averageRate.pulseCount)
                 averageRate.firstPulseTick = averageRate.tick;
-            addClamped(&averageRate.pulseCount, pulseCountDelta);
+            addClamped(&averageRate.pulseCount, pulseNum);
 
             averageRate.lastPulseTick = averageRate.tick;
         }
 
         // Dose
         if (dose.snapshotTime < TIME_MAX)
-            addClamped(&dose.pulseCount, pulseCountDelta);
+            addClamped(&dose.pulseCount, pulseNum);
 
         // Buzzer
         switch (settings.pulseSound)
@@ -356,7 +348,7 @@ void updateMeasurement(void)
         if ((historySampleIndex % history->samplesPerDataPoint) == 0)
         {
             float average = historyState->sampleSum / historyState->sampleNum;
-            int value = (int)(HISTORY_VALUE_DECADE * log10fApprox(average / HISTORY_CPS_MIN));
+            int32_t value = (int32_t)(HISTORY_VALUE_DECADE * log10fApprox(average / HISTORY_CPS_MIN));
             value = (value < 0) ? 0 : (value > UCHAR_MAX) ? UCHAR_MAX
                                                           : value;
             historyState->buffer[historyState->bufferIndex] = (uint8_t)value;
@@ -387,17 +379,17 @@ bool isDoseAlarm(void)
     return doseSv >= getDoseAlarmSv(settings.doseAlarm);
 }
 
-uint8_t getHistoryDataPoint(int dataIndex)
+uint8_t getHistoryDataPoint(uint32_t dataIndex)
 {
     HistoryState *historyState = &historyStates[settings.history];
 
-    int bufferIndex =
+    uint32_t bufferIndex =
         (HISTORY_BUFFER_SIZE + (historyState->bufferIndex - 1) - dataIndex) % HISTORY_BUFFER_SIZE;
 
     return historyState->buffer[bufferIndex];
 }
 
-static const char *getHistoryName(int historyIndex)
+static const char *getHistoryName(uint32_t historyIndex)
 {
     return histories[historyIndex].name;
 }
@@ -550,16 +542,16 @@ void drawHistoryView(void)
     char labelMin[16] = "";
     char labelMax[16] = "";
 
-    int offset = 0;
-    int range = 1;
+    int32_t offset = 0;
+    uint32_t range = 1;
 
     // Formatting
-    int valueMin = UCHAR_MAX;
-    int valueMax = 0;
+    uint8_t valueMin = UCHAR_MAX;
+    uint8_t valueMax = 0;
 
-    for (int i = 0; i < HISTORY_BUFFER_SIZE; i++)
+    for (uint32_t i = 0; i < HISTORY_BUFFER_SIZE; i++)
     {
-        int value = getHistoryDataPoint(i);
+        uint8_t value = getHistoryDataPoint(i);
         if (value > 0)
         {
             if (value < valueMin)
@@ -571,10 +563,10 @@ void drawHistoryView(void)
 
     if (valueMax > 0)
     {
-        int unitScaleValue = (int)(HISTORY_VALUE_DECADE * log10fApprox(unit->scale * HISTORY_CPS_MIN));
+        int32_t unitScaleValue = (int32_t)(HISTORY_VALUE_DECADE * log10fApprox(unit->scale * HISTORY_CPS_MIN));
 
-        int exponentMin = divideDown(valueMin + unitScaleValue, HISTORY_VALUE_DECADE);
-        int exponentMax = divideDown(valueMax + unitScaleValue, HISTORY_VALUE_DECADE) + 1;
+        int32_t exponentMin = divideDown(valueMin + unitScaleValue, HISTORY_VALUE_DECADE);
+        int32_t exponentMax = divideDown(valueMax + unitScaleValue, HISTORY_VALUE_DECADE) + 1;
 
         offset = unitScaleValue - exponentMin * HISTORY_VALUE_DECADE;
         range = exponentMax - exponentMin;
@@ -588,7 +580,7 @@ void drawHistoryView(void)
     drawHistory(labelMin, labelMax, offset, range);
 }
 
-void onMeasurementViewKey(int keyEvent)
+void onMeasurementViewKey(KeyEvent keyEvent)
 {
     switch (keyEvent)
     {
@@ -610,7 +602,7 @@ void onMeasurementViewKey(int keyEvent)
         openSettingsMenu();
         break;
 
-    case KEY_BACK_UP:
+    case KEY_BACK_DELAYED:
         switch (getView())
         {
         case VIEW_INSTANTANEOUS_RATE:

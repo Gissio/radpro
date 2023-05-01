@@ -33,9 +33,11 @@ void drawTitle(const char *title);
 void drawSubtitle(const char *subtitle);
 
 void drawMeasurementValue(const char *mantissa, const char *characteristic);
-void drawConfidenceIntervals(int sampleNum);
+void drawConfidenceIntervals(uint32_t sampleNum);
 void drawHistory(const char *minLabel, const char *maxLabel,
-                 int offset, int range);
+                 int32_t offset, uint32_t range);
+
+void drawRNGText(char *text);
 
 void drawStats(void);
 
@@ -44,6 +46,6 @@ void drawGameBoard(const char board[8][9],
                    const char moveHistory[GAME_MOVES_LINE_NUM][2][6],
                    const char *buttonText, bool buttonSelected);
 
-void drawMenu(const struct Menu *menu, uint8_t startIndex, uint8_t selectedIndex);
+void drawMenu(const struct Menu *menu, uint32_t startIndex, uint32_t selectedIndex);
 
 #endif

@@ -17,6 +17,7 @@
 #include "main.h"
 #include "measurements.h"
 #include "power.h"
+#include "rng.h"
 #include "settings.h"
 #include "menus.h"
 #include "ui.h"
@@ -34,9 +35,11 @@ int main(void)
     // Init base system
     initEvents();
     initBuzzer();
+    beep();
 
     // POWER key delay
     waitSysTicks(500);
+    beep();
 
     // Check firmware
     checkFirmware();

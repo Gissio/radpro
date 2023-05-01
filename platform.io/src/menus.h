@@ -12,6 +12,8 @@
 
 #include <stdint.h>
 
+#include "keyboard.h"
+
 typedef struct
 {
     uint8_t startIndex;
@@ -36,6 +38,6 @@ void openSettingsMenu(void);
 void openGameMenu(void);
 
 void drawMenuView(void);
-void onMenuViewKey(int keyEvent);
+void onMenuViewKey(KeyEvent keyEvent);
 
 #endif

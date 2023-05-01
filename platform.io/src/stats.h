@@ -10,7 +10,9 @@
 #ifndef STATS_H
 #define STATS_H
 
+#include "keyboard.h"
+
 void drawStatsView(void);
-void onStatsViewKey(int keyEvent);
+void onStatsViewKey(KeyEvent keyEvent);
 
 #endif

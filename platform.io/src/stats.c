@@ -8,7 +8,6 @@
  */
 
 #include "display.h"
-#include "keyboard.h"
 #include "stats.h"
 #include "ui.h"
 
@@ -18,7 +17,7 @@ void drawStatsView(void)
     drawStats();
 }
 
-void onStatsViewKey(int keyEvent)
+void onStatsViewKey(KeyEvent keyEvent)
 {
     if (keyEvent == KEY_BACK)
         setView(VIEW_MENU);

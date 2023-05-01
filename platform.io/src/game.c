@@ -7,15 +7,12 @@
  * License: MIT
  */
 
-#include <stdbool.h>
-#include <stdio.h>
 #include <string.h>
 
 #include <mcu-max.h>
 
 #include "display.h"
 #include "format.h"
-#include "keyboard.h"
 #include "game.h"
 #include "settings.h"
 #include "ui.h"
@@ -33,19 +30,19 @@ enum GameState
 
 struct Game
 {
-    bool isPlayerBlack;
+    uint8_t playerIndex;
 
     enum GameState state;
     char board[8][9];
-    int time[2];
+    uint32_t time[2];
     mcumax_move move;
 
-    int moveIndex;
+    uint32_t moveIndex;
 
     mcumax_move history[GAME_HISTORY_SIZE];
 
-    int validMovesNum;
-    int validMovesIndex;
+    uint32_t validMovesNum;
+    uint32_t validMovesIndex;
     mcumax_move validMoves[GAME_VALID_MOVES_NUM_MAX];
 
     bool isButtonSelected;
@@ -53,7 +50,7 @@ struct Game
 
 const char *const gamePieceMap = "@AACFBDEHIIKNJLM";
 
-const int gameSkillToNodesCount[] = {
+const uint32_t gameSkillToNodesCount[] = {
     250,
     500,
     1000,
@@ -78,14 +75,14 @@ static bool isGameTimerRunning(void)
              (game.validMovesNum == 0));
 }
 
-static int getGameCurrentSide(void)
+static uint8_t getGamePlayerIndex(void)
 {
     return (game.moveIndex & 0x1);
 }
 
 static bool isGamePlayerMove(void)
 {
-    return (getGameCurrentSide() == game.isPlayerBlack);
+    return (getGamePlayerIndex() == game.playerIndex);
 }
 
 static bool isGameUndoPossible(void)
@@ -111,25 +108,25 @@ static void undoGameMove(void)
 
     mcumax_reset();
 
-    for (int i = 0; i < game.moveIndex; i++)
+    for (uint32_t i = 0; i < game.moveIndex; i++)
         mcumax_play_move(game.history[i]);
 }
 
 static void updateGameBoard(void)
 {
-    for (int y = 0; y < 8; y++)
+    for (uint32_t y = 0; y < 8; y++)
     {
-        for (int x = 0; x < 8; x++)
+        for (uint32_t x = 0; x < 8; x++)
         {
             mcumax_square square = ((0x10 * y) + x);
 
-            int alt = (((x + y) & 0x1) << 4);
+            uint8_t alt = (((x + y) & 0x1) << 4);
             if ((square == game.move.from) || (square == game.move.to))
                 alt = (1 << 5);
 
-            int piece = mcumax_get_piece(square) & 0xf;
+            uint8_t piece = mcumax_get_piece(square) & 0xf;
 
-            if (game.isPlayerBlack)
+            if (game.playerIndex)
                 game.board[7 - y][7 - x] = alt + gamePieceMap[piece];
             else
                 game.board[y][x] = alt + gamePieceMap[piece];
@@ -147,7 +144,7 @@ static void onGameCallback(void *userdata)
 static void updateValidMoves(void)
 {
     game.validMovesNum = mcumax_get_valid_moves(game.validMoves, GAME_VALID_MOVES_NUM_MAX);
-    game.validMovesIndex = game.isPlayerBlack ? (game.validMovesNum - 1) : 0;
+    game.validMovesIndex = game.playerIndex ? (game.validMovesNum - 1) : 0;
 
     if (game.moveIndex == 0)
         game.move = (mcumax_move){game.validMoves[game.validMovesIndex].from, MCUMAX_INVALID};
@@ -157,21 +154,21 @@ static void updateValidMoves(void)
     game.state = GAME_SELECT_FIRST_MOVE;
 }
 
-void resetGame(int isPlayerBlack)
+void resetGame(uint8_t playerIndex)
 {
     mcumax_reset();
     mcumax_set_callback(onGameCallback, NULL);
 
-    game.isPlayerBlack = isPlayerBlack;
+    game.playerIndex = playerIndex;
     game.moveIndex = 0;
     game.validMovesIndex = 0;
 
     game.time[0] = 0;
     game.time[1] = 0;
     game.move = (mcumax_move){MCUMAX_INVALID, MCUMAX_INVALID};
-    game.isButtonSelected = isPlayerBlack;
+    game.isButtonSelected = (playerIndex == 1);
 
-    if (!isPlayerBlack)
+    if (playerIndex == 0)
     {
         game.state = GAME_SELECT_FIRST_MOVE;
         updateValidMoves();
@@ -236,9 +233,9 @@ void updateGameTimer(void)
     if (!isGameTimerRunning())
         return;
 
-    int side = getGameCurrentSide();
+    uint8_t side = getGamePlayerIndex();
 
-    int time = game.time[side] + 1;
+    uint32_t time = game.time[side] + 1;
     if (time < 3600)
         game.time[side] = time;
 }
@@ -258,22 +255,22 @@ void drawGameView(void)
     // Time
     char time[2][6];
     time[0][0] = '\0';
-    strcatTime(time[0], game.time[!game.isPlayerBlack]);
+    strcatTime(time[0], game.time[!game.playerIndex]);
     time[1][0] = '\0';
-    strcatTime(time[1], game.time[game.isPlayerBlack]);
+    strcatTime(time[1], game.time[game.playerIndex]);
 
     // Moves
-    int start = ((game.moveIndex + 1) & ~0x1) - 2 * GAME_MOVES_LINE_NUM;
+    int32_t start = ((game.moveIndex + 1) & ~0x1) - 2 * GAME_MOVES_LINE_NUM;
     if (start < 0)
         start = 0;
 
     char moves[GAME_MOVES_LINE_NUM][2][6];
 
-    for (int y = 0; y < GAME_MOVES_LINE_NUM; y++)
+    for (uint32_t y = 0; y < GAME_MOVES_LINE_NUM; y++)
     {
-        for (int x = 0; x < 2; x++)
+        for (uint32_t x = 0; x < 2; x++)
         {
-            int index = start + 2 * y + x;
+            uint32_t index = start + 2 * y + x;
 
             if ((index < game.moveIndex) &&
                 (index < GAME_HISTORY_SIZE) &&
@@ -296,7 +293,7 @@ void drawGameView(void)
     drawGameBoard(game.board, time, moves, buttonText, buttonSelected);
 }
 
-static void traverseGameMoveTo(int direction)
+static void traverseGameMoveTo(int32_t direction)
 {
     mcumax_square from = game.validMoves[game.validMovesIndex].from;
 
@@ -314,12 +311,12 @@ static void traverseGameMoveTo(int direction)
     game.validMovesIndex -= direction;
 }
 
-static void selectGameMoveFrom(int direction)
+static void selectGameMoveFrom(int32_t direction)
 {
     if (!game.validMovesNum)
         return;
 
-    if (game.isPlayerBlack)
+    if (game.playerIndex)
         direction = -direction;
 
     if (game.isButtonSelected)
@@ -353,7 +350,7 @@ static void selectGameMoveFrom(int direction)
         }
     }
 
-    traverseGameMoveTo(game.isPlayerBlack ? 1 : -1);
+    traverseGameMoveTo(game.playerIndex ? 1 : -1);
 
     if (game.isButtonSelected)
         game.move.from = MCUMAX_INVALID;
@@ -361,9 +358,9 @@ static void selectGameMoveFrom(int direction)
         game.move.from = game.validMoves[game.validMovesIndex].from;
 }
 
-static void selectGameMoveTo(int direction)
+static void selectGameMoveTo(int32_t direction)
 {
-    if (game.isPlayerBlack)
+    if (game.playerIndex)
         direction = -direction;
 
     if (game.isButtonSelected)
@@ -376,9 +373,9 @@ static void selectGameMoveTo(int direction)
     {
         mcumax_square moveFrom = game.validMoves[game.validMovesIndex].from;
 
-        int index = game.validMovesIndex + direction;
+        int32_t index = game.validMovesIndex + direction;
         if ((index < 0) ||
-            (index >= game.validMovesNum) ||
+            (index >= (int32_t)game.validMovesNum) ||
             (game.validMoves[index].from != moveFrom))
         {
             traverseGameMoveTo(-direction);
@@ -400,7 +397,7 @@ static void setGameMoveFrom(void)
 {
     if (game.validMovesNum)
     {
-        if (game.isPlayerBlack)
+        if (game.playerIndex)
             game.move.from = game.validMoves[game.validMovesNum - 1].from;
         else
             game.move.from = game.validMoves[0].from;
@@ -410,7 +407,7 @@ static void setGameMoveFrom(void)
     game.move.to = MCUMAX_INVALID;
 }
 
-void onGameViewKey(int keyEvent)
+void onGameViewKey(KeyEvent keyEvent)
 {
     switch (keyEvent)
     {

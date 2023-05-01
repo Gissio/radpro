@@ -7,8 +7,6 @@
  * License: MIT
  */
 
-#include <stdio.h>
-
 #include "buzzer.h"
 #include "main.h"
 
@@ -28,7 +26,5 @@ void setBuzzer(bool value)
         gpio_set(BUZZ_PORT, BUZZ_PIN);
     else
         gpio_clear(BUZZ_PORT, BUZZ_PIN);
-#else
-    printf("Set buzzer: %d\n", value);
 #endif
 }

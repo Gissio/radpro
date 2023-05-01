@@ -8,8 +8,6 @@
  */
 
 #include <limits.h>
-#include <math.h>
-#include <stdio.h>
 
 #include "cmath.h"
 
@@ -24,7 +22,7 @@ void addClamped(uint32_t *x, uint32_t y)
         *x = result;
 }
 
-int divideDown(int x, int y)
+int32_t divideDown(int32_t x, int32_t y)
 {
     if (x >= 0)
         return (x / y);
@@ -32,21 +30,21 @@ int divideDown(int x, int y)
         return (x - y + 1) / y;
 }
 
-int remainderDown(int x, int y)
+int32_t remainderDown(int32_t x, int32_t y)
 {
-    int remainder = x % y;
+    int32_t remainder = x % y;
 
     return (remainder < 0) ? (remainder + y) : remainder;
 }
 
-int getExponent(float value)
+int32_t getExponent(float value)
 {
     if (value <= 0)
         return -38;
 
-    // return (int)floorf(log10f(value));
+    // return (int32_t)floorf(log10f(value));
 
-    int exponent = 0;
+    int32_t exponent = 0;
     while (value >= 10)
     {
     	exponent++;
@@ -61,21 +59,15 @@ int getExponent(float value)
     return exponent;
 }
 
-float getPowerOfTen(int value)
+float getPowerOfTen(int32_t exponent)
 {
-    // return powf(10.F, (float)value);
+    // return powf(10.F, (float)exponent);
 
     float power = 1;
-    if (value > 0)
-    {
-        for (int i = 0; i < value; i++)
-            power *= 10.000001F;
-    }
-    else if (value < 0)
-    {
-        for (int i = 0; i > value; i--)
-            power /= 9.999999F;
-    }
+    for (int32_t i = 0; i < exponent; i++)
+        power *= 10.000001F;
+    for (int32_t i = 0; i > exponent; i--)
+        power /= 9.999999F;
 
     return power;
 }
@@ -86,7 +78,7 @@ float log10fApprox(float value)
         return -38;
 
     // Calculate log2 exponent
-    int log2Exponent = 0;
+    int32_t log2Exponent = 0;
     while (value >= 2)
     {
         value /= 2;

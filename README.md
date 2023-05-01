@@ -121,9 +121,13 @@ The history is calculated from the instantaneous rate, sampled once per second.
 
 ## Building
 
-To start building the software, you'll need to install these tools: [Visual Studio Code][vscode-link] and the [platform.io][pio-link] extension. Once installed, open the platform.io folder to begin building.
+To build the software, follow these steps:
 
-Once you've built the firmware, you'll need to sign the resulting binary using Python and the `tools/sign.py` script.
+* Install [Visual Studio Code][vscode-link].
+* From Visual Studio Code, install the [platform.io][pio-link] extension.
+* Open the `platform.io` folder to begin building the firmware.
+* Once you've built the firmware, you'll need to sign the resulting binary using Python and the `tools/sign.py` script.
+* You can also build the software as a simulator by opening the root folder of the project from withing Visual Studio Code. Make sure that `sdl2` is installed on your system, which you can install using the [vcpkg][vcpkg-link] package manager.
 
 ## Thanks
 
@@ -134,3 +138,4 @@ Once you've built the firmware, you'll need to sign the resulting binary using P
 [releases-link]: https://github.com/Gissio/fs2011pro/releases
 [vscode-link]: https://code.visualstudio.com/
 [pio-link]: https://platform.io/
+[vcpkg-link]: https://vcpkg.io/en/getting-started.html

@@ -10,7 +10,9 @@
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
 
-enum KeyEvent
+#include <stdint.h>
+
+enum KeyEventEnum
 {
     KEY_POWER,
     KEY_UP,
@@ -22,11 +24,13 @@ enum KeyEvent
 
     KEY_RESET = KEY_EVENT_NUM,
     KEY_POWER_OFF,
-    KEY_BACK_UP,
+    KEY_BACK_DELAYED,
 };
+
+typedef int8_t KeyEvent;
 
 void initKeyboard(void);
 void onKeyboardTick(void);
-int getKeyEvent(void);
+KeyEvent getKeyEvent(void);
 
 #endif

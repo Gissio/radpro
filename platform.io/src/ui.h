@@ -12,21 +12,24 @@
 
 #include <stdint.h>
 
-enum ViewIndex
+enum ViewEnum
 {
     VIEW_INSTANTANEOUS_RATE,
     VIEW_AVERAGE_RATE,
     VIEW_DOSE,
     VIEW_HISTORY,
     VIEW_MENU,
+    VIEW_RNG,
     VIEW_STATS,
     VIEW_GAME,
 };
 
+typedef uint8_t View;
+
 void updateUI(void);
 
-void setView(uint8_t viewIndex);
-int getView(void);
+void setView(View view);
+View getView(void);
 void updateView(void);
 
 #endif

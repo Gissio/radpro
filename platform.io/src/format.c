@@ -7,16 +7,15 @@
  * License: MIT
  */
 
-#include <stdio.h>
 #include <string.h>
 
 #include "format.h"
 #include "cmath.h"
 #include "settings.h"
 
-static char getMetricPrefix(int exponent)
+static char getMetricPrefix(int32_t exponent)
 {
-    int metricPrefix = divideDown(exponent, 3);
+    int32_t metricPrefix = divideDown(exponent, 3);
     switch (metricPrefix)
     {
     case -3:
@@ -63,7 +62,7 @@ void strcatNumber(char *buffer, uint64_t value, uint32_t length)
     if (numberOfDigits > length)
         length = numberOfDigits;
 
-    for (int i = (length - 1); i >= 0 ; i--)
+    for (int32_t i = (length - 1); i >= 0 ; i--)
     {
         buffer[i] = '0' + (value % 10);
         value /= 10;
@@ -91,7 +90,7 @@ void strcatTime(char *buffer, uint32_t time)
     strcatNumber(buffer, seconds, 2);
 }
 
-static void formatUnits(const char *unitName, int exponent,
+static void formatUnits(const char *unitName, int32_t exponent,
                         char *characteristic)
 {
     char metricPrefix = getMetricPrefix(exponent);
@@ -105,12 +104,12 @@ static void formatUnits(const char *unitName, int exponent,
     }
 }
 
-void formatMantissaAndCharacteristic(const char *unitName, float value, int minExponent,
+void formatMantissaAndCharacteristic(const char *unitName, float value, int32_t minExponent,
                                      char *mantissaBuffer, char *characteristicBuffer)
 {
-    int exponent = getExponent(value);
+    int32_t exponent = getExponent(value);
 
-    unsigned int mantissa = (uint32_t)(value * getPowerOfTen(3 - exponent) + 0.5F);
+    uint32_t mantissa = (uint32_t)(value * getPowerOfTen(3 - exponent) + 0.5F);
     if (mantissa >= 10000)
     {
         mantissa /= 10;
@@ -119,7 +118,7 @@ void formatMantissaAndCharacteristic(const char *unitName, float value, int minE
 
     if (exponent < minExponent)
     {
-        mantissa /= (int)getPowerOfTen(minExponent - exponent);
+        mantissa /= (int32_t)getPowerOfTen(minExponent - exponent);
         exponent = minExponent;
     }
 
@@ -127,7 +126,7 @@ void formatMantissaAndCharacteristic(const char *unitName, float value, int minE
 
     mantissaBuffer[0] = '\0';
 
-    int decimalPoint = remainderDown(exponent, 3);
+    uint32_t decimalPoint = remainderDown(exponent, 3);
     switch (decimalPoint)
     {
     case 0:
@@ -152,19 +151,19 @@ void formatMantissaAndCharacteristic(const char *unitName, float value, int minE
 
 void formatValue(const char *unitName, float value, char *buffer)
 {
-    int exponent = getExponent(value);
+    int32_t exponent = getExponent(value);
 
     char characteristicBuffer[16];
     formatUnits(unitName, exponent, characteristicBuffer);
 
-    int decimalPoint = remainderDown(exponent, 3);
+    int32_t decimalPoint = remainderDown(exponent, 3);
     buffer[0] = '\0';
     strcatNumber(buffer, (uint32_t)(value * getPowerOfTen(decimalPoint - exponent)), 0);
     strcat(buffer, " ");
     strcat(buffer, characteristicBuffer);
 }
 
-void formatMultiplier(const char *unitName, int exponent, char *buffer)
+void formatMultiplier(const char *unitName, int32_t exponent, char *buffer)
 {
     float value = getPowerOfTen(exponent);
 

@@ -126,13 +126,13 @@ void getConfidenceIntervals(uint32_t sampleNum,
                             uint32_t *lowerConfidenceInterval,
                             uint32_t *upperConfidenceInterval)
 {
-    int left = 0;
-    int right = CONFIDENCE_INTERVALS_SIZE - 1;
-    int index = -1;
+    uint32_t left = 0;
+    uint32_t right = CONFIDENCE_INTERVALS_SIZE - 1;
+    int32_t index = -1;
 
     while (left <= right)
     {
-        int mid = (left + right) / 2;
+        uint32_t mid = (left + right) / 2;
         uint32_t confidenceSampleNum = confidenceIntervals[mid].sampleNum;
 
         if (confidenceSampleNum < sampleNum)

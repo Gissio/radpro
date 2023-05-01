@@ -83,6 +83,10 @@
 #define M_VIB_PORT GPIOB
 #define M_VIB_PIN GPIO6
 
+#else
+
+#include <stdio.h>
+
 #endif
 
 #endif

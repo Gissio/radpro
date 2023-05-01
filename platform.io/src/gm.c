@@ -9,10 +9,16 @@
 
 #include "gm.h"
 #include "main.h"
+#include "sim.h"
+
+#define GM_PULSE_TIMES_NUM 16
+#define GM_PULSE_TIMES_MASK (GM_PULSE_TIMES_NUM - 1)
 
 struct GM
 {
-    uint32_t pulseCount;
+    volatile uint32_t pulseTimes[GM_PULSE_TIMES_NUM];
+    volatile uint8_t pulseTimesHead;
+    volatile uint8_t pulseTimesTail;
 } gm;
 
 void initGM(void)
@@ -43,19 +49,52 @@ void initGM(void)
 
     nvic_set_priority(NVIC_EXTI4_15_IRQ, 255);
     nvic_enable_irq(NVIC_EXTI4_15_IRQ);
+
+    // Pulse timer
+    rcc_periph_clock_enable(RCC_TIM2);
+
+    timer_set_prescaler(TIM2, 7);
+    timer_generate_event(TIM2, TIM_EGR_UG);
+
+    timer_enable_counter(TIM2);
 #endif
 }
 
+#ifndef SDL_MODE
 void exti4_15_isr(void)
 {
-#ifndef SDL_MODE
     exti_reset_request(EXTI6);
+
+    gm.pulseTimes[gm.pulseTimesHead] = timer_get_counter(TIM2);
+    gm.pulseTimesHead = (gm.pulseTimesHead + 1) & GM_PULSE_TIMES_MASK;
+}
 #endif
 
-    gm.pulseCount++;
-}
-
-uint32_t getPulseCount(void)
+bool getGMPulse(uint32_t *pulseTime)
 {
-    return gm.pulseCount;
+#ifdef SDL_MODE
+    static uint32_t simTimer = 0;
+
+    if (gm.pulseTimesHead == gm.pulseTimesTail)
+    {
+        uint32_t n = simPulses();
+        for (uint32_t i = 0; i < n; i++)
+        {
+            gm.pulseTimes[gm.pulseTimesHead] = simTimer;
+            gm.pulseTimesHead = (gm.pulseTimesHead + 1) & GM_PULSE_TIMES_MASK;
+        }
+
+        simTimer++;
+
+        return false;
+    }
+#endif
+
+    if (gm.pulseTimesHead == gm.pulseTimesTail)
+        return false;
+
+    *pulseTime = gm.pulseTimes[gm.pulseTimesTail];
+    gm.pulseTimesTail = (gm.pulseTimesTail + 1) & GM_PULSE_TIMES_MASK;
+
+    return true;
 }

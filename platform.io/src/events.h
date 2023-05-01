@@ -31,7 +31,7 @@ void waitSysTicks(uint32_t value);
 void updateBacklight(void);
 void disableBacklight(void);
 
-void startBuzzerTimer(int value);
+void startBuzzerTimer(int32_t value);
 
 void updateEvents(void);
 

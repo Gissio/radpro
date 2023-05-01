@@ -7,22 +7,22 @@
  * License: MIT
  */
 
-#include <stdio.h>
-
 #include "display.h"
+#include "events.h"
 #include "game.h"
 #include "keyboard.h"
 #include "main.h"
 #include "measurements.h"
 #include "menus.h"
 #include "power.h"
+#include "rng.h"
 #include "settings.h"
 #include "stats.h"
 #include "ui.h"
 
 struct UI
 {
-    uint8_t currentView;
+    View currentView;
     bool updateView;
 
     bool backKeyDown;
@@ -34,11 +34,11 @@ void updateUI(void)
     updateEvents();
 
     // Key events
-    int keyEvent = getKeyEvent();
+    KeyEvent keyEvent = getKeyEvent();
 
     if (keyEvent == KEY_BACK)
         ui.backKeyDown = true;
-    else if (keyEvent == KEY_BACK_UP)
+    else if (keyEvent == KEY_BACK_DELAYED)
     {
         if (ui.backKeyDown)
             ui.backKeyDown = false;
@@ -72,6 +72,10 @@ void updateUI(void)
 
         case VIEW_MENU:
             onMenuViewKey(keyEvent);
+            break;
+
+        case VIEW_RNG:
+            onRNGViewKey(keyEvent);
             break;
 
         case VIEW_STATS:
@@ -114,6 +118,10 @@ void updateUI(void)
             drawMenuView();
             break;
 
+        case VIEW_RNG:
+            drawRNGView();
+            break;
+
         case VIEW_STATS:
             drawStatsView();
             break;
@@ -127,15 +135,15 @@ void updateUI(void)
     }
 }
 
-void setView(uint8_t viewIndex)
+void setView(View view)
 {
-    ui.currentView = viewIndex;
+    ui.currentView = view;
     ui.backKeyDown = false;
 
     updateView();
 }
 
-int getView(void)
+View getView(void)
 {
     return ui.currentView;
 }

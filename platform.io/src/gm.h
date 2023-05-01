@@ -10,10 +10,11 @@
 #ifndef GM_H
 #define GM_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 void initGM(void);
 
-uint32_t getPulseCount(void);
+bool getGMPulse(uint32_t *pulseTime);
 
 #endif

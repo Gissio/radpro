@@ -25,7 +25,7 @@ typedef struct
 {
     char *const name;
     float scale;
-    int minExponent;
+    int8_t minExponent;
 } Unit;
 
 typedef struct
@@ -149,6 +149,6 @@ void writeSettings(void);
 
 float getRateAlarmSvH(uint32_t index);
 float getDoseAlarmSv(uint32_t index);
-int getBacklightTime(uint32_t index);
+uint32_t getBacklightTime(uint32_t index);
 
 #endif

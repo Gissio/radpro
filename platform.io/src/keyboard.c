@@ -8,8 +8,6 @@
  */
 
 #include <stdbool.h>
-#include <stdint.h>
-#include <stdio.h>
 
 #ifdef SDL_MODE
 #include "SDL.h"
@@ -28,11 +26,11 @@ struct Keyboard
 {
     bool wasKeyDown[KEY_EVENT_NUM];
 
-    signed char pressedKey;
+    KeyEvent pressedKey;
     uint32_t pressedTicks;
 
-    volatile uint8_t keyEvent;
-    volatile uint8_t lastKeyEvent;
+    volatile KeyEvent keyEvent;
+    volatile KeyEvent lastKeyEvent;
 } keyboard;
 
 void initKeyboard(void)
@@ -55,7 +53,7 @@ void initKeyboard(void)
 void onKeyboardTick(void)
 {
     bool isKeyDown[KEY_EVENT_NUM];
-    int keyEvent = -1;
+    KeyEvent keyEvent = -1;
 
 #ifndef SDL_MODE
     isKeyDown[KEY_POWER] = !gpio_get(KEY_POWER_PORT, KEY_POWER_PIN);
@@ -72,7 +70,7 @@ void onKeyboardTick(void)
     isKeyDown[KEY_BACK] = state[SDL_SCANCODE_LEFT];
 #endif
 
-    for (int i = 0; i < KEY_EVENT_NUM; i++)
+    for (uint32_t i = 0; i < KEY_EVENT_NUM; i++)
     {
         // Key down
         if (!keyboard.wasKeyDown[i] && isKeyDown[i])
@@ -88,7 +86,7 @@ void onKeyboardTick(void)
         {
             if ((keyboard.pressedKey == KEY_BACK) &&
                 (keyboard.pressedTicks < KEY_PRESSED_TICKS))
-                keyEvent = KEY_BACK_UP;
+                keyEvent = KEY_BACK_DELAYED;
 
             keyboard.pressedKey = -1;
         }
@@ -130,9 +128,9 @@ void onKeyboardTick(void)
         keyboard.keyEvent = ((keyboard.keyEvent & ~0xf) + 0x10) | keyEvent;
 }
 
-int getKeyEvent(void)
+KeyEvent getKeyEvent(void)
 {
-    uint8_t keyEvent = keyboard.keyEvent;
+    KeyEvent keyEvent = keyboard.keyEvent;
     if (keyboard.lastKeyEvent != keyEvent)
     {
         keyboard.lastKeyEvent = keyEvent;

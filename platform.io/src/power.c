@@ -7,9 +7,7 @@
  * License: MIT
  */
 
-#include <limits.h>
 #include <stdbool.h>
-#include <stdio.h>
 
 #include "events.h"
 #include "main.h"
@@ -36,12 +34,12 @@
 // For N = 60 (seconds):
 #define BATTERY_FILTER_CONSTANT 0.98347F
 
+const uint8_t powerADCChannels = {4};
+
 struct Power
 {
     float batteryValue;
 } power;
-
-const uint8_t powerADCChannels = {4};
 
 void initPower(void)
 {
@@ -58,7 +56,7 @@ void initPower(void)
     rcc_periph_clock_enable(RCC_ADC1);
 
     adc_set_sample_time_on_all_channels(ADC1, ADC_SMPTIME_055DOT5);
-    adc_set_regular_sequence(ADC1, 1, (uint8_t *) &powerADCChannels);
+    adc_set_regular_sequence(ADC1, 1, (uint8_t *)&powerADCChannels);
 
     adc_calibrate_async(ADC1);
     uint32_t calibrationTimeout = 100;
@@ -130,17 +128,17 @@ uint8_t getBatteryLevel(void)
         return BATTERY_LEVEL_CHARGING;
 #endif
 
-    int value;
+    int32_t value;
     switch (settings.batteryType)
     {
     case BATTERY_NI_MH:
-        value = (int)(BATTERY_LEVEL_MAX * (power.batteryValue - BATTERY_NI_MH_VALUE_MIN) /
-                      BATTERY_NI_MH_VALUE_RANGE);
+        value = (int32_t)(BATTERY_LEVEL_MAX * (power.batteryValue - BATTERY_NI_MH_VALUE_MIN) /
+                          BATTERY_NI_MH_VALUE_RANGE);
         break;
 
     case BATTERY_ALKALINE:
-        value = (int)(BATTERY_LEVEL_MAX * (power.batteryValue - BATTERY_ALKALINE_VALUE_MIN) /
-                      BATTERY_ALKALINE_VALUE_RANGE);
+        value = (int32_t)(BATTERY_LEVEL_MAX * (power.batteryValue - BATTERY_ALKALINE_VALUE_MIN) /
+                          BATTERY_ALKALINE_VALUE_RANGE);
         break;
 
     default:

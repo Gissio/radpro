@@ -62,8 +62,6 @@ Settings settings;
 #ifndef SDL_MODE
 #define SETTINGS_PAGE_BASE FLASH_BASE
 #else
-#include <stdio.h>
-
 uint8_t eeprom[65536];
 #define SETTINGS_PAGE_BASE eeprom
 #endif
@@ -75,8 +73,7 @@ uint8_t eeprom[65536];
 
 void updateTubeType(void)
 {
-    float cpmPerUSvH = 1;
-
+    float cpmPerUSvH;
     switch (settings.tubeType)
     {
     case TUBE_HH614:
@@ -94,6 +91,10 @@ void updateTubeType(void)
     case TUBE_SI3BG:
         cpmPerUSvH = 1.61F;
         break;
+
+    default:
+        cpmPerUSvH = 1;
+        break;
     }
 
     units[0].rate.scale = (60 * 1E-6F) / cpmPerUSvH;
@@ -109,9 +110,11 @@ static uint8_t *getSettingsAddress(uint32_t pageIndex, uint32_t index)
            sizeof(settings) * index;
 }
 
-static int getLatestSettingsPageIndex(void)
+static int32_t getLatestSettingsPageIndex(void)
 {
-    for (int pageIndex = SETTINGS_PAGE_START; pageIndex < SETTINGS_PAGE_END; pageIndex++)
+    for (uint32_t pageIndex = SETTINGS_PAGE_START;
+         pageIndex < SETTINGS_PAGE_END;
+         pageIndex++)
     {
         Settings *page = (Settings *)getSettingsAddress(pageIndex, 0);
         if (page[SETTINGS_PER_PAGE - 1].validState == SETTING_INVALID)
@@ -128,10 +131,10 @@ static int getLatestSettingsPageIndex(void)
     return -1;
 }
 
-static int getLatestSettingsIndex(int pageIndex)
+static int32_t getLatestSettingsIndex(uint32_t pageIndex)
 {
     Settings *page = (Settings *)getSettingsAddress(pageIndex, 0);
-    for (int index = (SETTINGS_PER_PAGE - 1); index >= 0; index--)
+    for (int32_t index = (SETTINGS_PER_PAGE - 1); index >= 0; index--)
     {
         if (page[index].lifeTimer != ULONG_MAX)
             return index;
@@ -140,7 +143,7 @@ static int getLatestSettingsIndex(int pageIndex)
     return -1;
 }
 
-static void eraseSettingsPage(int pageIndex)
+static void eraseSettingsPage(int32_t pageIndex)
 {
 #ifndef SDL_MODE
     flash_erase_page(pageIndex);
@@ -148,12 +151,12 @@ static void eraseSettingsPage(int pageIndex)
     printf("Erasing page %d\n", pageIndex);
 
     uint8_t *dest = getSettingsAddress(pageIndex, 0);
-    for (int i = 0; i < SETTINGS_PAGE_SIZE; i++)
+    for (uint32_t i = 0; i < SETTINGS_PAGE_SIZE; i++)
         dest[i] = 0xff;
 #endif
 }
 
-static void writeSettingsToPage(int pageIndex, int index)
+static void writeSettingsToPage(int32_t pageIndex, int32_t index)
 {
     uint32_t *source = (uint32_t *)&settings;
     uint32_t *dest = (uint32_t *)getSettingsAddress(pageIndex, index);
@@ -163,7 +166,7 @@ static void writeSettingsToPage(int pageIndex, int index)
         flash_program_word((uint32_t)(dest + i), source[i]);
 #else
     printf("Writing settings to pageIndex %d, index %d, address %04x\n",
-           pageIndex, index, (int)((uint8_t *)dest - eeprom));
+           pageIndex, index, (uint32_t)((uint8_t *)dest - eeprom));
 
     *((Settings *)dest) = *((Settings *)source);
 #endif
@@ -185,21 +188,21 @@ void initSettings(void)
     settings.lifeCounts = 0;
 
 #ifdef SDL_MODE
-    for (int pageIndex = SETTINGS_PAGE_START;
+    for (uint32_t pageIndex = SETTINGS_PAGE_START;
          pageIndex < SETTINGS_PAGE_END;
          pageIndex++)
         eraseSettingsPage(pageIndex);
 #endif
 
-    int pageIndex = getLatestSettingsPageIndex();
+    int32_t pageIndex = getLatestSettingsPageIndex();
     if (pageIndex >= 0)
     {
-        int index = getLatestSettingsIndex(pageIndex);
+        int32_t index = getLatestSettingsIndex(pageIndex);
         uint8_t *source = getSettingsAddress(pageIndex, index);
 
 #ifdef SDL_MODE
         printf("Reading settings from pageIndex %d, index %d, address %04x\n",
-               pageIndex, index, (int)(source - eeprom));
+               pageIndex, index, (uint32_t)(source - eeprom));
 #endif
         settings = *((Settings *)source);
     }
@@ -213,8 +216,8 @@ void writeSettings(void)
     flash_unlock();
 #endif
 
-    int pageIndex = getLatestSettingsPageIndex();
-    int index;
+    int32_t pageIndex = getLatestSettingsPageIndex();
+    int32_t index;
 
     if (pageIndex < 0)
     {
@@ -231,7 +234,7 @@ void writeSettings(void)
 
         if (index == (SETTINGS_PER_PAGE - 1))
         {
-            int erasePageIndex = pageIndex + 1;
+            uint32_t erasePageIndex = pageIndex + 1;
             if (erasePageIndex >= SETTINGS_PAGE_END)
                 erasePageIndex = SETTINGS_PAGE_START;
 
@@ -265,7 +268,7 @@ float getDoseAlarmSv(uint32_t index)
     return doseAlarmsSv[index];
 }
 
-int getBacklightTime(uint32_t index)
+uint32_t getBacklightTime(uint32_t index)
 {
     return backlightTime[index];
 }

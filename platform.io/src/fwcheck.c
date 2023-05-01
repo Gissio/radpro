@@ -28,7 +28,7 @@ void checkFirmware(void)
     uint32_t validCRC = *(uint32_t *)(FIRMWARE_BASE + FIRMWARE_SIZE);
     if (crc != validCRC)
     {
-        for (int i = 0; i < 10; i++)
+        for (uint32_t i = 0; i < 10; i++)
         {
             setBuzzer(true);
             waitSysTicks(50);

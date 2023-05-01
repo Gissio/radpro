@@ -7,7 +7,6 @@
  * License: MIT
  */
 
-#include <stdio.h>
 #include <string.h>
 
 #ifdef SDL_MODE
@@ -60,7 +59,7 @@
 #define GAME_VIEW_MOVES_LINE_WIDTH 25
 #define GAME_VIEW_MOVES_LINE_HEIGHT 6
 #define GAME_VIEW_MOVES_X (GAME_VIEW_BOARD_WIDTH + 6)
-#define GAME_VIEW_MOVES_Y (LCD_CENTER_Y + 4 - GAME_VIEW_MOVES_LINE_HEIGHT * GAME_MOVES_LINE_NUM / 2)
+#define GAME_VIEW_MOVES_Y (LCD_CENTER_Y + 5 - GAME_VIEW_MOVES_LINE_HEIGHT * GAME_MOVES_LINE_NUM / 2)
 #define GAME_VIEW_BUTTON_X 101
 #define GAME_VIEW_BUTTON_Y 54
 #define GAME_VIEW_BUTTON_WIDTH 23
@@ -232,7 +231,7 @@ static uint8_t onDisplayByte(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *a
     case U8X8_MSG_BYTE_SEND:
     {
         uint8_t *p = (uint8_t *)arg_ptr;
-        for (int i = 0; i < arg_int; i++, p++)
+        for (uint32_t i = 0; i < arg_int; i++, p++)
         {
             uint8_t value = *p;
 
@@ -323,16 +322,12 @@ static uint8_t setupU8X8(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_p
 SDL_Window *u8g_sdl_window;
 SDL_Surface *u8g_sdl_screen;
 
-int u8g_sdl_multiple = 3;
+uint32_t u8g_sdl_multiple = 3;
 uint32_t u8g_sdl_color[256];
-int u8g_sdl_height, u8g_sdl_width;
+uint32_t u8g_sdl_height, u8g_sdl_width;
 
-static void u8g_sdl_set_pixel(int x, int y, int idx)
+static void u8g_sdl_set_pixel(uint32_t x, uint32_t y, uint32_t index)
 {
-    uint32_t *ptr;
-    uint32_t offset;
-    int i, j;
-
     if (y >= u8g_sdl_height)
         return;
     if (y < 0)
@@ -342,56 +337,56 @@ static void u8g_sdl_set_pixel(int x, int y, int idx)
     if (x < 0)
         return;
 
-    for (i = 0; i < u8g_sdl_multiple; i++)
-        for (j = 0; j < u8g_sdl_multiple; j++)
+    for (uint32_t i = 0; i < u8g_sdl_multiple; i++)
+        for (uint32_t j = 0; j < u8g_sdl_multiple; j++)
         {
 #ifndef NO_SDL
-            offset = (((y * u8g_sdl_multiple) + i) * (u8g_sdl_width * u8g_sdl_multiple) +
-                      ((x * u8g_sdl_multiple) + j)) *
-                     u8g_sdl_screen->format->BytesPerPixel;
+            uint32_t offset = (((y * u8g_sdl_multiple) + i) * (u8g_sdl_width * u8g_sdl_multiple) +
+                               ((x * u8g_sdl_multiple) + j)) *
+                              u8g_sdl_screen->format->BytesPerPixel;
 
-            ptr = (uint32_t *)((uint8_t *)u8g_sdl_screen->pixels + offset);
-            *ptr = u8g_sdl_color[idx];
+            uint32_t *ptr = (uint32_t *)((uint8_t *)u8g_sdl_screen->pixels + offset);
+            *ptr = u8g_sdl_color[index];
 #endif
         }
 }
 
-static void u8g_sdl_set_8pixel(int x, int y, uint8_t pixel)
+static void u8g_sdl_set_8pixel(uint32_t x, uint32_t y, uint8_t pixel)
 {
-    int cnt = 8;
-    int bg = 0;
+    uint32_t count = 8;
+    uint32_t background = 0;
+
     if ((x / 8 + y / 8) & 1)
-        bg = 4;
-    while (cnt > 0)
+        background = 4;
+
+    while (count > 0)
     {
         if ((pixel & 1) == 0)
-        {
-            u8g_sdl_set_pixel(x, y, bg);
-        }
+            u8g_sdl_set_pixel(x, y, background);
         else
-        {
             u8g_sdl_set_pixel(x, y, 3);
-        }
+
         pixel >>= 1;
         y++;
-        cnt--;
+        count--;
     }
 }
 
-static void u8g_sdl_set_multiple_8pixel(int x, int y, int cnt, uint8_t *pixel)
+static void u8g_sdl_set_multiple_8pixel(uint32_t x, uint32_t y, uint32_t count, uint8_t *pixel)
 {
     uint8_t b;
-    while (cnt > 0)
+
+    while (count > 0)
     {
         b = *pixel;
         u8g_sdl_set_8pixel(x, y, b);
         x++;
         pixel++;
-        cnt--;
+        count--;
     }
 }
 
-static void u8g_sdl_init(int width, int height)
+static void u8g_sdl_init(uint32_t width, uint32_t height)
 {
     u8g_sdl_height = height;
     u8g_sdl_width = width;
@@ -489,29 +484,6 @@ static const u8x8_display_info_t u8x8_sdl_240x160_info =
         /* pixel_width = */ 240,
         /* pixel_height = */ 160};
 
-static uint8_t u8x8_d_sdl_gpio(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr)
-{
-    static int debounce_cnt = 0;
-    static int curr_msg = 0;
-    static int db_cnt = 10;
-
-    if (curr_msg > 0)
-    {
-        if (msg == curr_msg)
-        {
-            u8x8_SetGPIOResult(u8x8, 0);
-            if (debounce_cnt == 0)
-                curr_msg = 0;
-            else
-                debounce_cnt--;
-            return 1;
-        }
-    }
-
-    u8x8_SetGPIOResult(u8x8, 1);
-    return 1;
-}
-
 uint8_t u8x8_d_sdl_128x64(u8x8_t *u8g2, uint8_t msg, uint8_t arg_int, void *arg_ptr)
 {
     uint8_t x, y, c;
@@ -566,7 +538,6 @@ void u8x8_Setup_SDL_128x64(u8x8_t *u8x8)
 
     /* setup specific callbacks */
     u8x8->display_cb = u8x8_d_sdl_128x64;
-    u8x8->gpio_and_delay_cb = u8x8_d_sdl_gpio;
 
     /* setup display info */
     u8x8_SetupMemory(u8x8);
@@ -610,17 +581,17 @@ void setBacklight(bool value)
 #endif
 }
 
-static void drawTextLeft(const char *str, int x, int y)
+static void drawTextLeft(const char *str, uint32_t x, uint32_t y)
 {
     u8g2_DrawStr(&display.u8g2, x, y, str);
 }
 
-static void drawTextCenter(const char *str, int x, int y)
+static void drawTextCenter(const char *str, uint32_t x, uint32_t y)
 {
     u8g2_DrawStr(&display.u8g2, x - u8g2_GetStrWidth(&display.u8g2, str) / 2, y, str);
 }
 
-static void drawTextRight(const char *str, int x, int y)
+static void drawTextRight(const char *str, uint32_t x, uint32_t y)
 {
     u8g2_DrawStr(&display.u8g2, x - u8g2_GetStrWidth(&display.u8g2, str), y, str);
 }
@@ -682,7 +653,7 @@ void drawMeasurementValue(const char *mantissa, const char *characteristic)
     drawTextLeft(characteristic, MEASUREMENT_VALUE_SIDE_X, MEASUREMENT_VALUE_Y - 16);
 }
 
-void drawConfidenceIntervals(int sampleNum)
+void drawConfidenceIntervals(uint32_t sampleNum)
 {
     if (sampleNum == 0)
         return;
@@ -707,7 +678,7 @@ void drawConfidenceIntervals(int sampleNum)
 }
 
 void drawHistory(const char *minLabel, const char *maxLabel,
-                 int offset, int range)
+                 int32_t offset, uint32_t range)
 {
     // Plot separators
     u8g2_DrawHLine(&display.u8g2, 0, HISTORY_VIEW_Y_TOP, LCD_WIDTH);
@@ -716,14 +687,14 @@ void drawHistory(const char *minLabel, const char *maxLabel,
     // Data
     // uint8_t lastX = LCD_WIDTH;
     // uint8_t lastY = data[0];
-    for (int i = 0; i < HISTORY_BUFFER_SIZE; i++)
+    for (uint32_t i = 0; i < HISTORY_BUFFER_SIZE; i++)
     {
-        int value = getHistoryDataPoint(i);
+        uint8_t value = getHistoryDataPoint(i);
         if (value == 0)
             continue;
 
-        int x = (LCD_WIDTH - 1) - i * LCD_WIDTH / HISTORY_BUFFER_SIZE;
-        int y = (value + offset) * HISTORY_VALUE_DECADE / HISTORY_VIEW_HEIGHT / range;
+        uint32_t x = (LCD_WIDTH - 1) - i * LCD_WIDTH / HISTORY_BUFFER_SIZE;
+        uint32_t y = (value + offset) * HISTORY_VALUE_DECADE / HISTORY_VIEW_HEIGHT / range;
 
         // Pixel
         // u8g2_DrawPixel(&display.u8g2, x, HISTORY_VIEW_Y_BOTTOM - y);
@@ -738,17 +709,17 @@ void drawHistory(const char *minLabel, const char *maxLabel,
 
     // Time divisors
     u8g2_SetDisplayRotation(&display.u8g2, U8G2_R1);
-    for (int i = 0; i < 7; i++)
+    for (uint32_t i = 0; i < 7; i++)
     {
-        int x = (i + 1) * LCD_WIDTH / 8 - 1;
+        uint32_t x = (i + 1) * LCD_WIDTH / 8 - 1;
         u8g2_DrawXBM(&display.u8g2, HISTORY_VIEW_Y_TOP + 1, x, HISTORY_VIEW_HEIGHT - 1, 1, dotted4_bits);
     }
     u8g2_SetDisplayRotation(&display.u8g2, U8G2_R0);
 
     // Value divisors
-    for (int i = 0; i < (range - 1); i++)
+    for (uint32_t i = 0; i < (uint32_t)(range - 1); i++)
     {
-        int y = HISTORY_VIEW_Y_TOP + (i + 1) * HISTORY_VIEW_HEIGHT / range;
+        uint32_t y = HISTORY_VIEW_Y_TOP + (i + 1) * HISTORY_VIEW_HEIGHT / range;
         u8g2_DrawXBM(&display.u8g2, 0, y, LCD_WIDTH, 1, dotted4_bits);
     }
 
@@ -756,6 +727,29 @@ void drawHistory(const char *minLabel, const char *maxLabel,
 
     drawTextLeft(minLabel, 1, HISTORY_VIEW_Y_BOTTOM + 1 + 6);
     drawTextLeft(maxLabel, 1, HISTORY_VIEW_Y_TOP - 1);
+}
+
+void drawRNGText(char *text)
+{
+    u8g2_SetFont(&display.u8g2, font_helvR08);
+
+    uint8_t x = 0;
+    uint8_t y = LCD_CENTER_Y - 6;
+
+    while (*text != '\0')
+    {
+        uint8_t width = u8g2_GetGlyphWidth(&display.u8g2, *text);
+        if ((x + width) >= LCD_WIDTH)
+        {
+            x = 0;
+            y += 12;
+        }
+
+        u8g2_DrawGlyph(&display.u8g2, x, y, *text);
+
+        text++;
+        x += width;
+    }
 }
 
 void drawStats(void)
@@ -779,16 +773,16 @@ void drawGameBoard(const char board[8][9],
                    const char *buttonText, bool buttonSelected)
 {
     u8g2_SetFont(&display.u8g2, font_icons);
-    for (int y = 0; y < 8; y++)
+    for (uint32_t y = 0; y < 8; y++)
         drawTextLeft(board[y], GAME_VIEW_BOARD_X, GAME_VIEW_BOARD_Y + 8 * y);
 
     u8g2_SetFont(&display.u8g2, font_tiny5);
     drawTextLeft(time[0], GAME_VIEW_TIME_X, GAME_VIEW_TIME_UPPER_Y);
     drawTextLeft(time[1], GAME_VIEW_TIME_X, GAME_VIEW_TIME_LOWER_Y);
 
-    for (int y = 0; y < GAME_MOVES_LINE_NUM; y++)
+    for (uint32_t y = 0; y < GAME_MOVES_LINE_NUM; y++)
     {
-        for (int x = 0; x < 2; x++)
+        for (uint32_t x = 0; x < 2; x++)
         {
             drawTextLeft(moveHistory[y][x],
                          GAME_VIEW_MOVES_X + GAME_VIEW_MOVES_LINE_WIDTH * x,
@@ -812,21 +806,21 @@ void drawGameBoard(const char board[8][9],
     }
 }
 
-void drawMenu(const struct Menu *menu, uint8_t startIndex, uint8_t selectedIndex)
+void drawMenu(const struct Menu *menu, uint32_t startIndex, uint32_t selectedIndex)
 {
     u8g2_SetFont(&display.u8g2, font_helvR08);
 
-    for (uint8_t i = 0, y = MENU_VIEW_Y_TOP;
+    for (uint32_t i = 0, y = MENU_VIEW_Y_TOP;
          i < MENU_VIEW_LINE_NUM;
          i++, y += MENU_VIEW_LINE_HEIGHT)
     {
-        uint8_t index = startIndex + i;
+        uint32_t index = startIndex + i;
 
         const char *name = menu->getMenuOption(menu, index);
         if (!name)
             break;
 
-        uint8_t selected = (index == selectedIndex);
+        bool selected = (index == selectedIndex);
 
         u8g2_SetDrawColor(&display.u8g2, selected);
         u8g2_DrawBox(&display.u8g2, 0, y, LCD_WIDTH, MENU_VIEW_LINE_HEIGHT);

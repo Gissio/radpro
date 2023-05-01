@@ -20,22 +20,22 @@ static float getUniformRandomValue(void)
     return (float)rand() / RAND_MAX;
 }
 
-static int getPoisson(float lambda)
+static uint32_t getPoisson(float lambda)
 {
     double l = exp(-lambda);
-    int k = 0;
+    uint32_t n = 0;
     double p = 1;
 
     do
     {
-        k++;
+        n++;
         p = p * getUniformRandomValue();
     } while (p > l);
 
-    return k - 1;
+    return n - 1;
 }
 
-uint32_t simPulses(uint32_t n)
+uint32_t simPulses()
 {
-    return getPoisson(n * CPS / SYS_TICK_FREQUENCY);
+    return getPoisson(CPS / SYS_TICK_FREQUENCY);
 }

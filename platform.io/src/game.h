@@ -10,13 +10,18 @@
 #ifndef GAME_H
 #define GAME_H
 
-void resetGame(int isPlayerBlack);
+#include <stdbool.h>
+#include <stdint.h>
+
+#include "keyboard.h"
+
+void resetGame(uint8_t playerIndex);
 bool isGameStart(void);
 
 void updateGame(void);
 void updateGameTimer(void);
 
 void drawGameView(void);
-void onGameViewKey(int keyEvent);
+void onGameViewKey(KeyEvent keyEvent);
 
 #endif

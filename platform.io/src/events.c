@@ -16,12 +16,14 @@
 #include "buzzer.h"
 #include "cmath.h"
 #include "display.h"
+#include "events.h"
 #include "game.h"
 #include "gm.h"
 #include "keyboard.h"
 #include "main.h"
 #include "measurements.h"
 #include "power.h"
+#include "rng.h"
 #include "settings.h"
 #include "ui.h"
 
@@ -31,16 +33,14 @@ struct Events
 
     bool isEventsEnabled;
 
-    uint32_t lastPulseCount;
+    volatile int32_t keyTimer;
 
-    volatile int keyTimer;
-
-    volatile int backlightTimer;
+    volatile int32_t backlightTimer;
     bool backlightPWMState;
 
-    volatile int buzzerTimer;
+    volatile int32_t buzzerTimer;
 
-    int oneSecondTimer;
+    int32_t oneSecondTimer;
     volatile uint8_t oneSecondUpdate;
     volatile uint8_t lastOneSecondUpdate;
 } events;
@@ -77,7 +77,7 @@ void disableEvents(void)
     events.isEventsEnabled = true;
 }
 
-static bool isTimerElapsed(volatile int *timer)
+static bool isTimerElapsed(volatile int32_t *timer)
 {
     if ((*timer) <= 0)
         return false;
@@ -117,11 +117,15 @@ void sys_tick_handler(void)
         setBuzzer(false);
 
     // Measurement
-    uint32_t pulseCount = getPulseCount();
-    uint32_t pulseCountDelta = pulseCount - events.lastPulseCount;
-    events.lastPulseCount = pulseCount;
+    uint32_t pulseNum = 0;
+    uint32_t pulseTime;
+    while(getGMPulse(&pulseTime))
+    {
+        onRNGPulse(pulseTime);
+        pulseNum++;
+    }
 
-    onMeasurementTick(pulseCountDelta);
+    onMeasurementTick(pulseNum);
 
     // One second timer
     if (isTimerElapsed(&events.oneSecondTimer))
@@ -150,16 +154,21 @@ void waitSysTicks(uint32_t value)
         // ---
     }
 #else
+    static uint32_t tickSim = 0;
+
+    if (!value)
+        return;
+
     uint32_t tickStart = SDL_GetTicks();
-    uint32_t tickUpdate = tickStart;
+    uint32_t tickUpdated = tickStart;
 
     while (true)
     {
         uint32_t tickCurrent = SDL_GetTicks();
 
-        while (tickUpdate < tickCurrent)
+        while ((tickCurrent - tickUpdated) > 0)
         {
-            tickUpdate++;
+            tickUpdated++;
             sys_tick_handler();
         }
 
@@ -200,10 +209,12 @@ void disableBacklight(void)
     events.backlightTimer = 1;
 }
 
-void startBuzzerTimer(int value)
+void startBuzzerTimer(int32_t value)
 {
-    if (events.buzzerTimer < value)
-        events.buzzerTimer = value;
+    if (value < events.buzzerTimer)
+        return;
+
+    events.buzzerTimer = value;
 
     setBuzzer(true);
 }
