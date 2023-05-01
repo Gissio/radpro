@@ -63,9 +63,9 @@ void onRNGPulse(uint32_t pulseTime)
             bool bit = (period > rng.lastPeriod);
 
             // Flip every second bit (filters bias)
-            // if (rng.bitFlip)
-            //     bit = !bit;
-            // rng.bitFlip = !rng.bitFlip;
+            if (rng.bitFlip)
+                bit = !bit;
+            rng.bitFlip = !rng.bitFlip;
 
             rng.bitQueue[headByteIndex] = (rng.bitQueue[headByteIndex] &
                                            ~(1 << headBitIndex)) |
