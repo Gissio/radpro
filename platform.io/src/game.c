@@ -37,12 +37,12 @@ struct Game
     uint32_t time[2];
     mcumax_move move;
 
-    uint32_t moveIndex;
+    int32_t moveIndex;
 
     mcumax_move history[GAME_HISTORY_SIZE];
 
-    uint32_t validMovesNum;
-    uint32_t validMovesIndex;
+    int32_t validMovesNum;
+    int32_t validMovesIndex;
     mcumax_move validMoves[GAME_VALID_MOVES_NUM_MAX];
 
     bool isButtonSelected;
@@ -108,7 +108,7 @@ static void undoGameMove(void)
 
     mcumax_reset();
 
-    for (uint32_t i = 0; i < game.moveIndex; i++)
+    for (int32_t i = 0; i < game.moveIndex; i++)
         mcumax_play_move(game.history[i]);
 }
 
@@ -270,7 +270,7 @@ void drawGameView(void)
     {
         for (uint32_t x = 0; x < 2; x++)
         {
-            uint32_t index = start + 2 * y + x;
+            int32_t index = start + 2 * y + x;
 
             if ((index < game.moveIndex) &&
                 (index < GAME_HISTORY_SIZE) &&

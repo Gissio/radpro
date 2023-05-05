@@ -56,10 +56,8 @@ void initEvents(void)
     systick_counter_enable();
 
     // Watchdog
-    // +++
-    // iwdg_set_period_ms(500);
-    // iwdg_start();
-    // ---
+    iwdg_set_period_ms(500 * 40000 / 32768);
+    iwdg_start();
 #endif
 
     events.keyTimer = KEY_TICKS;
@@ -118,7 +116,7 @@ void sys_tick_handler(void)
     // Measurement
     uint32_t pulseNum = 0;
     uint32_t pulseTime;
-    while(getGMPulse(&pulseTime))
+    while (getGMPulse(&pulseTime))
     {
         onRNGPulse(pulseTime);
         pulseNum++;
@@ -142,15 +140,11 @@ void waitSysTicks(uint32_t value)
 #ifndef SDL_MODE
     uint32_t tickStart = events.sysTickValue;
 
-    // +++
-    // iwdg_reset();
-    // ---
+    iwdg_reset();
     while ((events.sysTickValue - tickStart) < value)
     {
-        // +++
-        // asm("wfi")
-        // iwdg_reset();
-        // ---
+        asm("wfi");
+        iwdg_reset();
     }
 #else
     static uint32_t tickSim = 0;
@@ -189,12 +183,16 @@ void updateBacklight(void)
     switch (settings.backlight)
     {
     case BACKLIGHT_OFF:
+    case BACKLIGHT_PULSE_FLASHES:
         events.backlightTimer = 1;
         break;
 
     case BACKLIGHT_10S:
+        events.backlightTimer = 10 * SYS_TICK_FREQUENCY;
+        break;
+
     case BACKLIGHT_60S:
-        events.backlightTimer = SYS_TICK_FREQUENCY * getBacklightTime(settings.backlight);
+        events.backlightTimer = 60 * SYS_TICK_FREQUENCY;
         break;
 
     case BACKLIGHT_ON:
@@ -203,14 +201,17 @@ void updateBacklight(void)
     }
 }
 
-void disableBacklight(void)
+void setBacklightTimer(int32_t value)
 {
-    events.backlightTimer = 1;
+    if ((value > 0) && (value < events.backlightTimer))
+        return;
+
+    events.backlightTimer = value;
 }
 
-void startBuzzerTimer(int32_t value)
+void setBuzzerTimer(int32_t value)
 {
-    if (value < events.buzzerTimer)
+    if ((value > 0) && (value < events.buzzerTimer))
         return;
 
     events.buzzerTimer = value;

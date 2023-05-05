@@ -24,6 +24,12 @@
 #define INSTANTANEOUS_RATE_HISTORY_STATS_NUM 5
 #define INSTANTANEOUS_RATE_PULSE_NUM (10 + 1)
 
+#define PULSE_SOUND_QUIET_TICKS ((int)(0.001F * SYS_TICK_FREQUENCY))
+#define PULSE_SOUND_LOUD_TICKS ((int)(0.015F * SYS_TICK_FREQUENCY))
+#define PULSE_BACKLIGHT_FLASH_TICKS ((int)(0.08F * SYS_TICK_FREQUENCY))
+
+#define ALARM_TICKS ((int)(0.25F * SYS_TICK_FREQUENCY))
+
 typedef struct
 {
     uint32_t firstPulseTick;
@@ -229,13 +235,17 @@ void onMeasurementTick(uint32_t pulseNum)
         switch (settings.pulseSound)
         {
         case PULSE_SOUND_QUIET:
-            startBuzzerTimer(PULSE_SOUND_QUIET_TICKS);
+            setBuzzerTimer(PULSE_SOUND_QUIET_TICKS);
             break;
 
         case PULSE_SOUND_LOUD:
-            startBuzzerTimer(PULSE_SOUND_LOUD_TICKS);
+            setBuzzerTimer(PULSE_SOUND_LOUD_TICKS);
             break;
         }
+
+        // Display
+        if (settings.backlight == BACKLIGHT_PULSE_FLASHES)
+            setBacklightTimer(PULSE_BACKLIGHT_FLASH_TICKS);
     }
 
     instantaneousRate.tick++;
@@ -317,7 +327,10 @@ void onMeasurementOneSecond(void)
     dose.snapshotValue = dose.pulseCount;
 
     if (isInstantaneousRateAlarm() || isDoseAlarm())
-        startBuzzerTimer(ALARM_TICKS);
+    {
+        setBuzzerTimer(ALARM_TICKS);
+        setBacklightTimer(ALARM_TICKS);
+    }
 }
 
 void updateMeasurement(void)

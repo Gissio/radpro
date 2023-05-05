@@ -14,12 +14,12 @@
 #include "rng.h"
 #include "ui.h"
 
-#define RNG_BITQUEUE_SIZE 256
+#define RNG_BITQUEUE_SIZE 512
 #define RNG_BITQUEUE_MASK (RNG_BITQUEUE_SIZE - 1)
 #define RNG_BITQUEUE_MAX (RNG_BITQUEUE_MASK - 1)
 #define RNG_BITQUEUE_BYTENUM (RNG_BITQUEUE_SIZE >> 3)
 
-#define RNG_TEXT_SIZE 40
+#define RNG_TEXT_SIZE 16
 
 struct RNG
 {

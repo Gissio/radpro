@@ -1,6 +1,6 @@
 /*
  * FS2011 Pro
- * Hard Fault handler
+ * Debugging module
  *
  * (C) 2022-2023 Gissio
  *
@@ -8,48 +8,53 @@
  */
 
 #include "buzzer.h"
+#include "debug.h"
 #include "events.h"
 #include "main.h"
 
-#ifdef HARD_FAULT_HANDLER
+#ifdef ERROR_HANDLERS
 
 void onHardFault(uint32_t *args);
 
-#define DEBUG_BIT_LENGTH 20000
+#define DEBUG_BIT_LENGTH 100
+#define DEBUG_BIT0_LENGTH 1
+#define DEBUG_BIT1_LENGTH 15
 
-static void debugBit(uint32_t value)
+static void debugWait(uint32_t ms)
+{
+    uint32_t n = 200 * ms;
+
+    for (uint32_t i = 0; i < n; i++)
+        waitSysTicks(0);
+}
+
+void debugBit(bool value)
 {
     uint32_t onTime;
     uint32_t offTime;
+
     switch (value)
     {
     case 0:
-        onTime = 100;
-        offTime = DEBUG_BIT_LENGTH - 100;
+        onTime = DEBUG_BIT0_LENGTH;
+        offTime = DEBUG_BIT_LENGTH - DEBUG_BIT0_LENGTH;
         break;
 
     case 1:
-        onTime = 1000;
-        offTime = DEBUG_BIT_LENGTH - 1000;
-        break;
-
-    default:
-        onTime = 0;
-        offTime = 4 * DEBUG_BIT_LENGTH;
+        onTime = DEBUG_BIT1_LENGTH;
+        offTime = DEBUG_BIT_LENGTH - DEBUG_BIT1_LENGTH;
         break;
     }
 
     setBuzzer(true);
-    for (uint32_t i = 0; i < onTime; i++)
-        waitSysTicks(0);
+    debugWait(onTime);
     setBuzzer(false);
-    for (uint32_t i = 0; i < offTime; i++)
-        waitSysTicks(0);
+    debugWait(offTime);
 }
 
-static void debugUInt32(uint32_t value)
+void debugUInt32(uint32_t value)
 {
-    debugBit(2);
+    debugWait(500);
 
     for (uint32_t j = 0; j < 32; j++)
     {
@@ -66,7 +71,7 @@ void onHardFault(uint32_t *args)
     for (uint32_t i = 0; i < 8; i++)
         debugUInt32(args[i]);
 
-    while(true)
+    while (true)
         waitSysTicks(0);
 }
 
@@ -85,4 +90,5 @@ void hard_fault_handler(void)
         " ldr r2,=onHardFault                                       \n"
         " bx r2                                                     \n");
 }
+
 #endif

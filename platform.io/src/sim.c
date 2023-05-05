@@ -35,7 +35,7 @@ static uint32_t getPoisson(float lambda)
     return n - 1;
 }
 
-uint32_t simPulses()
+uint32_t simPulses(void)
 {
     return getPoisson(CPS / SYS_TICK_FREQUENCY);
 }

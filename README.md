@@ -8,23 +8,23 @@ Watch a demonstration of FS2011 Pro in action:
 
 ## Features
 
-* Provides instantaneous rate, average rate, dose, and history modes.
-* Incorporates a true random number generator to generate secure passwords (letters & numbres, full ASCII), random hexadecimal and decimal numbres, 6-sided dice throws, and coin flips.
-* Includes an intuitive user interface for easy navigation and hassle-free use.
-* Supports measurements in Sievert, rem, cpm and cps.
-* Offers multiple history periods, including 2-minute, 10-minute, 1-hour, 6-hour and 24-hour options.
-* Presents 95% confidence intervals to ensure accurate readings.
-* Provides measurement hold for instantaneous rate, average rate, and dose.
-* Features an overload alert to prevent damage to the device.
-* Enables customizable rate and dose alarms.
-* Offers a unique and fun feature: Nuclear chess.
-* Allows configurable pulse click sounds: off, quiet, loud.
-* Includes a configurable backlight timer: off, on for 10 seconds, on for 60 seconds, or always on.
-* Allows configurable battery type for battery level monitoring.
-* Supports multiple Geiger-Müller tubes: HH614 (48 mm long), M4011 (105 mm long), SBM-20 (108 mm long), SI-3BG (50 mm long).
-* Provides device life statistics for monitoring usage and performance of the device.
-* Offers 40% more battery life compared to the original firmware.
-* Features a power-on self-test and safety watchdog.
+* Instantaneous rate, average rate, dose, and history modes.
+* True random number generator to generate secure passwords (letters & numbres, full ASCII), random hexadecimal and decimal numbres, 6-sided dice throws, and coin flips.
+* Intuitive user interface for easy navigation and hassle-free use.
+* Measurements in Sievert, rem, cpm and cps.
+* Multiple history periods, including 2-minute, 10-minute, 1-hour, 6-hour and 24-hour options.
+* 95% confidence intervals to ensure accurate readings.
+* Measurement hold for instantaneous rate, average rate, and dose.
+* Overload alert to prevent damage to the device.
+* Customizable rate and dose alarms.
+* Unique and fun feature: Nuclear chess.
+* Configurable pulse click sounds: off, quiet, loud.
+* Configurable backlight: off, pulse flashes, on for 10 seconds, on for 60 seconds, or always on.
+* Configurable battery type for battery level monitoring.
+* Multiple Geiger-Müller tubes: HH614 (48 mm long), M4011 (105 mm long), SBM-20 (108 mm long), SI-3BG (50 mm long).
+* Device life statistics for monitoring usage and performance of the device.
+* 40% more battery life compared to the original firmware.
+* Power-on self-test and safety watchdog.
 
 ## Installation
 
@@ -63,7 +63,7 @@ If your board looks different, you may have a different hardware version and thi
 * Optionally, align the Geiger-Müller tube to the holes of the back case using a heat gun/glue gun if the tube is mounted vertically. Be careful, as the tube's glass is very delicate.
 * Optionally, apply solder on the battery holder's pads so that low-profile AA batteries make good electrical contact.
 * Optionally, increase the volume by drilling a hole on the back case in front of the buzzer.
-* Optionall, add a female USB port and connect GND and +5V to the 0V and 5V pads of the electronics board. This modification will allow your FS2011 to run continuously and even charge Ni-MH batteries.
+* Optionally, add a female USB port and connect GND and +5V to the 0V and 5V pads of the electronics board. This modification will allow your FS2011 to run continuously and even charge Ni-MH batteries.
 * Connect the ST-Link V2 device to XS1. The pins, from top to bottom, are:
   * GND
   * SWCLK
@@ -95,6 +95,8 @@ To use this firmware, follow these instructions:
 
 * To enter the menu/select a menu option, press the MENU/OK key. To go back from a menu/menu option, press the PLAY/PAUSE key.
 
+* The random number generator produces 16 symbols at a time. If you need more symbols, simply return to the menu and initiate a new run.
+
 ## Measurements
 
 The software measures the radiation in the following modes:
@@ -121,9 +123,11 @@ The history is calculated from the instantaneous rate, sampled once per second.
 
 ### Random number generator
 
-The random number generator is a tool that generates random numbers for various purposes, such as generating secure passwords, random hexadecimal and decimal numbers, 6-sided dice throws, and coin flips. It works by comparing the period between the last two pulses to the period between the second pulse and the third last pulse, producing one bit for every pulse. The periods are determined with an accuracy of 1 µs.
+The random number generator is a tool that generates random numbers for various purposes, such as generating secure passwords, random hexadecimal and decimal numbers, 6-sided dice throws, and coin flips. It works by comparing the period between the last two pulses to the period between the second pulse and the third last pulse, producing one bit for every pulse. The periods are measured with an accuracy of 1 µs.
 
-To ensure high-quality randomness, if the last and previous-to-last periods have the same period counts, the bit is discarded. Moreover, to prevent bias, every second bit is flipped. The number of bits required to generate different symbols varies depending on the application: letters and numbers require approximately 6 bits per symbol, full ASCII requires 7 bits, hexadecimal and decimal require 4 bits, 6-sided dice throws require 3 bits, and coin flips require 1 bit.
+To ensure high-quality randomness, if the last and previous-to-last periods have the same period counts, the bit is discarded. Moreover, to prevent bias, every second bit is flipped. There is a 512-bit buffer for storing entropy.
+
+The symbols are generated using the [Fast Dice Roller](https://arxiv.org/abs/1304.1916) algorithm. The number of bits required to generate different symbols varies depending on the application: "Letters & numbers" consumes approximately 6 bits per symbol, "Full ASCII" consumes 7 bits, "Hexadecimal" and "Decimal" consume 4 bits, "6-sided dice" consumes 3 bits, and "Coin flip" consumes 1 bit.
 
 To generate bits more quickly, a radioactive source can be used.
 
@@ -132,7 +136,7 @@ To generate bits more quickly, a radioactive source can be used.
 To build the software, follow these steps:
 
 * Install [Visual Studio Code][vscode-link].
-* From Visual Studio Code, install the [platform.io][pio-link] extension.
+* From Visual Studio Code, install the [platform.io][platformio-link] extension.
 * Open the `platform.io` folder to begin building the firmware.
 * Once you've built the firmware, sign the resulting binary using Python and the `tools/sign.py` script.
 * You can also build the software as a simulator by opening the project's root folder from Visual Studio Code. You'll need the `sdl2` library, which you can install using the [vcpkg][vcpkg-link] package manager.
@@ -145,5 +149,5 @@ To build the software, follow these steps:
 [stlink-link]: https://github.com/stlink-org/stlink/releases
 [releases-link]: https://github.com/Gissio/fs2011pro/releases
 [vscode-link]: https://code.visualstudio.com/
-[pio-link]: https://platform.io/
+[platformio-link]: https://platform.io/
 [vcpkg-link]: https://vcpkg.io/en/getting-started.html

@@ -51,7 +51,7 @@ void updateUI(void)
 
         disableEvents();
         waitSysTicks(1);
-        disableBacklight();
+        setBacklightTimer(1);
         setDisplay(false);
         setPower(false);
 

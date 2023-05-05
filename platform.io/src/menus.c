@@ -140,6 +140,7 @@ const char *const backlightMenuOptions[] = {
     "Off",
     "On for 10 seconds",
     "On for 60 seconds",
+    "Pulse flashes",
     "Always on",
     NULL,
 };

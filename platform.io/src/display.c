@@ -22,6 +22,7 @@
 
 #include "confidence.h"
 #include "display.h"
+#include "events.h"
 #include "format.h"
 #include "main.h"
 #include "measurements.h"
@@ -607,14 +608,6 @@ void drawWelcome(void)
 
 void drawStatusBar(void)
 {
-    // +++ TEST
-    char title[32];
-    strcpy(title, "ADC=");
-    strcatNumber(title, getBatteryValue(), 0);
-    u8g2_SetFont(&display.u8g2, font_tiny5);
-    drawTextCenter(title, LCD_CENTER_X, 6);
-    // --- TEST
-
     uint8_t batteryLevel = getBatteryLevel();
 
     char alarmIcon = (settings.rateAlarm || settings.doseAlarm) ? '<' : ' ';
@@ -734,7 +727,7 @@ void drawRNGText(char *text)
     u8g2_SetFont(&display.u8g2, font_helvR08);
 
     uint8_t x = 0;
-    uint8_t y = LCD_CENTER_Y - 6;
+    uint8_t y = LCD_CENTER_Y + 4;
 
     while (*text != '\0')
     {

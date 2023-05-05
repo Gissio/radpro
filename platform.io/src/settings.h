@@ -85,6 +85,7 @@ enum BacklightSetting
     BACKLIGHT_OFF,
     BACKLIGHT_10S,
     BACKLIGHT_60S,
+    BACKLIGHT_PULSE_FLASHES,
     BACKLIGHT_ON,
 };
 
@@ -115,12 +116,6 @@ enum GameSkillLevelSetting
     GAME_SKILLLEVEL_NUM,
 };
 
-enum ValidStateSettings
-{
-    SETTING_VALID,
-    SETTING_INVALID,
-};
-
 extern UnitType units[UNITS_NUM];
 
 typedef struct
@@ -130,11 +125,10 @@ typedef struct
     unsigned int rateAlarm : 5;
     unsigned int doseAlarm : 5;
     unsigned int pulseSound : 2;
-    unsigned int backlight : 2;
+    unsigned int backlight : 3;
     unsigned int batteryType : 1;
     unsigned int tubeType : 4;
     unsigned int gameSkillLevel : 3;
-    unsigned int validState : 1;
 
     uint32_t lifeTimer;
     uint64_t lifeCounts;
@@ -149,6 +143,5 @@ void writeSettings(void);
 
 float getRateAlarmSvH(uint32_t index);
 float getDoseAlarmSv(uint32_t index);
-uint32_t getBacklightTime(uint32_t index);
 
 #endif

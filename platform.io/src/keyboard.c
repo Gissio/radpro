@@ -70,7 +70,7 @@ void onKeyboardTick(void)
     isKeyDown[KEY_BACK] = state[SDL_SCANCODE_LEFT];
 #endif
 
-    for (uint32_t i = 0; i < KEY_EVENT_NUM; i++)
+    for (int32_t i = 0; i < KEY_EVENT_NUM; i++)
     {
         // Key down
         if (!keyboard.wasKeyDown[i] && isKeyDown[i])

@@ -50,13 +50,6 @@ const float doseAlarmsSv[] = {
     1000E-6F,
 };
 
-const uint32_t backlightTime[] = {
-    0,
-    10,
-    60,
-    0,
-};
-
 Settings settings;
 
 #ifndef SDL_MODE
@@ -117,9 +110,9 @@ static int32_t getLatestSettingsPageIndex(void)
          pageIndex++)
     {
         Settings *page = (Settings *)getSettingsAddress(pageIndex, 0);
-        if (page[SETTINGS_PER_PAGE - 1].validState == SETTING_INVALID)
+        if (page[SETTINGS_PER_PAGE - 1].lifeCounts == ULLONG_MAX)
         {
-            if (page[0].validState == SETTING_VALID)
+            if (page[0].lifeCounts != ULLONG_MAX)
                 return pageIndex;
             else if (pageIndex > SETTINGS_PAGE_START)
                 return pageIndex - 1;
@@ -136,7 +129,7 @@ static int32_t getLatestSettingsIndex(uint32_t pageIndex)
     Settings *page = (Settings *)getSettingsAddress(pageIndex, 0);
     for (int32_t index = (SETTINGS_PER_PAGE - 1); index >= 0; index--)
     {
-        if (page[index].lifeTimer != ULONG_MAX)
+        if (page[index].lifeCounts != ULLONG_MAX)
             return index;
     }
 
@@ -156,7 +149,7 @@ static void eraseSettingsPage(int32_t pageIndex)
 #endif
 }
 
-static void writeSettingsToPage(int32_t pageIndex, int32_t index)
+static void writeSettingsToPageIndex(int32_t pageIndex, int32_t index)
 {
     uint32_t *source = (uint32_t *)&settings;
     uint32_t *dest = (uint32_t *)getSettingsAddress(pageIndex, index);
@@ -200,11 +193,14 @@ void initSettings(void)
         int32_t index = getLatestSettingsIndex(pageIndex);
         uint8_t *source = getSettingsAddress(pageIndex, index);
 
+        if (index >= 0)
+        {
 #ifdef SDL_MODE
-        printf("Reading settings from pageIndex %d, index %d, address %04x\n",
-               pageIndex, index, (uint32_t)(source - eeprom));
+            printf("Reading settings from pageIndex %d, index %d, address %04x\n",
+                   pageIndex, index, (uint32_t)(source - eeprom));
 #endif
-        settings = *((Settings *)source);
+            settings = *((Settings *)source);
+        }
     }
 
     updateTubeType();
@@ -251,7 +247,8 @@ void writeSettings(void)
         }
     }
 
-    writeSettingsToPage(pageIndex, index);
+    if (index >= 0)
+        writeSettingsToPageIndex(pageIndex, index);
 
 #ifndef SDL_MODE
     flash_lock();
@@ -266,9 +263,4 @@ float getRateAlarmSvH(uint32_t index)
 float getDoseAlarmSv(uint32_t index)
 {
     return doseAlarmsSv[index];
-}
-
-uint32_t getBacklightTime(uint32_t index)
-{
-    return backlightTime[index];
 }

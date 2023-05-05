@@ -17,10 +17,6 @@
 
 #define KEY_TICKS ((int)(0.025F * SYS_TICK_FREQUENCY))
 
-#define PULSE_SOUND_QUIET_TICKS ((int)(0.001F * SYS_TICK_FREQUENCY))
-#define PULSE_SOUND_LOUD_TICKS ((int)(0.015F * SYS_TICK_FREQUENCY))
-#define ALARM_TICKS ((int)(0.25F * SYS_TICK_FREQUENCY))
-
 void initEvents(void);
 
 void enableEvents(void);
@@ -29,9 +25,9 @@ void disableEvents(void);
 void waitSysTicks(uint32_t value);
 
 void updateBacklight(void);
-void disableBacklight(void);
+void setBacklightTimer(int32_t value);
 
-void startBuzzerTimer(int32_t value);
+void setBuzzerTimer(int32_t value);
 
 void updateEvents(void);
 

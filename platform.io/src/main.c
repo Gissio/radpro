@@ -22,41 +22,25 @@
 #include "menus.h"
 #include "ui.h"
 
-static void beep(void)
-{
-    setBuzzer(true);
-    waitSysTicks(5);
-    setBuzzer(false);
-    waitSysTicks(200);
-}
-
 int main(void)
 {
     // Init base system
     initEvents();
     initBuzzer();
-    beep();
 
     // POWER key delay
     waitSysTicks(500);
-    beep();
 
     // Check firmware
     checkFirmware();
 
     // Init system
     initPower();
-    beep();
     initSettings();
-    beep();
     initGM();
-    beep();
     initMeasurement();
-    beep();
     initMenus();
-    beep();
     initKeyboard();
-    beep();
     initDisplay();
 
     // Welcome screen

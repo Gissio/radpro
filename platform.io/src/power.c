@@ -9,6 +9,7 @@
 
 #include <stdbool.h>
 
+#include "debug.h"
 #include "events.h"
 #include "main.h"
 #include "power.h"
@@ -36,6 +37,8 @@
 
 const uint8_t powerADCChannels = {4};
 
+static uint32_t getBatteryValue(void);
+
 struct Power
 {
     float batteryValue;
@@ -54,23 +57,13 @@ void initPower(void)
     setPower(true);
 
     rcc_periph_clock_enable(RCC_ADC1);
+    rcc_osc_on(RCC_HSI14);
+    rcc_wait_for_osc_ready(RCC_HSI14);
 
     adc_set_sample_time_on_all_channels(ADC1, ADC_SMPTIME_055DOT5);
     adc_set_regular_sequence(ADC1, 1, (uint8_t *)&powerADCChannels);
 
-    adc_calibrate_async(ADC1);
-    uint32_t adcCalibrationTimeout = 100;
-    while (adc_is_calibrating(ADC1) && (adcCalibrationTimeout > 0))
-    {
-        waitSysTicks(1);
-        adcCalibrationTimeout--;
-    }
-
-    // +++
-    adc_power_on(ADC1);
-    // ---
-
-    waitSysTicks(10);
+    adc_calibrate(ADC1);
 #endif
 
     power.batteryValue = (float)getBatteryValue();
@@ -88,28 +81,17 @@ void setPower(bool value)
 #endif
 }
 
-uint32_t getBatteryValue(void)
+static uint32_t getBatteryValue(void)
 {
 #ifndef SDL_MODE
-    // +++
-    // adc_power_on(ADC1);
-    // ---
+    adc_power_on(ADC1);
+
     adc_start_conversion_regular(ADC1);
-
-    uint32_t adcReadTimeout = 100;
-    while (!adc_eoc(ADC1) && (adcReadTimeout > 0))
-    {
+    while (!adc_eoc(ADC1))
         waitSysTicks(1);
-        adcReadTimeout--;
-    }
-
     uint32_t value = adc_read_regular(ADC1);
-    // +++
-    // adc_power_off(ADC1);
-    // ---
 
     return value;
-
 #else
     return (uint32_t)(ADC_FACTOR * 1.27F);
 #endif
