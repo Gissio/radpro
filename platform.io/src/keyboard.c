@@ -22,7 +22,7 @@
 #define KEY_PRESSED_REPEAT_TICKS ((int)(0.05F * SYS_TICK_FREQUENCY / KEY_TICKS))
 #define KEY_LONGPRESS_TICKS ((int)(1 * SYS_TICK_FREQUENCY / KEY_TICKS))
 
-struct Keyboard
+struct
 {
     bool wasKeyDown[KEY_EVENT_NUM];
 

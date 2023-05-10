@@ -8,9 +8,10 @@ FILE(GLOB sources platform.io/src/*.c)
 FILE(GLOB U8g2Sources platform.io/.pio/libdeps/fs2011stm32/U8g2/src/clib/*.c)
 FILE(GLOB mcumaxSources platform.io/lib/mcu-max/*.c)
 
-add_definitions(-DSDL_MODE)
-add_definitions(-DSIMULATE_PULSES)
-add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+add_definitions(-D SDL_MODE)
+add_definitions(-D SIMULATE_PULSES)
+add_definitions(-D ERROR_HANDLERS)
+add_definitions(-D _CRT_SECURE_NO_WARNINGS)
 
 add_executable(fs2011pro ${sources} ${U8g2Sources} ${mcumaxSources})
 

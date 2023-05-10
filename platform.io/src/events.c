@@ -27,7 +27,7 @@
 #include "settings.h"
 #include "ui.h"
 
-struct Events
+struct
 {
     volatile uint32_t sysTickValue;
 
@@ -55,6 +55,8 @@ void initEvents(void)
     systick_interrupt_enable();
     systick_counter_enable();
 
+    nvic_set_priority(NVIC_SYSTICK_IRQ, 255);
+
     // Watchdog
     iwdg_set_period_ms(500 * 40000 / 32768);
     iwdg_start();
@@ -64,14 +66,9 @@ void initEvents(void)
     events.oneSecondTimer = SYS_TICK_FREQUENCY;
 }
 
-void enableEvents(void)
+void setEventsEnabled(bool value)
 {
-    events.isEventsEnabled = true;
-}
-
-void disableEvents(void)
-{
-    events.isEventsEnabled = true;
+    events.isEventsEnabled = value;
 }
 
 static bool isTimerElapsed(volatile int32_t *timer)

@@ -10,7 +10,7 @@
 #include "buzzer.h"
 #include "display.h"
 #include "events.h"
-#include "fwcheck.h"
+#include "firmware.h"
 #include "game.h"
 #include "gm.h"
 #include "keyboard.h"
@@ -52,7 +52,7 @@ int main(void)
     waitSysTicks(1000);
 
     // Initialize view
-    enableEvents();
+    setEventsEnabled(true);
     setView(VIEW_INSTANTANEOUS_RATE);
 
     // Message loop

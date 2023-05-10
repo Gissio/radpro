@@ -7,8 +7,8 @@
  * License: MIT
  */
 
-#ifndef FWCHECK_H
-#define FWCHECK_H
+#ifndef FIRMWARE_H
+#define FIRMWARE_H
 
 void checkFirmware(void);
 

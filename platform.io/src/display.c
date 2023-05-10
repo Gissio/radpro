@@ -94,14 +94,16 @@ void initDisplay(void)
     rcc_periph_clock_enable(RCC_GPIOB);
     rcc_periph_clock_enable(RCC_GPIOF);
 
-    gpio_mode_setup(GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,
-                    LCD_RESET_PIN | LCD_EN_PIN | LCD_RS_PIN | LCD_RW_PIN | LCD_BACKLIGHT_PIN);
-    gpio_set_output_options(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH,
-                            LCD_RESET_PIN | LCD_EN_PIN | LCD_RS_PIN | LCD_RW_PIN | LCD_BACKLIGHT_PIN);
     gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,
                     LCD_D0_PIN | LCD_D1_PIN | LCD_D2_PIN | LCD_D3_PIN | LCD_D4_PIN | LCD_D7_PIN);
     gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH,
                             LCD_D0_PIN | LCD_D1_PIN | LCD_D2_PIN | LCD_D3_PIN | LCD_D4_PIN | LCD_D7_PIN);
+
+    gpio_mode_setup(GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,
+                    LCD_RESET_PIN | LCD_EN_PIN | LCD_RS_PIN | LCD_RW_PIN | LCD_BACKLIGHT_PIN);
+    gpio_set_output_options(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH,
+                            LCD_RESET_PIN | LCD_EN_PIN | LCD_RS_PIN | LCD_RW_PIN | LCD_BACKLIGHT_PIN);
+
     gpio_mode_setup(GPIOF, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,
                     LCD_D5_PIN | LCD_D6_PIN);
     gpio_set_output_options(GPIOF, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH,
@@ -240,6 +242,8 @@ static uint8_t onDisplayByte(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *a
             GPIOF_BSRR = (0b01100000 << 17) | ((value & 0b01100000) << 1);
 
             gpio_set(LCD_EN_PORT, LCD_EN_PIN);
+            asm("nop");
+            asm("nop");
             gpio_clear(LCD_EN_PORT, LCD_EN_PIN);
         }
 

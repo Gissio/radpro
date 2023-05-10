@@ -34,15 +34,15 @@ typedef struct
 {
     uint32_t firstPulseTick;
     uint32_t pulseCount;
-} PeriodStats;
+} IntervalStats;
 
-struct InstantaneousRate
+struct
 {
     uint32_t tick;
     uint32_t lastPulseTick;
 
-    PeriodStats current;
-    PeriodStats history[INSTANTANEOUS_RATE_HISTORY_STATS_NUM];
+    IntervalStats current;
+    IntervalStats history[INSTANTANEOUS_RATE_HISTORY_STATS_NUM];
 
     uint32_t pulseTicksCount;
     uint32_t pulseTicksIndex;
@@ -60,7 +60,7 @@ struct InstantaneousRate
     float holdValue;
 } instantaneousRate;
 
-struct AverageRate
+struct
 {
     uint32_t tick;
     uint32_t lastPulseTick;
@@ -78,7 +78,7 @@ struct AverageRate
     float holdValue;
 } averageRate;
 
-struct Dose
+struct
 {
     uint32_t pulseCount;
 
@@ -125,19 +125,19 @@ void initMeasurement(void)
     resetHistory();
 }
 
-static void resetPeriodStats(PeriodStats *periodStats)
+static void resetIntervalStats(IntervalStats *intervalStats)
 {
-    periodStats->firstPulseTick = 0;
-    periodStats->pulseCount = 0;
+    intervalStats->firstPulseTick = 0;
+    intervalStats->pulseCount = 0;
 }
 
 void resetInstantaneousRate(void)
 {
     instantaneousRate.tick = 0;
     instantaneousRate.lastPulseTick = 0;
-    resetPeriodStats(&instantaneousRate.current);
+    resetIntervalStats(&instantaneousRate.current);
     for (uint32_t i = 0; i < INSTANTANEOUS_RATE_HISTORY_STATS_NUM; i++)
-        resetPeriodStats(&instantaneousRate.history[i]);
+        resetIntervalStats(&instantaneousRate.history[i]);
 
     instantaneousRate.pulseTicksCount = 0;
     instantaneousRate.pulseTicksIndex = 0;
@@ -264,7 +264,7 @@ void onMeasurementOneSecond(void)
     for (uint32_t i = INSTANTANEOUS_RATE_HISTORY_STATS_NUM - 1; i > 0; i--)
         instantaneousRate.history[i] = instantaneousRate.history[i - 1];
     instantaneousRate.history[0] = instantaneousRate.current;
-    resetPeriodStats(&instantaneousRate.current);
+    resetIntervalStats(&instantaneousRate.current);
 
     firstPulseTick = 0;
     pulseCount = 0;

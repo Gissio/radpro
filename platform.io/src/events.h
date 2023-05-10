@@ -19,8 +19,7 @@
 
 void initEvents(void);
 
-void enableEvents(void);
-void disableEvents(void);
+void setEventsEnabled(bool value);
 
 void waitSysTicks(uint32_t value);
 

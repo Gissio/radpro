@@ -12,6 +12,7 @@
 
 #include <stdint.h>
 
+void debugWait(uint32_t ms);
 void debugBit(bool value);
 void debugUInt32(uint32_t value);
 

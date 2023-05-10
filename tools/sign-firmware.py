@@ -8,17 +8,18 @@ def getCRC(buffer, crc=0xffffffff):
 
     return crc
 
-firmware_path = '../platform.io/.pio/build/fs2011stm32/firmware.bin'
+input_path = 'platform.io/.pio/build/fs2011/firmware.bin'
+output_path = 'tools/'
 version = '1.1.0'
 
-FIRMWARE_SIZE = 0x8000 - 4
+FIRMWARE_SIZE = 0xc000 - 4
 FLASH_SIZE = 0x10000
 
 firmware = None
 
 print('Reading input file...')
 
-with open(firmware_path, 'rb') as input_file:
+with open(input_path, 'rb') as input_file:
     firmware = array.array('B', input_file.read())
 
     if len(firmware) > FIRMWARE_SIZE:
@@ -33,8 +34,8 @@ firmware[FIRMWARE_SIZE + 1] = (crc >> 8) & 0xff
 firmware[FIRMWARE_SIZE + 2] = (crc >> 16) & 0xff
 firmware[FIRMWARE_SIZE + 3] = (crc >> 24) & 0xff
 
-open('fs2011pro-' + version + '-install.bin', 'wb').write(firmware)
+open(output_path + 'fs2011pro-' + version + '-install.bin', 'wb').write(firmware)
 print('Signed install firmware.')
 
-open('fs2011pro-' + version + '-update.bin', 'wb').write(firmware[0:(FIRMWARE_SIZE + 4)])
+open(output_path + 'fs2011pro-' + version + '-update.bin', 'wb').write(firmware[0:(FIRMWARE_SIZE + 4)])
 print('Signed update firmware.')

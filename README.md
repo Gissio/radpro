@@ -9,7 +9,7 @@ Watch a demonstration of FS2011 Pro in action:
 ## Features
 
 * Instantaneous rate, average rate, dose, and history modes.
-* True random number generator to generate secure passwords (letters & numbres, full ASCII), random hexadecimal and decimal numbres, 6-sided dice throws, and coin flips.
+* True random number generator to generate secure passwords (letters & numbres, full ASCII), random hexadecimal and decimal numbers, coin flips and dice throws (6-sided, 4-sided, 8-sided, 12-sided and 20-sided).
 * Intuitive user interface for easy navigation and hassle-free use.
 * Measurements in Sievert, rem, cpm and cps.
 * Multiple history periods, including 2-minute, 10-minute, 1-hour, 6-hour and 24-hour options.
@@ -123,13 +123,11 @@ The history is calculated from the instantaneous rate, sampled once per second.
 
 ### Random number generator
 
-The random number generator is a tool that generates random numbers for various purposes, such as generating secure passwords, random hexadecimal and decimal numbers, 6-sided dice throws, and coin flips. It works by comparing the period between the last two pulses to the period between the second pulse and the third last pulse, producing one bit for every pulse. The periods are measured with an accuracy of 1 µs.
+The random number generator produces one bit for every two new pulses by comparing the interval between them with a precision of 125 ns. The bit is discarded if the intervals are the same length. To prevent bias, every second bit is flipped. The generator stores entropy in a 512-bit buffer.
 
-To ensure high-quality randomness, if the last and previous-to-last periods have the same period counts, the bit is discarded. Moreover, to prevent bias, every second bit is flipped. There is a 512-bit buffer for storing entropy.
+Random symbols are generated from the bits using the [Fast Dice Roller](https://arxiv.org/abs/1304.1916) algorithm. "Letters & numbers" consumes approximately 6 bits per symbol, "Full ASCII" consumes 7 bits, "20-sided dice" and "12-sided dice" consumes 5 bits, "Hexadecimal", "Decimal" consumes 4 bits, "8-sided dice" and "6-sided dice" consumes 3 bits, "4-sided dice" consumes 2 bits, and "Coin flip" consumes 1 bit.
 
-The symbols are generated using the [Fast Dice Roller](https://arxiv.org/abs/1304.1916) algorithm. The number of bits required to generate different symbols varies depending on the application: "Letters & numbers" consumes approximately 6 bits per symbol, "Full ASCII" consumes 7 bits, "Hexadecimal" and "Decimal" consume 4 bits, "6-sided dice" consumes 3 bits, and "Coin flip" consumes 1 bit.
-
-To generate bits more quickly, a radioactive source can be used.
+To generate bits more quickly, use a radioactive source.
 
 ## Building
 

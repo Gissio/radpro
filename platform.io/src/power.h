@@ -7,8 +7,8 @@
  * License: MIT
  */
 
-#ifndef BATTERY_H
-#define BATTERY_H
+#ifndef POWER_H
+#define POWER_H
 
 #include <stdint.h>
 

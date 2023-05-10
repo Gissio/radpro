@@ -19,7 +19,7 @@
 #include "settings.h"
 #include "ui.h"
 
-struct Menus
+struct
 {
     const struct Menu *currentMenu;
 
@@ -191,8 +191,12 @@ const char *const rngMenuOptions[] = {
     "Full ASCII",
     "Hexadecimal",
     "Decimal",
-    "6-sided dice",
     "Coin toss",
+    "6-sided dice",
+    "4-sided dice",
+    "8-sided dice",
+    "12-sided dice",
+    "20-sided dice",
     NULL,
 };
 

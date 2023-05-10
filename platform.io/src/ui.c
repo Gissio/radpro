@@ -20,7 +20,7 @@
 #include "stats.h"
 #include "ui.h"
 
-struct UI
+struct
 {
     View currentView;
     bool updateView;
@@ -49,7 +49,7 @@ void updateUI(void)
     {
         writeSettings();
 
-        disableEvents();
+        setEventsEnabled(false);
         waitSysTicks(1);
         setBacklightTimer(1);
         setDisplay(false);

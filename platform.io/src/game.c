@@ -28,7 +28,7 @@ enum GameState
     GAME_UNDO_MOVE,
 };
 
-struct Game
+struct
 {
     uint8_t playerIndex;
 

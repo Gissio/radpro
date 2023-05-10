@@ -1,11 +1,11 @@
 {
   "build": {
     "core": "stm32",
-    "cpu": "cortex-m3",
-    "extra_flags": "-DGD32F1X0",
-    "f_cpu": "72000000L",
+    "cpu": "cortex-m0",
+    "extra_flags": "-DSTM32F051x8",
+    "f_cpu": "48000000L",
     "mcu": "stm32f051c8t6",
-    "product_line": "GD32F1X0"
+    "product_line": "STM32F051x8"
   },
   "debug": {
     "default_tools": [
@@ -26,7 +26,7 @@
     "stm32cube",
     "zephyr"
   ],
-  "name": "FS2011 GD32",
+  "name": "FS2011",
   "upload": {
     "maximum_ram_size": 8192,
     "maximum_size": 65536,

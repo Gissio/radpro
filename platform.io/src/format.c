@@ -13,38 +13,17 @@
 #include "cmath.h"
 #include "settings.h"
 
+const char *formatPrefixes = "n\x7fm kMG";
+
 static char getMetricPrefix(int32_t exponent)
 {
     int32_t metricPrefix = divideDown(exponent, 3);
-    switch (metricPrefix)
-    {
-    case -3:
-        return 'n';
-
-    case -2:
-        return '\x7f';
-
-    case -1:
-        return 'm';
-
-    case 0:
-        return ' ';
-
-    case 1:
-        return 'k';
-
-    case 2:
-        return 'M';
-
-    case 3:
-        return 'G';
-
-    default:
-        if (metricPrefix < -4)
-            return '-';
-        else
-            return '+';
-    }
+    if (metricPrefix < -3)
+        return '-';
+    else if (metricPrefix > 3)
+        return '+';
+    else
+        return formatPrefixes[metricPrefix + 3];
 }
 
 void strcatNumber(char *buffer, uint64_t value, uint32_t length)

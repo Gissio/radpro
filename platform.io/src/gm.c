@@ -14,16 +14,23 @@
 #define GM_PULSE_TIMES_NUM 16
 #define GM_PULSE_TIMES_MASK (GM_PULSE_TIMES_NUM - 1)
 
-struct GM
+struct
 {
-    volatile uint32_t pulseTimes[GM_PULSE_TIMES_NUM];
-    volatile uint8_t pulseTimesHead;
-    volatile uint8_t pulseTimesTail;
+    volatile uint8_t pulsesQueueHead;
+    volatile uint8_t pulsesQueueTail;
+    volatile uint32_t pulsesQueue[GM_PULSE_TIMES_NUM];
 } gm;
 
 void initGM(void)
 {
 #ifndef SDL_MODE
+    // Pulse timer
+    rcc_periph_clock_enable(RCC_TIM2);
+
+    timer_generate_event(TIM2, TIM_EGR_UG);
+
+    timer_enable_counter(TIM2);
+
     // High voltage generation
     rcc_periph_clock_enable(RCC_TIM3);
 
@@ -47,16 +54,7 @@ void initGM(void)
     exti_set_trigger(EXTI6, EXTI_TRIGGER_FALLING);
     exti_enable_request(EXTI6);
 
-    nvic_set_priority(NVIC_EXTI4_15_IRQ, 255);
     nvic_enable_irq(NVIC_EXTI4_15_IRQ);
-
-    // Pulse timer
-    rcc_periph_clock_enable(RCC_TIM2);
-
-    timer_set_prescaler(TIM2, 7);
-    timer_generate_event(TIM2, TIM_EGR_UG);
-
-    timer_enable_counter(TIM2);
 #endif
 }
 
@@ -65,8 +63,8 @@ void exti4_15_isr(void)
 {
     exti_reset_request(EXTI6);
 
-    gm.pulseTimes[gm.pulseTimesHead] = timer_get_counter(TIM2);
-    gm.pulseTimesHead = (gm.pulseTimesHead + 1) & GM_PULSE_TIMES_MASK;
+    gm.pulsesQueue[gm.pulsesQueueHead] = timer_get_counter(TIM2);
+    gm.pulsesQueueHead = (gm.pulsesQueueHead + 1) & GM_PULSE_TIMES_MASK;
 }
 #endif
 
@@ -75,13 +73,13 @@ bool getGMPulse(uint32_t *pulseTime)
 #ifdef SDL_MODE
     static uint32_t simTimer = 0;
 
-    if (gm.pulseTimesHead == gm.pulseTimesTail)
+    if (gm.pulsesQueueHead == gm.pulsesQueueTail)
     {
         uint32_t n = simPulses();
         for (uint32_t i = 0; i < n; i++)
         {
-            gm.pulseTimes[gm.pulseTimesHead] = simTimer;
-            gm.pulseTimesHead = (gm.pulseTimesHead + 1) & GM_PULSE_TIMES_MASK;
+            gm.pulsesQueue[gm.pulsesQueueHead] = simTimer;
+            gm.pulsesQueueHead = (gm.pulsesQueueHead + 1) & GM_PULSE_TIMES_MASK;
         }
 
         simTimer++;
@@ -90,11 +88,11 @@ bool getGMPulse(uint32_t *pulseTime)
     }
 #endif
 
-    if (gm.pulseTimesHead == gm.pulseTimesTail)
+    if (gm.pulsesQueueHead == gm.pulsesQueueTail)
         return false;
 
-    *pulseTime = gm.pulseTimes[gm.pulseTimesTail];
-    gm.pulseTimesTail = (gm.pulseTimesTail + 1) & GM_PULSE_TIMES_MASK;
+    *pulseTime = gm.pulsesQueue[gm.pulsesQueueTail];
+    gm.pulsesQueueTail = (gm.pulsesQueueTail + 1) & GM_PULSE_TIMES_MASK;
 
     return true;
 }

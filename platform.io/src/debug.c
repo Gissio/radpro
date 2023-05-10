@@ -12,15 +12,11 @@
 #include "events.h"
 #include "main.h"
 
-#ifdef ERROR_HANDLERS
-
-void onHardFault(uint32_t *args);
-
 #define DEBUG_BIT_LENGTH 100
 #define DEBUG_BIT0_LENGTH 1
 #define DEBUG_BIT1_LENGTH 15
 
-static void debugWait(uint32_t ms)
+void debugWait(uint32_t ms)
 {
     uint32_t n = 200 * ms;
 
@@ -63,6 +59,9 @@ void debugUInt32(uint32_t value)
     }
 }
 
+#ifdef ERROR_HANDLERS
+void onHardFault(uint32_t *args);
+
 // args: r0, r1, r2, r3, r12, lr, pc, psr
 void onHardFault(uint32_t *args)
 {
@@ -90,5 +89,4 @@ void hard_fault_handler(void)
         " ldr r2,=onHardFault                                       \n"
         " bx r2                                                     \n");
 }
-
 #endif

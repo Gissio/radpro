@@ -9,11 +9,13 @@
 
 #include "buzzer.h"
 #include "events.h"
-#include "fwcheck.h"
+#include "firmware.h"
 #include "main.h"
 
 #define FIRMWARE_BASE FLASH_BASE
-#define FIRMWARE_SIZE (0x8000 - 0x4)
+#define FIRMWARE_SIZE (0xc000 - 0x4)
+
+#define VALID_CRC (*(uint32_t *)(FIRMWARE_BASE + FIRMWARE_SIZE))
 
 void checkFirmware(void)
 {
@@ -25,8 +27,7 @@ void checkFirmware(void)
 
     rcc_periph_clock_disable(RCC_CRC);
 
-    uint32_t validCRC = *(uint32_t *)(FIRMWARE_BASE + FIRMWARE_SIZE);
-    if (crc != validCRC)
+    if (crc != VALID_CRC)
     {
         for (uint32_t i = 0; i < 10; i++)
         {

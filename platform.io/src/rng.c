@@ -21,21 +21,18 @@
 
 #define RNG_TEXT_SIZE 16
 
-struct RNG
+struct
 {
-    uint8_t initPulseNum;
-
-    uint32_t lastPulseTime;
-    uint32_t lastPeriod;
-
-    uint8_t bitQueue[RNG_BITQUEUE_BYTENUM];
     volatile uint32_t bitQueueHead;
     volatile uint32_t bitQueueTail;
+    uint8_t bitQueue[RNG_BITQUEUE_BYTENUM];
 
+    uint8_t pulseIndex;
+    uint32_t pulseTime1;
+    uint32_t pulseTime2;
     bool bitFlip;
 
     enum RNGMode mode;
-
     uint32_t fdrN;
     uint32_t fdrV;
     uint32_t fdrC;
@@ -44,41 +41,43 @@ struct RNG
     uint8_t activityIndicator;
 } rng;
 
-void onRNGPulse(uint32_t pulseTime)
+const uint8_t rngModeRanges[] = {62, 94, 16, 10, 2, 6, 4, 8, 12, 20};
+const char *const rngModeTitles[] = {
+    "Letters & numbers",
+    "Full ASCII",
+    "Hexadecimal",
+    "Decimal",
+    "Coin toss",
+    "6-sided dice",
+    "4-sided dice",
+    "8-sided dice",
+    "12-sided dice",
+    "20-sided dice",
+};
+
+const char *const rngActivitySubtitles[] = {
+    ".",
+    "..",
+    "...",
+};
+
+static void enqueueBit(bool bit)
 {
-    uint32_t period = pulseTime - rng.lastPulseTime;
+    uint32_t queueSize = (rng.bitQueueHead - rng.bitQueueTail) & RNG_BITQUEUE_MASK;
 
-    if (rng.initPulseNum <= 1)
-        rng.initPulseNum++;
-    else if (period != rng.lastPeriod)
-    {
-        uint32_t queueSize = (rng.bitQueueHead - rng.bitQueueTail) & RNG_BITQUEUE_MASK;
+    if (queueSize >= RNG_BITQUEUE_MAX)
+        return;
 
-        if ((queueSize < RNG_BITQUEUE_MAX) &&
-            (period != rng.lastPeriod))
-        {
-            uint32_t headByteIndex = rng.bitQueueHead >> 3;
-            uint8_t headBitIndex = (rng.bitQueueHead & 0x7);
+    uint32_t headByteIndex = rng.bitQueueHead >> 3;
+    uint8_t headBitIndex = (rng.bitQueueHead & 0x7);
 
-            bool bit = (period > rng.lastPeriod);
-
-            // Flip every second bit (bias filtering)
-            if (rng.bitFlip)
-                bit = !bit;
-            rng.bitFlip = !rng.bitFlip;
-
-            rng.bitQueue[headByteIndex] = (rng.bitQueue[headByteIndex] &
-                                           ~(1 << headBitIndex)) |
-                                          (bit << headBitIndex);
-            rng.bitQueueHead = (rng.bitQueueHead + 1) & RNG_BITQUEUE_MASK;
-        }
-    }
-
-    rng.lastPeriod = (pulseTime - rng.lastPulseTime);
-    rng.lastPulseTime = pulseTime;
+    rng.bitQueue[headByteIndex] = (rng.bitQueue[headByteIndex] &
+                                   ~(1 << headBitIndex)) |
+                                  (bit << headBitIndex);
+    rng.bitQueueHead = (rng.bitQueueHead + 1) & RNG_BITQUEUE_MASK;
 }
 
-static int8_t getRNGBit(void)
+static int8_t dequeueBit(void)
 {
     if (rng.bitQueueHead == rng.bitQueueTail)
         return -1;
@@ -92,41 +91,51 @@ static int8_t getRNGBit(void)
     return bit;
 }
 
-void resetRNG(enum RNGMode mode)
+void onRNGPulse(uint32_t pulseTime)
 {
-    rng.mode = mode;
-    switch (mode)
+    switch (rng.pulseIndex)
     {
-    case RNG_MODE_ALPHANUMERIC:
-        rng.fdrN = 62;
+    case 0:
+        // Store first pulse
+        rng.pulseTime1 = pulseTime;
+        rng.pulseIndex++;
+
         break;
 
-    case RNG_MODE_FULL_ASCII:
-        rng.fdrN = 94;
+    case 1:
+        // Store second pulse
+        rng.pulseTime2 = pulseTime;
+        rng.pulseIndex++;
+
         break;
 
-    case RNG_MODE_HEXADECIMAL:
-        rng.fdrN = 16;
-        break;
+    case 2:
+    {
+        // Calculate intervals between pulses
+        uint32_t pulseInterval1 = rng.pulseTime2 - rng.pulseTime1;
+        uint32_t pulseInterval2 = pulseTime - rng.pulseTime2;
 
-    case RNG_MODE_DECIMAL:
-        rng.fdrN = 10;
-        break;
+        if (pulseInterval1 == pulseInterval2)
+        {
+            rng.pulseTime1 = rng.pulseTime2;
+            break;
+        }
 
-    case RNG_MODE_6DICE:
-        rng.fdrN = 6;
-        break;
+        // Prepare bit
+        bool bit;
+        if (rng.bitFlip)
+            bit = pulseInterval1 > pulseInterval2;
+        else
+            bit = pulseInterval1 < pulseInterval2;
+        enqueueBit(bit);
+        rng.bitFlip = !rng.bitFlip;
 
-    case RNG_MODE_COIN_TOSS:
-        rng.fdrN = 2;
+        // Prepare next cycle
+        rng.pulseIndex = 1;
+        rng.pulseTime1 = pulseTime;
         break;
     }
-
-    rng.fdrV = 1;
-    rng.fdrC = 0;
-
-    rng.text[0] = '\0';
-    rng.activityIndicator = 1;
+    }
 }
 
 // Fast Dice Roller algorithm: https://arxiv.org/abs/1304.1916
@@ -134,7 +143,7 @@ static int32_t getRNGInt(void)
 {
     while (true)
     {
-        int8_t bit = getRNGBit();
+        int8_t bit = dequeueBit();
         if (bit == -1)
             return -1;
 
@@ -159,6 +168,27 @@ static int32_t getRNGInt(void)
     }
 }
 
+void resetRNG(enum RNGMode mode)
+{
+    rng.mode = mode;
+    rng.fdrN = rngModeRanges[mode];
+    rng.fdrV = 1;
+    rng.fdrC = 0;
+
+    rng.text[0] = '\0';
+    rng.activityIndicator = 1;
+}
+
+static char getRNGChar(int32_t digit)
+{
+    if (digit < 10)
+        return '0' + digit;
+    else if (digit < (10 + 26))
+        return 'a' + digit - 10;
+    else
+        return 'A' + digit - (10 + 26);
+}
+
 static void updateRNGText(void)
 {
     uint32_t index = (uint32_t)strlen(rng.text);
@@ -179,39 +209,26 @@ static void updateRNGText(void)
         switch (rng.mode)
         {
         case RNG_MODE_ALPHANUMERIC:
-            if (digit < 10)
-                c = '0' + digit;
-            else if (digit < (10 + 26))
-                c = 'A' + digit - 10;
-            else
-                c = 'a' + digit - (10 + 26);
+        case RNG_MODE_HEXADECIMAL:
+        case RNG_MODE_DECIMAL:
+        case RNG_MODE_COIN_TOSS:
+            c = getRNGChar(digit);
             break;
 
         case RNG_MODE_FULL_ASCII:
             c = '!' + digit;
             break;
 
-        case RNG_MODE_HEXADECIMAL:
-            if (digit < 10)
-                c = '0' + digit;
-            else
-                c = 'a' + digit - 10;
-            break;
-
-        case RNG_MODE_DECIMAL:
-            c = '0' + digit;
-            break;
-
-        case RNG_MODE_6DICE:
-            c = '1' + digit;
-            break;
-
-        case RNG_MODE_COIN_TOSS:
-            c = '0' + digit;
+        case RNG_MODE_6SIDED_DICE:
+        case RNG_MODE_4SIDED_DICE:
+        case RNG_MODE_8SIDED_DICE:
+        case RNG_MODE_12SIDED_DICE:
+        case RNG_MODE_20SIDED_DICE:
+            c = getRNGChar(digit + 1);
             break;
 
         default:
-            c = ' ';
+            c = '?';
             break;
         }
 
@@ -226,52 +243,15 @@ void drawRNGView(void)
 {
     updateRNGText();
 
-    switch (rng.mode)
+    drawTitle(rngModeTitles[rng.mode]);
+
+    if (rng.activityIndicator)
     {
-    case RNG_MODE_ALPHANUMERIC:
-        drawTitle("Letters & numbers");
-        break;
-
-    case RNG_MODE_FULL_ASCII:
-        drawTitle("Full ASCII");
-        break;
-
-    case RNG_MODE_HEXADECIMAL:
-        drawTitle("Hexadecimal");
-        break;
-
-    case RNG_MODE_DECIMAL:
-        drawTitle("Decimal");
-        break;
-
-    case RNG_MODE_6DICE:
-        drawTitle("6-sided dice");
-        break;
-
-    case RNG_MODE_COIN_TOSS:
-        drawTitle("Coin toss");
-        break;
+        drawSubtitle(rngActivitySubtitles[rng.activityIndicator - 1]);
+        rng.activityIndicator = (rng.activityIndicator % 3) + 1;
     }
 
     drawRNGText(rng.text);
-
-    switch (rng.activityIndicator)
-    {
-    case 1:
-        drawSubtitle(".");
-        rng.activityIndicator = 2;
-        break;
-
-    case 2:
-        drawSubtitle("..");
-        rng.activityIndicator = 3;
-        break;
-
-    case 3:
-        drawSubtitle("...");
-        rng.activityIndicator = 1;
-        break;
-    }
 }
 
 void onRNGViewKey(KeyEvent keyEvent)
