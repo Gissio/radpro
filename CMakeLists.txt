@@ -10,7 +10,6 @@ FILE(GLOB mcumaxSources platform.io/lib/mcu-max/*.c)
 
 add_definitions(-D SDL_MODE)
 add_definitions(-D SIMULATE_PULSES)
-add_definitions(-D ERROR_HANDLERS)
 add_definitions(-D _CRT_SECURE_NO_WARNINGS)
 
 add_executable(fs2011pro ${sources} ${U8g2Sources} ${mcumaxSources})

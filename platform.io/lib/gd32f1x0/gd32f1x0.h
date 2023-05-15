@@ -11,8 +11,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "main.h"
-
 typedef enum
 {
     DISABLE = 0,
@@ -44,6 +42,10 @@ typedef enum
 #define BIT(x) ((uint32_t)((uint32_t)0x01U << (x)))
 #define BITS(start, end) ((0xFFFFFFFFUL << (start)) & (0xFFFFFFFFUL >> (31U - (uint32_t)(end))))
 #define GET_BITS(regval, start, end) (((regval)&BITS((start), (end))) >> (start))
+
+#ifndef ADC_BASE
+#define ADC_BASE 0x40012400
+#endif
 
 bool isGD32(void);
 

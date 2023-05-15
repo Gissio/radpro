@@ -14,7 +14,9 @@
 #include "power.h"
 #include "settings.h"
 
+#ifndef SDL_MODE
 #include "gd32f1x0_adc.h"
+#endif
 
 #define BATTERY_NUM 2
 
