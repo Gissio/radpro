@@ -258,6 +258,4 @@ void onRNGViewKey(KeyEvent keyEvent)
 {
     if (keyEvent == KEY_BACK)
         setView(VIEW_MENU);
-    else if (keyEvent == KEY_UP)
-        rng.bitQueueTail = (rng.bitQueueTail + 1) & RNG_BITQUEUE_MASK;
 }
