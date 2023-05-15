@@ -17,9 +17,8 @@ from datetime import datetime
 import swd
 import time
 
+dev = None
 path = 'logs/'
-
-dev = swd.Swd()
 
 # Addresses
 gm = 0x20000384
@@ -58,89 +57,107 @@ snapshotLastCount = None
 
 while(True):
     # Get data
-    pulsesQueueHeadTail = dev.get_mem32(gmPulsesQueueHeadTail)
-    pulsesQueue = [0] * gmPulsesQueueSize
-    for i in range(0, gmPulsesQueueSize):
-        pulsesQueue[i] = dev.get_mem32(gmPulsesQueue + 4 * i)
+    if dev == None:
+        dev = swd.Swd()
 
-    bitQueueHead = dev.get_mem32(rngBitQueueHead)
-    bitQueueTail = dev.get_mem32(rngBitQueueTail)
-    bitQueue = dev.read_mem(rngBitQueue, rngBitQueueByteSize)
+    try:
+        pulsesQueueHeadTail = dev.get_mem32(gmPulsesQueueHeadTail)
+        pulsesQueue = [0] * gmPulsesQueueSize
+        for i in range(0, gmPulsesQueueSize):
+            pulsesQueue[i] = dev.get_mem32(gmPulsesQueue + 4 * i)
 
-    snapshotTime = dev.get_mem32(averageRateSnapshotTime)
-    snapshotCount = dev.get_mem32(averageRateSnapshotCount)
+        bitQueueHead = dev.get_mem32(rngBitQueueHead)
+        bitQueueTail = dev.get_mem32(rngBitQueueTail)
+        bitQueue = dev.read_mem(rngBitQueue, rngBitQueueByteSize)
 
-    now = datetime.now()
+        snapshotTime = dev.get_mem32(averageRateSnapshotTime)
+        snapshotCount = dev.get_mem32(averageRateSnapshotCount)
 
-    # File management
-    fileDate = now.strftime("%Y-%m-%d")
-    if fileDate != fileDateLast:
-        fileDateLast = fileDate
+        now = datetime.now()
 
-        fileIntervals = open(path + fileDate + '_intervals.bin', 'ab') 
-        fileRNG = open(path + fileDate + '_randombits.bin', 'ab')
-        fileLog = open(path + fileDate + '_events.csv', 'a')
+        # File management
+        fileDate = now.strftime("%Y-%m-%d")
+        if fileDate != fileDateLast:
+            fileDateLast = fileDate
 
-        if fileLog.tell() == 0:
-            fileLog.write('"datetime", "counts"\n')
+            fileIntervals = open(path + fileDate + '_intervals.bin', 'ab') 
+            fileRNG = open(path + fileDate + '_randombits.bin', 'ab')
+            fileLog = open(path + fileDate + '_samples.csv', 'a')
 
-    # Process pulses
-    pulsesQueueHead = pulsesQueueHeadTail & gmPulsesQueueMask
-    if pulsesQueueTail == None:
-        pulsesQueueTail = pulsesQueueHead
+            if fileLog.tell() == 0:
+                fileLog.write('"datetime", "counts"\n')
 
-    while pulsesQueueTail != pulsesQueueHead:
-        print('.', end='', flush=True)
+        # Process intervals
+        pulsesQueueHead = pulsesQueueHeadTail & gmPulsesQueueMask
+        if pulsesQueueTail == None:
+            pulsesQueueTail = pulsesQueueHead
 
-        pulseTime = pulsesQueue[pulsesQueueTail]
+        while pulsesQueueTail != pulsesQueueHead:
+            print('.', end='', flush=True)
 
-        if lastPulseTime != None:
-            interval = (pulseTime - lastPulseTime) & 0xffffffff
+            pulseTime = pulsesQueue[pulsesQueueTail]
 
-            fileIntervals.write(int.to_bytes(interval, 4))
-            fileIntervals.flush()
+            if lastPulseTime != None:
+                interval = (pulseTime - lastPulseTime) & 0xffffffff
 
-        lastPulseTime = pulseTime
-        pulsesQueueTail = (pulsesQueueTail + 1) & gmPulsesQueueMask
+                fileIntervals.write(int.to_bytes(interval, 4))
+                fileIntervals.flush()
 
-    # Process RNG
-    bitQueueBits = []
-    for byte in bitQueue:
-        for i in range(0, 8):
-            bitQueueBits.append((byte >> i) & 1)
+            lastPulseTime = pulseTime
+            pulsesQueueTail = (pulsesQueueTail + 1) & gmPulsesQueueMask
 
-    bitQueueTailLast = bitQueueTail
+        # Process randombits
+        bitQueueBits = []
+        for byte in bitQueue:
+            for i in range(0, 8):
+                bitQueueBits.append((byte >> i) & 1)
 
-    while bitQueueTail != bitQueueHead:
-        # print('.', end='', flush=True)
-        bit = bitQueueBits[bitQueueTail]
-        rngValue |= bit << rngValueBitIndex
+        bitQueueTailLast = bitQueueTail
 
-        rngValueBitIndex += 1
-        if rngValueBitIndex >= 8:
-            fileRNG.write(int.to_bytes(rngValue))
+        while bitQueueTail != bitQueueHead:
+            # print('.', end='', flush=True)
+            bit = bitQueueBits[bitQueueTail]
+            rngValue |= bit << rngValueBitIndex
 
-            rngValue = 0
-            rngValueBitIndex = 0
+            rngValueBitIndex += 1
+            if rngValueBitIndex >= 8:
+                fileRNG.write(int.to_bytes(rngValue))
 
-        bitQueueTail = (bitQueueTail + 1) & rngBitQueueMask
+                rngValue = 0
+                rngValueBitIndex = 0
 
-    if bitQueueTailLast != bitQueueHead:
-        dev.set_mem32(rngBitQueueTail, bitQueueTail)
-        fileRNG.flush()
+            bitQueueTail = (bitQueueTail + 1) & rngBitQueueMask
 
-    # Process counts
-    if snapshotLastTime != snapshotTime:
-        if snapshotLastCount == None:
-            snapshotLastCount = snapshotCount 
+        if bitQueueTailLast != bitQueueHead:
+            dev.set_mem32(rngBitQueueTail, bitQueueTail)
+            fileRNG.flush()
 
-        deltaCount = (snapshotCount - snapshotLastCount) & 0xffffffff
-        snapshotDate = now.strftime('%Y-%m-%dT%H:%M:%S.%f')
-        fileLog.write('"' + snapshotDate + '", ' + str(deltaCount) + '\n')
-        fileLog.flush()
+        # Process samples
+        if snapshotLastTime != snapshotTime:
+            if snapshotLastCount == None:
+                snapshotLastCount = snapshotCount 
 
-        snapshotLastTime = snapshotTime
-        snapshotLastCount = snapshotCount
+            deltaCount = (snapshotCount - snapshotLastCount) & 0xffffffff
+            snapshotDate = now.strftime('%Y-%m-%dT%H:%M:%S.%f')
+            fileLog.write('"' + snapshotDate + '", ' + str(deltaCount) + '\n')
+            fileLog.flush()
 
-    # Wait
-    time.sleep(0.1)
+            snapshotLastTime = snapshotTime
+            snapshotLastCount = snapshotCount
+
+        # Wait
+        time.sleep(0.1)
+
+    except:
+        dev = None
+
+        pulsesQueueTail = None
+        lastPulseTime = None
+
+        rngValue = 0
+        rngValueBitIndex = 0
+
+        snapshotLastTime = None
+        snapshotLastCount = None
+
+        time.sleep(5)
