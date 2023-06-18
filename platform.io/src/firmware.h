@@ -1,5 +1,5 @@
 /*
- * FS2011 Pro
+ * Rad Pro
  * Firmware check
  *
  * (C) 2022-2023 Gissio

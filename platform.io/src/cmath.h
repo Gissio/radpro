@@ -1,5 +1,5 @@
 /*
- * FS2011 Pro
+ * Rad Pro
  * Complementary math
  *
  * (C) 2022-2023 Gissio

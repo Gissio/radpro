@@ -1,5 +1,5 @@
 /*
- * FS2011 Pro
+ * Rad Pro
  * Event handler
  *
  * (C) 2022-2023 Gissio
@@ -9,10 +9,21 @@
 
 #include <stdint.h>
 
-#ifdef SDL_MODE
+#ifndef SDL_MODE
+
+#include <libopencm3/cm3/nvic.h>
+#include <libopencm3/cm3/systick.h>
+
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/stm32/iwdg.h>
+
+#else
+
 #include <SDL.h>
+
 #endif
 
+#include "battery.h"
 #include "buzzer.h"
 #include "cmath.h"
 #include "display.h"
@@ -20,29 +31,29 @@
 #include "game.h"
 #include "gm.h"
 #include "keyboard.h"
-#include "main.h"
 #include "measurements.h"
 #include "power.h"
 #include "rng.h"
 #include "settings.h"
 #include "ui.h"
 
+#define HOUR (60 * 60)
+
 struct
 {
-    volatile uint32_t sysTickValue;
-
-    bool isEventsEnabled;
-
-    volatile int32_t keyTimer;
+    volatile uint32_t tick;
 
     volatile int32_t backlightTimer;
-    bool backlightPWMState;
-
     volatile int32_t buzzerTimer;
+    volatile int32_t keyTimer;
 
     int32_t oneSecondTimer;
     volatile uint8_t oneSecondUpdate;
-    volatile uint8_t lastOneSecondUpdate;
+    uint8_t lastOneSecondUpdate;
+
+    int32_t oneHourTimer;
+
+    bool measurementsEnabled;
 } events;
 
 void initEvents(void)
@@ -64,39 +75,40 @@ void initEvents(void)
 
     events.keyTimer = KEY_TICKS;
     events.oneSecondTimer = SYS_TICK_FREQUENCY;
+    events.oneHourTimer = HOUR;
 }
 
-void setEventsEnabled(bool value)
+void setMeasurements(bool value)
 {
-    events.isEventsEnabled = value;
+    events.measurementsEnabled = value;
 }
 
 static bool isTimerElapsed(volatile int32_t *timer)
 {
-    if ((*timer) <= 0)
+    int32_t timerValue = *timer;
+
+    if (timerValue <= 0)
         return false;
 
-    (*timer)--;
+    timerValue--;
+    *timer = timerValue;
 
-    return (*timer) == 0;
+    return (timerValue == 0);
 }
 
 void sys_tick_handler(void)
 {
-    events.sysTickValue++;
+    events.tick++;
 
     // Backlight
     if (isTimerElapsed(&events.backlightTimer))
         setBacklight(false);
     else if (events.backlightTimer != 0)
-    {
-        events.backlightPWMState = !events.backlightPWMState;
-        setBacklight(events.backlightPWMState);
-    }
+        setBacklight(!getBacklight());
 
-    // Events enabled
-    if (!events.isEventsEnabled)
-        return;
+    // Buzzer
+    if (isTimerElapsed(&events.buzzerTimer))
+        setBuzzer(false);
 
     // Keyboard
     if (isTimerElapsed(&events.keyTimer))
@@ -106,39 +118,39 @@ void sys_tick_handler(void)
         onKeyboardTick();
     }
 
-    // Buzzer
-    if (isTimerElapsed(&events.buzzerTimer))
-        setBuzzer(false);
-
     // Measurement
     uint32_t pulseNum = 0;
     uint32_t pulseTime;
     while (getGMPulse(&pulseTime))
     {
         onRNGPulse(pulseTime);
+
         pulseNum++;
     }
 
-    onMeasurementTick(pulseNum);
-
-    // One second timer
-    if (isTimerElapsed(&events.oneSecondTimer))
+    if (events.measurementsEnabled)
     {
-        events.oneSecondTimer = SYS_TICK_FREQUENCY;
+        onMeasurementTick(pulseNum);
 
-        onMeasurementOneSecond();
+        // One second timer
+        if (isTimerElapsed(&events.oneSecondTimer))
+        {
+            if (events.measurementsEnabled)
+                onMeasurementOneSecond();
 
-        events.oneSecondUpdate++;
+            events.oneSecondTimer = SYS_TICK_FREQUENCY;
+            events.oneSecondUpdate++;
+        }
     }
 }
 
-void waitSysTicks(uint32_t value)
+void sleep(uint32_t value)
 {
 #ifndef SDL_MODE
-    uint32_t tickStart = events.sysTickValue;
+    uint32_t tickStart = events.tick;
 
     iwdg_reset();
-    while ((events.sysTickValue - tickStart) < value)
+    while ((events.tick - tickStart) < value)
     {
         asm("wfi");
         iwdg_reset();
@@ -175,8 +187,23 @@ void waitSysTicks(uint32_t value)
 #endif
 }
 
-void updateBacklight(void)
+void syncThreads(void)
 {
+    sleep(1);
+}
+
+void setBacklightTimer(int32_t value)
+{
+    if ((value > 0) && (value < events.backlightTimer))
+        return;
+
+    events.backlightTimer = value;
+}
+
+void triggerBacklight(void)
+{
+    syncThreads();
+
     switch (settings.backlight)
     {
     case BACKLIGHT_OFF:
@@ -198,12 +225,11 @@ void updateBacklight(void)
     }
 }
 
-void setBacklightTimer(int32_t value)
+void stopBacklightTimer(void)
 {
-    if ((value > 0) && (value < events.backlightTimer))
-        return;
+    syncThreads();
 
-    events.backlightTimer = value;
+    events.backlightTimer = 1;
 }
 
 void setBuzzerTimer(int32_t value)
@@ -216,6 +242,13 @@ void setBuzzerTimer(int32_t value)
     setBuzzer(true);
 }
 
+void stopBuzzerTimer(void)
+{
+    syncThreads();
+
+    events.buzzerTimer = 1;
+}
+
 void updateEvents(void)
 {
     uint8_t oneSecondUpdate = events.oneSecondUpdate;
@@ -223,11 +256,16 @@ void updateEvents(void)
     {
         events.lastOneSecondUpdate = oneSecondUpdate;
 
-        updateMeasurement();
         updateBattery();
+        updateMeasurement();
         updateGameTimer();
         updateView();
 
-        addClamped(&settings.lifeTimer, 1);
+        if (isTimerElapsed(&events.oneHourTimer))
+        {
+            events.oneHourTimer = HOUR;
+
+            writeState();
+        }
     }
 }

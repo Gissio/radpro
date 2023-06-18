@@ -1,5 +1,5 @@
 /*
- * FS2011 Pro
+ * Rad Pro
  * LCD interface
  *
  * (C) 2022-2023 Gissio
@@ -9,8 +9,15 @@
 
 #include <string.h>
 
-#ifdef SDL_MODE
+#ifndef SDL_MODE
+
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/rcc.h>
+
+#else
+
 #include <SDL.h>
+
 #endif
 
 #include <clib/u8g2.h>
@@ -20,13 +27,13 @@
 #include "resources/font_icons.h"
 #include "resources/font_tiny5.h"
 
+#include "battery.h"
 #include "confidence.h"
 #include "display.h"
 #include "events.h"
 #include "format.h"
-#include "main.h"
+#include "fs2011.h"
 #include "measurements.h"
-#include "power.h"
 #include "settings.h"
 
 #include "resources/dotted4.xbm"
@@ -48,8 +55,7 @@
 #define HISTORY_VIEW_Y_TOP 14
 #define HISTORY_VIEW_Y_BOTTOM (HISTORY_VIEW_Y_TOP + HISTORY_VIEW_HEIGHT)
 
-#define STATS_VIEW_X 66
-#define STATS_VIEW_Y 31
+#define STATS_VIEW_Y 30
 
 #define GAME_VIEW_BOARD_X 0
 #define GAME_VIEW_BOARD_Y 8
@@ -73,10 +79,11 @@
 struct
 {
     u8g2_t u8g2;
+    bool backlightOn;
 } display;
 
-const char *const firmwareName = "FS2011 Pro";
-const char *const firmwareVersion = "1.1.1";
+const char *const firmwareName = "Rad Pro";
+const char *const firmwareVersion = "1.2.0";
 
 #ifndef SDL_MODE
 static uint8_t setupU8X8(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr);
@@ -203,7 +210,7 @@ static uint8_t onDisplayMessage(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void
     switch (msg)
     {
     case U8X8_MSG_DELAY_MILLI:
-        waitSysTicks(arg_int);
+        sleep(arg_int);
         break;
 
     case U8X8_MSG_GPIO_RESET:
@@ -559,11 +566,11 @@ void u8g2_SetupBuffer_SDL_128x64(u8g2_t *u8g2, const u8g2_cb_t *u8g2_cb)
 
 void setDisplay(bool value)
 {
-    u8g2_SetPowerSave(&display.u8g2, !value);
-
 #ifdef SDL_MODE
     printf("Set display: %d\n", value);
 #endif
+
+    u8g2_SetPowerSave(&display.u8g2, !value);
 }
 
 void clearDisplayBuffer(void)
@@ -579,11 +586,17 @@ void sendDisplayBuffer(void)
 void setBacklight(bool value)
 {
 #ifndef SDL_MODE
+    display.backlightOn = value;
     if (value)
         gpio_set(LCD_BACKLIGHT_PORT, LCD_BACKLIGHT_PIN);
     else
         gpio_clear(LCD_BACKLIGHT_PORT, LCD_BACKLIGHT_PIN);
 #endif
+}
+
+bool getBacklight(void)
+{
+    return display.backlightOn;
 }
 
 static void drawTextLeft(const char *str, uint32_t x, uint32_t y)
@@ -599,6 +612,12 @@ static void drawTextCenter(const char *str, uint32_t x, uint32_t y)
 static void drawTextRight(const char *str, uint32_t x, uint32_t y)
 {
     u8g2_DrawStr(&display.u8g2, x - u8g2_GetStrWidth(&display.u8g2, str), y, str);
+}
+
+void drawLowBattery(void)
+{
+    u8g2_SetFont(&display.u8g2, font_icons);
+    drawTextCenter("0", LCD_CENTER_X, LCD_CENTER_Y + 4);
 }
 
 void drawWelcome(void)
@@ -755,13 +774,15 @@ void drawStats(void)
 
     u8g2_SetFont(&display.u8g2, font_tiny5);
 
-    strcpy(line, "Life timer: ");
-    strcatTime(line, settings.lifeTimer);
+    strcpy(line, " Life timer: ");
+    strcatTime(line, state.lifeTime);
+    strcat(line, " ");
     drawTextCenter(line, LCD_CENTER_X, STATS_VIEW_Y);
 
-    strcpy(line, "Life counts: ");
-    strcatNumber(line, settings.lifeCounts, 0);
-    drawTextCenter(line, LCD_CENTER_X, STATS_VIEW_Y + 7);
+    strcpy(line, " Life counts: ");
+    strcatNumber(line, state.lifePulseCount, 0);
+    strcat(line, " ");
+    drawTextCenter(line, LCD_CENTER_X, STATS_VIEW_Y + 8);
 }
 
 void drawGameBoard(const char board[8][9],

@@ -1,5 +1,5 @@
 /*
- * FS2011 Pro
+ * Rad Pro
  * Geiger-Müller tube
  *
  * (C) 2022-2023 Gissio
@@ -14,6 +14,8 @@
 #include <stdint.h>
 
 void initGM(void);
+
+void syncGMHVPulse(void);
 
 bool getGMPulse(uint32_t *pulseTime);
 

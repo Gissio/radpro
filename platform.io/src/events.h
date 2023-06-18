@@ -1,5 +1,5 @@
 /*
- * FS2011 Pro
+ * Rad Pro
  * Event handler
  *
  * (C) 2022-2023 Gissio
@@ -15,18 +15,21 @@
 
 #define SYS_TICK_FREQUENCY 1000
 
-#define KEY_TICKS ((int)(0.025F * SYS_TICK_FREQUENCY))
+#define KEY_TICKS ((uint32_t)(0.025F * SYS_TICK_FREQUENCY))
 
 void initEvents(void);
 
-void setEventsEnabled(bool value);
+void setMeasurements(bool value);
 
-void waitSysTicks(uint32_t value);
+void sleep(uint32_t value);
+void syncThreads(void);
 
-void updateBacklight(void);
 void setBacklightTimer(int32_t value);
+void triggerBacklight(void);
+void stopBacklightTimer(void);
 
 void setBuzzerTimer(int32_t value);
+void stopBuzzerTimer(void);
 
 void updateEvents(void);
 

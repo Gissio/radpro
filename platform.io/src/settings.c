@@ -1,5 +1,5 @@
 /*
- * FS2011 Pro
+ * Rad Pro
  * Settings
  *
  * (C) 2022-2023 Gissio
@@ -7,163 +7,47 @@
  * License: MIT
  */
 
+#ifndef SDL_MODE
+
+#include <libopencm3/stm32/flash.h>
+
+#else
+
+#include <stdio.h>
+
+#endif
+
 #include <limits.h>
 #include <stdbool.h>
 
-#include "main.h"
+#include "measurements.h"
 #include "settings.h"
 
-UnitType units[] = {
-    {{"Sv/h", (60 * 1E-6F), -6},
-     {"Sv", (60 * 1E-6F / 3600), -6}},
-    {{"rem/h", (60 * 1E-4F), -6},
-     {"rem", (60 * 1E-4F / 3600), -6}},
-    {{"cpm", 60, 0},
-     {"counts", 1, 0}},
-    {{"cps", 1, 0},
-     {"counts", 1, 0}},
-};
-
-const float rateAlarmsSvH[] = {
-    0,
-    0.2E-6F,
-    0.5E-6F,
-    1E-6F,
-    2E-6F,
-    5E-6F,
-    10E-6F,
-    20E-6F,
-    50E-6F,
-    100E-6F,
-};
-
-const float doseAlarmsSv[] = {
-    0,
-    2E-6F,
-    5E-6F,
-    10E-6F,
-    20E-6F,
-    50E-6F,
-    100E-6F,
-    200E-6F,
-    500E-6F,
-    1000E-6F,
-};
-
 Settings settings;
+State state;
 
 #ifndef SDL_MODE
-#define SETTINGS_PAGE_BASE FLASH_BASE
+
+#define FLASH_MEMORY ((uint8_t *)FLASH_BASE)
+
 #else
-uint8_t eeprom[65536];
-#define SETTINGS_PAGE_BASE eeprom
+
+uint8_t flashMemory[65536];
+
+#define FLASH_MEMORY flashMemory
+
 #endif
 
-#define SETTINGS_PAGE_SIZE 0x400
-#define SETTINGS_PAGE_START 0x30
-#define SETTINGS_PAGE_END 0x40
-#define SETTINGS_PER_PAGE (SETTINGS_PAGE_SIZE / sizeof(settings))
+#define FLASH_PAGE_SIZE 0x400
 
-void updateTubeType(void)
-{
-    float cpmPerUSvH;
-    switch (settings.tubeType)
-    {
-    case TUBE_HH614:
-        cpmPerUSvH = 68.4F;
-        break;
+#define SETTINGS_START (0x30 * FLASH_PAGE_SIZE)
+#define SETTINGS_END (0x34 * FLASH_PAGE_SIZE)
 
-    case TUBE_M4011:
-        cpmPerUSvH = 153.F;
-        break;
+#define STATE_START (0x34 * FLASH_PAGE_SIZE)
+#define STATE_END (0x40 * FLASH_PAGE_SIZE)
 
-    case TUBE_SBM20:
-        cpmPerUSvH = 150.F;
-        break;
-
-    case TUBE_SI3BG:
-        cpmPerUSvH = 1.61F;
-        break;
-
-    default:
-        cpmPerUSvH = 1;
-        break;
-    }
-
-    units[0].rate.scale = (60 * 1E-6F) / cpmPerUSvH;
-    units[0].dose.scale = (60 * 1E-6F / 3600) / cpmPerUSvH;
-    units[1].rate.scale = (60 * 1E-4F) / cpmPerUSvH;
-    units[1].dose.scale = (60 * 1E-4F / 3600) / cpmPerUSvH;
-}
-
-static uint8_t *getSettingsAddress(uint32_t pageIndex, uint32_t index)
-{
-    return (uint8_t *)SETTINGS_PAGE_BASE +
-           SETTINGS_PAGE_SIZE * pageIndex +
-           sizeof(settings) * index;
-}
-
-static int32_t getLatestSettingsPageIndex(void)
-{
-    for (uint32_t pageIndex = SETTINGS_PAGE_START;
-         pageIndex < SETTINGS_PAGE_END;
-         pageIndex++)
-    {
-        Settings *page = (Settings *)getSettingsAddress(pageIndex, 0);
-        if (page[SETTINGS_PER_PAGE - 1].lifeCounts == ULLONG_MAX)
-        {
-            if (page[0].lifeCounts != ULLONG_MAX)
-                return pageIndex;
-            else if (pageIndex > SETTINGS_PAGE_START)
-                return pageIndex - 1;
-            else
-                return -1;
-        }
-    }
-
-    return -1;
-}
-
-static int32_t getLatestSettingsIndex(uint32_t pageIndex)
-{
-    Settings *page = (Settings *)getSettingsAddress(pageIndex, 0);
-    for (int32_t index = (SETTINGS_PER_PAGE - 1); index >= 0; index--)
-    {
-        if (page[index].lifeCounts != ULLONG_MAX)
-            return index;
-    }
-
-    return -1;
-}
-
-static void eraseSettingsPage(int32_t pageIndex)
-{
-#ifndef SDL_MODE
-    flash_erase_page(pageIndex);
-#else
-    printf("Erasing page %d\n", pageIndex);
-
-    uint8_t *dest = getSettingsAddress(pageIndex, 0);
-    for (uint32_t i = 0; i < SETTINGS_PAGE_SIZE; i++)
-        dest[i] = 0xff;
-#endif
-}
-
-static void writeSettingsToPageIndex(int32_t pageIndex, int32_t index)
-{
-    uint32_t *source = (uint32_t *)&settings;
-    uint32_t *dest = (uint32_t *)getSettingsAddress(pageIndex, index);
-
-#ifndef SDL_MODE
-    for (uint32_t i = 0; i < (sizeof(settings) / 4); i++)
-        flash_program_word((uint32_t)(dest + i), source[i]);
-#else
-    printf("Writing settings to pageIndex %d, index %d, address %04x\n",
-           pageIndex, index, (uint32_t)((uint8_t *)dest - eeprom));
-
-    *((Settings *)dest) = *((Settings *)source);
-#endif
-}
+static void erasePage(uint32_t address);
+static uint32_t getLastEntry(uint32_t addressStart, uint32_t addressEnd, uint32_t size);
 
 void initSettings(void)
 {
@@ -177,90 +61,144 @@ void initSettings(void)
     settings.tubeType = TUBE_HH614;
     settings.gameSkillLevel = 0;
 
-    settings.lifeTimer = 0;
-    settings.lifeCounts = 0;
+    state.lifeTime = 0;
+    state.lifePulseCount = 0;
+    state.doseTime = 0;
+    state.dosePulseCount = 0;
 
 #ifdef SDL_MODE
-    for (uint32_t pageIndex = SETTINGS_PAGE_START;
-         pageIndex < SETTINGS_PAGE_END;
-         pageIndex++)
-        eraseSettingsPage(pageIndex);
+    for (uint32_t address = SETTINGS_START;
+         address < STATE_END;
+         address += FLASH_PAGE_SIZE)
+        erasePage(address);
 #endif
 
-    int32_t pageIndex = getLatestSettingsPageIndex();
-    if (pageIndex >= 0)
+    uint32_t address;
+
+    address = getLastEntry(SETTINGS_START, SETTINGS_END, sizeof(Settings));
+    if (address)
     {
-        int32_t index = getLatestSettingsIndex(pageIndex);
-        uint8_t *source = getSettingsAddress(pageIndex, index);
-
-        if (index >= 0)
-        {
 #ifdef SDL_MODE
-            printf("Reading settings from pageIndex %d, index %d, address %04x\n",
-                   pageIndex, index, (uint32_t)(source - eeprom));
+        printf("Reading %d bytes from %04x\n", (int)sizeof(Settings), address);
 #endif
-            settings = *((Settings *)source);
+        settings = *(Settings *)(FLASH_MEMORY + address);
+    }
+
+    address = getLastEntry(STATE_START, STATE_END, sizeof(State));
+    if (address)
+    {
+#ifdef SDL_MODE
+        printf("Reading %d bytes from %04x\n", (int)sizeof(State), address);
+#endif
+        state = *(State *)(FLASH_MEMORY + address);
+
+        setDose(state.doseTime, state.dosePulseCount);
+    }
+}
+
+static bool isProgrammed(uint32_t address, uint32_t size)
+{
+    uint32_t *source = (uint32_t *)(FLASH_MEMORY + address);
+    for (uint32_t i = 0; i < size / 4; i++)
+        if (source[i] != 0xffffffff)
+            return true;
+
+    return false;
+}
+
+static void erasePage(uint32_t address)
+{
+    if (!isProgrammed(address, FLASH_PAGE_SIZE))
+        return;
+
+#ifndef SDL_MODE
+    flash_erase_page(FLASH_BASE + address);
+#else
+    printf("Erasing page %04x\n", address);
+
+    uint32_t *dest = (uint32_t *)(flashMemory + address);
+    for (uint32_t i = 0; i < FLASH_PAGE_SIZE / 4; i++)
+        dest[i] = 0xffffffff;
+#endif
+}
+
+static void flashData(uint32_t *source, uint32_t address, uint32_t size)
+{
+#ifndef SDL_MODE
+    for (uint32_t i = 0; i < size / 4; i++)
+        flash_program_word(FLASH_BASE + address + 4 * i, source[i]);
+#else
+    printf("Flashing %d bytes at %04x\n", size, address);
+
+    uint32_t *dest = (uint32_t *)(FLASH_MEMORY + address);
+    for (uint32_t i = 0; i < size / 4; i++)
+        dest[i] = source[i];
+#endif
+}
+
+static uint32_t getLastEntry(uint32_t addressStart, uint32_t addressEnd, uint32_t size)
+{
+    uint32_t selectedAddress = 0;
+
+    for (uint32_t address = addressStart; address < addressEnd; address += size)
+    {
+        if (isProgrammed(address, size))
+            selectedAddress = address;
+        else
+        {
+            // Not programmed. Last found?
+            if (selectedAddress)
+                break;
         }
     }
 
-    updateTubeType();
+    return selectedAddress;
 }
 
-void writeSettings(void)
+static void flashEntry(uint32_t addressStart, uint32_t addressEnd, uint32_t size, uint32_t *source)
 {
 #ifndef SDL_MODE
     flash_unlock();
 #endif
 
-    int32_t pageIndex = getLatestSettingsPageIndex();
-    int32_t index;
-
-    if (pageIndex < 0)
-    {
-        pageIndex = SETTINGS_PAGE_START;
-        index = 0;
-
-        // Just in case: fix invalid condition
-        if (getLatestSettingsIndex(pageIndex) >= 0)
-            eraseSettingsPage(pageIndex);
-    }
+    uint32_t address = getLastEntry(addressStart, addressEnd, size);
+    if (!address)
+        address = addressStart;
     else
     {
-        index = getLatestSettingsIndex(pageIndex) + 1;
-
-        if (index == (SETTINGS_PER_PAGE - 1))
-        {
-            uint32_t erasePageIndex = pageIndex + 1;
-            if (erasePageIndex >= SETTINGS_PAGE_END)
-                erasePageIndex = SETTINGS_PAGE_START;
-
-            if (getLatestSettingsIndex(erasePageIndex) >= 0)
-                eraseSettingsPage(erasePageIndex);
-        }
-        else if (index == SETTINGS_PER_PAGE)
-        {
-            pageIndex++;
-            index = 0;
-
-            if (pageIndex >= SETTINGS_PAGE_END)
-                pageIndex = SETTINGS_PAGE_START;
-        }
+        address += size;
+        if (address >= addressEnd)
+            address = addressStart;
     }
+    uint32_t addressPage = address / FLASH_PAGE_SIZE;
 
-    if (index >= 0)
-        writeSettingsToPageIndex(pageIndex, index);
+    // Sanity check
+    if (isProgrammed(address, size))
+        erasePage(addressPage * FLASH_PAGE_SIZE);
+
+    flashData(source, address, size);
+
+    uint32_t nextAddress = address + size;
+    if (nextAddress >= addressEnd)
+        nextAddress = addressStart;
+    uint32_t nextAddressPage = nextAddress / FLASH_PAGE_SIZE;
+
+    if (addressPage != nextAddressPage)
+        erasePage(nextAddress);
 
 #ifndef SDL_MODE
     flash_lock();
 #endif
 }
 
-float getRateAlarmSvH(uint32_t index)
+void writeSettings(void)
 {
-    return rateAlarmsSvH[index];
+    flashEntry(SETTINGS_START, SETTINGS_END, sizeof(Settings), (uint32_t *)&settings);
 }
 
-float getDoseAlarmSv(uint32_t index)
+void writeState(void)
 {
-    return doseAlarmsSv[index];
+    getDose(&state.doseTime, &state.dosePulseCount);
+
+    flashEntry(STATE_START, STATE_END, sizeof(State), (uint32_t *)&state);
 }

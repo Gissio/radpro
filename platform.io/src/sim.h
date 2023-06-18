@@ -1,5 +1,5 @@
 /*
- * FS2011 Pro
+ * Rad Pro
  * Radiation simulator
  *
  * (C) 2022-2023 Gissio

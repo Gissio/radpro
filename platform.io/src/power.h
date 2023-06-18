@@ -1,5 +1,5 @@
 /*
- * FS2011 Pro
+ * Rad Pro
  * Power management
  * 
  * (C) 2022-2023 Gissio
@@ -10,16 +10,11 @@
 #ifndef POWER_H
 #define POWER_H
 
-#include <stdint.h>
-
-#define BATTERY_LEVEL_MAX 9
-#define BATTERY_LEVEL_CHARGING 10
+#include <stdbool.h>
 
 void initPower(void);
 
-void setPower(bool value);
-
-void updateBattery(void);
-uint8_t getBatteryLevel(void);
+void powerOff(void);
+void powerOffLowBattery(void);
 
 #endif

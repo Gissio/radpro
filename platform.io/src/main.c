@@ -1,5 +1,5 @@
 /*
- * FS2011 Pro
+ * Rad Pro
  * STM32 Main module
  *
  * (C) 2022-2023 Gissio
@@ -7,6 +7,7 @@
  * License: MIT
  */
 
+#include "battery.h"
 #include "buzzer.h"
 #include "display.h"
 #include "events.h"
@@ -14,7 +15,6 @@
 #include "game.h"
 #include "gm.h"
 #include "keyboard.h"
-#include "main.h"
 #include "measurements.h"
 #include "power.h"
 #include "rng.h"
@@ -29,36 +29,43 @@ int main(void)
     initBuzzer();
 
     // POWER key delay
-    waitSysTicks(500);
+    sleep(500);
+
+    initPower();
 
     // Check firmware
     checkFirmware();
 
     // Init system
-    initPower();
-    initSettings();
     initGM();
+    initBattery();
     initMeasurement();
-    initMenus();
     initKeyboard();
     initDisplay();
+    initSettings();
+    initMenus();
+
+    updateUnits();
+
+    // Low battery?
+    updateBattery();
 
     // Welcome screen
     clearDisplayBuffer();
     drawWelcome();
     sendDisplayBuffer();
-    updateBacklight();
+    triggerBacklight();
 
-    waitSysTicks(1000);
+    sleep(1000);
 
     // Initialize view
-    setEventsEnabled(true);
+    setMeasurements(true);
     setView(VIEW_INSTANTANEOUS_RATE);
 
     // Message loop
     while (1)
     {
-        waitSysTicks(1);
+        sleep(1);
 
         updateGame();
         updateUI();

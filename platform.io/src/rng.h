@@ -1,5 +1,5 @@
 /*
- * FS2011 Pro
+ * Rad Pro
  * Random number generator
  * 
  * (C) 2022-2023 Gissio

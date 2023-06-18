@@ -1,5 +1,5 @@
 /*
- * FS2011 Pro
+ * Rad Pro
  * Number formatting
  *
  * (C) 2022-2023 Gissio
@@ -11,9 +11,9 @@
 
 #include "format.h"
 #include "cmath.h"
-#include "settings.h"
+#include "measurements.h"
 
-const char *formatPrefixes = "n\x7fm kMG";
+const char *formatPrefixes = "n\xb5m kMG";
 
 static char getMetricPrefix(int32_t exponent)
 {
@@ -26,12 +26,12 @@ static char getMetricPrefix(int32_t exponent)
         return formatPrefixes[metricPrefix + 3];
 }
 
-void strcatNumber(char *buffer, uint64_t value, uint32_t length)
+void strcatNumber(char *buffer, uint32_t value, uint32_t length)
 {
     buffer += strlen(buffer);
 
     uint32_t numberOfDigits = 0;
-    uint64_t shiftRegister = value;
+    uint32_t shiftRegister = value;
     do
     {
         numberOfDigits++;

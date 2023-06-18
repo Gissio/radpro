@@ -1,5 +1,5 @@
 /*
-  Fontname: Helvetica
+  Fontname: font_helvR24
   Copyright: Copyright (c) 1984, 1987 Adobe Systems Incorporated. All Rig
   Glyphs: 13/256
   BBX Build Mode: 0

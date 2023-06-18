@@ -1,34 +1,36 @@
 ## Overview
 
-FS2011 Pro is an advanced firmware that enhances the capabilities of the FS2011/FS2011+ radiation detector/Geiger counter.
+Rad Pro (formerly FS2011 Pro) is an open-source firmware the enhances the capabilities of portable radiation detectors/Geiger counters, in particular the [FS2011](https://www.amazon.com/s?k=fs2011). Support for the [Bosean FS-600](https://www.bosean.net/products/nuclear_radiation_detector.html) and [Bosean FS-1000](https://www.bosean.net/products/FS-1000_nuclear_radiation_detector.html) is planned.
 
-Watch a demonstration of FS2011 Pro in action:
+Watch a demonstration of Rad Pro in action:
 
-[![FS2011 Pro Demonstration](docs/img/fs2011pro-video.jpg)](https://www.youtube.com/watch?v=7dpVG1jSLn8)
+[![Rad Pro Demonstration](docs/img/radpro-video.jpg)](https://www.youtube.com/watch?v=7dpVG1jSLn8)
 
 ## Features
 
+* Intuitive user interface for easy navigation and hassle-free experience.
 * Instantaneous rate, average rate, dose, and history modes.
-* True random number generator to generate secure passwords (letters & numbres, full ASCII), random hexadecimal and decimal numbers, coin flips and dice throws (6-sided, 4-sided, 8-sided, 12-sided and 20-sided).
-* Intuitive user interface for easy navigation and hassle-free use.
 * Measurements in Sievert, rem, cpm and cps.
-* Multiple history periods, including 2-minute, 10-minute, 1-hour, 6-hour and 24-hour options.
-* 95% confidence intervals to ensure accurate readings.
-* Measurement hold for instantaneous rate, average rate, and dose.
-* Overload alert to prevent damage to the device.
 * Customizable rate and dose alarms.
-* Unique and fun feature: Nuclear chess.
+* Measurement hold for instantaneous rate, average rate, and dose.
+* Dose storage in non-volatile memory.
+* Multiple history periods, including 2-minute, 10-minute, 1-hour, 6-hour and 24-hour options.
+* Logging capabilities, including radmon.org submission.
+* 95% confidence intervals to ensure accurate readings.
+* Overload alert.
 * Configurable pulse click sounds: off, quiet, loud.
 * Configurable backlight: off, pulse flashes, on for 10 seconds, on for 60 seconds, or always on.
-* Configurable battery type for battery level monitoring.
-* Multiple Geiger-Müller tubes: HH614 (48 mm long), M4011 (105 mm long), SBM-20 (108 mm long), SI-3BG (50 mm long).
-* Device life statistics for monitoring usage and performance of the device.
-* 40% more battery life compared to the original firmware.
+* Configurable battery type for accurate battery level monitoring.
+* Support for multiple Geiger-Müller tubes: HH614 (48 mm long), M4011 (105 mm long), SBM-20 (108 mm long), SI-3BG (50 mm long).
+* Device statistics for monitoring usage and performance of the device.
+* True random number generator that generates secure passwords (letters & numbres, full ASCII), random hexadecimal and decimal numbers, coin flips and dice throws (6-sided, 4-sided, 8-sided, 12-sided and 20-sided).
+* Up to 40% more battery life compared to the original firmware.
 * Power-on self-test and safety watchdog.
+* Unique and fun feature: Nuclear chess.
 
 ## Installation
 
-Before installing FS2011 Pro, please read the following important information:
+Before installing Rad Pro, please read the following important information:
 
 __Disclaimer:__ The authors of this software are not responsible or liable for any claims, damages, losses, expenses, costs, or liabilities whatsoever resulting or arising directly or indirectly from the use of this software.
 
@@ -38,7 +40,7 @@ By proceeding with the installation, you acknowledge that you have read and unde
 
 ### Requirements
 
-To install FS2011 Pro, you will need the following tools and components:
+To install Rad Pro, you will need the following tools and components:
 
 * A Philips screwdriver
 * A soldering iron and solder
@@ -46,9 +48,9 @@ To install FS2011 Pro, you will need the following tools and components:
 * An ST-Link V2 USB dongle (or clone)
 * [stlink][stlink-link]
 
-### Instructions
+### Instructions for FS2011 devices
 
-Follow these steps to install FS2011 Pro firmware on your FS2011/FS2011+ radiation detector/Geiger counter:
+Follow these steps to install Rad Pro firmware on your FS2011 radiation detector/Geiger counter:
 
 * Remove the battery cover and batteries.
 * Unscrew and remove the four screws holding the back case.
@@ -57,7 +59,7 @@ Follow these steps to install FS2011 Pro firmware on your FS2011/FS2011+ radiati
 
 ![FS2011 circuit board](docs/img/fs2011-board.jpg)
 
-If your board looks different, you may have a different hardware version and this firmware may not work correctly.
+If your board looks different, you may have a different hardware version. In such cases, this firmware may not function properly, especially if your board does not have an STM32 microprocessor. Please post an issue, including a photograph of your board (both sides).
 
 * Solder the 4-pin header to XS1 on the board.
 * Optionally, align the Geiger-Müller tube to the holes of the back case using a heat gun/glue gun if the tube is mounted vertically. Be careful, as the tube's glass is very delicate.
@@ -68,34 +70,42 @@ If your board looks different, you may have a different hardware version and thi
   * GND
   * SWCLK
   * SWDIO
-  * +3V3
-* Before installing FS2011 Pro for the first time, back up the original firmware. If you skip this step, you won't be able to restore your device if something goes wrong. To create a backup, open a terminal and go to the `bin` folder within the stlink folder. Then, execute the following command and verify that the resulting file, `backup.bin`, has a size of 65536 bytes:
+  * +3.3V
+* Before installing Rad Pro for the first time, back up the original firmware. If you skip this step, you won't be able to restore your device if something goes wrong. To create a backup, open a terminal and go to the `bin` folder within the stlink folder. Then, execute the following command and verify that the resulting file, `backup.bin`, has a size of 65536 bytes:
 
   ```
   st-flash read backup.bin 0x08000000 0x10000
   ```
-* Download the latest FS2011 Pro firmware from the [releases][releases-link]: use the "-install" version when installing for the first time and the "-update" version when updating.
-* To install FS2011 Pro, open a terminal, go to the `bin` folder within the stlink folder, and run this command:
+
+* Download the latest Rad Pro firmware from the [releases][releases-link]: use the "radpro-fs2011-install" version when installing for the first time and the "radpro-fs2011-update" version when updating.
+* To install Rad Pro, open a terminal, go to the `bin` folder within the stlink folder, and run this command:
 
   ```
   st-flash write [Firmware filename] 0x08000000
   ```
 
+### Instructions for other devices
+
+It should be fairly easy to port the code to Bosean devices. Please contact me if you own such a device and are willing to support the project.
+
 ## Usage
 
 To use this firmware, follow these instructions:
 
-* To turn the device on and off, long-press the POWER key.
-* To turn the backlight on (if the backlight is enabled), short-press the POWER key.
+* To power the device on and off, simply long-press the POWER key.
+* To activate the backlight (if enabled), briefly press the POWER key.
 
-* To change the mode/selection, press the UP and DOWN keys.
+* Use the UP and DOWN keys to change the mode or make selections.
 
-* To hold/unhold the current measurement (in instantaneous rate, average rate, and dose mode), short-press the PLAY/PAUSE key.
-* To reset the mode's measurements, long-press the PLAY/PAUSE key.
+* Briefly press the PLAY/PAUSE key to toggle between holding and unholding the current measurement in instantaneous rate, average rate, and dose mode.
+* To reset the measurements for the selected mode, long-press the PLAY/PAUSE key.
 
-* To enter the menu/select a menu option, press the MENU/OK key. To go back from a menu/menu option, press the PLAY/PAUSE key.
+* Press the MENU/OK key to access the menu and select various options.
+* To go back from a menu or menu option, press the PLAY/PAUSE key.
 
-* The random number generator produces 16 symbols at a time. If you need more symbols, simply return to the menu and initiate a new run.
+* The device automatically stores the dose to non-volatile memory every hour. To ensure accurate dose storage, always power off the device by long-pressing the POWER key. Avoid removing batteries to power off.
+
+* The random number generator generates 16 symbols per run. If additional symbols are needed, simply return to the menu and initiate a new run.
 
 ## Measurements
 
@@ -129,7 +139,7 @@ Random symbols are generated from the bits using the [Fast Dice Roller](https://
 
 To generate bits more quickly, use a radioactive source.
 
-## Building
+## Building the firmware
 
 To build the software, follow these steps:
 

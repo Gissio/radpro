@@ -1,5 +1,5 @@
 /*
- * FS2011 Pro
+ * Rad Pro
  * Instantaneous, rate and dose measurement
  *
  * (C) 2022-2023 Gissio
@@ -18,17 +18,55 @@
 #include "settings.h"
 #include "ui.h"
 
-#define OVERLOAD_RATE 500
-#define TIME_MAX (ULONG_MAX / SYS_TICK_FREQUENCY)
+#define INTERVAL_STATS_NUM 5
+#define PULSE_QUEUE_LENGTH (10 + 1)
 
-#define INSTANTANEOUS_RATE_HISTORY_STATS_NUM 5
-#define INSTANTANEOUS_RATE_PULSE_NUM (10 + 1)
+#define PULSE_SOUND_QUIET_TICKS ((uint32_t)(0.001F * SYS_TICK_FREQUENCY))
+#define PULSE_SOUND_LOUD_TICKS ((uint32_t)(0.015F * SYS_TICK_FREQUENCY))
+#define PULSE_BACKLIGHT_FLASH_TICKS ((uint32_t)(0.08F * SYS_TICK_FREQUENCY))
 
-#define PULSE_SOUND_QUIET_TICKS ((int)(0.001F * SYS_TICK_FREQUENCY))
-#define PULSE_SOUND_LOUD_TICKS ((int)(0.015F * SYS_TICK_FREQUENCY))
-#define PULSE_BACKLIGHT_FLASH_TICKS ((int)(0.08F * SYS_TICK_FREQUENCY))
+#define OVERLOAD_RATE 1000
 
-#define ALARM_TICKS ((int)(0.25F * SYS_TICK_FREQUENCY))
+#define AVERAGE_TIME_MAX (UINT32_MAX / SYS_TICK_FREQUENCY)
+
+#define ALARM_TICKS ((uint32_t)(0.25F * SYS_TICK_FREQUENCY))
+
+UnitType units[] = {
+    {{"Sv/h", (60 * 1E-6F), -6},
+     {"Sv", (60 * 1E-6F / 3600), -6}},
+    {{"rem/h", (60 * 1E-4F), -6},
+     {"rem", (60 * 1E-4F / 3600), -6}},
+    {{"cpm", 60, 0},
+     {"counts", 1, 0}},
+    {{"cps", 1, 0},
+     {"counts", 1, 0}},
+};
+
+const float rateAlarmsSvH[] = {
+    0,
+    0.2E-6F,
+    0.5E-6F,
+    1E-6F,
+    2E-6F,
+    5E-6F,
+    10E-6F,
+    20E-6F,
+    50E-6F,
+    100E-6F,
+};
+
+const float doseAlarmsSv[] = {
+    0,
+    2E-6F,
+    5E-6F,
+    10E-6F,
+    20E-6F,
+    50E-6F,
+    100E-6F,
+    200E-6F,
+    500E-6F,
+    1000E-6F,
+};
 
 typedef struct
 {
@@ -36,45 +74,46 @@ typedef struct
     uint32_t pulseCount;
 } IntervalStats;
 
+typedef struct
+{
+    uint32_t count;
+    uint32_t index;
+    uint32_t tick[PULSE_QUEUE_LENGTH];
+} PulseQueue;
+
 struct
 {
     uint32_t tick;
-    uint32_t lastPulseTick;
-
-    IntervalStats current;
-    IntervalStats history[INSTANTANEOUS_RATE_HISTORY_STATS_NUM];
-
-    uint32_t pulseTicksCount;
-    uint32_t pulseTicksIndex;
-    uint32_t pulseTicks[INSTANTANEOUS_RATE_PULSE_NUM];
+    IntervalStats intervalStats[INTERVAL_STATS_NUM];
+    PulseQueue pulseQueue;
 
     uint32_t snapshotTime;
-    uint32_t snapshotCount;
+    uint32_t snapshotPulseCount;
     uint32_t snapshotTicks;
     float snapshotValue;
     float snapshotMaxValue;
 
     bool isHold;
     uint32_t holdTime;
-    uint32_t holdCount;
+    uint32_t holdPulseCount;
     float holdValue;
 } instantaneousRate;
 
 struct
 {
     uint32_t tick;
-    uint32_t lastPulseTick;
     uint32_t firstPulseTick;
+    uint32_t lastPulseTick;
     uint32_t pulseCount;
 
     uint32_t snapshotTime;
-    uint32_t snapshotCount;
+    uint32_t snapshotPulseCount;
     uint32_t snapshotTicks;
     float snapshotValue;
 
     bool isHold;
     uint32_t holdTime;
-    uint32_t holdCount;
+    uint32_t holdPulseCount;
     float holdValue;
 } averageRate;
 
@@ -83,11 +122,11 @@ struct
     uint32_t pulseCount;
 
     uint32_t snapshotTime;
-    uint32_t snapshotValue;
+    uint32_t snapshotPulseCount;
 
     bool isHold;
     uint32_t holdTime;
-    uint32_t holdValue;
+    uint32_t holdPulseCount;
 } dose;
 
 typedef const struct
@@ -115,7 +154,17 @@ History histories[HISTORY_NUM] = {
 HistoryState historyStates[HISTORY_NUM];
 uint32_t historySampleIndex;
 
-// Reset
+static void resetInstantaneousRate(void);
+static bool isInstantaneousRateAlarm(void);
+
+static void resetAverageRate(void);
+
+static void resetDose(void);
+static bool isDoseAlarm(void);
+
+static void resetHistory(void);
+
+// General
 
 void initMeasurement(void)
 {
@@ -125,111 +174,77 @@ void initMeasurement(void)
     resetHistory();
 }
 
+void updateUnits(void)
+{
+    float cpmPerUSvH;
+    switch (settings.tubeType)
+    {
+    case TUBE_HH614:
+        cpmPerUSvH = 68.4F;
+        break;
+
+    case TUBE_M4011:
+        cpmPerUSvH = 153.F;
+        break;
+
+    case TUBE_SBM20:
+        cpmPerUSvH = 174.F;
+        break;
+
+    case TUBE_SI3BG:
+        cpmPerUSvH = 1.61F;
+        break;
+
+    default:
+        cpmPerUSvH = 1;
+        break;
+    }
+
+    units[0].rate.scale = (60 * 1E-6F) / cpmPerUSvH;
+    units[0].dose.scale = (60 * 1E-6F / 3600) / cpmPerUSvH;
+    units[1].rate.scale = (60 * 1E-4F) / cpmPerUSvH;
+    units[1].dose.scale = (60 * 1E-4F / 3600) / cpmPerUSvH;
+}
+
 static void resetIntervalStats(IntervalStats *intervalStats)
 {
     intervalStats->firstPulseTick = 0;
     intervalStats->pulseCount = 0;
 }
 
-void resetInstantaneousRate(void)
+void onMeasurementTick(uint32_t pulseCount)
 {
-    instantaneousRate.tick = 0;
-    instantaneousRate.lastPulseTick = 0;
-    resetIntervalStats(&instantaneousRate.current);
-    for (uint32_t i = 0; i < INSTANTANEOUS_RATE_HISTORY_STATS_NUM; i++)
-        resetIntervalStats(&instantaneousRate.history[i]);
-
-    instantaneousRate.pulseTicksCount = 0;
-    instantaneousRate.pulseTicksIndex = 0;
-    for (uint32_t i = 0; i < INSTANTANEOUS_RATE_PULSE_NUM; i++)
-        instantaneousRate.pulseTicks[i] = 0;
-
-    instantaneousRate.snapshotTime = 0;
-    instantaneousRate.snapshotCount = 0;
-    instantaneousRate.snapshotValue = 0;
-    instantaneousRate.snapshotMaxValue = 0;
-
-    instantaneousRate.isHold = false;
-    instantaneousRate.holdCount = 0;
-    instantaneousRate.holdValue = 0;
-    instantaneousRate.holdTime = 0;
-}
-
-void resetAverageRate(void)
-{
-    averageRate.tick = 0;
-    averageRate.firstPulseTick = 0;
-    averageRate.lastPulseTick = 0;
-    averageRate.pulseCount = 0;
-
-    averageRate.snapshotTime = 0;
-    averageRate.snapshotCount = 0;
-    averageRate.snapshotValue = 0;
-}
-
-void resetDose(void)
-{
-    dose.pulseCount = 0;
-
-    dose.snapshotTime = 0;
-    dose.snapshotValue = 0;
-}
-
-void resetHistory(void)
-{
-    for (uint32_t i = 0; i < HISTORY_NUM; i++)
+    // Pulse?
+    if (pulseCount)
     {
-        HistoryState *historyState = &historyStates[i];
-
-        historyState->sampleSum = 0;
-        historyState->sampleNum = 0;
-
-        historyState->bufferIndex = 0;
-        for (uint32_t j = 0; j < HISTORY_BUFFER_SIZE; j++)
-            historyState->buffer[j] = 0;
-    }
-
-    historySampleIndex = 0;
-}
-
-void onMeasurementTick(uint32_t pulseNum)
-{
-    if (pulseNum)
-    {
-        settings.lifeCounts += pulseNum;
+        // Life statistics
+        addClamped(&state.lifePulseCount, pulseCount);
 
         // Instantaneous rate
-        if (!instantaneousRate.current.pulseCount)
-            instantaneousRate.current.firstPulseTick = instantaneousRate.tick;
-        addClamped(&instantaneousRate.current.pulseCount, pulseNum);
+        if (!instantaneousRate.intervalStats[0].pulseCount)
+            instantaneousRate.intervalStats[0].firstPulseTick = instantaneousRate.tick;
+        instantaneousRate.intervalStats[0].pulseCount += pulseCount;
 
-        instantaneousRate.pulseTicksCount =
-            instantaneousRate.pulseTicksCount + pulseNum;
-        if (instantaneousRate.pulseTicksCount > INSTANTANEOUS_RATE_PULSE_NUM)
-            instantaneousRate.pulseTicksCount = INSTANTANEOUS_RATE_PULSE_NUM;
-        for (uint32_t i = 0; i < pulseNum; i++)
+        instantaneousRate.pulseQueue.count += pulseCount;
+        if (instantaneousRate.pulseQueue.count > PULSE_QUEUE_LENGTH)
+            instantaneousRate.pulseQueue.count = PULSE_QUEUE_LENGTH;
+        for (uint32_t i = 0; i < pulseCount; i++)
         {
-            instantaneousRate.pulseTicks[instantaneousRate.pulseTicksIndex] =
-                instantaneousRate.tick;
-            instantaneousRate.pulseTicksIndex =
-                (instantaneousRate.pulseTicksIndex + 1) % INSTANTANEOUS_RATE_PULSE_NUM;
+            instantaneousRate.pulseQueue.tick[instantaneousRate.pulseQueue.index] = instantaneousRate.tick;
+            instantaneousRate.pulseQueue.index = (instantaneousRate.pulseQueue.index + 1) % PULSE_QUEUE_LENGTH;
         }
 
-        instantaneousRate.lastPulseTick = instantaneousRate.tick;
-
         // Average rate
-        if (averageRate.tick < ULONG_MAX)
+        if (averageRate.tick < AVERAGE_TIME_MAX)
         {
             if (!averageRate.pulseCount)
                 averageRate.firstPulseTick = averageRate.tick;
-            addClamped(&averageRate.pulseCount, pulseNum);
-
             averageRate.lastPulseTick = averageRate.tick;
+            addClamped(&averageRate.pulseCount, pulseCount);
         }
 
         // Dose
-        if (dose.snapshotTime < TIME_MAX)
-            addClamped(&dose.pulseCount, pulseNum);
+        addClamped(&dose.pulseCount, pulseCount);
 
         // Buzzer
         switch (settings.pulseSound)
@@ -248,59 +263,61 @@ void onMeasurementTick(uint32_t pulseNum)
             setBacklightTimer(PULSE_BACKLIGHT_FLASH_TICKS);
     }
 
+    // Update ticks
     instantaneousRate.tick++;
 
-    if ((averageRate.tick < ULONG_MAX) && (averageRate.pulseCount < ULONG_MAX))
+    if (averageRate.tick < AVERAGE_TIME_MAX)
         averageRate.tick++;
 }
 
 void onMeasurementOneSecond(void)
 {
     uint32_t firstPulseTick;
+    uint32_t lastPulseTick;
     uint32_t pulseCount;
     uint32_t ticks;
 
-    // Instantaneous rate
-    for (uint32_t i = INSTANTANEOUS_RATE_HISTORY_STATS_NUM - 1; i > 0; i--)
-        instantaneousRate.history[i] = instantaneousRate.history[i - 1];
-    instantaneousRate.history[0] = instantaneousRate.current;
-    resetIntervalStats(&instantaneousRate.current);
+    if (state.lifeTime < UINT32_MAX)
+        state.lifeTime++;
 
+    // Instantaneous rate
     firstPulseTick = 0;
+    lastPulseTick = instantaneousRate.pulseQueue.tick[(PULSE_QUEUE_LENGTH + instantaneousRate.pulseQueue.index - 1) % PULSE_QUEUE_LENGTH];
     pulseCount = 0;
-    for (uint32_t i = 0; i < INSTANTANEOUS_RATE_HISTORY_STATS_NUM; i++)
+
+    for (uint32_t i = 0; i < INTERVAL_STATS_NUM; i++)
     {
-        if (instantaneousRate.history[i].pulseCount)
+        if (instantaneousRate.intervalStats[i].pulseCount)
         {
-            firstPulseTick = instantaneousRate.history[i].firstPulseTick;
-            pulseCount += instantaneousRate.history[i].pulseCount;
+            firstPulseTick = instantaneousRate.intervalStats[i].firstPulseTick;
+            pulseCount += instantaneousRate.intervalStats[i].pulseCount;
         }
     }
 
-    if (pulseCount < INSTANTANEOUS_RATE_PULSE_NUM)
+    for (uint32_t i = INTERVAL_STATS_NUM - 1; i > 0; i--)
+        instantaneousRate.intervalStats[i] = instantaneousRate.intervalStats[i - 1];
+    resetIntervalStats(&instantaneousRate.intervalStats[0]);
+
+    if (pulseCount < PULSE_QUEUE_LENGTH)
     {
-        uint32_t pulseTicksIndex = (INSTANTANEOUS_RATE_PULSE_NUM +
-                                    instantaneousRate.pulseTicksIndex -
-                                    instantaneousRate.pulseTicksCount) %
-                                   INSTANTANEOUS_RATE_PULSE_NUM;
-        firstPulseTick = instantaneousRate.pulseTicks[pulseTicksIndex];
-        pulseCount = instantaneousRate.pulseTicksCount;
+        firstPulseTick = instantaneousRate.pulseQueue.tick[(PULSE_QUEUE_LENGTH + instantaneousRate.pulseQueue.index - instantaneousRate.pulseQueue.count) % PULSE_QUEUE_LENGTH];
+        pulseCount = instantaneousRate.pulseQueue.count;
     }
 
-    if (instantaneousRate.pulseTicksCount < INSTANTANEOUS_RATE_PULSE_NUM)
+    if (instantaneousRate.pulseQueue.count < PULSE_QUEUE_LENGTH)
         instantaneousRate.snapshotTime++;
     else
-        instantaneousRate.snapshotTime =
-            (instantaneousRate.tick + SYS_TICK_FREQUENCY - 1 - firstPulseTick) / SYS_TICK_FREQUENCY;
-    ticks = instantaneousRate.lastPulseTick - firstPulseTick;
+        instantaneousRate.snapshotTime = (instantaneousRate.tick + (SYS_TICK_FREQUENCY - 1) - firstPulseTick) / SYS_TICK_FREQUENCY;
+
+    ticks = lastPulseTick - firstPulseTick;
     if (ticks && (pulseCount > 1))
     {
-        instantaneousRate.snapshotCount = pulseCount - 1;
+        instantaneousRate.snapshotPulseCount = pulseCount - 1;
         instantaneousRate.snapshotTicks = ticks;
     }
     else
     {
-        instantaneousRate.snapshotCount = 0;
+        instantaneousRate.snapshotPulseCount = 0;
         instantaneousRate.snapshotTicks = 1;
     }
 
@@ -308,23 +325,26 @@ void onMeasurementOneSecond(void)
     pulseCount = averageRate.pulseCount;
     ticks = averageRate.lastPulseTick - averageRate.firstPulseTick;
 
-    if ((averageRate.snapshotTime < ULONG_MAX) && (averageRate.pulseCount < ULONG_MAX))
+    if ((averageRate.tick < AVERAGE_TIME_MAX) && (averageRate.pulseCount < UINT32_MAX))
         averageRate.snapshotTime++;
+
     if (ticks && (pulseCount > 1))
     {
-        averageRate.snapshotCount = pulseCount - 1;
+        averageRate.snapshotPulseCount = pulseCount - 1;
         averageRate.snapshotTicks = ticks;
     }
     else
     {
-        averageRate.snapshotCount = 0;
+        averageRate.snapshotPulseCount = 0;
         averageRate.snapshotTicks = 1;
     }
 
     // Dose
-    if ((dose.snapshotTime < TIME_MAX) && (dose.pulseCount < ULONG_MAX))
+    if ((dose.snapshotTime < UINT32_MAX) && (dose.snapshotPulseCount < UINT32_MAX))
+    {
         dose.snapshotTime++;
-    dose.snapshotValue = dose.pulseCount;
+        dose.snapshotPulseCount = dose.pulseCount;
+    }
 
     if (isInstantaneousRateAlarm() || isDoseAlarm())
     {
@@ -336,15 +356,15 @@ void onMeasurementOneSecond(void)
 void updateMeasurement(void)
 {
     // Instantaneous rate
-    instantaneousRate.snapshotValue = (float)instantaneousRate.snapshotCount *
+    instantaneousRate.snapshotValue = (float)instantaneousRate.snapshotPulseCount *
                                       SYS_TICK_FREQUENCY / instantaneousRate.snapshotTicks;
 
-    if ((instantaneousRate.pulseTicksCount == INSTANTANEOUS_RATE_PULSE_NUM) &&
+    if ((instantaneousRate.pulseQueue.count == PULSE_QUEUE_LENGTH) &&
         (instantaneousRate.snapshotValue > instantaneousRate.snapshotMaxValue))
         instantaneousRate.snapshotMaxValue = instantaneousRate.snapshotValue;
 
     // Average rate
-    averageRate.snapshotValue = (float)averageRate.snapshotCount *
+    averageRate.snapshotValue = (float)averageRate.snapshotPulseCount *
                                 SYS_TICK_FREQUENCY / averageRate.snapshotTicks;
 
     // History
@@ -372,39 +392,6 @@ void updateMeasurement(void)
             historyState->bufferIndex = (historyState->bufferIndex + 1) % HISTORY_BUFFER_SIZE;
         }
     }
-}
-
-bool isInstantaneousRateAlarm(void)
-{
-    if (!settings.rateAlarm)
-        return false;
-
-    float rateSvH = units[UNITS_SIEVERTS].rate.scale * instantaneousRate.snapshotValue;
-    return rateSvH >= getRateAlarmSvH(settings.rateAlarm);
-}
-
-bool isDoseAlarm(void)
-{
-    if (!settings.doseAlarm)
-        return false;
-
-    float doseSv = units[UNITS_SIEVERTS].dose.scale * dose.snapshotValue;
-    return doseSv >= getDoseAlarmSv(settings.doseAlarm);
-}
-
-uint8_t getHistoryDataPoint(uint32_t dataIndex)
-{
-    HistoryState *historyState = &historyStates[settings.history];
-
-    uint32_t bufferIndex =
-        (HISTORY_BUFFER_SIZE + (historyState->bufferIndex - 1) - dataIndex) % HISTORY_BUFFER_SIZE;
-
-    return historyState->buffer[bufferIndex];
-}
-
-static const char *getHistoryName(uint32_t historyIndex)
-{
-    return histories[historyIndex].name;
 }
 
 // UI
@@ -456,27 +443,145 @@ static void drawRateMax(float value)
     drawSubtitle(subtitleString);
 }
 
+void onMeasurementViewKey(KeyEvent keyEvent)
+{
+    switch (keyEvent)
+    {
+    case KEY_UP:
+        if (getView() == VIEW_INSTANTANEOUS_RATE)
+            setView(VIEW_HISTORY);
+        else
+            setView(getView() - 1);
+        break;
+
+    case KEY_DOWN:
+        if (getView() == VIEW_HISTORY)
+            setView(VIEW_INSTANTANEOUS_RATE);
+        else
+            setView(getView() + 1);
+        break;
+
+    case KEY_SELECT:
+        openSettingsMenu();
+        break;
+
+    case KEY_BACK_DELAYED:
+        switch (getView())
+        {
+        case VIEW_INSTANTANEOUS_RATE:
+            instantaneousRate.isHold = !instantaneousRate.isHold;
+            if (instantaneousRate.isHold)
+            {
+                instantaneousRate.holdTime = instantaneousRate.snapshotTime;
+                instantaneousRate.holdPulseCount = instantaneousRate.snapshotPulseCount;
+                instantaneousRate.holdValue = instantaneousRate.snapshotValue;
+            }
+            break;
+
+        case VIEW_AVERAGE_RATE:
+            averageRate.isHold = !averageRate.isHold;
+            if (averageRate.isHold)
+            {
+                averageRate.holdTime = averageRate.snapshotTime;
+                averageRate.holdPulseCount = averageRate.snapshotPulseCount;
+                averageRate.holdValue = averageRate.snapshotValue;
+            }
+            break;
+
+        case VIEW_DOSE:
+            dose.isHold = !dose.isHold;
+            if (dose.isHold)
+            {
+                dose.holdTime = dose.snapshotTime;
+                dose.holdPulseCount = dose.snapshotPulseCount;
+            }
+            break;
+        }
+
+        updateView();
+        break;
+
+    case KEY_RESET:
+        onMeasurementViewKey(KEY_BACK);
+
+        switch (getView())
+        {
+        case VIEW_INSTANTANEOUS_RATE:
+            resetInstantaneousRate();
+            break;
+
+        case VIEW_AVERAGE_RATE:
+            resetAverageRate();
+            break;
+
+        case VIEW_DOSE:
+            resetDose();
+            break;
+
+        case VIEW_HISTORY:
+            resetHistory();
+            break;
+        }
+
+        updateView();
+        break;
+    }
+}
+
+// Instantaneous rate
+
+static void resetInstantaneousRate(void)
+{
+    instantaneousRate.tick = 0;
+    for (uint32_t i = 0; i < INTERVAL_STATS_NUM; i++)
+        resetIntervalStats(&instantaneousRate.intervalStats[i]);
+
+    instantaneousRate.pulseQueue.count = 0;
+    instantaneousRate.pulseQueue.index = 0;
+    for (uint32_t i = 0; i < PULSE_QUEUE_LENGTH; i++)
+        instantaneousRate.pulseQueue.tick[i] = 0;
+
+    instantaneousRate.snapshotTime = 0;
+    instantaneousRate.snapshotPulseCount = 0;
+    instantaneousRate.snapshotValue = 0;
+    instantaneousRate.snapshotMaxValue = 0;
+
+    instantaneousRate.isHold = false;
+    instantaneousRate.holdPulseCount = 0;
+    instantaneousRate.holdValue = 0;
+    instantaneousRate.holdTime = 0;
+}
+
+static bool isInstantaneousRateAlarm(void)
+{
+    if (!settings.rateAlarm)
+        return false;
+
+    float rateSvH = units[UNITS_SIEVERTS].rate.scale * instantaneousRate.snapshotValue;
+    return rateSvH >= rateAlarmsSvH[settings.rateAlarm];
+}
+
 void drawInstantaneousRateView(void)
 {
     uint32_t time;
-    uint32_t count;
+    uint32_t pulseCount;
     float value;
 
     if (!instantaneousRate.isHold)
     {
         time = instantaneousRate.snapshotTime;
-        count = instantaneousRate.snapshotCount;
+        pulseCount = instantaneousRate.snapshotPulseCount;
         value = instantaneousRate.snapshotValue;
     }
     else
     {
         time = instantaneousRate.holdTime;
-        count = instantaneousRate.holdCount;
+        pulseCount = instantaneousRate.holdPulseCount;
         value = instantaneousRate.holdValue;
     }
 
     drawTitleWithTime("Instantaneous", time);
-    drawRate(value, count);
+    drawRate(value, pulseCount);
 
     if (instantaneousRate.isHold)
         drawSubtitle("HOLD");
@@ -488,63 +593,145 @@ void drawInstantaneousRateView(void)
         drawRateMax(instantaneousRate.snapshotMaxValue);
 }
 
+// Average rate
+
+void resetAverageRate(void)
+{
+    averageRate.tick = 0;
+    averageRate.firstPulseTick = 0;
+    averageRate.lastPulseTick = 0;
+    averageRate.pulseCount = 0;
+
+    averageRate.snapshotTime = 0;
+    averageRate.snapshotPulseCount = 0;
+    averageRate.snapshotValue = 0;
+}
+
 void drawAverageRateView(void)
 {
     uint32_t time;
-    uint32_t count;
+    uint32_t pulseCount;
     float value;
 
     if (!averageRate.isHold)
     {
         time = averageRate.snapshotTime;
-        count = averageRate.snapshotCount;
+        pulseCount = averageRate.snapshotPulseCount;
         value = averageRate.snapshotValue;
     }
     else
     {
         time = averageRate.holdTime;
-        count = averageRate.holdCount;
+        pulseCount = averageRate.holdPulseCount;
         value = averageRate.holdValue;
     }
 
     drawTitleWithTime("Average", time);
-    drawRate(value, count);
+    drawRate(value, pulseCount);
 
     if (averageRate.isHold)
         drawSubtitle("HOLD");
-    else if ((averageRate.snapshotTime >= TIME_MAX) ||
-             (averageRate.snapshotCount >= (ULONG_MAX - 1)))
+    else if ((averageRate.snapshotTime >= AVERAGE_TIME_MAX) ||
+             (averageRate.snapshotPulseCount >= UINT32_MAX))
         drawSubtitle("OVERFLOW");
     else if (averageRate.snapshotValue >= OVERLOAD_RATE)
         drawSubtitle("OVERLOAD");
 }
 
+// Dose
+
+void setDose(uint32_t time, uint32_t pulseCount)
+{
+    syncThreads();
+
+    dose.pulseCount = pulseCount;
+
+    dose.snapshotTime = time;
+    dose.snapshotPulseCount = pulseCount;
+}
+
+void getDose(uint32_t *time, uint32_t *pulseCount)
+{
+    syncThreads();
+
+    *time = dose.snapshotTime;
+    *pulseCount = dose.snapshotPulseCount;
+}
+
+static void resetDose(void)
+{
+    setDose(0, 0);
+}
+
+static bool isDoseAlarm(void)
+{
+    if (!settings.doseAlarm)
+        return false;
+
+    float doseSv = units[UNITS_SIEVERTS].dose.scale * dose.snapshotPulseCount;
+    return doseSv >= doseAlarmsSv[settings.doseAlarm];
+}
+
 void drawDoseView(void)
 {
     uint32_t time;
-    uint32_t value;
+    uint32_t pulseCount;
 
     if (!dose.isHold)
     {
         time = dose.snapshotTime;
-        value = dose.snapshotValue;
+        pulseCount = dose.snapshotPulseCount;
     }
     else
     {
         time = dose.holdTime;
-        value = dose.holdValue;
+        pulseCount = dose.holdPulseCount;
     }
 
     drawTitleWithTime("Dose", time);
-    drawDose(value);
+    drawDose(pulseCount);
 
     if (dose.isHold)
         drawSubtitle("HOLD");
-    else if ((dose.snapshotTime >= ULONG_MAX) ||
-             dose.snapshotValue >= ULONG_MAX)
+    else if ((dose.snapshotTime >= UINT32_MAX) ||
+             dose.snapshotPulseCount >= UINT32_MAX)
         drawSubtitle("OVERFLOW");
     else if (isDoseAlarm())
         drawSubtitle("DOSE ALARM");
+}
+
+// History
+
+static void resetHistory(void)
+{
+    for (uint32_t i = 0; i < HISTORY_NUM; i++)
+    {
+        HistoryState *historyState = &historyStates[i];
+
+        historyState->sampleSum = 0;
+        historyState->sampleNum = 0;
+
+        historyState->bufferIndex = 0;
+        for (uint32_t j = 0; j < HISTORY_BUFFER_SIZE; j++)
+            historyState->buffer[j] = 0;
+    }
+
+    historySampleIndex = 0;
+}
+
+uint8_t getHistoryDataPoint(uint32_t dataIndex)
+{
+    HistoryState *historyState = &historyStates[settings.history];
+
+    uint32_t bufferIndex =
+        (HISTORY_BUFFER_SIZE + (historyState->bufferIndex - 1) - dataIndex) % HISTORY_BUFFER_SIZE;
+
+    return historyState->buffer[bufferIndex];
+}
+
+static const char *getHistoryName(uint32_t historyIndex)
+{
+    return histories[historyIndex].name;
 }
 
 void drawHistoryView(void)
@@ -591,89 +778,4 @@ void drawHistoryView(void)
     drawTitle(getHistoryName(settings.history));
 
     drawHistory(labelMin, labelMax, offset, range);
-}
-
-void onMeasurementViewKey(KeyEvent keyEvent)
-{
-    switch (keyEvent)
-    {
-    case KEY_UP:
-        if (getView() == VIEW_INSTANTANEOUS_RATE)
-            setView(VIEW_HISTORY);
-        else
-            setView(getView() - 1);
-        break;
-
-    case KEY_DOWN:
-        if (getView() == VIEW_HISTORY)
-            setView(VIEW_INSTANTANEOUS_RATE);
-        else
-            setView(getView() + 1);
-        break;
-
-    case KEY_SELECT:
-        openSettingsMenu();
-        break;
-
-    case KEY_BACK_DELAYED:
-        switch (getView())
-        {
-        case VIEW_INSTANTANEOUS_RATE:
-            instantaneousRate.isHold = !instantaneousRate.isHold;
-            if (instantaneousRate.isHold)
-            {
-                instantaneousRate.holdTime = instantaneousRate.snapshotTime;
-                instantaneousRate.holdCount = instantaneousRate.snapshotCount;
-                instantaneousRate.holdValue = instantaneousRate.snapshotValue;
-            }
-            break;
-
-        case VIEW_AVERAGE_RATE:
-            averageRate.isHold = !averageRate.isHold;
-            if (averageRate.isHold)
-            {
-                averageRate.holdTime = averageRate.snapshotTime;
-                averageRate.holdCount = averageRate.snapshotCount;
-                averageRate.holdValue = averageRate.snapshotValue;
-            }
-            break;
-
-        case VIEW_DOSE:
-            dose.isHold = !dose.isHold;
-            if (dose.isHold)
-            {
-                dose.holdTime = dose.snapshotTime;
-                dose.holdValue = dose.snapshotValue;
-            }
-            break;
-        }
-
-        updateView();
-        break;
-
-    case KEY_RESET:
-        onMeasurementViewKey(KEY_BACK);
-
-        switch (getView())
-        {
-        case VIEW_INSTANTANEOUS_RATE:
-            resetInstantaneousRate();
-            break;
-
-        case VIEW_AVERAGE_RATE:
-            resetAverageRate();
-            break;
-
-        case VIEW_DOSE:
-            resetDose();
-            break;
-
-        case VIEW_HISTORY:
-            resetHistory();
-            break;
-        }
-
-        updateView();
-        break;
-    }
 }

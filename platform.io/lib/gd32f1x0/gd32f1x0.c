@@ -1,5 +1,5 @@
 /*
- * FS2011 Pro
+ * Rad Pro
  * GD32 firmware library fake header
  *
  * Parts: Copyright (c) 2022, GigaDevice Semiconductor Inc.

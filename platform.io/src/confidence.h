@@ -1,5 +1,5 @@
 /*
- * FS2011 Pro
+ * Rad Pro
  * Confidence interval calculation
  * 
  * (C) 2022-2023 Gissio

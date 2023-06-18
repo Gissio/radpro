@@ -1,5 +1,5 @@
 /*
- * FS2011 Pro
+ * Rad Pro
  * User interface
  *
  * (C) 2022-2023 Gissio
@@ -11,12 +11,10 @@
 #include "events.h"
 #include "game.h"
 #include "keyboard.h"
-#include "main.h"
 #include "measurements.h"
 #include "menus.h"
 #include "power.h"
 #include "rng.h"
-#include "settings.h"
 #include "stats.h"
 #include "ui.h"
 
@@ -30,11 +28,14 @@ struct
 
 void updateUI(void)
 {
-    waitSysTicks(0);
+    sleep(0);
     updateEvents();
 
     // Key events
     KeyEvent keyEvent = getKeyEvent();
+
+    if (keyEvent != -1)
+        triggerBacklight();
 
     if (keyEvent == KEY_BACK)
         ui.backKeyDown = true;
@@ -46,18 +47,7 @@ void updateUI(void)
             keyEvent = -1;
     }
     else if (keyEvent == KEY_POWER_OFF)
-    {
-        writeSettings();
-
-        setEventsEnabled(false);
-        waitSysTicks(1);
-        setBacklightTimer(1);
-        setDisplay(false);
-        setPower(false);
-
-        while (true)
-            waitSysTicks(1);
-    }
+        powerOff();
 
     if (keyEvent >= 0)
     {

@@ -1,5 +1,5 @@
 /*
- * FS2011 Pro
+ * Rad Pro
  * Debugging module
  *
  * (C) 2022-2023 Gissio
@@ -10,7 +10,6 @@
 #include "buzzer.h"
 #include "debug.h"
 #include "events.h"
-#include "main.h"
 
 #define DEBUG_BIT_LENGTH 100
 #define DEBUG_BIT0_LENGTH 1
@@ -21,7 +20,7 @@ void debugWait(uint32_t ms)
     uint32_t n = 200 * ms;
 
     for (uint32_t i = 0; i < n; i++)
-        waitSysTicks(0);
+        sleep(0);
 }
 
 void debugBit(bool value)
@@ -43,8 +42,11 @@ void debugBit(bool value)
     }
 
     setBuzzer(true);
+
     debugWait(onTime);
+
     setBuzzer(false);
+
     debugWait(offTime);
 }
 
@@ -71,7 +73,7 @@ void onHardFault(uint32_t *args)
         debugUInt32(args[i]);
 
     while (true)
-        waitSysTicks(0);
+        sleep(0);
 }
 
 void hard_fault_handler(void)

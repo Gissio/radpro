@@ -1,5 +1,5 @@
 /*
- * FS2011 Pro
+ * Rad Pro
  * Buzzer
  * 
  * (C) 2022-2023 Gissio
@@ -14,5 +14,6 @@
 
 void initBuzzer(void);
 void setBuzzer(bool value);
+bool getBuzzer(void);
 
 #endif

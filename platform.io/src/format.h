@@ -1,5 +1,5 @@
 /*
- * FS2011 Pro
+ * Rad Pro
  * Number formatting
  *
  * (C) 2022-2023 Gissio
@@ -12,7 +12,7 @@
 
 #include <stdint.h>
 
-void strcatNumber(char *buffer, uint64_t value, uint32_t length);
+void strcatNumber(char *buffer, uint32_t value, uint32_t length);
 void strcatTime(char *buffer, uint32_t time);
 
 void formatMantissaAndCharacteristic(const char *unitName, float value, int32_t minExponent,

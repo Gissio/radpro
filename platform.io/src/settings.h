@@ -1,5 +1,5 @@
 /*
- * FS2011 Pro
+ * Rad Pro
  * Settings
  *
  * (C) 2022-2023 Gissio
@@ -20,19 +20,6 @@ enum UnitsSetting
     UNITS_CPS,
     UNITS_NUM,
 };
-
-typedef struct
-{
-    char *const name;
-    float scale;
-    int8_t minExponent;
-} Unit;
-
-typedef struct
-{
-    Unit rate;
-    Unit dose;
-} UnitType;
 
 enum RateAlarmSetting
 {
@@ -116,10 +103,9 @@ enum GameSkillLevelSetting
     GAME_SKILLLEVEL_NUM,
 };
 
-extern UnitType units[UNITS_NUM];
-
 typedef struct
 {
+    unsigned int invalid : 1;
     unsigned int units : 2;
     unsigned int history : 3;
     unsigned int rateAlarm : 5;
@@ -129,19 +115,24 @@ typedef struct
     unsigned int batteryType : 1;
     unsigned int tubeType : 4;
     unsigned int gameSkillLevel : 3;
-
-    uint32_t lifeTimer;
-    uint64_t lifeCounts;
 } Settings;
 
-extern Settings settings;
+typedef struct
+{
+    uint32_t lifeTime;
+    uint32_t lifePulseCount;
+    uint32_t doseTime;
+    uint32_t dosePulseCount;
+} State;
 
-void updateTubeType(void);
+extern Settings settings;
+extern State state;
 
 void initSettings(void);
-void writeSettings(void);
 
-float getRateAlarmSvH(uint32_t index);
-float getDoseAlarmSv(uint32_t index);
+void setStateDose(uint32_t doseTime, uint32_t dosePulseCount);
+
+void writeSettings(void);
+void writeState(void);
 
 #endif

@@ -1,5 +1,5 @@
 /*
- * FS2011 Pro
+ * Rad Pro
  * Geiger-Müller tube
  *
  * (C) 2022-2023 Gissio
@@ -7,9 +7,24 @@
  * License: MIT
  */
 
+#ifndef SDL_MODE
+
+#include <libopencm3/cm3/nvic.h>
+
+#include <libopencm3/stm32/exti.h>
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/stm32/timer.h>
+
+#endif
+
+#include "events.h"
+#include "fs2011.h"
 #include "gm.h"
-#include "main.h"
 #include "sim.h"
+
+#define GM_PULSE_PERIOD 106
+#define GM_PULSE_PERIOD_HIGH 53
 
 #define GM_PULSE_TIMES_NUM 16
 #define GM_PULSE_TIMES_MASK (GM_PULSE_TIMES_NUM - 1)
@@ -38,9 +53,9 @@ void initGM(void)
     gpio_set_output_options(GM_HV_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH, GM_HV_PIN);
     gpio_set_af(GM_HV_PORT, GPIO_AF1, GM_HV_PIN);
 
-    timer_set_period(TIM3, 105);
+    timer_set_period(TIM3, GM_PULSE_PERIOD - 1);
     timer_set_oc_mode(TIM3, TIM_OC1, TIM_OCM_PWM1);
-    timer_set_oc_value(TIM3, TIM_OC1, 53);
+    timer_set_oc_value(TIM3, TIM_OC1, GM_PULSE_PERIOD_HIGH);
     timer_enable_oc_output(TIM3, TIM_OC1);
 
     timer_enable_counter(TIM3);
@@ -67,6 +82,14 @@ void exti4_15_isr(void)
     gm.pulsesQueueHead = (gm.pulsesQueueHead + 1) & GM_PULSE_TIMES_MASK;
 }
 #endif
+
+void syncGMHVPulse(void)
+{
+#ifndef SDL_MODE
+    // Assumes while takes <= 4 cycles:
+    while ((TIM_CNT(TIM3) & (~3)) != (20 & (~3)));
+#endif
+}
 
 bool getGMPulse(uint32_t *pulseTime)
 {

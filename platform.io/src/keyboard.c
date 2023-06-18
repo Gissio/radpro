@@ -1,5 +1,5 @@
 /*
- * FS2011 Pro
+ * Rad Pro
  * Keyboard handling
  *
  * (C) 2022-2023 Gissio
@@ -9,18 +9,25 @@
 
 #include <stdbool.h>
 
-#ifdef SDL_MODE
+#ifndef SDL_MODE
+
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/rcc.h>
+
+#else
+
 #include "SDL.h"
+
 #endif
 
 #include "display.h"
 #include "events.h"
+#include "fs2011.h"
 #include "keyboard.h"
-#include "main.h"
 
-#define KEY_PRESSED_TICKS ((int)(0.5F * SYS_TICK_FREQUENCY / KEY_TICKS))
-#define KEY_PRESSED_REPEAT_TICKS ((int)(0.05F * SYS_TICK_FREQUENCY / KEY_TICKS))
-#define KEY_LONGPRESS_TICKS ((int)(1 * SYS_TICK_FREQUENCY / KEY_TICKS))
+#define KEY_PRESSED_TICKS ((uint32_t)(0.5F * SYS_TICK_FREQUENCY / KEY_TICKS))
+#define KEY_PRESSED_REPEAT_TICKS ((uint32_t)(0.05F * SYS_TICK_FREQUENCY / KEY_TICKS))
+#define KEY_LONGPRESS_TICKS ((uint32_t)(1 * SYS_TICK_FREQUENCY / KEY_TICKS))
 
 struct
 {
@@ -134,8 +141,6 @@ KeyEvent getKeyEvent(void)
     if (keyboard.lastKeyEvent != keyEvent)
     {
         keyboard.lastKeyEvent = keyEvent;
-
-        updateBacklight();
 
         return keyEvent & 0xf;
     }

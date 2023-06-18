@@ -1,5 +1,5 @@
 /*
- * FS2011 Pro
+ * Rad Pro
  * Menus
  *
  * (C) 2022-2023 Gissio
@@ -14,6 +14,7 @@
 #include "events.h"
 #include "format.h"
 #include "game.h"
+#include "measurements.h"
 #include "menus.h"
 #include "rng.h"
 #include "settings.h"
@@ -77,7 +78,7 @@ static const char *getRateAlarmMenuOption(const struct Menu *menu, uint8_t index
         return NULL;
 
     Unit *unit = &units[settings.units].rate;
-    float rate = getRateAlarmSvH(index) / units[UNITS_SIEVERTS].rate.scale;
+    float rate = rateAlarmsSvH[index] / units[UNITS_SIEVERTS].rate.scale;
     formatValue(unit->name,
                 unit->scale * rate,
                 menus.menuOption);
@@ -103,7 +104,7 @@ static const char *getDoseAlarmMenuOption(const struct Menu *menu, uint8_t index
         return NULL;
 
     Unit *unit = &units[settings.units].dose;
-    float dose = getDoseAlarmSv(index) / units[UNITS_SIEVERTS].dose.scale;
+    float dose = doseAlarmsSv[index] / units[UNITS_SIEVERTS].dose.scale;
     formatValue(unit->name,
                 unit->scale * dose,
                 menus.menuOption);
@@ -170,10 +171,10 @@ const struct Menu batteryTypeMenu = {
 };
 
 const char *const tubeTypeMenuOptions[] = {
-    "HH614 (68.4 cpm/\x7fSv/h)",
-    "M4011 (153 cpm/\x7fSv/h)",
-    "SBM-20 (150 cpm/\x7fSv/h)",
-    "SI-3BG (1.61 cpm/\x7fSv/h)",
+    "HH614 (68.4 cpm/\xb5Sv/h)",
+    "M4011 (153 cpm/\xb5Sv/h)",
+    "SBM-20 (174 cpm/\xb5Sv/h)",
+    "SI-3BG (1.61 cpm/\xb5Sv/h)",
     NULL,
 };
 
@@ -391,7 +392,8 @@ static void updateMenuOption(void)
     else if (currentMenu == &backlightMenu)
     {
         settings.backlight = selectedIndex;
-        updateBacklight();
+
+        triggerBacklight();
 
         writeSettings();
     }
@@ -404,7 +406,7 @@ static void updateMenuOption(void)
     else if (currentMenu == &tubeTypeMenu)
     {
         settings.tubeType = selectedIndex;
-        updateTubeType();
+        updateUnits();
 
         writeSettings();
     }

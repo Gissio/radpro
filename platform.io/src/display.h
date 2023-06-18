@@ -1,5 +1,5 @@
 /*
- * FS2011 Pro
+ * Rad Pro
  * LCD interface
  *
  * (C) 2022-2023 Gissio
@@ -26,7 +26,9 @@ void clearDisplayBuffer(void);
 void sendDisplayBuffer(void);
 
 void setBacklight(bool value);
+bool getBacklight(void);
 
+void drawLowBattery(void);
 void drawWelcome(void);
 void drawStatusBar(void);
 void drawTitle(const char *title);

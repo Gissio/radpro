@@ -1,5 +1,5 @@
 /*
- * FS2011 Pro
+ * Rad Pro
  * Complementary math
  *
  * (C) 2022-2023 Gissio
@@ -11,15 +11,12 @@
 
 #include "cmath.h"
 
-void addClamped(uint32_t *x, uint32_t y)
+void addClamped(uint32_t *px, uint32_t y)
 {
-    uint32_t result = *x + y;
-
-    // Overflow when MSB changes from 1 to 0
-    if (((*x) & (~result)) >> 31)
-        *x = ULONG_MAX;
+    if (*px > (UINT32_MAX - y))
+        *px = UINT32_MAX;
     else
-        *x = result;
+        *px += y;
 }
 
 int32_t divideDown(int32_t x, int32_t y)

@@ -1,5 +1,5 @@
 /*
- * FS2011 Pro
+ * Rad Pro
  * Random number generator
  *
  * (C) 2022-2023 Gissio
@@ -10,7 +10,6 @@
 #include <string.h>
 
 #include "display.h"
-#include "main.h"
 #include "rng.h"
 #include "ui.h"
 

@@ -1,5 +1,5 @@
 /*
- * FS2011 Pro
+ * Rad Pro
  * Firmware check
  *
  * (C) 2022-2023 Gissio
@@ -7,10 +7,16 @@
  * License: MIT
  */
 
+#ifndef SDL_MODE
+
+#include <libopencm3/stm32/crc.h>
+#include <libopencm3/stm32/rcc.h>
+
+#endif
+
 #include "buzzer.h"
 #include "events.h"
 #include "firmware.h"
-#include "main.h"
 
 #define FIRMWARE_BASE FLASH_BASE
 #define FIRMWARE_SIZE (0xc000 - 0x4)
@@ -22,7 +28,7 @@ void checkFirmware(void)
 #ifdef CHECK_FIRMWARE
     rcc_periph_clock_enable(RCC_CRC);
 
-    crc_reset();
+    // crc_reset();
     uint32_t crc = crc_calculate_block(FIRMWARE_BASE, FIRMWARE_SIZE / 4);
 
     rcc_periph_clock_disable(RCC_CRC);
@@ -32,9 +38,9 @@ void checkFirmware(void)
         for (uint32_t i = 0; i < 10; i++)
         {
             setBuzzer(true);
-            waitSysTicks(50);
+            sleep(50);
             setBuzzer(false);
-            waitSysTicks(50);
+            sleep(50);
         }
     }
 #endif
