@@ -1,6 +1,6 @@
 ## Overview
 
-Rad Pro (formerly FS2011 Pro) is an open-source firmware the enhances the capabilities of portable radiation detectors/Geiger counters, in particular the [FS2011](https://www.amazon.com/s?k=fs2011). Support for the [Bosean FS-600](https://www.bosean.net/products/nuclear_radiation_detector.html) and [Bosean FS-1000](https://www.bosean.net/products/FS-1000_nuclear_radiation_detector.html) is planned.
+Rad Pro (formerly FS2011 Pro) is an open-source firmware that enhances the capabilities of portable radiation detectors/Geiger counters. Currently the [FS2011](https://www.amazon.com/s?k=fs2011) is supported. Updates to support the [Bosean FS-600](https://www.bosean.net/products/nuclear_radiation_detector.html) and [Bosean FS-1000](https://www.bosean.net/products/FS-1000_nuclear_radiation_detector.html) are planned.
 
 Watch a demonstration of Rad Pro in action:
 
@@ -13,17 +13,18 @@ Watch a demonstration of Rad Pro in action:
 * Measurements in Sievert, rem, cpm and cps.
 * Customizable rate and dose alarms.
 * Measurement hold for instantaneous rate, average rate, and dose.
-* Dose storage in non-volatile memory.
+* Storage of radiation dose in non-volatile memory.
 * Multiple history periods, including 2-minute, 10-minute, 1-hour, 6-hour and 24-hour options.
-* Logging capabilities, including radmon.org submission.
+* Data logging.
+* Client for the https://radmon.org radiation monitoring website.
 * 95% confidence intervals to ensure accurate readings.
 * Overload alert.
 * Configurable pulse click sounds: off, quiet, loud.
 * Configurable backlight: off, pulse flashes, on for 10 seconds, on for 60 seconds, or always on.
-* Configurable battery type for accurate battery level monitoring.
+* Configurable battery type for battery level monitoring.
 * Support for multiple Geiger-Müller tubes: HH614 (48 mm long), M4011 (105 mm long), SBM-20 (108 mm long), SI-3BG (50 mm long).
 * Device statistics for monitoring usage and performance of the device.
-* True random number generator that generates secure passwords (letters & numbres, full ASCII), random hexadecimal and decimal numbers, coin flips and dice throws (6-sided, 4-sided, 8-sided, 12-sided and 20-sided).
+* True random number generator for generating secure passwords (letters & numbres, full ASCII), random hexadecimal and decimal numbers, coin flips and dice throws (6-sided, 4-sided, 8-sided, 12-sided and 20-sided).
 * Up to 40% more battery life compared to the original firmware.
 * Power-on self-test and safety watchdog.
 * Unique and fun feature: Nuclear chess.
@@ -71,14 +72,14 @@ If your board looks different, you may have a different hardware version. In suc
   * SWCLK
   * SWDIO
   * +3.3V
-* Before installing Rad Pro for the first time, back up the original firmware. If you skip this step, you won't be able to restore your device if something goes wrong. To create a backup, open a terminal and go to the `bin` folder within the stlink folder. Then, execute the following command and verify that the resulting file, `backup.bin`, has a size of 65536 bytes:
+* Before installing for the first time, back up the original firmware. If you skip this step, you won't be able to restore your device if something goes wrong. To create a backup, open a terminal and go to the `bin` folder within the stlink folder. Then, execute the following command and verify that the resulting file, `backup.bin`, has a size of 65536 bytes:
 
   ```
   st-flash read backup.bin 0x08000000 0x10000
   ```
 
-* Download the latest Rad Pro firmware from the [releases][releases-link]: use the "radpro-fs2011-install" version when installing for the first time and the "radpro-fs2011-update" version when updating.
-* To install Rad Pro, open a terminal, go to the `bin` folder within the stlink folder, and run this command:
+* Download the latest firmware from the [releases][releases-link]: get `radpro-fs2011-x.y.z-install.bin` when installing for the first time or `radpro-fs2011-x.y.z-update.bin` when updating.
+* Open a terminal, go to the `bin` folder within the stlink folder, and run this command:
 
   ```
   st-flash write [Firmware filename] 0x08000000
@@ -86,7 +87,7 @@ If your board looks different, you may have a different hardware version. In suc
 
 ### Instructions for other devices
 
-It should be fairly easy to port the code to Bosean devices. Please contact me if you own such a device and are willing to support the project.
+Currently, Rad Pro only supports the FS2011 radiation meter. If you would like to contribute to this project to add support other devices, please contact me.
 
 ## Usage
 
