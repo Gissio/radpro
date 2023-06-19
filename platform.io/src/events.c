@@ -45,7 +45,7 @@ struct
 
     volatile int32_t backlightTimer;
     volatile int32_t buzzerTimer;
-    volatile int32_t keyTimer;
+    int32_t keyTimer;
 
     int32_t oneSecondTimer;
     volatile uint8_t oneSecondUpdate;
@@ -156,8 +156,6 @@ void sleep(uint32_t value)
         iwdg_reset();
     }
 #else
-    static uint32_t tickSim = 0;
-
     if (!value)
         return;
 

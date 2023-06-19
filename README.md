@@ -1,6 +1,6 @@
 ## Overview
 
-Rad Pro (formerly FS2011 Pro) is an open-source firmware that enhances the capabilities of portable radiation detectors/Geiger counters. Currently the [FS2011](https://www.amazon.com/s?k=fs2011) is supported. Updates to support the [Bosean FS-600](https://www.bosean.net/products/nuclear_radiation_detector.html) and [Bosean FS-1000](https://www.bosean.net/products/FS-1000_nuclear_radiation_detector.html) are planned.
+Rad Pro (formerly FS2011 Pro) is a custom firmware that enhances the capabilities of the [FS2011](https://www.amazon.com/s?k=fs2011) radiation detector/Geiger counter. Support for the [Bosean FS-600](https://www.bosean.net/products/nuclear_radiation_detector.html) and [Bosean FS-1000](https://www.bosean.net/products/FS-1000_nuclear_radiation_detector.html) is planned.
 
 Watch a demonstration of Rad Pro in action:
 
@@ -8,26 +8,26 @@ Watch a demonstration of Rad Pro in action:
 
 ## Features
 
-* Intuitive user interface for easy navigation and hassle-free experience.
+* Intuitive user interface for easy navigation.
 * Instantaneous rate, average rate, dose, and history modes.
 * Measurements in Sievert, rem, cpm and cps.
 * Customizable rate and dose alarms.
 * Measurement hold for instantaneous rate, average rate, and dose.
 * Storage of radiation dose in non-volatile memory.
-* Multiple history periods, including 2-minute, 10-minute, 1-hour, 6-hour and 24-hour options.
+* Multiple history periods, including 2 minute, 10 minute, 1 hour, 6 hour and 24 hour.
 * Data logging.
 * Client for the https://radmon.org radiation monitoring website.
-* 95% confidence intervals to ensure accurate readings.
+* 95% confidence intervals for accurate readings.
 * Overload alert.
 * Configurable pulse click sounds: off, quiet, loud.
-* Configurable backlight: off, pulse flashes, on for 10 seconds, on for 60 seconds, or always on.
-* Configurable battery type for battery level monitoring.
+* Configurable backlight: off, on for 10 seconds, on for 60 seconds, pulse flashes or always on.
+* Configurable battery type for accurate battery level monitoring.
 * Support for multiple Geiger-Müller tubes: HH614 (48 mm long), M4011 (105 mm long), SBM-20 (108 mm long), SI-3BG (50 mm long).
-* Device statistics for monitoring usage and performance of the device.
+* Life statistics for monitoring usage and performance of the device.
 * True random number generator for generating secure passwords (letters & numbres, full ASCII), random hexadecimal and decimal numbers, coin flips and dice throws (6-sided, 4-sided, 8-sided, 12-sided and 20-sided).
 * Up to 40% more battery life compared to the original firmware.
 * Power-on self-test and safety watchdog.
-* Unique and fun feature: Nuclear chess.
+* Game: nuclear chess.
 
 ## Installation
 
@@ -60,12 +60,13 @@ Follow these steps to install Rad Pro firmware on your FS2011 radiation detector
 
 ![FS2011 circuit board](docs/img/fs2011-board.jpg)
 
-If your board looks different, you may have a different hardware version. In such cases, this firmware may not function properly, especially if your board does not have an STM32 microprocessor. Please post an issue, including a photograph of your board (both sides).
+If your board looks different, you may have a different hardware revision. In such cases, this firmware may not function properly. Please post an issue, including a photograph of your board (both sides).
 
 * Solder the 4-pin header to XS1 on the board.
+* Optionally, for easier access to XS1, use a file to extend the hole for the battery holder clip so that a 4-pin header connector can fit. Solder four cables approximately 15 cm long between XS1 and a 4-pin header. Using a glue gun, attach a 4-pin header to the back case, so you can access the header with the battery case open.
 * Optionally, align the Geiger-Müller tube to the holes of the back case using a heat gun/glue gun if the tube is mounted vertically. Be careful, as the tube's glass is very delicate.
 * Optionally, apply solder on the battery holder's pads so that low-profile AA batteries make good electrical contact.
-* Optionally, increase the volume by drilling a hole on the back case in front of the buzzer.
+* Optionally, increase the buzzer volume by drilling a hole on the back case in front of the buzzer.
 * Optionally, add a female USB port and connect GND and +5V to the 0V and 5V pads of the electronics board. This modification will allow your FS2011 to run continuously and even charge Ni-MH batteries.
 * Connect the ST-Link V2 device to XS1. The pins, from top to bottom, are:
   * GND

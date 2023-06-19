@@ -27,8 +27,6 @@
 
 #define OVERLOAD_RATE 1000
 
-#define AVERAGE_TIME_MAX (UINT32_MAX / SYS_TICK_FREQUENCY)
-
 #define ALARM_TICKS ((uint32_t)(0.25F * SYS_TICK_FREQUENCY))
 
 UnitType units[] = {
@@ -235,7 +233,7 @@ void onMeasurementTick(uint32_t pulseCount)
         }
 
         // Average rate
-        if (averageRate.tick < AVERAGE_TIME_MAX)
+        if (averageRate.tick < UINT32_MAX)
         {
             if (!averageRate.pulseCount)
                 averageRate.firstPulseTick = averageRate.tick;
@@ -266,7 +264,7 @@ void onMeasurementTick(uint32_t pulseCount)
     // Update ticks
     instantaneousRate.tick++;
 
-    if (averageRate.tick < AVERAGE_TIME_MAX)
+    if (averageRate.tick < UINT32_MAX)
         averageRate.tick++;
 }
 
@@ -325,7 +323,7 @@ void onMeasurementOneSecond(void)
     pulseCount = averageRate.pulseCount;
     ticks = averageRate.lastPulseTick - averageRate.firstPulseTick;
 
-    if ((averageRate.tick < AVERAGE_TIME_MAX) && (averageRate.pulseCount < UINT32_MAX))
+    if ((averageRate.tick < UINT32_MAX) && (averageRate.pulseCount < UINT32_MAX))
         averageRate.snapshotTime++;
 
     if (ticks && (pulseCount > 1))
@@ -631,7 +629,7 @@ void drawAverageRateView(void)
 
     if (averageRate.isHold)
         drawSubtitle("HOLD");
-    else if ((averageRate.snapshotTime >= AVERAGE_TIME_MAX) ||
+    else if ((averageRate.tick >= UINT32_MAX) ||
              (averageRate.snapshotPulseCount >= UINT32_MAX))
         drawSubtitle("OVERFLOW");
     else if (averageRate.snapshotValue >= OVERLOAD_RATE)
