@@ -67,7 +67,7 @@ while (True):
                 print('.', end='', flush=True)
 
         # Wait
-        time.sleep(0.25)
+        time.sleep(0.5)
 
     except Exception as e:
         print(e)

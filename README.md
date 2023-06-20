@@ -1,6 +1,16 @@
-## Overview
+## Introduction
 
 Rad Pro (formerly FS2011 Pro) is a custom firmware that enhances the capabilities of the [FS2011](https://www.amazon.com/s?k=fs2011) radiation detector/Geiger counter. Support for the [Bosean FS-600](https://www.bosean.net/products/nuclear_radiation_detector.html) and [Bosean FS-1000](https://www.bosean.net/products/FS-1000_nuclear_radiation_detector.html) is planned.
+
+Rad Pro can be used to:
+
+* Measure instantaneous radiation rate, based on the last 11 pulses or a 5-second moving-average filter.
+* Measure average radiation rate over a time period.
+* Measure cumulative dose (stored in non-volatile memory).
+* Generate customizable rate and dose alarms.
+* Plot historical radiation rate over different time periods (2 minutes, 10 minutes, 1 hour, 6 hours and 24 hours).
+* Generate secure passwords (letters & numbres, full ASCII), random hexadecimal and decimal numbers, coin flips and dice throws (6-sided, 4-sided, 8-sided, 12-sided and 20-sided).
+* Log the measurements on a computer, optionally sending the data to the https://radmon.org radiation monitoring website.
 
 Watch a demonstration of Rad Pro in action:
 
@@ -8,28 +18,23 @@ Watch a demonstration of Rad Pro in action:
 
 ## Features
 
-* Intuitive user interface for easy navigation.
-* Instantaneous rate, average rate, dose, and history modes.
-* Measurements in Sievert, rem, cpm and cps.
-* Customizable rate and dose alarms.
-* Measurement hold for instantaneous rate, average rate, and dose.
-* Storage of radiation dose in non-volatile memory.
-* Multiple history periods, including 2 minute, 10 minute, 1 hour, 6 hour and 24 hour.
-* Data logging.
-* Client for the https://radmon.org radiation monitoring website.
+Rad Pro features:
+
+* An friendly user interface for easy operation.
+* Multiple measurement units: Sievert, rem, counts per minute (cpm) and counts per second (cps).
 * 95% confidence intervals for accurate readings.
-* Overload alert.
+* Measurement hold for instantaneous rate, average rate, and dose.
+* Overflow and overload alerts.
 * Configurable pulse click sounds: off, quiet, loud.
 * Configurable backlight: off, on for 10 seconds, on for 60 seconds, pulse flashes or always on.
-* Configurable battery type for accurate battery level monitoring.
+* Configurable battery type selection for accurate battery level monitoring.
 * Support for multiple Geiger-Müller tubes: HH614 (48 mm long), M4011 (105 mm long), SBM-20 (108 mm long), SI-3BG (50 mm long).
-* Life statistics for monitoring usage and performance of the device.
-* True random number generator for generating secure passwords (letters & numbres, full ASCII), random hexadecimal and decimal numbers, coin flips and dice throws (6-sided, 4-sided, 8-sided, 12-sided and 20-sided).
+* Life statistics to track usage and performance of the device.
 * Up to 40% more battery life compared to the original firmware.
 * Power-on self-test and safety watchdog.
 * Game: nuclear chess.
 
-## Installation
+## Legal
 
 Before installing Rad Pro, please read the following important information:
 
@@ -39,19 +44,17 @@ __Notice:__ Please be aware that installing this software will void the warranty
 
 By proceeding with the installation, you acknowledge that you have read and understood these terms and accept full responsibility for any consequences that may result from using this software. If you do not agree with these terms, do not install this software.
 
-### Requirements
+## Installation on the FS2011
 
-To install Rad Pro, you will need the following tools and components:
+To install Rad Pro on your FS2011 radiation meter/Geiger counter, you will need the following tools and components:
 
 * A Philips screwdriver
 * A soldering iron and solder
 * A 4-pin header
 * An ST-Link V2 USB dongle (or clone)
-* [stlink][stlink-link]
+* [stlink](https://github.com/stlink-org/stlink/releases)
 
-### Instructions for FS2011 devices
-
-Follow these steps to install Rad Pro firmware on your FS2011 radiation detector/Geiger counter:
+Follow these steps to install Rad Pro on your FS2011 device:
 
 * Remove the battery cover and batteries.
 * Unscrew and remove the four screws holding the back case.
@@ -60,14 +63,9 @@ Follow these steps to install Rad Pro firmware on your FS2011 radiation detector
 
 ![FS2011 circuit board](docs/img/fs2011-board.jpg)
 
-If your board looks different, you may have a different hardware revision. In such cases, this firmware may not function properly. Please post an issue, including a photograph of your board (both sides).
+If your board looks different, you may have a different hardware revision. In such cases, this firmware may not function properly. Please post an issue, including a photograph of your board (both sides) and a description of the problem.
 
 * Solder the 4-pin header to XS1 on the board.
-* Optionally, for easier access to XS1, use a file to extend the hole for the battery holder clip so that a 4-pin header connector can fit. Solder four cables approximately 15 cm long between XS1 and a 4-pin header. Using a glue gun, attach a 4-pin header to the back case, so you can access the header with the battery case open.
-* Optionally, align the Geiger-Müller tube to the holes of the back case using a heat gun/glue gun if the tube is mounted vertically. Be careful, as the tube's glass is very delicate.
-* Optionally, apply solder on the battery holder's pads so that low-profile AA batteries make good electrical contact.
-* Optionally, increase the buzzer volume by drilling a hole on the back case in front of the buzzer.
-* Optionally, add a female USB port and connect GND and +5V to the 0V and 5V pads of the electronics board. This modification will allow your FS2011 to run continuously and even charge Ni-MH batteries.
 * Connect the ST-Link V2 device to XS1. The pins, from top to bottom, are:
   * GND
   * SWCLK
@@ -75,20 +73,24 @@ If your board looks different, you may have a different hardware revision. In su
   * +3.3V
 * Before installing for the first time, back up the original firmware. If you skip this step, you won't be able to restore your device if something goes wrong. To create a backup, open a terminal and go to the `bin` folder within the stlink folder. Then, execute the following command and verify that the resulting file, `backup.bin`, has a size of 65536 bytes:
 
-  ```
-  st-flash read backup.bin 0x08000000 0x10000
-  ```
+      st-flash read backup.bin 0x08000000 0x10000
 
-* Download the latest firmware from the [releases][releases-link]: get `radpro-fs2011-x.y.z-install.bin` when installing for the first time or `radpro-fs2011-x.y.z-update.bin` when updating.
+* Download the latest firmware from the [releases](https://github.com/Gissio/fs2011pro/releases): get `radpro-fs2011-x.y.z-install.bin` when installing for the first time or `radpro-fs2011-x.y.z-update.bin` when updating.
 * Open a terminal, go to the `bin` folder within the stlink folder, and run this command:
 
-  ```
-  st-flash write [Firmware filename] 0x08000000
-  ```
+      st-flash write [firmware-filename] 0x08000000
 
-### Instructions for other devices
+### Optional mods
 
-Currently, Rad Pro only supports the FS2011 radiation meter. If you would like to contribute to this project to add support other devices, please contact me.
+* For easier access to XS1, use a file to extend the hole for the battery holder clip so that a 4-pin header connector can fit. Solder four cables approximately 15 cm long between XS1 and a 4-pin header. Using a glue gun, attach the header to the back case, so you can access the header with the battery case open.
+* For improved measurement, align the Geiger-Müller tube to the holes of the back case using a heat gun/glue gun if the tube is mounted vertically. Be careful, as the tube's glass is very delicate.
+* Some AA rechargeable batteries have low-profile caps that don't make electrical contact with the battery holder. To fix this problem, apply solder on the battery holder's pads.
+* To increase the buzzer's volume, drill a hole on the back case in front of the buzzer.
+* The FS2011 is able to charge Ni-MH batteries if you add a female USB port and connect its GND and +5V port to the 0V and 5V pad of the electronics board.
+
+## Installation on other devices
+
+Currently, Rad Pro supports the FS2011 radiation meter. If you would like to contribute to this project to add support other devices, please contact me.
 
 ## Usage
 
@@ -145,19 +147,13 @@ To generate bits more quickly, use a radioactive source.
 
 To build the software, follow these steps:
 
-* Install [Visual Studio Code][vscode-link].
-* From Visual Studio Code, install the [platform.io][platformio-link] extension.
+* Install [Visual Studio Code](https://code.visualstudio.com/).
+* From Visual Studio Code, install the [platform.io](https://platform.io/) extension.
 * Open the `platform.io` folder to begin building the firmware.
 * Once you've built the firmware, sign the resulting binary using Python and the `tools/sign-firmware.py` script.
-* You can also build the software as a simulator by opening the project's root folder from Visual Studio Code. You'll need the `sdl2` library, which you can install using the [vcpkg][vcpkg-link] package manager.
+* You can also build the software as a simulator by opening the project's root folder from Visual Studio Code. You'll need the `sdl2` library, which you can install using the [vcpkg](https://vcpkg.io/en/getting-started.html) package manager.
 
 ## Thanks
 
 * Special thanks to the u8g2 team.
 * Special thanks to Alfred90 for device testing.
-
-[stlink-link]: https://github.com/stlink-org/stlink/releases
-[releases-link]: https://github.com/Gissio/fs2011pro/releases
-[vscode-link]: https://code.visualstudio.com/
-[platformio-link]: https://platform.io/
-[vcpkg-link]: https://vcpkg.io/en/getting-started.html
