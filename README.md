@@ -57,7 +57,7 @@ To install Rad Pro on your FS2011/FS9000/NR-950/YT-203B radiation meter/Geiger c
 Follow these steps to install Rad Pro on your device:
 
 * Remove the battery cover and batteries.
-* Unscrew and remove the four screws holding the back case.
+* Remove the four screws holding the back case.
 * Remove the four screws holding the electronics board on the front case.
 * Remove the electronics board and ensure that it matches the board shown in the following picture (the Geiger-Müller tube may be different or mounted differently):
 
