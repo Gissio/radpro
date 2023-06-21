@@ -1,6 +1,6 @@
 ## Introduction
 
-Rad Pro (formerly FS2011 Pro) is a custom firmware that enhances the capabilities of the [FS2011](https://www.amazon.com/s?k=fs2011) radiation detector/Geiger counter. Support for the [Bosean FS-600](https://www.bosean.net/products/nuclear_radiation_detector.html) and [Bosean FS-1000](https://www.bosean.net/products/FS-1000_nuclear_radiation_detector.html) is planned.
+Rad Pro (formerly FS2011 Pro) is a custom firmware that enhances the capabilities of the several low-cost radiation meters/Geiger counters ([FS2011](https://www.amazon.com/s?k=fs2011), [FS9000](https://www.amazon.com/s?k=fs9000), [NR-950](https://www.amazon.com/s?k=nr950) and [YT-203B](https://www.amazon.com/s?k=yt-203b)). Support for the [Bosean FS-600](https://www.bosean.net/products/nuclear_radiation_detector.html) and [Bosean FS-1000](https://www.bosean.net/products/FS-1000_nuclear_radiation_detector.html) is planned.
 
 Rad Pro can be used to:
 
@@ -44,17 +44,17 @@ __Notice:__ Please be aware that installing this software will void the warranty
 
 By proceeding with the installation, you acknowledge that you have read and understood these terms and accept full responsibility for any consequences that may result from using this software. If you do not agree with these terms, do not install this software.
 
-## Installation on the FS2011
+## Installation on the FS2011/FS9000/NR-950/YT-203B
 
-To install Rad Pro on your FS2011 radiation meter/Geiger counter, you will need the following tools and components:
+To install Rad Pro on your FS2011/FS9000/NR-950/YT-203B radiation meter/Geiger counter, you will need the following tools and components:
 
-* A Philips screwdriver
+* An ST-Link V2 USB dongle (or clone)
 * A soldering iron and solder
 * A 4-pin header
-* An ST-Link V2 USB dongle (or clone)
+* A Philips screwdriver
 * [stlink](https://github.com/stlink-org/stlink/releases)
 
-Follow these steps to install Rad Pro on your FS2011 device:
+Follow these steps to install Rad Pro on your device:
 
 * Remove the battery cover and batteries.
 * Unscrew and remove the four screws holding the back case.
@@ -75,7 +75,7 @@ If your board looks different, you may have a different hardware revision. In su
 
       st-flash read backup.bin 0x08000000 0x10000
 
-* Download the latest firmware from the [releases](https://github.com/Gissio/fs2011pro/releases): get `radpro-fs2011-x.y.z-install.bin` when installing for the first time or `radpro-fs2011-x.y.z-update.bin` when updating.
+* Download the latest firmware from the [releases](https://github.com/Gissio/radpro/releases): get `radpro-fs2011-x.y.z-install.bin` when installing for the first time or `radpro-fs2011-x.y.z-update.bin` when updating.
 * Open a terminal, go to the `bin` folder within the stlink folder, and run this command:
 
       st-flash write [firmware-filename] 0x08000000
@@ -86,11 +86,11 @@ If your board looks different, you may have a different hardware revision. In su
 * For improved measurement, align the Geiger-Müller tube to the holes of the back case using a heat gun/glue gun if the tube is mounted vertically. Be careful, as the tube's glass is very delicate.
 * Some AA rechargeable batteries have low-profile caps that don't make electrical contact with the battery holder. To fix this problem, apply solder on the battery holder's pads.
 * To increase the buzzer's volume, drill a hole on the back case in front of the buzzer.
-* The FS2011 is able to charge Ni-MH batteries if you add a female USB port and connect its GND and +5V port to the 0V and 5V pad of the electronics board.
+* The device is able to charge Ni-MH batteries if you add a female USB port and connect its GND and +5V port to the 0V and 5V pad of the electronics board.
 
 ## Installation on other devices
 
-Currently, Rad Pro supports the FS2011 radiation meter. If you would like to contribute to this project to add support other devices, please contact me.
+Currently, Rad Pro supports the FS2011/FS9000/NR-950/YT-203B radiation meter. If you would like to contribute to this project and add support for other devices, please contact me.
 
 ## Usage
 

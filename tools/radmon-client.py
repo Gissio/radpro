@@ -70,6 +70,7 @@ while (True):
         time.sleep(0.5)
 
     except Exception as e:
+        print()
         print(e)
 
         dev = None
