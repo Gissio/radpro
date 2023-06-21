@@ -82,7 +82,7 @@ If your board looks different, you may have a different hardware revision. In su
 
 ### Optional mods
 
-* For easier access to XS1, use a file to extend the hole for the battery holder clip so that a 4-pin header connector can fit. Solder four cables approximately 15 cm long between XS1 and a 4-pin header. Using a glue gun, attach the header to the back case, so you can access the header with the battery case open.
+* For easier access to XS1, use a file to extend the hole for the battery holder clip so that a 4-pin header connector can fit. Solder four cables approximately 15 cm long between XS1 and a 4-pin header. Using a glue gun, attach the header to the inside of the back case, so you can access the header with the battery case open.
 * For improved measurement, align the Geiger-Müller tube to the holes of the back case using a heat gun/glue gun if the tube is mounted vertically. Be careful, as the tube's glass is very delicate.
 * Some AA rechargeable batteries have low-profile caps that don't make electrical contact with the battery holder. To fix this problem, apply solder on the battery holder's pads.
 * To increase the buzzer's volume, drill a hole on the back case in front of the buzzer.
