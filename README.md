@@ -9,7 +9,7 @@ Rad Pro can be used to:
 * Measure cumulative dose (stored in non-volatile memory).
 * Generate customizable rate and dose alarms.
 * Plot historical radiation rate over different time periods (2 minutes, 10 minutes, 1 hour, 6 hours and 24 hours).
-* Generate secure passwords (letters & numbres, full ASCII), random hexadecimal and decimal numbers, coin flips and dice throws (6-sided, 4-sided, 8-sided, 12-sided and 20-sided).
+* Generate secure passwords (letters & numbers, full ASCII), random hexadecimal and decimal numbers, coin flips and dice throws (6-sided, 4-sided, 8-sided, 12-sided and 20-sided).
 * Log the measurements on a computer, optionally sending the data to the https://radmon.org radiation monitoring website.
 
 Watch a demonstration of Rad Pro in action:
