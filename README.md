@@ -90,7 +90,7 @@ If your board looks different, you may have a different hardware revision. In su
 
 ## Installation on other devices
 
-Currently, Rad Pro supports the FS2011/FS9000/NR-950/YT-203B radiation meter. If you would like to contribute to this project and add support for other devices, please contact me.
+Currently, Rad Pro supports the FS2011/FS9000/NR-950/YT-203B. If you would like to contribute to this project and add support for other devices, please contact me.
 
 ## Usage
 
