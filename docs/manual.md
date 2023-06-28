@@ -1,4 +1,4 @@
-# User's manual
+# Rad Pro User's manual
 
 ## Features
 

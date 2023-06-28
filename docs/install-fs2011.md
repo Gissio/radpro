@@ -1,4 +1,4 @@
-# Installing Rad Pro on the FS2011/FS9000/NR-950/YT-203B
+# Installing on the FS2011/FS9000/NR-950/YT-203B
 
 ## Supplies
 
