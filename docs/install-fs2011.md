@@ -10,7 +10,7 @@ To install Rad Pro on your FS2011/FS9000/NR-950/YT-203B radiation meter/Geiger c
 * A Philips screwdriver
 * The [stlink](https://github.com/stlink-org/stlink/releases) software (download the latest release for your operating system)
 
-# Step 1: Open the device
+## Step 1: Open the device
 
 ![FS2011 circuit board](img/fs2011-board.jpg)
 
