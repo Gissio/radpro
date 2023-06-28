@@ -1,6 +1,5 @@
 {
   "build": {
-    "core": "stm32",
     "cpu": "cortex-m0",
     "extra_flags": "-DSTM32F051x8",
     "f_cpu": "48000000L",
@@ -12,21 +11,13 @@
       "stlink"
     ],
     "jlink_device": "STM32F051R8",
-    "openocd_extra_args": [
-      "-c",
-      "reset_config none"
-    ],
     "openocd_target": "stm32f0x",
     "svd_path": "STM32F0x1.svd"
   },
   "frameworks": [
-    "arduino",
-    "cmsis",
-    "libopencm3",
-    "stm32cube",
-    "zephyr"
+    "libopencm3"
   ],
-  "name": "FS2011",
+  "name": "FS2011 (STM32)",
   "upload": {
     "maximum_ram_size": 8192,
     "maximum_size": 65536,
@@ -38,6 +29,6 @@
       "blackmagic"
     ]
   },
-  "url": "",
-  "vendor": "fs2011"
+  "url": "https://github.com/Gissio/radpro",
+  "vendor": "FS2011"
 }
