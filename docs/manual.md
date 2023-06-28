@@ -62,10 +62,10 @@ Random symbols are generated from the bits using the [Fast Dice Roller](https://
 
 To generate bits more quickly, use a radioactive source.
 
-### Data capture
+## Data capture
 
 To capture data, install Python, install the requirements in `tools/requirements.txt` and start `pulsecounts-capture.py`.
 
-### Submission to radiation monitoring websites
+## Submission to radiation monitoring websites
 
 To submit your data to a radiation monitoring website like https://gmcmap.com or https://radmon.org website, create an account on the website, install Python, install the requirements in `tools/requirements.txt`, configure your https://gmcmap.com or https://radmon.org entries in `tools/monitoring-website-client.py` and start `tools/monitoring-website-client.py`.
