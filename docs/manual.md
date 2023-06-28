@@ -64,8 +64,18 @@ To generate bits more quickly, use a radioactive source.
 
 ## Data capture
 
-To capture data, install Python, install the requirements in `tools/requirements.txt` and start `pulsecounts-capture.py`.
+To capture data with Rad Pro, please follow these steps:
+
+1. Install Python on your computer.
+2. Install the necessary requirements by executing the command: `pip install -r tools/requirements.txt`.
+3. Start the data capture process by running the `tools/pulsecounts-capture.py` script.
 
 ## Submission to radiation monitoring websites
 
-To submit your data to a radiation monitoring website like https://gmcmap.com or https://radmon.org website, create an account on the website, install Python, install the requirements in `tools/requirements.txt`, configure your https://gmcmap.com or https://radmon.org entries in `tools/monitoring-website-client.py` and start `tools/monitoring-website-client.py`.
+To submit your data to a radiation monitoring website such as https://gmcmap.com or https://radmon.org, follow these steps:
+
+1. Create an account on the chosen website.
+2. Install Python on your computer.
+3. Install the neccesary requirements by executing the command: `pip install -r tools/requirements.txt`.
+4. Configure your settings for https://gmcmap.com or https://radmon.org in the `tools/monitoring-website-client.py` file.
+5. Launch the radiation monitoring client by running the `tools/monitoring-website-client.py` script.
