@@ -12,11 +12,11 @@ Rad Pro can be used to:
 * Generate customizable rate and dose alarms.
 * Plot historical radiation rate over different time periods (2 minutes, 10 minutes, 1 hour, 6 hours and 24 hours).
 * Generate secure passwords (letters & numbers, full ASCII), random hexadecimal and decimal numbers, coin flips and dice throws (6-sided, 4-sided, 8-sided, 12-sided and 20-sided).
-* Log the measurements on a computer, optionally sending the data to the https://radmon.org radiation monitoring website.
+* Log the measurements on a computer, optionally sending the data to the https://gmcmap.com and https://radmon.org radiation monitoring websites.
 
 ## Updates
 
-* Rad Pro 1.2.2 adds support for GD32 microcontrollers.
+* Rad Pro 1.2.2 adds support for GD32 microcontrollers and submission to the https://gmcmap.com radiation monitoring website.
 
 ## Project overview
 

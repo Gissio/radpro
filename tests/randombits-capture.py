@@ -15,57 +15,57 @@
 import swd
 import time
 
-# Configuration
+# Rad Pro variables
 rng = 0x20000780
 
-# Variables
+# Local variables
 dev = None
 
-rngBitQueueHead = rng
-rngBitQueueTail = rngBitQueueHead + 4
-rngBitQueue = rngBitQueueTail + 4
-rngBitQueueSize = 512
-rngBitQueueMask = rngBitQueueSize - 1
-rngBitQueueByteSize = rngBitQueueSize >> 3
+rng_bit_queue_head = rng
+rng_bit_queue_tail = rng_bit_queue_head + 4
+rng_bit_queue = rng_bit_queue_tail + 4
+rng_bit_queue_size = 512
+rng_bit_queue_mask = rng_bit_queue_size - 1
+rng_bit_queue_byte_size = rng_bit_queue_size >> 3
 
-rngValue = 0
-rngValueBitIndex = 0
+rng_value = 0
+rng_value_bit_index = 0
 
 file = open('randombits-data.bin', 'wb')
 
-while(True):
+while (True):
     # Get data
     if dev == None:
         dev = swd.Swd()
 
     try:
-        bitQueueHead = dev.get_mem32(rngBitQueueHead)
-        bitQueueTail = dev.get_mem32(rngBitQueueTail)
-        bitQueue = dev.read_mem(rngBitQueue, rngBitQueueByteSize)
+        bit_queue_head = dev.get_mem32(rng_bit_queue_head)
+        bit_queue_tail = dev.get_mem32(rng_bit_queue_tail)
+        bit_queue = dev.read_mem(rng_bit_queue, rng_bit_queue_byte_size)
 
         # Process data
-        bitQueueBits = []
-        for byte in bitQueue:
+        bit_queue_bits = []
+        for byte in bit_queue:
             for i in range(0, 8):
-                bitQueueBits.append((byte >> i) & 1)
+                bit_queue_bits.append((byte >> i) & 1)
 
-        bitQueueTailLast = bitQueueTail
+        bit_queue_tail_last = bit_queue_tail
 
-        while bitQueueTail != bitQueueHead:
-            bit = bitQueueBits[bitQueueTail]
-            rngValue |= bit << rngValueBitIndex
+        while bit_queue_tail != bit_queue_head:
+            bit = bit_queue_bits[bit_queue_tail]
+            rng_value |= bit << rng_value_bit_index
 
-            rngValueBitIndex += 1
-            if rngValueBitIndex >= 8:
-                file.write(int.to_bytes(rngValue))
+            rng_value_bit_index += 1
+            if rng_value_bit_index >= 8:
+                file.write(int.to_bytes(rng_value))
 
-                rngValue = 0
-                rngValueBitIndex = 0
+                rng_value = 0
+                rng_value_bit_index = 0
 
-            bitQueueTail = (bitQueueTail + 1) & rngBitQueueMask
+            bit_queue_tail = (bit_queue_tail + 1) & rng_bit_queue_mask
 
-        if bitQueueTailLast != bitQueueHead:
-            dev.set_mem32(rngBitQueueTail, bitQueueTail)
+        if bit_queue_tail_last != bit_queue_head:
+            dev.set_mem32(rng_bit_queue_tail, bit_queue_tail)
             file.flush()
 
         # Wait

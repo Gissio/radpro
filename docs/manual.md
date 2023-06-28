@@ -61,3 +61,11 @@ The random number generator produces one bit for every two new pulses by compari
 Random symbols are generated from the bits using the [Fast Dice Roller](https://arxiv.org/abs/1304.1916) algorithm. "Letters & numbers" consumes approximately 6 bits per symbol, "Full ASCII" consumes 7 bits, "20-sided dice" and "12-sided dice" consumes 5 bits, "Hexadecimal", "Decimal" consumes 4 bits, "8-sided dice" and "6-sided dice" consumes 3 bits, "4-sided dice" consumes 2 bits, and "Coin flip" consumes 1 bit.
 
 To generate bits more quickly, use a radioactive source.
+
+### Data capture
+
+To capture data, install Python, install the requirements in `tools/requirements.txt` and start `pulsecounts-capture.py`.
+
+### Submission to radiation monitoring websites
+
+To submit your data to a radiation monitoring website like https://gmcmap.com or https://radmon.org website, create an account on the website, install Python, install the requirements in `tools/requirements.txt`, configure your https://gmcmap.com or https://radmon.org entries in `tools/monitoring-website-client.py` and start `tools/monitoring-website-client.py`.

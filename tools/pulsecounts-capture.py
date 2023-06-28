@@ -16,17 +16,17 @@ from datetime import datetime
 import swd
 import time
 
-# Configuration
+# Rad Pro variables
 dose = 0x20000418
 
-# Variables
+# Local variables
 dev = None
 
-doseTime = dose + 1 * 4
-dosePulseCount = dose + 2 * 4
+dose_time = dose + 1 * 4
+dose_pulse_count = dose + 2 * 4
 
-snapshotLastCount = None
-snapshotLastTime = None
+snapshot_last_count = None
+snapshot_last_time = None
 
 file = open('pulsecounts-data.csv', 'w')
 
@@ -36,23 +36,23 @@ while(True):
         dev = swd.Swd()
 
     try:
-        snapshotTime = dev.get_mem32(doseTime)
-        snapshotCount = dev.get_mem32(dosePulseCount)
+        snapshot_time = dev.get_mem32(dose_time)
+        snapshot_count = dev.get_mem32(dose_pulse_count)
 
         # Process data
-        if snapshotLastTime != snapshotTime:
+        if snapshot_last_time != snapshot_time:
             print('.', end='', flush=True)
 
-            if snapshotLastCount == None:
-                snapshotLastCount = snapshotCount 
+            if snapshot_last_count == None:
+                snapshot_last_count = snapshot_count 
 
-            deltaCount = (snapshotCount - snapshotLastCount) & 0xffffffff
+            delta_count = (snapshot_count - snapshot_last_count) & 0xffffffff
 
-            snapshotLastCount = snapshotCount
-            snapshotLastTime = snapshotTime
+            snapshot_last_count = snapshot_count
+            snapshot_last_time = snapshot_time
 
             timestamp = datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%f')
-            file.write('"' + timestamp + '", ' + str(deltaCount) + '\n')
+            file.write('"' + timestamp + '", ' + str(delta_count) + '\n')
             file.flush()
 
         # Wait

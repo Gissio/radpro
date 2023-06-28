@@ -15,19 +15,19 @@
 import swd
 import time
 
-# Configuration
+# Rad Pro variables
 gm = 0x20000394
 
-# Variables
+# Local variables
 dev = None
 
-gmPulsesQueueHeadTail = gm
-gmPulsesQueue = gm + 4
-gmPulsesQueueSize = 16
-gmPulsesQueueMask = gmPulsesQueueSize - 1
+gm_pulses_queue_head_tail = gm
+gm_pulses_queue = gm + 4
+gm_pulses_queue_size = 16
+gm_pulses_queue_mask = gm_pulses_queue_size - 1
 
-pulsesQueueTail = None
-lastPulseTime = None
+pulses_queue_tail = None
+last_pulse_time = None
 
 file = open('pulseintervals-data.bin', 'wb')
 
@@ -38,29 +38,29 @@ while(True):
 
     try:
         # Read data
-        pulsesQueueHeadTail = dev.get_mem32(gmPulsesQueueHeadTail)
-        pulsesQueue = [0] * gmPulsesQueueSize
-        for i in range(0, gmPulsesQueueSize):
-            pulsesQueue[i] = dev.get_mem32(gmPulsesQueue + 4 * i)
+        pulses_queue_head_tail = dev.get_mem32(gm_pulses_queue_head_tail)
+        pulses_queue = [0] * gm_pulses_queue_size
+        for i in range(0, gm_pulses_queue_size):
+            pulses_queue[i] = dev.get_mem32(gm_pulses_queue + 4 * i)
 
         # Process data
-        pulsesQueueHead = pulsesQueueHeadTail & gmPulsesQueueMask
-        if pulsesQueueTail == None:
-            pulsesQueueTail = pulsesQueueHead
+        pulses_queue_head = pulses_queue_head_tail & gm_pulses_queue_mask
+        if pulses_queue_tail == None:
+            pulses_queue_tail = pulses_queue_head
 
-        lastPulsesQueueTail = pulsesQueueTail
+        last_pulses_queue_tail = pulses_queue_tail
 
-        while pulsesQueueTail != pulsesQueueHead:
-            pulseTime = pulsesQueue[pulsesQueueTail]
+        while pulses_queue_tail != pulses_queue_head:
+            pulseTime = pulses_queue[pulses_queue_tail]
 
-            if lastPulseTime != None:
-                interval = (pulseTime - lastPulseTime) & 0xffffffff
+            if last_pulse_time != None:
+                interval = (pulseTime - last_pulse_time) & 0xffffffff
                 file.write(int.to_bytes(interval, 4))
 
-            lastPulseTime = pulseTime
-            pulsesQueueTail = (pulsesQueueTail + 1) & gmPulsesQueueMask
+            last_pulse_time = pulseTime
+            pulses_queue_tail = (pulses_queue_tail + 1) & gm_pulses_queue_mask
 
-        if lastPulsesQueueTail != pulsesQueueHead:
+        if last_pulses_queue_tail != pulses_queue_head:
             file.flush()
 
         # Wait

@@ -17,17 +17,17 @@ from datetime import datetime
 import swd
 import time
 
-# Configuration
+# Rad Pro variables
 battery = 0x20000068
 dose = 0x20000418
 
-# Variables
+# Local variables
 dev = None
 
-batteryValue = battery
+battery_value = battery
 doseTime = dose + 4
 
-snapshotLastTime = None
+snapshot_last_time = None
 
 file = open('batterydischarge-data.csv', 'a')
 
@@ -38,11 +38,11 @@ while True:
 
     try:
         snapshotTime = dev.get_mem32(doseTime)
-        value = dev.get_mem32(batteryValue)
+        value = dev.get_mem32(battery_value)
 
         # Process data
-        if snapshotLastTime != snapshotTime:
-            snapshotLastTime = snapshotTime
+        if snapshot_last_time != snapshotTime:
+            snapshot_last_time = snapshotTime
 
             timestamp = datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%f')
             file.write('"' + timestamp + '", ' + str(value) + '\n')
