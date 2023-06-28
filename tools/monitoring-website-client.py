@@ -39,6 +39,8 @@ snapshot_last_time = None
 start_pulse_count = None
 start_time = None
 
+delta_pulse_count_history = []
+
 while (True):
     try:
         # Read data
@@ -63,21 +65,33 @@ while (True):
                 start_pulse_count = snapshot_pulse_count
                 start_time = snapshot_time
 
-                # Submit data
-                if gmcmap_user_account_id != '':
-                    uSv_h = delta_pulse_count / cpm_per_usv_h
-                    requests.get('http://www.gmcmap.com/log2.asp?' +
-                                 f'AID={gmcmap_user_account_id}&' +
-                                 f'GID={gmcmap_geiger_counter_id}&' +
-                                 f'CPM={delta_pulse_count}&' +
-                                 f'uSV={uSv_h:,.3f}')
+                if len(delta_pulse_count_history) >= 5:
+                    delta_pulse_count_history = delta_pulse_count_history[1:]
+                delta_pulse_count_history.append(delta_pulse_count)
 
+                # Submit data to https://gmcmap.com
+                if gmcmap_user_account_id != '':
+                    url = 'http://www.gmcmap.com/log2.asp' +\
+                        f'?AID={gmcmap_user_account_id}' +\
+                        f'&GID={gmcmap_geiger_counter_id}' +\
+                        f'&CPM={delta_pulse_count}'
+
+                    if len(delta_pulse_count_history) > 0:
+                        averaged_delta_pulse_count = sum(delta_pulse_count_history) / len(delta_pulse_count_history)
+                        uSv_h = averaged_delta_pulse_count / cpm_per_usv_h
+
+                        url += f'&ACPM={averaged_delta_pulse_count:,.2f}' +\
+                            f'&uSV={uSv_h:,.3f}'
+
+                    requests.get(url)
+
+                # Submit data to https://radmon.org
                 if radmon_username != '':
-                    requests.get('https://radmon.org/radmon.php?function=submit&' +
-                                 f'user={radmon_username}&' +
-                                 f'password={radmon_data_sending_password}&' +
-                                 f'value={delta_pulse_count}&' +
-                                 'unit=CPM')
+                    requests.get('https://radmon.org/radmon.php?function=submit' +
+                                 f'&user={radmon_username}' +
+                                 f'&password={radmon_data_sending_password}' +
+                                 f'&value={delta_pulse_count}' +
+                                 '&unit=CPM')
 
                 print('.', end='', flush=True)
 
