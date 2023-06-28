@@ -16,7 +16,7 @@ Rad Pro can be used to:
 
 ## Updates
 
-* Rad Pro 1.2.2 adds support for GD32 microcontrollers and submission to the https://gmcmap.com radiation monitoring website.
+* Rad Pro 1.2.2 adds support for GD32 microcontrollers and data submission to the https://gmcmap.com radiation monitoring website.
 
 ## Project overview
 
