@@ -26,7 +26,7 @@ typedef const char *GetMenuOption(const struct Menu *menu, uint8_t index);
 
 struct Menu
 {
-    char *title;
+    const char *title;
     GetMenuOption *getMenuOption;
     const char *const *options;
     MenuState *state;

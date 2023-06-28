@@ -10,6 +10,7 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 void debugWait(uint32_t ms);

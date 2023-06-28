@@ -17,7 +17,10 @@
 #define BATTERY_LEVEL_CHARGING 10
 
 void initBattery(void);
+
 void updateBattery(void);
+
+uint32_t getBatteryValue(void);
 uint8_t getBatteryLevel(void);
 bool isLowBattery(void);
 

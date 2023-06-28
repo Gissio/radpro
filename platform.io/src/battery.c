@@ -78,8 +78,13 @@ void initBattery(void)
     }
     else
     {
+        rcc_osc_on(RCC_HSI14);
+        rcc_wait_for_osc_ready(RCC_HSI14);
+
         adc_channel_length_config(ADC_REGULAR_CHANNEL, 1);
         adc_regular_channel_config(0, ADC_BATTERY_CHANNEL, ADC_SAMPLETIME_7POINT5);
+        adc_external_trigger_source_config(ADC_REGULAR_CHANNEL, ADC_EXTTRIG_REGULAR_NONE);
+        adc_external_trigger_config(ADC_REGULAR_CHANNEL, ENABLE);
 
         adc_enable();
         sleep(2);
@@ -130,11 +135,11 @@ static float readBatteryVoltage(void)
         battery.value = adc_regular_data_read();
     }
 
-    return ADC_BATTERY_VALUE_TO_BATTERY_VOLTAGE * battery.value;
-
 #else
-    return 1.27F;
+    battery.value = 3000;
 #endif
+
+    return ADC_BATTERY_VALUE_TO_BATTERY_VOLTAGE * battery.value;
 }
 
 void updateBattery(void)
@@ -144,6 +149,11 @@ void updateBattery(void)
 
     if (isLowBattery())
         powerOffLowBattery();
+}
+
+uint32_t getBatteryValue(void)
+{
+    return battery.value;
 }
 
 uint8_t getBatteryLevel(void)

@@ -12,7 +12,7 @@
 typedef const struct
 {
     uint16_t sampleNum;
-    uint8_t lowerInterval;
+    uint16_t lowerInterval;
     uint16_t upperInterval;
 } ConfidenceInterval;
 
