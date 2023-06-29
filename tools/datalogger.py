@@ -1,15 +1,14 @@
 # Rad Pro
-# Battery discharge capture
+# Pulse counts data capture
 #
 # (C) 2022-2023 Gissio
 #
 # License: MIT
 #
 # Notes:
-# * To get the addresses for the 'battery and 'dose' variables,
-#   compile the firmware and run these commands:
+# * To get the address for the 'dose' variable,
+#   compile the firmware and run this command:
 #
-#   objdump -t platform.io/.pio/build/fs2011/firmware.elf | grep battery
 #   objdump -t platform.io/.pio/build/fs2011/firmware.elf | grep dose
 #
 
@@ -18,20 +17,18 @@ import swd
 import time
 
 # Rad Pro variables
-battery = 0x20000068
 dose = 0x20000418
 
 # Local variables
-battery_value = battery
-dose_time = dose + 4
+dose_time = dose + 1 * 4
+dose_count = dose + 2 * 4
 
 dev = None
 
-snapshot_time = None
-snapshot_value = None
 snapshot_last_time = None
+snapshot_last_count = None
 
-file = open('batterydischarge-data.csv', 'a')
+file = open('pulsecounts-data.csv', 'w')
 
 while True:
     # Get data
@@ -40,7 +37,7 @@ while True:
             dev = swd.Swd()
 
         snapshot_time = dev.get_mem32(dose_time)
-        snapshot_value = dev.get_mem32(battery_value)
+        snapshot_count = dev.get_mem32(dose_count)
 
     except Exception as e:
         print()
@@ -52,11 +49,18 @@ while True:
 
     # Process data
     if snapshot_last_time != snapshot_time:
+        print('.', end='', flush=True)
+
+        if snapshot_last_count == None:
+            snapshot_last_count = snapshot_count
+
+        delta_count = (snapshot_count - snapshot_last_count) & 0xffffffff
+
         snapshot_last_time = snapshot_time
+        snapshot_last_count = snapshot_count
 
         timestamp = datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%f')
-
-        file.write('"' + timestamp + '", ' + str(snapshot_value) + '\n')
+        file.write('"' + timestamp + '", ' + str(delta_count) + '\n')
         file.flush()
 
     # Wait
