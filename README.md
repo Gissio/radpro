@@ -16,7 +16,7 @@ With Rad Pro, you can:
 
 ## Updates
 
-* Rad Pro 1.3.0 adds custom conversion factors and data logging support.
+* Rad Pro 1.3.0 adds custom Geiger tube conversion factors and data logging support.
 
 ## Project overview
 
