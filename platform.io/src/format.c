@@ -13,7 +13,7 @@
 #include "cmath.h"
 #include "measurements.h"
 
-const char *formatPrefixes = "n\xb5m kMG";
+const char *const formatPrefixes = "n\xb5m kMG";
 
 static char getMetricPrefix(int32_t exponent)
 {
@@ -41,7 +41,7 @@ void strcatNumber(char *buffer, uint32_t value, uint32_t length)
     if (numberOfDigits > length)
         length = numberOfDigits;
 
-    for (int32_t i = (length - 1); i >= 0 ; i--)
+    for (int32_t i = (length - 1); i >= 0; i--)
     {
         buffer[i] = '0' + (value % 10);
         value /= 10;
@@ -112,18 +112,21 @@ void formatMantissaAndCharacteristic(const char *unitName, float value, int32_t 
         strcatNumber(mantissaBuffer, mantissa / 1000, 0);
         strcat(mantissaBuffer, ".");
         strcatNumber(mantissaBuffer, mantissa % 1000, 3);
+
         break;
 
     case 1:
         strcatNumber(mantissaBuffer, mantissa / 100, 1);
         strcat(mantissaBuffer, ".");
         strcatNumber(mantissaBuffer, mantissa % 100, 2);
+
         break;
 
     case 2:
         strcatNumber(mantissaBuffer, mantissa / 10, 2);
         strcat(mantissaBuffer, ".");
         strcatNumber(mantissaBuffer, mantissa % 10, 1);
+
         break;
     }
 }
@@ -152,7 +155,7 @@ void formatMultiplier(const char *unitName, int32_t exponent, char *buffer)
 void formatRate(float rate,
                 char *mantissa, char *characteristic)
 {
-    Unit *unit = &units[settings.units].rate;
+    struct Unit *unit = &units[settings.units].rate;
 
     formatMantissaAndCharacteristic(unit->name,
                                     unit->scale * rate,
@@ -167,7 +170,7 @@ void formatRate(float rate,
 void formatDose(uint32_t count,
                 char *mantissa, char *characteristic)
 {
-    Unit *unit = &units[settings.units].dose;
+    struct Unit *unit = &units[settings.units].dose;
 
     formatMantissaAndCharacteristic(unit->name,
                                     unit->scale * count,

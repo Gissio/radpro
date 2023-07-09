@@ -20,6 +20,9 @@ int32_t remainderDown(int32_t x, int32_t y);
 int32_t getExponent(float value);
 float getPowerOfTen(int32_t exponent);
 
+float log2fApprox(float value);
 float log10fApprox(float value);
+
+float exp2fApprox(float exponent);
 
 #endif

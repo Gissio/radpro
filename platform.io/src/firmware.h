@@ -10,6 +10,8 @@
 #ifndef FIRMWARE_H
 #define FIRMWARE_H
 
-void checkFirmware(void);
+#include <stdbool.h>
+
+bool checkFirmware(void);
 
 #endif

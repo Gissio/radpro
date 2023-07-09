@@ -13,15 +13,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "keyboard.h"
+#include "view.h"
 
-void resetGame(uint8_t playerIndex);
-bool isGameStart(void);
+extern const struct View gameMenuView;
+
+void initGame(void);
 
 void updateGame(void);
 void updateGameTimer(void);
-
-void drawGameView(void);
-void onGameViewKey(KeyEvent keyEvent);
 
 #endif

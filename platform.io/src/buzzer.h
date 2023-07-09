@@ -7,8 +7,8 @@
  * License: MIT
  */
 
-#ifndef BUZZ_H
-#define BUZZ_H
+#ifndef BUZZER_H
+#define BUZZER_H
 
 #include <stdbool.h>
 

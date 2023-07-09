@@ -7,33 +7,15 @@
  * License: MIT
  */
 
-
 #ifndef RNG_H
 #define RNG_H
 
 #include <stdint.h>
 
-#include "keyboard.h"
+#include "view.h"
 
-enum RNGMode
-{
-    RNG_MODE_ALPHANUMERIC,
-    RNG_MODE_FULL_ASCII,
-    RNG_MODE_HEXADECIMAL,
-    RNG_MODE_DECIMAL,
-    RNG_MODE_COIN_TOSS,
-    RNG_MODE_6SIDED_DICE,
-    RNG_MODE_4SIDED_DICE,
-    RNG_MODE_8SIDED_DICE,
-    RNG_MODE_12SIDED_DICE,
-    RNG_MODE_20SIDED_DICE,
-};
-
-void resetRNG(enum RNGMode mode);
+extern const struct View rngMenuView;
 
 void onRNGPulse(uint32_t pulseTime);
-
-void drawRNGView(void);
-void onRNGViewKey(KeyEvent keyEvent);
 
 #endif

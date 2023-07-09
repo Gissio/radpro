@@ -12,6 +12,7 @@
 #include "display.h"
 #include "events.h"
 #include "firmware.h"
+#include "flash.h"
 #include "game.h"
 #include "gm.h"
 #include "keyboard.h"
@@ -19,8 +20,8 @@
 #include "power.h"
 #include "rng.h"
 #include "settings.h"
-#include "menus.h"
-#include "ui.h"
+#include "menu.h"
+#include "view.h"
 
 int main(void)
 {
@@ -34,18 +35,18 @@ int main(void)
     initPower();
 
     // Check firmware
-    checkFirmware();
+    if (!checkFirmware())
+        playSystemAlert();
 
     // Init system
+    initSettings();
+    initEventsSettings();
+    initMeasurements();
+    initGame();
     initGM();
     initBattery();
-    initMeasurement();
     initKeyboard();
     initDisplay();
-    initSettings();
-    initMenus();
-
-    updateUnits();
 
     // Low battery?
     updateBattery();
@@ -54,13 +55,14 @@ int main(void)
     clearDisplayBuffer();
     drawWelcome();
     sendDisplayBuffer();
+
     triggerBacklight();
 
     sleep(1000);
 
     // Initialize view
-    setMeasurements(true);
-    setView(VIEW_INSTANTANEOUS_RATE);
+    enableMeasurement(true);
+    setMeasurementView(&instantaneousRateView);
 
     // Message loop
     while (1)
@@ -68,6 +70,6 @@ int main(void)
         sleep(1);
 
         updateGame();
-        updateUI();
+        updateView();
     }
 }

@@ -7,9 +7,9 @@
  * License: MIT
  */
 
-#include "buzzer.h"
-#include "debug.h"
-#include "events.h"
+#include "../../buzzer.h"
+#include "../../debug.h"
+#include "../../events.h"
 
 #define DEBUG_BIT_LENGTH 100
 #define DEBUG_BIT0_LENGTH 1
@@ -33,11 +33,13 @@ void debugBit(bool value)
     case 0:
         onTime = DEBUG_BIT0_LENGTH;
         offTime = DEBUG_BIT_LENGTH - DEBUG_BIT0_LENGTH;
+
         break;
 
     case 1:
         onTime = DEBUG_BIT1_LENGTH;
         offTime = DEBUG_BIT_LENGTH - DEBUG_BIT1_LENGTH;
+
         break;
     }
 
@@ -61,7 +63,8 @@ void debugUInt32(uint32_t value)
     }
 }
 
-#ifdef ERROR_HANDLERS
+#ifdef STM32_ERROR_HANDLERS
+
 void onHardFault(uint32_t *args);
 
 // args: r0, r1, r2, r3, r12, lr, pc, psr
@@ -91,4 +94,5 @@ void hard_fault_handler(void)
         " ldr r2,=onHardFault                                       \n"
         " bx r2                                                     \n");
 }
+
 #endif

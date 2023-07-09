@@ -10,8 +10,6 @@
 #ifndef FS2011_H
 #define FS2011_H
 
-#ifndef SDL_MODE
-
 #define PWR_EN_PORT GPIOB
 #define PWR_EN_PIN GPIO10
 #define PWR_BAT_PORT GPIOA
@@ -28,8 +26,8 @@
 
 #define KEY_POWER_PORT GPIOB
 #define KEY_POWER_PIN GPIO11
-#define KEY_SELECT_PORT GPIOB
-#define KEY_SELECT_PIN GPIO1
+#define KEY_ENTER_PORT GPIOB
+#define KEY_ENTER_PIN GPIO1
 #define KEY_BACK_PORT GPIOB
 #define KEY_BACK_PIN GPIO2
 #define KEY_UP_PORT GPIOA
@@ -69,7 +67,5 @@
 
 #define M_VIB_PORT GPIOB
 #define M_VIB_PIN GPIO6
-
-#endif
 
 #endif

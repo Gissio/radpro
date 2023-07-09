@@ -14,6 +14,8 @@
 
 void initPower(void);
 
+void setPower(bool value);
+
 void powerOff(void);
 void powerOffLowBattery(void);
 

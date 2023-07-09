@@ -17,7 +17,7 @@ import swd
 import time
 
 # Rad Pro variables
-dose = 0x20000418
+dose = 0x20000464
 
 # Local variables
 dose_time = dose + 1 * 4
@@ -28,7 +28,7 @@ dev = None
 snapshot_last_time = None
 snapshot_last_count = None
 
-file = open('pulsecounts-data.csv', 'w')
+file = open('live-capture.csv', 'w')
 
 while True:
     # Get data

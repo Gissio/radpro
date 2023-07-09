@@ -9,14 +9,14 @@
 
 #include "confidence.h"
 
-typedef const struct
+struct ConfidenceInterval
 {
     uint16_t sampleNum;
     uint16_t lowerInterval;
     uint16_t upperInterval;
-} ConfidenceInterval;
+};
 
-ConfidenceInterval confidenceIntervals[] = {
+static const struct ConfidenceInterval confidenceIntervals[] = {
     {1, 73, 3850},
     {2, 65, 726},
     {3, 59, 385},
@@ -120,7 +120,7 @@ ConfidenceInterval confidenceIntervals[] = {
     {38995, 1, 1},
 };
 
-#define CONFIDENCE_INTERVALS_SIZE (sizeof(confidenceIntervals) / sizeof(ConfidenceInterval))
+#define CONFIDENCE_INTERVALS_SIZE (sizeof(confidenceIntervals) / sizeof(struct ConfidenceInterval))
 
 void getConfidenceIntervals(uint32_t sampleNum,
                             uint32_t *lowerConfidenceInterval,
@@ -142,6 +142,7 @@ void getConfidenceIntervals(uint32_t sampleNum,
         else
         {
             index = mid;
+
             break;
         }
     }

@@ -9,76 +9,76 @@
 
 #include <stdint.h>
 
-#ifndef SDL_MODE
-
-#include <libopencm3/cm3/nvic.h>
-#include <libopencm3/cm3/systick.h>
-
-#include <libopencm3/stm32/rcc.h>
-#include <libopencm3/stm32/iwdg.h>
-
-#else
-
-#include <SDL.h>
-
-#endif
-
 #include "battery.h"
 #include "buzzer.h"
-#include "cmath.h"
 #include "display.h"
 #include "events.h"
 #include "game.h"
 #include "gm.h"
 #include "keyboard.h"
 #include "measurements.h"
+#include "menu.h"
 #include "power.h"
 #include "rng.h"
 #include "settings.h"
-#include "ui.h"
 
-#define HOUR (60 * 60)
+#define LIFE_STATE_UPDATE_TIME (60 * 60)
 
-struct
+static const uint16_t dataLoggingUpdateTime[] = {
+    60 * 60,
+    30 * 60,
+    10 * 60,
+    5 * 60,
+    1 * 60,
+};
+
+static const char *const dataLoggingMenuOptions[] = {
+    "Every 60 minutes",
+    "Every 30 minutes",
+    "Every 10 minutes",
+    "Every 5 minutes",
+    "Every minute",
+    NULL,
+};
+
+static struct
 {
     volatile uint32_t tick;
 
     volatile int32_t backlightTimer;
     volatile int32_t buzzerTimer;
-    int32_t keyTimer;
+    int32_t keyboardTimer;
 
     int32_t oneSecondTimer;
     volatile uint8_t oneSecondUpdate;
     uint8_t lastOneSecondUpdate;
 
-    int32_t oneHourTimer;
+    int32_t lifeStateUpdateTimer;
+    int32_t doseStateUpdateTimer;
 
     bool measurementsEnabled;
 } events;
 
+static const struct Menu pulseClicksMenu;
+static const struct Menu backlightMenu;
+static const struct Menu dataLoggingMenu;
+
 void initEvents(void)
 {
-#ifndef SDL_MODE
-    // SysTick
-    systick_set_frequency(SYS_TICK_FREQUENCY, rcc_ahb_frequency);
-    systick_clear();
+    initEventsHardware();
 
-    systick_interrupt_enable();
-    systick_counter_enable();
-
-    nvic_set_priority(NVIC_SYSTICK_IRQ, 255);
-
-    // Watchdog
-    iwdg_set_period_ms(500 * 40000 / 32768);
-    iwdg_start();
-#endif
-
-    events.keyTimer = KEY_TICKS;
     events.oneSecondTimer = SYS_TICK_FREQUENCY;
-    events.oneHourTimer = HOUR;
+    events.lifeStateUpdateTimer = LIFE_STATE_UPDATE_TIME;
 }
 
-void setMeasurements(bool value)
+void initEventsSettings(void)
+{
+    selectMenuIndex(&pulseClicksMenu, settings.pulseClicks);
+    selectMenuIndex(&backlightMenu, settings.backlight);
+    selectMenuIndex(&dataLoggingMenu, settings.dataLogging);
+}
+
+void enableMeasurement(bool value)
 {
     events.measurementsEnabled = value;
 }
@@ -87,19 +87,19 @@ static bool isTimerElapsed(volatile int32_t *timer)
 {
     int32_t timerValue = *timer;
 
-    if (timerValue <= 0)
-        return false;
+    if (timerValue > 0)
+    {
+        timerValue--;
+        *timer = timerValue;
 
-    timerValue--;
-    *timer = timerValue;
+        return (timerValue == 0);
+    }
 
-    return (timerValue == 0);
+    return false;
 }
 
-void sys_tick_handler(void)
+void onTick(void)
 {
-    events.tick++;
-
     // Backlight
     if (isTimerElapsed(&events.backlightTimer))
         setBacklight(false);
@@ -111,9 +111,9 @@ void sys_tick_handler(void)
         setBuzzer(false);
 
     // Keyboard
-    if (isTimerElapsed(&events.keyTimer))
+    if (isTimerElapsed(&events.keyboardTimer))
     {
-        events.keyTimer = KEY_TICKS;
+        events.keyboardTimer = KEY_TICKS;
 
         onKeyboardTick();
     }
@@ -144,107 +144,94 @@ void sys_tick_handler(void)
     }
 }
 
-void sleep(uint32_t value)
-{
-#ifndef SDL_MODE
-    uint32_t tickStart = events.tick;
-
-    iwdg_reset();
-    while ((events.tick - tickStart) < value)
-    {
-        asm("wfi");
-        iwdg_reset();
-    }
-#else
-    if (!value)
-        return;
-
-    uint32_t tickStart = SDL_GetTicks();
-    uint32_t tickUpdated = tickStart;
-
-    while (true)
-    {
-        uint32_t tickCurrent = SDL_GetTicks();
-
-        while ((tickCurrent - tickUpdated) > 0)
-        {
-            tickUpdated++;
-            sys_tick_handler();
-        }
-
-        if ((tickCurrent - tickStart) >= value)
-            break;
-
-        SDL_Event event;
-        if (SDL_PollEvent(&event))
-        {
-            if (event.type == SDL_QUIT)
-                exit(0);
-        }
-    }
-#endif
-}
-
-void syncThreads(void)
+void syncTimerThread(void)
 {
     sleep(1);
 }
 
 void setBacklightTimer(int32_t value)
 {
-    if ((value > 0) && (value < events.backlightTimer))
+    if (settings.backlight == BACKLIGHT_ON)
         return;
 
-    events.backlightTimer = value;
+    if ((value < 0) || (value > events.backlightTimer))
+        events.backlightTimer = value;
 }
 
 void triggerBacklight(void)
 {
-    syncThreads();
+    syncTimerThread();
 
     switch (settings.backlight)
     {
     case BACKLIGHT_OFF:
     case BACKLIGHT_PULSE_FLASHES:
         events.backlightTimer = 1;
+
         break;
 
     case BACKLIGHT_10S:
         events.backlightTimer = 10 * SYS_TICK_FREQUENCY;
+
         break;
 
     case BACKLIGHT_60S:
         events.backlightTimer = 60 * SYS_TICK_FREQUENCY;
+
         break;
 
     case BACKLIGHT_ON:
         events.backlightTimer = -1;
+
         break;
     }
 }
 
 void stopBacklightTimer(void)
 {
-    syncThreads();
+    syncTimerThread();
 
     events.backlightTimer = 1;
 }
 
+void playSystemAlert(void)
+{
+    for (uint32_t i = 0; i < 10; i++)
+    {
+        setBuzzer(true);
+        sleep(50);
+        setBuzzer(false);
+        sleep(50);
+    }
+}
+
 void setBuzzerTimer(int32_t value)
 {
-    if ((value > 0) && (value < events.buzzerTimer))
-        return;
+    if ((value < 0) || (value > events.buzzerTimer))
+    {
+        events.buzzerTimer = value;
 
-    events.buzzerTimer = value;
-
-    setBuzzer(true);
+        setBuzzer(true);
+    }
 }
 
 void stopBuzzerTimer(void)
 {
-    syncThreads();
+    syncTimerThread();
 
     events.buzzerTimer = 1;
+}
+
+void startKeyboardTimer(void)
+{
+    syncTimerThread();
+
+    events.keyboardTimer = KEY_TICKS;
+}
+
+void resetDataLoggingTimer(void)
+{
+    events.doseStateUpdateTimer = dataLoggingUpdateTime[settings.dataLogging];
 }
 
 void updateEvents(void)
@@ -257,13 +244,108 @@ void updateEvents(void)
         updateBattery();
         updateMeasurement();
         updateGameTimer();
-        updateView();
+        refreshView();
 
-        if (isTimerElapsed(&events.oneHourTimer))
+        if (isTimerElapsed(&events.doseStateUpdateTimer))
         {
-            events.oneHourTimer = HOUR;
+            resetDataLoggingTimer();
 
-            writeState();
+            writeDoseState();
         }
     }
 }
+
+// Pulse clicks menu
+
+static void onPulseClicksMenuSelect(const struct Menu *menu)
+{
+    settings.pulseClicks = menu->state->selectedIndex;
+}
+
+static const char *const pulseClicksMenuOptions[] = {
+    "Off",
+    "Quiet",
+    "Loud",
+    NULL,
+};
+
+static struct MenuState pulseClicksMenuState;
+
+static const struct Menu pulseClicksMenu = {
+    "Pulse clicks",
+    &pulseClicksMenuState,
+    onMenuGetOption,
+    pulseClicksMenuOptions,
+    onPulseClicksMenuSelect,
+    NULL,
+    onSettingsSubMenuBack,
+};
+
+const struct View pulseClicksMenuView = {
+    onMenuViewDraw,
+    onMenuViewKey,
+    &pulseClicksMenu,
+};
+
+// Backlight menu
+
+static void onBacklightMenuSelect(const struct Menu *menu)
+{
+    settings.backlight = menu->state->selectedIndex;
+
+    triggerBacklight();
+}
+
+static const char *const backlightMenuOptions[] = {
+    "Off",
+    "On for 10 seconds",
+    "On for 60 seconds",
+    "Pulse flashes",
+    "Always on",
+    NULL,
+};
+
+static struct MenuState backlightMenuState;
+
+static const struct Menu backlightMenu = {
+    "Backlight",
+    &backlightMenuState,
+    onMenuGetOption,
+    backlightMenuOptions,
+    onBacklightMenuSelect,
+    NULL,
+    onSettingsSubMenuBack,
+};
+
+const struct View backlightMenuView = {
+    onMenuViewDraw,
+    onMenuViewKey,
+    &backlightMenu,
+};
+
+// Data logging menu
+
+static void onDataLoggingMenuSelect(const struct Menu *menu)
+{
+    settings.dataLogging = menu->state->selectedIndex;
+
+    resetDataLoggingTimer();
+}
+
+static struct MenuState dataLoggingMenuState;
+
+static const struct Menu dataLoggingMenu = {
+    "Data logging",
+    &dataLoggingMenuState,
+    onMenuGetOption,
+    dataLoggingMenuOptions,
+    onDataLoggingMenuSelect,
+    NULL,
+    onSettingsSubMenuBack,
+};
+
+const struct View dataLoggingMenuView = {
+    onMenuViewDraw,
+    onMenuViewKey,
+    &dataLoggingMenu,
+};

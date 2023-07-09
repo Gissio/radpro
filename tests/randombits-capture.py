@@ -16,7 +16,7 @@ import swd
 import time
 
 # Rad Pro variables
-rng = 0x20000780
+rng = 0x200007c8
 
 # Local variables
 rng_bit_queue_head = rng

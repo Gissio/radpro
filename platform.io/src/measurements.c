@@ -15,21 +15,28 @@
 #include "events.h"
 #include "format.h"
 #include "measurements.h"
+#include "menu.h"
 #include "settings.h"
-#include "ui.h"
 
 #define INTERVAL_STATS_NUM 5
 #define PULSE_QUEUE_LENGTH (10 + 1)
 
-#define PULSE_SOUND_QUIET_TICKS ((uint32_t)(0.001F * SYS_TICK_FREQUENCY))
-#define PULSE_SOUND_LOUD_TICKS ((uint32_t)(0.015F * SYS_TICK_FREQUENCY))
+#define PULSE_CLICKS_QUIET_TICKS ((uint32_t)(0.001F * SYS_TICK_FREQUENCY))
+#define PULSE_CLICKS_LOUD_TICKS ((uint32_t)(0.015F * SYS_TICK_FREQUENCY))
 #define PULSE_BACKLIGHT_FLASH_TICKS ((uint32_t)(0.08F * SYS_TICK_FREQUENCY))
 
 #define OVERLOAD_RATE 1000
 
 #define ALARM_TICKS ((uint32_t)(0.25F * SYS_TICK_FREQUENCY))
 
-UnitType units[] = {
+struct
+{
+    const struct View *currentView;
+
+    struct Settings lastSettings;
+} measurements;
+
+struct UnitType units[] = {
     {{"Sv/h", (60 * 1E-6F), -6},
      {"Sv", (60 * 1E-6F / 3600), -6}},
     {{"rem/h", (60 * 1E-4F), -6},
@@ -40,7 +47,7 @@ UnitType units[] = {
      {"counts", 1, 0}},
 };
 
-const float rateAlarmsSvH[] = {
+static const float rateAlarmsSvH[] = {
     0,
     0.2E-6F,
     0.5E-6F,
@@ -53,7 +60,7 @@ const float rateAlarmsSvH[] = {
     100E-6F,
 };
 
-const float doseAlarmsSv[] = {
+static const float doseAlarmsSv[] = {
     0,
     2E-6F,
     5E-6F,
@@ -66,24 +73,24 @@ const float doseAlarmsSv[] = {
     1000E-6F,
 };
 
-typedef struct
+struct IntervalStats
 {
     uint32_t firstPulseTick;
     uint32_t pulseCount;
-} IntervalStats;
+};
 
-typedef struct
+struct PulseQueue
 {
     uint32_t count;
     uint32_t index;
     uint32_t tick[PULSE_QUEUE_LENGTH];
-} PulseQueue;
+};
 
 struct
 {
     uint32_t tick;
-    IntervalStats intervalStats[INTERVAL_STATS_NUM];
-    PulseQueue pulseQueue;
+    struct IntervalStats intervalStats[INTERVAL_STATS_NUM];
+    struct PulseQueue pulseQueue;
 
     uint32_t snapshotTime;
     uint32_t snapshotPulseCount;
@@ -127,30 +134,39 @@ struct
     uint32_t holdPulseCount;
 } dose;
 
-typedef const struct
+struct History
 {
     char *const name;
     uint32_t samplesPerDataPoint;
-} History;
+};
 
-typedef struct
+struct HistoryState
 {
     float sampleSum;
     uint32_t sampleNum;
 
     uint8_t bufferIndex;
     uint8_t buffer[HISTORY_BUFFER_SIZE];
-} HistoryState;
+};
 
-History histories[HISTORY_NUM] = {
+const struct History histories[HISTORY_NUM] = {
     {"History (2m)", 1},
     {"History (10m)", 5},
     {"History (1h)", 30},
     {"History (6h)", 180},
     {"History (24h)", 720},
 };
-HistoryState historyStates[HISTORY_NUM];
+struct HistoryState historyStates[HISTORY_NUM];
 uint32_t historySampleIndex;
+
+static const struct Menu unitsMenu;
+static const struct Menu historyMenu;
+static const struct Menu rateAlarmMenu;
+static const struct Menu doseAlarmMenu;
+static const struct Menu tubeTypeMenu;
+static const struct Menu customTubeMenu;
+
+static void updateTubeType(void);
 
 static void resetInstantaneousRate(void);
 static bool isInstantaneousRateAlarm(void);
@@ -162,39 +178,47 @@ static bool isDoseAlarm(void);
 
 static void resetHistory(void);
 
-// General
+// Common
 
-void initMeasurement(void)
+void initMeasurements(void)
 {
-    resetInstantaneousRate();
-    resetAverageRate();
-    resetDose();
-    resetHistory();
+    measurements.lastSettings = settings;
+
+    selectMenuIndex(&unitsMenu, settings.units);
+    selectMenuIndex(&historyMenu, settings.history);
+    selectMenuIndex(&rateAlarmMenu, settings.rateAlarm);
+    selectMenuIndex(&doseAlarmMenu, settings.doseAlarm);
+
+    selectMenuIndex(&tubeTypeMenu, settings.tubeType);
+    selectMenuIndex(&customTubeMenu, settings.conversionFactor);
+
+    updateTubeType();
 }
 
-void updateUnits(void)
+static void updateTubeType(void)
 {
-    float cpmPerUSvH;
+    float cpmPerUSvH = 1;
+
     switch (settings.tubeType)
     {
-    case TUBE_HH614:
-        cpmPerUSvH = 68.4F;
-        break;
-
-    case TUBE_M4011:
+    case TUBE_TYPE_M4011:
         cpmPerUSvH = 153.F;
+
         break;
 
-    case TUBE_SBM20:
-        cpmPerUSvH = 174.F;
+    case TUBE_TYPE_HH614:
+        cpmPerUSvH = 68.4F;
+
         break;
 
-    case TUBE_SI3BG:
-        cpmPerUSvH = 1.61F;
+    case TUBE_TYPE_J305:
+        cpmPerUSvH = 123.F;
+
         break;
 
-    default:
-        cpmPerUSvH = 1;
+    case TUBE_TYPE_CUSTOM:
+        cpmPerUSvH = getConversionFactor(settings.conversionFactor);
+
         break;
     }
 
@@ -204,7 +228,7 @@ void updateUnits(void)
     units[1].dose.scale = (60 * 1E-4F / 3600) / cpmPerUSvH;
 }
 
-static void resetIntervalStats(IntervalStats *intervalStats)
+static void resetIntervalStats(struct IntervalStats *intervalStats)
 {
     intervalStats->firstPulseTick = 0;
     intervalStats->pulseCount = 0;
@@ -216,7 +240,7 @@ void onMeasurementTick(uint32_t pulseCount)
     if (pulseCount)
     {
         // Life statistics
-        addClamped(&state.lifePulseCount, pulseCount);
+        addClamped(&lifeState.pulseCount, pulseCount);
 
         // Instantaneous rate
         if (!instantaneousRate.intervalStats[0].pulseCount)
@@ -245,14 +269,16 @@ void onMeasurementTick(uint32_t pulseCount)
         addClamped(&dose.pulseCount, pulseCount);
 
         // Buzzer
-        switch (settings.pulseSound)
+        switch (settings.pulseClicks)
         {
-        case PULSE_SOUND_QUIET:
-            setBuzzerTimer(PULSE_SOUND_QUIET_TICKS);
+        case PULSE_CLICKS_QUIET:
+            setBuzzerTimer(PULSE_CLICKS_QUIET_TICKS);
+
             break;
 
-        case PULSE_SOUND_LOUD:
-            setBuzzerTimer(PULSE_SOUND_LOUD_TICKS);
+        case PULSE_CLICKS_LOUD:
+            setBuzzerTimer(PULSE_CLICKS_LOUD_TICKS);
+
             break;
         }
 
@@ -275,8 +301,8 @@ void onMeasurementOneSecond(void)
     uint32_t pulseCount;
     uint32_t ticks;
 
-    if (state.lifeTime < UINT32_MAX)
-        state.lifeTime++;
+    if (lifeState.time < UINT32_MAX)
+        lifeState.time++;
 
     // Instantaneous rate
     firstPulseTick = 0;
@@ -370,8 +396,8 @@ void updateMeasurement(void)
         (historySampleIndex + 1) % histories[HISTORY_LAST].samplesPerDataPoint;
     for (uint32_t i = 0; i < HISTORY_NUM; i++)
     {
-        History *history = &histories[i];
-        HistoryState *historyState = &historyStates[i];
+        const struct History *history = &histories[i];
+        struct HistoryState *historyState = &historyStates[i];
 
         historyState->sampleSum += instantaneousRate.snapshotValue;
         historyState->sampleNum++;
@@ -391,8 +417,6 @@ void updateMeasurement(void)
         }
     }
 }
-
-// UI
 
 static void drawTitleWithTime(const char *title, uint32_t time)
 {
@@ -441,99 +465,29 @@ static void drawRateMax(float value)
     drawSubtitle(subtitleString);
 }
 
-void onMeasurementViewKey(KeyEvent keyEvent)
+void setMeasurementView(const struct View *view)
 {
-    switch (keyEvent)
-    {
-    case KEY_UP:
-        if (getView() == VIEW_INSTANTANEOUS_RATE)
-            setView(VIEW_HISTORY);
-        else
-            setView(getView() - 1);
-        break;
+    if (memcmp(&settings, &measurements.lastSettings, sizeof(struct Settings)) != 0)
+        writeSettings();
 
-    case KEY_DOWN:
-        if (getView() == VIEW_HISTORY)
-            setView(VIEW_INSTANTANEOUS_RATE);
-        else
-            setView(getView() + 1);
-        break;
+    measurements.currentView = view;
+    measurements.lastSettings = settings;
 
-    case KEY_SELECT:
-        openSettingsMenu();
-        break;
-
-    case KEY_BACK_DELAYED:
-        switch (getView())
-        {
-        case VIEW_INSTANTANEOUS_RATE:
-            instantaneousRate.isHold = !instantaneousRate.isHold;
-            if (instantaneousRate.isHold)
-            {
-                instantaneousRate.holdTime = instantaneousRate.snapshotTime;
-                instantaneousRate.holdPulseCount = instantaneousRate.snapshotPulseCount;
-                instantaneousRate.holdValue = instantaneousRate.snapshotValue;
-            }
-            break;
-
-        case VIEW_AVERAGE_RATE:
-            averageRate.isHold = !averageRate.isHold;
-            if (averageRate.isHold)
-            {
-                averageRate.holdTime = averageRate.snapshotTime;
-                averageRate.holdPulseCount = averageRate.snapshotPulseCount;
-                averageRate.holdValue = averageRate.snapshotValue;
-            }
-            break;
-
-        case VIEW_DOSE:
-            dose.isHold = !dose.isHold;
-            if (dose.isHold)
-            {
-                dose.holdTime = dose.snapshotTime;
-                dose.holdPulseCount = dose.snapshotPulseCount;
-            }
-            break;
-        }
-
-        updateView();
-        break;
-
-    case KEY_RESET:
-        onMeasurementViewKey(KEY_BACK);
-
-        switch (getView())
-        {
-        case VIEW_INSTANTANEOUS_RATE:
-            resetInstantaneousRate();
-            break;
-
-        case VIEW_AVERAGE_RATE:
-            resetAverageRate();
-            break;
-
-        case VIEW_DOSE:
-            resetDose();
-            break;
-
-        case VIEW_HISTORY:
-            resetHistory();
-            break;
-        }
-
-        updateView();
-        break;
-    }
+    setView(view);
 }
 
-// Instantaneous rate
+const struct View *getMeasurementView(void)
+{
+    return measurements.currentView;
+}
+
+// Instantaneous rate view
 
 static void resetInstantaneousRate(void)
 {
     instantaneousRate.tick = 0;
     for (uint32_t i = 0; i < INTERVAL_STATS_NUM; i++)
         resetIntervalStats(&instantaneousRate.intervalStats[i]);
-
     instantaneousRate.pulseQueue.count = 0;
     instantaneousRate.pulseQueue.index = 0;
     for (uint32_t i = 0; i < PULSE_QUEUE_LENGTH; i++)
@@ -545,9 +499,6 @@ static void resetInstantaneousRate(void)
     instantaneousRate.snapshotMaxValue = 0;
 
     instantaneousRate.isHold = false;
-    instantaneousRate.holdPulseCount = 0;
-    instantaneousRate.holdValue = 0;
-    instantaneousRate.holdTime = 0;
 }
 
 static bool isInstantaneousRateAlarm(void)
@@ -559,7 +510,7 @@ static bool isInstantaneousRateAlarm(void)
     return rateSvH >= rateAlarmsSvH[settings.rateAlarm];
 }
 
-void drawInstantaneousRateView(void)
+static void onInstantaneousRateDraw(const struct View *view)
 {
     uint32_t time;
     uint32_t pulseCount;
@@ -591,7 +542,54 @@ void drawInstantaneousRateView(void)
         drawRateMax(instantaneousRate.snapshotMaxValue);
 }
 
-// Average rate
+static void onInstantaneousRateKey(const struct View *view, KeyEvent keyEvent)
+{
+    switch (keyEvent)
+    {
+    case KEY_EVENT_UP:
+        setMeasurementView(&historyView);
+
+        break;
+
+    case KEY_EVENT_DOWN:
+        setMeasurementView(&averageRateView);
+
+        break;
+
+    case KEY_EVENT_ENTER:
+        setView(&settingsMenuView);
+
+        break;
+
+    case KEY_EVENT_BACK:
+        instantaneousRate.isHold = !instantaneousRate.isHold;
+        if (instantaneousRate.isHold)
+        {
+            instantaneousRate.holdTime = instantaneousRate.snapshotTime;
+            instantaneousRate.holdPulseCount = instantaneousRate.snapshotPulseCount;
+            instantaneousRate.holdValue = instantaneousRate.snapshotValue;
+        }
+
+        refreshView();
+
+        break;
+
+    case KEY_EVENT_RESET:
+        resetInstantaneousRate();
+
+        refreshView();
+
+        break;
+    }
+}
+
+const struct View instantaneousRateView = {
+    onInstantaneousRateDraw,
+    onInstantaneousRateKey,
+    NULL,
+};
+
+// Average rate view
 
 void resetAverageRate(void)
 {
@@ -603,9 +601,11 @@ void resetAverageRate(void)
     averageRate.snapshotTime = 0;
     averageRate.snapshotPulseCount = 0;
     averageRate.snapshotValue = 0;
+
+    averageRate.isHold = false;
 }
 
-void drawAverageRateView(void)
+static void onAverageRateDraw(const struct View *view)
 {
     uint32_t time;
     uint32_t pulseCount;
@@ -636,11 +636,58 @@ void drawAverageRateView(void)
         drawSubtitle("OVERLOAD");
 }
 
-// Dose
+static void onAverageRateKey(const struct View *view, KeyEvent keyEvent)
+{
+    switch (keyEvent)
+    {
+    case KEY_EVENT_UP:
+        setMeasurementView(&instantaneousRateView);
+
+        break;
+
+    case KEY_EVENT_DOWN:
+        setMeasurementView(&doseView);
+
+        break;
+
+    case KEY_EVENT_ENTER:
+        setView(&settingsMenuView);
+
+        break;
+
+    case KEY_EVENT_BACK:
+        averageRate.isHold = !averageRate.isHold;
+        if (averageRate.isHold)
+        {
+            averageRate.holdTime = averageRate.snapshotTime;
+            averageRate.holdPulseCount = averageRate.snapshotPulseCount;
+            averageRate.holdValue = averageRate.snapshotValue;
+        }
+
+        refreshView();
+
+        break;
+
+    case KEY_EVENT_RESET:
+        resetAverageRate();
+
+        refreshView();
+
+        break;
+    }
+}
+
+const struct View averageRateView = {
+    onAverageRateDraw,
+    onAverageRateKey,
+    NULL,
+};
+
+// Dose view
 
 void setDose(uint32_t time, uint32_t pulseCount)
 {
-    syncThreads();
+    syncTimerThread();
 
     dose.pulseCount = pulseCount;
 
@@ -650,7 +697,7 @@ void setDose(uint32_t time, uint32_t pulseCount)
 
 void getDose(uint32_t *time, uint32_t *pulseCount)
 {
-    syncThreads();
+    syncTimerThread();
 
     *time = dose.snapshotTime;
     *pulseCount = dose.snapshotPulseCount;
@@ -659,6 +706,8 @@ void getDose(uint32_t *time, uint32_t *pulseCount)
 static void resetDose(void)
 {
     setDose(0, 0);
+
+    dose.isHold = false;
 }
 
 static bool isDoseAlarm(void)
@@ -670,7 +719,7 @@ static bool isDoseAlarm(void)
     return doseSv >= doseAlarmsSv[settings.doseAlarm];
 }
 
-void drawDoseView(void)
+static void onDoseViewDraw(const struct View *view)
 {
     uint32_t time;
     uint32_t pulseCount;
@@ -698,13 +747,59 @@ void drawDoseView(void)
         drawSubtitle("DOSE ALARM");
 }
 
-// History
+static void onDoseViewKey(const struct View *view, KeyEvent keyEvent)
+{
+    switch (keyEvent)
+    {
+    case KEY_EVENT_UP:
+        setMeasurementView(&averageRateView);
+
+        break;
+
+    case KEY_EVENT_DOWN:
+        setMeasurementView(&historyView);
+
+        break;
+
+    case KEY_EVENT_ENTER:
+        setView(&settingsMenuView);
+
+        break;
+
+    case KEY_EVENT_BACK:
+        dose.isHold = !dose.isHold;
+        if (dose.isHold)
+        {
+            dose.holdTime = dose.snapshotTime;
+            dose.holdPulseCount = dose.snapshotPulseCount;
+        }
+
+        refreshView();
+
+        break;
+
+    case KEY_EVENT_RESET:
+        resetDose();
+
+        refreshView();
+
+        break;
+    }
+}
+
+const struct View doseView = {
+    onDoseViewDraw,
+    onDoseViewKey,
+    NULL,
+};
+
+// History view
 
 static void resetHistory(void)
 {
     for (uint32_t i = 0; i < HISTORY_NUM; i++)
     {
-        HistoryState *historyState = &historyStates[i];
+        struct HistoryState *historyState = &historyStates[i];
 
         historyState->sampleSum = 0;
         historyState->sampleNum = 0;
@@ -719,7 +814,7 @@ static void resetHistory(void)
 
 uint8_t getHistoryDataPoint(uint32_t dataIndex)
 {
-    HistoryState *historyState = &historyStates[settings.history];
+    struct HistoryState *historyState = &historyStates[settings.history];
 
     uint32_t bufferIndex =
         (HISTORY_BUFFER_SIZE + (historyState->bufferIndex - 1) - dataIndex) % HISTORY_BUFFER_SIZE;
@@ -732,10 +827,10 @@ static const char *getHistoryName(uint32_t historyIndex)
     return histories[historyIndex].name;
 }
 
-void drawHistoryView(void)
+static void onHistoryViewDraw(const struct View *view)
 {
     // Initialization
-    Unit *unit = &units[settings.units].rate;
+    struct Unit *unit = &units[settings.units].rate;
 
     char labelMin[16] = "";
     char labelMax[16] = "";
@@ -777,3 +872,277 @@ void drawHistoryView(void)
 
     drawHistory(labelMin, labelMax, offset, range);
 }
+
+static void onHistoryViewKey(const struct View *view, KeyEvent keyEvent)
+{
+    switch (keyEvent)
+    {
+    case KEY_EVENT_UP:
+        setMeasurementView(&doseView);
+
+        break;
+
+    case KEY_EVENT_DOWN:
+        setMeasurementView(&instantaneousRateView);
+
+        break;
+
+    case KEY_EVENT_ENTER:
+        setView(&settingsMenuView);
+
+        break;
+
+    case KEY_EVENT_RESET:
+        resetHistory();
+
+        refreshView();
+
+        break;
+    }
+}
+
+const struct View historyView = {
+    onHistoryViewDraw,
+    onHistoryViewKey,
+    NULL,
+};
+
+// Units menu
+
+static void onUnitsMenuSelect(const struct Menu *menu)
+{
+    settings.units = menu->state->selectedIndex;
+}
+
+static const char *const unitsMenuOptions[] = {
+    "Sievert",
+    "rem",
+    "cpm",
+    "cps",
+    NULL,
+};
+
+static struct MenuState unitsMenuState;
+
+static const struct Menu unitsMenu = {
+    "Units",
+    &unitsMenuState,
+    onMenuGetOption,
+    unitsMenuOptions,
+    onUnitsMenuSelect,
+    NULL,
+    onSettingsSubMenuBack,
+};
+
+const struct View unitsMenuView = {
+    onMenuViewDraw,
+    onMenuViewKey,
+    &unitsMenu,
+};
+
+// History menu
+
+static void onHistoryMenuSelect(const struct Menu *menu)
+{
+    settings.history = menu->state->selectedIndex;
+}
+
+static const char *const historyMenuOptions[] = {
+    "2 minutes",
+    "10 minutes",
+    "1 hour",
+    "6 hours",
+    "24 hours",
+    NULL,
+};
+
+static struct MenuState historyMenuState;
+
+static const struct Menu historyMenu = {
+    "History",
+    &historyMenuState,
+    onMenuGetOption,
+    historyMenuOptions,
+    onHistoryMenuSelect,
+    NULL,
+    onSettingsSubMenuBack,
+};
+
+const struct View historyMenuView = {
+    onMenuViewDraw,
+    onMenuViewKey,
+    &historyMenu,
+};
+
+// Rate alarm menu
+
+static void onRateAlarmMenuSelect(const struct Menu *menu)
+{
+    settings.rateAlarm = menu->state->selectedIndex;
+}
+
+static const char *onRateAlarmMenuGetOption(const struct Menu *menu, uint32_t index)
+{
+    if (!index)
+        return "Off";
+
+    if (index >= RATE_ALARM_NUM)
+        return NULL;
+
+    struct Unit *unit = &units[settings.units].rate;
+    float rate = rateAlarmsSvH[index] / units[UNITS_SIEVERTS].rate.scale;
+    formatValue(unit->name,
+                unit->scale * rate,
+                menuOption);
+
+    return menuOption;
+}
+
+static struct MenuState rateAlarmMenuState;
+
+static const struct Menu rateAlarmMenu = {
+    "Rate alarm",
+    &rateAlarmMenuState,
+    onRateAlarmMenuGetOption,
+    NULL,
+    onRateAlarmMenuSelect,
+    NULL,
+    onSettingsSubMenuBack,
+};
+
+const struct View rateAlarmMenuView = {
+    onMenuViewDraw,
+    onMenuViewKey,
+    &rateAlarmMenu,
+};
+
+// Dose alarm menu
+
+static void onDoseAlarmMenuSelect(const struct Menu *menu)
+{
+    settings.doseAlarm = menu->state->selectedIndex;
+}
+
+static const char *onDoseAlarmMenuGetOption(const struct Menu *menu, uint32_t index)
+{
+    if (!index)
+        return "Off";
+
+    if (index >= DOSE_ALARM_NUM)
+        return NULL;
+
+    struct Unit *unit = &units[settings.units].dose;
+    float doseValue = doseAlarmsSv[index] / units[UNITS_SIEVERTS].dose.scale;
+    formatValue(unit->name,
+                unit->scale * doseValue,
+                menuOption);
+
+    return menuOption;
+}
+
+static struct MenuState doseAlarmMenuState;
+
+static const struct Menu doseAlarmMenu = {
+    "Dose alarm",
+    &doseAlarmMenuState,
+    onDoseAlarmMenuGetOption,
+    NULL,
+    onDoseAlarmMenuSelect,
+    NULL,
+    onSettingsSubMenuBack,
+};
+
+const struct View doseAlarmMenuView = {
+    onMenuViewDraw,
+    onMenuViewKey,
+    &doseAlarmMenu,
+};
+
+// Custom tube menu
+
+static void onCustomTubeMenuSelect(const struct Menu *menu)
+{
+    settings.conversionFactor = menu->state->selectedIndex;
+
+    updateTubeType();
+}
+
+static void onTubeTypeSubMenuBack(const struct Menu *menu)
+{
+    setView(&tubeTypeMenuView);
+}
+
+static const char *onCustomTubeMenuGetOption(const struct Menu *menu, uint32_t index)
+{
+    if (index >= CONVERSION_FACTOR_STEPS)
+        return NULL;
+
+    uint32_t value = (uint32_t)(10.0F * getConversionFactor(index));
+
+    strcpy(menuOption, "");
+    strcatNumber(menuOption, value / 10, 0);
+    strcat(menuOption, ".");
+    strcatNumber(menuOption, value % 10, 0);
+    strcat(menuOption, " cpm/\xb5Sv/h");
+
+    return menuOption;
+}
+
+static struct MenuState customTubeMenuState;
+
+static const struct Menu customTubeMenu = {
+    "Custom conversion factor",
+    &customTubeMenuState,
+    onCustomTubeMenuGetOption,
+    NULL,
+    onCustomTubeMenuSelect,
+    NULL,
+    onTubeTypeSubMenuBack,
+};
+
+const struct View customTubeMenuView = {
+    onMenuViewDraw,
+    onMenuViewKey,
+    &customTubeMenu,
+};
+
+// Tube type menu
+
+static void onTubeTypeMenuSelect(const struct Menu *menu)
+{
+    settings.tubeType = menu->state->selectedIndex;
+
+    updateTubeType();
+}
+
+static void onTubeTypeMenuEnter(const struct Menu *menu)
+{
+    if (menu->state->selectedIndex == 3)
+        setView(&customTubeMenuView);
+}
+
+static const char *const tubeTypeMenuOptions[] = {
+    "J305 (123 cpm/\xb5Sv/h)",
+    "HH614 (68.4 cpm/\xb5Sv/h)",
+    "M4011 (153 cpm/\xb5Sv/h)",
+    "Custom conversion factor",
+    NULL,
+};
+
+static struct MenuState tubeTypeMenuState;
+
+static const struct Menu tubeTypeMenu = {
+    "Geiger tube type",
+    &tubeTypeMenuState,
+    onMenuGetOption,
+    tubeTypeMenuOptions,
+    onTubeTypeMenuSelect,
+    onTubeTypeMenuEnter,
+    onSettingsSubMenuBack,
+};
+
+const struct View tubeTypeMenuView = {
+    onMenuViewDraw,
+    onMenuViewKey,
+    &tubeTypeMenu,
+};

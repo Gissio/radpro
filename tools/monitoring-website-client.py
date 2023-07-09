@@ -27,7 +27,7 @@ radmon_data_sending_password = ''
 cpm_per_usv_h = 68.4    # For HH614 tube
 
 # Rad Pro variables
-dose = 0x20000418
+dose = 0x20000464
 
 # Local variables
 dose_time = dose + 1 * 4

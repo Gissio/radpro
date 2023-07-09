@@ -13,50 +13,51 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "keyboard.h"
 #include "settings.h"
+#include "view.h"
 
 #define HISTORY_BUFFER_SIZE 120
 #define HISTORY_CPS_MIN 0.01F
 #define HISTORY_VALUE_DECADE 40
 
-typedef struct
+struct Unit
 {
     char *const name;
     float scale;
     int8_t minExponent;
-} Unit;
+};
 
-typedef struct
+struct UnitType
 {
-    Unit rate;
-    Unit dose;
-} UnitType;
+    struct Unit rate;
+    struct Unit dose;
+};
 
-extern UnitType units[UNITS_NUM];
+extern struct UnitType units[UNITS_NUM];
 
-extern const float rateAlarmsSvH[];
-extern const float doseAlarmsSv[];
+extern const struct View instantaneousRateView;
+extern const struct View averageRateView;
+extern const struct View doseView;
+extern const struct View historyView;
 
-void initMeasurement(void);
+extern const struct View unitsMenuView;
+extern const struct View historyMenuView;
+extern const struct View rateAlarmMenuView;
+extern const struct View doseAlarmMenuView;
+extern const struct View tubeTypeMenuView;
 
-void updateUnits(void);
+void initMeasurements(void);
 
 void onMeasurementTick(uint32_t pulseCount);
 void onMeasurementOneSecond(void);
 void updateMeasurement(void);
 
-void drawInstantaneousRateView(void);
-
-void drawAverageRateView(void);
-
 void setDose(uint32_t time, uint32_t pulseCount);
 void getDose(uint32_t *time, uint32_t *pulseCount);
-void drawDoseView(void);
 
 uint8_t getHistoryDataPoint(uint32_t dataIndex);
-void drawHistoryView(void);
 
-void onMeasurementViewKey(KeyEvent keyEvent);
+void setMeasurementView(const struct View *view);
+const struct View *getMeasurementView(void);
 
 #endif

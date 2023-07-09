@@ -12,7 +12,7 @@ To install Rad Pro on your FS2011/FS9000/NR-950/YT-203B radiation meter/Geiger c
 
 ## Step 1: Open the device
 
-![FS2011 circuit board](img/fs2011-board.jpg)
+![FS2011 circuit board](img/fs2011-gd32-j305.jpg)
 
 Follow these steps to start installing Rad Pro:
 
@@ -65,7 +65,13 @@ Next, run this command in the terminal:
 
     st-flash write [firmware-filename] 0x08000000
 
-## Step 5: Optional mods
+## Setp 5: Configure your Geiger-Müller tube
+
+![FS2011 tube types](img/fs2011-tube-type.jpg)
+
+Last, go to Rad Pro's settings, select "Geiger tube type" and configure your tube. The photo above should help you identify your tube type.
+
+## Step 6: Optional mods
 
 * For easier access to XS1, use a file to extend the hole for the battery holder clip so that a 4-pin header connector can fit. Solder four cables approximately 15 cm long between XS1 and a 4-pin header. Using a glue gun, attach the header to the inside of the back case, so you can access the header with the battery case open.
 * For improved measurement, align the Geiger-Müller tube to the holes of the back case using a heat gun/glue gun if the tube is mounted vertically. Be careful, as the tube's glass is very delicate.
@@ -73,6 +79,6 @@ Next, run this command in the terminal:
 * To increase the buzzer's volume, drill a hole on the back case in front of the buzzer.
 * The device is able to charge Ni-MH batteries if you add a female USB port and connect its GND and +5V port to the 0V and 5V pad of the electronics board.
 
-## Step 6: Star the project
+## Step 7: Star the project
 
 If you like Rad Pro, [star the project](https://github.com/Gissio/radpro).

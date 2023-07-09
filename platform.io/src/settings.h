@@ -12,12 +12,24 @@
 
 #include <stdint.h>
 
+#include "menu.h"
+#include "view.h"
+
+#define CONVERSION_FACTOR_MIN 25.0F
+#define CONVERSION_FACTOR_MAX 400.01F
+#define CONVERSION_FACTOR_LOG_MAX_MIN 4.0F
+#define CONVERSION_FACTOR_STEPS 128
+
+extern const char *const firmwareName;
+extern const char *const firmwareVersion;
+
 enum UnitsSetting
 {
     UNITS_SIEVERTS,
     UNITS_REM,
     UNITS_CPM,
     UNITS_CPS,
+
     UNITS_NUM,
 };
 
@@ -32,6 +44,7 @@ enum RateAlarmSetting
     RATE_ALARM_20,
     RATE_ALARM_50,
     RATE_ALARM_100,
+
     RATE_ALARM_NUM,
 };
 
@@ -46,6 +59,7 @@ enum DoseAlarmSetting
     DOSE_ALARM_200,
     DOSE_ALARM_500,
     DOSE_ALARM_1000,
+
     DOSE_ALARM_NUM,
 };
 
@@ -57,14 +71,15 @@ enum HistorySetting
     HISTORY_6H,
     HISTORY_24H,
     HISTORY_LAST = HISTORY_24H,
+
     HISTORY_NUM,
 };
 
-enum PulseSoundSetting
+enum PulseClicksSetting
 {
-    PULSE_SOUND_OFF,
-    PULSE_SOUND_QUIET,
-    PULSE_SOUND_LOUD,
+    PULSE_CLICKS_OFF,
+    PULSE_CLICKS_QUIET,
+    PULSE_CLICKS_LOUD,
 };
 
 enum BacklightSetting
@@ -78,61 +93,82 @@ enum BacklightSetting
 
 enum BatteryTypeSetting
 {
-    BATTERY_NI_MH,
-    BATTERY_ALKALINE,
+    BATTERY_TYPE_NI_MH,
+    BATTERY_TYPE_ALKALINE,
 };
 
 enum TubeTypeSetting
 {
-    TUBE_HH614,
-    TUBE_M4011,
-    TUBE_SBM20,
-    TUBE_SI3BG,
+    TUBE_TYPE_M4011,
+    TUBE_TYPE_HH614,
+    TUBE_TYPE_J305,
+    TUBE_TYPE_CUSTOM,
+};
+
+enum DataLoggingSetting
+{
+    DATA_LOGGING_60M,
+    DATA_LOGGING_30M,
+    DATA_LOGGING_10M,
+    DATA_LOGGING_5M,
+    DATA_LOGGING_1M,
 };
 
 enum GameSkillLevelSetting
 {
-    GAME_SKILLLEVEL_1,
-    GAME_SKILLLEVEL_2,
-    GAME_SKILLLEVEL_3,
-    GAME_SKILLLEVEL_4,
-    GAME_SKILLLEVEL_5,
-    GAME_SKILLLEVEL_6,
-    GAME_SKILLLEVEL_7,
-    GAME_SKILLLEVEL_8,
-    GAME_SKILLLEVEL_NUM,
+    GAME_SKILL_LEVEL_1,
+    GAME_SKILL_LEVEL_2,
+    GAME_SKILL_LEVEL_3,
+    GAME_SKILL_LEVEL_4,
+    GAME_SKILL_LEVEL_5,
+    GAME_SKILL_LEVEL_6,
+    GAME_SKILL_LEVEL_7,
+    GAME_SKILL_LEVEL_8,
 };
 
-typedef struct
+struct Settings
 {
     unsigned int invalid : 1;
+
     unsigned int units : 2;
     unsigned int history : 3;
-    unsigned int rateAlarm : 5;
-    unsigned int doseAlarm : 5;
-    unsigned int pulseSound : 2;
+    unsigned int rateAlarm : 4;
+    unsigned int doseAlarm : 4;
+    unsigned int pulseClicks : 2;
     unsigned int backlight : 3;
     unsigned int batteryType : 1;
-    unsigned int tubeType : 4;
+    unsigned int tubeType : 2;
+    unsigned int conversionFactor : 7;
+    unsigned int dataLogging : 3;
     unsigned int gameSkillLevel : 3;
-} Settings;
+};
 
-typedef struct
+struct LifeState
 {
-    uint32_t lifeTime;
-    uint32_t lifePulseCount;
-    uint32_t doseTime;
-    uint32_t dosePulseCount;
-} State;
+    uint32_t time;
+    uint32_t pulseCount;
+};
 
-extern Settings settings;
-extern State state;
+struct DoseState
+{
+    uint32_t time;
+    uint32_t pulseCount;
+};
+
+extern struct Settings settings;
+extern struct LifeState lifeState;
+extern struct DoseState doseState;
+
+extern const struct View settingsMenuView;
 
 void initSettings(void);
 
-void setStateDose(uint32_t doseTime, uint32_t dosePulseCount);
+float getConversionFactor(uint32_t index);
 
 void writeSettings(void);
-void writeState(void);
+void writeLifeState(void);
+void writeDoseState(void);
+
+void onSettingsSubMenuBack(const struct Menu *menu);
 
 #endif

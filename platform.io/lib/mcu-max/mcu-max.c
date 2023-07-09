@@ -813,7 +813,7 @@ void mcumax_reset()
 
         // Setup weights (right side)
         for (int y = 0; y < 8; y++)
-            mcumax.board[16 * y + x + 8] = (x - 4) * (x - 4) + (int)((y - 3.5F) * (y - 3.5F));
+            mcumax.board[16 * y + x + 8] = (x - 4) * (x - 4) + (y - 4) * (y - 3);
     }
 
     mcumax.current_side = MCUMAX_WHITE;

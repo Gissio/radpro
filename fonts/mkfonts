@@ -1,5 +1,6 @@
 #!/bin/sh
-./bdfconv.exe -v -f 1 -m '32-126,181' font_tiny5.bdf -o ../platform.io/src/resources/font_tiny5.h -n font_tiny5
-./bdfconv.exe -v -f 1 -m '32-126,181' font_helvR08.bdf -o ../platform.io/src/resources/font_helvR08.h -n font_helvR08
-./bdfconv.exe -v -f 1 -m '45-57' font_helvR24.bdf -o ../platform.io/src/resources/font_helvR24.h -n font_helvR24
-./bdfconv.exe -v -f 1 -m '48-111' font_icons.bdf -o ../platform.io/src/resources/font_icons.h -n font_icons
+./bdfconv.exe -v -f 1 -m '32-126,181' font_tiny5.bdf -o ../platform.io/src/devices/common/font_tiny5.h -n font_tiny5
+./bdfconv.exe -v -f 1 -m '32-126,181' font_helvR08.bdf -o ../platform.io/src/devices/common/font_helvR08.h -n font_helvR08
+./bdfconv.exe -v -f 1 -m '45-57' font_helvR24.bdf -o ../platform.io/src/devices/common/font_helvR24.h -n font_helvR24
+./bdfconv.exe -v -f 1 -m '48-59' font_icons.bdf -o ../platform.io/src/devices/common/font_icons.h -n font_icons
+./bdfconv.exe -v -f 1 -m '64-111' font_chess.bdf -o ../platform.io/src/devices/common/font_chess.h -n font_chess

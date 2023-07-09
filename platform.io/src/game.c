@@ -14,8 +14,8 @@
 #include "display.h"
 #include "format.h"
 #include "game.h"
+#include "menu.h"
 #include "settings.h"
-#include "ui.h"
 
 #define GAME_HISTORY_SIZE 128
 #define GAME_VALID_MOVES_NUM_MAX 128
@@ -28,7 +28,7 @@ enum GameState
     GAME_UNDO_MOVE,
 };
 
-struct
+static struct
 {
     uint8_t playerIndex;
 
@@ -48,9 +48,9 @@ struct
     bool isButtonSelected;
 } game;
 
-const char *const gamePieceMap = "@AACFBDEHIIKNJLM";
+static const char *const gamePieceMap = "@AACFBDEHIIKNJLM";
 
-const uint32_t gameSkillToNodesCount[] = {
+static const uint32_t gameSkillToNodesCount[] = {
     250,
     500,
     1000,
@@ -61,7 +61,28 @@ const uint32_t gameSkillToNodesCount[] = {
     32000,
 };
 
-bool isGameStart(void)
+static const char *const gameSkillOptions[] = {
+    "Level 1",
+    "Level 2",
+    "Level 3",
+    "Level 4",
+    "Level 5",
+    "Level 6",
+    "Level 7",
+    "Level 8",
+    NULL,
+};
+
+static const struct Menu gameSkillMenu;
+static const struct Menu gameMenu;
+static const struct View gameView;
+
+void initGame(void)
+{
+    selectMenuIndex(&gameSkillMenu, settings.gameSkillLevel);
+}
+
+static bool isGameStart(void)
 {
     return ((game.moveIndex == 0) ||
             ((game.state == GAME_SELECT_FIRST_MOVE) &&
@@ -70,7 +91,7 @@ bool isGameStart(void)
 
 static bool isGameTimerRunning(void)
 {
-    return (getView() == VIEW_GAME) &&
+    return (getView() == &gameView) &&
            !((game.state == GAME_SELECT_FIRST_MOVE) &&
              (game.validMovesNum == 0));
 }
@@ -138,7 +159,7 @@ static void updateGameBoard(void)
 
 static void onGameCallback(void *userdata)
 {
-    updateUI();
+    updateView();
 }
 
 static void updateValidMoves(void)
@@ -154,7 +175,7 @@ static void updateValidMoves(void)
     game.state = GAME_SELECT_FIRST_MOVE;
 }
 
-void resetGame(uint8_t playerIndex)
+static void resetGame(uint32_t playerIndex)
 {
     mcumax_reset();
     mcumax_set_callback(onGameCallback, NULL);
@@ -193,7 +214,7 @@ void updateGame(void)
             game.move = (mcumax_move){MCUMAX_INVALID, MCUMAX_INVALID};
 
             updateGameBoard();
-            updateView();
+            refreshView();
         }
 
         if (!isGamePlayerMove())
@@ -210,7 +231,7 @@ void updateGame(void)
 
         updateValidMoves();
         updateGameBoard();
-        updateView();
+        refreshView();
 
         break;
 
@@ -219,7 +240,7 @@ void updateGame(void)
 
         updateValidMoves();
         updateGameBoard();
-        updateView();
+        refreshView();
 
         break;
 
@@ -248,49 +269,6 @@ static void formatGameMove(mcumax_move move, char *buffer)
     buffer[3] = 'a' + (move.to & 0x7);
     buffer[4] = '1' + 7 - ((move.to & 0x70) >> 4);
     buffer[5] = '\0';
-}
-
-void drawGameView(void)
-{
-    // Time
-    char time[2][6];
-    time[0][0] = '\0';
-    strcatTime(time[0], game.time[!game.playerIndex]);
-    time[1][0] = '\0';
-    strcatTime(time[1], game.time[game.playerIndex]);
-
-    // Moves
-    int32_t start = ((game.moveIndex + 1) & ~0x1) - 2 * GAME_MOVES_LINE_NUM;
-    if (start < 0)
-        start = 0;
-
-    char moves[GAME_MOVES_LINE_NUM][2][6];
-
-    for (uint32_t y = 0; y < GAME_MOVES_LINE_NUM; y++)
-    {
-        for (uint32_t x = 0; x < 2; x++)
-        {
-            int32_t index = start + 2 * y + x;
-
-            if ((index < game.moveIndex) &&
-                (index < GAME_HISTORY_SIZE) &&
-                game.history[index].from != MCUMAX_INVALID)
-                formatGameMove(game.history[index], moves[y][x]);
-            else
-                moves[y][x][0] = '\0';
-        }
-    }
-
-    char *buttonText;
-    if (isGameUndoPossible() ||
-        (game.state == GAME_SELECT_SECOND_MOVE))
-        buttonText = "Undo";
-    else
-        buttonText = NULL;
-
-    bool buttonSelected = game.isButtonSelected;
-
-    drawGameBoard(game.board, time, moves, buttonText, buttonSelected);
 }
 
 static void traverseGameMoveTo(int32_t direction)
@@ -407,11 +385,56 @@ static void setGameMoveFrom(void)
     game.move.to = MCUMAX_INVALID;
 }
 
-void onGameViewKey(KeyEvent keyEvent)
+// Game view
+
+static void onGameViewDraw(const struct View *view)
+{
+    // Time
+    char time[2][6];
+    time[0][0] = '\0';
+    strcatTime(time[0], game.time[!game.playerIndex]);
+    time[1][0] = '\0';
+    strcatTime(time[1], game.time[game.playerIndex]);
+
+    // Moves
+    int32_t start = ((game.moveIndex + 1) & ~0x1) - 2 * GAME_MOVES_LINE_NUM;
+    if (start < 0)
+        start = 0;
+
+    char moves[GAME_MOVES_LINE_NUM][2][6];
+
+    for (uint32_t y = 0; y < GAME_MOVES_LINE_NUM; y++)
+    {
+        for (uint32_t x = 0; x < 2; x++)
+        {
+            int32_t index = start + 2 * y + x;
+
+            if ((index < game.moveIndex) &&
+                (index < GAME_HISTORY_SIZE) &&
+                game.history[index].from != MCUMAX_INVALID)
+                formatGameMove(game.history[index], moves[y][x]);
+            else
+                moves[y][x][0] = '\0';
+        }
+    }
+
+    char *buttonText;
+    if (isGameUndoPossible() ||
+        (game.state == GAME_SELECT_SECOND_MOVE))
+        buttonText = "Undo";
+    else
+        buttonText = NULL;
+
+    bool buttonSelected = game.isButtonSelected;
+
+    drawGameBoard(game.board, time, moves, buttonText, buttonSelected);
+}
+
+static void onGameViewKey(const struct View *view, KeyEvent keyEvent)
 {
     switch (keyEvent)
     {
-    case KEY_UP:
+    case KEY_EVENT_UP:
         if (game.state == GAME_SELECT_FIRST_MOVE)
         {
             if (game.move.to != MCUMAX_INVALID)
@@ -420,19 +443,19 @@ void onGameViewKey(KeyEvent keyEvent)
                 selectGameMoveFrom(-1);
 
             updateGameBoard();
-            updateView();
+            refreshView();
         }
         else if (game.state == GAME_SELECT_SECOND_MOVE)
         {
             selectGameMoveTo(-1);
 
             updateGameBoard();
-            updateView();
+            refreshView();
         }
 
         break;
 
-    case KEY_DOWN:
+    case KEY_EVENT_DOWN:
         if (game.state == GAME_SELECT_FIRST_MOVE)
         {
             if (game.move.to != MCUMAX_INVALID)
@@ -441,19 +464,19 @@ void onGameViewKey(KeyEvent keyEvent)
                 selectGameMoveFrom(1);
 
             updateGameBoard();
-            updateView();
+            refreshView();
         }
         else if (game.state == GAME_SELECT_SECOND_MOVE)
         {
             selectGameMoveTo(1);
 
             updateGameBoard();
-            updateView();
+            refreshView();
         }
 
         break;
 
-    case KEY_SELECT:
+    case KEY_EVENT_ENTER:
         if (isGamePlayerMove())
         {
             if (game.isButtonSelected)
@@ -478,7 +501,7 @@ void onGameViewKey(KeyEvent keyEvent)
                 }
 
                 updateGameBoard();
-                updateView();
+                refreshView();
             }
             else if (game.state == GAME_SELECT_SECOND_MOVE)
             {
@@ -486,13 +509,127 @@ void onGameViewKey(KeyEvent keyEvent)
                 game.isButtonSelected = true;
             }
         }
+
         break;
 
-    case KEY_BACK:
+    case KEY_EVENT_BACK:
         mcumax_stop_search();
 
-        openGameMenu();
+        setView(&gameMenuView);
+    }
+}
+
+static const struct View gameView = {
+    onGameViewDraw,
+    onGameViewKey,
+    NULL,
+};
+
+// Game skill menu
+
+static void onGameSkillMenuSelect(const struct Menu *menu)
+{
+    settings.gameSkillLevel = menu->state->selectedIndex;
+}
+
+static void onGameSkillMenuBack(const struct Menu *menu)
+{
+    setView(&gameMenuView);
+}
+
+static struct MenuState gameSkillMenuState;
+
+static const struct Menu gameSkillMenu = {
+    "Skill level",
+    &gameSkillMenuState,
+    onMenuGetOption,
+    gameSkillOptions,
+    onGameSkillMenuSelect,
+    NULL,
+    onGameSkillMenuBack,
+};
+
+static const struct View gameSkillMenuView = {
+    onMenuViewDraw,
+    onMenuViewKey,
+    &gameSkillMenu,
+};
+
+// Game menu
+
+static void onGameMenuEnter(const struct Menu *menu)
+{
+    switch (menu->state->selectedIndex)
+    {
+    case 0:
+        if (isGameStart())
+            resetGame(0);
+
+        setView(&gameView);
+
+        break;
+
+    case 1:
+        selectMenuIndex(&gameMenu, 0);
+
+        if (isGameStart())
+        {
+            resetGame(1);
+
+            setView(&gameView);
+        }
+        else
+        {
+            resetGame(0);
+
+            setView(&gameMenuView);
+        }
+
+        break;
+
+    case 2:
+        setView(&gameSkillMenuView);
 
         break;
     }
 }
+
+static const char *const gameStartMenuOptions[] = {
+    "Play white",
+    "Play black",
+    "Skill level",
+    NULL,
+};
+
+static const char *const gameContinueMenuOptions[] = {
+    "Continue game",
+    "New game",
+    "Skill level",
+    NULL,
+};
+
+static const char *onGameMenuGetOption(const struct Menu *menu, uint32_t index)
+{
+    if (isGameStart())
+        return gameStartMenuOptions[index];
+    else
+        return gameContinueMenuOptions[index];
+}
+
+static struct MenuState gameMenuState;
+
+static const struct Menu gameMenu = {
+    "Game",
+    &gameMenuState,
+    onGameMenuGetOption,
+    NULL,
+    NULL,
+    onGameMenuEnter,
+    onSettingsSubMenuBack,
+};
+
+const struct View gameMenuView = {
+    onMenuViewDraw,
+    onMenuViewKey,
+    &gameMenu,
+};

@@ -10,17 +10,54 @@
 #include <string.h>
 
 #include "display.h"
+#include "menu.h"
 #include "rng.h"
-#include "ui.h"
+#include "settings.h"
 
-#define RNG_BITQUEUE_SIZE 512
+#define RNG_BITQUEUE_SIZE 128
 #define RNG_BITQUEUE_MASK (RNG_BITQUEUE_SIZE - 1)
 #define RNG_BITQUEUE_MAX (RNG_BITQUEUE_MASK - 1)
 #define RNG_BITQUEUE_BYTENUM (RNG_BITQUEUE_SIZE >> 3)
 
 #define RNG_TEXT_SIZE 16
 
-struct
+enum RNGMode
+{
+    RNG_MODE_ALPHANUMERIC,
+    RNG_MODE_FULL_ASCII,
+    RNG_MODE_HEXADECIMAL,
+    RNG_MODE_DECIMAL,
+    RNG_MODE_COIN_TOSS,
+    RNG_MODE_4SIDED_DICE,
+    RNG_MODE_6SIDED_DICE,
+    RNG_MODE_8SIDED_DICE,
+    RNG_MODE_12SIDED_DICE,
+    RNG_MODE_20SIDED_DICE,
+};
+
+static const uint8_t rngModeRanges[] = {62, 94, 16, 10, 2, 4, 6, 8, 12, 20};
+
+static const char *const rngModeMenuOptions[] = {
+    "Letters & numbers",
+    "Full ASCII",
+    "Hexadecimal",
+    "Decimal",
+    "Coin toss",
+    "4-sided dice",
+    "6-sided dice",
+    "8-sided dice",
+    "12-sided dice",
+    "20-sided dice",
+    NULL,
+};
+
+static const char *const rngActivitySubtitles[] = {
+    ".",
+    "..",
+    "...",
+};
+
+static struct
 {
     volatile uint32_t bitQueueHead;
     volatile uint32_t bitQueueTail;
@@ -40,25 +77,7 @@ struct
     uint8_t activityIndicator;
 } rng;
 
-const uint8_t rngModeRanges[] = {62, 94, 16, 10, 2, 6, 4, 8, 12, 20};
-const char *const rngModeTitles[] = {
-    "Letters & numbers",
-    "Full ASCII",
-    "Hexadecimal",
-    "Decimal",
-    "Coin toss",
-    "6-sided dice",
-    "4-sided dice",
-    "8-sided dice",
-    "12-sided dice",
-    "20-sided dice",
-};
-
-const char *const rngActivitySubtitles[] = {
-    ".",
-    "..",
-    "...",
-};
+extern const struct View rngView;
 
 static void enqueueBit(bool bit)
 {
@@ -117,6 +136,7 @@ void onRNGPulse(uint32_t pulseTime)
         if (pulseInterval1 == pulseInterval2)
         {
             rng.pulseTime1 = rng.pulseTime2;
+
             break;
         }
 
@@ -132,12 +152,14 @@ void onRNGPulse(uint32_t pulseTime)
         // Prepare next cycle
         rng.pulseIndex = 1;
         rng.pulseTime1 = pulseTime;
+
         break;
     }
     }
 }
 
 // Fast Dice Roller algorithm: https://arxiv.org/abs/1304.1916
+
 static int32_t getRNGInt(void)
 {
     while (true)
@@ -167,7 +189,7 @@ static int32_t getRNGInt(void)
     }
 }
 
-void resetRNG(enum RNGMode mode)
+static void resetRNG(enum RNGMode mode)
 {
     rng.mode = mode;
     rng.fdrN = rngModeRanges[mode];
@@ -212,22 +234,26 @@ static void updateRNGText(void)
         case RNG_MODE_DECIMAL:
         case RNG_MODE_COIN_TOSS:
             c = getRNGChar(digit);
+
             break;
 
         case RNG_MODE_FULL_ASCII:
             c = '!' + digit;
+
             break;
 
-        case RNG_MODE_6SIDED_DICE:
         case RNG_MODE_4SIDED_DICE:
+        case RNG_MODE_6SIDED_DICE:
         case RNG_MODE_8SIDED_DICE:
         case RNG_MODE_12SIDED_DICE:
         case RNG_MODE_20SIDED_DICE:
             c = getRNGChar(digit + 1);
+
             break;
 
         default:
             c = '?';
+
             break;
         }
 
@@ -238,11 +264,40 @@ static void updateRNGText(void)
     }
 }
 
-void drawRNGView(void)
+// RNG menu
+
+static void onRNGMenuEnter(const struct Menu *menu)
+{
+    resetRNG(menu->state->selectedIndex);
+
+    setView(&rngView);
+}
+
+static struct MenuState rngMenuState;
+
+static const struct Menu rngMenu = {
+    "Random number generator",
+    &rngMenuState,
+    onMenuGetOption,
+    rngModeMenuOptions,
+    NULL,
+    onRNGMenuEnter,
+    onSettingsSubMenuBack,
+};
+
+const struct View rngMenuView = {
+    onMenuViewDraw,
+    onMenuViewKey,
+    &rngMenu,
+};
+
+// RNG view
+
+static void onRNGViewDraw(const struct View *view)
 {
     updateRNGText();
 
-    drawTitle(rngModeTitles[rng.mode]);
+    drawTitle(rngModeMenuOptions[rng.mode]);
 
     if (rng.activityIndicator)
     {
@@ -253,8 +308,14 @@ void drawRNGView(void)
     drawRNGText(rng.text);
 }
 
-void onRNGViewKey(KeyEvent keyEvent)
+static void onRNGViewKey(const struct View *view, KeyEvent keyEvent)
 {
-    if (keyEvent == KEY_BACK)
-        setView(VIEW_MENU);
+    if (keyEvent == KEY_EVENT_BACK)
+        setView(&rngMenuView);
 }
+
+const struct View rngView = {
+    onRNGViewDraw,
+    onRNGViewKey,
+    NULL,
+};

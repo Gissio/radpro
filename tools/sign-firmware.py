@@ -12,10 +12,10 @@ def getCRC(buffer, crc=0xffffffff):
 # Variables
 input_path = 'platform.io/.pio/build/fs2011/firmware.bin'
 output_dir = 'tools/'
-version = '1.2.2'
+version = '1.3.0'
 
 FLASH_SIZE = 0x10000
-FIRMWARE_SIZE = 0xc000 - 4
+FIRMWARE_SIZE = 0x9000 - 4
 
 firmware = None
 
