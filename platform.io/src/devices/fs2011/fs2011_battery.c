@@ -149,7 +149,7 @@ float getBatteryVoltage(void)
 
 bool isBatteryCharging(void)
 {
-    if (gpio_get(PWR_CHRG_PORT, PWR_CHRG_PIN))
+    if (!gpio_get(PWR_CHRG_PORT, PWR_CHRG_PIN))
         return true;
 
     if (battery.voltage < BATTERY_EXTERNAL_POWER_SUPPLY_VOLTAGE_THRESHOLD)
