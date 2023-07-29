@@ -27,12 +27,10 @@ radmon_data_sending_password = ''
 cpm_per_usv_h = 68.4    # For HH614 tube
 
 # Rad Pro variables
-dose = 0x20000464
+signature_address = 0x08007ff0
+data_address_ref = 0x08007ff8
 
 # Local variables
-dose_time = dose + 1 * 4
-dose_pulse_count = dose + 2 * 4
-
 dev = None
 
 snapshot_time = None
@@ -50,8 +48,15 @@ while True:
         if dev == None:
             dev = swd.Swd()
 
-        snapshot_time = dev.get_mem32(dose_time)
-        snapshot_count = dev.get_mem32(dose_pulse_count)
+            signature = dev.get_mem32(signature_address)
+            if signature != 0x50444152:
+                print("Abort: device invalid (signature mismatch)")
+                exit(0)
+            
+            data_address = dev.get_mem32(data_address_ref)
+
+        snapshot_time = dev.get_mem32(data_address + 0x00)
+        snapshot_count = dev.get_mem32(data_address + 0x04)
 
     except Exception as e:
         print()
@@ -69,8 +74,8 @@ while True:
             start_time = snapshot_time
             start_count = snapshot_count
 
-        delta_time = snapshot_time - start_time
-        delta_count = snapshot_count - start_count
+        delta_time = (snapshot_time - start_time) & 0xffff
+        delta_count = (snapshot_count - start_count) & 0xffff
 
         if delta_time > 60:
             start_time = snapshot_time

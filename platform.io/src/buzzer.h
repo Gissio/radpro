@@ -13,7 +13,10 @@
 #include <stdbool.h>
 
 void initBuzzer(void);
+
 void setBuzzer(bool value);
 bool getBuzzer(void);
+
+void playSystemAlert(void);
 
 #endif

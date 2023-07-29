@@ -2,15 +2,15 @@
 
 ## Command list
 
-0_  Set column address LSB
-1_  Set column address MSB
+0x  Set column address LSB x
+1x  Set column address MSB x
 
-2_  Select internal resistor ratio(Rb/Ra) mode (0 to 7) [3]
+2x  Select internal resistor ratio(Rb/Ra) mode (0 to 7) [3]
 2c  Power control: 100, enable internal voltage booster
 2e  Power control: 110, enable internal voltage regulator
 2f  Power control: 111, enable internal voltage follower
 
-4_  Specify DDRAM line for COM0
+4x  Specify DDRAM line x for COM0
 
 81  Set contrast + 00-3f contrast
 
@@ -27,7 +27,7 @@ ad  Set static indicator mode: on
 ae  Turn LCD display: off
 af  Turn LCD display: on
 
-b_  Set page address
+bx  Set page address x
 
 c0  COM output scan direction: normal direction
 c8  COM output scan direction: reverse direction

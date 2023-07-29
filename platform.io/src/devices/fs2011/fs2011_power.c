@@ -18,9 +18,11 @@
 void initPower(void)
 {
     // GPIO
-    rcc_periph_clock_enable(RCC_GPIOB);
-
+#ifdef STM32F0
     gpio_mode_setup(PWR_EN_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, PWR_EN_PIN);
+#elif STM32F1
+    gpio_set_mode(PWR_EN_PORT, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_PUSHPULL, PWR_EN_PIN);
+#endif
 
     setPower(true);
 }

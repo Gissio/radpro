@@ -25,9 +25,9 @@ extern const struct View dataLoggingMenuView;
 
 void initEvents(void);
 void initEventsHardware(void);
-void initEventsSettings(void);
+void updateEventsMenus(void);
 
-void enableMeasurement(bool value);
+void enableMeasurements(bool value);
 
 void onTick(void);
 void sleep(uint32_t value);
@@ -37,13 +37,13 @@ void setBacklightTimer(int32_t value);
 void triggerBacklight(void);
 void stopBacklightTimer(void);
 
-void playSystemAlert(void);
 void setBuzzerTimer(int32_t value);
 void stopBuzzerTimer(void);
 
 void startKeyboardTimer(void);
 
-void resetDataLoggingTimer(void);
+void resetDataLogging(void);
+void writeDataLogEntry(void);
 
 void updateEvents(void);
 

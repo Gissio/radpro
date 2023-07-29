@@ -17,15 +17,14 @@
 #include "game.h"
 #include "measurements.h"
 #include "rng.h"
+#include "rtc.h"
 #include "settings.h"
 #include "stats.h"
 
 const char *const firmwareName = "Rad Pro";
-const char *const firmwareVersion = "1.3.0";
+const char *const firmwareVersion = "1.3.1beta2";
 
 struct Settings settings;
-struct LifeState lifeState;
-struct DoseState doseState;
 
 void initSettings(void)
 {
@@ -40,17 +39,7 @@ void initSettings(void)
     if (address)
         settings = *(struct Settings *)getFlashMemory(address);
 
-    address = getLastEntry(flashLifeStateStart, flashLifeStateEnd, sizeof(struct LifeState));
-    if (address)
-        lifeState = *(struct LifeState *)getFlashMemory(address);
-
-    address = getLastEntry(flashDoseStateStart, flashDoseStateEnd, sizeof(struct DoseState));
-    if (address)
-        doseState = *(struct DoseState *)getFlashMemory(address);
-
-    resetDataLoggingTimer();
-
-    setDose(doseState.time, doseState.pulseCount);
+    setDose(settings.doseTime, settings.dosePulseCount);
 }
 
 float getConversionFactor(uint32_t index)
@@ -64,19 +53,9 @@ float getConversionFactor(uint32_t index)
 
 void writeSettings(void)
 {
+    getDose(&settings.doseTime, &settings.dosePulseCount);
+
     flashEntry(flashSettingsStart, flashSettingsEnd, sizeof(struct Settings), (uint32_t *)&settings);
-}
-
-void writeLifeState(void)
-{
-    flashEntry(flashLifeStateStart, flashLifeStateEnd, sizeof(struct LifeState), (uint32_t *)&lifeState);
-}
-
-void writeDoseState(void)
-{
-    getDose(&doseState.time, &doseState.pulseCount);
-
-    flashEntry(flashDoseStateStart, flashDoseStateEnd, sizeof(struct DoseState), (uint32_t *)&doseState);
 }
 
 // Settings Menu
@@ -88,6 +67,7 @@ const char *const settingsMenuOptions[] = {
     "Dose alarm",
     "Pulse clicks",
     "Backlight",
+    "Date and time",
     "Battery type",
     "Geiger tube type",
     "Data logging",
@@ -104,6 +84,7 @@ const struct View *settingsMenuOptionViews[] = {
     &doseAlarmMenuView,
     &pulseClicksMenuView,
     &backlightMenuView,
+    &dateAndTimeMenuView,
     &batteryTypeMenuView,
     &tubeTypeMenuView,
     &dataLoggingMenuView,

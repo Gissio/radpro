@@ -49,8 +49,8 @@ extern const struct View tubeTypeMenuView;
 void initMeasurements(void);
 
 void onMeasurementTick(uint32_t pulseCount);
-void onMeasurementOneSecond(void);
-void updateMeasurement(void);
+void onMeasurementsOneSecond(void);
+void updateMeasurements(void);
 
 void setDose(uint32_t time, uint32_t pulseCount);
 void getDose(uint32_t *time, uint32_t *pulseCount);

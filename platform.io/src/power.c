@@ -17,13 +17,14 @@
 
 void powerOff(void)
 {
-    writeLifeState();
-    writeDoseState();
+    writeDataLogEntry();
+    writeSettings();
 
     // Disable devices
-    enableMeasurement(false);
+    enableMeasurements(false);
     stopBacklightTimer();
     stopBuzzerTimer();
+
     setDisplay(false);
     setPower(false);
 
@@ -34,13 +35,19 @@ void powerOff(void)
     setPower(true);
     setDisplay(true);
     triggerBacklight();
-    enableMeasurement(true);
+    enableMeasurements(true);
+
+    writeDataLogEntry();
 
     refreshView();
 }
 
 void powerOffLowBattery(void)
 {
+    enableMeasurements(false);
+    stopBacklightTimer();
+    stopBuzzerTimer();
+
     clearDisplayBuffer();
     drawLowBattery();
     sendDisplayBuffer();

@@ -6,6 +6,7 @@
 * Overflow and overload alerts.
 * Configurable pulse click sounds: off, quiet, loud.
 * Configurable backlight: off, on for 10 seconds, on for 60 seconds, pulse flashes or always on.
+* Real-time clock for data logging.
 * Configurable battery type selection for accurate battery level monitoring.
 * Support for multiple Geiger-Müller tubes with customizable conversion factor.
 * Life statistics to track usage and performance of the device.
@@ -57,7 +58,7 @@ The history is calculated from the instantaneous rate, sampled once per second.
 
 The random number generator produces one bit for every two new pulses by comparing the interval between them with a precision of 125 ns. The bit is discarded if the intervals are the same length. To prevent bias, every second bit is flipped. The generator stores entropy in a 128-bit buffer.
 
-Random symbols are generated from the bits using the [Fast Dice Roller](https://arxiv.org/abs/1304.1916) algorithm. "Letters & numbers" consumes approximately 6 bits per symbol, "Full ASCII" consumes 7 bits, "20-sided dice" and "12-sided dice" consumes 5 bits, "Hexadecimal", "Decimal" consumes 4 bits, "8-sided dice" and "6-sided dice" consumes 3 bits, "4-sided dice" consumes 2 bits, and "Coin flip" consumes 1 bit.
+Random symbols are generated from the bits using the [Fast Dice Roller](https://arxiv.org/abs/1304.1916) algorithm. "Letters & numbers" consumes approximately 6 bits per symbol, "Full ASCII" consumes 7 bits, "20-sided dice" consumes 5 bits, "Hexadecimal", "Decimal" and "12-sided dice" consumes 4 bits, "8-sided dice" and "6-sided dice" consumes 3 bits, "4-sided dice" consumes 2 bits, and "Coin flip" consumes 1 bit.
 
 To generate bits more quickly, use a radioactive source.
 
@@ -65,7 +66,7 @@ To generate bits more quickly, use a radioactive source.
 
 To log data using Rad Pro, simply select a data logging interval in the settings. The data will be automatically stored.
 
-On the FS2011, Rad Pro can store up to 3072 data points. This allows for 2 days of data at 1-minute intervals, 10 days at 5-minute intervals, 21 days at 10-minute intervals, 64 days at 30-minute intervals, and 128 days at 60-minute intervals.
+On the FS2011, Rad Pro can store up to 3840 data points. This allows for 2.5 days of data at 1-minute intervals, 13 days at 5-minute intervals, 26 days at 10-minute intervals, 80 days at 30-minute intervals, and 160 days at 60-minute intervals.
 
 To download the data from your device, follow these steps:
 

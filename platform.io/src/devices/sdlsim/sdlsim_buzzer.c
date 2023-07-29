@@ -9,9 +9,12 @@
 
 #ifdef SDLSIM
 
+#include <stdio.h>
+
 #include "../../buzzer.h"
 
-static struct {
+static struct
+{
     bool value;
 } buzzer;
 

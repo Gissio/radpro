@@ -29,24 +29,28 @@ static uint8_t onDisplayGPIO(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *a
 void initDisplay(void)
 {
     // LCD data & control
-    rcc_periph_clock_enable(RCC_GPIOA);
-    rcc_periph_clock_enable(RCC_GPIOB);
-    rcc_periph_clock_enable(RCC_GPIOF);
-
+#ifdef STM32F0
     gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,
                     LCD_D0_PIN | LCD_D1_PIN | LCD_D2_PIN | LCD_D3_PIN | LCD_D4_PIN | LCD_D7_PIN);
     gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH,
                             LCD_D0_PIN | LCD_D1_PIN | LCD_D2_PIN | LCD_D3_PIN | LCD_D4_PIN | LCD_D7_PIN);
 
     gpio_mode_setup(GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,
-                    LCD_RESET_PIN | LCD_EN_PIN | LCD_RS_PIN | LCD_RW_PIN | LCD_BACKLIGHT_PIN);
+                    LCD_BACKLIGHT_PIN | LCD_RESET_PIN | LCD_RS_PIN | LCD_RW_PIN | LCD_EN_PIN);
     gpio_set_output_options(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH,
-                            LCD_RESET_PIN | LCD_EN_PIN | LCD_RS_PIN | LCD_RW_PIN | LCD_BACKLIGHT_PIN);
+                            LCD_BACKLIGHT_PIN | LCD_RESET_PIN | LCD_RS_PIN | LCD_RW_PIN | LCD_EN_PIN);
 
     gpio_mode_setup(GPIOF, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,
                     LCD_D5_PIN | LCD_D6_PIN);
     gpio_set_output_options(GPIOF, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH,
                             LCD_D5_PIN | LCD_D6_PIN);
+#elif STM32F1
+    gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL,
+                  LCD_D0_PIN | LCD_D1_PIN | LCD_D2_PIN | LCD_D3_PIN | LCD_D4_PIN | LCD_D7_PIN);
+
+    gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL,
+                  LCD_BACKLIGHT_PIN | LCD_D5_PIN | LCD_D6_PIN | LCD_RESET_PIN | LCD_RS_PIN | LCD_RW_PIN | LCD_EN_PIN);
+#endif
 
     // U8g2
     uint8_t u8g2TileBufHeight;
@@ -198,13 +202,15 @@ static uint8_t onDisplayByte(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *a
         {
             uint8_t value = *p;
 
+            GPIOB_BSRR = LCD_EN_PIN; // gpio_set(LCD_EN_PORT, LCD_EN_PIN);
+#ifdef STM32F0
             GPIOA_BSRR = (0b10011111 << 24) | ((value & 0b10011111) << 8);
             GPIOF_BSRR = (0b01100000 << 17) | ((value & 0b01100000) << 1);
-
-            gpio_set(LCD_EN_PORT, LCD_EN_PIN);
-            asm("nop");
-            asm("nop");
-            gpio_clear(LCD_EN_PORT, LCD_EN_PIN);
+#elif STM32F1
+            GPIOA_BSRR = (0b10011111 << 24) | ((value & 0b10011111) << 8);
+            GPIOB_BSRR = (0b01100000 << 19) | ((value & 0b01100000) << 3);
+#endif
+            GPIOB_BRR = LCD_EN_PIN; // gpio_clear(LCD_EN_PORT, LCD_EN_PIN);
         }
 
         break;

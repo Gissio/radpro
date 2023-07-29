@@ -6,10 +6,10 @@ PB10 (push-pull output): PWR_EN (enable power)
 PA5 (pull-up input): PWR_CHRG (charging battery)
 PA4 (analog floating input): PWR_BAT (battery voltage)
 
-## Crystal (8 MHz)
+## LSE crystal (32.768 kHz)
 
-PF0: RCC_OSC_IN
-PF1: RCC_OSC_OUT
+PC14-OSC32_IN
+PC15-OSC32_OUT
 
 ## SWD (Serial Wire Debug)
 
@@ -42,12 +42,16 @@ PA9 (push-pull output): LCD_D1
 PA10 (push-pull output): LCD_D2
 PA11 (push-pull output): LCD_D3
 PA12 (push-pull output): LCD_D4
-PF6 (push-pull output): LCD_D5
-PF7 (push-pull output): LCD_D6
+PF6/PB8[GD32F103] (push-pull output): LCD_D5
+PF7/PB9[GD32F103] (push-pull output): LCD_D6
 PA15 (push-pull output): LCD_D7
 
-PB3 (TIM2 PWM output): LCD_BLK (backlight cathode)
+PB3 (TIM2 PWM output): LCD_BACKLIGHT (cathode)
 
 ## Buzzer
 
 PB5 (push-pull output): BUZZ_OUT
+
+## Other
+
+PB6 (push-pull output): M_VIB (vibration motor, not connected)

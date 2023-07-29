@@ -18,8 +18,8 @@ import swd
 import time
 
 # Rad Pro variables
-battery = 0x20000140
-dose = 0x20000464
+battery = 0x20000000
+dose = 0x20000000
 
 # Local variables
 battery_value = battery

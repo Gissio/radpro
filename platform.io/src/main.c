@@ -9,62 +9,86 @@
 
 #include "battery.h"
 #include "buzzer.h"
+#include "comm.h"
+#include "debug.h"
 #include "display.h"
 #include "events.h"
-#include "firmware.h"
 #include "flash.h"
 #include "game.h"
 #include "gm.h"
 #include "keyboard.h"
 #include "measurements.h"
+#include "menu.h"
 #include "power.h"
 #include "rng.h"
+#include "rtc.h"
 #include "settings.h"
-#include "menu.h"
+#include "system.h"
 #include "view.h"
 
 int main(void)
 {
-    // Init base system
+    // Init base systems
+    initSystem();
     initEvents();
     initBuzzer();
+debugBeep();
 
     // POWER key delay
     sleep(500);
 
     initPower();
+debugBeep();
 
     // Check firmware
     if (!checkFirmware())
         playSystemAlert();
 
-    // Init system
+    // Init subsystems
     initSettings();
-    initEventsSettings();
+debugBeep();
     initMeasurements();
+debugBeep();
     initGame();
+debugBeep();
     initGM();
+debugBeep();
     initBattery();
+debugBeep();
     initKeyboard();
+debugBeep();
     initDisplay();
+debugBeep();
+    initComm();
+debugBeep();
 
-    // Low battery?
-    updateBattery();
+    // Start tasks
+    updateBattery(); // Check low battery
+debugBeep();
+    updateEventsMenus();
+debugBeep();
 
-    // Welcome screen
     clearDisplayBuffer();
     drawWelcome();
     sendDisplayBuffer();
+debugBeep();
 
     triggerBacklight();
+debugBeep();
 
     sleep(1000);
+debugBeep();
 
-    // Initialize view
-    enableMeasurement(true);
+    initRTC();
+debugBeep();
+    writeDataLogEntry();
+debugBeep();
+    enableMeasurements(true);
+debugBeep();
     setMeasurementView(&instantaneousRateView);
+debugBeep();
 
-    // Message loop
+    // UI loop
     while (1)
     {
         sleep(1);

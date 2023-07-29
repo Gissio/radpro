@@ -32,8 +32,8 @@ From left to right (on PCB, from side opposite to LCD):
 * Pin 6: not connected (?)
 * Pin 7: +3V3
 * Pin 8: D7 (PA15)
-* Pîn 9: D6 (PF7)
-* Pin 10: D5 (PF6)
+* Pîn 9: D6 (PF7) [PB8 on STM32F103 processors]
+* Pin 10: D5 (PF6) [PB9 on STM32F103 processors]
 * Pin 11: D4 (PA12)
 * Pin 12: D3 (PA11)
 * Pin 13: D2 (PA10)

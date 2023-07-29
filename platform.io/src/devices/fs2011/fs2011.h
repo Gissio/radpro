@@ -43,6 +43,7 @@
 #define LCD_RS_PIN GPIO13
 #define LCD_RW_PORT GPIOB
 #define LCD_RW_PIN GPIO14
+
 #define LCD_D0_PORT GPIOA
 #define LCD_D0_PIN GPIO8
 #define LCD_D1_PORT GPIOA
@@ -53,10 +54,17 @@
 #define LCD_D3_PIN GPIO11
 #define LCD_D4_PORT GPIOA
 #define LCD_D4_PIN GPIO12
+#ifdef STM32F0
 #define LCD_D5_PORT GPIOF
 #define LCD_D5_PIN GPIO6
 #define LCD_D6_PORT GPIOF
 #define LCD_D6_PIN GPIO7
+#elif STM32F1
+#define LCD_D5_PORT GPIOB
+#define LCD_D5_PIN GPIO8
+#define LCD_D6_PORT GPIOB
+#define LCD_D6_PIN GPIO9
+#endif
 #define LCD_D7_PORT GPIOA
 #define LCD_D7_PIN GPIO15
 #define LCD_BACKLIGHT_PORT GPIOB

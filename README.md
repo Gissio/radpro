@@ -6,7 +6,7 @@ Rad Pro (formerly FS2011 Pro) is a custom firmware that enhances the capabilitie
 
 With Rad Pro, you can:
 
-* Measure instantaneous radiation rate (based on the last 11 pulses or a 5-second moving-average filter).
+* Measure instantaneous radiation rate (based on the last 11 pulses or 5-second moving-average).
 * Measure average radiation rate (over a time period).
 * Measure cumulative dose (stored in non-volatile memory).
 * Generate customizable rate and dose alarms.
@@ -17,6 +17,7 @@ With Rad Pro, you can:
 ## Updates
 
 * Rad Pro 1.3.0 adds configurable Geiger tube conversion factors and data logging support.
+<!-- * Rad Pro 1.3.1 adds a real time clock for accurate data logging and support for the FS2011 with GD32F103 processors. -->
 
 ## Project overview
 
@@ -28,6 +29,6 @@ With Rad Pro, you can:
 
 ## Thanks
 
-* Special thanks to the u8g2 team for their excellent LCD library.
-* Special thanks to Alfred90 and danielhahn76 for device testing.
-* Special thanks to pixitha for the board photo with a J305 Geiger tube.
+* Thanks to the u8g2 team for their excellent LCD library.
+* Thanks to Alfred90, danielhahn76, felixsteghofer and DG0MG for device testing.
+* Thanks to pixitha for the FS2011 board photo with a J305 Geiger tube.

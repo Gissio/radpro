@@ -18,13 +18,19 @@
 void initKeyboardKeyDown(void)
 {
     // GPIO
-    rcc_periph_clock_enable(RCC_GPIOA);
-    rcc_periph_clock_enable(RCC_GPIOB);
-
-    gpio_mode_setup(GPIOA, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP,
+#ifdef STM32F0
+    gpio_mode_setup(KEY_UP_PORT, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP,
                     KEY_UP_PIN);
     gpio_mode_setup(GPIOB, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP,
-                    KEY_POWER_PIN | KEY_ENTER_PIN | KEY_BACK_PIN | KEY_DOWN_PIN);
+                    KEY_DOWN_PIN | KEY_ENTER_PIN | KEY_BACK_PIN | KEY_POWER_PIN);
+#elif STM32F1
+    gpio_set_mode(KEY_UP_PORT, GPIO_MODE_INPUT, GPIO_CNF_INPUT_PULL_UPDOWN,
+                  KEY_UP_PIN);
+    gpio_set(KEY_UP_PORT, KEY_UP_PIN); // Pull-up
+    gpio_set_mode(GPIOB, GPIO_MODE_INPUT, GPIO_CNF_INPUT_PULL_UPDOWN,
+                  KEY_DOWN_PIN | KEY_ENTER_PIN | KEY_BACK_PIN | KEY_POWER_PIN);
+    gpio_set(GPIOB, KEY_DOWN_PIN | KEY_ENTER_PIN | KEY_BACK_PIN | KEY_POWER_PIN); // Pull-up
+#endif
 }
 
 void getKeyboardKeyDown(bool *isKeyDown)

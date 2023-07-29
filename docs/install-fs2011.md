@@ -59,7 +59,7 @@ Then, copy+paste the following command and verify that the resulting file, backu
 
 ![Terminal flash step 2](img/terminal-flash-2.png)
 
-Now, download the latest firmware from the [Rad Pro releases](https://github.com/Gissio/radpro/releases): get radpro-fs2011-x.y.z-install.bin when installing for the first time or radpro-fs2011-x.y.z-update.bin when updating.
+Now, download the latest firmware from the [Rad Pro releases](https://github.com/Gissio/radpro/releases): get radpro-fs2011-\[MCU\]-install-x.y.z.bin when installing for the first time or radpro-fs2011-\[MCU\]-update-x.y.z.bin when updating. \[MCU\] is the type of microprocessor on your board: either STM32F51, GD32F51 or GD32F103.
 
 Next, run this command in the terminal:
 

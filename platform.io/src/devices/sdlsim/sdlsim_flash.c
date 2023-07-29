@@ -19,19 +19,17 @@
 uint8_t flashMemory[0x10000];
 
 const uint32_t flashPageSize = FLASH_PAGE_SIZE;
-const uint32_t flashSettingsStart = 0x24 * FLASH_PAGE_SIZE;
-const uint32_t flashSettingsEnd = 0x26 * FLASH_PAGE_SIZE;
-const uint32_t flashLifeStateStart = 0x26 * FLASH_PAGE_SIZE;
-const uint32_t flashLifeStateEnd = 0x28 * FLASH_PAGE_SIZE;
-const uint32_t flashDoseStateStart = 0x28 * FLASH_PAGE_SIZE;
-const uint32_t flashDoseStateEnd = 0x40 * FLASH_PAGE_SIZE;
+const uint32_t flashSettingsStart = 0x20 * FLASH_PAGE_SIZE;
+const uint32_t flashSettingsEnd = 0x22 * FLASH_PAGE_SIZE;
+const uint32_t flashDataLogStart = 0x22 * FLASH_PAGE_SIZE;
+const uint32_t flashDataLogEnd = 0x40 * FLASH_PAGE_SIZE;
 
 static void backupFlash(void)
 {
     FILE *fp = fopen("flash.bin", "wb");
     if (fp)
     {
-        fwrite(flashMemory, 1, 0x10000, fp);
+        fwrite(flashMemory, 1, sizeof(flashMemory), fp);
         fclose(fp);
     }
 }
@@ -43,7 +41,7 @@ void initFlash(void)
     FILE *fp = fopen("flash.bin", "rb");
     if (fp)
     {
-        fread(flashMemory, 1, 0x10000, fp);
+        fread(flashMemory, 1, sizeof(flashMemory), fp);
         fclose(fp);
     }
 }

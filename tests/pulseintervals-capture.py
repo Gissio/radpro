@@ -16,7 +16,7 @@ import swd
 import time
 
 # Rad Pro variables
-gm = 0x2000014c
+gm = 0x20000000
 
 # Local variables
 gm_pulses_queue_head_tail = gm

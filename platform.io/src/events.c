@@ -13,6 +13,7 @@
 #include "buzzer.h"
 #include "display.h"
 #include "events.h"
+#include "flash.h"
 #include "game.h"
 #include "gm.h"
 #include "keyboard.h"
@@ -20,6 +21,7 @@
 #include "menu.h"
 #include "power.h"
 #include "rng.h"
+#include "rtc.h"
 #include "settings.h"
 
 #define LIFE_STATE_UPDATE_TIME (60 * 60)
@@ -53,8 +55,7 @@ static struct
     volatile uint8_t oneSecondUpdate;
     uint8_t lastOneSecondUpdate;
 
-    int32_t lifeStateUpdateTimer;
-    int32_t doseStateUpdateTimer;
+    uint32_t dataLoggingLastTimestamp;
 
     bool measurementsEnabled;
 } events;
@@ -63,22 +64,23 @@ static const struct Menu pulseClicksMenu;
 static const struct Menu backlightMenu;
 static const struct Menu dataLoggingMenu;
 
+static void writeDataLogEntryWithTimestamp(uint32_t timestamp);
+
 void initEvents(void)
 {
     initEventsHardware();
 
     events.oneSecondTimer = SYS_TICK_FREQUENCY;
-    events.lifeStateUpdateTimer = LIFE_STATE_UPDATE_TIME;
 }
 
-void initEventsSettings(void)
+void updateEventsMenus(void)
 {
     selectMenuIndex(&pulseClicksMenu, settings.pulseClicks);
     selectMenuIndex(&backlightMenu, settings.backlight);
     selectMenuIndex(&dataLoggingMenu, settings.dataLogging);
 }
 
-void enableMeasurement(bool value)
+void enableMeasurements(bool value)
 {
     events.measurementsEnabled = value;
 }
@@ -135,11 +137,10 @@ void onTick(void)
         // One second timer
         if (isTimerElapsed(&events.oneSecondTimer))
         {
-            if (events.measurementsEnabled)
-                onMeasurementOneSecond();
-
             events.oneSecondTimer = SYS_TICK_FREQUENCY;
             events.oneSecondUpdate++;
+
+            onMeasurementsOneSecond();
         }
     }
 }
@@ -148,6 +149,26 @@ void syncTimerThread(void)
 {
     sleep(1);
 }
+
+void updateEvents(void)
+{
+    uint8_t oneSecondUpdate = events.oneSecondUpdate;
+    if (events.lastOneSecondUpdate != oneSecondUpdate)
+    {
+        events.lastOneSecondUpdate = oneSecondUpdate;
+
+        updateBattery();
+        updateMeasurements();
+        updateGameTimer();
+        refreshView();
+
+        uint32_t timestamp = getRTCTimestamp();
+        if ((timestamp - events.dataLoggingLastTimestamp) >= dataLoggingUpdateTime[settings.dataLogging])
+            writeDataLogEntryWithTimestamp(timestamp);
+    }
+}
+
+// Backlight timer
 
 void setBacklightTimer(int32_t value)
 {
@@ -194,16 +215,7 @@ void stopBacklightTimer(void)
     events.backlightTimer = 1;
 }
 
-void playSystemAlert(void)
-{
-    for (uint32_t i = 0; i < 10; i++)
-    {
-        setBuzzer(true);
-        sleep(50);
-        setBuzzer(false);
-        sleep(50);
-    }
-}
+// Buzzer timer
 
 void setBuzzerTimer(int32_t value)
 {
@@ -222,6 +234,8 @@ void stopBuzzerTimer(void)
     events.buzzerTimer = 1;
 }
 
+// Keyboard timer
+
 void startKeyboardTimer(void)
 {
     syncTimerThread();
@@ -229,30 +243,28 @@ void startKeyboardTimer(void)
     events.keyboardTimer = KEY_TICKS;
 }
 
-void resetDataLoggingTimer(void)
+// Data logging
+
+void resetDataLogging(void)
 {
-    events.doseStateUpdateTimer = dataLoggingUpdateTime[settings.dataLogging];
+    events.dataLoggingLastTimestamp = getRTCTimestamp();
 }
 
-void updateEvents(void)
+static void writeDataLogEntryWithTimestamp(uint32_t timestamp)
 {
-    uint8_t oneSecondUpdate = events.oneSecondUpdate;
-    if (events.lastOneSecondUpdate != oneSecondUpdate)
-    {
-        events.lastOneSecondUpdate = oneSecondUpdate;
+    events.dataLoggingLastTimestamp = timestamp;
 
-        updateBattery();
-        updateMeasurement();
-        updateGameTimer();
-        refreshView();
+    struct DataLogEntry dataLogEntry = {
+        timestamp,
+        settings.lifePulseCount,
+    };
 
-        if (isTimerElapsed(&events.doseStateUpdateTimer))
-        {
-            resetDataLoggingTimer();
+    flashEntry(flashDataLogStart, flashDataLogEnd, sizeof(struct DataLogEntry), (uint32_t *)&dataLogEntry);
+}
 
-            writeDoseState();
-        }
-    }
+void writeDataLogEntry(void)
+{
+    writeDataLogEntryWithTimestamp(getRTCTimestamp());
 }
 
 // Pulse clicks menu
@@ -329,7 +341,7 @@ static void onDataLoggingMenuSelect(const struct Menu *menu)
 {
     settings.dataLogging = menu->state->selectedIndex;
 
-    resetDataLoggingTimer();
+    events.dataLoggingLastTimestamp = getRTCTimestamp(); // Reset data logging
 }
 
 static struct MenuState dataLoggingMenuState;

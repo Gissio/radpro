@@ -26,4 +26,5 @@ static void onStatsViewKey(const struct View *view, KeyEvent keyEvent)
 const struct View statsView = {
     onStatsViewDraw,
     onStatsViewKey,
+    NULL,
 };

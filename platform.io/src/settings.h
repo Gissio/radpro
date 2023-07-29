@@ -128,36 +128,34 @@ enum GameSkillLevelSetting
 
 struct Settings
 {
-    unsigned int invalid : 1;
-
-    unsigned int units : 2;
-    unsigned int history : 3;
+    unsigned int units : 4;
+    unsigned int history : 4;
     unsigned int rateAlarm : 4;
     unsigned int doseAlarm : 4;
-    unsigned int pulseClicks : 2;
-    unsigned int backlight : 3;
-    unsigned int batteryType : 1;
-    unsigned int tubeType : 2;
-    unsigned int conversionFactor : 7;
-    unsigned int dataLogging : 3;
-    unsigned int gameSkillLevel : 3;
+    unsigned int pulseClicks : 4;
+    unsigned int backlight : 4;
+    unsigned int batteryType : 4;
+    unsigned int tubeType : 4;
+    unsigned int conversionFactor : 8;
+    unsigned int dataLogging : 4;
+    unsigned int gameSkillLevel : 4;
+
+    uint8_t alignment[8];
+
+    uint32_t lifeTime;
+    uint32_t lifePulseCount;
+
+    uint32_t doseTime;
+    uint32_t dosePulseCount;
 };
 
-struct LifeState
+struct DataLogEntry
 {
-    uint32_t time;
-    uint32_t pulseCount;
-};
-
-struct DoseState
-{
-    uint32_t time;
+    uint32_t timestamp;
     uint32_t pulseCount;
 };
 
 extern struct Settings settings;
-extern struct LifeState lifeState;
-extern struct DoseState doseState;
 
 extern const struct View settingsMenuView;
 
@@ -166,8 +164,6 @@ void initSettings(void);
 float getConversionFactor(uint32_t index);
 
 void writeSettings(void);
-void writeLifeState(void);
-void writeDoseState(void);
 
 void onSettingsSubMenuBack(const struct Menu *menu);
 

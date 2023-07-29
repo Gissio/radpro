@@ -11,12 +11,14 @@
 #include <string.h>
 
 #include "cmath.h"
+#include "comm.h"
 #include "display.h"
 #include "events.h"
 #include "format.h"
 #include "measurements.h"
 #include "menu.h"
 #include "settings.h"
+#include "system.h"
 
 #define INTERVAL_STATS_NUM 5
 #define PULSE_QUEUE_LENGTH (10 + 1)
@@ -31,9 +33,9 @@
 
 struct
 {
-    const struct View *currentView;
+    uint32_t snapshotLifePulseCount;
 
-    struct Settings lastSettings;
+    const struct View *currentView;
 } measurements;
 
 struct UnitType units[] = {
@@ -182,8 +184,6 @@ static void resetHistory(void);
 
 void initMeasurements(void)
 {
-    measurements.lastSettings = settings;
-
     selectMenuIndex(&unitsMenu, settings.units);
     selectMenuIndex(&historyMenu, settings.history);
     selectMenuIndex(&rateAlarmMenu, settings.rateAlarm);
@@ -240,7 +240,7 @@ void onMeasurementTick(uint32_t pulseCount)
     if (pulseCount)
     {
         // Life statistics
-        addClamped(&lifeState.pulseCount, pulseCount);
+        settings.lifePulseCount += pulseCount;
 
         // Instantaneous rate
         if (!instantaneousRate.intervalStats[0].pulseCount)
@@ -250,10 +250,14 @@ void onMeasurementTick(uint32_t pulseCount)
         instantaneousRate.pulseQueue.count += pulseCount;
         if (instantaneousRate.pulseQueue.count > PULSE_QUEUE_LENGTH)
             instantaneousRate.pulseQueue.count = PULSE_QUEUE_LENGTH;
+
         for (uint32_t i = 0; i < pulseCount; i++)
         {
             instantaneousRate.pulseQueue.tick[instantaneousRate.pulseQueue.index] = instantaneousRate.tick;
-            instantaneousRate.pulseQueue.index = (instantaneousRate.pulseQueue.index + 1) % PULSE_QUEUE_LENGTH;
+            if (instantaneousRate.pulseQueue.index >= PULSE_QUEUE_LENGTH)
+                instantaneousRate.pulseQueue.index = 0;
+            else
+                instantaneousRate.pulseQueue.index++;
         }
 
         // Average rate
@@ -294,15 +298,16 @@ void onMeasurementTick(uint32_t pulseCount)
         averageRate.tick++;
 }
 
-void onMeasurementOneSecond(void)
+void onMeasurementsOneSecond(void)
 {
     uint32_t firstPulseTick;
     uint32_t lastPulseTick;
     uint32_t pulseCount;
     uint32_t ticks;
 
-    if (lifeState.time < UINT32_MAX)
-        lifeState.time++;
+    // Life statistics
+    settings.lifeTime++;
+    measurements.snapshotLifePulseCount = settings.lifePulseCount;
 
     // Instantaneous rate
     firstPulseTick = 0;
@@ -377,8 +382,11 @@ void onMeasurementOneSecond(void)
     }
 }
 
-void updateMeasurement(void)
+void updateMeasurements(void)
 {
+    // Life statistics
+    sendComm(settings.lifeTime, measurements.snapshotLifePulseCount);
+
     // Instantaneous rate
     instantaneousRate.snapshotValue = (float)instantaneousRate.snapshotPulseCount *
                                       SYS_TICK_FREQUENCY / instantaneousRate.snapshotTicks;
@@ -467,11 +475,7 @@ static void drawRateMax(float value)
 
 void setMeasurementView(const struct View *view)
 {
-    if (memcmp(&settings, &measurements.lastSettings, sizeof(struct Settings)) != 0)
-        writeSettings();
-
     measurements.currentView = view;
-    measurements.lastSettings = settings;
 
     setView(view);
 }
@@ -529,7 +533,7 @@ static void onInstantaneousRateDraw(const struct View *view)
         value = instantaneousRate.holdValue;
     }
 
-    drawTitleWithTime("Instantaneous", time);
+    drawTitleWithTime("Instant", time);
     drawRate(value, pulseCount);
 
     if (instantaneousRate.isHold)

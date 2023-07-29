@@ -15,10 +15,8 @@
 extern const uint32_t flashPageSize;
 extern const uint32_t flashSettingsStart;
 extern const uint32_t flashSettingsEnd;
-extern const uint32_t flashLifeStateStart;
-extern const uint32_t flashLifeStateEnd;
-extern const uint32_t flashDoseStateStart;
-extern const uint32_t flashDoseStateEnd;
+extern const uint32_t flashDataLogStart;
+extern const uint32_t flashDataLogEnd;
 
 void initFlash(void);
 uint8_t *getFlashMemory(uint32_t address);

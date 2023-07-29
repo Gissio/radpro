@@ -15,16 +15,19 @@
 #include "../../buzzer.h"
 #include "fs2011.h"
 
-static struct {
+static struct
+{
     bool value;
 } buzzer;
 
 void initBuzzer(void)
 {
     // GPIO
-    rcc_periph_clock_enable(RCC_GPIOB);
-
+#ifdef STM32F0
     gpio_mode_setup(BUZZ_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, BUZZ_PIN);
+#elif STM32F1
+    gpio_set_mode(BUZZ_PORT, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_PUSHPULL, BUZZ_PIN);
+#endif
 }
 
 void setBuzzer(bool value)

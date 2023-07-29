@@ -24,9 +24,14 @@ void updateBattery(void)
         powerOffLowBattery();
 }
 
+uint32_t getBatteryValue(void)
+{
+    return 3300;
+}
+
 float getBatteryVoltage(void)
 {
-    return 1.28F;
+    return getBatteryValue() * (3.3F / 4096 / 2);
 }
 
 bool isBatteryCharging(void)
