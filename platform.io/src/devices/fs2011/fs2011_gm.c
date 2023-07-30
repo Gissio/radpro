@@ -40,7 +40,7 @@ void initGM(void)
 
     // Single TIM2 (32-bit)
     TIM_EGR(TIM2) |= TIM_EGR_UG;  // timer_generate_event(TIM2, TIM_EGR_UG);
-    TIM_CR1(TIM3) |= TIM_CR1_CEN; // timer_enable_counter(TIM2);
+    TIM_CR1(TIM2) |= TIM_CR1_CEN; // timer_enable_counter(TIM2);
 #elif STM32F1
     rcc_periph_clock_enable(RCC_TIM1);
     rcc_periph_clock_enable(RCC_TIM2);
