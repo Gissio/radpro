@@ -1,2 +1,4 @@
-swd
+pyelftools
+pyserial
+pyswd
 requests

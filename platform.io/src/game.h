@@ -7,13 +7,13 @@
  * License: MIT
  */
 
-#ifndef GAME_H
+#if !defined(GAME_H)
+
 #define GAME_H
 
-#include <stdbool.h>
-#include <stdint.h>
-
 #include "view.h"
+
+#define GAME_MOVES_LINE_NUM 5
 
 extern const struct View gameMenuView;
 

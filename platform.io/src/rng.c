@@ -16,10 +16,10 @@
 
 #define RNG_BITQUEUE_SIZE 128
 #define RNG_BITQUEUE_MASK (RNG_BITQUEUE_SIZE - 1)
-#define RNG_BITQUEUE_MAX (RNG_BITQUEUE_MASK - 1)
-#define RNG_BITQUEUE_BYTENUM (RNG_BITQUEUE_SIZE >> 3)
+#define RNG_BITQUEUE_MAX_SIZE (RNG_BITQUEUE_SIZE - 1)
+#define RNG_BITQUEUE_BYTE_NUM (RNG_BITQUEUE_SIZE / 8)
 
-#define RNG_TEXT_SIZE 16
+#define RNG_TEXT_MAX_SIZE 16
 
 enum RNGMode
 {
@@ -61,11 +61,11 @@ static struct
 {
     volatile uint32_t bitQueueHead;
     volatile uint32_t bitQueueTail;
-    uint8_t bitQueue[RNG_BITQUEUE_BYTENUM];
+    uint8_t bitQueue[RNG_BITQUEUE_BYTE_NUM];
 
-    uint8_t pulseIndex;
-    uint32_t pulseTime1;
-    uint32_t pulseTime2;
+    uint32_t pulseIndex;
+    uint32_t pulseTimeSecondToLast;
+    uint32_t pulseTimeLast;
     bool bitFlip;
 
     enum RNGMode mode;
@@ -73,7 +73,7 @@ static struct
     uint32_t fdrV;
     uint32_t fdrC;
 
-    char text[RNG_TEXT_SIZE + 1];
+    char text[RNG_TEXT_MAX_SIZE + 1];
     uint8_t activityIndicator;
 } rng;
 
@@ -81,9 +81,10 @@ extern const struct View rngView;
 
 static void enqueueBit(bool bit)
 {
-    uint32_t queueSize = (rng.bitQueueHead - rng.bitQueueTail) & RNG_BITQUEUE_MASK;
+    uint32_t queueSize = (rng.bitQueueHead - rng.bitQueueTail) &
+                         RNG_BITQUEUE_MASK;
 
-    if (queueSize >= RNG_BITQUEUE_MAX)
+    if (queueSize >= RNG_BITQUEUE_MAX_SIZE)
         return;
 
     uint32_t headByteIndex = rng.bitQueueHead >> 3;
@@ -109,58 +110,68 @@ static int8_t dequeueBit(void)
     return bit;
 }
 
+static uint32_t getQueueSize(void)
+{
+    return (rng.bitQueueHead - rng.bitQueueTail) & RNG_BITQUEUE_MASK;
+}
+
 void onRNGPulse(uint32_t pulseTime)
 {
     switch (rng.pulseIndex)
     {
     case 0:
-        // Store first pulse
-        rng.pulseTime1 = pulseTime;
+        rng.pulseTimeSecondToLast = pulseTime;
         rng.pulseIndex++;
 
         break;
 
     case 1:
-        // Store second pulse
-        rng.pulseTime2 = pulseTime;
+        rng.pulseTimeLast = pulseTime;
         rng.pulseIndex++;
 
         break;
 
     case 2:
     {
-        // Calculate intervals between pulses
-        uint32_t pulseInterval1 = rng.pulseTime2 - rng.pulseTime1;
-        uint32_t pulseInterval2 = pulseTime - rng.pulseTime2;
+        uint32_t duration1 = rng.pulseTimeLast - rng.pulseTimeSecondToLast;
+        uint32_t duration2 = pulseTime - rng.pulseTimeLast;
 
-        if (pulseInterval1 == pulseInterval2)
+        if (duration1 != duration2)
         {
-            rng.pulseTime1 = rng.pulseTime2;
+            bool bit = rng.bitFlip ? duration1 > duration2 : duration1 < duration2;
+            rng.bitFlip = !rng.bitFlip;
 
-            break;
+            enqueueBit(bit);
         }
 
-        // Prepare bit
-        bool bit;
-        if (rng.bitFlip)
-            bit = pulseInterval1 > pulseInterval2;
-        else
-            bit = pulseInterval1 < pulseInterval2;
-        enqueueBit(bit);
-        rng.bitFlip = !rng.bitFlip;
-
-        // Prepare next cycle
         rng.pulseIndex = 1;
-        rng.pulseTime1 = pulseTime;
+        rng.pulseTimeSecondToLast = pulseTime;
 
         break;
     }
     }
 }
 
+// Entropy interface
+
+int32_t getEntropy(void)
+{
+    if (getQueueSize() < 8)
+        return -1;
+
+    int32_t value = 0;
+    for (uint32_t i = 0; i < 8; i++)
+    {
+        value <<= 1;
+        value |= dequeueBit();
+    }
+
+    return value;
+}
+
 // Fast Dice Roller algorithm: https://arxiv.org/abs/1304.1916
 
-static int32_t getRNGInt(void)
+static int32_t getFastDiceRollerInt(void)
 {
     while (true)
     {
@@ -189,18 +200,18 @@ static int32_t getRNGInt(void)
     }
 }
 
-static void resetRNG(enum RNGMode mode)
+static void initFastDiceRoller(enum RNGMode mode)
 {
     rng.mode = mode;
     rng.fdrN = rngModeRanges[mode];
     rng.fdrV = 1;
     rng.fdrC = 0;
 
-    rng.text[0] = '\0';
+    strcpy(rng.text, "");
     rng.activityIndicator = 1;
 }
 
-static char getRNGChar(int32_t digit)
+static char getFastDiceRollerChar(int32_t digit)
 {
     if (digit < 10)
         return '0' + digit;
@@ -210,19 +221,19 @@ static char getRNGChar(int32_t digit)
         return 'A' + digit - (10 + 26);
 }
 
-static void updateRNGText(void)
+static void updateFastDiceRollerText(void)
 {
     uint32_t index = (uint32_t)strlen(rng.text);
 
     while (true)
     {
-        if (index >= RNG_TEXT_SIZE)
+        if (index >= RNG_TEXT_MAX_SIZE)
         {
             rng.activityIndicator = 0;
             return;
         }
 
-        int32_t digit = getRNGInt();
+        int32_t digit = getFastDiceRollerInt();
         if (digit == -1)
             return;
 
@@ -233,7 +244,7 @@ static void updateRNGText(void)
         case RNG_MODE_HEXADECIMAL:
         case RNG_MODE_DECIMAL:
         case RNG_MODE_COIN_TOSS:
-            c = getRNGChar(digit);
+            c = getFastDiceRollerChar(digit);
 
             break;
 
@@ -247,7 +258,7 @@ static void updateRNGText(void)
         case RNG_MODE_8SIDED_DICE:
         case RNG_MODE_12SIDED_DICE:
         case RNG_MODE_20SIDED_DICE:
-            c = getRNGChar(digit + 1);
+            c = getFastDiceRollerChar(digit + 1);
 
             break;
 
@@ -268,7 +279,7 @@ static void updateRNGText(void)
 
 static void onRNGMenuEnter(const struct Menu *menu)
 {
-    resetRNG(menu->state->selectedIndex);
+    initFastDiceRoller(menu->state->selectedIndex);
 
     setView(&rngView);
 }
@@ -286,36 +297,46 @@ static const struct Menu rngMenu = {
 };
 
 const struct View rngMenuView = {
-    onMenuViewDraw,
-    onMenuViewKey,
+    onMenuEvent,
     &rngMenu,
 };
 
 // RNG view
 
-static void onRNGViewDraw(const struct View *view)
+static void onRNGEvent(const struct View *view, enum Event event)
 {
-    updateRNGText();
-
-    drawTitle(rngModeMenuOptions[rng.mode]);
-
-    if (rng.activityIndicator)
+    switch (event)
     {
-        drawSubtitle(rngActivitySubtitles[rng.activityIndicator - 1]);
-        rng.activityIndicator = (rng.activityIndicator % 3) + 1;
+    case EVENT_BACK:
+        setView(&rngMenuView);
+
+        break;
+
+    case EVENT_DRAW:
+    {
+        updateFastDiceRollerText();
+
+        drawTitle(rngModeMenuOptions[rng.mode]);
+
+        if (rng.activityIndicator)
+        {
+            drawSubtitle(rngActivitySubtitles[rng.activityIndicator - 1]);
+            rng.activityIndicator++;
+            if (rng.activityIndicator > 3)
+                rng.activityIndicator = 1;
+        }
+
+        drawRNGText(rng.text);
+
+        break;
     }
 
-    drawRNGText(rng.text);
-}
-
-static void onRNGViewKey(const struct View *view, KeyEvent keyEvent)
-{
-    if (keyEvent == KEY_EVENT_BACK)
-        setView(&rngMenuView);
+    default:
+        break;
+    }
 }
 
 const struct View rngView = {
-    onRNGViewDraw,
-    onRNGViewKey,
+    onRNGEvent,
     NULL,
 };

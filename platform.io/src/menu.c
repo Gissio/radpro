@@ -21,37 +21,24 @@ const char *onMenuGetOption(const struct Menu *menu, uint32_t index)
     return menu->options[index];
 }
 
-void selectMenuIndex(const struct Menu *menu, uint32_t index)
+void selectMenuIndex(const struct Menu *menu, uint32_t index, uint32_t optionsNum)
 {
-    uint8_t optionsNum = 0;
-    while (menu->onGetOption(menu, optionsNum) != NULL)
-        optionsNum++;
-
     menu->state->selectedIndex = index;
-    if (index < MENU_VIEW_LINE_NUM)
+    if (index < menuLineNum)
         menu->state->startIndex = 0;
-    else if (index < (uint32_t)(optionsNum - MENU_VIEW_LINE_NUM))
+    else if (index < (uint32_t)(optionsNum - menuLineNum))
         menu->state->startIndex = index;
     else
-        menu->state->startIndex = optionsNum - MENU_VIEW_LINE_NUM;
+        menu->state->startIndex = optionsNum - menuLineNum;
 }
 
-void onMenuViewDraw(const struct View *view)
-{
-    const struct Menu *menu = (const struct Menu *)view->userdata;
-
-    drawTitle(menu->title);
-    drawMenu(menu);
-}
-
-void onMenuViewKey(const struct View *view, KeyEvent keyEvent)
+void onMenuEvent(const struct View *view, enum Event event)
 {
     const struct Menu *menu = (const struct Menu *)view->userdata;
     struct MenuState *menuState = menu->state;
 
-    switch (keyEvent)
+    if (event == EVENT_UP)
     {
-    case KEY_EVENT_UP:
         if (menuState->selectedIndex > 0)
         {
             menuState->selectedIndex--;
@@ -66,20 +53,19 @@ void onMenuViewKey(const struct View *view, KeyEvent keyEvent)
                 index++;
 
             menuState->selectedIndex = index - 1;
-            if (index > MENU_VIEW_LINE_NUM)
-                menuState->startIndex = index - MENU_VIEW_LINE_NUM;
+            if (index > menuLineNum)
+                menuState->startIndex = index - menuLineNum;
             else
                 menuState->startIndex = 0;
         }
-
-        break;
-
-    case KEY_EVENT_DOWN:
+    }
+    else if (event == EVENT_DOWN)
+    {
         if (menu->onGetOption(menu, menuState->selectedIndex + 1))
         {
             menuState->selectedIndex++;
 
-            if (menuState->selectedIndex > (menuState->startIndex + MENU_VIEW_LINE_NUM - 1))
+            if (menuState->selectedIndex > (menuState->startIndex + menuLineNum - 1))
                 menuState->startIndex++;
         }
         else
@@ -87,14 +73,12 @@ void onMenuViewKey(const struct View *view, KeyEvent keyEvent)
             menuState->selectedIndex = 0;
             menuState->startIndex = 0;
         }
-
-        break;
     }
 
-    switch (keyEvent)
+    switch (event)
     {
-    case KEY_EVENT_UP:
-    case KEY_EVENT_DOWN:
+    case EVENT_UP:
+    case EVENT_DOWN:
         refreshView();
 
         if (menu->onSelect)
@@ -102,16 +86,27 @@ void onMenuViewKey(const struct View *view, KeyEvent keyEvent)
 
         break;
 
-    case KEY_EVENT_ENTER:
+    case EVENT_ENTER:
         if (menu->onEnter)
             menu->onEnter(menu);
 
         break;
 
-    case KEY_EVENT_BACK:
+    case EVENT_BACK:
         if (menu->onBack)
             menu->onBack(menu);
 
+        break;
+
+    case EVENT_DRAW:
+    {
+        drawTitle(menu->title);
+        drawMenu(menu);
+
+        break;
+    }
+
+    default:
         break;
     }
 }

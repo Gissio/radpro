@@ -2,834 +2,645 @@
  * mcu-max 0.9.1
  * Chess engine for low-resource MCUs
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022 Gissio
  *
  * License: MIT
  *
  * Based on micro-Max 4.8 by H.G. Muller.
  * Compliant with FIDE laws (except for underpromotion).
- * Optimized for speed and clarity.
  */
 
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "mcu-max.h"
 
 // Configuration
 // #define MCUMAX_HASHING_ENABLED
-#define MCUMAX_HASH_TABLE_SIZE (1 << 24)
 
 // Constants
 #define MCUMAX_BOARD_MASK 0x88
+#define MCUMAX_BOARD_WHITE 0x8
+#define MCUMAX_BOARD_BLACK 0x10
+#define MCUMAX_PIECE_MOVED 0x20
+#define MCUMAX_SCORE_MAX 8000
+#define MCUMAX_DEPTH_MAX 99
 
-#define MCUMAX_MAX_VALUE 1000000
+enum mcumax_mode
+{
+    MCUMAX_INTERNAL_NODE,
+    MCUMAX_SEARCH_VALID_MOVES,
+    MCUMAX_SEARCH_BEST_MOVE,
+    MCUMAX_PLAY_MOVE,
+};
 
-#define MCUMAX_MOVED 0x20
+struct
+{
+    // Board: first half of 16x8 + dummy
+    uint8_t board[0x80 + 1];
+    uint8_t current_side;
 
-typedef signed char mcumax_direction;
+    // Engine
+    int32_t score;
+    uint8_t en_passant_square;
+    int32_t non_pawn_material;
+
+#ifdef MCUMAX_HASHING_ENABLED
+    uint32_t hash_key;
+    uint32_t hash_key2;
+#endif
+
+    // Interface
+    uint8_t square_from; // Selected move
+    uint8_t square_to;
+
+    uint32_t node_count;
+    uint32_t node_max;
+    uint32_t depth_max;
+
+    bool stop_search;
+
+    // Extra
+    mcumax_callback user_callback;
+    void *user_data;
+
+    mcumax_move *valid_moves_buffer;
+    uint32_t valid_moves_buffer_size;
+    uint32_t valid_moves_num;
+} mcumax;
+
+static const int8_t mcumax_capture_values[] = {
+    0, 2, 2, 7, -1, 8, 12, 23};
+
+static const int8_t mcumax_step_vectors_indices[] = {
+    0, 7, -1, 11, 6, 8, 3, 6};
+
+static const int8_t mcumax_step_vectors[] = {
+    // Upstream pawn
+    -16, -15, -17, 0,
+    // Rook
+    1, 16, 0,
+    // King, queen
+    1, 16, 15, 17, 0,
+    // Knight
+    14, 18, 31, 33, 0};
+
+static const int8_t mcumax_board_setup[] = {
+    MCUMAX_ROOK,
+    MCUMAX_KNIGHT,
+    MCUMAX_BISHOP,
+    MCUMAX_QUEEN,
+    MCUMAX_KING,
+    MCUMAX_BISHOP,
+    MCUMAX_KNIGHT,
+    MCUMAX_ROOK,
+};
+
+#ifdef MCUMAX_HASHING_ENABLED
+
+#define MCUMAX_HASH_SCRAMBLE_TABLE_SIZE 1035
+#define MCUMAX_HASH_TABLE_SIZE (1 << 24)
+
+#define HashScramble(A, B)                \
+    *(uint32_t *)(mcumax_scramble_table + \
+                  A + (B & 8) + MCUMAX_SQUARE_INVALID * (B & 7))
+#define Hash(A)                                                      \
+    HashScramble(step_square_to + A, mcumax.board[step_square_to]) - \
+        HashScramble(scan_square_from + A, scan_piece) -             \
+        HashScramble(capture_square + A, capture_piece)
+
+static uint8_t mcumax_scramble_table[MCUMAX_HASH_SCRAMBLE_TABLE_SIZE]; /* hash translation table */
+
+struct HashEntry
+{
+    uint32_t key2;
+    int32_t score;
+    uint8_t square_from;
+    uint8_t square_to;
+    uint8_t depth;
+};
+
+static struct HashEntry mcumax_hash_table[MCUMAX_HASH_TABLE_SIZE];
+
+#endif
 
 typedef bool (*mcumax_move_callback)(mcumax_move move);
 
-// The board is 16x8 + dummy; first half: pieces, second half: square weights
-struct
-{
-    // State
-    mcumax_square board[0x10 * 0x8 + 1];
-    unsigned char current_side; // Either MCUMAX_WHITE or MCUMAX_BLACK
-    mcumax_square en_passant_square;
-
-    // User callback
-    mcumax_callback user_callback;
-    void *user_callback_userdata;
-
-    // Move callback
-    mcumax_move_callback move_callback;
-
-    // Valid moves
-    int valid_moves_buffer_size;
-    mcumax_move *valid_moves_buffer;
-    int valid_moves_num;
-
-    // Best move
-    int depth_max;
-    int nodes_count;
-    int nodes_count_max;
-    mcumax_move best_move;
-
-    // Play move
-    mcumax_move play_move;
-
-    // Stop search
-    volatile bool stop_search;
-} mcumax;
-
-// Piece values (king is marked negative as it loses game)
-static const signed char mcumax_piece_values[] = {
-    // 0, 2, 2, -1, 7, 8, 12, 23}; // For underpromotion
-    0, 2, 2, 7, -1, 8, 12, 23};
-
-// Step-vector lists
-static const unsigned char mcumax_step_vectors_indices[] = {
-    // 0, 0, 4, 17, 8, 26, 31, 17}; // For underpromotion
-    0, 0, 4, 8, 17, 26, 31, 17};
-
-static const mcumax_direction mcumax_step_vectors[] = {
-    // Upstream pawn
-    -16, -15, -17, 0,
-    // Downstream pawn
-    16, 15, 17, 0,
-    // Knight
-    -31, -14, 18, 33, 31, 14, -18, -33, 0,
-    // King, queen
-    -16, -15, 1, 17, 16, 15, -1, -17, 0,
-    // Bishop
-    -15, 17, 15, -17, 0,
-    // Rook
-    -16, 1, 16, -1, 0};
-
-static const unsigned char mcumax_board_setup[] =
-    {
-        MCUMAX_ROOK,
-        MCUMAX_KNIGHT,
-        MCUMAX_BISHOP,
-        MCUMAX_QUEEN,
-        MCUMAX_KING,
-        MCUMAX_BISHOP,
-        MCUMAX_KNIGHT,
-        MCUMAX_ROOK,
-};
-
-static inline void change_side(void)
-{
-    mcumax.current_side ^= (MCUMAX_WHITE | MCUMAX_BLACK);
-}
-
-static inline bool is_off_board(mcumax_square square)
-{
-    return (square & MCUMAX_BOARD_MASK) != 0;
-}
-
-static inline mcumax_square get_next_board_square(mcumax_square square)
-{
-    return ((square + 9) & ~MCUMAX_BOARD_MASK);
-}
-
-static inline bool is_moving_sideways(mcumax_direction move_direction)
-{
-    return (move_direction == -1) || (move_direction == 1);
-}
-
-static inline bool is_pawn_capture_direction(mcumax_direction direction)
-{
-    return (direction & 0xf) != 0;
-}
-
-static inline bool is_pawn_promotion(mcumax_square move_to)
-{
-    unsigned char move_to_rank = (move_to & 0x70);
-
-    return (move_to_rank == 0x0) || (move_to_rank == 0x70);
-}
-
-static inline bool is_pawn_double_move(mcumax_square move_to_square)
-{
-    return (move_to_square & 0x70) == (mcumax.current_side == MCUMAX_WHITE ? 0x50 : 0x20);
-}
-
-static inline mcumax_square get_en_passant_capture_square(mcumax_square capture_square)
-{
-    return capture_square ^ 0x10;
-}
-
-static inline mcumax_square get_castling_from_square(mcumax_square move_to_square)
-{
-    return ((move_to_square & 0x70) | (((move_to_square & 0x7) == 0x5) ? 0x7 : 0x0));
-}
-
-static inline mcumax_square get_castling_neighbor1_square(mcumax_square castling_move_from)
-{
-    return (castling_move_from ^ 1);
-}
-
-static inline mcumax_square get_castling_neighbor2_square(mcumax_square castling_move_from)
-{
-    return (castling_move_from ^ 2);
-}
-
-static inline mcumax_piece get_piece_type(mcumax_piece piece)
-{
-    return (piece & 0x7);
-}
-
-static inline mcumax_piece set_piece_type(mcumax_piece piece, mcumax_piece pieceType)
-{
-    return ((piece & ~0x7) | pieceType);
-}
-
-static inline bool is_empty(mcumax_piece piece)
-{
-    return !piece;
-}
-
-static inline bool is_pawn(mcumax_piece piece)
-{
-    return ((piece & 0x7) <= MCUMAX_PAWN_DOWNSTREAM);
-}
-
-static inline bool is_leaper(mcumax_piece piece)
-{
-    return ((piece & 0x7) < MCUMAX_BISHOP);
-}
-
-static inline bool is_own_piece(mcumax_piece piece)
-{
-    return (piece & mcumax.current_side) != 0;
-}
-
-static inline bool is_unmoved_king(mcumax_piece piece)
-{
-    return ((piece & ~(MCUMAX_WHITE | MCUMAX_BLACK)) == MCUMAX_KING);
-}
-
-static inline bool is_unmoved_rook(mcumax_piece piece)
-{
-    return ((piece & ~(MCUMAX_WHITE | MCUMAX_BLACK)) == MCUMAX_ROOK);
-}
-
-// Traverse the game tree
-static int mcumax_traverse_game_tree(int depth, int alpha, int beta)
+// Recursive minimax search
+// (alpha,beta)=window, score=current evaluation score, en_passant_square=e.p. sqr.
+// depth=depth, in_root=in_root; returns score
+int32_t mcumax_search(int32_t alpha,
+                      int32_t beta,
+                      int32_t score,
+                      uint8_t en_passant_square,
+                      uint8_t depth,
+                      enum mcumax_mode mode)
 {
     if (mcumax.user_callback)
-        mcumax.user_callback(mcumax.user_callback_userdata);
+        mcumax.user_callback(mcumax.user_data);
 
-    mcumax_square move_from_start = 0;
-    int node_count_start = mcumax.nodes_count_max;
+    uint8_t iter_depth;
+    int32_t iter_score;
+    uint8_t iter_square_from;
+    uint8_t iter_square_to;
 
-    // Traverse squares
-    mcumax_move move;
-    move.from = move_from_start;
-    do
+#ifdef MCUMAX_HASHING_ENABLED
+    int32_t hash_key;
+    int32_t hash_key2;
+#endif
+
+    uint8_t square_start;
+
+    uint8_t square_from;
+    uint8_t square_to;
+
+    uint8_t replay_move;
+    int32_t null_move_score;
+
+    uint8_t scan_piece;
+    uint8_t scan_piece_type;
+
+    int8_t step_vector;
+    int8_t step_vector_index;
+
+    uint8_t castling_skip_square;
+    uint8_t castling_rook_square;
+
+    uint8_t capture_square;
+    uint8_t capture_piece;
+    int32_t capture_piece_value;
+
+    uint8_t step_depth;
+    int32_t step_alpha;
+    int32_t step_score;
+    int32_t step_score_new;
+
+    // Adj. window: delay bonus
+    alpha -= alpha < score;
+    beta -= beta <= score;
+
+#ifdef MCUMAX_HASHING_ENABLED
+    // Lookup pos. in hash table
+    struct HashEntry *hash_entry = mcumax_hash_table +
+                                   ((mcumax.hash_key +
+                                     mcumax.current_side * en_passant_square) &
+                                    MCUMAX_HASH_TABLE_SIZE - 1);
+
+    iter_depth = hash_entry->depth;
+    iter_score = hash_entry->score;
+    iter_square_from = hash_entry->square_from;
+    iter_square_to = hash_entry->square_to;
+
+    // Resume at stored depth
+    if ((hash_entry->key2 != mcumax.hash_key2) ||
+        (mode != MCUMAX_INTERNAL_NODE) || // Miss: other pos. or empty
+        !(((iter_score <= alpha) ||
+           (iter_square_from & 0x8)) &&
+          ((iter_score >= beta) ||
+           (iter_square_from & MCUMAX_SQUARE_INVALID)))) // Or window incompatible
     {
-        mcumax_piece move_from_piece = mcumax.board[move.from];
-
-        if (!is_own_piece(move_from_piece))
-            continue;
-
-        // For underpromotion:
-        // mcumax_piece pawn_promotion_piece = MCUMAX_QUEEN;
-
-        // Traverse directions
-        int step_vector_index = mcumax_step_vectors_indices[get_piece_type(move_from_piece)];
-        mcumax_direction step_vector;
-        while ((step_vector = mcumax_step_vectors[step_vector_index++]))
-        {
-            move.to = move.from;
-            mcumax_square en_passant_square = MCUMAX_INVALID;
-            mcumax_move castling_move = {MCUMAX_INVALID, MCUMAX_INVALID};
-
-            // Traverse ray
-            while (true)
-            {
-                move.to += step_vector;
-
-                // Off board?
-                if (is_off_board(move.to))
-                    break;
-
-                // En passant capture?
-                mcumax_square capture_square;
-                if (is_pawn(move_from_piece) && (move.to == mcumax.en_passant_square))
-                    capture_square = get_en_passant_capture_square(mcumax.en_passant_square);
-                else
-                    capture_square = move.to;
-
-                mcumax_piece capture_piece = mcumax.board[capture_square];
-
-                // Own piece?
-                if (is_own_piece(capture_piece))
-                    break;
-
-                // Pawn capture
-                if (is_pawn(move_from_piece))
-                {
-                    // Non-optimized:
-                    if (is_pawn_capture_direction(step_vector))
-                    {
-                        if (is_empty(capture_piece))
-                            break;
-                    }
-                    else
-                    {
-                        if (!is_empty(capture_piece))
-                            break;
-                    }
-
-                    // Optimized:
-                    // if (!(is_pawn_capture_direction(move_direction) ^ is_empty(capture_piece)))
-                    //     break;
-                }
-
-                // Capture piece value
-                int capture_value = 37 * mcumax_piece_values[get_piece_type(capture_piece)];
-
-                // King in check?
-                if (capture_value < 0)
-                {
-                    mcumax.nodes_count_max = node_count_start;
-                    return MCUMAX_MAX_VALUE;
-                }
-
-                // Promote pawn?
-                mcumax_piece move_to_piece;
-                if (is_pawn(move_from_piece) && is_pawn_promotion(move.to))
-                {
-                    move_to_piece = set_piece_type(move_from_piece, MCUMAX_QUEEN);
-
-                    // For underpromotion:
-                    // move_to_piece = set_piece_type(move_from_piece, pawn_promotion_piece);
-                    // if (pawn_promotion_piece > MCUMAX_KNIGHT)
-                    //     step_vector_index--;
-                    // pawn_promotion_piece--;
-                }
-                else
-                    move_to_piece = move_from_piece;
-
-                bool move_in_check = false;
-                if (depth > 0)
-                {
-                    // Make move
-                    mcumax.board[move.from] = MCUMAX_EMPTY;
-                    mcumax.board[capture_square] = MCUMAX_EMPTY;
-                    mcumax.board[move.to] = MCUMAX_MOVED | move_to_piece;
-                    mcumax.board[castling_move.from] = MCUMAX_EMPTY;
-                    mcumax.board[castling_move.to] = mcumax.current_side | MCUMAX_MOVED | MCUMAX_ROOK;
-
-                    change_side();
-
-                    // Negamax recursion
-                    unsigned char prev_en_passant_square = mcumax.en_passant_square;
-                    mcumax.en_passant_square = en_passant_square;
-                    int score = -mcumax_traverse_game_tree(depth - 1, -beta, -alpha);
-                    mcumax.en_passant_square = prev_en_passant_square;
-
-                    move_in_check = (score == -MCUMAX_MAX_VALUE);
-                    if (!move_in_check)
-                    {
-                        mcumax.nodes_count_max++;
-
-                        if (mcumax.move_callback && mcumax.move_callback(move))
-                            return 0;
-                    }
-
-                    // Undo move
-                    change_side();
-
-                    mcumax.board[castling_move.to] = MCUMAX_EMPTY;
-                    mcumax.board[castling_move.from] = mcumax.current_side | MCUMAX_ROOK;
-                    mcumax.board[move.to] = MCUMAX_EMPTY;
-                    mcumax.board[capture_square] = capture_piece;
-                    mcumax.board[move.from] = move_from_piece;
-
-                    // Alpha-beta pruning
-                    score += capture_value;
-                    if (score >= beta)
-                        return beta;
-                    if (score > alpha)
-                    {
-                        alpha = score;
-
-                        if (depth == mcumax.depth_max)
-                            mcumax.best_move = move;
-                    }
-                }
-
-                // Piece captured?
-                if (!is_empty(capture_piece))
-                    break;
-
-                // Pawn double move
-                if (is_pawn(move_from_piece))
-                {
-                    if (!is_pawn_double_move(move.to))
-                        break;
-
-                    en_passant_square = move.to;
-                }
-                // Castling
-                else if (is_unmoved_king(move_from_piece) &&
-                         is_moving_sideways(step_vector) &&
-                         is_off_board(castling_move.from))
-                {
-                    // Rook moved?
-                    castling_move.from = get_castling_from_square(move.to);
-                    if (!is_unmoved_rook(mcumax.board[castling_move.from]))
-                        break;
-
-                    // Two empty squares next to rook?
-                    if (!(is_empty(mcumax.board[get_castling_neighbor1_square(castling_move.from)]) &&
-                          is_empty(mcumax.board[get_castling_neighbor2_square(castling_move.from)])))
-                        break;
-
-                    // From check or through check?
-                    bool currently_in_check = false;
-                    if (depth > 0)
-                    {
-                        change_side();
-
-                        currently_in_check = (mcumax_traverse_game_tree(0, -MCUMAX_MAX_VALUE, MCUMAX_MAX_VALUE) == -MCUMAX_MAX_VALUE);
-
-                        change_side();
-                    }
-
-                    if (currently_in_check || move_in_check)
-                        break;
-
-                    castling_move.to = move.to;
-                }
-                // Leaper?
-                else if (is_leaper(move_from_piece))
-                    break;
-            };
-        }
-    } while ((move.from = get_next_board_square(move.from)) != move_from_start);
-
-    if (depth <= 1)
-    {
-        // To-do: evaluate
-        alpha = 0;
+        // Start iteration from scratch
+        iter_depth =
+            iter_square_to = 0;
     }
 
-    return alpha;
-}
+    // Start at best-move hint
+    iter_square_from &= ~MCUMAX_BOARD_MASK;
 
-/***************************************************************************/
-/*                               micro-Max,                                */
-/* A chess program smaller than 2KB (of non-blank source), by H.G. Muller  */
-/***************************************************************************/
-/* version 4.8 (1953 characters) features:                                 */
-/* - recursive negamax search                                              */
-/* - all-capture MVV/LVA quiescence search                                 */
-/* - (internal) iterative deepening                                        */
-/* - best-move-first 'sorting'                                             */
-/* - a hash table storing score and best move                              */
-/* - futility pruning                                                      */
-/* - king safety through magnetic, frozen king in middle-game              */
-/* - R=2 null-move pruning                                                 */
-/* - keep hash and repetition-draw detection                               */
-/* - better defense against passers through gradual promotion              */
-/* - extend check evasions in inner nodes                                  */
-/* - reduction of all non-Pawn, non-capture moves except hash move (LMR)   */
-/* - full FIDE rules (expt under-promotion) and move-legality checking     */
-
-#include <stdio.h>
-#include <stdlib.h>
-
-#define M 0x88
-#define S 0x80
-#define INF 8000
-
-#define K(A, B) *(int *)(Zobrist + A + (B & 8) + S * (B & 7))
-#define J(A) K(ToSqr + A, mcumax.board[ToSqr]) - K(FromSqr + A, Piece) - K(CaptSqr + A, Victim)
-
-static int InputFrom;
-static unsigned char InputTo;
-
-/* board: half of 16x8+dummy */
-static int NonPawnMaterial;
-static int Side;
-
-static int RootEval;
-static int RootEP;
-
-/* hash table, 16M+8 entries */
-#ifdef MCUMAX_HASHING_ENABLED
-
-static struct HashEntry
-{
-    int Key;
-    int Score;
-    unsigned char From;
-    unsigned char To;
-    unsigned char Draft;
-} HashTab[MCUMAX_HASH_TABLE_SIZE];
-
-static int HashKeyLo;
-static int HashKeyHi;
-
-/* hash translation table */
-unsigned char Zobrist[1035];
-#endif
-
-/* relative piece values */
-const signed char PieceVal[] = {0, 2, 2, 7, -1, 8, 12, 23};
-
-/* 1st dir. in StepVecs[] per piece */
-const signed char StepVecsIndices[] = {0, 7, -1, 11, 6, 8, 3, 6};
-
-/* step-vector lists */
-const signed char StepVecs[] = {-16, -15, -17, 0, 1, 16, 0, 1, 16, 15, 17, 0, 14, 18, 31, 33, 0};
-
-/* initial piece setup */
-const signed char PieceSetup[] = {6, 3, 5, 7, 4, 5, 3, 6};
-
-/* recursive minimax search, Side=moving side, Depth=depth */
-/* (Alpha,Beta)=window, Eval=current eval. score, epSqr=e.p. sqr. */
-/* Eval=score, LastTo=prev.dest; HashKeyLo,HashKeyHi=hashkeys; return score */
-static int Search(int Alpha, int Beta, int Eval, int epSqr, int LastTo, int Depth)
-{
-    int StepVec;
-
-    int BestScore;
-
-    int Score;
-
-    int IterDepth;
-
-    int h;
-
-    int SkipSqr;
-    int RookSqr;
-
-    int NewAlpha;
-
-#ifdef MCUMAX_HASHING_ENABLED
-    int LocalHashKeyLo = HashKeyLo;
-    int LocalHashKeyHi = HashKeyHi;
-#endif
-    unsigned char Victim;
-    unsigned char PieceType;
-    unsigned char Piece;
-
-    unsigned char FromSqr;
-    unsigned char ToSqr;
-
-    unsigned char BestFrom;
-    unsigned char BestTo;
-
-    unsigned char CaptSqr;
-    unsigned char StartSqr;
-
-    // +++ mcu-max changed
-    if (mcumax.user_callback)
-        mcumax.user_callback(mcumax.user_callback_userdata);
-    // --- mcu-max changed
-
-#ifdef MCUMAX_HASHING_ENABLED
-    /* lookup pos. in hash table */
-    struct HashEntry *Hash = HashTab + ((HashKeyLo + Side * epSqr) & MCUMAX_HASH_TABLE_SIZE - 1);
-#endif
-    /* adj. window: delay bonus */
-    Alpha--;
-
-    /* change sides */
-    Side ^= 0x18;
-
-#ifdef MCUMAX_HASHING_ENABLED
-    IterDepth = Hash->Draft;
-    BestScore = Hash->Score;
-    BestFrom = Hash->From;
-    BestTo = Hash->To;                                                                /* resume at stored depth */
-    if ((Hash->Key - HashKeyHi) | LastTo |                                            /* miss: other pos. or empty*/
-        !((BestScore <= Alpha) | BestFrom & 8 && (BestScore >= Beta) | BestFrom & S)) /* or window incompatible */
-        IterDepth = BestTo = 0;                                                       /* start iter. from scratch */
-    BestFrom &= ~M;                                                                   /* start at best-move hint */
+    hash_key = mcumax.hash_key;
+    hash_key2 = mcumax.hash_key2;
 #else
-    IterDepth = BestScore = BestFrom = BestTo = 0;
+    iter_depth =
+        iter_score =
+            iter_square_from =
+                iter_square_to = 0;
 #endif
 
-    /* iterative deepening loop */
-    while ((IterDepth++ < Depth) || (IterDepth < 3) ||
-           LastTo & (InputFrom == INF) &&
-               ((mcumax.nodes_count < mcumax.nodes_count_max) & (IterDepth < 98) || /* root: deepen upto time */
-                (InputFrom = BestFrom, InputTo = (BestTo & ~M), IterDepth = 3)))    /* time's up: go do best */
+    // Min depth = 2 iterative deepening loop
+    // root: deepen upto time
+    // time's up: go do best
+    while ((iter_depth++ < depth) ||
+           (iter_depth < 3) ||
+           ((mode != MCUMAX_INTERNAL_NODE) &&
+            (mcumax.square_from == MCUMAX_SQUARE_INVALID) &&
+            (((mcumax.node_count < mcumax.node_max) &&
+              (iter_depth <= mcumax.depth_max)) ||
+             (mcumax.square_from = iter_square_from,
+              mcumax.square_to = iter_square_to & ~MCUMAX_BOARD_MASK,
+              iter_depth = 3))))
     {
-        // +++ mcu-max changed
         if (mcumax.stop_search)
             break;
-        // --- mcu-max changed
 
-        /* start scan at prev. best */
-        FromSqr = StartSqr = BestFrom;
+        // Start scan at previous best
+        square_from =
+            square_start = (mode != MCUMAX_SEARCH_VALID_MOVES)
+                               ? iter_square_from
+                               : 0;
 
-        /* request try noncastl. 1st */
-        h = BestTo & S;
+        // Request try noncastling first
+        replay_move = iter_square_to & MCUMAX_SQUARE_INVALID;
 
-        /* Search null move */
-        int P = (IterDepth < 3)
-                    ? INF
-                    : Search(-Beta, 1 - Beta, -Eval, S, 0, IterDepth - 3);
+        // Change side
+        mcumax.current_side ^= 0x18;
 
-        /* Prune or stand-pat  */
-        BestScore = (-P < Beta) | (NonPawnMaterial > 35) ? (IterDepth > 2) ? -INF : Eval : -P;
+        // Search null move
+        null_move_score = (iter_depth > 2) && (beta != -MCUMAX_SCORE_MAX)
+                              ? mcumax_search(-beta,
+                                              1 - beta,
+                                              -score,
+                                              MCUMAX_SQUARE_INVALID,
+                                              iter_depth - 3,
+                                              MCUMAX_INTERNAL_NODE)
+                              : MCUMAX_SCORE_MAX;
 
-        /* node count (for timing) */
-        mcumax.nodes_count++;
+        // Change side
+        mcumax.current_side ^= 0x18;
+
+        // Prune if > beta unconsidered:static eval
+        iter_score = (-null_move_score < beta) ||
+                             (mcumax.non_pawn_material > 35)
+                         ? (iter_depth - 2)
+                               ? -MCUMAX_SCORE_MAX
+                               : score
+                         : -null_move_score;
+
+        // Node count (for timing)
+        mcumax.node_count++;
 
         do
         {
-            /* scan board looking for */
-            Piece = mcumax.board[FromSqr];
+            // Scan board looking for
+            scan_piece = mcumax.board[square_from];
 
-            /* own piece (inefficient!) */
-            if (Piece & Side)
+            // Own piece (inefficient!)
+            if (scan_piece & mcumax.current_side)
             {
-                /* PieceType = piece type (set StepVec > 0) */
-                StepVec = PieceType = (Piece & 7);
+                // p = piece type (set r>0)
+                step_vector = scan_piece_type = (scan_piece & 7);
 
-                /* first step vector f. piece */
-                int j = StepVecsIndices[PieceType];
+                // First step vector for piece
+                step_vector_index = mcumax_step_vectors_indices[scan_piece_type];
 
-                /* loop over directions StepVecs[] */
-                while ((StepVec = ((PieceType > 2) & (StepVec < 0)) ? -StepVec : -StepVecs[++j]))
+                // Loop over directions o[]
+                while (step_vector = (scan_piece_type > 2) &&
+                                             (step_vector < 0)
+                                         ? -step_vector
+                                         : -mcumax_step_vectors[++step_vector_index])
                 {
-                    /* resume normal after best */
                 replay:
-                    /* (FromSqr,ToSqr)=move, (SkipSqr,RookSqr)=castl.R */
-                    ToSqr = FromSqr;
-                    SkipSqr = RookSqr = S;
+                    // Resume normal after best
+                    square_to = square_from;
 
+                    castling_skip_square =
+                        castling_rook_square = MCUMAX_SQUARE_INVALID;
+
+                    // y traverses ray, or:
                     do
                     {
-                        /* ToSqr traverses ray, or: sneak in prev. best move */
-                        CaptSqr = ToSqr = h ? (BestTo ^ h) : (ToSqr + StepVec);
-                        if (ToSqr & M)
-                            break;
-                        /* board edge hit */
-                        BestScore = (epSqr - S) & mcumax.board[epSqr] && ((ToSqr - epSqr) < 2) & ((epSqr - ToSqr) < 2) ? INF : BestScore; /* bad castling             */
-                                                                                                                                          /* shift capt.sqr. CaptSqr if e.p.*/
-                        if ((PieceType < 3) & (ToSqr == epSqr))
-                            CaptSqr ^= 0x10;
+                        // Sneak in previous best move
+                        capture_square =
+                            square_to =
+                                replay_move
+                                    ? (iter_square_to ^ replay_move)
+                                    : (square_to + step_vector);
 
-                        Victim = mcumax.board[CaptSqr];
-
-                        /* capt. own, bad pawn mode */
-                        if (Victim & Side | (PieceType < 3) & !(ToSqr - FromSqr & 7) - !Victim)
+                        // Board edge hit
+                        if (square_to & MCUMAX_BOARD_MASK)
                             break;
 
-                        /* value of capt. piece Victim */
-                        int i = 37 * PieceVal[Victim & 7] + (Victim & 0xc0);
+                        // Bad castling
+                        if ((en_passant_square != MCUMAX_SQUARE_INVALID) &&
+                            mcumax.board[en_passant_square] &&
+                            ((square_to - en_passant_square) < 2) &&
+                            ((en_passant_square - square_to) < 2))
+                            iter_score = MCUMAX_SCORE_MAX;
 
-                        /* K capture */
-                        BestScore = (i < 0) ? INF : BestScore;
+                        // Shift capture square if en-passant
+                        if ((scan_piece_type < 3) &&
+                            (square_to == en_passant_square))
+                            capture_square ^= 16;
 
-                        /* abort on fail high */
-                        if ((BestScore >= Beta) & (IterDepth > 1))
+                        capture_piece = mcumax.board[capture_square];
+
+                        // Capture own, bad pawn mode
+                        if ((capture_piece & mcumax.current_side) ||
+                            ((scan_piece_type < 3) &&
+                             !((square_to - square_from) & 7) - !capture_piece))
+                            break;
+
+                        // Value of captured piece
+                        capture_piece_value = 37 * mcumax_capture_values[capture_piece & 7] +
+                                              (capture_piece & 0xc0);
+
+                        // King capture
+                        if (capture_piece_value < 0)
+                        {
+                            iter_score = MCUMAX_SCORE_MAX;
+                            iter_depth = MCUMAX_DEPTH_MAX - 1;
+                        }
+
+                        // Abort on fail high
+                        if ((iter_score >= beta) &&
+                            (iter_depth > 1))
                             goto cutoff;
 
-                        /* MVV/LVA scoring */
-                        Score = (IterDepth - 1) ? Eval : i - PieceType;
-                        /* remaining depth */
-                        if ((IterDepth - !Victim) > 1)
+                        // MVV/LVA scoring if depth == 1
+                        step_score = (iter_depth != 1)
+                                         ? score
+                                         : capture_piece_value - scan_piece_type;
+
+                        // All captures if depth == 2
+                        if ((iter_depth - !capture_piece) > 1)
                         {
-                            Score = (PieceType < 6) ? mcumax.board[FromSqr + 8] - mcumax.board[ToSqr + 8] : 0; /* center positional pts. */
-                            mcumax.board[RookSqr] = mcumax.board[CaptSqr] = mcumax.board[FromSqr] = 0;
+                            // Center positional score
+                            step_score = (scan_piece_type < 6)
+                                             ? mcumax.board[square_from + 0x8] -
+                                                   mcumax.board[square_to + 0x8]
+                                             : 0;
 
-                            /* do move, set non-virgin */
-                            mcumax.board[ToSqr] = Piece | 0x20;
-                            if (!(RookSqr & M))
+                            mcumax.board[castling_rook_square] =
+                                mcumax.board[capture_square] =
+                                    mcumax.board[square_from] = 0;
+
+                            // Do move, set non-virgin
+                            mcumax.board[square_to] = scan_piece | MCUMAX_PIECE_MOVED;
+
+                            // Castling: put rook & score
+                            if (!(castling_rook_square & MCUMAX_BOARD_MASK))
                             {
-                                /* castling: put R & score */
-                                mcumax.board[SkipSqr] = Side + 6;
-                                Score += 50;
+                                mcumax.board[castling_skip_square] = mcumax.current_side + 6;
+                                step_score += 50;
                             }
 
-                            /* penalize mid-game K move */
-                            Score -= (PieceType - 4) | (NonPawnMaterial > 29) ? 0 : 20;
+                            // Freeze king in mid-game
+                            step_score -= ((scan_piece_type != 4) ||
+                                           (mcumax.non_pawn_material > 30))
+                                              ? 0
+                                              : 20;
 
-                            /* pawns: */
-                            if (PieceType < 3)
+                            // Pawns
+                            if (scan_piece_type < 3)
                             {
-                                Score -= 9 * (((FromSqr - 2) & M || mcumax.board[FromSqr - 2] - Piece) +   /* structure, undefended    */
-                                              ((FromSqr + 2) & M || mcumax.board[FromSqr + 2] - Piece) - 1 /* squares plus bias */
-                                              + (mcumax.board[FromSqr ^ 16] == Side + 36))                 /* kling to non-virgin King */
-                                         - (NonPawnMaterial >> 2);                                         /* end-game Pawn-push bonus */
+                                step_score -=
+                                    9 * ((((square_from - 2) & MCUMAX_BOARD_MASK) ||
+                                          mcumax.board[square_from - 2] - scan_piece) +
+                                         // Structure, undefended
+                                         (((square_from + 2) & MCUMAX_BOARD_MASK) ||
+                                          mcumax.board[square_from + 2] - scan_piece) -
+                                         1 +
+                                         // Squares plus bias
+                                         (mcumax.board[square_from ^ 0x10] ==
+                                          (mcumax.current_side + 36))) // Cling to magnetic king
+                                    - (mcumax.non_pawn_material >> 2); // End-game Pawn-push bonus
 
-                                /* promotion or 6/7th bonus */
-                                NewAlpha = ToSqr + StepVec + 1 & S
-                                               ? (647 - PieceType)
-                                               : 2 * (Piece & (ToSqr + 0x10) & 0x20);
-                                mcumax.board[ToSqr] += NewAlpha;
+                                // Promotion / passer bonus
+                                capture_piece_value +=
+                                    step_alpha =
+                                        square_to + step_vector + 1 & MCUMAX_SQUARE_INVALID
+                                            ? (647 - scan_piece_type)
+                                            : 2 * (scan_piece & (square_to + 0x10) & 0x20);
 
-                                /* change piece, add score */
-                                i += NewAlpha;
+                                // Upgrade pawn or convert to queen
+                                mcumax.board[square_to] += step_alpha;
                             }
-                            Score += Eval + i;
 
-                            /* new eval and alpha */
-                            NewAlpha = BestScore > Alpha ? BestScore : Alpha;
-
-                            /* update hash key */
 #ifdef MCUMAX_HASHING_ENABLED
-                            HashKeyLo += J(0);
-                            HashKeyHi += J(8) + RookSqr - S;
+                            mcumax.hash_key += Hash(0);
+                            mcumax.hash_key2 += Hash(8) + castling_rook_square - MCUMAX_SQUARE_INVALID;
 #endif
 
-                            int C = IterDepth - 1 - ((IterDepth > 5) & (PieceType > 2) & !Victim & !h);
-                            /* extend 1 ply if in check */
-                            C = (NonPawnMaterial > 29) | (IterDepth < 3) | (P - INF) ? C : IterDepth;
+                            // New score & alpha
+                            step_score += score + capture_piece_value;
+                            step_alpha = iter_score > alpha
+                                             ? iter_score
+                                             : alpha;
 
-                            int s;
+                            // New depth, reduce non-capture
+                            step_depth = iter_depth - 1 -
+                                         ((iter_depth > 5) &&
+                                          (scan_piece_type > 2) &&
+                                          !capture_piece &&
+                                          !replay_move);
+
+                            // Extend 1 ply if in check
+                            if (!((mcumax.non_pawn_material > 30) ||
+                                  (null_move_score - MCUMAX_SCORE_MAX) ||
+                                  (iter_depth < 3) ||
+                                  (capture_piece &&
+                                   (scan_piece_type != 4))))
+                                step_depth = iter_depth;
+
+                            // Futility, recursive evaluation of reply
                             do
-                                /* recursive eval. of reply */
-                                s = (C > 2) | (Score > NewAlpha)
-                                        ? -Search(-Beta, -NewAlpha, -Score, SkipSqr, 0, C)
-                                        : Score; /* or fail low if futile */
-                            while ((s > Alpha) & (++C < IterDepth));
-
-                            Score = s;
-                            /* move pending & in root: */
-                            if (LastTo &&
-                                (InputFrom - INF) &&
-                                (Score + INF) &&
-                                (FromSqr == InputFrom) & (ToSqr == InputTo))
                             {
-                                RootEval = -Eval - i;
+                                // Change side
+                                mcumax.current_side ^= 0x18;
 
-                                /* exit if legal & found */
-                                RootEP = SkipSqr;
+                                step_score_new = ((mode == MCUMAX_SEARCH_VALID_MOVES) ||
+                                                  (step_depth > 2) ||
+                                                  (step_score > step_alpha))
+                                                     ? -mcumax_search(-beta,
+                                                                      -step_alpha,
+                                                                      -step_score,
+                                                                      castling_skip_square,
+                                                                      step_depth,
+                                                                      MCUMAX_INTERNAL_NODE)
+                                                     : step_score;
 
-                                /* lock game in hash as draw */
+                                // Change side
+                                mcumax.current_side ^= 0x18;
+                            } while ((step_score_new > alpha) &&
+                                     (++step_depth < iter_depth));
+
+                            // No fail: re-search unreduced
+                            step_score = step_score_new;
+
+                            if ((mode == MCUMAX_PLAY_MOVE) &&
+                                (step_score != -MCUMAX_SCORE_MAX) &&
+                                (square_from == mcumax.square_from) &&
+                                (square_to == mcumax.square_to))
+                            {
+                                // Playing move
+                                mcumax.score = -score - capture_piece_value;
+                                mcumax.en_passant_square = castling_skip_square;
+
 #ifdef MCUMAX_HASHING_ENABLED
-                                Hash->Draft = 99;
-                                Hash->Score = 0;
+                                // Lock game in hash as draw
+                                hash_entry->depth = MCUMAX_DEPTH_MAX;
+                                hash_entry->score = 0;
 #endif
-                                NonPawnMaterial += i >> 7;
 
-                                /* captured non-P material */
-                                return Beta;
+                                // Total captured material
+                                mcumax.non_pawn_material += capture_piece_value >> 7;
+
+                                // Change side
+                                mcumax.current_side ^= 0x18;
+
+                                // Captured non-pawn material
+                                return beta;
                             }
 
-                            /* restore hash key */
 #ifdef MCUMAX_HASHING_ENABLED
-                            HashKeyLo = LocalHashKeyLo;
-                            HashKeyHi = LocalHashKeyHi;
+                            mcumax.hash_key = hash_key;
+                            mcumax.hash_key2 = hash_key2;
 #endif
 
-                            /* undo move,RookSqr can be dummy */
-                            mcumax.board[RookSqr] = Side + 6;
-                            mcumax.board[SkipSqr] = mcumax.board[ToSqr] = 0;
-                            mcumax.board[FromSqr] = Piece;
-                            mcumax.board[CaptSqr] = Victim;
+                            // Undo move
+                            mcumax.board[castling_rook_square] = mcumax.current_side + 6;
+                            mcumax.board[castling_skip_square] = mcumax.board[square_to] = 0;
+                            mcumax.board[square_from] = scan_piece;
+                            mcumax.board[capture_square] = capture_piece;
+
+                            if ((mode == MCUMAX_SEARCH_BEST_MOVE) &&
+                                (step_score != -MCUMAX_SCORE_MAX) &&
+                                (square_from == mcumax.square_from) &&
+                                (square_to == mcumax.square_to))
+                                // Searching best move
+                                return beta;
+
+                            if ((mode == MCUMAX_SEARCH_VALID_MOVES) &&
+                                (step_score != -MCUMAX_SCORE_MAX) &&
+                                (mcumax.square_from == MCUMAX_SQUARE_INVALID) &&
+                                (iter_depth == 3) &&
+                                !replay_move)
+                            {
+                                // Searching valid moves
+                                mcumax_move move = {square_from, square_to};
+
+                                if (mcumax.valid_moves_num < mcumax.valid_moves_buffer_size)
+                                    mcumax.valid_moves_buffer[mcumax.valid_moves_num] = move;
+
+                                mcumax.valid_moves_num++;
+                            }
                         }
 
-                        if (Score > BestScore)
+                        // New best, update max,best
+                        if (step_score > iter_score)
                         {
-                            /* new best, update max,best */
-                            BestScore = Score;
-                            BestFrom = FromSqr;
-                            /* mark double move with S */
-                            BestTo = ToSqr | S & SkipSqr;
+                            // Mark non-double
+                            iter_score = step_score;
+                            iter_square_from = square_from;
+                            iter_square_to = square_to |
+                                             (castling_skip_square & MCUMAX_SQUARE_INVALID);
                         }
 
-                        if (h)
+                        if (replay_move)
                         {
-                            /* redo after doing old best */
-                            h = 0;
+                            // Redo after doing old best
+                            replay_move = 0;
+
                             goto replay;
                         }
 
-                        if ((FromSqr + StepVec - ToSqr) | (Piece & 0x20) |                                           /* not 1st step, moved before */
-                            (PieceType > 2) & ((PieceType - 4) | (j - 7) ||                                          /* no P & no lateral K move, */
-                                               mcumax.board[RookSqr = (FromSqr + 3) ^ (StepVec >> 1) & 7] - Side - 6 /* no virgin R in corner RookSqr, */
-                                               || mcumax.board[RookSqr ^ 1] | mcumax.board[RookSqr ^ 2])             /* no 2 empty sq. next to R */
-                        )
-                            /* fake capt. for nonsliding */
-                            Victim += PieceType < 5;
+                        // Not first step, moved before
+                        if ((square_from + step_vector - square_to) ||
+                            (scan_piece & MCUMAX_PIECE_MOVED) ||
+                            // No pawn and no lateral king move
+                            ((scan_piece_type > 2) &&
+                             (((scan_piece_type != 4) ||
+                               (step_vector_index != 7) ||
+                               // No virgin rook in corner
+                               (mcumax.board[castling_rook_square =
+                                                 square_from + 3 ^ step_vector >> 1 & 7] -
+                                mcumax.current_side - 6) ||
+                               // No two empty squares next to rook
+                               mcumax.board[castling_rook_square ^ 1] ||
+                               mcumax.board[castling_rook_square ^ 2]))))
+                            // Fake capture for nonsliding
+                            capture_piece += (scan_piece_type < 5);
                         else
-                            /* enable e.p. */
-                            SkipSqr = ToSqr;
+                            // Enable en-passant
+                            castling_skip_square = square_to;
 
-                        /* if not capt. continue ray */
-                    } while (!Victim);
+                        // If no capture, continue ray
+                    } while (!capture_piece);
                 }
             }
-            /* next sqr. of board, wrap */
-        } while ((FromSqr = (FromSqr + 9) & ~M) - StartSqr);
+
+            // Next square of board, wrap
+        } while ((square_from = ((square_from + 9) &
+                                 ~MCUMAX_BOARD_MASK)) != square_start);
 
     cutoff:
-        /* mate holds to any depth */
-        if ((BestScore > (INF - M)) | (BestScore < (M - INF)))
-            IterDepth = 98;
+        // Check test thru NM best loses king: (stale)mate
+        if ((iter_score == -MCUMAX_SCORE_MAX) &&
+            (null_move_score != MCUMAX_SCORE_MAX))
+            iter_score = 0;
 
-        /* best loses K: (stale)mate */
-        BestScore = (BestScore + INF) | (P == INF) ? BestScore : 0;
-
-        /* protect game history */
 #ifdef MCUMAX_HASHING_ENABLED
-        if (Hash->Draft < 99)
+        // Protect game history
+        if (hash_entry->depth < MCUMAX_DEPTH_MAX)
         {
-            /* always store in hash tab */
-            Hash->Key = HashKeyHi;
-            Hash->Score = BestScore;
-            Hash->Draft = IterDepth;
+            hash_entry->key2 = mcumax.hash_key2;
+            hash_entry->score = iter_score;
+            hash_entry->depth = iter_depth;
 
-            /* move, type (bound/exact),*/
-            Hash->From = BestFrom | 8 * (BestScore > Alpha) | S * (BestScore < Beta);
-            Hash->To = BestTo;
-
-            /* uncomment for Kibitz */
-            /*if(LastTo)printf("%2d ply, %9d searched, score=%6d by %c%c%c%c\depth",IterDepth-1,Nodes-S,BestScore,
-                'Hash'+(BestFrom&7),'8'-(BestFrom>>4),'Hash'+(BestTo&7),'8'-(BestTo>>4&7)); */
+            // Move, type (bound/exact)
+            hash_entry->square_from = iter_square_from |
+                                      8 * (iter_score > alpha) |
+                                      MCUMAX_SQUARE_INVALID * (iter_score < beta);
+            hash_entry->square_to = iter_square_to;
         }
 #endif
 
-        /* encoded in BestFrom S,8 bits */
+        // Kibitz
+        // if (in_root)
+        //     printf("%2d %6d %10d %c%c%c%c\n",
+        //         iter_depth - 2,
+        //         iter_score,
+        //         mcumax.node_count,
+        //         'a' + (iter_square_from & 7),
+        //         '8' - (iter_square_from >> 4),
+        //         'a' + (iter_square_to & 7),
+        //         '8' - (iter_square_to >> 4 & 7));
     }
 
-    /* change sides back */
-    Side ^= 0x18;
-
-    /* delayed-loss bonus */
-    return BestScore += (BestScore < Eval);
+    // Delayed-loss bonus
+    return iter_score += iter_score < score;
 }
 
 /***************************************************************************/
 
-// mcu-max wrapper
-
-static void update_to_micromax(void)
+void mcumax_init()
 {
-    Side = mcumax.current_side ^ (MCUMAX_WHITE | MCUMAX_BLACK);
-    RootEP = mcumax.en_passant_square;
-}
-
-static void update_from_micromax(void)
-{
-    mcumax.current_side = Side ^ (MCUMAX_WHITE | MCUMAX_BLACK);
-    mcumax.en_passant_square = RootEP;
-}
-
-void mcumax_reset()
-{
-    for (int x = 0; x < 8; x++)
+    for (uint32_t x = 0; x < 8; x++)
     {
         // Setup pieces (left side)
-        mcumax.board[0x10 * 0 + x] = MCUMAX_BLACK | mcumax_board_setup[x];
-        mcumax.board[0x10 * 1 + x] = MCUMAX_BLACK | MCUMAX_PAWN_DOWNSTREAM;
-        for (int y = 2; y < 6; y++)
+        mcumax.board[0x10 * 0 + x] = MCUMAX_BOARD_BLACK | mcumax_board_setup[x];
+        mcumax.board[0x10 * 1 + x] = MCUMAX_BOARD_BLACK | MCUMAX_PAWN_DOWNSTREAM;
+        for (uint32_t y = 2; y < 6; y++)
             mcumax.board[0x10 * y + x] = MCUMAX_EMPTY;
-        mcumax.board[0x10 * 6 + x] = MCUMAX_WHITE | MCUMAX_PAWN_UPSTREAM;
-        mcumax.board[0x10 * 7 + x] = MCUMAX_WHITE | mcumax_board_setup[x];
+        mcumax.board[0x10 * 6 + x] = MCUMAX_BOARD_WHITE | MCUMAX_PAWN_UPSTREAM;
+        mcumax.board[0x10 * 7 + x] = MCUMAX_BOARD_WHITE | mcumax_board_setup[x];
 
         // Setup weights (right side)
-        for (int y = 0; y < 8; y++)
+        for (uint32_t y = 0; y < 8; y++)
             mcumax.board[16 * y + x + 8] = (x - 4) * (x - 4) + (y - 4) * (y - 3);
     }
+    mcumax.current_side = MCUMAX_BOARD_WHITE;
 
-    mcumax.current_side = MCUMAX_WHITE;
-    mcumax.en_passant_square = MCUMAX_INVALID;
-
-    // To be removed:
-    update_to_micromax();
-    RootEval = 0;
-    NonPawnMaterial = 0;
+    mcumax.score = 0;
+    mcumax.en_passant_square = MCUMAX_SQUARE_INVALID;
+    mcumax.non_pawn_material = 0;
 
 #ifdef MCUMAX_HASHING_ENABLED
-    memset(HashTab, 0, sizeof(HashTab));
+    mcumax.hash_key = 0;
+    mcumax.hash_key2 = 0;
+
+    memset(mcumax_hash_table, 0, sizeof(mcumax_hash_table));
+
+    // for (uint32_t i = MCUMAX_HASH_SCRAMBLE_TABLE_SIZE - 1; i > MCUMAX_BOARD_MASK; i--)
+    //     mcumax_scramble_table[i] = rand() & 0xff;
 
     srand(1);
-    for (int i = sizeof(Zobrist); i > MCUMAX_BOARD_MASK; i--)
-        Zobrist[i] = rand() >> 9;
+    for (uint32_t i = 0; i < 1035; i++)
+        mcumax_scramble_table[i] =
+            ((rand() & 0xff) << 0) |
+            ((rand() & 0xff) << 8) |
+            ((rand() & 0xff) << 16) |
+            ((rand() & 0xff) << 24);
 #endif
 }
 
@@ -838,7 +649,7 @@ static mcumax_square mcumax_set_piece(mcumax_square square, mcumax_piece piece)
     if (square & MCUMAX_BOARD_MASK)
         return square;
 
-    mcumax.board[square] = piece ? piece | MCUMAX_MOVED : piece;
+    mcumax.board[square] = piece ? (piece | MCUMAX_PIECE_MOVED) : piece;
 
     return square + 1;
 }
@@ -848,15 +659,15 @@ mcumax_piece mcumax_get_piece(mcumax_square square)
     if (square & MCUMAX_BOARD_MASK)
         return MCUMAX_EMPTY;
 
-    return mcumax.board[square] & 0x1f;
+    return (mcumax.board[square] & 0xf) ^ MCUMAX_BLACK;
 }
 
 void mcumax_set_fen_position(const char *fen_string)
 {
-    mcumax_reset();
+    mcumax_init();
 
-    int field_index = 0;
-    int board_index = 0;
+    uint32_t field_index = 0;
+    uint32_t board_index = 0;
 
     char c;
     while ((c = *fen_string++))
@@ -899,58 +710,72 @@ void mcumax_set_fen_position(const char *fen_string)
 
                 case '1':
                     board_index = mcumax_set_piece(board_index, MCUMAX_EMPTY);
+
                     break;
 
                 case 'P':
-                    board_index = mcumax_set_piece(board_index, MCUMAX_PAWN_UPSTREAM | MCUMAX_WHITE);
+                    board_index = mcumax_set_piece(board_index, MCUMAX_PAWN_UPSTREAM | MCUMAX_BOARD_WHITE);
+
                     break;
 
                 case 'N':
-                    board_index = mcumax_set_piece(board_index, MCUMAX_KNIGHT | MCUMAX_WHITE);
+                    board_index = mcumax_set_piece(board_index, MCUMAX_KNIGHT | MCUMAX_BOARD_WHITE);
+
                     break;
 
                 case 'B':
-                    board_index = mcumax_set_piece(board_index, MCUMAX_BISHOP | MCUMAX_WHITE);
+                    board_index = mcumax_set_piece(board_index, MCUMAX_BISHOP | MCUMAX_BOARD_WHITE);
+
                     break;
 
                 case 'R':
-                    board_index = mcumax_set_piece(board_index, MCUMAX_ROOK | MCUMAX_WHITE);
+                    board_index = mcumax_set_piece(board_index, MCUMAX_ROOK | MCUMAX_BOARD_WHITE);
+
                     break;
 
                 case 'Q':
-                    board_index = mcumax_set_piece(board_index, MCUMAX_QUEEN | MCUMAX_WHITE);
+                    board_index = mcumax_set_piece(board_index, MCUMAX_QUEEN | MCUMAX_BOARD_WHITE);
+
                     break;
 
                 case 'K':
-                    board_index = mcumax_set_piece(board_index, MCUMAX_KING | MCUMAX_WHITE);
+                    board_index = mcumax_set_piece(board_index, MCUMAX_KING | MCUMAX_BOARD_WHITE);
+
                     break;
 
                 case 'p':
-                    board_index = mcumax_set_piece(board_index, MCUMAX_PAWN_DOWNSTREAM | MCUMAX_BLACK);
+                    board_index = mcumax_set_piece(board_index, MCUMAX_PAWN_DOWNSTREAM | MCUMAX_BOARD_BLACK);
+
                     break;
 
                 case 'n':
-                    board_index = mcumax_set_piece(board_index, MCUMAX_KNIGHT | MCUMAX_BLACK);
+                    board_index = mcumax_set_piece(board_index, MCUMAX_KNIGHT | MCUMAX_BOARD_BLACK);
+
                     break;
 
                 case 'b':
-                    board_index = mcumax_set_piece(board_index, MCUMAX_BISHOP | MCUMAX_BLACK);
+                    board_index = mcumax_set_piece(board_index, MCUMAX_BISHOP | MCUMAX_BOARD_BLACK);
+
                     break;
 
                 case 'r':
-                    board_index = mcumax_set_piece(board_index, MCUMAX_ROOK | MCUMAX_BLACK);
+                    board_index = mcumax_set_piece(board_index, MCUMAX_ROOK | MCUMAX_BOARD_BLACK);
+
                     break;
 
                 case 'q':
-                    board_index = mcumax_set_piece(board_index, MCUMAX_QUEEN | MCUMAX_BLACK);
+                    board_index = mcumax_set_piece(board_index, MCUMAX_QUEEN | MCUMAX_BOARD_BLACK);
+
                     break;
 
                 case 'k':
-                    board_index = mcumax_set_piece(board_index, MCUMAX_KING | MCUMAX_BLACK);
+                    board_index = mcumax_set_piece(board_index, MCUMAX_KING | MCUMAX_BOARD_BLACK);
+
                     break;
 
                 case '/':
                     board_index = (board_index < 0x80) ? (board_index & 0xf0) + 0x10 : board_index;
+
                     break;
                 }
             }
@@ -960,11 +785,13 @@ void mcumax_set_fen_position(const char *fen_string)
             switch (c)
             {
             case 'w':
-                mcumax.current_side = MCUMAX_WHITE;
+                mcumax.current_side = MCUMAX_BOARD_WHITE;
+
                 break;
 
             case 'b':
-                mcumax.current_side = MCUMAX_BLACK;
+                mcumax.current_side = MCUMAX_BOARD_BLACK;
+
                 break;
             }
             break;
@@ -973,23 +800,27 @@ void mcumax_set_fen_position(const char *fen_string)
             switch (c)
             {
             case 'K':
-                mcumax.board[0x74] &= ~MCUMAX_MOVED;
-                mcumax.board[0x77] &= ~MCUMAX_MOVED;
+                mcumax.board[0x74] &= ~MCUMAX_PIECE_MOVED;
+                mcumax.board[0x77] &= ~MCUMAX_PIECE_MOVED;
+
                 break;
 
             case 'Q':
-                mcumax.board[0x74] &= ~MCUMAX_MOVED;
-                mcumax.board[0x70] &= ~MCUMAX_MOVED;
+                mcumax.board[0x74] &= ~MCUMAX_PIECE_MOVED;
+                mcumax.board[0x70] &= ~MCUMAX_PIECE_MOVED;
+
                 break;
 
             case 'k':
-                mcumax.board[0x04] &= ~MCUMAX_MOVED;
-                mcumax.board[0x07] &= ~MCUMAX_MOVED;
+                mcumax.board[0x04] &= ~MCUMAX_PIECE_MOVED;
+                mcumax.board[0x07] &= ~MCUMAX_PIECE_MOVED;
+
                 break;
 
             case 'q':
-                mcumax.board[0x04] &= ~MCUMAX_MOVED;
-                mcumax.board[0x00] &= ~MCUMAX_MOVED;
+                mcumax.board[0x04] &= ~MCUMAX_PIECE_MOVED;
+                mcumax.board[0x00] &= ~MCUMAX_PIECE_MOVED;
+
                 break;
             }
 
@@ -1008,6 +839,7 @@ void mcumax_set_fen_position(const char *fen_string)
             case 'h':
                 mcumax.en_passant_square &= 0x7f;
                 mcumax.en_passant_square |= (c - 'a');
+
                 break;
 
             case '1':
@@ -1020,15 +852,13 @@ void mcumax_set_fen_position(const char *fen_string)
             case '8':
                 mcumax.en_passant_square &= 0x7f;
                 mcumax.en_passant_square |= 16 * ('8' - c);
+
                 break;
             }
 
             break;
         }
     }
-
-    // To be removed...
-    update_to_micromax();
 }
 
 mcumax_piece mcumax_get_current_side(void)
@@ -1036,84 +866,62 @@ mcumax_piece mcumax_get_current_side(void)
     return mcumax.current_side;
 }
 
-void mcumax_set_callback(mcumax_callback callback, void *userdata)
+static int32_t mcumax_start_search(enum mcumax_mode mode,
+                                   mcumax_move move,
+                                   uint32_t depth_max,
+                                   uint32_t node_max)
 {
-    mcumax.user_callback = callback;
-    mcumax.user_callback_userdata = userdata;
+    mcumax.square_from = move.from;
+    mcumax.square_to = move.to;
+
+    mcumax.node_max = node_max;
+    mcumax.node_count = 0;
+    mcumax.depth_max = depth_max;
+
+    mcumax.stop_search = false;
+
+    return mcumax_search(-MCUMAX_SCORE_MAX,
+                         MCUMAX_SCORE_MAX,
+                         mcumax.score,
+                         mcumax.en_passant_square,
+                         3,
+                         mode);
 }
 
-static bool mcumax_add_valid_move_callback(mcumax_move move)
+uint32_t mcumax_search_valid_moves(mcumax_move *valid_moves_buffer, uint32_t valid_moves_buffer_size)
 {
-    if (mcumax.valid_moves_num < mcumax.valid_moves_buffer_size)
-        mcumax.valid_moves_buffer[mcumax.valid_moves_num++] = move;
-
-    return false;
-}
-
-int mcumax_get_valid_moves(mcumax_move *valid_moves_buffer, int valid_moves_buffer_size)
-{
-    update_from_micromax();
-    mcumax.move_callback = mcumax_add_valid_move_callback;
-
-    mcumax.valid_moves_buffer_size = valid_moves_buffer_size;
-    mcumax.valid_moves_buffer = valid_moves_buffer;
     mcumax.valid_moves_num = 0;
+    mcumax.valid_moves_buffer = valid_moves_buffer;
+    mcumax.valid_moves_buffer_size = valid_moves_buffer_size;
 
-    mcumax_traverse_game_tree(1, -MCUMAX_MAX_VALUE, MCUMAX_MAX_VALUE);
+    mcumax_start_search(MCUMAX_SEARCH_VALID_MOVES, MCUMAX_MOVE_INVALID, 0, 0);
 
     return mcumax.valid_moves_num;
 }
 
-void mcumax_get_best_move(int nodes_count_max, mcumax_move *move)
+mcumax_move mcumax_search_best_move(uint32_t node_max, uint32_t depth_max)
 {
-    return;
+    int32_t score = mcumax_start_search(MCUMAX_SEARCH_BEST_MOVE,
+                                        MCUMAX_MOVE_INVALID, depth_max + 3, node_max);
+
+    if (score == MCUMAX_SCORE_MAX)
+        return (mcumax_move){mcumax.square_from, mcumax.square_to};
+    else
+        return MCUMAX_MOVE_INVALID;
 }
 
-bool mcumax_play_best_move(int nodes_count_max, mcumax_move *move)
+bool mcumax_play_move(mcumax_move move)
 {
-    mcumax.nodes_count_max = nodes_count_max;
-    mcumax.nodes_count = 0;
+    return mcumax_start_search(MCUMAX_PLAY_MOVE, move, 0, 0) == MCUMAX_SCORE_MAX;
+}
 
-    mcumax.valid_moves_buffer = NULL;
-
-    mcumax.stop_search = false;
-
-    InputFrom = INF;
-    update_to_micromax();
-    int Eval = Search(-INF, INF, RootEval, RootEP, 1, 3);
-    if (!mcumax.stop_search)
-    {
-        update_from_micromax();
-
-        if (Eval > (-INF + 1))
-            *move = (mcumax_move){InputFrom, InputTo};
-        else
-            *move = (mcumax_move){MCUMAX_INVALID, MCUMAX_INVALID};
-    }
-
-    return !mcumax.stop_search;
+void mcumax_set_callback(mcumax_callback callback, void *userdata)
+{
+    mcumax.user_callback = callback;
+    mcumax.user_data = userdata;
 }
 
 void mcumax_stop_search(void)
 {
     mcumax.stop_search = true;
-}
-
-bool mcumax_play_move(mcumax_move move)
-{
-    mcumax.nodes_count = 0;
-
-    mcumax.valid_moves_buffer = NULL;
-
-    mcumax.stop_search = false;
-
-    InputFrom = move.from;
-    InputTo = move.to;
-
-    update_to_micromax();
-    Search(-INF, INF, RootEval, RootEP, 1, 3);
-    if (!mcumax.stop_search)
-        update_from_micromax();
-
-    return !mcumax.stop_search;
 }

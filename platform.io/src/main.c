@@ -7,15 +7,15 @@
  * License: MIT
  */
 
-#include "battery.h"
+#include "adc.h"
 #include "buzzer.h"
 #include "comm.h"
+#include "datalog.h"
 #include "debug.h"
 #include "display.h"
 #include "events.h"
 #include "flash.h"
 #include "game.h"
-#include "gm.h"
 #include "keyboard.h"
 #include "measurements.h"
 #include "menu.h"
@@ -24,76 +24,82 @@
 #include "rtc.h"
 #include "settings.h"
 #include "system.h"
+#include "tube.h"
 #include "view.h"
 
 int main(void)
 {
-    // Init base systems
+    // Startup
+
     initSystem();
+
+#if defined(SDLSIM)
+
+    initFlash();
+
+#endif
+
     initEvents();
+    initSettings();
     initBuzzer();
-debugBeep();
 
     // POWER key delay
+
     sleep(500);
+    setPower(true);
 
-    initPower();
-debugBeep();
+    // Start secondary systems
 
-    // Check firmware
+#if defined(CHECK_FIRMWARE)
+
     if (!checkFirmware())
         playSystemAlert();
 
-    // Init subsystems
-    initSettings();
-debugBeep();
-    initMeasurements();
-debugBeep();
-    initGame();
-debugBeep();
-    initGM();
-debugBeep();
-    initBattery();
-debugBeep();
-    initKeyboard();
-debugBeep();
-    initDisplay();
-debugBeep();
-    initComm();
-debugBeep();
+#endif
 
-    // Start tasks
-    updateBattery(); // Check low battery
-debugBeep();
-    updateEventsMenus();
-debugBeep();
+    initTube();
+    initADC();
+    initPower();
+    initKeyboard();
+    initDisplay();
+
+#if defined(DEBUG_TESTMODE)
+
+    debugTestMode();
+
+#else
+    initComm();
+    initMeasurements();
+    initGame();
+
+    // Check low battery
+
+    updateADC();
+
+    // Welcome screen
 
     clearDisplayBuffer();
     drawWelcome();
     sendDisplayBuffer();
-debugBeep();
-
-    triggerBacklight();
-debugBeep();
+    triggerDisplay();
+    setDisplay(true);
 
     sleep(1000);
-debugBeep();
 
     initRTC();
-debugBeep();
-    writeDataLogEntry();
-debugBeep();
-    enableMeasurements(true);
-debugBeep();
-    setMeasurementView(&instantaneousRateView);
-debugBeep();
+    initDatalog();
+    startEvents();
 
     // UI loop
+
+    setMeasurementView(0);
+
     while (1)
     {
         sleep(1);
 
         updateGame();
-        updateView();
+        updateEvents();
     }
+#endif
 }

@@ -1,28 +1,38 @@
 /*
  * Rad Pro
- * User interface view manager
+ * User interface view
  *
  * (C) 2022-2023 Gissio
  *
  * License: MIT
  */
 
-#ifndef VIEW_H
+#if !defined(VIEW_H)
+
 #define VIEW_H
 
-#include <stdint.h>
+enum Event
+{
+    EVENT_UP,
+    EVENT_DOWN,
+    EVENT_BACK,
+    EVENT_ENTER,
+    EVENT_BACKLIGHT,
+    EVENT_RESET,
+    EVENT_POWER_OFF,
 
-#include "keyboard.h"
+    EVENT_DRAW,
+
+    EVENT_NONE,
+};
 
 struct View;
 
-typedef void OnViewDraw(const struct View *view);
-typedef void OnViewKey(const struct View *view, KeyEvent keyEvent);
+typedef void OnEvent(const struct View *view, enum Event event);
 
 struct View
 {
-    OnViewDraw *onDraw;
-    OnViewKey *onKey;
+    OnEvent *onEvent;
     const void *userdata;
 };
 
@@ -30,6 +40,7 @@ void updateView(void);
 
 void setView(const struct View *view);
 const struct View *getView(void);
+
 void refreshView(void);
 
 #endif

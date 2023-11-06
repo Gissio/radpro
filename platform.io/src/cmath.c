@@ -1,6 +1,6 @@
 /*
  * Rad Pro
- * Complementary math
+ * Compact math
  *
  * (C) 2022-2023 Gissio
  *
@@ -11,6 +11,8 @@
 
 #include "cmath.h"
 
+static uint32_t randomLFSR = 1;
+
 void addClamped(uint32_t *px, uint32_t y)
 {
     if (*px > (UINT32_MAX - y))
@@ -19,103 +21,42 @@ void addClamped(uint32_t *px, uint32_t y)
         *px += y;
 }
 
-int32_t divideDown(int32_t x, int32_t y)
+void getConfidenceIntervals(float *lowerConfidenceInterval,
+                            float *upperConfidenceInterval,
+                            uint32_t n)
 {
-    if (x >= 0)
-        return (x / y);
+    // Patel, V. - Comparison of Confidence Intervals for the Poisson Mean: Some New Aspects (2012)
+
+    if (n <= 1)
+    {
+        *lowerConfidenceInterval = -0.97468219201571F;
+        *upperConfidenceInterval = 2.6888794541139354F;
+    }
+    else if (n == 2)
+    {
+        *lowerConfidenceInterval = -0.8788953607280174F;
+        *upperConfidenceInterval = 1.785821695469449F;
+    }
     else
-        return (x - y + 1) / y;
+    {
+        // Normal approximation
+
+        float normalApproximation = 1.959964F / sqrtf((float)n);
+
+        // First order correction
+
+        *lowerConfidenceInterval = -normalApproximation + 0.97763241F / (-0.11683061F + n);
+        *upperConfidenceInterval = normalApproximation + 0.92095147F / (0.34074598F + n);
+    }
 }
 
-int32_t remainderDown(int32_t x, int32_t y)
+bool getRandomBit(void)
 {
-    int32_t remainder = x % y;
+    // https://en.wikipedia.org/wiki/Linear-feedback_shift_register#Galois_LFSRs
 
-    return (remainder < 0) ? (remainder + y) : remainder;
-}
+    int32_t lsb = randomLFSR & 1;
 
-int32_t getExponent(float value)
-{
-    if (value <= 0)
-        return -38;
+    randomLFSR = (randomLFSR >> 1) ^ (-lsb & 0xb400);
 
-    // return (int32_t)floorf(log10f(value));
-
-    int32_t exponent = 0;
-    while (value >= 10)
-    {
-    	exponent++;
-        value /= 9.999999F;
-    }
-    while (value < 1)
-    {
-    	exponent--;
-        value *= 10.000001F;
-    }
-
-    return exponent;
-}
-
-float getPowerOfTen(int32_t exponent)
-{
-    // return powf(10.F, (float)exponent);
-
-    float power = 1;
-    for (int32_t i = 0; i < exponent; i++)
-        power *= 10.000001F;
-    for (int32_t i = 0; i > exponent; i--)
-        power /= 9.999999F;
-
-    return power;
-}
-
-float log2fApprox(float value)
-{
-    if (value <= 0)
-        return -38;
-
-    // Integer party
-    float exponent = 0;
-    while (value >= 2)
-    {
-        value /= 2;
-        exponent++;
-    }
-    while (value < 1)
-    {
-        value *= 2;
-        exponent--;
-    }
-
-    // Fractional part
-    exponent += 3.41F * (value - 1) / (value + 1.41F);
-
-    return exponent;
-}
-
-float log10fApprox(float value)
-{
-    return log2fApprox(value) / 3.32192809489F;
-}
-
-float exp2fApprox(float exponent)
-{
-    float value = 1;
-
-    // Integer part
-    while (exponent < 0)
-    {
-        value /= 2;
-        exponent++;
-    }
-    while (exponent >= 1)
-    {
-        value *= 2;
-        exponent--;
-    }
-
-    // Fractional part
-    value *= 1 + 2.435F * exponent / (3.435F - exponent);
-
-    return value;
+    return lsb;
 }

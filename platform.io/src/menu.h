@@ -7,7 +7,8 @@
  * License: MIT
  */
 
-#ifndef MENU_H
+#if !defined(MENU_H)
+
 #define MENU_H
 
 #include <stddef.h>
@@ -46,9 +47,8 @@ struct Menu
 
 const char *onMenuGetOption(const struct Menu *menu, uint32_t index);
 
-void selectMenuIndex(const struct Menu *menu, uint32_t index);
+void selectMenuIndex(const struct Menu *menu, uint32_t index, uint32_t optionsNum);
 
-void onMenuViewDraw(const struct View *view);
-void onMenuViewKey(const struct View *view, KeyEvent keyEvent);
+void onMenuEvent(const struct View *view, enum Event event);
 
 #endif

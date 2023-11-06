@@ -1,38 +1,40 @@
-# Installing on the FS2011/FS9000/NR-950/YT-203B
+# Installing on the FS2011
 
 ## Supplies
 
-To install Rad Pro on your FS2011/FS9000/NR-950/YT-203B radiation meter/Geiger counter, you will need the following tools and components:
+To install Rad Pro on your FS2011 Geiger counter, you will need the following tools and components:
 
 * An [ST-Link V2 USB dongle (or clone)](https://www.amazon.com/s?k=st-link+v2)
 * A soldering iron and solder
 * A 4-pin header
 * A Philips screwdriver
 * The [stlink](https://github.com/stlink-org/stlink/releases) software (download the latest release for your operating system)
+* If you use Windows, the [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html).
 
 ## Step 1: Open the device
 
-![FS2011 circuit board](img/fs2011-gd32-j305.jpg)
+![FS2011 circuit board types](img/fs2011-board-type.jpg)
 
 Follow these steps to start installing Rad Pro:
 
 * Remove the battery cover and batteries.
-* Remove the four screws holding the back case.
-* Remove the four screws holding the electronics board on the front case.
+* Remove the screws holding the back case.
+* Remove the screws holding the electronics board to the front case.
 * Remove the electronics board.
 
-The board should look like in the photo above. If it does not, you may have a different hardware revision. In this case, Rad Pro may not function properly.
+The board should look like in the photo above (the tube may be different). If it does not, you may have a different hardware revision. In this case, Rad Pro may not function properly.
 
 If your board looks different and Rad Pro does not work, create an issue on https://github.com/Gissio/radpro/issues.
 
 ## Step 2: Connect the programmer
 
-![FS2011 connectors](img/fs2011-connector.png)
+![FS2011 connectors](img/fs2011-swd.jpg)
 
 Now, follow these steps:
 
 * Solder the 4-pin header to XS1 on the board.
 * Make sure there are no batteries in the battery holder.
+* If you use Windows, install the [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html).
 * Connect the ST-Link V2 device to XS1. The pins, from top to bottom, are:
   * GND
   * SWCLK
@@ -43,7 +45,7 @@ Make sure the electrical connections are correct. You may break your device if t
 
 ## Step 3: Back up the original firmware
 
-![Terminal back-up](img/terminal-backup.png)
+![Terminal back-up](img/fs2011-backup.png)
 
 Before installing for the first time, back up the original firmware. If you skip this step, you won't be able to restore your device if something goes wrong, so it is important you do it right.
 
@@ -55,30 +57,36 @@ Then, copy+paste the following command and verify that the resulting file, backu
 
 ## Step 4: Flash the firmware
 
-![Terminal flash step 1](img/terminal-flash-1.png)
+![Terminal flash step 1](img/fs2011-flash1.png)
 
-![Terminal flash step 2](img/terminal-flash-2.png)
+![Terminal flash step 2](img/fs2011-flash2.png)
 
-Now, download the latest firmware from the [Rad Pro releases](https://github.com/Gissio/radpro/releases): get radpro-fs2011-\[MCU\]-install-x.y.z.bin when installing for the first time or radpro-fs2011-\[MCU\]-update-x.y.z.bin when updating. \[MCU\] is the type of microprocessor on your board: either STM32F51, GD32F51 or GD32F103.
+Now, download the latest firmware from the [Rad Pro releases](https://github.com/Gissio/radpro/releases): get `radpro-fs2011-\[MCU\]-install-x.y.z.bin` when installing for the first time or `radpro-fs2011-\[MCU\]-update-x.y.z.bin` when updating. `\[MCU\]` is the type of microprocessor on your board: either `STM32F51`, `GD32F51` or `GD32F103`.
 
 Next, run this command in the terminal:
 
     st-flash write [firmware-filename] 0x08000000
 
-## Setp 5: Configure your Geiger-Müller tube
+## Step 5: Configure your Geiger-Müller tube
 
 ![FS2011 tube types](img/fs2011-tube-type.jpg)
 
-Last, go to Rad Pro's settings, select "Geiger tube type" and configure your tube. The photo above should help you identify your tube type.
+Last, go to Rad Pro's settings, select "Geiger tube", "Tube type" and configure your tube. The photo above should help you identify your tube type.
 
 ## Step 6: Optional mods
 
-* For easier access to XS1, use a file to extend the hole for the battery holder clip so that a 4-pin header connector can fit. Solder four cables approximately 15 cm long between XS1 and a 4-pin header. Using a glue gun, attach the header to the inside of the back case, so you can access the header with the battery case open.
-* For improved measurement, align the Geiger-Müller tube to the holes of the back case using a heat gun/glue gun if the tube is mounted vertically. Be careful, as the tube's glass is very delicate.
+![FS2011 FTDI connection](img/fs2011-ftdi.jpg)
+
+* Add USB connectivity. You'll need: an [FTDI module](https://www.amazon.com/s?k=ftdi+board), a regular diode (1N4148) and [wire-wrap wire](https://www.amazon.com/s?k=wirewrap+30). Important: remove batteries before connecting USB. Follow these instructions:
+  * Set up the FTDI for 3.3 V.
+  * Connect the FTDI module's GND and 5V pins to the FS2011 board's 0v and 5V pads, respectively.
+  * Connect the PA2 pin of the microprocessor to the diode's anode, and the diode's cathode to the FTDI's board RX pin.
+  * Connect the PA3 pin of the microprocessor to the FTDI module's TX pin.
+* For easier access to XS1, use a file to extend the hole for the battery holder clip so that a 4-pin header connector can fit. Solder four cables between XS1 and a 4-pin header. Using a glue gun, attach the header to the inside of the back case, so you can access the header with the battery case open.
+* On some FS2011 devices, the tube is not aligned to the holes of the back case. For improved measurement, align the tube to the holes using a heat gun/glue gun. Be careful, as the tube's glass is very delicate.
 * Some AA rechargeable batteries have low-profile caps that don't make electrical contact with the battery holder. To fix this problem, apply solder on the battery holder's pads.
 * To increase the buzzer's volume, drill a hole on the back case in front of the buzzer.
-* The device is able to charge Ni-MH batteries if you add a female USB port and connect its GND and +5V port to the 0V and 5V pad of the electronics board.
 
-## Step 7: Star the project
+## Step 7: Show your support
 
-If you like Rad Pro, [star the project](https://github.com/Gissio/radpro).
+If you like Rad Pro, consider showing your support by starring the project on GitHub. Your support is greatly appreciated.

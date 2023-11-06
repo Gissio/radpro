@@ -1,81 +1,104 @@
 /*
  * Rad Pro
- * Settings
+ * Flash
  *
  * (C) 2022-2023 Gissio
  *
  * License: MIT
  */
 
-#include <stdbool.h>
-
 #include "flash.h"
 
-static bool isProgrammed(uint32_t address, uint32_t size)
+bool isFlashPageFull(uint8_t pageIndex)
 {
-    uint32_t *source = (uint32_t *)getFlashMemory(address);
-    for (uint32_t i = 0; i < size / 4; i++)
-        if (source[i] != 0xffffffff)
-            return true;
+    uint8_t *page = getFlashData(pageIndex);
 
-    return false;
+    return (page[flashDataSize] != 0xff);
 }
 
-static void erasePage(uint32_t address)
+static void markFlashPageFull(uint8_t pageIndex)
 {
-    if (!isProgrammed(address, flashPageSize))
-        return;
+    uint8_t marker = 0x00;
 
-    eraseFlash(address);
+    writeFlash(pageIndex, flashDataSize, &marker, 1);
 }
 
-uint32_t getLastEntry(uint32_t addressStart, uint32_t addressEnd, uint32_t size)
+uint8_t getFlashNextPage(const struct FlashRegion *region, uint8_t pageIndex)
 {
-    uint32_t selectedAddress = 0;
+    pageIndex++;
 
-    for (uint32_t address = addressStart; address < addressEnd; address += size)
+    if (pageIndex >= region->end)
+        pageIndex = region->begin;
+
+    return pageIndex;
+}
+
+static uint8_t getFlashPrevPage(const struct FlashRegion *region, uint8_t pageIndex)
+{
+    pageIndex--;
+
+    if (pageIndex < region->begin)
+        pageIndex = region->end - 1;
+
+    return pageIndex;
+}
+
+uint8_t getFlashHeadPage(const struct FlashRegion *region)
+{
+    for (uint8_t pageIndex = region->begin;
+         pageIndex < region->end;
+         pageIndex++)
     {
-        if (isProgrammed(address, size))
-            selectedAddress = address;
-        else
+        if (!isFlashPageFull(pageIndex))
+            return pageIndex;
+    }
+
+    return region->begin;
+}
+
+uint8_t getFlashTailPage(const struct FlashRegion *region)
+{
+    uint8_t headPageIndex = getFlashHeadPage(region);
+    uint8_t tailPageIndex = headPageIndex;
+    uint8_t pageIndex = headPageIndex;
+
+    while (true)
+    {
+        pageIndex = getFlashPrevPage(region, pageIndex);
+
+        if ((pageIndex == headPageIndex) ||
+            !isFlashPageFull(pageIndex))
+            break;
+
+        tailPageIndex = pageIndex;
+    }
+
+    return tailPageIndex;
+}
+
+void flashEntry(const struct FlashRegion *region,
+                uint8_t pageIndex, uint32_t index,
+                uint8_t *source, uint32_t size)
+{
+    // Enough space?
+    if ((index + size) > flashDataSize)
+    {
+        uint8_t nextPageIndex = getFlashNextPage(region, pageIndex);
+
+        if (pageIndex != nextPageIndex)
         {
-            // Not programmed. Last found?
-            if (selectedAddress)
-                break;
+            markFlashPageFull(pageIndex);
+
+            if (isFlashPageFull(nextPageIndex))
+                eraseFlash(nextPageIndex);
+
+            pageIndex = nextPageIndex;
         }
+        else
+            eraseFlash(pageIndex);
+
+        index = 0;
     }
 
-    return selectedAddress;
-}
-
-void flashEntry(uint32_t addressStart, uint32_t addressEnd, uint32_t size, uint32_t *source)
-{
-    unlockFlash();
-
-    uint32_t address = getLastEntry(addressStart, addressEnd, size);
-    if (!address)
-        address = addressStart;
-    else
-    {
-        address += size;
-        if (address >= addressEnd)
-            address = addressStart;
-    }
-    uint32_t addressPage = address / flashPageSize;
-
-    // Sanity check
-    if (isProgrammed(address, size))
-        erasePage(addressPage * flashPageSize);
-
-    writeFlash(source, address, size);
-
-    uint32_t nextAddress = address + size;
-    if (nextAddress >= addressEnd)
-        nextAddress = addressStart;
-    uint32_t nextAddressPage = nextAddress / flashPageSize;
-
-    if (addressPage != nextAddressPage)
-        erasePage(nextAddress);
-
-    lockFlash();
+    writeFlash(pageIndex, index, source, size);
 }

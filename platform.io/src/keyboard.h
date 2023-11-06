@@ -1,63 +1,51 @@
 /*
  * Rad Pro
- * Keyboard management
- * 
+ * Keyboard
+ *
  * (C) 2022-2023 Gissio
  *
  * License: MIT
  */
 
-#ifndef KEYBOARD_H
+#if !defined(KEYBOARD_H)
+
 #define KEYBOARD_H
 
 #include <stdbool.h>
 #include <stdint.h>
 
-#ifdef KEYBOARD_5KEYS
+#include "View.h"
 
-enum KeyEnum
+enum Key
 {
-    KEY_POWER,
     KEY_UP,
     KEY_DOWN,
-    KEY_ENTER,
+
+#if defined(KEYBOARD_2KEYS)
+
+    KEY_BACK = KEY_UP,
+    KEY_ENTER = KEY_DOWN,
+    KEY_POWER = KEY_DOWN,
+
+#elif defined(KEYBOARD_5KEYS)
+
     KEY_BACK,
-
-    KEY_NUM,
-};
-
-#elif KEYBOARD_2KEYS
-
-enum KeyEnum
-{
-    KEY_DOWN,
+    KEY_ENTER,
     KEY_POWER,
-
-    KEY_NUM,
-};
 
 #endif
 
-enum KeyEventEnum
-{
-    KEY_EVENT_BACKLIGHT,
-    KEY_EVENT_UP,
-    KEY_EVENT_DOWN,
-    KEY_EVENT_ENTER,
-    KEY_EVENT_BACK,
-
-    KEY_EVENT_RESET,
-    KEY_EVENT_POWER_OFF,
+    KEY_NUM,
+    KEY_NONE = KEY_NUM,
 };
 
-typedef int8_t KeyEvent;
-
 void initKeyboard(void);
-void initKeyboardKeyDown(void);
-void getKeyboardKeyDown(bool *);
+void initKeyboardHardware(void);
+
+void getKeyboardKeys(bool *);
 
 void onKeyboardTick(void);
 
-KeyEvent getKeyEvent(void);
+enum Event getKeyboardEvent(void);
 
 #endif

@@ -1,6 +1,6 @@
 /*
  * Rad Pro
- * Event handler
+ * Events
  *
  * (C) 2022-2023 Gissio
  *
@@ -9,355 +9,395 @@
 
 #include <stdint.h>
 
-#include "battery.h"
+#include "adc.h"
 #include "buzzer.h"
+#include "cmath.h"
+#include "comm.h"
+#include "datalog.h"
 #include "display.h"
 #include "events.h"
-#include "flash.h"
 #include "game.h"
-#include "gm.h"
 #include "keyboard.h"
 #include "measurements.h"
-#include "menu.h"
-#include "power.h"
 #include "rng.h"
-#include "rtc.h"
 #include "settings.h"
+#include "tube.h"
 
-#define LIFE_STATE_UPDATE_TIME (60 * 60)
+#define PULSE_LED_TICKS ((uint32_t)(0.050 * SYS_TICK_FREQUENCY))
+#define PULSE_BACKLIGHT_TICKS ((uint32_t)(0.050 * SYS_TICK_FREQUENCY))
+#define ALARM_TICKS ((uint32_t)(0.100 * SYS_TICK_FREQUENCY))
 
-static const uint16_t dataLoggingUpdateTime[] = {
-    60 * 60,
-    30 * 60,
-    10 * 60,
-    5 * 60,
-    1 * 60,
+enum TimerState
+{
+    TIMER_OFF = -1,
+    TIMER_ELAPSED,
+    TIMER_RUNNING,
 };
 
-static const char *const dataLoggingMenuOptions[] = {
-    "Every 60 minutes",
-    "Every 30 minutes",
-    "Every 10 minutes",
-    "Every 5 minutes",
-    "Every minute",
-    NULL,
+static uint32_t displayTimerValues[] = {
+#if defined(DISPLAY_MONO)
+    1,
+#endif
+    30 * SYS_TICK_FREQUENCY,
+    60 * SYS_TICK_FREQUENCY,
+    2 * 60 * SYS_TICK_FREQUENCY,
+    5 * 60 * SYS_TICK_FREQUENCY,
+#if defined(DISPLAY_MONO)
+    1,
+#endif
+    -1,
 };
+
+static uint32_t buzzerTimerValues[] = {
+    0,
+    ((uint32_t)(0.001 * SYS_TICK_FREQUENCY)),
+    ((uint32_t)(0.015 * SYS_TICK_FREQUENCY)),
+};
+
+volatile uint32_t eventsCurrentTick;
 
 static struct
 {
-    volatile uint32_t tick;
+    bool pulseTimeLastInitialized;
+    uint32_t pulseTimeLast;
+    uint32_t deadTime;
 
-    volatile int32_t backlightTimer;
+    volatile int32_t displayTimer;
+
+#if defined(PULSE_LED)
+
+    volatile int32_t pulseLEDTimer;
+
+#endif
+
     volatile int32_t buzzerTimer;
+    volatile int32_t buzzerNoiseTimer;
+
+    volatile int32_t alarmTimer;
+
     int32_t keyboardTimer;
 
-    int32_t oneSecondTimer;
-    volatile uint8_t oneSecondUpdate;
-    uint8_t lastOneSecondUpdate;
-
-    uint32_t dataLoggingLastTimestamp;
-
+    int32_t measurementPeriodTimer;
+    volatile uint32_t measurementPeriodUpdate;
+    uint32_t lastMeasurementPeriodUpdate;
     bool measurementsEnabled;
 } events;
-
-static const struct Menu pulseClicksMenu;
-static const struct Menu backlightMenu;
-static const struct Menu dataLoggingMenu;
-
-static void writeDataLogEntryWithTimestamp(uint32_t timestamp);
 
 void initEvents(void)
 {
     initEventsHardware();
 
-    events.oneSecondTimer = SYS_TICK_FREQUENCY;
+    events.deadTime = UINT32_MAX;
+    events.measurementPeriodTimer = SYS_TICK_FREQUENCY;
+    events.keyboardTimer = KEY_TICKS;
 }
 
-void updateEventsMenus(void)
-{
-    selectMenuIndex(&pulseClicksMenu, settings.pulseClicks);
-    selectMenuIndex(&backlightMenu, settings.backlight);
-    selectMenuIndex(&dataLoggingMenu, settings.dataLogging);
-}
-
-void enableMeasurements(bool value)
-{
-    events.measurementsEnabled = value;
-}
-
-static bool isTimerElapsed(volatile int32_t *timer)
+static enum TimerState updateTimer(volatile int32_t *timer)
 {
     int32_t timerValue = *timer;
 
-    if (timerValue > 0)
+    if (timerValue == 0)
+        return TIMER_OFF;
+    else if (timerValue > 0)
     {
         timerValue--;
+
         *timer = timerValue;
 
-        return (timerValue == 0);
+        return (timerValue == 0) ? TIMER_ELAPSED : TIMER_RUNNING;
     }
-
-    return false;
+    else
+        return TIMER_RUNNING;
 }
 
 void onTick(void)
 {
-    // Backlight
-    if (isTimerElapsed(&events.backlightTimer))
+    // Display
+
+    switch (updateTimer(&events.displayTimer))
+    {
+    case TIMER_ELAPSED:
+#if defined(DISPLAY_MONO)
+
         setBacklight(false);
-    else if (events.backlightTimer != 0)
+
+#elif defined(DISPLAY_COLOR)
+
+        setDisplay(false);
+
+#endif
+        break;
+
+#if defined(DISPLAY_MONO)
+
+    case TIMER_RUNNING:
         setBacklight(!getBacklight());
+        break;
+
+#endif
+    default:
+        break;
+    }
+
+    // Pulse LED
+
+#if defined(PULSE_LED)
+
+    if (updateTimer(&events.pulseLEDTimer) == TIMER_ELAPSED)
+        setPulseLED(false);
+
+#endif
+
+    // Measurement
+
+    if (events.measurementsEnabled)
+    {
+        uint32_t pulseCount = 0;
+        uint32_t pulseTime;
+
+        while (getTubePulse(&pulseTime))
+        {
+            onRNGPulse(pulseTime);
+
+            if (events.pulseTimeLastInitialized)
+            {
+                uint32_t duration = pulseTime - events.pulseTimeLast;
+
+                if (duration < events.deadTime)
+                    events.deadTime = duration;
+            }
+            else
+                events.pulseTimeLastInitialized = true;
+            events.pulseTimeLast = pulseTime;
+
+            pulseCount++;
+        }
+
+        onMeasurementTick(pulseCount);
+
+        if (updateTimer(&events.measurementPeriodTimer) == TIMER_ELAPSED)
+        {
+            events.measurementPeriodTimer = SYS_TICK_FREQUENCY;
+            events.measurementPeriodUpdate++;
+
+            onMeasurementPeriod();
+        }
+    }
 
     // Buzzer
-    if (isTimerElapsed(&events.buzzerTimer))
+
+#if defined(SDLSIM)
+
+    updateBuzzer();
+
+#endif
+
+    switch (updateTimer(&events.buzzerTimer))
+    {
+    case TIMER_ELAPSED:
         setBuzzer(false);
 
+        break;
+
+    case TIMER_RUNNING:
+        switch (updateTimer(&events.buzzerNoiseTimer))
+        {
+        case TIMER_ELAPSED:
+            setBuzzer(true);
+
+            break;
+
+        case TIMER_RUNNING:
+            setBuzzer(getRandomBit());
+
+            break;
+
+        default:
+            break;
+        }
+
+    default:
+        break;
+    }
+
+    // Alarm
+
+    updateTimer(&events.alarmTimer);
+
     // Keyboard
-    if (isTimerElapsed(&events.keyboardTimer))
+
+    if (updateTimer(&events.keyboardTimer) == TIMER_ELAPSED)
     {
         events.keyboardTimer = KEY_TICKS;
 
         onKeyboardTick();
     }
-
-    // Measurement
-    uint32_t pulseNum = 0;
-    uint32_t pulseTime;
-    while (getGMPulse(&pulseTime))
-    {
-        onRNGPulse(pulseTime);
-
-        pulseNum++;
-    }
-
-    if (events.measurementsEnabled)
-    {
-        onMeasurementTick(pulseNum);
-
-        // One second timer
-        if (isTimerElapsed(&events.oneSecondTimer))
-        {
-            events.oneSecondTimer = SYS_TICK_FREQUENCY;
-            events.oneSecondUpdate++;
-
-            onMeasurementsOneSecond();
-        }
-    }
 }
 
-void syncTimerThread(void)
+uint32_t getTick(void)
+{
+    return eventsCurrentTick;
+}
+
+// Events
+
+static void syncTimerThread(void)
 {
     sleep(1);
 }
 
+void startEvents(void)
+{
+    syncTimerThread();
+
+    events.measurementsEnabled = true;
+}
+
+void stopEvents(void)
+{
+    syncTimerThread();
+
+#if defined(PULSE_LED)
+
+    events.pulseLEDTimer = 1;
+
+#endif
+    events.buzzerTimer = 1;
+    events.displayTimer = 1;
+    events.alarmTimer = 1;
+
+    events.measurementsEnabled = false;
+}
+
 void updateEvents(void)
 {
-    uint8_t oneSecondUpdate = events.oneSecondUpdate;
-    if (events.lastOneSecondUpdate != oneSecondUpdate)
-    {
-        events.lastOneSecondUpdate = oneSecondUpdate;
+    sleep(0);
 
-        updateBattery();
+    uint32_t oneSecondUpdate = events.measurementPeriodUpdate;
+    if (events.lastMeasurementPeriodUpdate != oneSecondUpdate)
+    {
+        events.lastMeasurementPeriodUpdate = oneSecondUpdate;
+
         updateMeasurements();
+        updateDatalog();
+        updateADC();
         updateGameTimer();
         refreshView();
-
-        uint32_t timestamp = getRTCTimestamp();
-        if ((timestamp - events.dataLoggingLastTimestamp) >= dataLoggingUpdateTime[settings.dataLogging])
-            writeDataLogEntryWithTimestamp(timestamp);
     }
+
+    updateView();
+    updateComm();
 }
 
-// Backlight timer
+// Dead-time
 
-void setBacklightTimer(int32_t value)
+float getDeadTime(void)
 {
-    if (settings.backlight == BACKLIGHT_ON)
-        return;
-
-    if ((value < 0) || (value > events.backlightTimer))
-        events.backlightTimer = value;
+    return events.deadTime * (1.0F / SYS_FREQUENCY);
 }
 
-void triggerBacklight(void)
-{
-    syncTimerThread();
+// Timers
 
-    switch (settings.backlight)
+#if defined(PULSE_LED)
+
+static void setPulseLEDTimer(int32_t value)
+{
+    if (value > events.pulseLEDTimer)
     {
-    case BACKLIGHT_OFF:
-    case BACKLIGHT_PULSE_FLASHES:
-        events.backlightTimer = 1;
+        setPulseLED(true);
 
-        break;
-
-    case BACKLIGHT_10S:
-        events.backlightTimer = 10 * SYS_TICK_FREQUENCY;
-
-        break;
-
-    case BACKLIGHT_60S:
-        events.backlightTimer = 60 * SYS_TICK_FREQUENCY;
-
-        break;
-
-    case BACKLIGHT_ON:
-        events.backlightTimer = -1;
-
-        break;
+        events.pulseLEDTimer = value;
     }
 }
 
-void stopBacklightTimer(void)
-{
-    syncTimerThread();
+#endif
 
-    events.backlightTimer = 1;
+static bool isAlarmTimerActive(void);
+
+static void setDisplayTimer(int32_t value)
+{
+#if defined(DISPLAY_COLOR)
+
+    setDisplay(true);
+
+#endif
+
+    if ((value < 0) ||
+        ((value > events.displayTimer) &&
+         (events.displayTimer != -1)))
+        events.displayTimer = value;
 }
 
-// Buzzer timer
-
-void setBuzzerTimer(int32_t value)
+static void setBuzzerTimer(int32_t value, int32_t noiseValue)
 {
-    if ((value < 0) || (value > events.buzzerTimer))
+    if (value > events.buzzerTimer)
     {
         events.buzzerTimer = value;
-
-        setBuzzer(true);
+        events.buzzerNoiseTimer = noiseValue;
     }
 }
 
-void stopBuzzerTimer(void)
+void triggerDisplay(void)
 {
     syncTimerThread();
 
-    events.buzzerTimer = 1;
+    events.displayTimer = 0;
+
+#if defined(DISPLAY_MONO)
+
+    setDisplayTimer(displayTimerValues[settings.displayBacklight]);
+
+#elif defined(DISPLAY_COLOR)
+
+    setDisplayTimer(displayTimerValues[settings.displaySleep]);
+
+#endif
 }
 
-// Keyboard timer
+bool isDisplayTimerActive(void)
+{
+    return events.displayTimer != 0;
+}
 
-void startKeyboardTimer(void)
+void triggerPulse(void)
+{
+    if (isAlarmTimerActive())
+        return;
+
+#if defined(PULSE_LED)
+
+    if (settings.pulseLED)
+        setPulseLEDTimer(PULSE_LED_TICKS);
+
+#endif
+
+#if defined(DISPLAY_MONO)
+
+    if (settings.displayBacklight == DISPLAY_BACKLIGHT_PULSE_FLASHES)
+        setDisplayTimer(PULSE_BACKLIGHT_TICKS);
+
+#endif
+
+    setBuzzerTimer(buzzerTimerValues[settings.pulseClicks] + 1,
+                   events.buzzerTimer + 1);
+}
+
+void triggerAlarm(void)
 {
     syncTimerThread();
 
-    events.keyboardTimer = KEY_TICKS;
+#if defined(PULSE_LED)
+
+    setPulseLEDTimer(ALARM_TICKS);
+
+#endif
+    setBuzzerTimer(ALARM_TICKS, 1);
+    setDisplayTimer(ALARM_TICKS);
+
+    events.alarmTimer = ALARM_TICKS;
 }
 
-// Data logging
-
-void resetDataLogging(void)
+static bool isAlarmTimerActive(void)
 {
-    events.dataLoggingLastTimestamp = getRTCTimestamp();
+    return events.alarmTimer != 0;
 }
-
-static void writeDataLogEntryWithTimestamp(uint32_t timestamp)
-{
-    events.dataLoggingLastTimestamp = timestamp;
-
-    struct DataLogEntry dataLogEntry = {
-        timestamp,
-        settings.lifePulseCount,
-    };
-
-    flashEntry(flashDataLogStart, flashDataLogEnd, sizeof(struct DataLogEntry), (uint32_t *)&dataLogEntry);
-}
-
-void writeDataLogEntry(void)
-{
-    writeDataLogEntryWithTimestamp(getRTCTimestamp());
-}
-
-// Pulse clicks menu
-
-static void onPulseClicksMenuSelect(const struct Menu *menu)
-{
-    settings.pulseClicks = menu->state->selectedIndex;
-}
-
-static const char *const pulseClicksMenuOptions[] = {
-    "Off",
-    "Quiet",
-    "Loud",
-    NULL,
-};
-
-static struct MenuState pulseClicksMenuState;
-
-static const struct Menu pulseClicksMenu = {
-    "Pulse clicks",
-    &pulseClicksMenuState,
-    onMenuGetOption,
-    pulseClicksMenuOptions,
-    onPulseClicksMenuSelect,
-    NULL,
-    onSettingsSubMenuBack,
-};
-
-const struct View pulseClicksMenuView = {
-    onMenuViewDraw,
-    onMenuViewKey,
-    &pulseClicksMenu,
-};
-
-// Backlight menu
-
-static void onBacklightMenuSelect(const struct Menu *menu)
-{
-    settings.backlight = menu->state->selectedIndex;
-
-    triggerBacklight();
-}
-
-static const char *const backlightMenuOptions[] = {
-    "Off",
-    "On for 10 seconds",
-    "On for 60 seconds",
-    "Pulse flashes",
-    "Always on",
-    NULL,
-};
-
-static struct MenuState backlightMenuState;
-
-static const struct Menu backlightMenu = {
-    "Backlight",
-    &backlightMenuState,
-    onMenuGetOption,
-    backlightMenuOptions,
-    onBacklightMenuSelect,
-    NULL,
-    onSettingsSubMenuBack,
-};
-
-const struct View backlightMenuView = {
-    onMenuViewDraw,
-    onMenuViewKey,
-    &backlightMenu,
-};
-
-// Data logging menu
-
-static void onDataLoggingMenuSelect(const struct Menu *menu)
-{
-    settings.dataLogging = menu->state->selectedIndex;
-
-    events.dataLoggingLastTimestamp = getRTCTimestamp(); // Reset data logging
-}
-
-static struct MenuState dataLoggingMenuState;
-
-static const struct Menu dataLoggingMenu = {
-    "Data logging",
-    &dataLoggingMenuState,
-    onMenuGetOption,
-    dataLoggingMenuOptions,
-    onDataLoggingMenuSelect,
-    NULL,
-    onSettingsSubMenuBack,
-};
-
-const struct View dataLoggingMenuView = {
-    onMenuViewDraw,
-    onMenuViewKey,
-    &dataLoggingMenu,
-};

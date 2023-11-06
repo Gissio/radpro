@@ -1,22 +1,24 @@
 /*
  * Rad Pro
- * Real time clock
+ * Real-time clock
  *
  * (C) 2022-2023 Gissio
  *
  * License: MIT
  */
 
-#ifndef RTC_H
+#if !defined(RTC_H)
+
 #define RTC_H
 
 #include <stdint.h>
 
-#include "menu.h"
+#include "view.h"
 
 #define RTC_YEAR_MIN 2020
 #define RTC_YEAR_MAX 2099
-#define RTC_TIMESTAMP_MIN 946684800 // 2000-01-01 00:00:00
+#define RTC_YEAR_NUM (RTC_YEAR_MAX - RTC_YEAR_MIN + 1)
+#define RTC_TIME_START 946684800 // 2000-01-01 00:00:00
 
 struct RTCDateTime
 {
@@ -30,12 +32,15 @@ struct RTCDateTime
 
 extern const struct View dateAndTimeMenuView;
 
-uint32_t getTimestampFromDateTime(struct RTCDateTime *dateTime);
-void getDateTimeFromTimestamp(uint32_t timestamp, struct RTCDateTime *dateTime);
-
 void initRTC(void);
+
+uint32_t getTimeFromDateTime(struct RTCDateTime *dateTime);
+void getDateTimeFromTime(uint32_t time, struct RTCDateTime *dateTime);
+
 void setRTCDateTime(struct RTCDateTime *dateTime);
 void getRTCDateTime(struct RTCDateTime *dateTime);
-uint32_t getRTCTimestamp(void);
+
+void setRTCTime(uint32_t time);
+uint32_t getRTCTime(void);
 
 #endif

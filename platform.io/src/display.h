@@ -1,95 +1,95 @@
 /*
  * Rad Pro
- * LCD interface
+ * Display
  *
  * (C) 2022-2023 Gissio
  *
  * License: MIT
  */
 
-#ifndef DISPLAY_H
+#if !defined(DISPLAY_H)
+
 #define DISPLAY_H
 
 #include <stdbool.h>
 #include <stdint.h>
 
 #include "menu.h"
+#include "view.h"
 
-#ifdef DISPLAY_128X64
+enum DisplayPalette
+{
+    COLOR_STATUS_BACKGROUND,
+    COLOR_STATUS_FOREGOUND,
+    COLOR_PRIMARY_BACKGROUND,
+    COLOR_PRIMARY_FOREGROUND,
+    COLOR_SECONDARY_FOREGROUND,
+    COLOR_ALERT,
+};
 
-#define DISPLAY_WIDTH 128
-#define DISPLAY_HEIGHT 64
+#if defined(PULSE_LED)
 
-#define DISPLAY_CENTER_X (DISPLAY_WIDTH / 2)
-#define DISPLAY_CENTER_Y (DISPLAY_HEIGHT / 2)
-
-#define TITLE_Y (DISPLAY_CENTER_Y - 19)
-#define SUBTITLE_Y (DISPLAY_CENTER_Y + 19 + 5)
-
-#define MENU_VIEW_LINE_NUM 4
-#define MENU_VIEW_Y_TOP 14
-#define MENU_VIEW_LINE_HEIGHT 12
-#define MENU_VIEW_LINE_TEXT_X 6
-
-#define MEASUREMENT_VALUE_X (DISPLAY_CENTER_X - 54)
-#define MEASUREMENT_VALUE_Y (DISPLAY_CENTER_Y + 24 / 2)
-#define MEASUREMENT_VALUE_SIDE_X (DISPLAY_CENTER_X + 29)
-
-#define HISTORY_VIEW_HEIGHT 40
-#define HISTORY_VIEW_X ((DISPLAY_WIDTH - HISTORY_VIEW_WIDTH) / 2)
-#define HISTORY_VIEW_Y_TOP 14
-#define HISTORY_VIEW_Y_BOTTOM (HISTORY_VIEW_Y_TOP + HISTORY_VIEW_HEIGHT)
-
-#define STATS_VIEW_Y 30
-
-#define GAME_MOVES_LINE_NUM 5
-
-#define GAME_VIEW_BOARD_X 0
-#define GAME_VIEW_BOARD_Y 8
-#define GAME_VIEW_BOARD_WIDTH 9 * 8
-#define GAME_VIEW_TIME_X (GAME_VIEW_BOARD_WIDTH + 7)
-#define GAME_VIEW_TIME_UPPER_Y 8
-#define GAME_VIEW_TIME_LOWER_Y (DISPLAY_HEIGHT - 3)
-#define GAME_VIEW_MOVES_LINE_WIDTH 25
-#define GAME_VIEW_MOVES_LINE_HEIGHT 6
-#define GAME_VIEW_MOVES_X (GAME_VIEW_BOARD_WIDTH + 6)
-#define GAME_VIEW_MOVES_Y (DISPLAY_CENTER_Y + 5 - GAME_VIEW_MOVES_LINE_HEIGHT * GAME_MOVES_LINE_NUM / 2)
-#define GAME_VIEW_BUTTON_X 101
-#define GAME_VIEW_BUTTON_Y 54
-#define GAME_VIEW_BUTTON_WIDTH 23
-#define GAME_VIEW_BUTTON_HEIGHT 9
+extern const struct View pulseLEDMenuView;
 
 #endif
 
+#if defined(DISPLAY_MONO)
+
+extern const struct View backlightMenuView;
+
+#elif defined(DISPLAY_COLOR)
+
+extern const struct View displayMenuView;
+
+#endif
+
+extern const uint32_t menuLineNum;
+
 void initDisplay(void);
+void initDisplayHardware(void);
+
+#if defined(PULSE_LED)
+
+void setPulseLED(bool value);
+
+#endif
 
 void setDisplay(bool value);
-void clearDisplayBuffer(void);
-void sendDisplayBuffer(void);
+
+#if defined(DISPLAY_MONO)
 
 void setBacklight(bool value);
 bool getBacklight(void);
 
+#endif
+
+void clearDisplayBuffer(void);
+void sendDisplayBuffer(void);
+
+void drawTextLeft(const char *str,
+                  const uint8_t *font,
+                  uint32_t x, uint32_t y);
+
 void drawLowBattery(void);
 void drawWelcome(void);
 void drawStatusBar(void);
+void drawMenu(const struct Menu *menu);
 void drawTitle(const char *title);
 void drawSubtitle(const char *subtitle);
 
-void drawMeasurementValue(const char *mantissa, const char *characteristic);
-void drawConfidenceIntervals(uint32_t sampleNum);
+void drawMeasurementValue(const char *value, const char *units);
+void drawConfidenceIntervals(float lowerConfidenceInterval,
+                             float upperConfidenceInterval);
 void drawHistory(const char *minLabel, const char *maxLabel,
-                 int32_t offset, uint32_t range);
+                 int32_t minLimit, uint32_t decades);
 
-void drawRNGText(char *text);
+void drawRNGText(char *str);
 
-void drawStats(void);
+void drawStatistics(void);
 
-void drawGameBoard(const char board[8][9],
-                   const char time[2][6],
-                   const char moveHistory[GAME_MOVES_LINE_NUM][2][6],
+void drawGameBoard(const uint8_t board[8][8],
+                   const char time[2][8],
+                   const char moveHistory[][2][6],
                    const char *buttonText, bool buttonSelected);
-
-void drawMenu(const struct Menu *menu);
 
 #endif

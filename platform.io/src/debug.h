@@ -1,13 +1,14 @@
 /*
  * Rad Pro
- * Debugging module
+ * Debugging
  *
  * (C) 2022-2023 Gissio
  *
  * License: MIT
  */
 
-#ifndef DEBUG_H
+#if !defined(DEBUG_H)
+
 #define DEBUG_H
 
 #include <stdbool.h>
@@ -17,5 +18,6 @@ void debugBeep(void);
 void debugWait(uint32_t ms);
 void debugBit(bool value);
 void debugUInt32(uint32_t value);
+void debugTestMode(void);
 
 #endif

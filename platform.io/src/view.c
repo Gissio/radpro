@@ -1,6 +1,6 @@
 /*
  * Rad Pro
- * User interface view manager
+ * User interface view
  *
  * (C) 2022-2023 Gissio
  *
@@ -11,6 +11,7 @@
 #include "events.h"
 #include "keyboard.h"
 #include "power.h"
+#include "settings.h"
 #include "view.h"
 
 static struct
@@ -21,23 +22,29 @@ static struct
 
 void updateView(void)
 {
-    sleep(0);
-    updateEvents();
-
     // Key events
-    KeyEvent keyEvent = getKeyEvent();
 
-    if (keyEvent >= 0)
+    enum Event event = getKeyboardEvent();
+    if (event != EVENT_NONE)
     {
-        triggerBacklight();
+#if defined(DISPLAY_COLOR)
 
-        if (keyEvent == KEY_EVENT_POWER_OFF)
+        if ((settings.displaySleep != DISPLAY_SLEEP_ALWAYS_ON) &&
+            !isDisplayTimerActive())
+            event = EVENT_BACKLIGHT;
+
+#endif
+
+        triggerDisplay();
+
+        if (event == EVENT_POWER_OFF)
             powerOff();
         else
-            view.currentView->onKey(view.currentView, keyEvent);
+            view.currentView->onEvent(view.currentView, event);
     }
 
     // Draw events
+
     if (view.refresh)
     {
         view.refresh = false;
@@ -45,7 +52,7 @@ void updateView(void)
         clearDisplayBuffer();
         drawStatusBar();
 
-        view.currentView->onDraw(view.currentView);
+        view.currentView->onEvent(view.currentView, EVENT_DRAW);
 
         sendDisplayBuffer();
     }
@@ -54,7 +61,7 @@ void updateView(void)
 void setView(const struct View *newView)
 {
     view.currentView = newView;
-    
+
     refreshView();
 }
 

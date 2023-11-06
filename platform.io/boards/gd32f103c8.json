@@ -1,0 +1,32 @@
+{
+  "build": {
+    "cpu": "cortex-m3",
+    "extra_flags": "-DSTM32 -DSTM32F1 -DGD32 -DGD32F103x8",
+    "f_cpu": "72000000L",
+    "mcu": "stm32f103c8t6",
+    "product_line": "STM32F103x8"
+  },
+  "debug": {
+    "default_tools": [
+      "stlink"
+    ],
+    "openocd_target": "stm32f1x",
+    "svd_path": "STM32F103xx.svd"
+  },
+  "frameworks": [
+    "libopencm3"
+  ],
+  "name": "GD32F103C8",
+  "upload": {
+    "maximum_ram_size": 20480,
+    "maximum_size": 65536,
+    "protocol": "stlink",
+    "protocols": [
+      "cmsis-dap",
+      "stlink",
+      "blackmagic"
+    ]
+  },
+  "url": "https://www.gigadevice.com/",
+  "vendor": "GigaDevice"
+}

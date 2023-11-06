@@ -1,6 +1,12 @@
 #!/bin/sh
-./bdfconv.exe -v -f 1 -m '32-126,181' font_tiny5.bdf -o ../platform.io/src/devices/common/font_tiny5.h -n font_tiny5
-./bdfconv.exe -v -f 1 -m '32-126,181' font_helvR08.bdf -o ../platform.io/src/devices/common/font_helvR08.h -n font_helvR08
-./bdfconv.exe -v -f 1 -m '45-57' font_helvR24.bdf -o ../platform.io/src/devices/common/font_helvR24.h -n font_helvR24
-./bdfconv.exe -v -f 1 -m '48-59' font_icons.bdf -o ../platform.io/src/devices/common/font_icons.h -n font_icons
-./bdfconv.exe -v -f 1 -m '64-111' font_chess.bdf -o ../platform.io/src/devices/common/font_chess.h -n font_chess
+./bdfconv.exe -v -f 1 -m '32-126,176,181' font_tiny5.bdf -o ../platform.io/src/resources/font_tiny5.h -n font_tiny5
+./bdfconv.exe -v -f 1 -m '32-126,176,181' robotoR8.bdf -o ../platform.io/src/resources/robotoR8.h -n font_robotoR8
+./bdfconv.exe -v -f 1 -m '46,48-57,128' robotoR24.bdf -o ../platform.io/src/resources/robotoR24_digits.h -n font_robotoR24
+./bdfconv.exe -v -f 1 -m '48-59' icons5.bdf -o ../platform.io/src/resources/icons5.h -n font_icons5
+./bdfconv.exe -v -f 1 -m '64-86' chess8.bdf -o ../platform.io/src/resources/chess8.h -n font_chess8
+
+./bdfconv.exe -v -f 1 -m '32-126,176,181' robotoR12.bdf -o ../platform.io/src/resources/robotoR12.h -n font_robotoR12
+./bdfconv.exe -v -f 1 -m '32-126,176,181' robotoR18.bdf -o ../platform.io/src/resources/robotoR18.h -n font_robotoR18
+./bdfconv.exe -v -f 1 -m '46,48-57,128' robotoR56.bdf -o ../platform.io/src/resources/robotoR56_digits.h -n font_robotoR56
+./bdfconv.exe -v -f 1 -m '48-59' icons12.bdf -o ../platform.io/src/resources/icons12.h -n font_icons12
+./bdfconv.exe -v -f 1 -m '64-86' chess26.bdf -o ../platform.io/src/resources/chess26.h -n font_chess26

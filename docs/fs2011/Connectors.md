@@ -20,29 +20,29 @@ From left to right (on PCB, from side opposite to LCD):
 * Pin 5: KEY_SELECT (to PB1)
 * Pin 6: KEY_POWER (to PB11 via D13 (digital input) & PROG)
 
-## LCD connector
+## 22-pin LCD connector
 
 From left to right (on PCB, from side opposite to LCD):
 
-* Pin 1: +3V3
-* Pin 2: +3V3
+* Pin 1: LCD_3V3
+* Pin 2: LCD_3V3
 * Pin 3: not connected (?)
 * Pin 4: not connected (?)
-* Pin 5: GND
+* Pin 5: LCD_GND
 * Pin 6: not connected (?)
-* Pin 7: +3V3
-* Pin 8: D7 (PA15)
-* Pîn 9: D6 (PF7) [PB8 on STM32F103 processors]
-* Pin 10: D5 (PF6) [PB9 on STM32F103 processors]
-* Pin 11: D4 (PA12)
-* Pin 12: D3 (PA11)
-* Pin 13: D2 (PA10)
-* Pin 14: D1 (PA9)
-* Pin 15: D0 (PA8)
-* Pin 16: EN (PB15)
-* Pin 17: RESET (PB14)
-* Pin 18: RS (PB13)
-* Pin 19: BLK (PB3)
-* Pin 20: BLA (+3V3)
-* Pin 21: RW (PB12)
-* Pin 22: GND
+* Pin 7: LCD_3V3
+* Pin 8: LCD_D7 (to PA15)
+* Pîn 9: LCD_D6 (to PF7 on STM32F051 and GD32F150, to PB8 on GD32F103)
+* Pin 10: LCD_D5 (to PF6 on STM32F051 and GD32F150, to PB9 on GD32F103)
+* Pin 11: LCD_D4 (to PA12)
+* Pin 12: LCD_D3 (to PA11)
+* Pin 13: LCD_D2 (to PA10)
+* Pin 14: LCD_D1 (to PA9)
+* Pin 15: LCD_D0 (to PA8)
+* Pin 16: LCD_EN (to PB15)
+* Pin 17: LCD_RESET (to PB14)
+* Pin 18: LCD_RS (to PB13)
+* Pin 19: LCD_BLK (to PB3)
+* Pin 20: LCD_BLA (+3V3)
+* Pin 21: LCD_RW (to PB12)
+* Pin 22: LCD_GND
