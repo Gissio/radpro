@@ -2,7 +2,7 @@
 
 ## Communications
 
-To connect to Rad Pro through a serial port or ST-LINK dongle through SWD, check out the [description of the communications protocol](docs/comm.md).
+To connect to Rad Pro through a serial port or ST-LINK dongle through SWD, check out the [description of the communications protocol](comm.md).
 
 ## Build
 
