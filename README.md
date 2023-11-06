@@ -57,6 +57,7 @@ Note: Rad Pro 2.0 uses a new settings format and requires an installation. -->
 <!-- * [Installing on the FNIRSI GC-01](docs/install-gc01.md) -->
 * [Installing on other devices](docs/install-other.md)
 * [User's manual](docs/manual.md)
+* [radpro-tool](docs/radpro-tool.md)
 * [Developers](docs/developers.md)
 
 ## Thanks

@@ -93,19 +93,5 @@ To generate bits more quickly, use a radioactive source.
 
 To log data using Rad Pro, simply select a data logging interval in the settings. The data will be automatically stored.
 
-* On the Bosean FS-600 and Bosean FS-1000, Rad Pro can store up to 95880 data points. At normal radiation levels, this allows for 66 days of data at 1-minute intervals, 166 days at 5-minute intervals, 332 days at 10-minute intervals, 998 days at 30-minute intervals, and 1997 days at 60-minute intervals.
 * On the FS2011, Rad Pro can store up to 31496 data points. At normal radiation levels, this allows for 21 days of data at 1-minute intervals, 54 days at 5-minute intervals, 109 days at 10-minute intervals, 328 days at 30-minute intervals, and 656 days at 60-minute intervals.
-
-## radpro-tool
-
-`radpro-tool` allows you to download data logs, log live data, submit data to radiation monitoring websites and sync the real-time clock.
-
-To use `radpro-tool` you need to install [Python](https://www.python.org) on your computer and install the necessary requirements by running the following command in a terminal:
-
-    pip install -r tools/requirements.txt
-
-If you plan to submit data to radiation monitoring websites, configure the website's settings by editing the `tools/radpro-tool.py` script.
-
-To get help about `radpro-tool`, run the following command in a terminal:
-
-    python radpro-tool.py --help
+* On the Bosean FS-600 and Bosean FS-1000, Rad Pro can store up to 95880 data points. At normal radiation levels, this allows for 66 days of data at 1-minute intervals, 166 days at 5-minute intervals, 332 days at 10-minute intervals, 998 days at 30-minute intervals, and 1997 days at 60-minute intervals.
