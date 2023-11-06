@@ -21,7 +21,7 @@ The employed communications protocol is ASCII-based and follows a request-respon
 
 Identifies the device's hardware and software. The response consists of these components:
 
-* `[hardware-id]`: The device's hardware, which may be one of the following: `FS2011 (STM32F051)`, `FS2011 (GD32F150)`, `FS2011 (GD32F103)`, `Bosean FS-600`, `Bosean FS-1000` or `SDLSim`.
+* `[hardware-id]`: The device's hardware, which may be one of the following: `FS2011 (STM32F051C8)`, `FS2011 (GD32F150C8)`, `FS2011 (GD32F103C8)`, `Bosean FS-600`, `Bosean FS-1000`, `FNIRSI GC-01` or `SDLSim`.
 * `[software-id]`: The device's software, typically `Rad Pro` followed by the software version.
 * `[device-id]`: A unique device ID number.
 
@@ -126,7 +126,7 @@ Example:
     GET tubeRate
     OK 0.315
 
-For improved accuracy, perform two `GET tubeCount` measurements over a time period and divide the pulse count difference by the time period (in minutes).
+For improved accuracy, perform two `GET tubePulseCount` measurements over a time period and divide the pulse count difference by the time period (in minutes).
 
 ### Get tube duty cycle
 

@@ -22,15 +22,15 @@
 
 #if defined(FS2011) && defined(STM32F0) && defined(GD32)
 
-const char *const commId = "FS2011 (GD32F150);" FIRMWARE_NAME " " FIRMWARE_VERSION;
+const char *const commId = "FS2011 (GD32F150C8);" FIRMWARE_NAME " " FIRMWARE_VERSION;
 
 #elif defined(FS2011) && defined(STM32F0)
 
-const char *const commId = "FS2011 (STM32F051);" FIRMWARE_NAME " " FIRMWARE_VERSION;
+const char *const commId = "FS2011 (STM32F051C8);" FIRMWARE_NAME " " FIRMWARE_VERSION;
 
 #elif defined(FS2011) && defined(STM32F1)
 
-const char *const commId = "FS2011 (GD32F103);" FIRMWARE_NAME " " FIRMWARE_VERSION;
+const char *const commId = "FS2011 (GD32F103C8);" FIRMWARE_NAME " " FIRMWARE_VERSION;
 
 #elif defined(FS600)
 
