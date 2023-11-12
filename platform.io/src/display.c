@@ -594,8 +594,7 @@ void drawStatistics(void)
 
 void drawGameBoard(const uint8_t board[8][8],
                    const char time[2][8],
-                   const char moveHistory[][2][6],
-                   const char *buttonText, bool buttonSelected)
+                   const char moveHistory[][2][6])
 {
     for (uint32_t y = 0; y < 8; y++)
         for (uint32_t x = 0; x < 8; x++)
@@ -647,28 +646,6 @@ void drawGameBoard(const uint8_t board[8][8],
                          FONT_SMALL,
                          GAME_MOVE_CELL_LEFT + (GAME_MOVE_CELL_MARGIN + GAME_MOVE_CELL_WIDTH) * x,
                          GAME_MOVE_CELL_TOP + FONT_SMALL_BASELINE + GAME_MOVE_CELL_HEIGHT * y);
-
-    if (buttonText)
-    {
-        drawBox(GAME_BUTTON_LEFT, GAME_BUTTON_TOP, GAME_BUTTON_WIDTH, GAME_BUTTON_HEIGHT);
-        if (!buttonSelected)
-        {
-            setDrawColor(false);
-            drawBox(GAME_BUTTON_LEFT + GAME_BUTTON_BORDER,
-                    GAME_BUTTON_TOP + GAME_BUTTON_BORDER,
-                    GAME_BUTTON_WIDTH - 2 * GAME_BUTTON_BORDER,
-                    GAME_BUTTON_HEIGHT - 2 * GAME_BUTTON_BORDER);
-        }
-
-        setDrawColor(!buttonSelected);
-        drawTextCenter(buttonText,
-                       FONT_SMALL,
-                       GAME_BUTTON_LEFT + GAME_BUTTON_WIDTH / 2,
-                       GAME_BUTTON_TOP + FONT_SMALL_BASELINE +
-                           (GAME_BUTTON_HEIGHT - FONT_SMALL_BOTTOM + 1) / 2);
-
-        setDrawColor(true);
-    }
 }
 
 #if defined(PULSE_LED)

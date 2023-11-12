@@ -89,7 +89,6 @@ void drawStatistics(void);
 
 void drawGameBoard(const uint8_t board[8][8],
                    const char time[2][8],
-                   const char moveHistory[][2][6],
-                   const char *buttonText, bool buttonSelected);
+                   const char moveHistory[][2][6]);
 
 #endif

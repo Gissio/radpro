@@ -58,8 +58,6 @@ static struct
     mcumax_move validMoves[GAME_VALID_MOVES_NUM_MAX];
 
     mcumax_move history[GAME_HISTORY_SIZE];
-
-    bool isUndoSelected;
 } game;
 
 static const char *const gamePieceMap = "@AACFBDE";
@@ -141,9 +139,6 @@ static void updateGameBoard(void)
 
     case GAME_SELECTING_TO:
         move = game.validMoves[game.validMovesIndex];
-
-        if (game.isUndoSelected)
-            move.to = MCUMAX_SQUARE_INVALID;
 
         break;
 
@@ -315,24 +310,15 @@ static void selectNextMoveFrom(int32_t direction)
 
 static void selectNextMoveTo(int32_t direction)
 {
-    if (game.isUndoSelected)
+    mcumax_square moveFrom = game.validMoves[game.validMovesIndex].from;
+
+    stepValidMove(direction);
+
+    if (moveFrom != game.validMoves[game.validMovesIndex].from)
     {
+        stepValidMove(-direction);
         stepValidMoveFrom(-direction);
         stepValidMove(direction);
-
-        game.isUndoSelected = false;
-    }
-    else
-    {
-        mcumax_square moveFrom = game.validMoves[game.validMovesIndex].from;
-
-        if (stepValidMove(direction) ||
-            (moveFrom != game.validMoves[game.validMovesIndex].from))
-        {
-            stepValidMove(-direction);
-
-            game.isUndoSelected = true;
-        }
     }
 
     updateGameBoard();
@@ -386,30 +372,25 @@ static void onGameViewEvent(const struct View *view, enum Event event)
                 stepValidMoveFrom(-1);
                 stepValidMove(1);
 
-                game.isUndoSelected = false;
-
                 updateGameBoard();
             }
 
             break;
 
         case GAME_SELECTING_TO:
-            if (game.isUndoSelected)
-                game.state = GAME_SELECTING_FROM;
-            else
-            {
-                mcumax_move move = game.validMoves[game.validMovesIndex];
+        {
+            mcumax_move move = game.validMoves[game.validMovesIndex];
 
-                mcumax_play_move(move);
+            mcumax_play_move(move);
 
-                recordGameMove(move);
+            recordGameMove(move);
 
-                game.state = GAME_SEARCHING;
-            }
+            game.state = GAME_SEARCHING;
 
             updateGameBoard();
 
             break;
+        }
 
         default:
             break;
@@ -423,6 +404,12 @@ static void onGameViewEvent(const struct View *view, enum Event event)
             mcumax_stop_search();
 
             game.state = GAME_CANCELLING_SEARCH;
+        }
+        else if (game.state == GAME_SELECTING_TO)
+        {
+            game.state = GAME_SELECTING_FROM;
+
+            updateGameBoard();
         }
         else if (game.state != GAME_CANCELLING_SEARCH)
             setView(&gameMenuView);
@@ -447,21 +434,7 @@ static void onGameViewEvent(const struct View *view, enum Event event)
             for (uint32_t x = 0; x < 2; x++)
                 formatGameMove(moves[y][x], game.history[2 * y + x]);
 
-        const char *buttonText;
-        bool isButtonSelected;
-
-        if (game.state == GAME_SELECTING_TO)
-        {
-            buttonText = "Undo";
-            isButtonSelected = game.isUndoSelected;
-        }
-        else
-        {
-            buttonText = NULL;
-            isButtonSelected = false;
-        }
-
-        drawGameBoard(game.board, time, moves, buttonText, isButtonSelected);
+        drawGameBoard(game.board, time, moves);
 
         break;
     }
