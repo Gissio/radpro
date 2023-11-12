@@ -37,7 +37,8 @@ void initKeyboardHardware(void)
 
 #elif defined(FS600) || defined(FS1000)
 
-    gpio_mode_setup(GPIOA, GPIO_MODE_INPUT, GPIO_PUPD_NONE, KEY_DOWN_PIN | KEY_UP_PIN);
+    gpio_mode_setup(KEY_DOWN_PORT, GPIO_MODE_INPUT, GPIO_PUPD_PULLDOWN, KEY_DOWN_PIN);
+    gpio_mode_setup(KEY_UP_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, KEY_UP_PIN);
     gpio_mode_setup(KEY_POWER_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, KEY_POWER_PIN);
     gpio_mode_setup(GPIOC, GPIO_MODE_INPUT, GPIO_PUPD_NONE, KEY_ENTER_PIN | KEY_BACK_PIN);
 

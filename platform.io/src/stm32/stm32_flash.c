@@ -24,54 +24,65 @@
 #define PAYLOAD_BASE FLASH_BASE
 #define PAYLOAD_SIZE (0x8000 - 0x4)
 
+// CRC
+
 #define FIRMWARE_CRC (*(uint32_t *)(FLASH_BASE + PAYLOAD_SIZE))
+
+// Flash
+
+#if defined(STM32F0) || defined(STM32F1)
+
+#define FLASH_PAGE_SIZE 0x400
+#define FLASH_BLOCK_SIZE 0x2
+
+#elif defined(STM32G0)
+
+#define FLASH_PAGE_SIZE 0x800
+#define FLASH_BLOCK_SIZE 0x8
+
+#endif
+
+#define FLASH_PAGE_OFFSET 0
 
 #if defined(FS2011)
 
-#define FLASH_PAGE_SIZE 0x400
-
 const struct FlashRegion flashSettingsRegion = {
-    0x20,
-    0x21,
+    0x20 + FLASH_PAGE_OFFSET,
+    0x21 + FLASH_PAGE_OFFSET,
 };
 const struct FlashRegion flashDatalogRegion = {
-    0x21,
+    0x21 + FLASH_PAGE_OFFSET,
     0x40,
 };
 
 #elif defined(FS600) || defined(FS1000)
 
-#define FLASH_PAGE_SIZE 0x800
-
 const struct FlashRegion flashSettingsRegion = {
-    0x10,
-    0x11,
+    0x10 + FLASH_PAGE_OFFSET,
+    0x11 + FLASH_PAGE_OFFSET,
 };
 const struct FlashRegion flashDatalogRegion = {
-    0x11,
+    0x11 + FLASH_PAGE_OFFSET,
     0x40,
 };
 
 #elif defined(GC01)
 
-#define FLASH_PAGE_SIZE 0x400
-
 // +++ TODO
 const struct FlashRegion flashSettingsRegion = {
-    0x38,
-    0x39,
+    0x38 + FLASH_PAGE_OFFSET,
+    0x39 + FLASH_PAGE_OFFSET,
 };
 const struct FlashRegion flashDatalogRegion = {
-    0x39,
-    0x40,
+    0x39 + FLASH_PAGE_OFFSET,
+    0x40 + FLASH_PAGE_OFFSET,
 };
 // +++ TODO
 
 #endif
 
-#define FLASH_DATA_SIZE (FLASH_PAGE_SIZE - 1)
-
-const uint32_t flashDataSize = FLASH_DATA_SIZE;
+const uint32_t flashPageDataSize = FLASH_PAGE_SIZE - FLASH_BLOCK_SIZE;
+const uint32_t flashBlockSize = FLASH_BLOCK_SIZE;
 
 bool checkFirmware(void)
 {
@@ -84,80 +95,56 @@ bool checkFirmware(void)
     return (calculatedCRC == FIRMWARE_CRC);
 }
 
-uint8_t *getFlashData(uint8_t pageIndex)
+uint8_t *getFlash(struct FlashIterator *iterator)
 {
-    return (uint8_t *)(FLASH_BASE + pageIndex * FLASH_PAGE_SIZE);
+    return (uint8_t *)(FLASH_BASE + iterator->pageIndex * FLASH_PAGE_SIZE);
 }
 
-void eraseFlash(uint8_t pageIndex)
+void eraseFlash(struct FlashIterator *iterator)
 {
-    flash_erase_page(FLASH_BASE + pageIndex * FLASH_PAGE_SIZE);
-}
-
-void writeFlash(uint8_t pageIndex, uint32_t index,
-                uint8_t *source, uint32_t size)
-{
-    uint32_t dest = FLASH_BASE + pageIndex * FLASH_PAGE_SIZE + index;
+#if defined(STM32F0) || defined(STM32F1)
 
     flash_unlock();
 
-#if defined(STM32F0) || defined(STM32F1)
+    flash_erase_page(FLASH_BASE + iterator->pageIndex * FLASH_PAGE_SIZE);
 
-    uint32_t alignment = dest & 0x3;
-    dest &= ~0x3;
-
-    uint32_t value = 0;
-    while (size)
-    {
-        for (uint32_t i = 0; i < 4; i++)
-        {
-            value >>= 8;
-
-            if ((i >= alignment) && size)
-            {
-                value |= *source++ << 24;
-                size--;
-            }
-            else
-                value |= 0xff << 24;
-        }
-
-        flash_program_word(dest, value);
-
-        alignment = 0;
-        dest += 4;
-    }
+    flash_lock();
 
 #elif defined(STM32G0)
 
-    uint32_t alignment = dest & 0x7;
-    dest &= ~0x7;
+    flash_unlock_progmem();
 
-    uint64_t value = 0;
-    while (size)
-    {
-        for (uint32_t i = 0; i < 8; i++)
-        {
-            value >>= 8;
+    flash_erase_page(iterator->pageIndex);
 
-            if ((i >= alignment) && size)
-            {
-                value |= (uint64_t)(*source++) << 56;
-                size--;
-            }
-            else
-                value |= 0xffULL << 56;
-        }
-
-        flash_program_double_word(dest, value);
-
-        alignment = 0;
-        dest += 8;
-    }
+    flash_lock_progmem();
 
 #endif
+}
+
+void programFlash(struct FlashIterator *iterator,
+                  uint8_t *source, uint32_t size)
+{
+    uint32_t dest = FLASH_BASE + iterator->pageIndex * FLASH_PAGE_SIZE + iterator->index;
+
+#if defined(STM32F0) || defined(STM32F1)
+
+    flash_unlock();
+
+    for (uint32_t i = 0; i < size; i += FLASH_BLOCK_SIZE)
+        flash_program_half_word(dest + i, *(uint16_t *)(source + i));
 
     flash_lock();
+
+#elif defined(STM32G0)
+
+    flash_unlock_progmem();
+
+    for (uint32_t i = 0; i < size; i += FLASH_BLOCK_SIZE)
+        flash_program_double_word(dest + i, *(uint64_t *)(source + i));
+
+    flash_lock_progmem();
+
+#endif
 }
 
 #endif

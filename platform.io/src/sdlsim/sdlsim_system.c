@@ -19,7 +19,7 @@ void initSystem(void)
 
 uint32_t getDeviceId(void)
 {
-    return 1234567890;
+    return 0x08192A3B;
 }
 
 void startBootloader(void)

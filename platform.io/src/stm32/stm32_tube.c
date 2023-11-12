@@ -22,9 +22,9 @@
 
 #include "stm32.h"
 
-#define TUBE_HV_PWM_FREQUENCY 40000
+#define TUBE_HV_PWM_FREQUENCY 1250
 #define TUBE_HV_PWM_PERIOD (SYS_FREQUENCY / TUBE_HV_PWM_FREQUENCY)
-#define TUBE_HV_PWM_PERIOD_HIGH (TUBE_HV_PWM_PERIOD / 2)
+#define TUBE_HV_PWM_PERIOD_2 (TUBE_HV_PWM_PERIOD / 2)
 
 #define TUBE_PULSE_QUEUE_SIZE 64
 #define TUBE_PULSE_QUEUE_MASK (TUBE_PULSE_QUEUE_SIZE - 1)
@@ -54,10 +54,11 @@ void initTubeHardware(void)
 
 #endif
 
-    TIM_ARR(TUBE_HV_TIMER) = TUBE_HV_PWM_PERIOD - 1; // timer_set_period(TUBE_HV_TIMER, TUBE_HV_PWM_PERIOD - 1);
-    TIM_CCMR1(TUBE_HV_TIMER) |= TIM_CCMR1_OC1M_PWM1;   // timer_set_oc_mode(TUBE_HV_TIMER, TIM_OC1, TIM_OCM_PWM1);
-    TIM_CCER(TUBE_HV_TIMER) |= TIM_CCER_CC1E;          // timer_enable_oc_output(TUBE_HV_TIMER, TIM_OC1);
-    updateTubeDutyCycle();
+    TIM_CCMR1(TUBE_HV_TIMER) |= TIM_CCMR1_OC1M_PWM1; // timer_set_oc_mode(TUBE_HV_TIMER, TIM_OC1, TIM_OCM_PWM1);
+    TIM_CCER(TUBE_HV_TIMER) |= TIM_CCER_CC1E;        // timer_enable_oc_output(TUBE_HV_TIMER, TIM_OC1);
+
+    updateTubeHV();
+
     TIM_CR1(TUBE_HV_TIMER) |= TIM_CR1_CEN; // timer_enable_counter(TUBE_HV_TIMER);
 
     // Pulse detection
@@ -121,30 +122,47 @@ void initTubeHardware(void)
 #endif
 }
 
-void updateTubeDutyCycle(void)
+void updateTubeHV(void)
 {
-    uint32_t ccr;
-    if (settings.tubeDutyCycle < TUBE_HV_PWM_PERIOD_HIGH)
-        ccr = TUBE_HV_PWM_PERIOD_HIGH - settings.tubeDutyCycle;
-    else
-        ccr = TUBE_HV_PWM_PERIOD_HIGH;
+    // Sanity check
 
-    TIM_CCR1(TUBE_HV_TIMER) = ccr; // timer_set_oc_value(TUBE_HV_TIMER, TIM_OC1, ccr);
+    if (settings.tubeHVDutyCycle >= TUBE_HV_DUTY_CYCLE_NUM)
+        settings.tubeHVDutyCycle = TUBE_HV_DUTY_CYCLE_NUM - 1;
+
+    // Frequency
+
+    uint32_t arr = (TUBE_HV_PWM_PERIOD >> settings.tubeHVFrequency) - 1;
+    TIM_ARR(TUBE_HV_TIMER) = arr; // timer_set_period(TUBE_HV_TIMER, arr);
+
+    // Duty cycle
+
+    uint32_t ccr = (TUBE_HV_PWM_PERIOD_2 -
+                    (settings.tubeHVDutyCycle << 5)) >>
+                   settings.tubeHVFrequency;
+    TIM_CCR1(TUBE_HV_TIMER) = ccr; // timer_set_oc_value(TUBE_HV_TIMER, TIM_OC1, crr);
 }
 
 #if defined(DEBUG_TEST_PWM)
 
 void tim14_isr(void)
+{
+    TIM_SR(TIM14) &= ~TIM_SR_UIF;
 
 #else
 
 void TUBE_DET_IRQ_HANDLER(void)
+{
+#if defined(EXTI_FPR1)
+
+    EXTI_FPR1 = TUBE_DET_EXTI; // exti_reset_request();
+
+#else
+
+    EXTI_PR = TUBE_DET_EXTI; // exti_reset_request();
 
 #endif
-{
-    TIM_SR(TIM14) &= ~TIM_SR_UIF;
 
-    // +++ TEST
+#endif
 
 #if defined(TUBE_DET_TIMER_HIGH)
 

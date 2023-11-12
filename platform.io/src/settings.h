@@ -177,6 +177,10 @@ enum
     TUBE_TYPE_NUM,
 };
 
+#define TUBE_HV_DUTY_CYCLE_NUM 100
+
+#define TUBE_HV_FREQUENCY_NUM 6
+
 enum
 {
     GAME_STRENGTH_1,
@@ -193,6 +197,8 @@ enum
 
 struct Settings
 {
+    unsigned int empty : 1;
+
     unsigned int units : 2;
     unsigned int averageTimer : 3;
     unsigned int rateAlarm : 4;
@@ -223,9 +229,10 @@ struct Settings
     unsigned int batteryType : 1;
 
     unsigned int tubeType : 2;
-    unsigned int tubeConversionFactor : 8;
-    unsigned int tubeDeadTimeCompensation : 8;
-    unsigned int tubeDutyCycle : 8;
+    unsigned int tubeConversionFactor : 6;
+    unsigned int tubeDeadTimeCompensation : 6;
+    unsigned int tubeHVDutyCycle : 7;
+    unsigned int tubeHVFrequency : 3;
 
     unsigned int gameStrength : 3;
 };

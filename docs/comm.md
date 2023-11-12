@@ -6,7 +6,7 @@ To establish a connection with a Rad Pro device, you can use either a serial por
 * Data bits: 8
 * Parity: None
 * Stop bits: 1
-* Flow Control: None
+* Flow control: None
 
 The employed communications protocol is ASCII-based and follows a request-response model.
 
@@ -14,7 +14,7 @@ The employed communications protocol is ASCII-based and follows a request-respon
 
 ## Requests
 
-### Get system identification
+### Get device identification
 
 * Request: `GET deviceId\n`
 * Response: `OK [hardware-id];[software-id];[device-id]\n`
@@ -23,12 +23,12 @@ Identifies the device's hardware and software. The response consists of these co
 
 * `[hardware-id]`: The device's hardware, which may be one of the following: `FS2011 (STM32F051C8)`, `FS2011 (GD32F150C8)`, `FS2011 (GD32F103C8)`, `Bosean FS-600`, `Bosean FS-1000`, `FNIRSI GC-01` or `SDLSim`.
 * `[software-id]`: The device's software, typically `Rad Pro` followed by the software version.
-* `[device-id]`: A unique device ID number.
+* `[device-id]`: A unique device ID.
 
 Example:
 
     GET deviceId
-    OK FS2011 (STM32F051);Rad Pro 2.0;9847195723
+    OK FS2011 (STM32F051C8);Rad Pro 2.0;9748af1b
 
 ### Get device temperature
 
@@ -128,17 +128,17 @@ Example:
 
 For improved accuracy, perform two `GET tubePulseCount` measurements over a time period and divide the pulse count difference by the time period (in minutes).
 
-### Get tube duty cycle
+### Get tube dead-time measurement
 
-* Request: `GET tubeDutyCycle\n` 
+* Request: `GET tubeDeadTime\n`
 * Response: `OK [value]\n`
 
-Returns the tube's duty-cycle of the high-voltage generator, provided in decimal format with three decimal places.
+Returns an upper bound measurement of the tube's dead-time in seconds, provided in decimal format with seven decimal places.
 
 Example:
 
-    GET tubeDutyCycle
-    OK 0.415
+    GET tubeDeadTime
+    OK 0.0002425
 
 ### Get tube conversion factor
 
@@ -152,18 +152,6 @@ Example:
     GET tubeConversionFactor
     OK 153.000
 
-### Get tube dead-time measurement
-
-* Request: `GET tubeDeadTime\n`
-* Response: `OK [value]\n`
-
-Returns the measured upper bound of the tube's dead-time in seconds, provided in decimal format with seven decimal places.
-
-Example:
-
-    GET tubeDeadTime
-    OK 0.0002425
-
 ### Get tube dead-time compensation
 
 * Request: `GET tubeDeadTimeCompensation\n`
@@ -175,6 +163,30 @@ Example:
 
     GET tubeDeadTimeCompensation
     OK 0.0002500
+
+### Get tube HV duty cycle
+
+* Request: `GET tubeHVDutyCycle\n` 
+* Response: `OK [value]\n`
+
+Returns the tube's PWM duty-cycle of the high-voltage generator, provided in decimal format with three decimal places.
+
+Example:
+
+    GET tubeHVDutyCycle
+    OK 0.415
+
+### Get tube HV frequency
+
+* Request: `GET tubeHVFrequency\n` 
+* Response: `OK [value]\n`
+
+Returns the tube's PWM frequency of the high-voltage generator measured in Hz, provided in decimal format.
+
+Example:
+
+    GET tubeHVFrequency
+    OK 1250
 
 ### Get data log
 

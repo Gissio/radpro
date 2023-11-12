@@ -23,7 +23,7 @@
 #include "system.h"
 #include "tube.h"
 
-struct FlashSettings
+struct SettingsDoseTube
 {
     struct Settings settings;
 
@@ -31,18 +31,14 @@ struct FlashSettings
     struct Dose tube;
 };
 
-struct SettingsState
-{
-    uint8_t pageIndex;
-    uint32_t index;
-};
-
 struct Settings settings;
 
-static struct FlashSettings *getSettingsState(struct SettingsState *settingsState);
+static struct SettingsDoseTube *getSettingsDoseTube(struct FlashIterator *iterator);
 
 void initSettings(void)
 {
+    // Default values
+
     settings.pulseClicks = PULSE_CLICKS_QUIET;
 
 #if defined(PULSE_LED)
@@ -62,59 +58,66 @@ void initSettings(void)
 
 #endif
 
-    struct FlashSettings *settingsEntry = getSettingsState(NULL);
-    if (settingsEntry)
+    settings.tubeHVFrequency = 5;
+
+    // Read settings
+
+    struct FlashIterator iterator;
+
+    iterator.region = &flashSettingsRegion;
+
+    struct SettingsDoseTube *settingsDoseTube = getSettingsDoseTube(&iterator);
+
+    if (settingsDoseTube)
     {
-        settings = settingsEntry->settings;
-
-        setDoseTime(settingsEntry->dose.time);
-        setDosePulseCount(settingsEntry->dose.pulseCount);
-
-        setTubeTime(settingsEntry->tube.time);
-        setTubePulseCount(settingsEntry->tube.pulseCount);
+        settings = settingsDoseTube->settings;
+        setDoseTime(settingsDoseTube->dose.time);
+        setDosePulseCount(settingsDoseTube->dose.pulseCount);
+        setTubeTime(settingsDoseTube->tube.time);
+        setTubePulseCount(settingsDoseTube->tube.pulseCount);
     }
 }
 
-static struct FlashSettings *getSettingsState(struct SettingsState *settingsState)
+static struct SettingsDoseTube *getSettingsDoseTube(struct FlashIterator *iterator)
 {
-    uint8_t pageIndex = getFlashHeadPage(&flashSettingsRegion);
-    uint8_t *page = getFlashData(pageIndex);
+    setFlashPageHead(iterator);
 
-    if (settingsState)
-        settingsState->pageIndex = pageIndex;
+    uint8_t *page = getFlash(iterator);
 
-    struct FlashSettings *settingsEntry = NULL;
-    for (uint32_t index = 0;
-         index < flashDataSize;
-         index += sizeof(struct FlashSettings))
+    struct SettingsDoseTube *settingsDoseTube = NULL;
+
+    for (iterator->index = 0;
+         iterator->index <= flashPageDataSize - sizeof(struct SettingsDoseTube);
+         iterator->index += sizeof(struct SettingsDoseTube))
     {
-        if (settingsState)
-            settingsState->index = index;
-
-        if (page[index] == 0xff)
+        if (!((struct SettingsDoseTube *)&page[iterator->index])->settings.empty)
+            settingsDoseTube = (struct SettingsDoseTube *)&page[iterator->index];
+        else
             break;
-
-        settingsEntry = (struct FlashSettings *)&page[index];
     }
 
-    return settingsEntry;
+    return settingsDoseTube;
 }
 
 void writeSettings(void)
 {
-    struct SettingsState settingsState;
-    getSettingsState(&settingsState);
+    struct FlashIterator iterator;
 
-    struct FlashSettings settingsEntry;
-    settingsEntry.settings = settings;
-    settingsEntry.dose.time = getDoseTime();
-    settingsEntry.dose.pulseCount = getDosePulseCount();
-    settingsEntry.tube.time = getTubeTime();
-    settingsEntry.tube.pulseCount = getTubePulseCount();
+    iterator.region = &flashSettingsRegion;
 
-    flashEntry(&flashSettingsRegion,
-               settingsState.pageIndex, settingsState.index,
-               (uint8_t *)&settingsEntry, sizeof(struct FlashSettings));
+    getSettingsDoseTube(&iterator);
+
+    struct SettingsDoseTube settingsDoseTube;
+
+    settingsDoseTube.settings = settings;
+    settingsDoseTube.dose.time = getDoseTime();
+    settingsDoseTube.dose.pulseCount = getDosePulseCount();
+    settingsDoseTube.tube.time = getTubeTime();
+    settingsDoseTube.tube.pulseCount = getTubePulseCount();
+
+    programFlashPage(&iterator,
+                     (uint8_t *)&settingsDoseTube,
+                     sizeof(struct SettingsDoseTube));
 }
 
 // Settings Menu

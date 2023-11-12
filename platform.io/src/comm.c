@@ -70,11 +70,11 @@ static void sendCommOkWithUInt32(uint32_t value)
     strcatUInt32(comm.buffer, value, 0);
 }
 
-static void sendCommOkWithFloat(float value, uint32_t decimals)
+static void sendCommOkWithFloat(float value, uint32_t fractionalDecimals)
 {
     sendCommOk();
     strcat(comm.buffer, " ");
-    strcatFloat(comm.buffer, value, decimals);
+    strcatFloat(comm.buffer, value, fractionalDecimals);
 }
 
 static void sendCommError(void)
@@ -95,11 +95,11 @@ static void startDatalogDump(void)
 
     strcat(comm.buffer, " time,tubePulseCount");
 
-    initDatalogState(&comm.datalogState);
+    stopDatalog();
+    initDatalogRead();
+    comm.sendingDatalog = true;
 
     transmitComm();
-
-    setDatalogPause(true);
 }
 
 void updateComm(void)
@@ -118,7 +118,7 @@ void updateComm(void)
         {
             sendCommOkWithString(commId);
             strcat(comm.buffer, ";");
-            strcatUInt32(comm.buffer, getDeviceId(), 0);
+            strcatUInt32Hex(comm.buffer, getDeviceId());
         }
         else if (matchCommCommand("GET deviceTemperature"))
             sendCommOkWithFloat(getDeviceTemperature(), 1);
@@ -162,14 +162,16 @@ void updateComm(void)
 
             return;
         }
-        else if (matchCommCommand("GET tubeDutyCycle"))
-            sendCommOkWithFloat(getTubeDutyCycle(), 3);
         else if (matchCommCommand("GET tubeConversionFactor"))
             sendCommOkWithFloat(getTubeCustomConversionFactor(), 3);
-        else if (matchCommCommand("GET tubeDeadTime"))
-            sendCommOkWithFloat(getDeadTime(), 7);
         else if (matchCommCommand("GET tubeDeadTimeCompensation"))
             sendCommOkWithFloat(getTubeDeadTimeCompensation(), 7);
+        else if (matchCommCommand("GET tubeHVDutyCycle"))
+            sendCommOkWithFloat(getTubeHVDutyCycle(), 3);
+        else if (matchCommCommand("GET tubeHVFrequency"))
+            sendCommOkWithFloat(getTubeHVFrequency(), 0);
+        else if (matchCommCommand("GET tubeDeadTime"))
+            sendCommOkWithFloat(getDeadTime(), 7);
         else if (matchCommCommand("GET entropy"))
         {
             sendCommOk();
@@ -188,7 +190,7 @@ void updateComm(void)
         }
         else if (matchCommCommand("START bootloader"))
         {
-            comm.isStartingBootloader = true;
+            comm.startBootloader = true;
 
             sendCommOk();
         }
@@ -201,27 +203,28 @@ void updateComm(void)
     }
     else if (comm.state == COMM_TX_READY)
     {
-        if (comm.datalogState.pageIndex != 0)
+        if (comm.sendingDatalog)
         {
             strcpy(comm.buffer, "");
 
             for (uint32_t i = 0; i < 2;)
             {
-                if (!updateDatalogState(&comm.datalogState))
+                struct Dose dose;
+
+                if (!readDatalog(&dose))
                 {
-                    comm.datalogState.pageIndex = 0;
+                    comm.sendingDatalog = false;
+                    startDatalog();
 
                     strcat(comm.buffer, "\n");
-
-                    setDatalogPause(false);
 
                     break;
                 }
 
-                if (comm.datalogState.dose.time > comm.datalogTimeLimit)
+                if (dose.time > comm.datalogTimeLimit)
                 {
                     strcat(comm.buffer, ";");
-                    strcatDatalogEntry(comm.buffer, &comm.datalogState.dose);
+                    strcatDatalogEntry(comm.buffer, &dose);
 
                     i++;
                 }
@@ -231,7 +234,7 @@ void updateComm(void)
         }
         else
         {
-            if (comm.isStartingBootloader)
+            if (comm.startBootloader)
                 startBootloader();
 
             comm.state = COMM_RX;

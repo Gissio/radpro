@@ -12,7 +12,7 @@
 
 #include "cstring.h"
 
-void strcatUInt32(char *str, uint32_t value, uint32_t length)
+void strcatUInt32(char *str, uint32_t value, uint32_t minLength)
 {
     str += strlen(str);
 
@@ -24,16 +24,16 @@ void strcatUInt32(char *str, uint32_t value, uint32_t length)
         x /= 10;
     } while (x);
 
-    if (n > length)
-        length = n;
+    if (n > minLength)
+        minLength = n;
 
-    for (int32_t i = (length - 1); i >= 0; i--)
+    for (int32_t i = (minLength - 1); i >= 0; i--)
     {
         str[i] = '0' + (value % 10);
         value /= 10;
     }
 
-    str[length] = '\0';
+    str[minLength] = '\0';
 }
 
 bool parseUInt32(char *str, uint32_t *value)

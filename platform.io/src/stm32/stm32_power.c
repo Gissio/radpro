@@ -63,8 +63,10 @@ bool isBatteryCharging(void)
 
 #endif
 
+// +++ TEST
     if (getBatteryVoltage() < BATTERY_EXTERNAL_POWER_SUPPLY_VOLTAGE_THRESHOLD)
         return true;
+// +++ TEST
 
     return false;
 }
@@ -72,7 +74,7 @@ bool isBatteryCharging(void)
 bool isLowBattery(void)
 {
     // +++ TEST
-    return false;
+    // return false;
     // +++ TEST
 
     float batteryVoltage = getBatteryVoltage();

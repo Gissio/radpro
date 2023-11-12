@@ -181,7 +181,7 @@ void debugTestMode(void)
         drawTextLeft(line, font_tiny5, 66, 40);
 
         enum Event event = getKeyboardEvent();
-        if (event == EVENT_UP)
+        if (event == EVENT_KEY_UP)
         {
             state++;
             state &= 0b11;

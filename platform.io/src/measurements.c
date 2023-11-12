@@ -14,6 +14,7 @@
 #include "cstring.h"
 #include "display.h"
 #include "events.h"
+#include "keyboard.h"
 #include "measurements.h"
 #include "menu.h"
 #include "settings.h"
@@ -546,6 +547,8 @@ void setMeasurementView(int32_t index)
     if (index >= 0)
         measurements.viewIndex = index;
 
+    setKeyboardDelayedBack(true);
+
     setView(measurementViews[measurements.viewIndex]);
 }
 
@@ -553,7 +556,7 @@ static void onMeasurementEvent(const struct View *view, enum Event event)
 {
     switch (event)
     {
-    case EVENT_UP:
+    case EVENT_KEY_UP:
         measurements.viewIndex--;
         if (measurements.viewIndex < 0)
             measurements.viewIndex = MEASUREMENT_VIEWS_NUM - 1;
@@ -562,7 +565,7 @@ static void onMeasurementEvent(const struct View *view, enum Event event)
 
         break;
 
-    case EVENT_DOWN:
+    case EVENT_KEY_DOWN:
         measurements.viewIndex++;
         if (measurements.viewIndex >= (int32_t)MEASUREMENT_VIEWS_NUM)
             measurements.viewIndex = 0;
@@ -571,7 +574,9 @@ static void onMeasurementEvent(const struct View *view, enum Event event)
 
         break;
 
-    case EVENT_ENTER:
+    case EVENT_KEY_ENTER:
+        setKeyboardDelayedBack(false);
+
         setView(&settingsMenuView);
 
         break;
@@ -623,7 +628,7 @@ static void onInstantaneousRateViewEvent(const struct View *view,
 
     switch (event)
     {
-    case EVENT_BACK:
+    case EVENT_KEY_BACK:
         measurements.instantaneous.isHold = !measurements.instantaneous.isHold;
 
         if (measurements.instantaneous.isHold)
@@ -633,7 +638,7 @@ static void onInstantaneousRateViewEvent(const struct View *view,
 
         break;
 
-    case EVENT_RESET:
+    case EVENT_KEY_RESET:
         resetInstantaneousRate();
 
         refreshView();
@@ -686,7 +691,7 @@ static void onAverageRateViewEvent(const struct View *view,
 
     switch (event)
     {
-    case EVENT_BACK:
+    case EVENT_KEY_BACK:
         if (measurements.average.isHold ||
             (measurements.average.rate.time <
              averageTimerTimes[settings.averageTimer]))
@@ -701,7 +706,7 @@ static void onAverageRateViewEvent(const struct View *view,
 
         break;
 
-    case EVENT_RESET:
+    case EVENT_KEY_RESET:
         resetAverageRate();
 
         refreshView();
@@ -798,7 +803,7 @@ static void onDoseViewEvent(const struct View *view,
 
     switch (event)
     {
-    case EVENT_BACK:
+    case EVENT_KEY_BACK:
         measurements.cumulative.isHold = !measurements.cumulative.isHold;
 
         if (measurements.cumulative.isHold)
@@ -808,7 +813,7 @@ static void onDoseViewEvent(const struct View *view,
 
         break;
 
-    case EVENT_RESET:
+    case EVENT_KEY_RESET:
         resetDose();
 
         refreshView();
@@ -896,7 +901,7 @@ static void onHistoryViewEvent(const struct View *view, enum Event event)
 
     switch (event)
     {
-    case EVENT_BACK:
+    case EVENT_KEY_BACK:
         measurements.history.tabIndex++;
         if (measurements.history.tabIndex >= HISTORY_NUM)
             measurements.history.tabIndex = 0;
@@ -905,7 +910,7 @@ static void onHistoryViewEvent(const struct View *view, enum Event event)
 
         break;
 
-    case EVENT_RESET:
+    case EVENT_KEY_RESET:
         resetHistory();
 
         refreshView();

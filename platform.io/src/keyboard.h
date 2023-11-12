@@ -12,7 +12,6 @@
 #define KEYBOARD_H
 
 #include <stdbool.h>
-#include <stdint.h>
 
 #include "View.h"
 
@@ -43,6 +42,8 @@ void initKeyboard(void);
 void initKeyboardHardware(void);
 
 void getKeyboardKeys(bool *);
+
+void setKeyboardDelayedBack(bool value);
 
 void onKeyboardTick(void);
 

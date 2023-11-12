@@ -7,98 +7,106 @@
  * License: MIT
  */
 
+#include <string.h>
+
 #include "flash.h"
 
-bool isFlashPageFull(uint8_t pageIndex)
+bool isFlashPageFull(struct FlashIterator *iterator)
 {
-    uint8_t *page = getFlashData(pageIndex);
+    uint8_t *page = getFlash(iterator);
 
-    return (page[flashDataSize] != 0xff);
+    return (page[flashPageDataSize] != 0xff);
 }
 
-static void markFlashPageFull(uint8_t pageIndex)
+static void markFlashPageFull(struct FlashIterator *iterator)
 {
-    uint8_t marker = 0x00;
+    uint8_t marker[8];
+    memset(&marker, 0, sizeof(marker));
 
-    writeFlash(pageIndex, flashDataSize, &marker, 1);
+    iterator->index = flashPageDataSize;
+
+    programFlash(iterator, marker, flashBlockSize);
 }
 
-uint8_t getFlashNextPage(const struct FlashRegion *region, uint8_t pageIndex)
+void setFlashPageHead(struct FlashIterator *iterator)
 {
-    pageIndex++;
+    const struct FlashRegion *region = iterator->region;
+    iterator->index = 0;
 
-    if (pageIndex >= region->end)
-        pageIndex = region->begin;
-
-    return pageIndex;
-}
-
-static uint8_t getFlashPrevPage(const struct FlashRegion *region, uint8_t pageIndex)
-{
-    pageIndex--;
-
-    if (pageIndex < region->begin)
-        pageIndex = region->end - 1;
-
-    return pageIndex;
-}
-
-uint8_t getFlashHeadPage(const struct FlashRegion *region)
-{
-    for (uint8_t pageIndex = region->begin;
-         pageIndex < region->end;
-         pageIndex++)
+    for (iterator->pageIndex = region->beginPageIndex;
+         iterator->pageIndex < region->endPageIndex;
+         iterator->pageIndex++)
     {
-        if (!isFlashPageFull(pageIndex))
-            return pageIndex;
+        if (!isFlashPageFull(iterator))
+            return;
     }
 
-    return region->begin;
+    iterator->pageIndex = region->beginPageIndex;
 }
 
-uint8_t getFlashTailPage(const struct FlashRegion *region)
+void setFlashPageTail(struct FlashIterator *iterator)
 {
-    uint8_t headPageIndex = getFlashHeadPage(region);
-    uint8_t tailPageIndex = headPageIndex;
-    uint8_t pageIndex = headPageIndex;
+    setFlashPageHead(iterator);
+
+    uint8_t headPageIndex = iterator->pageIndex;
+    uint8_t tailPageIndex = iterator->pageIndex;
 
     while (true)
     {
-        pageIndex = getFlashPrevPage(region, pageIndex);
+        setFlashPagePrev(iterator);
 
-        if ((pageIndex == headPageIndex) ||
-            !isFlashPageFull(pageIndex))
+        if ((iterator->pageIndex == headPageIndex) ||
+            !isFlashPageFull(iterator))
             break;
 
-        tailPageIndex = pageIndex;
+        tailPageIndex = iterator->pageIndex;
     }
 
-    return tailPageIndex;
+    iterator->pageIndex = tailPageIndex;
 }
 
-void flashEntry(const struct FlashRegion *region,
-                uint8_t pageIndex, uint32_t index,
-                uint8_t *source, uint32_t size)
+void setFlashPageNext(struct FlashIterator *iterator)
+{
+    const struct FlashRegion *region = iterator->region;
+    iterator->pageIndex++;
+    iterator->index = 0;
+
+    if (iterator->pageIndex >= region->endPageIndex)
+        iterator->pageIndex = region->beginPageIndex;
+}
+
+void setFlashPagePrev(struct FlashIterator *iterator)
+{
+    const struct FlashRegion *region = iterator->region;
+    iterator->pageIndex--;
+    iterator->index = 0;
+
+    if (iterator->pageIndex < region->beginPageIndex)
+        iterator->pageIndex = region->endPageIndex - 1;
+}
+
+void programFlashPage(struct FlashIterator *iterator,
+                      uint8_t *source, uint32_t size)
 {
     // Enough space?
-    if ((index + size) > flashDataSize)
+    if ((iterator->index + size) > flashPageDataSize)
     {
-        uint8_t nextPageIndex = getFlashNextPage(region, pageIndex);
+        struct FlashIterator startIterator = *iterator;
 
-        if (pageIndex != nextPageIndex)
+        setFlashPageNext(iterator);
+
+        if (iterator->pageIndex != startIterator.pageIndex)
         {
-            markFlashPageFull(pageIndex);
+            markFlashPageFull(&startIterator);
 
-            if (isFlashPageFull(nextPageIndex))
-                eraseFlash(nextPageIndex);
-
-            pageIndex = nextPageIndex;
+            if (isFlashPageFull(iterator))
+                eraseFlash(iterator);
         }
         else
-            eraseFlash(pageIndex);
-
-        index = 0;
+            eraseFlash(iterator);
     }
 
-    writeFlash(pageIndex, index, source, size);
+    programFlash(iterator, source, size);
+
+    iterator->index += size;
 }

@@ -7,6 +7,9 @@
  * License: MIT
  */
 
+#include <string.h>
+
+#include "cmath.h"
 #include "datalog.h"
 #include "flash.h"
 #include "measurements.h"
@@ -14,14 +17,29 @@
 #include "rtc.h"
 #include "settings.h"
 
+#define DATALOG_BUFFER_SIZE 16
+
+struct DatalogState
+{
+    struct FlashIterator iterator;
+
+    uint32_t timeInterval;
+
+    struct Dose dose;
+};
+
 static struct
 {
-    uint32_t lastEntryTime;
+    struct DatalogState writeState;
+    struct DatalogState readState;
 
-    bool pause;
+    uint32_t bufferSize;
+    uint8_t buffer[DATALOG_BUFFER_SIZE];
+
+    bool stopped;
 } datalog;
 
-static const uint16_t datalogIntervalTime[] = {
+static const uint16_t datalogTimeIntervals[] = {
     0,
     60 * 60,
     30 * 60,
@@ -29,8 +47,6 @@ static const uint16_t datalogIntervalTime[] = {
     5 * 60,
     1 * 60,
 };
-
-#define DATALOG_INTERVAL_TIME_NUM (sizeof(datalogIntervalTime) / sizeof(uint16_t))
 
 static const char *const datalogMenuOptions[] = {
     "Off",
@@ -44,18 +60,22 @@ static const char *const datalogMenuOptions[] = {
 
 static const struct Menu datalogMenu;
 
+static bool decodeDatalogEntry(struct DatalogState *state);
+
 void initDatalog(void)
 {
     selectMenuIndex(&datalogMenu,
                     settings.datalogInterval,
                     DATA_LOGGING_NUM);
 
-    writeDatalogEntry();
-}
+    datalog.writeState.iterator.region = &flashDatalogRegion;
 
-void setDatalogPause(bool value)
-{
-    datalog.pause = value;
+    setFlashPageHead(&datalog.writeState.iterator);
+
+    while (decodeDatalogEntry(&datalog.writeState))
+        ;
+
+    writeDatalogEntry(false);
 }
 
 static void encodeDatalogValue(int32_t value,
@@ -68,6 +88,7 @@ static void encodeDatalogValue(int32_t value,
     uint32_t prefix = (~mask) << 1;
 
     data[0] = ((value >> bitshift) & mask) | prefix;
+
     for (uint32_t i = 1; i < size; i++)
         data[i] = value >> (bitshift - 8 * i);
 }
@@ -81,109 +102,78 @@ static int32_t decodeDatalogValue(uint8_t *data,
 
     for (uint32_t i = 0; i < size; i++)
         value = (value << 8) | data[i];
+
     value = (value << bitshift) >> bitshift;
 
     return value;
 }
 
-static bool decodeDatalogEntry(struct DatalogState *datalogState)
+static void programDatalogBuffer(void)
 {
-    if (datalogState->index >= flashDataSize)
-        return false;
+    uint32_t paddedBufferSize =
+        ((datalog.bufferSize + flashBlockSize - 1) / flashBlockSize) *
+        flashBlockSize;
 
-    uint8_t *page = getFlashData(datalogState->pageIndex);
-    int32_t value = page[datalogState->index];
+    memset(datalog.buffer + datalog.bufferSize, 0xfe, paddedBufferSize - datalog.bufferSize);
 
-    if (value < 0xf0)
-    {
-        uint32_t size;
-        if ((value & 0x80) == 0x00)
-            size = 1;
-        else if ((value & 0xc0) == 0x80)
-            size = 2;
-        else if ((value & 0xe0) == 0xc0)
-            size = 3;
-        else
-            size = 4;
+    programFlashPage(&datalog.writeState.iterator, datalog.buffer, paddedBufferSize);
 
-        datalogState->dose.time += datalogState->deltaTime;
-        datalogState->dose.pulseCount +=
-            decodeDatalogValue(page + datalogState->index, size, 8 - size);
-        datalogState->index += size;
-    }
-    else if (value == 0xf0)
-    {
-        datalogState->dose.time += datalogState->deltaTime;
-        datalogState->index++;
-        datalogState->dose.pulseCount +=
-            decodeDatalogValue(page + datalogState->index, 4, 8);
-        datalogState->index += 4;
-    }
-    else if (value >= 0xf8 && value <= 0xfc)
-    {
-        datalogState->deltaTime = datalogIntervalTime[value - 0xf8 + 1];
-
-        datalogState->index++;
-        datalogState->dose.time =
-            decodeDatalogValue(page + datalogState->index, 4, 8);
-        datalogState->index += 4;
-        datalogState->dose.pulseCount =
-            decodeDatalogValue(page + datalogState->index, 4, 8);
-        datalogState->index += 4;
-    }
-    else
-        return false;
-
-    return true;
+    datalog.bufferSize = 0;
 }
 
-void initDatalogState(struct DatalogState *state)
+void startDatalog(void)
 {
-    state->pageIndex = getFlashTailPage(&flashDatalogRegion);
-    state->index = 0;
+    datalog.stopped = false;
 }
 
-bool updateDatalogState(struct DatalogState *state)
+void stopDatalog(void)
 {
-    if (decodeDatalogEntry(state))
-        return true;
-
-    if (!isFlashPageFull(state->pageIndex))
-        return false;
-
-    state->pageIndex = getFlashNextPage(
-        &flashDatalogRegion, state->pageIndex);
-    state->index = 0;
-
-    return decodeDatalogEntry(state);
+    datalog.stopped = true;
 }
 
-static void writeDatalogEntryWithTime(uint32_t time)
+void writeDatalogEntry(bool isUpdate)
 {
-    struct DatalogState datalogState;
-    datalogState.pageIndex = getFlashHeadPage(&flashDatalogRegion);
-    datalogState.index = 0;
+    if ((settings.datalogInterval == DATA_LOGGING_OFF) ||
+        datalog.stopped)
+        return;
 
-    while (decodeDatalogEntry(&datalogState));
+    // Update?
 
-    uint32_t deltaTime = time - datalog.lastEntryTime;
-    uint32_t pulseCount = getTubePulseCount();
+    struct Dose dose;
+    dose.time = getRTCTime();
+    dose.pulseCount = getTubePulseCount();
 
-    datalog.lastEntryTime = time;
+    uint32_t timeInterval = dose.time - datalog.writeState.dose.time;
+    uint32_t sampleInterval = datalogTimeIntervals[settings.datalogInterval];
+
+    if (isUpdate && (timeInterval < sampleInterval))
+        return;
+
+    // Build entry
 
     uint8_t entry[9];
-    uint32_t entryIndex;
+    uint32_t entrySize = 0;
 
-    bool writeAbsoluteEntry;
+    bool absoluteEntry = false;
 
-    if (deltaTime == datalogState.deltaTime)
+    if (!isUpdate || (timeInterval > (sampleInterval + 1)))
     {
-        int32_t deltaPulseCount = pulseCount - datalogState.dose.pulseCount;
+        datalog.writeState.dose.time = dose.time;
+        datalog.writeState.dose.pulseCount = dose.pulseCount;
 
-        entryIndex = 0;
+        absoluteEntry = true;
+    }
+    else
+    {
+        int32_t deltaPulseCount = dose.pulseCount - datalog.writeState.dose.pulseCount;
+
+        datalog.writeState.dose.time += sampleInterval;
+        datalog.writeState.dose.pulseCount = dose.pulseCount;
 
         if ((deltaPulseCount >= -(1 << 27)) && (deltaPulseCount < (1 << 27)))
         {
+            // Encode 7, 14, 21 or 28-bit differential pulse count value
+
             uint32_t size;
             if ((deltaPulseCount >= -(1 << 6)) && (deltaPulseCount < (1 << 6)))
                 size = 1;
@@ -195,79 +185,168 @@ static void writeDatalogEntryWithTime(uint32_t time)
                 size = 4;
 
             encodeDatalogValue(deltaPulseCount, entry, size, 8 - size);
-            entryIndex += size;
+            entrySize += size;
         }
         else
         {
-            entry[entryIndex++] = 0xf0;
+            // Encode 32-bit differential pulse count value
 
-            encodeDatalogValue(deltaPulseCount, entry + entryIndex, 4, 8);
-            entryIndex += 4;
+            entry[entrySize++] = 0xf0;
+
+            encodeDatalogValue(deltaPulseCount, entry + entrySize, 4, 8);
+            entrySize += 4;
         }
 
-        writeAbsoluteEntry =
-            ((datalogState.index + entryIndex) > flashDataSize);
-    }
-    else
-        writeAbsoluteEntry = true;
+        // Block crossing?
 
-    if (writeAbsoluteEntry)
+        if ((datalog.bufferSize + entrySize) > flashBlockSize)
+            programDatalogBuffer();
+
+        // Page crossing?
+
+        absoluteEntry =
+            (datalog.writeState.iterator.index + entrySize) > flashPageDataSize;
+    }
+
+    if (absoluteEntry)
     {
-        entryIndex = 0;
+        // Encode sample interval, absolute timestamp and absolute pulse count value
 
-        entry[entryIndex++] = 0xf8 + settings.datalogInterval - 1;
-        encodeDatalogValue(time, entry + entryIndex, 4, 8);
-        entryIndex += 4;
-        encodeDatalogValue(pulseCount, entry + entryIndex, 4, 8);
-        entryIndex += 4;
+        entrySize = 0;
+
+        entry[entrySize++] = 0xf1 + settings.datalogInterval - 1;
+
+        encodeDatalogValue(dose.time, entry + entrySize, 4, 8);
+        entrySize += 4;
+
+        encodeDatalogValue(dose.pulseCount, entry + entrySize, 4, 8);
+        entrySize += 4;
+
+        // An absolute entry always crosses a flash block: program buffered data
+
+        programDatalogBuffer();
     }
 
-    flashEntry(&flashDatalogRegion,
-               datalogState.pageIndex, datalogState.index,
-               entry, entryIndex);
+    // Program entry
+
+    memcpy(datalog.buffer + datalog.bufferSize, entry, entrySize);
+    datalog.bufferSize += entrySize;
+
+    if (datalog.bufferSize >= flashBlockSize)
+        programDatalogBuffer();
 }
 
-void writeDatalogEntry(void)
+static bool decodeDatalogEntry(struct DatalogState *state)
 {
-    if (settings.datalogInterval == DATA_LOGGING_OFF)
-        return;
+    while (true)
+    {
+        if (state->iterator.index >= flashPageDataSize)
+        {
+            if (!isFlashPageFull(&datalog.readState.iterator))
+                return false;
 
-    writeDatalogEntryWithTime(getRTCTime());
+            setFlashPageNext(&datalog.readState.iterator);
+        }
+
+        uint8_t *page = getFlash(&state->iterator);
+        int32_t value = page[state->iterator.index];
+
+        if (value < 0xf0)
+        {
+            // 7, 14, 21 or 28-bit differential pulse count value
+
+            uint32_t size;
+
+            if ((value & 0x80) == 0x00)
+                size = 1;
+            else if ((value & 0xc0) == 0x80)
+                size = 2;
+            else if ((value & 0xe0) == 0xc0)
+                size = 3;
+            else
+                size = 4;
+
+            state->dose.time += state->timeInterval;
+
+            state->dose.pulseCount +=
+                decodeDatalogValue(page + state->iterator.index, size, 8 - size);
+            state->iterator.index += size;
+        }
+        else if (value == 0xf0)
+        {
+            // 32-bit data differential pulse count value
+
+            state->dose.time += state->timeInterval;
+            state->iterator.index++;
+
+            state->dose.pulseCount +=
+                decodeDatalogValue(page + state->iterator.index, 4, 8);
+            state->iterator.index += 4;
+        }
+        else if (value <= 0xf5)
+        {
+            // Sample interval + absolute timestamp and pulse count value
+
+            state->timeInterval = datalogTimeIntervals[value - 0xf1 + 1];
+            state->iterator.index++;
+
+            state->dose.time =
+                decodeDatalogValue(page + state->iterator.index, 4, 8);
+            state->iterator.index += 4;
+
+            state->dose.pulseCount =
+                decodeDatalogValue(page + state->iterator.index, 4, 8);
+            state->iterator.index += 4;
+        }
+        else if (value < 0xff)
+        {
+            // Filler byte
+
+            state->iterator.index++;
+
+            continue;
+        }
+        else
+        {
+            // Unprogrammed entry
+
+            return false;
+        }
+
+        return true;
+    }
 }
 
-void updateDatalog(void)
+void initDatalogRead(void)
 {
-    if ((settings.datalogInterval == DATA_LOGGING_OFF) ||
-        datalog.pause)
-        return;
+    datalog.readState.iterator.region = &flashDatalogRegion;
 
-    uint32_t time = getRTCTime();
-    uint32_t nextWriteTime = datalog.lastEntryTime +
-                        datalogIntervalTime[settings.datalogInterval];
+    setFlashPageTail(&datalog.readState.iterator);
+}
 
-    if (time >= nextWriteTime)
-    {
-        if (time == (nextWriteTime + 1))
-            time = nextWriteTime;
+bool readDatalog(struct Dose *dose)
+{
+    bool entryValid = decodeDatalogEntry(&datalog.readState);
 
-        writeDatalogEntryWithTime(time);
-    }
+    *dose = datalog.readState.dose;
+
+    return entryValid;
 }
 
 // Data logging menu
 
 static void onDataLogMenuSelect(const struct Menu *menu)
 {
-    uint32_t datalogInterval = settings.datalogInterval;
-    uint32_t datalogIntervalNext = menu->state->selectedIndex;
+    uint32_t oldDatalogInterval = settings.datalogInterval;
+    uint32_t newDatalogInterval = menu->state->selectedIndex;
 
-    if (datalogIntervalNext == DATA_LOGGING_OFF)
-        writeDatalogEntry();
+    if (newDatalogInterval == DATA_LOGGING_OFF)
+        writeDatalogEntry(false);
 
-    settings.datalogInterval = datalogIntervalNext;
+    settings.datalogInterval = newDatalogInterval;
 
-    if (datalogInterval == DATA_LOGGING_OFF)
-        writeDatalogEntry();
+    if (oldDatalogInterval == DATA_LOGGING_OFF)
+        writeDatalogEntry(false);
 }
 
 static struct MenuState datalogMenuState;

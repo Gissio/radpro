@@ -22,23 +22,32 @@ uint32_t readADC(uint8_t channel, uint8_t sampleTime)
     return 0x1234;
 }
 
-void updateADCHardware(void)
-{
-}
-
-uint32_t getBatteryValue(void)
+uint32_t readBatteryValue(void)
 {
     return 3300;
 }
 
+uint32_t readDeviceTemperatureValue(void)
+{
+    return 242;
+}
+
+void updateADCHardware(void)
+{
+}
+
+void resetADCFilters(void)
+{
+}
+
 float getBatteryVoltage(void)
 {
-    return getBatteryValue() * (3.3F / 4096 / 2);
+    return readBatteryValue() * (3.3F / 4096 / 2);
 }
 
 float getDeviceTemperature(void)
 {
-    return 24.2F;
+    return 0.1F * readDeviceTemperatureValue();
 }
 
 #endif

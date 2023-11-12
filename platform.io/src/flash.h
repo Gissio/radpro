@@ -16,13 +16,23 @@
 
 struct FlashRegion
 {
-    uint8_t begin;
-    uint8_t end;
+    uint8_t beginPageIndex;
+    uint8_t endPageIndex;
 };
 
-extern const uint32_t flashDataSize;
 extern const struct FlashRegion flashSettingsRegion;
 extern const struct FlashRegion flashDatalogRegion;
+
+extern const uint32_t flashPageDataSize;
+extern const uint32_t flashBlockSize;
+
+struct FlashIterator
+{
+    const struct FlashRegion *region;
+
+    uint8_t pageIndex;
+    uint32_t index;
+};
 
 #if defined(SDLSIM)
 
@@ -32,17 +42,17 @@ void initFlash(void);
 
 bool checkFirmware(void);
 
-uint8_t *getFlashData(uint8_t pageIndex);
-void eraseFlash(uint8_t pageIndex);
-void writeFlash(uint8_t pageIndex, uint32_t index,
-                uint8_t *source, uint32_t size);
+uint8_t *getFlash(struct FlashIterator *iterator);
+void eraseFlash(struct FlashIterator *iterator);
+void programFlash(struct FlashIterator *iterator,
+                  uint8_t *source, uint32_t size);
 
-bool isFlashPageFull(uint8_t pageIndex);
-uint8_t getFlashNextPage(const struct FlashRegion *region, uint8_t pageIndex);
-uint8_t getFlashHeadPage(const struct FlashRegion *region);
-uint8_t getFlashTailPage(const struct FlashRegion *region);
-void flashEntry(const struct FlashRegion *region,
-                uint8_t pageIndex, uint32_t index,
-                uint8_t *source, uint32_t size);
+bool isFlashPageFull(struct FlashIterator *iterator);
+void setFlashPageHead(struct FlashIterator *iterator);
+void setFlashPageTail(struct FlashIterator *iterator);
+void setFlashPageNext(struct FlashIterator *iterator);
+void setFlashPagePrev(struct FlashIterator *iterator);
+void programFlashPage(struct FlashIterator *iterator,
+                      uint8_t *source, uint32_t size);
 
 #endif

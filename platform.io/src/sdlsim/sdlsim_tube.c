@@ -38,7 +38,7 @@ void initTubeHardware(void)
 {
 }
 
-void updateTubeDutyCycle(void)
+void updateTubeHV(void)
 {
 }
 

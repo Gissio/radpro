@@ -36,7 +36,7 @@ void initPower()
 
 void powerOff(void)
 {
-    writeDatalogEntry();
+    writeDatalogEntry(true);
     writeSettings();
 
     // Disable devices
@@ -45,7 +45,7 @@ void powerOff(void)
     setDisplay(false);
     setPower(false);
 
-    while (getKeyboardEvent() != EVENT_POWER_OFF)
+    while (getKeyboardEvent() != EVENT_KEY_POWER_OFF)
         sleep(1);
 
     // Enable devices (runs when using external power supply)
@@ -57,7 +57,7 @@ void powerOff(void)
 
     // Resume
 
-    writeDatalogEntry();
+    writeDatalogEntry(false);
 
     refreshView();
 }
@@ -89,6 +89,8 @@ int8_t getBatteryLevel(void)
 static void onBatteryTypeMenuSelect(const struct Menu *menu)
 {
     settings.batteryType = menu->state->selectedIndex;
+
+    resetADCFilters();
 }
 
 static const char *const batteryTypeMenuOptions[] = {

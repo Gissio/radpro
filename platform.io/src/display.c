@@ -62,7 +62,7 @@
 #define MENU_LINE_HEIGHT FONT_MEDIUM_BOTTOM
 #define MENU_LEFT (FONT_MEDIUM_HEIGHT / 4)
 
-#define HISTORY_VIEW_HEIGHT 40
+#define HISTORY_VIEW_HEIGHT 42
 #define HISTORY_VIEW_X ((DISPLAY_WIDTH - HISTORY_VIEW_WIDTH) / 2)
 #define HISTORY_VIEW_Y_TOP 14
 #define HISTORY_VIEW_Y_BOTTOM (HISTORY_VIEW_Y_TOP + HISTORY_VIEW_HEIGHT)
@@ -362,6 +362,13 @@ void drawStatusBar(void)
                   FONT_ICONS,
                   DISPLAY_WIDTH - FONT_SMALL_HEIGHT / 2 + FONT_ICONS_SPACE,
                   CENTER_TEXT(STATUS_BAR_HEIGHT, FONT_SMALL_HEIGHT));
+
+    // +++ TEST
+    // char buffer2[16];
+    // strcpy(buffer2, "ADC=");
+    // strcatUInt32(buffer2, readBatteryValue(), 0);
+    // drawTextCenter(buffer2, FONT_SMALL, DISPLAY_CENTER_LEFT, FONT_SMALL_BASELINE);
+    // +++ TEST
 }
 
 void drawMenu(const struct Menu *menu)
@@ -569,7 +576,7 @@ void drawStatistics(void)
                    STATISTICS_TOP + (4 * FONT_SMALL_BOTTOM) / 2);
 
     strcpy(line, "Device ID: ");
-    strcatUInt32(line, getDeviceId(), 0);
+    strcatUInt32Hex(line, getDeviceId());
     drawTextCenter(line,
                    FONT_SMALL,
                    DISPLAY_CENTER_LEFT,
@@ -763,6 +770,8 @@ static void onDisplayMenuEnter(const struct Menu *menu)
 {
     setView(displayMenuOptionViews[menu->state->selectedIndex]);
 }
+
+void onDisplaySubMenuBack(const struct Menu *menu);
 
 void onDisplaySubMenuBack(const struct Menu *menu)
 {

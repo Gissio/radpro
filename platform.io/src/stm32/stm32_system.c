@@ -73,6 +73,8 @@ void initSystem(void)
 
 #elif defined(FS600) || defined(FS1000)
 
+    // Disable UCPD strobes
+
     SYSCFG_CFGR1 |= (SYSCFG_CFGR1_UCPD1_STROBE | SYSCFG_CFGR1_UCPD2_STROBE);
 
     rcc_periph_clock_enable(RCC_GPIOC);

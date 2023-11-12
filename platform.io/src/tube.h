@@ -23,8 +23,9 @@ void initTubeHardware(void);
 
 float getTubeCustomConversionFactor(void);
 
-float getTubeDutyCycle(void);
-void updateTubeDutyCycle(void);
+float getTubeHVDutyCycle(void);
+float getTubeHVFrequency(void);
+void updateTubeHV(void);
 
 float getTubeDeadTimeCompensation(void);
 

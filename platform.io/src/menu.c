@@ -14,7 +14,7 @@
 #include "display.h"
 #include "menu.h"
 
-char menuOption[16];
+char menuOption[32];
 
 const char *onMenuGetOption(const struct Menu *menu, uint32_t index)
 {
@@ -37,7 +37,7 @@ void onMenuEvent(const struct View *view, enum Event event)
     const struct Menu *menu = (const struct Menu *)view->userdata;
     struct MenuState *menuState = menu->state;
 
-    if (event == EVENT_UP)
+    if (event == EVENT_KEY_UP)
     {
         if (menuState->selectedIndex > 0)
         {
@@ -59,7 +59,7 @@ void onMenuEvent(const struct View *view, enum Event event)
                 menuState->startIndex = 0;
         }
     }
-    else if (event == EVENT_DOWN)
+    else if (event == EVENT_KEY_DOWN)
     {
         if (menu->onGetOption(menu, menuState->selectedIndex + 1))
         {
@@ -77,8 +77,8 @@ void onMenuEvent(const struct View *view, enum Event event)
 
     switch (event)
     {
-    case EVENT_UP:
-    case EVENT_DOWN:
+    case EVENT_KEY_UP:
+    case EVENT_KEY_DOWN:
         refreshView();
 
         if (menu->onSelect)
@@ -86,13 +86,13 @@ void onMenuEvent(const struct View *view, enum Event event)
 
         break;
 
-    case EVENT_ENTER:
+    case EVENT_KEY_ENTER:
         if (menu->onEnter)
             menu->onEnter(menu);
 
         break;
 
-    case EVENT_BACK:
+    case EVENT_KEY_BACK:
         if (menu->onBack)
             menu->onBack(menu);
 

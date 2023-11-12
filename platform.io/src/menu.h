@@ -23,7 +23,7 @@ typedef void OnMenuSelect(const struct Menu *menu);
 typedef void OnMenuEnter(const struct Menu *menu);
 typedef void OnMenuBack(const struct Menu *menu);
 
-extern char menuOption[16];
+extern char menuOption[32];
 
 struct MenuState
 {

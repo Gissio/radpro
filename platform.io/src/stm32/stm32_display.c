@@ -23,7 +23,11 @@
 
 extern u8g2_t displayU8g2;
 
+#if defined(DISPLAY_MONO)
+
 static bool displayBacklightEnabled;
+
+#endif
 
 static uint8_t onDisplay(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr);
 static uint8_t onDisplayByte(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr);

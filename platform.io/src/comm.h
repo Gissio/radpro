@@ -44,10 +44,10 @@ struct Comm
     volatile uint32_t bufferIndex;
     char buffer[COMM_BUFFER_SIZE];
 
-    struct DatalogState datalogState;
+    bool sendingDatalog;
     uint32_t datalogTimeLimit;
 
-    bool isStartingBootloader;
+    bool startBootloader;
 };
 
 extern struct Comm comm;

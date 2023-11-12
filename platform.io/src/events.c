@@ -279,7 +279,7 @@ void updateEvents(void)
         events.lastMeasurementPeriodUpdate = oneSecondUpdate;
 
         updateMeasurements();
-        updateDatalog();
+        writeDatalogEntry(true);
         updateADC();
         updateGameTimer();
         refreshView();

@@ -31,13 +31,13 @@ void updateView(void)
 
         if ((settings.displaySleep != DISPLAY_SLEEP_ALWAYS_ON) &&
             !isDisplayTimerActive())
-            event = EVENT_BACKLIGHT;
+            event = EVENT_KEY_BACKLIGHT;
 
 #endif
 
         triggerDisplay();
 
-        if (event == EVENT_POWER_OFF)
+        if (event == EVENT_KEY_POWER_OFF)
             powerOff();
         else
             view.currentView->onEvent(view.currentView, event);
@@ -51,9 +51,7 @@ void updateView(void)
 
         clearDisplayBuffer();
         drawStatusBar();
-
         view.currentView->onEvent(view.currentView, EVENT_DRAW);
-
         sendDisplayBuffer();
     }
 }

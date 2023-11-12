@@ -7,21 +7,24 @@
  * License: MIT
  */
 
+#include <stdint.h>
+
+#include "cmath.h"
 #include "events.h"
 #include "keyboard.h"
 #include "system.h"
 
+#if defined(KEYBOARD_5KEYS)
+
 #define KEY_REPEAT_START ((uint32_t)(0.5 * SYS_TICK_FREQUENCY / KEY_TICKS))
 #define KEY_REPEAT_PERIOD ((uint32_t)(0.05 * SYS_TICK_FREQUENCY / KEY_TICKS))
 
-#if defined(KEYBOARD_2KEYS)
+#define KEY_PRESSED_LONG ((uint32_t)(1.0 * SYS_TICK_FREQUENCY / KEY_TICKS))
+
+#elif defined(KEYBOARD_2KEYS)
 
 #define KEY_PRESSED_LONG ((uint32_t)(0.25 * SYS_TICK_FREQUENCY / KEY_TICKS))
 #define KEY_PRESSED_POWEROFF ((uint32_t)(1.25 * SYS_TICK_FREQUENCY / KEY_TICKS))
-
-#elif defined(KEYBOARD_5KEYS)
-
-#define KEY_PRESSED_POWEROFF ((uint32_t)(1.0 * SYS_TICK_FREQUENCY / KEY_TICKS))
 
 #endif
 
@@ -33,6 +36,12 @@ static struct
 
     enum Key pressedKey;
     uint32_t pressedTicks;
+
+#if defined(KEYBOARD_5KEYS)
+
+    bool delayedBack;
+
+#endif
 
     volatile enum Event event;
     volatile enum Event lastEvent;
@@ -62,12 +71,6 @@ void onKeyboardTick(void)
 
     bool isKeyDown[KEY_NUM];
 
-#if defined(KEYBOARD_2KEYS)
-
-    bool isAnyKeyDown = false;
-
-#endif
-
     enum Event event = EVENT_NONE;
 
     getKeyboardKeys(isKeyDown);
@@ -81,9 +84,11 @@ void onKeyboardTick(void)
         {
 #if defined(KEYBOARD_5KEYS)
 
-            event = i;
+            if ((i != KEY_BACK) || !keyboard.delayedBack)
+                event = i;
 
 #endif
+
             keyboard.pressedKey = i;
             keyboard.pressedTicks = 0;
         }
@@ -94,56 +99,32 @@ void onKeyboardTick(void)
             !isKeyDown[i] &&
             (i == keyboard.pressedKey))
         {
-#if defined(KEYBOARD_2KEYS)
+#if defined(KEYBOARD_5KEYS)
 
-            event = i;
+            if ((i == KEY_BACK) &&
+                keyboard.delayedBack &&
+                (keyboard.pressedTicks < KEY_PRESSED_LONG))
+                event = EVENT_KEY_BACK;
+
+#elif defined(KEYBOARD_2KEYS)
+
+            if (keyboard.pressedTicks < KEY_PRESSED_LONG)
+                event = i;
 
 #endif
             keyboard.pressedKey = KEY_NONE;
         }
 
         keyboard.wasKeyDown[i] = isKeyDown[i];
-
-#if defined(KEYBOARD_2KEYS)
-
-        if (isKeyDown[i])
-            isAnyKeyDown = true;
-
-#endif
     }
 
-#if defined(KEYBOARD_2KEYS)
-
-    if (isAnyKeyDown)
-    {
-        keyboard.pressedTicks++;
-
-        if (keyboard.pressedTicks == KEY_PRESSED_LONG)
-        {
-            if (isKeyDown[KEY_UP])
-            {
-                if (isKeyDown[KEY_DOWN])
-                    event = EVENT_RESET;
-                else
-                    event = EVENT_BACK;
-            }
-            else
-                event = EVENT_ENTER;
-
-            keyboard.pressedKey = KEY_NONE;
-        }
-        else if (keyboard.pressedTicks == KEY_PRESSED_POWEROFF)
-        {
-            if (isKeyDown[KEY_DOWN])
-                event = EVENT_POWER_OFF;
-        }
-    }
-
-#elif defined(KEYBOARD_5KEYS)
+    // Key timer
 
     if (keyboard.pressedKey != KEY_NONE)
     {
-        keyboard.pressedTicks++;
+        addClamped(&keyboard.pressedTicks, 1);
+
+#if defined(KEYBOARD_5KEYS)
 
         if (keyboard.pressedTicks >= KEY_REPEAT_START)
         {
@@ -156,17 +137,17 @@ void onKeyboardTick(void)
             }
         }
 
-        if (keyboard.pressedTicks == KEY_PRESSED_POWEROFF)
+        if (keyboard.pressedTicks == KEY_PRESSED_LONG)
         {
             switch (keyboard.pressedKey)
             {
             case KEY_BACK:
-                event = EVENT_RESET;
+                event = EVENT_KEY_RESET;
 
                 break;
 
             case KEY_POWER:
-                event = EVENT_POWER_OFF;
+                event = EVENT_KEY_POWER_OFF;
 
                 break;
 
@@ -174,12 +155,45 @@ void onKeyboardTick(void)
                 break;
             }
         }
-    }
+
+#elif defined(KEYBOARD_2KEYS)
+
+        if (keyboard.pressedTicks == KEY_PRESSED_LONG)
+        {
+            if (isKeyDown[KEY_UP])
+            {
+                if (isKeyDown[KEY_DOWN])
+                    event = EVENT_KEY_RESET;
+                else
+                    event = EVENT_KEY_BACK;
+            }
+            else
+                event = EVENT_KEY_ENTER;
+        }
+        else if (keyboard.pressedTicks == KEY_PRESSED_POWEROFF)
+        {
+            if (isKeyDown[KEY_DOWN])
+                event = EVENT_KEY_POWER_OFF;
+        }
 
 #endif
+    }
+
+    // Send key event
 
     if (event != EVENT_NONE)
         keyboard.event = ((keyboard.event & ~0xf) + 0x10) | event;
+}
+
+void setKeyboardDelayedBack(bool value)
+{
+#if defined(KEYBOARD_5KEYS)
+
+    keyboard.pressedKey = KEY_NONE;
+
+    keyboard.delayedBack = value;
+
+#endif
 }
 
 enum Event getKeyboardEvent(void)

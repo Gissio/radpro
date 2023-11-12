@@ -331,18 +331,21 @@ parser.add_argument('--download-datalog',
 parser.add_argument('--get-tube-rate',
                     action='store_true',
                     help='get tube instantaneous rate (cpm)')
-parser.add_argument('--get-tube-duty-cycle',
-                    action='store_true',
-                    help='get tube high-voltage duty cycle')
 parser.add_argument('--get-tube-conversion-factor',
                     action='store_true',
                     help='get tube conversion factor')
+parser.add_argument('--get-tube-dead-time-compensation',
+                    action='store_true',
+                    help='get tube dead-time compensation factor')
+parser.add_argument('--get-tube-hv-duty-cycle',
+                    action='store_true',
+                    help='get tube PWM duty cycle of the high-voltage generator')
+parser.add_argument('--get-tube-hv-frequency',
+                    action='store_true',
+                    help='get tube PWM frequency of the high-voltage generator')
 parser.add_argument('--get-tube-dead-time',
                     action='store_true',
                     help='get tube dead-time upper bound measurement')
-parser.add_argument('--get-tube-dead-time-compensation',
-                    action='store_true',
-                    help='get tube dead-time compensation')
 
 args = parser.parse_args()
 
@@ -361,7 +364,8 @@ except Exception as e:
 if not args.no_sync_time:
     if not args.get_device_id and\
             not args.get_tube_rate and\
-            not args.get_tube_duty_cycle and\
+            not args.get_tube_hv_duty_cycle and\
+            not args.get_tube_hv_frequency and\
             not args.get_tube_conversion_factor and\
             not args.get_tube_dead_time and\
             not args.get_tube_dead_time_compensation:
@@ -380,17 +384,20 @@ if args.get_device_id:
 if args.get_tube_rate:
     show_property(device, 'tubeRate')
 
-if args.get_tube_duty_cycle:
-    show_property(device, 'tubeDutyCycle')
-
 if args.get_tube_conversion_factor:
     show_property(device, 'tubeConversionFactor')
 
-if args.get_tube_dead_time:
-    show_property(device, 'tubeDeadTime')
-
 if args.get_tube_dead_time_compensation:
     show_property(device, 'tubeDeadTimeCompensation')
+
+if args.get_tube_hv_duty_cycle:
+    show_property(device, 'tubeHVDutyCycle')
+
+if args.get_tube_hv_frequency:
+    show_property(device, 'tubeHVFrequency')
+
+if args.get_tube_dead_time:
+    show_property(device, 'tubeDeadTime')
 
 if args.datalog_file:
     print("Downloading offline data...")

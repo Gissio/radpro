@@ -307,7 +307,7 @@ static void onRNGEvent(const struct View *view, enum Event event)
 {
     switch (event)
     {
-    case EVENT_BACK:
+    case EVENT_KEY_BACK:
         setView(&rngMenuView);
 
         break;

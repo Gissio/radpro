@@ -359,8 +359,8 @@ static void onGameViewEvent(const struct View *view, enum Event event)
 {
     switch (event)
     {
-    case EVENT_UP:
-    case EVENT_DOWN:
+    case EVENT_KEY_UP:
+    case EVENT_KEY_DOWN:
         if (game.state == GAME_SHOWING_LAST_MOVE)
         {
             game.state = GAME_SELECTING_FROM;
@@ -368,14 +368,14 @@ static void onGameViewEvent(const struct View *view, enum Event event)
             updateGameBoard();
         }
         else if (game.state == GAME_SELECTING_FROM)
-            selectNextMoveFrom((event == EVENT_UP) ? -1 : 1);
+            selectNextMoveFrom((event == EVENT_KEY_UP) ? -1 : 1);
 
         else if (game.state == GAME_SELECTING_TO)
-            selectNextMoveTo((event == EVENT_UP) ? -1 : 1);
+            selectNextMoveTo((event == EVENT_KEY_UP) ? -1 : 1);
 
         break;
 
-    case EVENT_ENTER:
+    case EVENT_KEY_ENTER:
         switch (game.state)
         {
         case GAME_SELECTING_FROM:
@@ -417,7 +417,7 @@ static void onGameViewEvent(const struct View *view, enum Event event)
 
         break;
 
-    case EVENT_BACK:
+    case EVENT_KEY_BACK:
         if (game.state == GAME_SEARCHING)
         {
             mcumax_stop_search();

@@ -61,18 +61,15 @@
 // Device temperature
 
 // First order filter (N: time constant in taps): k = exp(-1 / n)
-// For n = 15 (seconds):
+// For n = 30 (seconds):
 
-#define TEMPERATURE_FILTER_CONSTANT 0.9355F
+#define DEVICE_TEMPERATURE_FILTER_CONSTANT 0.967216F
 
 static struct
 {
     float filteredBatteryVoltage;
     float filteredDeviceTemperature;
 } adc;
-
-static float readBatteryVoltage(void);
-static float readDeviceTemperature(void);
 
 void initADC(void)
 {
@@ -116,8 +113,7 @@ void initADC(void)
 
 #endif
 
-    adc.filteredBatteryVoltage = readBatteryVoltage();
-    adc.filteredDeviceTemperature = readDeviceTemperature();
+    resetADCFilters();
 }
 
 uint32_t readADC(uint8_t channel, uint8_t sampleTime)
@@ -209,30 +205,31 @@ uint32_t readADC(uint8_t channel, uint8_t sampleTime)
     return value;
 }
 
-void updateADCHardware(void)
+uint32_t readBatteryValue(void)
 {
-    adc.filteredBatteryVoltage =
-        BATTERY_FILTER_CONSTANT * adc.filteredBatteryVoltage +
-        (1.0F - BATTERY_FILTER_CONSTANT) * readBatteryVoltage();
-
-    adc.filteredDeviceTemperature =
-        TEMPERATURE_FILTER_CONSTANT * adc.filteredDeviceTemperature +
-        (1.0F - TEMPERATURE_FILTER_CONSTANT) * readDeviceTemperature();
+    return readADC(PWR_BAT_CHANNEL, ADC_TIME_7_5);
 }
 
-static float readBatteryVoltage(void)
-{
-    return readADC(PWR_BAT_CHANNEL, ADC_TIME_7_5) *
-           (ADC_VALUE_TO_VOLTAGE PWR_BAT_BATTERY_SCALE_FACTOR);
-}
-
-static float readDeviceTemperature(void)
+uint32_t readDeviceTemperatureValue(void)
 {
     adc_enable_temperature_sensor();
 
     uint32_t value = readADC(ADC_CHANNEL_TEMP, ADC_TIME_239_5);
 
     adc_disable_temperature_sensor();
+
+    return value;
+}
+
+static float readBatteryVoltage(void)
+{
+    return (ADC_VALUE_TO_VOLTAGE * PWR_BAT_SCALE_FACTOR) *
+           readBatteryValue();
+}
+
+static float readDeviceTemperature(void)
+{
+    uint32_t value = readDeviceTemperatureValue();
 
 #if defined(STM32F0) && defined(GD32)
 
@@ -265,6 +262,23 @@ static float readDeviceTemperature(void)
     return 30.0F + (value - valueLow) * ADC_VALUE_TO_VOLTAGE / 0.0025F;
 
 #endif
+}
+
+void updateADCHardware(void)
+{
+    adc.filteredBatteryVoltage =
+        BATTERY_FILTER_CONSTANT * adc.filteredBatteryVoltage +
+        (1.0F - BATTERY_FILTER_CONSTANT) * readBatteryVoltage();
+
+    adc.filteredDeviceTemperature =
+        DEVICE_TEMPERATURE_FILTER_CONSTANT * adc.filteredDeviceTemperature +
+        (1.0F - DEVICE_TEMPERATURE_FILTER_CONSTANT) * readDeviceTemperature();
+}
+
+void resetADCFilters(void)
+{
+    adc.filteredBatteryVoltage = readBatteryVoltage();
+    adc.filteredDeviceTemperature = readDeviceTemperature();
 }
 
 float getBatteryVoltage(void)
