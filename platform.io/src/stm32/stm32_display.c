@@ -64,17 +64,17 @@ void initDisplayHardware(void)
 
     gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,
                     LCD_D0_PIN | LCD_D1_PIN | LCD_D2_PIN | LCD_D3_PIN | LCD_D4_PIN | LCD_D7_PIN);
-    gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_VERYHIGH,
+    gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH,
                             LCD_D0_PIN | LCD_D1_PIN | LCD_D2_PIN | LCD_D3_PIN | LCD_D4_PIN | LCD_D7_PIN);
 
     gpio_mode_setup(GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,
                     LCD_BACKLIGHT_PIN | LCD_RESET_PIN | LCD_RS_PIN | LCD_RW_PIN | LCD_EN_PIN);
-    gpio_set_output_options(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_VERYHIGH,
+    gpio_set_output_options(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH,
                             LCD_BACKLIGHT_PIN | LCD_RESET_PIN | LCD_RS_PIN | LCD_RW_PIN | LCD_EN_PIN);
 
     gpio_mode_setup(GPIOF, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,
                     LCD_D5_PIN | LCD_D6_PIN);
-    gpio_set_output_options(GPIOF, GPIO_OTYPE_PP, GPIO_OSPEED_VERYHIGH,
+    gpio_set_output_options(GPIOF, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH,
                             LCD_D5_PIN | LCD_D6_PIN);
 
 #elif defined(FS2011) && defined(STM32F1)

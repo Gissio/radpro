@@ -80,8 +80,11 @@ int main(void)
 
     sleep(1000);
 
+    // Complete initialization
+
     initRTC();
     initDatalog();
+
     startEvents();
     startComm();
 
