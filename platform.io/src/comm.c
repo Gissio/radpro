@@ -104,11 +104,7 @@ static void startDatalogDump(void)
 
 void updateComm(void)
 {
-#if defined(SDLSIM)
-
     updateCommHardware();
-
-#endif
 
     if (comm.state == COMM_RX_READY)
     {

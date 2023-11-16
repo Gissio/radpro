@@ -32,16 +32,11 @@ int main(void)
     // Startup
 
     initSystem();
-
-#if defined(SDLSIM)
-
-    initFlash();
-
-#endif
-
     initEvents();
+    initFlash();
     initSettings();
     initBuzzer();
+    initComm();
 
     // POWER key delay
 
@@ -52,14 +47,14 @@ int main(void)
 
 #if defined(CHECK_FIRMWARE)
 
-    if (!checkFirmware())
+    if (!verifyFlash())
         playSystemAlert();
 
 #endif
 
     initTube();
-    initADC();
     initPower();
+    initADC();
     initKeyboard();
     initDisplay();
 
@@ -68,7 +63,6 @@ int main(void)
     debugTestMode();
 
 #else
-    initComm();
     initMeasurements();
     initGame();
 

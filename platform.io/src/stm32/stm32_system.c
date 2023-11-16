@@ -47,38 +47,53 @@ struct STM32VectorTable
 
 void initSystem(void)
 {
-    // System clock
+    // Clock
 
-#if defined(STM32G0)
+#if defined(FS600) || defined(FS1000)
 
     rcc_set_hsisys_div(RCC_CR_HSIDIV_DIV2);
     rcc_ahb_frequency = rcc_apb1_frequency = SYS_FREQUENCY;
+
+#elif defined(GC01)
+
+    rcc_clock_setup_in_hse_8mhz_out_72mhz();
 
 #endif
 
     // GPIO
 
-    rcc_periph_clock_enable(RCC_GPIOA);
-    rcc_periph_clock_enable(RCC_GPIOB);
-
 #if defined(FS2011) && defined(STM32F0)
 
+    rcc_periph_clock_enable(RCC_GPIOA);
+    rcc_periph_clock_enable(RCC_GPIOB);
     rcc_periph_clock_enable(RCC_GPIOF);
 
 #elif defined(FS2011) && defined(STM32F1)
 
     rcc_periph_clock_enable(RCC_AFIO);
-
     gpio_primary_remap(AFIO_MAPR_SWJ_CFG_JTAG_OFF_SW_ON, AFIO_MAPR_TIM3_REMAP_PARTIAL_REMAP);
+
+    rcc_periph_clock_enable(RCC_GPIOA);
+    rcc_periph_clock_enable(RCC_GPIOB);
 
 #elif defined(FS600) || defined(FS1000)
 
-    // Disable UCPD strobes
-
-    SYSCFG_CFGR1 |= (SYSCFG_CFGR1_UCPD1_STROBE | SYSCFG_CFGR1_UCPD2_STROBE);
-
+    rcc_periph_clock_enable(RCC_GPIOA);
+    rcc_periph_clock_enable(RCC_GPIOB);
     rcc_periph_clock_enable(RCC_GPIOC);
     rcc_periph_clock_enable(RCC_GPIOD);
+
+    // Disable UCPD strobes
+    SYSCFG_CFGR1 |= (SYSCFG_CFGR1_UCPD1_STROBE | SYSCFG_CFGR1_UCPD2_STROBE);
+
+#elif defined(GC01)
+
+    rcc_periph_clock_enable(RCC_AFIO);
+    gpio_primary_remap(AFIO_MAPR_SWJ_CFG_JTAG_OFF_SW_ON, 0);
+
+    rcc_periph_clock_enable(RCC_GPIOA);
+    rcc_periph_clock_enable(RCC_GPIOB);
+    rcc_periph_clock_enable(RCC_GPIOC);
 
 #endif
 }

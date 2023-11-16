@@ -15,20 +15,13 @@
 
 #include "../flash.h"
 
+// Flash
+
 #if !defined(FLASH_BASE)
 
 #define FLASH_BASE 0x08000000
 
 #endif
-
-#define PAYLOAD_BASE FLASH_BASE
-#define PAYLOAD_SIZE (0x8000 - 0x4)
-
-// CRC
-
-#define FIRMWARE_CRC (*(uint32_t *)(FLASH_BASE + PAYLOAD_SIZE))
-
-// Flash
 
 #if defined(STM32F0) || defined(STM32F1)
 
@@ -42,49 +35,67 @@
 
 #endif
 
-#define FLASH_PAGE_OFFSET 0
-
 #if defined(FS2011)
 
+#define PAYLOAD_BASE 0x08000000
+#define PAYLOAD_SIZE (0x8000 - 0x4)
+
 const struct FlashRegion flashSettingsRegion = {
-    0x20 + FLASH_PAGE_OFFSET,
-    0x21 + FLASH_PAGE_OFFSET,
+    0x20,
+    0x21,
 };
 const struct FlashRegion flashDatalogRegion = {
-    0x21 + FLASH_PAGE_OFFSET,
+    0x21,
     0x40,
 };
 
 #elif defined(FS600) || defined(FS1000)
 
+#define PAYLOAD_BASE 0x08000000
+#define PAYLOAD_SIZE (0x8000 - 0x4)
+
 const struct FlashRegion flashSettingsRegion = {
-    0x10 + FLASH_PAGE_OFFSET,
-    0x11 + FLASH_PAGE_OFFSET,
+    0x10,
+    0x11,
 };
 const struct FlashRegion flashDatalogRegion = {
-    0x11 + FLASH_PAGE_OFFSET,
+    0x11,
     0x40,
 };
 
 #elif defined(GC01)
 
-// +++ TODO
+#define PAYLOAD_BASE 0x08004000
+#define PAYLOAD_SIZE (0xa000 - 0x4)
+
 const struct FlashRegion flashSettingsRegion = {
-    0x38 + FLASH_PAGE_OFFSET,
-    0x39 + FLASH_PAGE_OFFSET,
+    0x38,
+    0x39,
 };
 const struct FlashRegion flashDatalogRegion = {
-    0x39 + FLASH_PAGE_OFFSET,
-    0x40 + FLASH_PAGE_OFFSET,
+    0x39,
+    0x40,
 };
-// +++ TODO
 
 #endif
 
 const uint32_t flashPageDataSize = FLASH_PAGE_SIZE - FLASH_BLOCK_SIZE;
 const uint32_t flashBlockSize = FLASH_BLOCK_SIZE;
 
-bool checkFirmware(void)
+#define FIRMWARE_CRC (*(uint32_t *)(PAYLOAD_BASE + PAYLOAD_SIZE))
+
+// Flash
+
+void initFlash(void)
+{
+#if defined(STM32G0)
+
+    rcc_periph_clock_enable(RCC_FLASH);
+
+#endif
+}
+
+bool verifyFlash(void)
 {
     rcc_periph_clock_enable(RCC_CRC);
 

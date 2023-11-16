@@ -26,15 +26,17 @@ void initEventsHardware(void)
     systick_set_frequency(SYS_TICK_FREQUENCY, rcc_ahb_frequency);
     systick_clear();
 
-    nvic_set_priority(NVIC_SYSTICK_IRQ, 0xff);
+    nvic_set_priority(NVIC_SYSTICK_IRQ, 0xc0);
 
     systick_interrupt_enable();
     systick_counter_enable();
 
     // Watchdog
 
+// +++ TEST
     // iwdg_set_period_ms(500 * 40000 / 32768);
     // iwdg_start();
+// +++ TEST
 }
 
 void sys_tick_handler(void)

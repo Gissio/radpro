@@ -4,7 +4,7 @@
 * PA1 (Input, pull-down): KEY_?
 * PA2 (Output): PWR_EN? (set to 1 on power on)
 * PA3 (AF): TUBE_HV
-* PA4 (Input): ?
+* PA4 (Input): PWR_CHRG?
 * PA8-10 (PWM): PWM_? (PWM controlled by TIM1)
 * PA13 (AF): SWDIO
 * PA14 (AF): SWCLK

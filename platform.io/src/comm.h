@@ -57,11 +57,6 @@ void initComm(void);
 void transmitComm(void);
 
 void updateComm(void);
-
-#if defined(SDLSIM)
-
 void updateCommHardware(void);
-
-#endif
 
 #endif

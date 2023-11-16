@@ -43,7 +43,7 @@ void initFlash(void)
     }
 }
 
-bool checkFirmware(void)
+bool verifyFlash(void)
 {
     return true;
 }

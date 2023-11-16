@@ -34,13 +34,9 @@ struct FlashIterator
     uint32_t index;
 };
 
-#if defined(SDLSIM)
-
 void initFlash(void);
 
-#endif
-
-bool checkFirmware(void);
+bool verifyFlash(void);
 
 uint8_t *getFlash(struct FlashIterator *iterator);
 void eraseFlash(struct FlashIterator *iterator);

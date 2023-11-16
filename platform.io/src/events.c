@@ -87,7 +87,7 @@ void initEvents(void)
 {
     initEventsHardware();
 
-    events.deadTime = UINT32_MAX;
+    events.deadTime = SYS_FREQUENCY;
     events.measurementPeriodTimer = SYS_TICK_FREQUENCY;
     events.keyboardTimer = KEY_TICKS;
 }
