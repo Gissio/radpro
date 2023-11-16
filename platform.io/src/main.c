@@ -83,6 +83,7 @@ int main(void)
     initRTC();
     initDatalog();
     startEvents();
+    startComm();
 
     // UI loop
 

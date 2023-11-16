@@ -61,7 +61,7 @@ void updateCommHardware(void)
 
     while (ser_read(commHardware.port, &c, 1, NULL) == 0)
     {
-        comm.port = COMM_UART;
+        comm.port = COMM_SERIAL;
 
         if (comm.state == COMM_RX)
         {
@@ -77,7 +77,7 @@ void updateCommHardware(void)
         }
     }
 
-    while ((comm.port == COMM_UART) && (comm.state == COMM_TX))
+    while ((comm.port == COMM_SERIAL) && (comm.state == COMM_TX))
     {
         if (comm.buffer[comm.bufferIndex] != '\0')
             ser_write(commHardware.port, &comm.buffer[comm.bufferIndex++], 1, NULL);

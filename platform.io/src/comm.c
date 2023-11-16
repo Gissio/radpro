@@ -24,6 +24,11 @@
 
 struct Comm comm;
 
+void startComm(void)
+{
+    comm.active = true;
+}
+
 static bool matchCommCommand(const char *command)
 {
     uint32_t index = 0;

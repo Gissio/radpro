@@ -132,7 +132,7 @@ void transmitComm(void)
 {
     comm.state = COMM_TX;
 
-    if (comm.port == COMM_UART)
+    if (comm.port == COMM_SERIAL)
         usart_enable_tx_interrupt(USART_INTERFACE);
 }
 
@@ -142,7 +142,10 @@ void USART_IRQ_HANDLER(void)
     {
         char c = usart_recv(USART_INTERFACE);
 
-        comm.port = COMM_UART;
+        if (!comm.active)
+            return;
+
+        comm.port = COMM_SERIAL;
 
         if (comm.state == COMM_RX)
         {
@@ -475,6 +478,9 @@ void updateCommHardware(void)
                                               buffer,
                                               USB_DATA_PACKET_SIZE_MAX);
     uint32_t bufferIndex = 0;
+
+    if (!comm.active)
+        return;
 
     switch (comm.state)
     {

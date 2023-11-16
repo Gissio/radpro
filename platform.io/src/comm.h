@@ -24,7 +24,7 @@ extern const char *const commId;
 
 enum CommPort
 {
-    COMM_UART,
+    COMM_SERIAL,
     COMM_SWD,
 };
 
@@ -38,6 +38,8 @@ enum CommState
 
 struct Comm
 {
+    bool active;
+
     volatile enum CommPort port;
     volatile enum CommState state;
 
@@ -53,6 +55,7 @@ struct Comm
 extern struct Comm comm;
 
 void initComm(void);
+void startComm(void);
 
 void transmitComm(void);
 
