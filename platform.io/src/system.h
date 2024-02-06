@@ -13,7 +13,7 @@
 
 #include <stdint.h>
 
-#include "View.h"
+#include "view.h"
 
 #define FIRMWARE_NAME "Rad Pro"
 #define FIRMWARE_VERSION "2.0beta12"

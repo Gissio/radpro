@@ -13,7 +13,7 @@
 
 #include <stdbool.h>
 
-#include "View.h"
+#include "view.h"
 
 enum Key
 {
