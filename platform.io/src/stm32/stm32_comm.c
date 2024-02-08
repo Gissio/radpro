@@ -2,7 +2,7 @@
  * Rad Pro
  * STM32 USART/USB communications
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
@@ -33,32 +33,6 @@
 #include "../cstring.h"
 #include "../events.h"
 #include "../system.h"
-
-#if defined(FS2011) && defined(STM32F0) && defined(GD32)
-
-const char *const commId = "FS2011 (GD32F150C8);" FIRMWARE_NAME " " FIRMWARE_VERSION;
-
-#elif defined(FS2011) && defined(STM32F0)
-
-const char *const commId = "FS2011 (STM32F051C8);" FIRMWARE_NAME " " FIRMWARE_VERSION;
-
-#elif defined(FS2011) && defined(STM32F1)
-
-const char *const commId = "FS2011 (GD32F103C8);" FIRMWARE_NAME " " FIRMWARE_VERSION;
-
-#elif defined(FS600)
-
-const char *const commId = "Bosean FS-600;" FIRMWARE_NAME " " FIRMWARE_VERSION;
-
-#elif defined(FS1000)
-
-const char *const commId = "Bosean FS-1000;" FIRMWARE_NAME " " FIRMWARE_VERSION;
-
-#elif defined(GC01)
-
-const char *const commId = "FNIRSI GC-01;" FIRMWARE_NAME " " FIRMWARE_VERSION;
-
-#endif
 
 #if defined(USART_INTERFACE)
 
@@ -94,18 +68,32 @@ void initComm(void)
 
 #if defined(STM32F0) || defined(STM32G0)
 
-    gpio_mode_setup(USART_RX_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, USART_RX_PIN);
-    gpio_set_af(USART_RX_PORT, USART_RX_AF, USART_RX_PIN);
+    gpio_mode_setup(USART_RX_PORT,
+                    GPIO_MODE_AF,
+                    GPIO_PUPD_NONE,
+                    USART_RX_PIN);
+    gpio_set_af(USART_RX_PORT,
+                USART_RX_AF,
+                USART_RX_PIN);
 
-    gpio_mode_setup(USART_TX_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, USART_TX_PIN);
-    gpio_set_af(USART_TX_PORT, USART_TX_AF, USART_TX_PIN);
+    gpio_mode_setup(USART_TX_PORT,
+                    GPIO_MODE_AF,
+                    GPIO_PUPD_NONE,
+                    USART_TX_PIN);
+    gpio_set_af(USART_TX_PORT,
+                USART_TX_AF,
+                USART_TX_PIN);
 
 #elif defined(STM32F1)
 
-    gpio_set_mode(USART_RX_PORT, GPIO_MODE_INPUT,
-                  GPIO_CNF_INPUT_FLOAT, USART_RX_PIN);
-    gpio_set_mode(USART_TX_PORT, GPIO_MODE_OUTPUT_50_MHZ,
-                  GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, USART_TX_PIN);
+    gpio_set_mode(USART_RX_PORT,
+                  GPIO_MODE_INPUT,
+                  GPIO_CNF_INPUT_FLOAT,
+                  USART_RX_PIN);
+    gpio_set_mode(USART_TX_PORT,
+                  GPIO_MODE_OUTPUT_50_MHZ,
+                  GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
+                  USART_TX_PIN);
 
 #endif
 
@@ -113,7 +101,11 @@ void initComm(void)
 
     rcc_periph_clock_enable(USART_RCC);
 
-    usart_set_baudrate(USART_INTERFACE, COMM_BAUDRATE);
+    // usart_set_baudrate(USART_INTERFACE, COMM_BAUDRATE);
+    USART_BRR(USART_INTERFACE) =
+        (APB1_FREQUENCY + COMM_BAUDRATE / 2) /
+        COMM_BAUDRATE;
+
     // usart_set_databits(USART_INTERFACE, 8);
     // usart_set_parity(USART_INTERFACE, USART_PARITY_NONE);
     // usart_set_stopbits(USART_INTERFACE, USART_STOPBITS_1);
@@ -330,12 +322,12 @@ static const struct usb_interface usbInterfaces[] = {
     {
         .num_altsetting = sizeof(usbControlInterfaces) /
                           sizeof(usbControlInterfaces[0]),
-        .altsetting = &usbControlInterfaces,
+        .altsetting = usbControlInterfaces,
     },
     {
         .num_altsetting = sizeof(usbDataInterfaces) /
                           sizeof(usbDataInterfaces[0]),
-        .altsetting = &usbDataInterfaces,
+        .altsetting = usbDataInterfaces,
     },
 };
 
@@ -357,7 +349,7 @@ static const struct usb_config_descriptor usbConfigurationDescriptor[] = {
         .iConfiguration = 0, // Interface string descriptor: none
         .bmAttributes = USB_CONFIG_ATTR_DEFAULT,
         .bMaxPower = 50, // Maximum power consumption in 2 mA units [100 mA]
-        .interface = &usbInterfaces,
+        .interface = usbInterfaces,
     },
 };
 
@@ -404,7 +396,8 @@ respondControlRequest(usbd_device *usbdDevice,
     return USBD_REQ_NOTSUPP;
 }
 
-static void setConfiguration(usbd_device *usbdDevice, uint16_t wValue)
+static void setConfiguration(usbd_device *usbdDevice,
+                             uint16_t wValue)
 {
     usbd_ep_setup(usbdDevice,
                   USB_CONTROL_ENDPOINT_OUT,
@@ -520,6 +513,20 @@ void updateCommHardware(void)
     default:
         break;
     }
+}
+
+#else
+
+void initComm(void)
+{
+}
+
+void transmitComm(void)
+{
+}
+
+void updateCommHardware(void)
+{
 }
 
 #endif

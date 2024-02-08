@@ -2,22 +2,22 @@
  * Rad Pro
  * Events
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
 
 #if !defined(EVENTS_H)
-
 #define EVENTS_H
 
 #include <stdbool.h>
 #include <stdint.h>
 
-#define SYS_FREQUENCY 8000000
-#define SYS_TICK_FREQUENCY 1000
+#define SYSTICK_FREQUENCY 1000
 
-#define KEY_TICKS ((uint32_t)(0.025 * SYS_TICK_FREQUENCY))
+#define KEY_TICKS ((uint32_t)(0.025 * SYSTICK_FREQUENCY))
+
+extern float timerCountToSeconds;
 
 void initEvents(void);
 void initEventsHardware(void);
@@ -27,14 +27,13 @@ void onTick(void);
 uint32_t getTick(void);
 void sleep(uint32_t value);
 
-void startEvents(void);
-void stopEvents(void);
-void updateEvents(void);
+void setEventHandling(bool value);
+void dispatchEvents(void);
 
 float getDeadTime(void);
 
-void triggerDisplay(void);
-bool isDisplayTimerActive(void);
+void triggerBacklight(void);
+bool isBacklightTimerActive(void);
 void triggerPulse(void);
 void triggerAlarm(void);
 

@@ -2,13 +2,12 @@
  * Rad Pro
  * Tube
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
 
 #if !defined(TUBE_H)
-
 #define TUBE_H
 
 #include <stdbool.h>
@@ -16,21 +15,19 @@
 
 #include "view.h"
 
-extern const struct View tubeMenuView;
+extern const View tubeMenuView;
 
 void initTube(void);
 void initTubeHardware(void);
 
-float getTubeCustomConversionFactor(void);
-
+float getTubeConversionFactor(void);
+float getTubeDeadTimeCompensation(void);
 float getTubeHVDutyCycle(void);
 float getTubeHVFrequency(void);
+
+void setTubeHV(bool value);
 void updateTubeHV(void);
-
-float getTubeDeadTimeCompensation(void);
-
-void syncHVPulse(void);
-
+void syncTubeHV(void);
 bool getTubePulse(uint32_t *pulseTime);
 
 #endif

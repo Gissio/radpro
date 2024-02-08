@@ -2,7 +2,7 @@
  * Rad Pro
  * STM32 Main module
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
@@ -20,16 +20,18 @@
 #include "measurements.h"
 #include "menu.h"
 #include "power.h"
+#include "pulseled.h"
 #include "rng.h"
 #include "rtc.h"
 #include "settings.h"
 #include "system.h"
 #include "tube.h"
+#include "vibrator.h"
 #include "view.h"
 
 int main(void)
 {
-    // Startup
+    // Start primary devices
 
     initSystem();
     initEvents();
@@ -43,20 +45,31 @@ int main(void)
     sleep(500);
     setPower(true);
 
-    // Start secondary systems
-
-#if defined(CHECK_FIRMWARE)
-
-    if (!verifyFlash())
-        playSystemAlert();
-
-#endif
+    // Start secondary devices
 
     initTube();
     initPower();
     initADC();
     initKeyboard();
+#if defined(PULSE_LED)
+    initPulseLED();
+#endif
+#if defined(VIBRATOR)
+    initVibrator();
+#endif
     initDisplay();
+
+    if (!verifyFlash())
+    {
+        drawNotification("WARNING",
+                         "Firmware checksum failure.", true);
+        refreshDisplay();
+        triggerBacklight();
+
+        playSystemAlert();
+
+        sleep(5000);
+    }
 
 #if defined(DEBUG_TESTMODE)
 
@@ -72,20 +85,19 @@ int main(void)
 
     // Welcome screen
 
-    clearDisplayBuffer();
-    drawWelcome();
-    sendDisplayBuffer();
-    triggerDisplay();
-    setDisplay(true);
+    drawNotification(FIRMWARE_NAME, FIRMWARE_VERSION, true);
+    refreshDisplay();
+    triggerBacklight();
 
     sleep(1000);
 
     // Complete initialization
 
-    initRTC();
+    initRTCHardware();
     initDatalog();
 
-    startEvents();
+    setTubeHV(true);
+    setEventHandling(true);
     startComm();
 
     // UI loop
@@ -97,7 +109,7 @@ int main(void)
         sleep(1);
 
         updateGame();
-        updateEvents();
+        dispatchEvents();
     }
 #endif
 }

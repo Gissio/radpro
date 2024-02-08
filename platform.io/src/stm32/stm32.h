@@ -2,13 +2,12 @@
  * Rad Pro
  * STM32 port and pin definitions
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
 
 #if !defined(STM32_H)
-
 #define STM32_H
 
 #if defined(FS2011)

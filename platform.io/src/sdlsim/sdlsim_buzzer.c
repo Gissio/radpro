@@ -2,7 +2,7 @@
  * Rad Pro
  * SDLSim buzzer
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
@@ -19,9 +19,10 @@
 #define AUDIO_SAMPLE_FREQUENCY 48000
 #define AUDIO_BUFFER_SIZE 4096
 
-#define SYS_TICKS_PER_BUFFER (SYS_TICK_FREQUENCY * AUDIO_BUFFER_SIZE / AUDIO_SAMPLE_FREQUENCY)
+#define SYS_TICKS_PER_BUFFER (SYSTICK_FREQUENCY * AUDIO_BUFFER_SIZE / AUDIO_SAMPLE_FREQUENCY)
 
-#define BUZZER_FREQUENCY 2700
+// #define BUZZER_FREQUENCY 2700
+#define BUZZER_FREQUENCY 2000
 
 #define PULSE_BUFFER_SIZE 512
 #define PULSE_BUFFER_MASK (PULSE_BUFFER_SIZE - 1)
@@ -123,9 +124,8 @@ void setBuzzer(bool value)
     buzzer.value = value;
 }
 
-bool getBuzzer(void)
+void syncBuzzer(void)
 {
-    return buzzer.value;
 }
 
 #endif

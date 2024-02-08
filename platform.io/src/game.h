@@ -2,24 +2,24 @@
  * Rad Pro
  * Nuclear chess
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
 
 #if !defined(GAME_H)
-
 #define GAME_H
 
 #include "view.h"
 
-#define GAME_MOVES_LINE_NUM 5
+#define GAME_HISTORY_TURN_NUM 3
 
-extern const struct View gameMenuView;
+extern const View gameMenuView;
+extern const View gameView;
 
 void initGame(void);
 
 void updateGame(void);
-void updateGameTimer(void);
+void onGameOneSecond(void);
 
 #endif

@@ -2,7 +2,7 @@
  * Rad Pro
  * Keyboard
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
@@ -16,15 +16,15 @@
 
 #if defined(KEYBOARD_5KEYS)
 
-#define KEY_REPEAT_START ((uint32_t)(0.5 * SYS_TICK_FREQUENCY / KEY_TICKS))
-#define KEY_REPEAT_PERIOD ((uint32_t)(0.05 * SYS_TICK_FREQUENCY / KEY_TICKS))
+#define KEY_REPEAT_START ((uint32_t)(0.5 * SYSTICK_FREQUENCY / KEY_TICKS))
+#define KEY_REPEAT_PERIOD ((uint32_t)(0.05 * SYSTICK_FREQUENCY / KEY_TICKS))
 
-#define KEY_PRESSED_LONG ((uint32_t)(1.0 * SYS_TICK_FREQUENCY / KEY_TICKS))
+#define KEY_PRESSED_LONG ((uint32_t)(1.0 * SYSTICK_FREQUENCY / KEY_TICKS))
 
 #elif defined(KEYBOARD_2KEYS)
 
-#define KEY_PRESSED_LONG ((uint32_t)(0.25 * SYS_TICK_FREQUENCY / KEY_TICKS))
-#define KEY_PRESSED_POWEROFF ((uint32_t)(1.25 * SYS_TICK_FREQUENCY / KEY_TICKS))
+#define KEY_PRESSED_LONG ((uint32_t)(0.25 * SYSTICK_FREQUENCY / KEY_TICKS))
+#define KEY_PRESSED_POWEROFF ((uint32_t)(1.25 * SYSTICK_FREQUENCY / KEY_TICKS))
 
 #endif
 
@@ -56,7 +56,7 @@ void initKeyboard(void)
     keyboard.pressedKey = KEY_NONE;
 
     bool isKeyDown[KEY_NUM];
-    getKeyboardKeys(isKeyDown);
+    getKeyboardState(isKeyDown);
 
     if (isKeyDown[KEY_UP])
         startBootloader();
@@ -73,7 +73,7 @@ void onKeyboardTick(void)
 
     enum Event event = EVENT_NONE;
 
-    getKeyboardKeys(isKeyDown);
+    getKeyboardState(isKeyDown);
 
     for (int32_t i = 0; i < KEY_NUM; i++)
     {

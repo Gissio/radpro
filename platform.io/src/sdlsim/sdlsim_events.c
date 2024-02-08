@@ -2,7 +2,7 @@
  * Rad Pro
  * SDLSim events
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
@@ -13,9 +13,17 @@
 
 #include "../events.h"
 
-#define SDL_EVENTS_CALLS_MAX 4
+// STM32 8 MHz
+// #define SDL_EVENTS_CALLS_MAX 4
+// STM32 72 MHz
+#define SDL_EVENTS_CALLS_MAX (4 * 9)
+
+#define TIM_FREQUENCY 8000000
+#define DEADTIME_TIM_FREQUENCY TIM_FREQUENCY
 
 extern volatile uint32_t eventsCurrentTick;
+
+float timerCountToSeconds = (1.0F / DEADTIME_TIM_FREQUENCY);
 
 static uint32_t sdlEventsCalls;
 
@@ -51,16 +59,7 @@ void sleep(uint32_t value)
         }
 
         if (deltaTicks)
-        {
-            SDL_Event event;
-            if (SDL_PollEvent(&event))
-            {
-                if (event.type == SDL_QUIT)
-                    exit(0);
-            }
-
             updateDisplay();
-        }
 
         if (value > deltaTicks)
             value -= deltaTicks;

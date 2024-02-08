@@ -2,13 +2,12 @@
  * Rad Pro
  * Communications
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
 
 #if !defined(COMM_H)
-
 #define COMM_H
 
 #include <stdbool.h>
@@ -36,7 +35,7 @@ enum CommState
     COMM_TX_READY,
 };
 
-struct Comm
+typedef struct
 {
     bool active;
 
@@ -50,16 +49,16 @@ struct Comm
     uint32_t datalogTimeLimit;
 
     bool startBootloader;
-};
+} Comm;
 
-extern struct Comm comm;
+extern Comm comm;
 
 void initComm(void);
 void startComm(void);
 
 void transmitComm(void);
 
-void updateComm(void);
+void dispatchCommEvents(void);
 void updateCommHardware(void);
 
 #endif

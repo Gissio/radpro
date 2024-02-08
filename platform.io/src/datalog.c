@@ -2,7 +2,7 @@
  * Rad Pro
  * Data logging
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
@@ -19,19 +19,19 @@
 
 #define DATALOG_BUFFER_SIZE 16
 
-struct DatalogState
+typedef struct
 {
-    struct FlashIterator iterator;
+    FlashIterator iterator;
 
     uint32_t timeInterval;
 
-    struct Dose dose;
-};
+    Dose dose;
+} DatalogState;
 
 static struct
 {
-    struct DatalogState writeState;
-    struct DatalogState readState;
+    DatalogState writeState;
+    DatalogState readState;
 
     uint32_t bufferSize;
     uint8_t buffer[DATALOG_BUFFER_SIZE];
@@ -58,15 +58,15 @@ static const char *const datalogMenuOptions[] = {
     NULL,
 };
 
-static const struct Menu datalogMenu;
+static const Menu datalogMenu;
 
-static bool decodeDatalogEntry(struct DatalogState *state);
+static bool decodeDatalogEntry(DatalogState *state);
 
 void initDatalog(void)
 {
-    selectMenuIndex(&datalogMenu,
-                    settings.datalogInterval,
-                    DATA_LOGGING_NUM);
+    selectMenuItem(&datalogMenu,
+                   settings.datalogInterval,
+                   DATALOGGING_NUM);
 
     datalog.writeState.iterator.region = &flashDatalogRegion;
 
@@ -93,7 +93,7 @@ static void encodeDatalogValue(int32_t value,
         data[i] = value >> (bitshift - 8 * i);
 }
 
-static int32_t decodeDatalogValue(uint8_t *data,
+static int32_t decodeDatalogValue(const uint8_t *data,
                                   uint32_t size,
                                   uint32_t bitsInFirstByte)
 {
@@ -133,13 +133,13 @@ void stopDatalog(void)
 
 void writeDatalogEntry(bool isUpdate)
 {
-    if ((settings.datalogInterval == DATA_LOGGING_OFF) ||
+    if ((settings.datalogInterval == DATALOGGING_OFF) ||
         datalog.stopped)
         return;
 
     // Update?
 
-    struct Dose dose;
+    Dose dose;
     dose.time = getRTCTime();
     dose.pulseCount = getTubePulseCount();
 
@@ -236,7 +236,7 @@ void writeDatalogEntry(bool isUpdate)
         programDatalogBuffer();
 }
 
-static bool decodeDatalogEntry(struct DatalogState *state)
+static bool decodeDatalogEntry(DatalogState *state)
 {
     while (true)
     {
@@ -324,7 +324,7 @@ void initDatalogRead(void)
     setFlashPageTail(&datalog.readState.iterator);
 }
 
-bool readDatalog(struct Dose *dose)
+bool readDatalog(Dose *dose)
 {
     bool entryValid = decodeDatalogEntry(&datalog.readState);
 
@@ -335,33 +335,40 @@ bool readDatalog(struct Dose *dose)
 
 // Data logging menu
 
-static void onDataLogMenuSelect(const struct Menu *menu)
+static const char *onDatalogMenuGetOption(const Menu *menu,
+                                          uint32_t index,
+                                          MenuStyle *menuStyle)
+{
+    *menuStyle = (index == settings.datalogInterval);
+
+    return datalogMenuOptions[index];
+}
+
+static void onDatalogMenuSelect(const Menu *menu)
 {
     uint32_t oldDatalogInterval = settings.datalogInterval;
     uint32_t newDatalogInterval = menu->state->selectedIndex;
 
-    if (newDatalogInterval == DATA_LOGGING_OFF)
+    if (newDatalogInterval == DATALOGGING_OFF)
         writeDatalogEntry(false);
 
     settings.datalogInterval = newDatalogInterval;
 
-    if (oldDatalogInterval == DATA_LOGGING_OFF)
+    if (oldDatalogInterval == DATALOGGING_OFF)
         writeDatalogEntry(false);
 }
 
-static struct MenuState datalogMenuState;
+static MenuState datalogMenuState;
 
-static const struct Menu datalogMenu = {
+static const Menu datalogMenu = {
     "Data logging",
     &datalogMenuState,
-    onMenuGetOption,
-    datalogMenuOptions,
-    onDataLogMenuSelect,
-    NULL,
+    onDatalogMenuGetOption,
+    onDatalogMenuSelect,
     onSettingsSubMenuBack,
 };
 
-const struct View datalogMenuView = {
+const View datalogMenuView = {
     onMenuEvent,
     &datalogMenu,
 };

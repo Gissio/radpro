@@ -2,23 +2,22 @@
  * Rad Pro
  * System
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
 
 #if !defined(SYSTEM_H)
-
 #define SYSTEM_H
 
 #include <stdint.h>
 
-#include "View.h"
+#include "view.h"
 
 #define FIRMWARE_NAME "Rad Pro"
 #define FIRMWARE_VERSION "2.0beta12"
 
-extern const struct View statisticsView;
+extern const View statisticsView;
 
 void initSystem(void);
 

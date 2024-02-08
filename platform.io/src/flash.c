@@ -1,8 +1,8 @@
 /*
  * Rad Pro
- * Flash
+ * Flash memory
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
@@ -11,14 +11,14 @@
 
 #include "flash.h"
 
-bool isFlashPageFull(struct FlashIterator *iterator)
+bool isFlashPageFull(FlashIterator *iterator)
 {
     uint8_t *page = getFlash(iterator);
 
     return (page[flashPageDataSize] != 0xff);
 }
 
-static void markFlashPageFull(struct FlashIterator *iterator)
+static void markFlashPageFull(FlashIterator *iterator)
 {
     uint8_t marker[8];
     memset(&marker, 0, sizeof(marker));
@@ -28,9 +28,9 @@ static void markFlashPageFull(struct FlashIterator *iterator)
     programFlash(iterator, marker, flashBlockSize);
 }
 
-void setFlashPageHead(struct FlashIterator *iterator)
+void setFlashPageHead(FlashIterator *iterator)
 {
-    const struct FlashRegion *region = iterator->region;
+    const FlashRegion *region = iterator->region;
     iterator->index = 0;
 
     for (iterator->pageIndex = region->beginPageIndex;
@@ -44,7 +44,7 @@ void setFlashPageHead(struct FlashIterator *iterator)
     iterator->pageIndex = region->beginPageIndex;
 }
 
-void setFlashPageTail(struct FlashIterator *iterator)
+void setFlashPageTail(FlashIterator *iterator)
 {
     setFlashPageHead(iterator);
 
@@ -65,9 +65,9 @@ void setFlashPageTail(struct FlashIterator *iterator)
     iterator->pageIndex = tailPageIndex;
 }
 
-void setFlashPageNext(struct FlashIterator *iterator)
+void setFlashPageNext(FlashIterator *iterator)
 {
-    const struct FlashRegion *region = iterator->region;
+    const FlashRegion *region = iterator->region;
     iterator->pageIndex++;
     iterator->index = 0;
 
@@ -75,9 +75,9 @@ void setFlashPageNext(struct FlashIterator *iterator)
         iterator->pageIndex = region->beginPageIndex;
 }
 
-void setFlashPagePrev(struct FlashIterator *iterator)
+void setFlashPagePrev(FlashIterator *iterator)
 {
-    const struct FlashRegion *region = iterator->region;
+    const FlashRegion *region = iterator->region;
     iterator->pageIndex--;
     iterator->index = 0;
 
@@ -85,13 +85,13 @@ void setFlashPagePrev(struct FlashIterator *iterator)
         iterator->pageIndex = region->endPageIndex - 1;
 }
 
-void programFlashPage(struct FlashIterator *iterator,
+void programFlashPage(FlashIterator *iterator,
                       uint8_t *source, uint32_t size)
 {
     // Enough space?
     if ((iterator->index + size) > flashPageDataSize)
     {
-        struct FlashIterator startIterator = *iterator;
+        FlashIterator startIterator = *iterator;
 
         setFlashPageNext(iterator);
 

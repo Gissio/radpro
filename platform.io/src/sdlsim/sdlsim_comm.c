@@ -2,7 +2,7 @@
  * Rad Pro
  * SDLSim communications
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
@@ -18,7 +18,7 @@
 
 const char *const commId = "SDLSim;Rad Pro " FIRMWARE_VERSION;
 
-struct
+static struct
 {
     ser_t *port;
 } commHardware;

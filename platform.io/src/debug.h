@@ -2,13 +2,12 @@
  * Rad Pro
  * Debugging
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
 
 #if !defined(DEBUG_H)
-
 #define DEBUG_H
 
 #include <stdbool.h>

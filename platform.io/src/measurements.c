@@ -2,7 +2,7 @@
  * Rad Pro
  * Measurements
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
@@ -27,54 +27,63 @@
 #define AVERAGING_PERIOD_TIME_CONSTANT 18.0F
 #define AVERAGING_PERIOD_TIME_LIMIT 5.0F
 
-struct Measurement
+#if defined(DISPLAY_128X64)
+#define HISTORY_BUFFER_SIZE 120
+#elif defined(DISPLAY_320X240)
+#define HISTORY_BUFFER_SIZE 300
+#elif defined(DISPLAY_240X320)
+#define HISTORY_BUFFER_SIZE 200
+#endif
+
+#define HISTORY_CPS_MIN 0.02F
+#define HISTORY_VALUE_DECADE 40
+
+typedef struct
 {
     uint32_t firstPulseTick;
     uint32_t lastPulseTick;
     uint32_t pulseCount;
-};
+} Measurement;
 
-struct Rate
+typedef struct
 {
     uint32_t time;
     float value;
-    float lowerConfidenceInterval;
-    float upperConfidenceInterval;
-};
+    float confidence;
+} Rate;
 
-struct HistoryState
+typedef struct
 {
     float averageSum;
     uint32_t averageCount;
 
-    uint8_t bufferIndex;
+    uint16_t bufferIndex;
     uint8_t buffer[HISTORY_BUFFER_SIZE];
-};
+} HistoryState;
 
-struct History
+typedef struct
 {
     char *const name;
-    uint32_t samplesPerDataPoint;
+    uint16_t samplesPerDataPoint;
+    uint8_t xTickNum;
+} History;
+
+static const History histories[] = {
+    {"History (10 m)", 10 * 60 / HISTORY_BUFFER_SIZE, 10},
+    {"History (1 h)", 60 * 60 / HISTORY_BUFFER_SIZE, 6},
+    {"History (24 h)", 24 * 60 * 60 / HISTORY_BUFFER_SIZE, 6},
 };
 
-static const struct History histories[] = {
-    {"History (10 m)", 5},
-    {"History (1 h)", 30},
-    {"History (6 h)", 180},
-    {"History (24 h)", 720},
-    {"History (7 d)", 5040},
-};
-
-#define HISTORY_NUM (sizeof(histories) / sizeof(struct History))
+#define HISTORY_NUM (sizeof(histories) / sizeof(History))
 
 static struct
 {
     struct
     {
-        struct Measurement measurement;
+        Measurement measurement;
 
         uint32_t snapshotTick;
-        struct Measurement snapshotMeasurement;
+        Measurement snapshotMeasurement;
 
         float pulseCountFraction;
     } tick;
@@ -82,13 +91,13 @@ static struct
     struct
     {
         uint32_t queueTail;
-        struct Measurement queue[MEASUREMENT_QUEUE_SIZE];
+        Measurement queue[MEASUREMENT_QUEUE_SIZE];
 
-        struct Rate rate;
+        Rate rate;
         float maxValue;
 
         bool isHold;
-        struct Rate holdRate;
+        Rate holdRate;
     } instantaneous;
 
     struct
@@ -97,29 +106,29 @@ static struct
         uint32_t lastPulseTick;
         uint32_t pulseCount;
 
-        struct Rate rate;
-        struct Rate timerRate;
+        Rate rate;
+        Rate timerRate;
 
         bool isHold;
-        struct Rate holdRate;
+        Rate holdRate;
     } average;
 
     struct
     {
-        struct Dose dose;
+        Dose dose;
 
         bool isHold;
-        struct Dose holdDose;
+        Dose holdDose;
     } cumulative;
 
     struct
     {
-        struct Dose dose;
+        Dose dose;
     } tube;
 
     struct
     {
-        struct HistoryState states[HISTORY_NUM];
+        HistoryState states[HISTORY_NUM];
 
         uint32_t tabIndex;
         uint32_t sampleIndex;
@@ -136,30 +145,38 @@ static const uint32_t averageTimerTimes[] = {
     60 * 60,           // 60 minutes
 };
 
-static const struct Menu unitsMenu;
-static const struct Menu rateAlarmMenu;
-static const struct Menu doseAlarmMenu;
-static const struct Menu averageTimerMenu;
+static const Menu unitsMenu;
+static const Menu rateAlarmMenu;
+static const Menu doseAlarmMenu;
+static const Menu averageTimerMenu;
 
 // Measurements
 
-const struct View *const measurementViews[] = {
+const View *const measurementViews[] = {
     &instantaneousRateView,
     &averageRateView,
     &doseView,
     &historyView,
 };
 
-#define MEASUREMENT_VIEWS_NUM (sizeof(measurementViews) / sizeof(struct View *))
+#define MEASUREMENT_VIEWS_NUM (sizeof(measurementViews) / sizeof(View *))
 
 void initMeasurements(void)
 {
-    selectMenuIndex(&unitsMenu, settings.units, UNITS_SETTING_NUM);
-    selectMenuIndex(&averageTimerMenu, settings.averageTimer, AVERAGE_TIMER_NUM);
-    selectMenuIndex(&rateAlarmMenu, settings.rateAlarm, RATE_ALARM_NUM);
-    selectMenuIndex(&doseAlarmMenu, settings.doseAlarm, DOSE_ALARM_NUM);
+    selectMenuItem(&unitsMenu,
+                   settings.units,
+                   UNITS_NUM);
+    selectMenuItem(&averageTimerMenu,
+                   settings.averageTimer,
+                   AVERAGETIMER_NUM);
+    selectMenuItem(&rateAlarmMenu,
+                   settings.rateAlarm,
+                   RATEALARM_NUM);
+    selectMenuItem(&doseAlarmMenu,
+                   settings.doseAlarm,
+                   DOSEALARM_NUM);
 
-    updateTubeType();
+    updateTube();
 }
 
 // Events
@@ -167,20 +184,20 @@ void initMeasurements(void)
 static bool isInstantaneousRateAlarm(void);
 static bool isDoseAlarm(void);
 
-struct Unit
+typedef struct
 {
     char *const name;
     float scale;
     int8_t minMetricPower;
-};
+} Unit;
 
-struct Units
+typedef struct
 {
-    struct Unit rate;
-    struct Unit dose;
-};
+    Unit rate;
+    Unit dose;
+} Units;
 
-static struct Units units[] = {
+static Units units[] = {
     {{"Sv/h", (60 * 1E-6F), 0},
      {"Sv", (60 * 1E-6F / 3600), 0}},
     {{"rem/h", (60 * 1E-4F), 0},
@@ -191,9 +208,9 @@ static struct Units units[] = {
      {"count", 1, 2}},
 };
 
-void updateTubeType(void)
+void updateTube(void)
 {
-    float conversionFactor = getTubeCustomConversionFactor();
+    float conversionFactor = getTubeConversionFactor();
 
     units[0].rate.scale = (60 * 1E-6F) / conversionFactor;
     units[0].dose.scale = (60 * 1E-6F / 3600) / conversionFactor;
@@ -218,7 +235,7 @@ static float getTubeCompensationFactor(float value)
 
 static uint32_t calculateAveragingPeriod(float value)
 {
-    float uSvHScale = units[UNITS_SETTING_SIEVERTS].rate.scale * 1E6F;
+    float uSvHScale = units[UNITS_SIEVERTS].rate.scale * 1E6F;
 
     float uSvH = value * uSvHScale;
     float averagingPeriod;
@@ -247,44 +264,32 @@ static uint32_t calculateAveragingPeriod(float value)
     return (uint32_t)averagingPeriod;
 }
 
-static void calculateRate(uint32_t pulseCount, uint32_t ticks, struct Rate *rate)
+static void calculateRate(uint32_t pulseCount, uint32_t ticks, Rate *rate)
 {
     if (!ticks)
         return;
 
     // Value and confidence intervals
 
-    float value = (float)((pulseCount - 1) * SYS_TICK_FREQUENCY) / ticks;
+    float value = (float)((pulseCount - 1) * SYSTICK_FREQUENCY) / ticks;
 
-    float lowerConfidenceInterval;
-    float upperConfidenceInterval;
-    getConfidenceIntervals(&lowerConfidenceInterval,
-                           &upperConfidenceInterval,
-                           pulseCount - 1);
+    float confidenceInterval =
+        getConfidenceInterval(pulseCount - 1);
 
     // Dead-time compensation
 
-    // float absLowerConfidenceInterval = value * (1 + lowerConfidenceInterval);
-    // float absUpperConfidenceInterval = value * (1 + upperConfidenceInterval);
+    // float absConfidenceInterval = value * (1 + confidenceInterval);
     // float compValue = value * valueFactor;
-    // float compAbsLowerConfidenceInterval = absLowerConfidenceInterval * lowerConfidenceIntervalFactor;
-    // float compAbsUpperConfidenceInterval = absUpperConfidenceInterval * upperConfidenceIntervalFactor;
-    // float compLowerConfidenceInterval = (compAbsLowerConfidenceInterval - compValue) / compValue;
-    // float compUpperConfidenceInterval = (compAbsUpperConfidenceInterval - compValue) / compValue;
+    // float compAbsConfidenceInterval = absConfidenceInterval * confidenceIntervalFactor;
+    // float compConfidenceInterval = (compAbsConfidenceInterval - compValue) / compValue;
     float valueFactor = getTubeCompensationFactor(value);
-    float lowerConfidenceIntervalFactor =
-        getTubeCompensationFactor(value * (1 + lowerConfidenceInterval));
-    float upperConfidenceIntervalFactor =
-        getTubeCompensationFactor(value * (1 + upperConfidenceInterval));
+    float confidenceIntervalFactor =
+        getTubeCompensationFactor(value * (1 + confidenceInterval));
 
     rate->value = valueFactor * value;
-    rate->lowerConfidenceInterval =
-        lowerConfidenceIntervalFactor / valueFactor *
-            (1 + lowerConfidenceInterval) -
-        1;
-    rate->upperConfidenceInterval =
-        upperConfidenceIntervalFactor / valueFactor *
-            (1 + upperConfidenceInterval) -
+    rate->confidence =
+        confidenceIntervalFactor / valueFactor *
+            (1 + confidenceInterval) -
         1;
 }
 
@@ -308,11 +313,11 @@ void onMeasurementPeriod(void)
     measurements.tick.measurement.pulseCount = 0;
 }
 
-void updateMeasurements(void)
+void onMeasurementsOneSecond(void)
 {
     // Dead-time compensation
 
-    struct Measurement compensatedMeasurement;
+    Measurement compensatedMeasurement;
 
     compensatedMeasurement.firstPulseTick =
         measurements.tick.snapshotMeasurement.firstPulseTick;
@@ -333,7 +338,7 @@ void updateMeasurements(void)
         measurements.instantaneous.queue[measurements.instantaneous.queueTail] =
             compensatedMeasurement;
 
-        struct Measurement instantaneousMeasurement;
+        Measurement instantaneousMeasurement;
         instantaneousMeasurement.firstPulseTick = compensatedMeasurement.lastPulseTick;
         instantaneousMeasurement.lastPulseTick = compensatedMeasurement.lastPulseTick;
         instantaneousMeasurement.pulseCount = 0;
@@ -374,10 +379,16 @@ void updateMeasurements(void)
         measurements.instantaneous.rate.time =
             1 + (measurements.tick.snapshotTick -
                  instantaneousMeasurement.firstPulseTick) /
-                    SYS_TICK_FREQUENCY;
+                    SYSTICK_FREQUENCY;
 
         measurements.instantaneous.queueTail =
             (measurements.instantaneous.queueTail + 1) & MEASUREMENT_QUEUE_MASK;
+
+        if ((instantaneousMeasurement.pulseCount > 10) &&
+            (measurements.instantaneous.rate.value >
+             measurements.instantaneous.maxValue))
+            measurements.instantaneous.maxValue =
+                measurements.instantaneous.rate.value;
     }
     else
         measurements.instantaneous.rate.time++;
@@ -411,7 +422,13 @@ void updateMeasurements(void)
 
         if (measurements.average.rate.time <=
             averageTimerTimes[settings.averageTimer])
+        {
             measurements.average.timerRate = measurements.average.rate;
+
+            if (measurements.average.rate.time ==
+                averageTimerTimes[settings.averageTimer])
+                triggerAlarm();
+        }
     }
 
     // Cumulative dose
@@ -443,8 +460,8 @@ void updateMeasurements(void)
 
     for (uint32_t i = 0; i < HISTORY_NUM; i++)
     {
-        const struct History *history = &histories[i];
-        struct HistoryState *historyState = &measurements.history.states[i];
+        const History *history = &histories[i];
+        HistoryState *historyState = &measurements.history.states[i];
 
         historyState->averageSum += measurements.instantaneous.rate.value;
         historyState->averageCount++;
@@ -465,8 +482,9 @@ void updateMeasurements(void)
             historyState->averageSum = 0;
             historyState->averageCount = 0;
 
-            historyState->bufferIndex =
-                (historyState->bufferIndex + 1) & HISTORY_BUFFER_MASK;
+            historyState->bufferIndex++;
+            if (historyState->bufferIndex >= HISTORY_BUFFER_SIZE)
+                historyState->bufferIndex = 0;
         }
     }
 
@@ -478,68 +496,21 @@ void updateMeasurements(void)
 
 // View
 
-static void drawTitleWithTime(const char *title, uint32_t time)
+static void buildValueString(char *str,
+                             char **unitString,
+                             float value,
+                             const Unit *unit)
 {
-    char titleString[32];
+    strcpy(str, "");
+    strcatFloatWithMetricPrefix(str,
+                                value * unit->scale,
+                                unit->minMetricPower);
+    strcat(str, unit->name);
+    if (value == 0.0F)
+        strcpy(str, "\x7f.\x7f\x7f\x7f");
+    str[5] = '\0';
 
-    strcpy(titleString, title);
-    strcat(titleString, " (");
-    strcatTime(titleString, time);
-    strcat(titleString, ")");
-
-    drawTitle(titleString);
-}
-
-static void drawRate(float value,
-                     float lowerConfidenceInterval,
-                     float upperConfidenceInterval)
-{
-    char buffer[32] = "";
-    struct Unit *rateUnit = &units[settings.units].rate;
-
-    strcatFloatWithMetricPrefix(buffer,
-                                value * rateUnit->scale,
-                                rateUnit->minMetricPower);
-    strcat(buffer, rateUnit->name);
-
-    if (value != 0.0F)
-        drawConfidenceIntervals(lowerConfidenceInterval,
-                                upperConfidenceInterval);
-    else
-        strcpy(buffer, "\x80.\x80\x80\x80");
-
-    buffer[5] = '\0';
-
-    drawMeasurementValue(buffer, &buffer[6]);
-}
-
-static void drawDose(uint32_t value)
-{
-    char buffer[32] = "";
-    struct Unit *doseUnit = &units[settings.units].dose;
-
-    strcatFloatWithMetricPrefix(buffer,
-                                value * doseUnit->scale,
-                                doseUnit->minMetricPower);
-    strcat(buffer, doseUnit->name);
-
-    buffer[5] = '\0';
-
-    drawMeasurementValue(buffer, &buffer[6]);
-}
-
-static void drawMaxRate(float value)
-{
-    char buffer[32];
-    struct Unit *rateUnit = &units[settings.units].rate;
-
-    strcpy(buffer, "Max: ");
-    strcatFloatWithMetricPrefix(buffer,
-                                value * rateUnit->scale,
-                                rateUnit->minMetricPower);
-    strcat(buffer, rateUnit->name);
-
-    drawSubtitle(buffer);
+    *unitString = &str[6];
 }
 
 void setMeasurementView(int32_t index)
@@ -552,7 +523,7 @@ void setMeasurementView(int32_t index)
     setView(measurementViews[measurements.viewIndex]);
 }
 
-static void onMeasurementEvent(const struct View *view, enum Event event)
+static void onMeasurementEvent(const View *view, enum Event event)
 {
     switch (event)
     {
@@ -616,12 +587,12 @@ static bool isInstantaneousRateAlarm(void)
     if (!settings.rateAlarm)
         return false;
 
-    float svH = units[UNITS_SETTING_SIEVERTS].rate.scale *
+    float svH = units[UNITS_SIEVERTS].rate.scale *
                 measurements.instantaneous.rate.value;
     return svH >= rateAlarmsSvH[settings.rateAlarm];
 }
 
-static void onInstantaneousRateViewEvent(const struct View *view,
+static void onInstantaneousRateViewEvent(const View *view,
                                          enum Event event)
 {
     onMeasurementEvent(view, event);
@@ -634,35 +605,81 @@ static void onInstantaneousRateViewEvent(const struct View *view,
         if (measurements.instantaneous.isHold)
             measurements.instantaneous.holdRate = measurements.instantaneous.rate;
 
-        refreshView();
+        updateView();
 
         break;
 
     case EVENT_KEY_RESET:
         resetInstantaneousRate();
 
-        refreshView();
+        updateView();
 
         break;
 
     case EVENT_DRAW:
     {
-        struct Rate rate;
+        Rate rate;
         if (measurements.instantaneous.isHold)
             rate = measurements.instantaneous.holdRate;
         else
             rate = measurements.instantaneous.rate;
 
-        drawTitleWithTime("Instantaneous", rate.time);
-        drawRate(rate.value, rate.lowerConfidenceInterval,
-                 rate.upperConfidenceInterval);
+        char valueString[32];
+        char *unitString;
+        char timeString[16];
+        char *stateString = "";
+        char stateValueString[32];
+        char stateUnitString[16];
+
+        buildValueString(valueString,
+                         &unitString,
+                         rate.value,
+                         &units[settings.units].rate);
+
+        strcpy(timeString, "");
+        strcatTime(timeString, rate.time);
+
+        strcpy(stateValueString, "");
+        strcpy(stateUnitString, "");
+
+        enum MeasurementStyle style = MEASUREMENTSTYLE_NORMAL;
 
         if (measurements.instantaneous.isHold)
-            drawSubtitle("HOLD");
+        {
+            stateString = "Hold";
+
+            style = MEASUREMENTSTYLE_HOLD;
+        }
         else if (isInstantaneousRateAlarm())
-            drawSubtitle("RATE ALARM");
+        {
+            stateString = "Rate alarm";
+
+            style = MEASUREMENTSTYLE_ALARM;
+        }
         else if (measurements.instantaneous.maxValue > 0)
-            drawMaxRate(measurements.instantaneous.maxValue);
+        {
+            stateString = "Max";
+
+            char *unit;
+
+            buildValueString(stateValueString,
+                             &unit,
+                             measurements.instantaneous.maxValue,
+                             &units[settings.units].rate);
+
+            strcpy(stateUnitString, " ");
+            strcat(stateUnitString, unit);
+        }
+
+        drawMeasurement("Instantaneous",
+                        valueString,
+                        unitString,
+                        rate.confidence,
+                        timeString,
+                        stateString,
+                        stateValueString,
+                        stateUnitString,
+                        style);
 
         break;
     }
@@ -672,7 +689,7 @@ static void onInstantaneousRateViewEvent(const struct View *view,
     }
 }
 
-const struct View instantaneousRateView = {
+const View instantaneousRateView = {
     onInstantaneousRateViewEvent,
     NULL,
 };
@@ -684,7 +701,7 @@ static void resetAverageRate(void)
     memset(&measurements.average, 0, sizeof(measurements.average));
 }
 
-static void onAverageRateViewEvent(const struct View *view,
+static void onAverageRateViewEvent(const View *view,
                                    enum Event event)
 {
     onMeasurementEvent(view, event);
@@ -701,7 +718,7 @@ static void onAverageRateViewEvent(const struct View *view,
             if (measurements.average.isHold)
                 measurements.average.holdRate = measurements.average.rate;
 
-            refreshView();
+            updateView();
         }
 
         break;
@@ -709,29 +726,63 @@ static void onAverageRateViewEvent(const struct View *view,
     case EVENT_KEY_RESET:
         resetAverageRate();
 
-        refreshView();
+        updateView();
 
         break;
 
     case EVENT_DRAW:
     {
-        struct Rate rate;
+        Rate rate;
         if (measurements.average.isHold)
             rate = measurements.average.holdRate;
         else
             rate = measurements.average.timerRate;
 
-        drawTitleWithTime("Average", rate.time);
-        drawRate(rate.value, rate.lowerConfidenceInterval,
-                 rate.upperConfidenceInterval);
+        char timeString[16];
+        char valueString[32];
+        char *unitString;
+        char *stateString;
+
+        strcpy(timeString, "");
+        strcatTime(timeString, rate.time);
+
+        buildValueString(valueString,
+                         &unitString,
+                         rate.value,
+                         &units[settings.units].rate);
+
+        stateString = "";
+        enum MeasurementStyle style = MEASUREMENTSTYLE_NORMAL;
 
         if (measurements.average.isHold)
-            drawSubtitle("HOLD");
+        {
+            stateString = "Hold";
+
+            style = MEASUREMENTSTYLE_HOLD;
+        }
         else if (measurements.average.rate.time >=
                  averageTimerTimes[settings.averageTimer])
-            drawSubtitle("DONE");
+        {
+            stateString = "Done";
+
+            style = MEASUREMENTSTYLE_HOLD;
+        }
         else if (measurements.average.pulseCount == UINT32_MAX)
-            drawSubtitle("OVERFLOW");
+        {
+            stateString = "Overflow";
+
+            style = MEASUREMENTSTYLE_HOLD;
+        }
+
+        drawMeasurement("Average",
+                        valueString,
+                        unitString,
+                        rate.confidence,
+                        timeString,
+                        stateString,
+                        "",
+                        "",
+                        style);
 
         break;
     }
@@ -741,7 +792,7 @@ static void onAverageRateViewEvent(const struct View *view,
     }
 }
 
-const struct View averageRateView = {
+const View averageRateView = {
     onAverageRateViewEvent,
     NULL,
 };
@@ -791,12 +842,12 @@ static bool isDoseAlarm(void)
     if (!settings.doseAlarm)
         return false;
 
-    float doseSv = units[UNITS_SETTING_SIEVERTS].dose.scale *
+    float doseSv = units[UNITS_SIEVERTS].dose.scale *
                    measurements.cumulative.dose.pulseCount;
     return doseSv >= doseAlarmsSv[settings.doseAlarm];
 }
 
-static void onDoseViewEvent(const struct View *view,
+static void onDoseViewEvent(const View *view,
                             enum Event event)
 {
     onMeasurementEvent(view, event);
@@ -809,35 +860,70 @@ static void onDoseViewEvent(const struct View *view,
         if (measurements.cumulative.isHold)
             measurements.cumulative.holdDose = measurements.cumulative.dose;
 
-        refreshView();
+        updateView();
 
         break;
 
     case EVENT_KEY_RESET:
         resetDose();
 
-        refreshView();
+        updateView();
 
         break;
 
     case EVENT_DRAW:
     {
-        struct Dose dose;
+        Dose dose;
 
         if (!measurements.cumulative.isHold)
             dose = measurements.cumulative.dose;
         else
             dose = measurements.cumulative.holdDose;
 
-        drawTitleWithTime("Dose", dose.time);
-        drawDose(dose.pulseCount);
+        char timeString[16];
+        char valueString[32];
+        char *unitString;
+        char *stateString;
+
+        strcpy(timeString, "");
+        strcatTime(timeString, dose.time);
+
+        buildValueString(valueString,
+                         &unitString,
+                         dose.pulseCount,
+                         &units[settings.units].dose);
+
+        stateString = "";
+        enum MeasurementStyle style = MEASUREMENTSTYLE_NORMAL;
 
         if (measurements.cumulative.isHold)
-            drawSubtitle("HOLD");
+        {
+            stateString = "Hold";
+
+            style = MEASUREMENTSTYLE_HOLD;
+        }
         else if (dose.pulseCount == UINT32_MAX)
-            drawSubtitle("OVERFLOW");
+        {
+            stateString = "Overflow";
+
+            style = MEASUREMENTSTYLE_HOLD;
+        }
         else if (isDoseAlarm())
-            drawSubtitle("DOSE ALARM");
+        {
+            stateString = "Dose alarm";
+
+            style = MEASUREMENTSTYLE_ALARM;
+        }
+
+        drawMeasurement("Dose",
+                        valueString,
+                        unitString,
+                        0,
+                        timeString,
+                        stateString,
+                        "",
+                        "",
+                        style);
 
         break;
     }
@@ -847,7 +933,7 @@ static void onDoseViewEvent(const struct View *view,
     }
 }
 
-const struct View doseView = {
+const View doseView = {
     onDoseViewEvent,
     NULL,
 };
@@ -884,18 +970,7 @@ static void resetHistory(void)
     measurements.history.sampleIndex = 0;
 }
 
-uint32_t getHistoryDataPoint(uint32_t dataIndex)
-{
-    struct HistoryState *historyState =
-        &measurements.history.states[measurements.history.tabIndex];
-
-    uint32_t bufferIndex = ((historyState->bufferIndex - 1) - dataIndex) &
-                           HISTORY_BUFFER_MASK;
-
-    return historyState->buffer[bufferIndex];
-}
-
-static void onHistoryViewEvent(const struct View *view, enum Event event)
+static void onHistoryViewEvent(const View *view, enum Event event)
 {
     onMeasurementEvent(view, event);
 
@@ -903,73 +978,103 @@ static void onHistoryViewEvent(const struct View *view, enum Event event)
     {
     case EVENT_KEY_BACK:
         measurements.history.tabIndex++;
+
         if (measurements.history.tabIndex >= HISTORY_NUM)
             measurements.history.tabIndex = 0;
 
-        refreshView();
+        updateView();
 
         break;
 
     case EVENT_KEY_RESET:
         resetHistory();
 
-        refreshView();
+        updateView();
 
         break;
 
     case EVENT_DRAW:
     {
-        uint32_t minValue = UCHAR_MAX;
-        uint32_t maxValue = 0;
+        HistoryState *historyState =
+            &measurements.history.states[measurements.history.tabIndex];
 
+        uint32_t valueMax = 0;
+        uint32_t valueMin = UCHAR_MAX;
         for (uint32_t i = 0; i < HISTORY_BUFFER_SIZE; i++)
         {
-            uint32_t value = getHistoryDataPoint(i);
-            if (value > 0)
-            {
-                if (value < minValue)
-                    minValue = value;
-                if (value > maxValue)
-                    maxValue = value;
-            }
+            uint32_t value = historyState->buffer[i];
+
+            if (!value)
+                continue;
+
+            if (value > valueMax)
+                valueMax = value;
+
+            if (value < valueMin)
+                valueMin = value;
         }
 
-        char minLabel[16] = "";
-        char maxLabel[16] = "";
-        int32_t minLimit = 0;
-        uint32_t decades = 1;
+        char bottomLegendString[16] = "";
+        char topLegendString[16] = "";
+        int32_t exponentValueMin = 0;
+        uint32_t yTickNum = 1;
 
-        if (maxValue > 0)
+        if (valueMax > 0)
         {
-            struct Unit *rateUnit = &units[settings.units].rate;
+            Unit *rateUnit = &units[settings.units].rate;
 
             uint32_t cpsToRateUnit =
                 (uint32_t)(HISTORY_VALUE_DECADE *
                            (16 + log10f(rateUnit->scale * HISTORY_CPS_MIN)));
 
-            int32_t exponentMin =
-                (int32_t)((cpsToRateUnit + minValue) /
-                              HISTORY_VALUE_DECADE -
-                          16);
             int32_t exponentMax =
-                (int32_t)((cpsToRateUnit + maxValue) /
+                (int32_t)((cpsToRateUnit + valueMax) /
                               HISTORY_VALUE_DECADE -
                           16 + 1);
+            int32_t exponentMin =
+                (int32_t)((cpsToRateUnit + valueMin) /
+                              HISTORY_VALUE_DECADE -
+                          16);
 
-            minLimit = (int32_t)((exponentMin + 16) * HISTORY_VALUE_DECADE -
-                                 cpsToRateUnit);
-            decades = exponentMax - exponentMin;
+            exponentValueMin = (int32_t)((exponentMin + 16) * HISTORY_VALUE_DECADE -
+                                         cpsToRateUnit);
+            yTickNum = exponentMax - exponentMin;
 
-            strcatDecimalPowerWithMetricPrefix(minLabel, exponentMin);
-            strcat(minLabel, rateUnit->name);
+            strcatDecimalPowerWithMetricPrefix(topLegendString, exponentMax);
+            strcat(topLegendString, rateUnit->name);
 
-            strcatDecimalPowerWithMetricPrefix(maxLabel, exponentMax);
-            strcat(maxLabel, rateUnit->name);
+            strcatDecimalPowerWithMetricPrefix(bottomLegendString, exponentMin);
+            strcat(bottomLegendString, rateUnit->name);
         }
 
-        drawTitle(histories[measurements.history.tabIndex].name);
+        uint8_t data[HISTORY_BUFFER_SIZE];
+        uint32_t valueRange = HISTORY_VALUE_DECADE * yTickNum;
 
-        drawHistory(minLabel, maxLabel, minLimit, decades);
+        for (uint32_t dataIndex = 0;
+             dataIndex < HISTORY_BUFFER_SIZE;
+             dataIndex++)
+        {
+            uint32_t bufferIndex = 2 * HISTORY_BUFFER_SIZE -
+                                   ((HISTORY_BUFFER_SIZE - 1) - dataIndex) +
+                                   (historyState->bufferIndex - 1);
+            while (bufferIndex >= HISTORY_BUFFER_SIZE)
+                bufferIndex -= HISTORY_BUFFER_SIZE;
+
+            uint32_t value = historyState->buffer[bufferIndex];
+
+            if (value)
+                data[dataIndex] = 255 * (value - exponentValueMin) /
+                                  valueRange;
+            else
+                data[dataIndex] = 0;
+        }
+
+        drawHistory(histories[measurements.history.tabIndex].name,
+                    topLegendString,
+                    bottomLegendString,
+                    data,
+                    histories[measurements.history.tabIndex].xTickNum,
+                    yTickNum);
 
         break;
     }
@@ -979,17 +1084,12 @@ static void onHistoryViewEvent(const struct View *view, enum Event event)
     }
 }
 
-const struct View historyView = {
+const View historyView = {
     onHistoryViewEvent,
     NULL,
 };
 
 // Units menu
-
-static void onUnitsMenuSelect(const struct Menu *menu)
-{
-    settings.units = menu->state->selectedIndex;
-}
 
 static const char *const unitsMenuOptions[] = {
     "Sievert",
@@ -999,29 +1099,36 @@ static const char *const unitsMenuOptions[] = {
     NULL,
 };
 
-static struct MenuState unitsMenuState;
+static const char *onUnitsMenuGetOption(const Menu *menu,
+                                        uint32_t index,
+                                        MenuStyle *menuStyle)
+{
+    *menuStyle = (index == settings.units);
 
-static const struct Menu unitsMenu = {
+    return unitsMenuOptions[index];
+}
+
+static void onUnitsMenuSelect(const Menu *menu)
+{
+    settings.units = menu->state->selectedIndex;
+}
+
+static MenuState unitsMenuState;
+
+static const Menu unitsMenu = {
     "Units",
     &unitsMenuState,
-    onMenuGetOption,
-    unitsMenuOptions,
+    onUnitsMenuGetOption,
     onUnitsMenuSelect,
-    NULL,
     onSettingsSubMenuBack,
 };
 
-const struct View unitsMenuView = {
+const View unitsMenuView = {
     onMenuEvent,
     &unitsMenu,
 };
 
 // Average timer menu
-
-static void onAverageTimerMenuSelect(const struct Menu *menu)
-{
-    settings.averageTimer = menu->state->selectedIndex;
-}
 
 static const char *const averageTimerMenuOptions[] = {
     "Off",
@@ -1032,35 +1139,50 @@ static const char *const averageTimerMenuOptions[] = {
     NULL,
 };
 
-static struct MenuState averageTimerMenuState;
+static const char *onAverageTimerMenuGetOption(const Menu *menu,
+                                               uint32_t index,
+                                               MenuStyle *menuStyle)
+{
+    *menuStyle = (index == settings.averageTimer);
 
-static const struct Menu averageTimerMenu = {
+    return averageTimerMenuOptions[index];
+}
+
+static void onAverageTimerMenuSelect(const Menu *menu)
+{
+    settings.averageTimer = menu->state->selectedIndex;
+}
+
+static MenuState averageTimerMenuState;
+
+static const Menu averageTimerMenu = {
     "Average timer",
     &averageTimerMenuState,
-    onMenuGetOption,
-    averageTimerMenuOptions,
+    onAverageTimerMenuGetOption,
     onAverageTimerMenuSelect,
-    NULL,
     onSettingsSubMenuBack,
 };
 
-const struct View averageTimerMenuView = {
+const View averageTimerMenuView = {
     onMenuEvent,
     &averageTimerMenu,
 };
 
 // Rate alarm menu
 
-static const char *onRateAlarmMenuGetOption(const struct Menu *menu,
-                                            uint32_t index)
+static const char *onRateAlarmMenuGetOption(const Menu *menu,
+                                            uint32_t index,
+                                            MenuStyle *menuStyle)
 {
+    *menuStyle = (index == settings.rateAlarm);
+
     if (index == 0)
         return "Off";
-    else if (index < RATE_ALARM_NUM)
+    else if (index < RATEALARM_NUM)
     {
-        struct Unit *rateUnit = &units[settings.units].rate;
+        Unit *rateUnit = &units[settings.units].rate;
         float value = rateAlarmsSvH[index] /
-                      units[UNITS_SETTING_SIEVERTS].rate.scale;
+                      units[UNITS_SIEVERTS].rate.scale;
 
         strcpy(menuOption, "");
         strcatFloatWithMetricPrefix(menuOption,
@@ -1074,40 +1196,41 @@ static const char *onRateAlarmMenuGetOption(const struct Menu *menu,
         return NULL;
 }
 
-static void onRateAlarmMenuSelect(const struct Menu *menu)
+static void onRateAlarmMenuSelect(const Menu *menu)
 {
     settings.rateAlarm = menu->state->selectedIndex;
 }
 
-static struct MenuState rateAlarmMenuState;
+static MenuState rateAlarmMenuState;
 
-static const struct Menu rateAlarmMenu = {
+static const Menu rateAlarmMenu = {
     "Rate alarm",
     &rateAlarmMenuState,
     onRateAlarmMenuGetOption,
-    NULL,
     onRateAlarmMenuSelect,
-    NULL,
     onSettingsSubMenuBack,
 };
 
-const struct View rateAlarmMenuView = {
+const View rateAlarmMenuView = {
     onMenuEvent,
     &rateAlarmMenu,
 };
 
 // Dose alarm menu
 
-static const char *onDoseAlarmMenuGetOption(const struct Menu *menu,
-                                            uint32_t index)
+static const char *onDoseAlarmMenuGetOption(const Menu *menu,
+                                            uint32_t index,
+                                            MenuStyle *menuStyle)
 {
+    *menuStyle = (index == settings.doseAlarm);
+
     if (index == 0)
         return "Off";
-    else if (index < DOSE_ALARM_NUM)
+    else if (index < DOSEALARM_NUM)
     {
-        struct Unit *doseUnit = &units[settings.units].dose;
+        Unit *doseUnit = &units[settings.units].dose;
         float value = doseAlarmsSv[index] /
-                      units[UNITS_SETTING_SIEVERTS].dose.scale;
+                      units[UNITS_SIEVERTS].dose.scale;
 
         strcpy(menuOption, "");
         strcatFloatWithMetricPrefix(menuOption,
@@ -1121,24 +1244,22 @@ static const char *onDoseAlarmMenuGetOption(const struct Menu *menu,
         return NULL;
 }
 
-static void onDoseAlarmMenuSelect(const struct Menu *menu)
+static void onDoseAlarmMenuSelect(const Menu *menu)
 {
     settings.doseAlarm = menu->state->selectedIndex;
 }
 
-static struct MenuState doseAlarmMenuState;
+static MenuState doseAlarmMenuState;
 
-static const struct Menu doseAlarmMenu = {
+static const Menu doseAlarmMenu = {
     "Dose alarm",
     &doseAlarmMenuState,
     onDoseAlarmMenuGetOption,
-    NULL,
     onDoseAlarmMenuSelect,
-    NULL,
     onSettingsSubMenuBack,
 };
 
-const struct View doseAlarmMenuView = {
+const View doseAlarmMenuView = {
     onMenuEvent,
     &doseAlarmMenu,
 };

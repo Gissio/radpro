@@ -2,7 +2,7 @@
  * Rad Pro
  * SDLSim keyboard
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
@@ -17,7 +17,7 @@ void initKeyboardHardware(void)
 {
 }
 
-void getKeyboardKeys(bool *isKeyDown)
+void getKeyboardState(bool *isKeyDown)
 {
     const Uint8 *state = SDL_GetKeyboardState(NULL);
 

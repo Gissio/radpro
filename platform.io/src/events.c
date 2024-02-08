@@ -2,7 +2,7 @@
  * Rad Pro
  * Events
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
@@ -19,13 +19,15 @@
 #include "game.h"
 #include "keyboard.h"
 #include "measurements.h"
+#include "pulseled.h"
 #include "rng.h"
 #include "settings.h"
 #include "tube.h"
+#include "vibrator.h"
 
-#define PULSE_LED_TICKS ((uint32_t)(0.050 * SYS_TICK_FREQUENCY))
-#define PULSE_BACKLIGHT_TICKS ((uint32_t)(0.050 * SYS_TICK_FREQUENCY))
-#define ALARM_TICKS ((uint32_t)(0.100 * SYS_TICK_FREQUENCY))
+#define PULSE_LED_TICKS ((uint32_t)(0.050 * SYSTICK_FREQUENCY))
+#define PULSE_BACKLIGHT_TICKS ((uint32_t)(0.050 * SYSTICK_FREQUENCY))
+#define ALARM_TICKS ((uint32_t)(0.100 * SYSTICK_FREQUENCY))
 
 enum TimerState
 {
@@ -34,15 +36,15 @@ enum TimerState
     TIMER_RUNNING,
 };
 
-static uint32_t displayTimerValues[] = {
-#if defined(DISPLAY_MONO)
+static uint32_t backlightTimerValues[] = {
+#if defined(DISPLAY_MONOCHROME)
     1,
 #endif
-    30 * SYS_TICK_FREQUENCY,
-    60 * SYS_TICK_FREQUENCY,
-    2 * 60 * SYS_TICK_FREQUENCY,
-    5 * 60 * SYS_TICK_FREQUENCY,
-#if defined(DISPLAY_MONO)
+    30 * SYSTICK_FREQUENCY,
+    60 * SYSTICK_FREQUENCY,
+    2 * 60 * SYSTICK_FREQUENCY,
+    5 * 60 * SYSTICK_FREQUENCY,
+#if defined(DISPLAY_MONOCHROME)
     1,
 #endif
     -1,
@@ -50,24 +52,22 @@ static uint32_t displayTimerValues[] = {
 
 static uint32_t buzzerTimerValues[] = {
     0,
-    ((uint32_t)(0.001 * SYS_TICK_FREQUENCY)),
-    ((uint32_t)(0.015 * SYS_TICK_FREQUENCY)),
+    ((uint32_t)(0.001 * SYSTICK_FREQUENCY)),
+    ((uint32_t)(0.015 * SYSTICK_FREQUENCY)),
 };
 
 volatile uint32_t eventsCurrentTick;
 
 static struct
 {
-    bool pulseTimeLastInitialized;
-    uint32_t pulseTimeLast;
-    uint32_t deadTime;
+    bool lastPulseTimeCountInitialized;
+    uint32_t lastPulseTimeCount;
+    uint32_t deadTimeCount;
 
-    volatile int32_t displayTimer;
+    volatile int32_t backlightTimer;
 
 #if defined(PULSE_LED)
-
     volatile int32_t pulseLEDTimer;
-
 #endif
 
     volatile int32_t buzzerTimer;
@@ -87,8 +87,8 @@ void initEvents(void)
 {
     initEventsHardware();
 
-    events.deadTime = SYS_FREQUENCY;
-    events.measurementPeriodTimer = SYS_TICK_FREQUENCY;
+    events.deadTimeCount = UINT32_MAX;
+    events.measurementPeriodTimer = SYSTICK_FREQUENCY;
     events.keyboardTimer = KEY_TICKS;
 }
 
@@ -112,40 +112,21 @@ static enum TimerState updateTimer(volatile int32_t *timer)
 
 void onTick(void)
 {
-    // Display
+    // Backlight
 
-    switch (updateTimer(&events.displayTimer))
+    if (updateTimer(&events.backlightTimer) == TIMER_ELAPSED)
     {
-    case TIMER_ELAPSED:
-#if defined(DISPLAY_MONO)
-
-        setBacklight(false);
-
-#elif defined(DISPLAY_COLOR)
-
+        setDisplayBacklight(false);
+#if defined(DISPLAY_COLOR)
         setDisplay(false);
-
 #endif
-        break;
-
-#if defined(DISPLAY_MONO)
-
-    case TIMER_RUNNING:
-        setBacklight(!getBacklight());
-        break;
-
-#endif
-    default:
-        break;
     }
 
     // Pulse LED
 
 #if defined(PULSE_LED)
-
     if (updateTimer(&events.pulseLEDTimer) == TIMER_ELAPSED)
         setPulseLED(false);
-
 #endif
 
     // Measurement
@@ -153,22 +134,22 @@ void onTick(void)
     if (events.measurementsEnabled)
     {
         uint32_t pulseCount = 0;
-        uint32_t pulseTime;
+        uint32_t pulseTimeCount;
 
-        while (getTubePulse(&pulseTime))
+        while (getTubePulse(&pulseTimeCount))
         {
-            onRNGPulse(pulseTime);
+            onRNGPulse(pulseTimeCount);
 
-            if (events.pulseTimeLastInitialized)
+            if (events.lastPulseTimeCountInitialized)
             {
-                uint32_t duration = pulseTime - events.pulseTimeLast;
+                uint32_t deltaTimeCount = pulseTimeCount - events.lastPulseTimeCount;
 
-                if (duration < events.deadTime)
-                    events.deadTime = duration;
+                if (deltaTimeCount < events.deadTimeCount)
+                    events.deadTimeCount = deltaTimeCount;
             }
             else
-                events.pulseTimeLastInitialized = true;
-            events.pulseTimeLast = pulseTime;
+                events.lastPulseTimeCountInitialized = true;
+            events.lastPulseTimeCount = pulseTimeCount;
 
             pulseCount++;
         }
@@ -177,7 +158,7 @@ void onTick(void)
 
         if (updateTimer(&events.measurementPeriodTimer) == TIMER_ELAPSED)
         {
-            events.measurementPeriodTimer = SYS_TICK_FREQUENCY;
+            events.measurementPeriodTimer = SYSTICK_FREQUENCY;
             events.measurementPeriodUpdate++;
 
             onMeasurementPeriod();
@@ -187,9 +168,7 @@ void onTick(void)
     // Buzzer
 
 #if defined(SDLSIM)
-
     updateBuzzer();
-
 #endif
 
     switch (updateTimer(&events.buzzerTimer))
@@ -222,7 +201,12 @@ void onTick(void)
 
     // Alarm
 
-    updateTimer(&events.alarmTimer);
+    if (updateTimer(&events.alarmTimer) == TIMER_ELAPSED)
+    {
+#if defined(VIBRATOR)
+        setVibrator(false);
+#endif
+    }
 
     // Keyboard
 
@@ -246,30 +230,24 @@ static void syncTimerThread(void)
     sleep(1);
 }
 
-void startEvents(void)
+void setEventHandling(bool value)
 {
     syncTimerThread();
 
-    events.measurementsEnabled = true;
-}
-
-void stopEvents(void)
-{
-    syncTimerThread();
-
+    if (!value)
+    {
+        events.backlightTimer = 1;
 #if defined(PULSE_LED)
-
-    events.pulseLEDTimer = 1;
-
+        events.pulseLEDTimer = 1;
 #endif
-    events.buzzerTimer = 1;
-    events.displayTimer = 1;
-    events.alarmTimer = 1;
+        events.buzzerTimer = 1;
+        events.alarmTimer = 1;
+    }
 
-    events.measurementsEnabled = false;
+    events.measurementsEnabled = value;
 }
 
-void updateEvents(void)
+void dispatchEvents(void)
 {
     sleep(0);
 
@@ -278,22 +256,22 @@ void updateEvents(void)
     {
         events.lastMeasurementPeriodUpdate = oneSecondUpdate;
 
-        updateMeasurements();
+        onMeasurementsOneSecond();
         writeDatalogEntry(true);
         updateADC();
-        updateGameTimer();
-        refreshView();
+        onGameOneSecond();
+        updateView();
     }
 
-    updateView();
-    updateComm();
+    dispatchViewEvents();
+    dispatchCommEvents();
 }
 
 // Dead-time
 
 float getDeadTime(void)
 {
-    return events.deadTime * (1.0F / SYS_FREQUENCY);
+    return events.deadTimeCount * timerCountToSeconds;
 }
 
 // Timers
@@ -314,18 +292,15 @@ static void setPulseLEDTimer(int32_t value)
 
 static bool isAlarmTimerActive(void);
 
-static void setDisplayTimer(int32_t value)
+static void setBacklightTimer(int32_t value)
 {
-#if defined(DISPLAY_COLOR)
-
     setDisplay(true);
-
-#endif
+    setDisplayBacklight(true);
 
     if ((value < 0) ||
-        ((value > events.displayTimer) &&
-         (events.displayTimer != -1)))
-        events.displayTimer = value;
+        ((value > events.backlightTimer) &&
+         (events.backlightTimer != -1)))
+        events.backlightTimer = value;
 }
 
 static void setBuzzerTimer(int32_t value, int32_t noiseValue)
@@ -337,26 +312,18 @@ static void setBuzzerTimer(int32_t value, int32_t noiseValue)
     }
 }
 
-void triggerDisplay(void)
+void triggerBacklight(void)
 {
     syncTimerThread();
 
-    events.displayTimer = 0;
+    events.backlightTimer = 0;
 
-#if defined(DISPLAY_MONO)
-
-    setDisplayTimer(displayTimerValues[settings.displayBacklight]);
-
-#elif defined(DISPLAY_COLOR)
-
-    setDisplayTimer(displayTimerValues[settings.displaySleep]);
-
-#endif
+    setBacklightTimer(backlightTimerValues[settings.displayTimer]);
 }
 
-bool isDisplayTimerActive(void)
+bool isBacklightTimerActive(void)
 {
-    return events.displayTimer != 0;
+    return events.backlightTimer != 0;
 }
 
 void triggerPulse(void)
@@ -371,10 +338,10 @@ void triggerPulse(void)
 
 #endif
 
-#if defined(DISPLAY_MONO)
+#if defined(DISPLAY_MONOCHROME)
 
-    if (settings.displayBacklight == DISPLAY_BACKLIGHT_PULSE_FLASHES)
-        setDisplayTimer(PULSE_BACKLIGHT_TICKS);
+    if (settings.displayTimer == DISPLAY_TIMER_PULSE_FLASHES)
+        setBacklightTimer(PULSE_BACKLIGHT_TICKS);
 
 #endif
 
@@ -387,12 +354,13 @@ void triggerAlarm(void)
     syncTimerThread();
 
 #if defined(PULSE_LED)
-
     setPulseLEDTimer(ALARM_TICKS);
-
 #endif
     setBuzzerTimer(ALARM_TICKS, 1);
-    setDisplayTimer(ALARM_TICKS);
+    setBacklightTimer(ALARM_TICKS);
+#if defined(VIBRATOR)
+    setVibrator(true);
+#endif
 
     events.alarmTimer = ALARM_TICKS;
 }

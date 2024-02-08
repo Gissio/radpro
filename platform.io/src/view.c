@@ -2,7 +2,7 @@
  * Rad Pro
  * User interface view
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
@@ -10,17 +10,19 @@
 #include "display.h"
 #include "events.h"
 #include "keyboard.h"
+#include "game.h"
 #include "power.h"
 #include "settings.h"
 #include "view.h"
 
 static struct
 {
-    const struct View *currentView;
-    bool refresh;
+    const View *currentView;
+
+    bool drawUpdate;
 } view;
 
-void updateView(void)
+void dispatchViewEvents(void)
 {
     // Key events
 
@@ -29,13 +31,13 @@ void updateView(void)
     {
 #if defined(DISPLAY_COLOR)
 
-        if ((settings.displaySleep != DISPLAY_SLEEP_ALWAYS_ON) &&
-            !isDisplayTimerActive())
+        if ((settings.displayTimer != DISPLAY_TIMER_ALWAYS_ON) &&
+            !isBacklightTimerActive())
             event = EVENT_KEY_BACKLIGHT;
 
 #endif
 
-        triggerDisplay();
+        triggerBacklight();
 
         if (event == EVENT_KEY_POWER_OFF)
             powerOff();
@@ -43,32 +45,31 @@ void updateView(void)
             view.currentView->onEvent(view.currentView, event);
     }
 
-    // Draw events
-
-    if (view.refresh)
+    if (view.drawUpdate)
     {
-        view.refresh = false;
+        view.drawUpdate = false;
 
-        clearDisplayBuffer();
         drawStatusBar();
+
         view.currentView->onEvent(view.currentView, EVENT_DRAW);
-        sendDisplayBuffer();
+
+        refreshDisplay();
     }
 }
 
-void setView(const struct View *newView)
+void setView(const View *newView)
 {
     view.currentView = newView;
 
-    refreshView();
+    view.drawUpdate = true;
 }
 
-const struct View *getView(void)
+void updateView(void)
+{
+    view.drawUpdate = true;
+}
+
+const View *getView(void)
 {
     return view.currentView;
-}
-
-void refreshView(void)
-{
-    view.refresh = true;
 }

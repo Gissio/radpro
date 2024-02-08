@@ -2,18 +2,17 @@
  * Rad Pro
  * Keyboard
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
 
 #if !defined(KEYBOARD_H)
-
 #define KEYBOARD_H
 
 #include <stdbool.h>
 
-#include "View.h"
+#include "view.h"
 
 enum Key
 {
@@ -41,7 +40,7 @@ enum Key
 void initKeyboard(void);
 void initKeyboardHardware(void);
 
-void getKeyboardKeys(bool *);
+void getKeyboardState(bool *);
 
 void setKeyboardDelayedBack(bool value);
 

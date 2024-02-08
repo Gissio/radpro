@@ -2,20 +2,19 @@
  * Rad Pro
  * Random number generator
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
 
 #if !defined(RNG_H)
-
 #define RNG_H
 
 #include <stdint.h>
 
 #include "view.h"
 
-extern const struct View rngMenuView;
+extern const View rngMenuView;
 
 int32_t getEntropy(void);
 

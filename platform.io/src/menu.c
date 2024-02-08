@@ -2,7 +2,7 @@
  * Rad Pro
  * Menus
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
@@ -16,12 +16,9 @@
 
 char menuOption[32];
 
-const char *onMenuGetOption(const struct Menu *menu, uint32_t index)
-{
-    return menu->options[index];
-}
-
-void selectMenuIndex(const struct Menu *menu, uint32_t index, uint32_t optionsNum)
+void selectMenuItem(const Menu *menu, 
+uint32_t index, 
+uint32_t optionsNum)
 {
     menu->state->selectedIndex = index;
     if (index < menuLineNum)
@@ -32,10 +29,11 @@ void selectMenuIndex(const struct Menu *menu, uint32_t index, uint32_t optionsNu
         menu->state->startIndex = optionsNum - menuLineNum;
 }
 
-void onMenuEvent(const struct View *view, enum Event event)
+void onMenuEvent(const View *view, enum Event event)
 {
-    const struct Menu *menu = (const struct Menu *)view->userdata;
-    struct MenuState *menuState = menu->state;
+    const Menu *menu = (const Menu *)view->userdata;
+    MenuState *menuState = menu->state;
+    MenuStyle menuStyle;
 
     if (event == EVENT_KEY_UP)
     {
@@ -49,7 +47,7 @@ void onMenuEvent(const struct View *view, enum Event event)
         else
         {
             uint32_t index = 0;
-            while (menu->onGetOption(menu, index))
+            while (menu->onGetOption(menu, index, &menuStyle))
                 index++;
 
             menuState->selectedIndex = index - 1;
@@ -61,7 +59,7 @@ void onMenuEvent(const struct View *view, enum Event event)
     }
     else if (event == EVENT_KEY_DOWN)
     {
-        if (menu->onGetOption(menu, menuState->selectedIndex + 1))
+        if (menu->onGetOption(menu, menuState->selectedIndex + 1, &menuStyle))
         {
             menuState->selectedIndex++;
 
@@ -79,16 +77,15 @@ void onMenuEvent(const struct View *view, enum Event event)
     {
     case EVENT_KEY_UP:
     case EVENT_KEY_DOWN:
-        refreshView();
-
-        if (menu->onSelect)
-            menu->onSelect(menu);
+        updateView();
 
         break;
 
     case EVENT_KEY_ENTER:
-        if (menu->onEnter)
-            menu->onEnter(menu);
+        if (menu->onSelect)
+            menu->onSelect(menu);
+
+        updateView();
 
         break;
 
@@ -100,7 +97,6 @@ void onMenuEvent(const struct View *view, enum Event event)
 
     case EVENT_DRAW:
     {
-        drawTitle(menu->title);
         drawMenu(menu);
 
         break;

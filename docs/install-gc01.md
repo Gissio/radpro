@@ -22,3 +22,16 @@ Now, follow these steps:
 ## Step 3: Show your support
 
 If you like Rad Pro, consider showing your support by starring the project on GitHub. Your support is greatly appreciated.
+
+## Hardware-specific notes
+
+The keys are mapped as follows:
+
+  * Power on/off: Long-press OK/POWER key.
+  * Go up/down: UP and DOWN keys.
+  * Go down: Short-press SET/POWER key.
+  * Enter menu/select option: RIGHT/CONFIG key.
+  * Go back/hold measurement: LEFT/BACK key.
+  * Reset measurement: Long-press LEFT/BACK keys.
+
+On the FNIRSI GC-01, Rad Pro can store up to 95880 data points. At normal radiation levels, this allows for 66 days of data at 1-minute intervals, 166 days at 5-minute intervals, 332 days at 10-minute intervals, 998 days at 30-minute intervals, and 1997 days at 60-minute intervals.

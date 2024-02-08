@@ -2,7 +2,7 @@
  * Rad Pro
  * STM32 events
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
@@ -17,13 +17,17 @@
 
 #include "../events.h"
 
+#include "stm32.h"
+
 extern volatile uint32_t eventsCurrentTick;
+
+float timerCountToSeconds = (1.0F / DEADTIME_TIM_FREQUENCY);
 
 void initEventsHardware(void)
 {
     // SysTick
 
-    systick_set_frequency(SYS_TICK_FREQUENCY, rcc_ahb_frequency);
+    systick_set_frequency(SYSTICK_FREQUENCY, AHB_FREQUENCY);
     systick_clear();
 
     nvic_set_priority(NVIC_SYSTICK_IRQ, 0xc0);
@@ -33,10 +37,10 @@ void initEventsHardware(void)
 
     // Watchdog
 
-// +++ TEST
+    // +++ TEST
     // iwdg_set_period_ms(500 * 40000 / 32768);
     // iwdg_start();
-// +++ TEST
+    // +++ TEST
 }
 
 void sys_tick_handler(void)

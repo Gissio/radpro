@@ -2,13 +2,12 @@
  * Rad Pro
  * Settings
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
 
 #if !defined(SETTINGS_H)
-
 #define SETTINGS_H
 
 #include <stdint.h>
@@ -16,62 +15,165 @@
 #include "menu.h"
 #include "view.h"
 
-struct Dose
+typedef struct
 {
     uint32_t time;
     uint32_t pulseCount;
+} Dose;
+
+enum
+{
+    UNITS_SIEVERTS,
+    UNITS_REM,
+    UNITS_CPM,
+    UNITS_CPS,
+
+    UNITS_NUM,
 };
 
 enum
 {
-    UNITS_SETTING_SIEVERTS,
-    UNITS_SETTING_REM,
-    UNITS_SETTING_CPM,
-    UNITS_SETTING_CPS,
+    AVERAGETIMER_UNLIMITED,
+    AVERAGETIMER_5M,
+    AVERAGETIMER_10M,
+    AVERAGETIMER_30M,
+    AVERAGETIMER_60M,
 
-    UNITS_SETTING_NUM,
+    AVERAGETIMER_NUM,
 };
 
 enum
 {
-    AVERAGE_TIMER_UNLIMITED,
-    AVERAGE_TIMER_5M,
-    AVERAGE_TIMER_10M,
-    AVERAGE_TIMER_30M,
-    AVERAGE_TIMER_60M,
+    RATEALARM_OFF,
+    RATEALARM_0_5,
+    RATEALARM_1,
+    RATEALARM_2,
+    RATEALARM_5,
+    RATEALARM_10,
+    RATEALARM_20,
+    RATEALARM_50,
+    RATEALARM_100,
 
-    AVERAGE_TIMER_NUM,
+    RATEALARM_NUM,
 };
 
 enum
 {
-    RATE_ALARM_OFF,
-    RATE_ALARM_0_5,
-    RATE_ALARM_1,
-    RATE_ALARM_2,
-    RATE_ALARM_5,
-    RATE_ALARM_10,
-    RATE_ALARM_20,
-    RATE_ALARM_50,
-    RATE_ALARM_100,
+    DOSEALARM_OFF,
+    DOSEALARM_5,
+    DOSEALARM_10,
+    DOSEALARM_20,
+    DOSEALARM_50,
+    DOSEALARM_100,
+    DOSEALARM_200,
+    DOSEALARM_500,
+    DOSEALARM_1000,
 
-    RATE_ALARM_NUM,
+    DOSEALARM_NUM,
 };
 
 enum
 {
-    DOSE_ALARM_OFF,
-    DOSE_ALARM_5,
-    DOSE_ALARM_10,
-    DOSE_ALARM_20,
-    DOSE_ALARM_50,
-    DOSE_ALARM_100,
-    DOSE_ALARM_200,
-    DOSE_ALARM_500,
-    DOSE_ALARM_1000,
+    DATALOGGING_OFF,
+    DATALOGGING_60M,
+    DATALOGGING_30M,
+    DATALOGGING_10M,
+    DATALOGGING_5M,
+    DATALOGGING_1M,
 
-    DOSE_ALARM_NUM,
+    DATALOGGING_NUM,
 };
+
+enum
+{
+    TUBE_CONVERSIONFACTOR_HH614,
+    TUBE_CONVERSIONFACTOR_J305,
+    TUBE_CONVERSIONFACTOR_J321,
+    TUBE_CONVERSIONFACTOR_J614,
+    TUBE_CONVERSIONFACTOR_M4011,
+    TUBE_CONVERSIONFACTOR_SBM20,
+
+    TUBE_CONVERSIONFACTOR_NUM,
+};
+
+#if defined(SDLSIM)
+
+#define TUBE_CONVERSIONFACTOR_DEFAULT TUBE_CONVERSIONFACTOR_M4011
+
+#define TUBE_FACTORYDEFAULT_HVFREQUENCY TUBE_HVFREQUENCY_2_5
+#define TUBE_FACTORYDEFAULT_HVDUTYCYCLE_PERMILLE 100
+
+#define TUBE_OPTIMIZED_HVFREQUENCY TUBE_HVFREQUENCY_2_5
+#define TUBE_OPTIMIZED_HVDUTYCYCLE_PERMILLE 100
+
+#define TUBE_ENERGYSAVING_HVFREQUENCY TUBE_HVFREQUENCY_2_5
+#define TUBE_ENERGYSAVING_HVDUTYCYCLE_PERMILLE 100
+
+#elif defined(FS2011) || defined(FS600) || defined(FS1000)
+
+#define TUBE_CONVERSIONFACTOR_DEFAULT TUBE_CONVERSIONFACTOR_HH614
+
+#define TUBE_FACTORYDEFAULT_HVFREQUENCY TUBE_HVFREQUENCY_40
+#define TUBE_FACTORYDEFAULT_HVDUTYCYCLE_PERMILLE 500
+
+#define TUBE_OPTIMIZED_HVFREQUENCY TUBE_HVFREQUENCY_2_5
+#define TUBE_OPTIMIZED_HVDUTYCYCLE_PERMILLE 65
+
+#define TUBE_ENERGYSAVING_HVFREQUENCY TUBE_HVFREQUENCY_2_5
+#define TUBE_ENERGYSAVING_HVDUTYCYCLE_PERMILLE 30
+
+#elif defined(GC01)
+
+#define TUBE_CONVERSIONFACTOR_DEFAULT TUBE_CONVERSIONFACTOR_J321
+
+#define TUBE_FACTORYDEFAULT_HVFREQUENCY TUBE_HVFREQUENCY_10
+#define TUBE_FACTORYDEFAULT_HVDUTYCYCLE_PERMILLE 200
+
+#define TUBE_OPTIMIZED_HVFREQUENCY TUBE_HVFREQUENCY_10
+#define TUBE_OPTIMIZED_HVDUTYCYCLE_PERMILLE 200
+
+#define TUBE_ENERGYSAVING_HVFREQUENCY TUBE_HVFREQUENCY_10
+#define TUBE_ENERGYSAVING_HVDUTYCYCLE_PERMILLE 200
+
+#endif
+
+#define GET_HVDUTYCYCLE(permille) ((500 - permille) * TUBE_HVDUTYCYCLE_NUM / 500)
+
+#define TUBE_FACTORYDEFAULT_HVDUTYCYCLE GET_HVDUTYCYCLE(TUBE_FACTORYDEFAULT_HVDUTYCYCLE_PERMILLE)
+#define TUBE_OPTIMIZED_HVDUTYCYCLE GET_HVDUTYCYCLE(TUBE_OPTIMIZED_HVDUTYCYCLE_PERMILLE)
+#define TUBE_ENERGYSAVING_HVDUTYCYCLE GET_HVDUTYCYCLE(TUBE_ENERGYSAVING_HVDUTYCYCLE_PERMILLE)
+
+enum
+{
+    TUBE_HVPROFILE_FACTORY_DEFAULT,
+    TUBE_HVPROFILE_OPTIMIZED,
+    TUBE_HVPROFILE_ENERGY_SAVING,
+    TUBE_HVPROFILE_CUSTOM,
+    TUBE_HVPROFILE_NUM,
+};
+
+enum
+{
+    TUBE_HVFREQUENCY_1_25,
+    TUBE_HVFREQUENCY_2_5,
+    TUBE_HVFREQUENCY_5,
+    TUBE_HVFREQUENCY_10,
+    TUBE_HVFREQUENCY_20,
+    TUBE_HVFREQUENCY_40,
+    TUBE_HVFREQUENCY_NUM,
+};
+
+#define TUBE_HVDUTYCYCLE_NUM 200
+
+#if defined(PULSE_LED)
+enum
+{
+    PULSE_LED_OFF,
+    PULSE_LED_ON,
+
+    PULSE_LED_NUM,
+};
+#endif
 
 enum
 {
@@ -82,41 +184,35 @@ enum
     PULSE_CLICKS_NUM,
 };
 
-#if defined(PULSE_LED)
-
-enum
-{
-    PULSE_LED_OFF,
-    PULSE_LED_ON,
-
-    PULSE_LED_NUM,
-};
-
-#endif
-
-#if defined(DISPLAY_MONO)
-
-enum
-{
-    DISPLAY_BACKLIGHT_ALWAYS_OFF,
-    DISPLAY_BACKLIGHT_30S,
-    DISPLAY_BACKLIGHT_1M,
-    DISPLAY_BACKLIGHT_2M,
-    DISPLAY_BACKLIGHT_5M,
-    DISPLAY_BACKLIGHT_PULSE_FLASHES,
-    DISPLAY_BACKLIGHT_ALWAYS_ON,
-
-    DISPLAY_BACKLIGHT_NUM,
-};
-
+#if defined(DISPLAY_MONOCHROME)
+#define DISPLAY_CONTRAST_DEFAULT 16
+#define DISPLAY_CONTRAST_NUM 32
 #elif defined(DISPLAY_COLOR)
-
 enum
 {
-    DISPLAY_THEME_DARK,
-    DISPLAY_THEME_LIGHT,
+    DISPLAY_THEME_DAY,
+    DISPLAY_THEME_DUSK,
+    DISPLAY_THEME_NIGHT,
 
     DISPLAY_THEME_NUM,
+};
+#endif
+
+enum
+{
+#if defined(DISPLAY_MONOCHROME)
+    DISPLAY_TIMER_ALWAYS_OFF,
+#endif
+    DISPLAY_TIMER_30S,
+    DISPLAY_TIMER_1M,
+    DISPLAY_TIMER_2M,
+    DISPLAY_TIMER_5M,
+#if defined(DISPLAY_MONOCHROME)
+    DISPLAY_TIMER_PULSE_FLASHES,
+#endif
+    DISPLAY_TIMER_ALWAYS_ON,
+
+    DISPLAY_TIMER_NUM,
 };
 
 enum
@@ -124,127 +220,110 @@ enum
     DISPLAY_BRIGHTNESS_LOW,
     DISPLAY_BRIGHTNESS_MEDIUM,
     DISPLAY_BRIGHTNESS_HIGH,
+    DISPLAY_BRIGHTNESS_VERYHIGH,
 
     DISPLAY_BRIGHTNESS_NUM,
 };
 
 enum
 {
-    DISPLAY_SLEEP_30S,
-    DISPLAY_SLEEP_1M,
-    DISPLAY_SLEEP_2M,
-    DISPLAY_SLEEP_5M,
-    DISPLAY_SLEEP_ALWAYS_ON,
+    RTC_TIMEZONE_N1200,
+    RTC_TIMEZONE_N1100,
+    RTC_TIMEZONE_N1000,
+    RTC_TIMEZONE_N0900,
+    RTC_TIMEZONE_N0800,
+    RTC_TIMEZONE_N0700,
+    RTC_TIMEZONE_N0600,
+    RTC_TIMEZONE_N0500,
+    RTC_TIMEZONE_N0400,
+    RTC_TIMEZONE_N0300,
+    RTC_TIMEZONE_N0200,
+    RTC_TIMEZONE_N0100,
+    RTC_TIMEZONE_P0000,
+    RTC_TIMEZONE_P0100,
+    RTC_TIMEZONE_P0200,
+    RTC_TIMEZONE_P0300,
+    RTC_TIMEZONE_P0400,
+    RTC_TIMEZONE_P0500,
+    RTC_TIMEZONE_P0600,
+    RTC_TIMEZONE_P0700,
+    RTC_TIMEZONE_P0800,
+    RTC_TIMEZONE_P0900,
+    RTC_TIMEZONE_P1000,
+    RTC_TIMEZONE_P1100,
+    RTC_TIMEZONE_P1200,
+    RTC_TIMEZONE_P1300,
+    RTC_TIMEZONE_P1400,
 
-    DISPLAY_SLEEP_NUM,
+    RTC_TIMEZONE_NUM,
 };
 
+#if defined(BATTERY_REMOVABLE)
+enum
+{
+    BATTERYTYPE_NI_MH,
+    BATTERYTYPE_ALKALINE,
+
+    BATTERYTYPE_NUM,
+};
 #endif
 
 enum
 {
-    DATA_LOGGING_OFF,
-    DATA_LOGGING_60M,
-    DATA_LOGGING_30M,
-    DATA_LOGGING_10M,
-    DATA_LOGGING_5M,
-    DATA_LOGGING_1M,
+    GAMESTRENGTH_1,
+    GAMESTRENGTH_2,
+    GAMESTRENGTH_3,
+    GAMESTRENGTH_4,
+    GAMESTRENGTH_5,
+    GAMESTRENGTH_6,
+    GAMESTRENGTH_7,
+    GAMESTRENGTH_8,
 
-    DATA_LOGGING_NUM,
+    GAMESTRENGTH_NUM,
 };
 
-enum
+typedef struct
 {
-    BATTERY_TYPE_NI_MH,
-    BATTERY_TYPE_ALKALINE,
-
-    BATTERY_TYPE_NUM,
-};
-
-enum
-{
-#if defined(SDLSIM) || defined(FS2011)
-
-    TUBE_TYPE_M4011,
-    TUBE_TYPE_J305,
-
-#endif
-
-    TUBE_TYPE_HH614,
-
-    TUBE_TYPE_CUSTOM,
-
-    TUBE_TYPE_NUM,
-};
-
-#define TUBE_HV_DUTY_CYCLE_NUM 100
-
-#define TUBE_HV_FREQUENCY_NUM 6
-
-enum
-{
-    GAME_STRENGTH_1,
-    GAME_STRENGTH_2,
-    GAME_STRENGTH_3,
-    GAME_STRENGTH_4,
-    GAME_STRENGTH_5,
-    GAME_STRENGTH_6,
-    GAME_STRENGTH_7,
-    GAME_STRENGTH_8,
-
-    GAME_STRENGTH_NUM,
-};
-
-struct Settings
-{
-    unsigned int empty : 1;
+    unsigned int entryEmpty : 1;
 
     unsigned int units : 2;
     unsigned int averageTimer : 3;
     unsigned int rateAlarm : 4;
     unsigned int doseAlarm : 4;
-
-    unsigned int pulseClicks : 2;
+    unsigned int datalogInterval : 3;
+    unsigned int tubeConversionFactor : 7;
+    unsigned int tubeDeadTimeCompensation : 6;
+    unsigned int tubeHVProfile : 2;
+    unsigned int tubeHVFrequency : 3;
+    unsigned int tubeHVDutyCycle : 8;
 
 #if defined(PULSE_LED)
-
     unsigned int pulseLED : 1;
-
 #endif
-
-#if defined(DISPLAY_MONO)
-
-    unsigned int displayBacklight : 3;
-
+    unsigned int pulseClicks : 2;
+#if defined (DISPLAY_MONOCHROME)
+    unsigned int displayContrast : 5;
 #elif defined(DISPLAY_COLOR)
-
-    unsigned int displayTheme : 1;
-    unsigned int displayBrightnessLevel : 2;
-    unsigned int displaySleep : 3;
-
+    unsigned int displayTheme : 2;
 #endif
-
-    unsigned int datalogInterval : 3;
-
+    unsigned int displayTimer : 3;
+    unsigned int displayBrightness : 2;
+    unsigned int rtcTimeZone : 5;
+#if defined(BATTERY_REMOVABLE)
     unsigned int batteryType : 1;
-
-    unsigned int tubeType : 2;
-    unsigned int tubeConversionFactor : 6;
-    unsigned int tubeDeadTimeCompensation : 6;
-    unsigned int tubeHVDutyCycle : 7;
-    unsigned int tubeHVFrequency : 3;
+#endif
 
     unsigned int gameStrength : 3;
-};
+} Settings;
 
-extern struct Settings settings;
+extern Settings settings;
 
-extern const struct View settingsMenuView;
+extern const View settingsMenuView;
 
 void initSettings(void);
 
 void writeSettings(void);
 
-void onSettingsSubMenuBack(const struct Menu *menu);
+void onSettingsSubMenuBack(const Menu *menu);
 
 #endif

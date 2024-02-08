@@ -4,7 +4,7 @@
 
 * Multiple measurement units: Sievert, rem, counts per minute (cpm) and counts per second (cps).
 * Configurable average timer.
-* Overflow alerts.
+* Overflow alarms.
 * Configurable pulse click sounds: off, quiet, loud.
 * Configurable display options: backlight (on monochrome displays) or theme, brightness level and sleep (on color displays).
 * Configurable battery type selection (on devices with a removable battery).
@@ -12,44 +12,9 @@
 * Customizable Geiger-Müller settings: conversion factor, dead-time compensation and HV duty cycle for tube high-voltage control.
 * Dead-time measurement.
 * Life statistics for tracking of device usage.
+* Up to 80% less energy use (depending on the device).
 * Power-on self-test and safety watchdog.
 * Game: nuclear chess.
-
-## Keyboard mappings for different devices
-
-### FS2011
-
-  * Power on/off: Long-press POWER key.
-  * Go up/down: UP and DOWN keys.
-  * Enter menu/select option: MENU/OK key
-  * Go back/hold measurement: PLAY/PAUSE key.
-  * Reset measurement: Long-press PLAY/PAUSE key.
-
-<!-- ### Bosean FS-600
-
-  * Power on/off: Long-press POWER key.
-  * Go up/down: UP and DOWN keys.
-  * Enter menu/select option: RIGHT/CONFIG key
-  * Go back/hold measurement: BACK key.
-  * Reset measurement: Long-press BACK key.
-
-### Bosean FS-1000
-
-  * Power on/off: Extended press of the SET/POWER key.
-  * Go up: MODE key.
-  * Go down: SET/POWER key.
-  * Enter menu/select option: Long-press SET/POWER key.
-  * Go back/hold measurement: Long-press MODE key.
-  * Reset measurement: Long-press both MODE and SET/POWER keys. -->
-
-<!-- ### FNIRSI GC-01
-
-  * Power on/off: Long-press OK/POWER key.
-  * Go up/down: UP and DOWN keys.
-  * Go down: Short-press SET/POWER key.
-  * Enter menu/select option: RIGHT/CONFIG key.
-  * Go back/hold measurement: LEFT/BACK key.
-  * Reset measurement: Long-press LEFT/BACK keys. -->
 
 ## Measurements
 
@@ -85,13 +50,10 @@ The random number generator generates 16 symbols per run. If additional symbols 
 
 The generator works by comparing the time interval between two successive pulses. To prevent bias, every second bit is flipped. The generator stores random number data in a 256-bit buffer.
 
-Random symbols are generated from the bits using the [Fast Dice Roller](https://arxiv.org/abs/1304.1916) algorithm. "Letters & numbers" consumes approximately 6 bits per symbol, "Full ASCII" consumes 7 bits, "20-sided dice" consumes 5 bits, "Hexadecimal", "Decimal" and "12-sided dice" consumes 4 bits, "8-sided dice" and "6-sided dice" consumes 3 bits, "4-sided dice" consumes 2 bits, and "Coin flip" consumes 1 bit.
+Random symbols are generated from the bits using the [Fast Dice Roller](https://arxiv.org/abs/1304.1916) algorithm. "Alphanumeric" consumes approximately 6 bits per symbol, "Full ASCII" consumes 7 bits, "20-sided dice" consumes 5 bits, "Hexadecimal", "Decimal" and "12-sided dice" consumes 4 bits, "8-sided dice" and "6-sided dice" consumes 3 bits, "4-sided dice" consumes 2 bits, and "Coin flip" consumes 1 bit.
 
 To generate bits more quickly, use a radioactive source.
 
 ## Data logging
 
 To log data using Rad Pro, simply select a data logging interval in the settings. The data will be automatically stored.
-
-* On the FS2011, Rad Pro can store up to 31496 data points. At normal radiation levels, this allows for 21 days of data at 1-minute intervals, 54 days at 5-minute intervals, 109 days at 10-minute intervals, 328 days at 30-minute intervals, and 656 days at 60-minute intervals.
-* On the Bosean FS-600 and Bosean FS-1000, Rad Pro can store up to 95880 data points. At normal radiation levels, this allows for 66 days of data at 1-minute intervals, 166 days at 5-minute intervals, 332 days at 10-minute intervals, 998 days at 30-minute intervals, and 1997 days at 60-minute intervals.

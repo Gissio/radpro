@@ -2,7 +2,7 @@
  * Rad Pro
  * STM32 compact math
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */

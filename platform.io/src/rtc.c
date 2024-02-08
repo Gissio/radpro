@@ -2,7 +2,7 @@
  * Rad Pro
  * Real-time clock
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
@@ -14,9 +14,33 @@
 #include "rtc.h"
 #include "settings.h"
 
+static const Menu rtcTimeZoneMenu;
+
+void initRTC(void)
+{
+    initRTCHardware();
+
+    selectMenuItem(&rtcTimeZoneMenu,
+                   settings.rtcTimeZone,
+                   RTC_TIMEZONE_NUM);
+}
+
+static void normalizeDateTime(RTCDateTime *dateTime)
+{
+    if (dateTime->year < RTC_YEAR_MIN)
+        dateTime->year = RTC_YEAR_MIN;
+    if (dateTime->year > RTC_YEAR_MAX)
+        dateTime->year = RTC_YEAR_MAX;
+}
+
+uint32_t getTimeZoneOffset(void)
+{
+    return 3600 * (settings.rtcTimeZone - 12);
+}
+
 // Based on https://howardhinnant.github.io/date_algorithms.html
 
-uint32_t getTimeFromDateTime(struct RTCDateTime *dateTime)
+uint32_t getTimeFromDateTime(const RTCDateTime *dateTime)
 {
     uint32_t year = dateTime->year - (dateTime->month <= 2);
     uint32_t era = year / 400;
@@ -30,7 +54,7 @@ uint32_t getTimeFromDateTime(struct RTCDateTime *dateTime)
     return 86400 * dayOfEpoch + 3600 * dateTime->hour + 60 * dateTime->minute + dateTime->second;
 }
 
-void getDateTimeFromTime(uint32_t time, struct RTCDateTime *dateTime)
+void getDateTimeFromTime(uint32_t time, RTCDateTime *dateTime)
 {
     uint32_t dayOfEpoch = time / 86400 + 719468;
     uint32_t secondsOfDay = time % 86400;
@@ -67,27 +91,29 @@ static uint32_t getDaysInMonth(uint32_t year, uint32_t month)
     return daysInMonth[month - 1];
 }
 
-// RTC menu common
-
-static struct MenuState rtcMenuState;
-
-static struct RTCDateTime rtcCurrentDateTime;
-
-static void normalizeYear(struct RTCDateTime *dateTime)
+void setRTCDateTime(RTCDateTime *dateTime)
 {
-    if (dateTime->year < RTC_YEAR_MIN)
-        dateTime->year = RTC_YEAR_MIN;
-    if (dateTime->year > RTC_YEAR_MAX)
-        dateTime->year = RTC_YEAR_MAX;
+    setRTCTime(getTimeFromDateTime(dateTime) - getTimeZoneOffset());
 }
 
-struct RTCMenuOptionSetting
+void getRTCDateTime(RTCDateTime *dateTime)
+{
+    getDateTimeFromTime(getRTCTime() + getTimeZoneOffset(), dateTime);
+}
+
+// RTC menu common
+
+static MenuState rtcMenuState;
+
+static RTCDateTime rtcCurrentDateTime;
+
+typedef struct
 {
     uint32_t offset;
     uint32_t maxIndex;
-};
+} RTCMenuOptionSetting;
 
-static const struct RTCMenuOptionSetting rtcMenuOptionSettings[] = {
+static const RTCMenuOptionSetting rtcMenuOptionSettings[] = {
     {RTC_YEAR_MIN, 80},
     {1, 12},
     {1, 31},
@@ -95,14 +121,43 @@ static const struct RTCMenuOptionSetting rtcMenuOptionSettings[] = {
     {0, 60},
 };
 
-static const char *onRTCMenuGetOption(const struct Menu *menu, uint32_t index)
+static const char *onRTCSubMenuGetOption(const Menu *menu,
+                                         uint32_t index,
+                                         MenuStyle *menuStyle)
 {
-    uint32_t dateAndTimeIndex = rtcMenuState.selectedIndex;
-    const struct RTCMenuOptionSetting *rtcMenuOptionSetting =
-        &rtcMenuOptionSettings[dateAndTimeIndex];
+    switch (rtcMenuState.selectedIndex)
+    {
+    case 1:
+        *menuStyle = (index == (uint32_t)(rtcCurrentDateTime.year - RTC_YEAR_MIN));
+
+        break;
+
+    case 2:
+        *menuStyle = (index == (uint32_t)(rtcCurrentDateTime.month - 1));
+
+        break;
+
+    case 3:
+        *menuStyle = (index == (uint32_t)(rtcCurrentDateTime.day - 1));
+
+        break;
+
+    case 4:
+        *menuStyle = (index == rtcCurrentDateTime.hour);
+
+        break;
+
+    case 5:
+        *menuStyle = (index == rtcCurrentDateTime.minute);
+
+        break;
+    }
+
+    const RTCMenuOptionSetting *rtcMenuOptionSetting =
+        &rtcMenuOptionSettings[rtcMenuState.selectedIndex - 1];
 
     uint32_t maxIndex = rtcMenuOptionSetting->maxIndex;
-    if (dateAndTimeIndex == 2)
+    if (rtcMenuState.selectedIndex == 3)
         maxIndex = getDaysInMonth(rtcCurrentDateTime.year, rtcCurrentDateTime.month);
 
     if (index < maxIndex)
@@ -116,35 +171,35 @@ static const char *onRTCMenuGetOption(const struct Menu *menu, uint32_t index)
         return NULL;
 }
 
-static void onRTCMenuSelect(const struct Menu *menu)
+static void onRTCSubMenuSelect(const Menu *menu)
 {
-    struct RTCDateTime dateTime;
+    RTCDateTime dateTime;
     getRTCDateTime(&dateTime);
-    normalizeYear(&dateTime);
+    normalizeDateTime(&dateTime);
 
     switch (rtcMenuState.selectedIndex)
     {
-    case 0:
+    case 1:
         dateTime.year = RTC_YEAR_MIN + menu->state->selectedIndex;
 
         break;
 
-    case 1:
+    case 2:
         dateTime.month = 1 + menu->state->selectedIndex;
 
         break;
 
-    case 2:
+    case 3:
         dateTime.day = 1 + menu->state->selectedIndex;
 
         break;
 
-    case 3:
+    case 4:
         dateTime.hour = (uint8_t)menu->state->selectedIndex;
 
         break;
 
-    case 4:
+    case 5:
         dateTime.minute = (uint8_t)menu->state->selectedIndex;
         dateTime.second = 0;
 
@@ -152,142 +207,204 @@ static void onRTCMenuSelect(const struct Menu *menu)
     }
 
     setRTCDateTime(&dateTime);
+    rtcCurrentDateTime = dateTime;
 }
 
-static void onRTCSubMenuBack(const struct Menu *menu)
+static void onRTCSubMenuBack(const Menu *menu)
 {
     setView(&dateAndTimeMenuView);
 }
 
-static struct MenuState rtcItemMenuState;
+static MenuState rtcItemMenuState;
 
-// Year menu
+// Time zone menu
 
-static const struct Menu rtcYearMenu = {
-    "Year",
+static const char *onRTCTimeZoneMenuGetOption(const Menu *menu,
+                                              uint32_t index,
+                                              MenuStyle *menuStyle)
+{
+    if (index >= RTC_TIMEZONE_NUM)
+        return NULL;
+
+    *menuStyle = (index == settings.rtcTimeZone);
+
+    int32_t deltaTimeMinutes = 60 * (index - 12);
+
+    if (deltaTimeMinutes < 0)
+    {
+        strcpy(menuOption, "UTC-");
+
+        deltaTimeMinutes = -deltaTimeMinutes;
+    }
+    else
+        strcpy(menuOption, "UTC+");
+
+    strcatTime(menuOption, deltaTimeMinutes);
+
+    return menuOption;
+}
+
+static void onRTCTimeZoneMenuSelect(const Menu *menu)
+{
+    settings.rtcTimeZone = menu->state->selectedIndex;
+}
+
+static const Menu rtcTimeZoneMenu = {
+    "Time zone",
     &rtcItemMenuState,
-    onRTCMenuGetOption,
-    NULL,
-    onRTCMenuSelect,
-    NULL,
+    onRTCTimeZoneMenuGetOption,
+    onRTCTimeZoneMenuSelect,
     onRTCSubMenuBack,
 };
 
-static const struct View rtcYearMenuView = {
+static const View rtcTimeZoneMenuView = {
+    onMenuEvent,
+    &rtcTimeZoneMenu,
+};
+
+// Year menu
+
+static const Menu rtcYearMenu = {
+    "Year",
+    &rtcItemMenuState,
+    onRTCSubMenuGetOption,
+    onRTCSubMenuSelect,
+    onRTCSubMenuBack,
+};
+
+static const View rtcYearMenuView = {
     onMenuEvent,
     &rtcYearMenu,
 };
 
 // Month menu
 
-static const struct Menu rtcMonthMenu = {
+static const Menu rtcMonthMenu = {
     "Month",
     &rtcItemMenuState,
-    onRTCMenuGetOption,
-    NULL,
-    onRTCMenuSelect,
-    NULL,
+    onRTCSubMenuGetOption,
+    onRTCSubMenuSelect,
     onRTCSubMenuBack,
 };
 
-const struct View rtcMonthMenuView = {
+const View rtcMonthMenuView = {
     onMenuEvent,
     &rtcMonthMenu,
 };
 
 // Day menu
 
-static const struct Menu rtcDayMenu = {
+static const Menu rtcDayMenu = {
     "Day",
     &rtcItemMenuState,
-    onRTCMenuGetOption,
-    NULL,
-    onRTCMenuSelect,
-    NULL,
+    onRTCSubMenuGetOption,
+    onRTCSubMenuSelect,
     onRTCSubMenuBack,
 };
 
-static const struct View rtcDayMenuView = {
+static const View rtcDayMenuView = {
     onMenuEvent,
     &rtcDayMenu,
 };
 
 // Hour menu
 
-static const struct Menu rtcHourMenu = {
+static const Menu rtcHourMenu = {
     "Hour",
     &rtcItemMenuState,
-    onRTCMenuGetOption,
-    NULL,
-    onRTCMenuSelect,
-    NULL,
+    onRTCSubMenuGetOption,
+    onRTCSubMenuSelect,
     onRTCSubMenuBack,
 };
 
-static const struct View rtcHourMenuView = {
+static const View rtcHourMenuView = {
     onMenuEvent,
     &rtcHourMenu,
 };
 
 // Minute menu
 
-static const struct Menu rtcMinuteMenu = {
+static const Menu rtcMinuteMenu = {
     "Minute",
     &rtcItemMenuState,
-    onRTCMenuGetOption,
-    NULL,
-    onRTCMenuSelect,
-    NULL,
+    onRTCSubMenuGetOption,
+    onRTCSubMenuSelect,
     onRTCSubMenuBack,
 };
 
-static const struct View rtcMinuteMenuView = {
+static const View rtcMinuteMenuView = {
     onMenuEvent,
     &rtcMinuteMenu,
 };
 
 // Date and type menu
 
-static void onRTCMenuEnter(const struct Menu *menu)
+static const char *const rtcMenuOptions[] = {
+    "Time zone",
+    "Year",
+    "Month",
+    "Day",
+    "Hour",
+    "Minute",
+    NULL,
+};
+
+static const char *onRTCMenuGetOption(const Menu *menu,
+                                      uint32_t index,
+                                      MenuStyle *menuStyle)
+{
+    *menuStyle = MENUSTYLE_SUBMENU;
+
+    return rtcMenuOptions[index];
+}
+
+static void onRTCMenuSelect(const Menu *menu)
 {
     getRTCDateTime(&rtcCurrentDateTime);
-    normalizeYear(&rtcCurrentDateTime);
+    normalizeDateTime(&rtcCurrentDateTime);
 
-    const struct View *view = NULL;
+    const View *view = NULL;
     uint32_t menuIndex = 0;
     uint32_t optionsNum;
 
     switch (rtcMenuState.selectedIndex)
     {
     case 0:
+        view = &rtcTimeZoneMenuView;
+        menuIndex = settings.rtcTimeZone;
+        optionsNum = RTC_TIMEZONE_NUM;
+
+        break;
+
+    case 1:
         view = &rtcYearMenuView;
         menuIndex = rtcCurrentDateTime.year - RTC_YEAR_MIN;
         optionsNum = RTC_YEAR_NUM;
 
         break;
 
-    case 1:
+    case 2:
         view = &rtcMonthMenuView;
         menuIndex = rtcCurrentDateTime.month - 1;
         optionsNum = 12;
 
         break;
 
-    case 2:
+    case 3:
         view = &rtcDayMenuView;
         menuIndex = rtcCurrentDateTime.day - 1;
         optionsNum = getDaysInMonth(rtcCurrentDateTime.year, rtcCurrentDateTime.month);
 
         break;
 
-    case 3:
+    case 4:
         view = &rtcHourMenuView;
         menuIndex = rtcCurrentDateTime.hour;
         optionsNum = 24;
 
         break;
 
-    case 4:
+    case 5:
         view = &rtcMinuteMenuView;
         menuIndex = rtcCurrentDateTime.minute;
         optionsNum = 60;
@@ -295,30 +412,21 @@ static void onRTCMenuEnter(const struct Menu *menu)
         break;
     }
 
-    selectMenuIndex((const struct Menu *)view->userdata, menuIndex, optionsNum);
+    selectMenuItem((const Menu *)view->userdata,
+                   menuIndex,
+                   optionsNum);
     setView(view);
 }
 
-static const char *const rtcMenuOptions[] = {
-    "Year",
-    "Month",
-    "Day",
-    "Hour",
-    "Minute",
-    NULL,
-};
-
-static const struct Menu rtcMenu = {
+static const Menu rtcMenu = {
     "Date and time",
     &rtcMenuState,
-    onMenuGetOption,
-    rtcMenuOptions,
-    NULL,
-    onRTCMenuEnter,
+    onRTCMenuGetOption,
+    onRTCMenuSelect,
     onSettingsSubMenuBack,
 };
 
-const struct View dateAndTimeMenuView = {
+const View dateAndTimeMenuView = {
     onMenuEvent,
     &rtcMenu,
 };

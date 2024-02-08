@@ -2,13 +2,12 @@
  * Rad Pro
  * Compact math
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
 
 #if !defined(CMATH_H)
-
 #define CMATH_H
 
 #include <stdbool.h>
@@ -31,9 +30,7 @@ float sqrtf(float x);
 
 void addClamped(uint32_t *x, uint32_t y);
 
-void getConfidenceIntervals(float *lowerConfidenceInterval,
-                            float *upperConfidenceInterval,
-                            uint32_t n);
+float getConfidenceInterval(uint32_t n);
 
 bool getRandomBit(void);
 

@@ -2,7 +2,7 @@
  * Rad Pro
  * SDLSim ADC
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
@@ -24,7 +24,7 @@ uint32_t readADC(uint8_t channel, uint8_t sampleTime)
 
 uint32_t readBatteryValue(void)
 {
-    return 3300;
+    return 3200;
 }
 
 uint32_t readDeviceTemperatureValue(void)
@@ -32,7 +32,7 @@ uint32_t readDeviceTemperatureValue(void)
     return 242;
 }
 
-void updateADCHardware(void)
+void updateADC(void)
 {
 }
 

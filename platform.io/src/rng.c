@@ -2,7 +2,7 @@
  * Rad Pro
  * Random number generator
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
@@ -38,7 +38,7 @@ enum RNGMode
 static const uint8_t rngModeRanges[] = {62, 94, 16, 10, 2, 4, 6, 8, 12, 20};
 
 static const char *const rngModeMenuOptions[] = {
-    "Letters & numbers",
+    "Alphanumeric",
     "Full ASCII",
     "Hexadecimal",
     "Decimal",
@@ -65,7 +65,7 @@ static struct
 
     uint32_t pulseIndex;
     uint32_t pulseTimeSecondToLast;
-    uint32_t pulseTimeLast;
+    uint32_t lastPulseTimeCount;
     bool bitFlip;
 
     enum RNGMode mode;
@@ -77,7 +77,7 @@ static struct
     uint8_t activityIndicator;
 } rng;
 
-extern const struct View rngView;
+extern const View rngView;
 
 static void enqueueBit(bool bit)
 {
@@ -126,15 +126,15 @@ void onRNGPulse(uint32_t pulseTime)
         break;
 
     case 1:
-        rng.pulseTimeLast = pulseTime;
+        rng.lastPulseTimeCount = pulseTime;
         rng.pulseIndex++;
 
         break;
 
     case 2:
     {
-        uint32_t duration1 = rng.pulseTimeLast - rng.pulseTimeSecondToLast;
-        uint32_t duration2 = pulseTime - rng.pulseTimeLast;
+        uint32_t duration1 = rng.lastPulseTimeCount - rng.pulseTimeSecondToLast;
+        uint32_t duration2 = pulseTime - rng.lastPulseTimeCount;
 
         if (duration1 != duration2)
         {
@@ -277,33 +277,40 @@ static void updateFastDiceRollerText(void)
 
 // RNG menu
 
-static void onRNGMenuEnter(const struct Menu *menu)
+static const char *onRNGMenuGetOption(const Menu *menu,
+                                      uint32_t index,
+                                      MenuStyle *menuStyle)
+{
+    *menuStyle = MENUSTYLE_SUBMENU;
+
+    return rngModeMenuOptions[index];
+}
+
+static void onRNGMenuSelect(const Menu *menu)
 {
     initFastDiceRoller(menu->state->selectedIndex);
 
     setView(&rngView);
 }
 
-static struct MenuState rngMenuState;
+static MenuState rngMenuState;
 
-static const struct Menu rngMenu = {
-    "Random number generator",
+static const Menu rngMenu = {
+    "Random generator",
     &rngMenuState,
-    onMenuGetOption,
-    rngModeMenuOptions,
-    NULL,
-    onRNGMenuEnter,
+    onRNGMenuGetOption,
+    onRNGMenuSelect,
     onSettingsSubMenuBack,
 };
 
-const struct View rngMenuView = {
+const View rngMenuView = {
     onMenuEvent,
     &rngMenu,
 };
 
 // RNG view
 
-static void onRNGEvent(const struct View *view, enum Event event)
+static void onRNGEvent(const View *view, enum Event event)
 {
     switch (event)
     {
@@ -316,17 +323,20 @@ static void onRNGEvent(const struct View *view, enum Event event)
     {
         updateFastDiceRollerText();
 
-        drawTitle(rngModeMenuOptions[rng.mode]);
-
+        const char *stateString;
         if (rng.activityIndicator)
         {
-            drawSubtitle(rngActivitySubtitles[rng.activityIndicator - 1]);
+            stateString = rngActivitySubtitles[rng.activityIndicator - 1];
             rng.activityIndicator++;
             if (rng.activityIndicator > 3)
                 rng.activityIndicator = 1;
         }
+        else
+            stateString = "";
 
-        drawRNGText(rng.text);
+        drawRNG(rngModeMenuOptions[rng.mode],
+                rng.text,
+                stateString);
 
         break;
     }
@@ -336,7 +346,7 @@ static void onRNGEvent(const struct View *view, enum Event event)
     }
 }
 
-const struct View rngView = {
+const View rngView = {
     onRNGEvent,
     NULL,
 };

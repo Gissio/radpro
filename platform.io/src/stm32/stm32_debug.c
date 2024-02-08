@@ -2,7 +2,7 @@
  * Rad Pro
  * STM32 debugging
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */

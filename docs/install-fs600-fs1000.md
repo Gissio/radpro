@@ -80,3 +80,26 @@ Next, run this command in the terminal:
 ## Step 6: Show your support
 
 If you like Rad Pro, consider showing your support by starring the project on GitHub. Your support is greatly appreciated.
+
+## Hardware-specific notes
+
+On the Bosean FS-600, the keys are mapped as follows:
+
+  * Power on/off: Long-press POWER key.
+  * Go up/down: UP and DOWN keys.
+  * Enter menu/select option: RIGHT/CONFIG key
+  * Go back/hold measurement: BACK key.
+  * Reset measurement: Long-press BACK key.
+
+Not all FS-600 devices support the pulse LED.
+
+On the Bosean FS-1000, the keys are mapped as follows:
+
+  * Power on/off: Extended press of the SET/POWER key.
+  * Go up: MODE key.
+  * Go down: SET/POWER key.
+  * Enter menu/select option: Long-press SET/POWER key.
+  * Go back/hold measurement: Long-press MODE key.
+  * Reset measurement: Long-press both MODE and SET/POWER keys.
+
+On the Bosean FS-600 and Bosean FS-1000, Rad Pro can store up to 95880 data points. At normal radiation levels, this allows for 66 days of data at 1-minute intervals, 166 days at 5-minute intervals, 332 days at 10-minute intervals, 998 days at 30-minute intervals, and 1997 days at 60-minute intervals.

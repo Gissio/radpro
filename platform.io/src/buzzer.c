@@ -2,7 +2,7 @@
  * Rad Pro
  * Buzzer
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
@@ -12,13 +12,15 @@
 #include "menu.h"
 #include "settings.h"
 
-static const struct Menu pulseClicksMenu;
+static const Menu pulseClicksMenu;
 
 void initBuzzer(void)
 {
     initBuzzerHardware();
 
-    selectMenuIndex(&pulseClicksMenu, settings.pulseClicks, PULSE_CLICKS_NUM);
+    selectMenuItem(&pulseClicksMenu,
+                   settings.pulseClicks,
+                   PULSE_CLICKS_NUM);
 }
 
 void playSystemAlert(void)
@@ -34,11 +36,6 @@ void playSystemAlert(void)
 
 // Pulse clicks menu
 
-static void onPulseClicksMenuSelect(const struct Menu *menu)
-{
-    settings.pulseClicks = menu->state->selectedIndex;
-}
-
 static const char *const pulseClicksMenuOptions[] = {
     "Off",
     "Quiet",
@@ -46,19 +43,31 @@ static const char *const pulseClicksMenuOptions[] = {
     NULL,
 };
 
-static struct MenuState pulseClicksMenuState;
+static const char *onPulseClicksMenuGetOption(const Menu *menu,
+                                              uint32_t index,
+                                              MenuStyle *menuStyle)
+{
+    *menuStyle = (index == settings.pulseClicks);
 
-static const struct Menu pulseClicksMenu = {
+    return pulseClicksMenuOptions[index];
+}
+
+static void onPulseClicksMenuSelect(const Menu *menu)
+{
+    settings.pulseClicks = menu->state->selectedIndex;
+}
+
+static MenuState pulseClicksMenuState;
+
+static const Menu pulseClicksMenu = {
     "Pulse clicks",
     &pulseClicksMenuState,
-    onMenuGetOption,
-    pulseClicksMenuOptions,
+    onPulseClicksMenuGetOption,
     onPulseClicksMenuSelect,
-    NULL,
     onSettingsSubMenuBack,
 };
 
-const struct View pulseClicksMenuView = {
+const View pulseClicksMenuView = {
     onMenuEvent,
     &pulseClicksMenu,
 };

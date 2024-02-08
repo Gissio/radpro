@@ -2,7 +2,7 @@
  * Rad Pro
  * SDLSim Geiger-Müller tube
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
@@ -24,7 +24,7 @@
 
 #endif
 
-#define SIM_CPS_LOW 0.375F
+#define SIM_CPS 0.3825F
 
 static struct
 {
@@ -36,13 +36,18 @@ static struct
 
 void initTubeHardware(void)
 {
+    srand(time(NULL));
+}
+
+void setTubeHV(bool value)
+{
 }
 
 void updateTubeHV(void)
 {
 }
 
-void syncHVPulse(void)
+void syncTubeHV(void)
 {
 }
 
@@ -72,7 +77,7 @@ uint32_t simPulses(void)
 {
     const Uint8 *state = SDL_GetKeyboardState(NULL);
 
-    double cps = SIM_CPS_LOW;
+    double cps = SIM_CPS;
     if (state[SDL_SCANCODE_5])
         cps *= 100000;
     else if (state[SDL_SCANCODE_4])
@@ -84,7 +89,7 @@ uint32_t simPulses(void)
     else if (state[SDL_SCANCODE_1])
         cps *= 10;
 
-    return getPoisson(cps / SYS_TICK_FREQUENCY);
+    return getPoisson(cps / SYSTICK_FREQUENCY);
 }
 
 bool getTubePulse(uint32_t *pulseTime)
@@ -103,8 +108,8 @@ bool getTubePulse(uint32_t *pulseTime)
 
     *pulseTime =
         tube.pulseTime +
-        (uint32_t) (8000 * (tube.pulseIndex + getUniformRandomValue()) /
-            tube.pulseCount);
+        (uint32_t)(8000 * (tube.pulseIndex + getUniformRandomValue()) /
+                   tube.pulseCount);
 
     return true;
 }

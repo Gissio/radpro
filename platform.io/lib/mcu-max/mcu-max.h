@@ -2,7 +2,7 @@
  * mcu-max 1.0
  * Chess engine for low-resource MCUs
  *
- * (C) 2022 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  *
@@ -108,7 +108,7 @@ mcumax_move mcumax_search_best_move(uint32_t node_max, uint32_t depth_max);
 bool mcumax_play_move(mcumax_move move);
 
 /**
- * @brief Sets the user callback, which is called periodically during search
+ * @brief Sets the user callback, which is called periodically during search.
  */
 void mcumax_set_callback(mcumax_callback callback, void *userdata);
 

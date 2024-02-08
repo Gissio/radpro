@@ -2,7 +2,7 @@
  * Rad Pro
  * SDLSim real-time clock
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
@@ -14,50 +14,26 @@
 
 #include "../rtc.h"
 
-#define SDLSIM_RTC_REALTIME
+static int32_t timeDelta;
 
-static uint32_t currentTime;
-
-void initRTC(void)
+void initRTCHardware(void)
 {
-    currentTime = RTC_TIME_START;
+    timeDelta = 0;
 }
 
-void setRTCDateTime(struct RTCDateTime *dateTime)
+static uint32_t getLocalTime(void)
 {
-    currentTime = getTimeFromDateTime(dateTime);
+    return time(NULL);
 }
 
-void getRTCDateTime(struct RTCDateTime *dateTime)
+void setRTCTime(uint32_t value)
 {
-#if defined(SDLSIM_RTC_REALTIME)
-
-    uint32_t time = getRTCTime();
-    getDateTimeFromTime(time, dateTime);
-
-#else
-
-    getDateTimeFromTime(currentTime, dateTime);
-
-#endif
-}
-
-void setRTCTime(uint32_t time)
-{
-    currentTime = time;
+    timeDelta = value - getLocalTime();
 }
 
 uint32_t getRTCTime(void)
 {
-#if defined(SDLSIM_RTC_REALTIME)
-
-    return (uint32_t)time(NULL);
-
-#else
-
-    return currentTime;
-
-#endif
+    return getLocalTime() + timeDelta;
 }
 
 #endif

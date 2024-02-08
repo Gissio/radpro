@@ -2,13 +2,12 @@
  * Rad Pro
  * Compact formatting
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
 
 #if !defined(FORMAT_H)
-
 #define FORMAT_H
 
 #include <stdbool.h>

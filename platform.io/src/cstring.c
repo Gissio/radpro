@@ -2,7 +2,7 @@
  * Rad Pro
  * Compact formatting
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
@@ -62,8 +62,6 @@ bool parseUInt32(char *str, uint32_t *value)
 
 void strcatTime(char *str, uint32_t time)
 {
-    str += strlen(str);
-
     uint32_t seconds = time % 60;
     uint32_t minutes = (time / 60) % 60;
     uint32_t hours = time / 3600;
@@ -91,7 +89,12 @@ static uint32_t getDecimalPower(uint32_t exponent)
 
 void strcatFloat(char *str, float value, uint32_t fractionalDecimals)
 {
-    str += strlen(str);
+    if (value < 0)
+    {
+        value = -value;
+
+        strcat(str, "-");
+    }
 
     float decimalPower = (float)getDecimalPower(fractionalDecimals);
 
@@ -108,14 +111,14 @@ void strcatFloat(char *str, float value, uint32_t fractionalDecimals)
     }
 }
 
-struct MetricPower
+typedef struct
 {
     float decimalPower;
     float maxValue;
     char prefix[4];
-};
+} MetricPower;
 
-const struct MetricPower metricPowers[] = {
+const MetricPower metricPowers[] = {
     {1E-6F, 999.95E-6F, "\xb5"},
     {1E-3F, 999.95E-3F, "m"},
     {1E0F, 999.95E0F, ""},
@@ -125,12 +128,10 @@ const struct MetricPower metricPowers[] = {
     {FLT_MAX, FLT_MAX, ""},
 };
 
-#define METRIC_POWERS_NUM (sizeof(metricPowers) / sizeof(struct MetricPower))
+#define METRIC_POWERS_NUM (sizeof(metricPowers) / sizeof(MetricPower))
 
 void strcatFloatWithMetricPrefix(char *str, float value, uint32_t minMetricPower)
 {
-    str += strlen(str);
-
     float decimalPower = 0;
     const char *prefix = NULL;
     for (uint32_t i = minMetricPower; i < METRIC_POWERS_NUM; i++)
@@ -161,8 +162,6 @@ void strcatFloatWithMetricPrefix(char *str, float value, uint32_t minMetricPower
 
 void strcatDecimalPowerWithMetricPrefix(char *str, int32_t exponent)
 {
-    str += strlen(str);
-
     uint32_t metricPowerIndex;
     if (exponent < -6)
     {

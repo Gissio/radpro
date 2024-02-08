@@ -2,7 +2,7 @@
  * Rad Pro
  * Compact math
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
@@ -21,22 +21,14 @@ void addClamped(uint32_t *px, uint32_t y)
         *px += y;
 }
 
-void getConfidenceIntervals(float *lowerConfidenceInterval,
-                            float *upperConfidenceInterval,
-                            uint32_t n)
+float getConfidenceInterval(uint32_t n)
 {
     // Patel, V. - Comparison of Confidence Intervals for the Poisson Mean: Some New Aspects (2012)
 
     if (n <= 1)
-    {
-        *lowerConfidenceInterval = -0.97468219201571F;
-        *upperConfidenceInterval = 2.6888794541139354F;
-    }
+        return 2.6888794541139354F;
     else if (n == 2)
-    {
-        *lowerConfidenceInterval = -0.8788953607280174F;
-        *upperConfidenceInterval = 1.785821695469449F;
-    }
+        return 1.785821695469449F;
     else
     {
         // Normal approximation
@@ -45,8 +37,7 @@ void getConfidenceIntervals(float *lowerConfidenceInterval,
 
         // First order correction
 
-        *lowerConfidenceInterval = -normalApproximation + 0.97763241F / (-0.11683061F + n);
-        *upperConfidenceInterval = normalApproximation + 0.92095147F / (0.34074598F + n);
+        return normalApproximation + 0.92095147F / (0.34074598F + n);
     }
 }
 

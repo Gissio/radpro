@@ -2,7 +2,7 @@
  * Rad Pro
  * Debugging
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
@@ -16,6 +16,7 @@
 #include "display.h"
 #include "events.h"
 #include "keyboard.h"
+#include "pulseled.h"
 
 #define DEBUG_BIT_LENGTH 100
 #define DEBUG_BIT0_LENGTH 1
@@ -26,17 +27,13 @@ void debugBeep(void)
     setBuzzer(true);
 
 #if defined(PULSE_LED)
-
     setPulseLED(true);
-
 #endif
 
     sleep(100);
 
 #if defined(PULSE_LED)
-
     setPulseLED(false);
-
 #endif
 
     setBuzzer(false);
@@ -117,107 +114,61 @@ extern const uint8_t font_tiny5[];
 
 void debugTestMode(void)
 {
-    setDisplay(true);
-
     uint32_t state = 0;
 
     while (true)
     {
-        triggerDisplay();
-
-        clearDisplayBuffer();
-
-        char line[128];
-        uint32_t value;
-
-        value = GPIOA_IDR;
-        strcpy(line, "GPIOA: ");
-        strcatUInt32Hex(line, value);
-        drawTextLeft(line, font_tiny5, 2, 8);
-
-        value = GPIOB_IDR;
-        strcpy(line, "GPIOB: ");
-        strcatUInt32Hex(line, value);
-        drawTextLeft(line, font_tiny5, 66, 8);
-
-        value = GPIOC_IDR;
-        strcpy(line, "GPIOC: ");
-        strcatUInt32Hex(line, value);
-        drawTextLeft(line, font_tiny5, 2, 16);
-
-        value = GPIOD_IDR;
-        strcpy(line, "GPIOD: ");
-        strcatUInt32Hex(line, value);
-        drawTextLeft(line, font_tiny5, 66, 16);
-
-        value = readADC(1, 0x7);
-        strcpy(line, "ADC1: ");
-        strcatUInt16Hex(line, value);
-        drawTextLeft(line, font_tiny5, 2, 24);
-
-        value = readADC(2, 0x7);
-        strcpy(line, "ADC2: ");
-        strcatUInt16Hex(line, value);
-        drawTextLeft(line, font_tiny5, 66, 24);
-
-        value = readADC(4, 0x7);
-        strcpy(line, "ADC4: ");
-        strcatUInt16Hex(line, value);
-        drawTextLeft(line, font_tiny5, 2, 32);
-
-        value = readADC(6, 0x7);
-        strcpy(line, "ADC6: ");
-        strcatUInt16Hex(line, value);
-        drawTextLeft(line, font_tiny5, 66, 32);
-
-        value = readADC(7, 0x7);
-        strcpy(line, "ADC7: ");
-        strcatUInt16Hex(line, value);
-        drawTextLeft(line, font_tiny5, 2, 40);
-
-        value = readADC(8, 0x7);
-        strcpy(line, "ADC8: ");
-        strcatUInt16Hex(line, value);
-        drawTextLeft(line, font_tiny5, 66, 40);
+        char lines[8][32];
 
         enum Event event = getKeyboardEvent();
         if (event == EVENT_KEY_UP)
         {
             state++;
-            state &= 0b11;
+            if (state > 3)
+                state = 0;
         }
 
-        strcpy(line, "PA11: ");
-        if ((state & 0b10) == 0)
-        {
-            strcat(line, "0");
-
-            gpio_clear(GPIOA, GPIO11);
-        }
-        else
-        {
-            strcat(line, "1");
-
-            gpio_set(GPIOA, GPIO11);
-        }
-        drawTextLeft(line, font_tiny5, 2, 48);
-
-        strcpy(line, "PB0: ");
         if ((state & 0b01) == 0)
-        {
-            strcat(line, "0");
-
             gpio_clear(GPIOB, GPIO0);
-        }
         else
-        {
-            strcat(line, "1");
-
             gpio_set(GPIOB, GPIO0);
-        }
-        drawTextLeft(line, font_tiny5, 66, 48);
 
-        sendDisplayBuffer();
+        if ((state & 0b10) == 0)
+            gpio_clear(GPIOA, GPIO11);
+        else
+            gpio_set(GPIOA, GPIO11);
+
+        triggerBacklight();
+
+        drawTestMode(lines);
+
+        strcpy(lines[0], "GPIOA: ");
+        strcatUInt32Hex(lines[0], GPIOA_IDR);
+
+        strcpy(lines[1], "GPIOB: ");
+        strcatUInt32Hex(lines[1], GPIOB_IDR);
+
+        strcpy(lines[2], "GPIOC: ");
+        strcatUInt32Hex(lines[2], GPIOC_IDR);
+
+        strcpy(lines[3], "GPIOD: ");
+        strcatUInt32Hex(lines[3], GPIOD_IDR);
+
+        strcpy(lines[4], "ADC1: ");
+        strcatUInt32Hex(lines[4], readADC(1, 0x7));
+
+        strcpy(lines[5], "ADC2: ");
+        strcatUInt32Hex(lines[5], readADC(2, 0x7));
+
+        strcpy(lines[6], "ADC3: ");
+        strcatUInt32Hex(lines[6], readADC(3, 0x7));
+
+        strcpy(lines[7], "OUT: ");
+        strcatUInt32Hex(lines[7], state);
+
+        drawTestMode(lines);
+
+        refreshDisplay();
 
         sleep(200);
     }

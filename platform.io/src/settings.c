@@ -2,13 +2,16 @@
  * Rad Pro
  * Settings
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
 
 #include <limits.h>
 #include <stdbool.h>
+#if defined(SDLSIM)
+#include <time.h>
+#endif
 
 #include "buzzer.h"
 #include "datalog.h"
@@ -17,81 +20,82 @@
 #include "game.h"
 #include "measurements.h"
 #include "power.h"
+#include "pulseled.h"
 #include "rng.h"
 #include "rtc.h"
 #include "settings.h"
 #include "system.h"
 #include "tube.h"
 
-struct SettingsDoseTube
+typedef struct
 {
-    struct Settings settings;
+    Settings settings;
 
-    struct Dose dose;
-    struct Dose tube;
-};
+    Dose dose;
+    Dose tube;
+} SettingsDoseTube;
 
-struct Settings settings;
+Settings settings;
 
-static struct SettingsDoseTube *getSettingsDoseTube(struct FlashIterator *iterator);
+static SettingsDoseTube *getSettingsDoseTube(FlashIterator *iterator);
 
 void initSettings(void)
 {
     // Default values
 
-    settings.pulseClicks = PULSE_CLICKS_QUIET;
+    settings.tubeConversionFactor = TUBE_CONVERSIONFACTOR_DEFAULT;
+    settings.tubeHVFrequency = TUBE_FACTORYDEFAULT_HVFREQUENCY;
+    settings.tubeHVDutyCycle = TUBE_FACTORYDEFAULT_HVDUTYCYCLE;
 
 #if defined(PULSE_LED)
-
     settings.pulseLED = PULSE_LED_ON;
-
 #endif
-
-#if defined(DISPLAY_MONO)
-
-    settings.displayBacklight = DISPLAY_BACKLIGHT_30S;
-
-#elif defined(DISPLAY_COLOR)
-
-    settings.displayBrightnessLevel = DISPLAY_BRIGHTNESS_HIGH;
-    settings.displaySleep = DISPLAY_SLEEP_30S;
-
+    settings.pulseClicks = PULSE_CLICKS_QUIET;
+    settings.displayTimer = DISPLAY_TIMER_30S;
+#if defined(DISPLAY_MONOCHROME)
+    settings.displayContrast = DISPLAY_CONTRAST_DEFAULT;
 #endif
-
-    settings.tubeHVFrequency = 5;
+#if defined(SDLSIM)
+    settings.displayBrightness = DISPLAY_BRIGHTNESS_VERYHIGH;
+    time_t unixTime = time(NULL);
+    struct tm *localTM = gmtime(&unixTime);
+    time_t localTime = mktime(localTM);
+    settings.rtcTimeZone = 12 + (unixTime - localTime) / 3600;
+#else
+    settings.displayBrightness = DISPLAY_BRIGHTNESS_HIGH;
+    settings.rtcTimeZone = RTC_TIMEZONE_P0000;
+#endif
 
     // Read settings
 
-    struct FlashIterator iterator;
-
+    FlashIterator iterator;
     iterator.region = &flashSettingsRegion;
-
-    struct SettingsDoseTube *settingsDoseTube = getSettingsDoseTube(&iterator);
+    SettingsDoseTube *settingsDoseTube = getSettingsDoseTube(&iterator);
 
     if (settingsDoseTube)
     {
-        settings = settingsDoseTube->settings;
-        setDoseTime(settingsDoseTube->dose.time);
-        setDosePulseCount(settingsDoseTube->dose.pulseCount);
-        setTubeTime(settingsDoseTube->tube.time);
-        setTubePulseCount(settingsDoseTube->tube.pulseCount);
+        // settings = settingsDoseTube->settings;
+        // setDoseTime(settingsDoseTube->dose.time);
+        // setDosePulseCount(settingsDoseTube->dose.pulseCount);
+        // setTubeTime(settingsDoseTube->tube.time);
+        // setTubePulseCount(settingsDoseTube->tube.pulseCount);
     }
 }
 
-static struct SettingsDoseTube *getSettingsDoseTube(struct FlashIterator *iterator)
+static SettingsDoseTube *getSettingsDoseTube(FlashIterator *iterator)
 {
     setFlashPageHead(iterator);
 
     uint8_t *page = getFlash(iterator);
 
-    struct SettingsDoseTube *settingsDoseTube = NULL;
+    SettingsDoseTube *settingsDoseTube = NULL;
 
     for (iterator->index = 0;
-         iterator->index <= flashPageDataSize - sizeof(struct SettingsDoseTube);
-         iterator->index += sizeof(struct SettingsDoseTube))
+         iterator->index <= flashPageDataSize - sizeof(SettingsDoseTube);
+         iterator->index += sizeof(SettingsDoseTube))
     {
-        if (!((struct SettingsDoseTube *)&page[iterator->index])->settings.empty)
-            settingsDoseTube = (struct SettingsDoseTube *)&page[iterator->index];
+        if (!((SettingsDoseTube *)&page[iterator->index])->settings.entryEmpty)
+            settingsDoseTube = (SettingsDoseTube *)&page[iterator->index];
         else
             break;
     }
@@ -101,13 +105,13 @@ static struct SettingsDoseTube *getSettingsDoseTube(struct FlashIterator *iterat
 
 void writeSettings(void)
 {
-    struct FlashIterator iterator;
+    FlashIterator iterator;
 
     iterator.region = &flashSettingsRegion;
 
     getSettingsDoseTube(&iterator);
 
-    struct SettingsDoseTube settingsDoseTube;
+    SettingsDoseTube settingsDoseTube;
 
     settingsDoseTube.settings = settings;
     settingsDoseTube.dose.time = getDoseTime();
@@ -117,116 +121,68 @@ void writeSettings(void)
 
     programFlashPage(&iterator,
                      (uint8_t *)&settingsDoseTube,
-                     sizeof(struct SettingsDoseTube));
+                     sizeof(SettingsDoseTube));
 }
 
 // Settings Menu
 
-static const char *const settingsMenuOptions[] = {
-    "Units",
-    "Average timer",
-    "Rate alarm",
-    "Dose alarm",
-    "Pulse clicks",
-
+static const OptionView settingsMenuOptions[] = {
+    {"Units", &unitsMenuView},
+    {"Average timer", &averageTimerMenuView},
+    {"Rate alarm", &rateAlarmMenuView},
+    {"Dose alarm", &doseAlarmMenuView},
+    {"Data logging", &datalogMenuView},
+    {"Geiger tube", &tubeMenuView},
 #if defined(PULSE_LED)
-
-    "Pulse LED",
-
+    {"Pulse LED", &pulseLEDMenuView},
 #endif
-
-#if defined(DISPLAY_MONO)
-
-    "Backlight",
-
-#elif defined(DISPLAY_COLOR)
-
-    "Display",
-
-#endif
-
-    "Date and time",
-    "Data logging",
-    "Geiger tube",
-
+    {"Pulse clicks", &pulseClicksMenuView},
+    {"Display", &displayMenuView},
+    {"Date and time", &dateAndTimeMenuView},
 #if defined(BATTERY_REMOVABLE)
-
-    "Battery type",
-
+    {"Battery type", &batteryTypeMenuView},
 #endif
-
-    "Random number generator",
-    "Statistics",
-    "Game",
-    NULL,
+    {"Random generator", &rngMenuView},
+    {"Game", &gameMenuView},
+    {"Statistics", &statisticsView},
+    {NULL},
 };
 
-static const struct View *settingsMenuOptionViews[] = {
-    &unitsMenuView,
-    &averageTimerMenuView,
-    &rateAlarmMenuView,
-    &doseAlarmMenuView,
-    &pulseClicksMenuView,
-
-#if defined(PULSE_LED)
-
-    &pulseLEDMenuView,
-
-#endif
-
-#if defined(DISPLAY_MONO)
-
-    &backlightMenuView,
-
-#elif defined(DISPLAY_COLOR)
-
-    &displayMenuView,
-
-#endif
-
-    &dateAndTimeMenuView,
-    &datalogMenuView,
-    &tubeMenuView,
-
-#if defined(BATTERY_REMOVABLE)
-
-    &batteryTypeMenuView,
-
-#endif
-
-    &rngMenuView,
-    &statisticsView,
-    &gameMenuView,
-};
-
-static void onSettingsMenuEnter(const struct Menu *menu)
+static const char *onSettingsMenuGetOption(const Menu *menu,
+                                           uint32_t index,
+                                           MenuStyle *menuStyle)
 {
-    setView(settingsMenuOptionViews[menu->state->selectedIndex]);
+    *menuStyle = MENUSTYLE_SUBMENU;
+
+    return settingsMenuOptions[index].option;
 }
 
-static void onSettingsMenuBack(const struct Menu *menu)
+static void onSettingsMenuSelect(const Menu *menu)
+{
+    setView(settingsMenuOptions[menu->state->selectedIndex].view);
+}
+
+static void onSettingsMenuBack(const Menu *menu)
 {
     setMeasurementView(-1);
 }
 
-void onSettingsSubMenuBack(const struct Menu *menu)
+void onSettingsSubMenuBack(const Menu *menu)
 {
     setView(&settingsMenuView);
 }
 
-static struct MenuState settingsMenuState;
+static MenuState settingsMenuState;
 
-static const struct Menu settingsMenu = {
+static const Menu settingsMenu = {
     "Settings",
     &settingsMenuState,
-    onMenuGetOption,
-    settingsMenuOptions,
-    NULL,
-    onSettingsMenuEnter,
+    onSettingsMenuGetOption,
+    onSettingsMenuSelect,
     onSettingsMenuBack,
 };
 
-const struct View settingsMenuView = {
+const View settingsMenuView = {
     onMenuEvent,
     &settingsMenu,
 };

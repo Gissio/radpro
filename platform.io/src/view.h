@@ -2,13 +2,12 @@
  * Rad Pro
  * User interface view
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
 
 #if !defined(VIEW_H)
-
 #define VIEW_H
 
 enum Event
@@ -26,21 +25,27 @@ enum Event
     EVENT_NONE,
 };
 
-struct View;
+typedef struct View_ View;
 
-typedef void OnEvent(const struct View *view, enum Event event);
+typedef void OnEvent(const View *view, enum Event event);
 
-struct View
+struct View_
 {
     OnEvent *onEvent;
     const void *userdata;
 };
 
+typedef struct
+{
+    const char *option;
+    const View *view;
+} OptionView;
+
+void dispatchViewEvents(void);
+
+void setView(const View *view);
+const View *getView(void);
+
 void updateView(void);
-
-void setView(const struct View *view);
-const struct View *getView(void);
-
-void refreshView(void);
 
 #endif

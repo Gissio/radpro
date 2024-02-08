@@ -2,7 +2,7 @@
  * Rad Pro
  * STM32 ADC
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
@@ -77,8 +77,11 @@ void initADC(void)
 
 #if defined(STM32F0) && defined(GD32)
 
-    rcc_osc_on(RCC_HSI14);
-    rcc_wait_for_osc_ready(RCC_HSI14);
+    // rcc_osc_on(RCC_HSI14);
+    RCC_CR2 |= RCC_CR2_HSI14ON;
+    // rcc_wait_for_osc_ready(RCC_HSI14);
+    while (!(RCC_CR2 & RCC_CR2_HSI14RDY))
+        ;
 
     adc_channel_length_config(ADC_REGULAR_CHANNEL, 1);
     adc_external_trigger_source_config(ADC_REGULAR_CHANNEL, ADC_EXTTRIG_REGULAR_NONE);
@@ -135,32 +138,31 @@ uint32_t readADC(uint8_t channel, uint8_t sampleTime)
 
 #elif defined(STM32F1)
 
-    adc_set_regular_sequence(ADC1, 1, &channel);
-    adc_set_sample_time_on_all_channels(ADC1, sampleTime);
+    // adc_set_regular_sequence(ADC1, 1, &channel);
+    // ADC_SQR1(ADC1) = (1 - 1) << ADC_SQR1_L_SHIFT;
+	// ADC_SQR2(ADC1) = 0;
+	ADC_SQR3(ADC1) = channel;
+
+    // adc_set_sample_time_on_all_channels(ADC1, sampleTime);
+    value = 0;
+    for (uint32_t i = 0; i < 10; i++)
+		value |= (value << 3) | sampleTime;
+	ADC_SMPR1(ADC1) = value;
+	ADC_SMPR2(ADC1) = value;
 
 #endif
 
     // ADC conversion
 
-    for (uint32_t i = 0; i < 16; i++)
-    {
-#if defined(DISPLAY_MONO)
-
-        if (getBacklight() || getBuzzer())
-
-#elif defined(DISPLAY_COLOR)
-
-        if (getBuzzer())
-
+#if defined(STM32F0) || defined(STM32G0)
+    adc_power_on(ADC1);
 #endif
-            sleep(1);
-        else
-            break;
-    }
+
+    syncBuzzer();
+    syncDisplayBacklight();
+    syncTubeHV();
 
 #if defined(STM32F0) && defined(GD32)
-
-    syncHVPulse();
 
     adc_software_trigger_enable(ADC_REGULAR_CHANNEL);
 
@@ -173,10 +175,6 @@ uint32_t readADC(uint8_t channel, uint8_t sampleTime)
 
 #elif defined(STM32F0) || defined(STM32G0)
 
-    adc_power_on(ADC1);
-
-    syncHVPulse();
-
     adc_start_conversion_regular(ADC1);
 
     while (!adc_eoc(ADC1))
@@ -187,8 +185,6 @@ uint32_t readADC(uint8_t channel, uint8_t sampleTime)
     adc_power_off(ADC1);
 
 #elif defined(STM32F1)
-
-    syncHVPulse();
 
     adc_start_conversion_regular(ADC1);
 
@@ -212,11 +208,19 @@ uint32_t readBatteryValue(void)
 
 uint32_t readDeviceTemperatureValue(void)
 {
+#if defined(STM32F0) && defined(GD32)
+    ADC_CTL1 |= ADC_CTL1_TSVREN;
+#else
     adc_enable_temperature_sensor();
+#endif
 
     uint32_t value = readADC(ADC_CHANNEL_TEMP, ADC_TIME_239_5);
 
+#if defined(STM32F0) && defined(GD32)
+    ADC_CTL1 &= ~ADC_CTL1_TSVREN;
+#else
     adc_disable_temperature_sensor();
+#endif
 
     return value;
 }
@@ -264,15 +268,19 @@ static float readDeviceTemperature(void)
 #endif
 }
 
-void updateADCHardware(void)
+void updateADC(void)
 {
-    adc.filteredBatteryVoltage =
-        BATTERY_FILTER_CONSTANT * adc.filteredBatteryVoltage +
-        (1.0F - BATTERY_FILTER_CONSTANT) * readBatteryVoltage();
+    float value;
 
+    value = readBatteryVoltage();
+    adc.filteredBatteryVoltage =
+        value + BATTERY_FILTER_CONSTANT *
+                    (adc.filteredBatteryVoltage - value);
+
+    value = readDeviceTemperature();
     adc.filteredDeviceTemperature =
-        DEVICE_TEMPERATURE_FILTER_CONSTANT * adc.filteredDeviceTemperature +
-        (1.0F - DEVICE_TEMPERATURE_FILTER_CONSTANT) * readDeviceTemperature();
+        value + DEVICE_TEMPERATURE_FILTER_CONSTANT *
+                    (adc.filteredDeviceTemperature - value);
 }
 
 void resetADCFilters(void)

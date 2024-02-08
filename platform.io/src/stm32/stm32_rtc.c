@@ -2,7 +2,7 @@
  * Rad Pro
  * STM32 real-time clock
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
@@ -115,22 +115,26 @@ static void rtc_wait_for_init(void)
 
 // Commmon
 
-void initRTC(void)
+void initRTCHardware(void)
 {
+    // RTC
+
     rcc_periph_clock_enable(RCC_PWR);
-
 #if defined(RCC_RTCAPB)
-
     rcc_periph_clock_enable(RCC_RTCAPB);
-
 #endif
 
-    pwr_disable_backup_domain_write_protect();
+    // pwr_disable_backup_domain_write_protect();
+#if defined(STM32F0)
+    PWR_CR |= PWR_CR_DBP;
+#elif defined(STM32G0)
+    PWR_CR1 |= PWR_CR1_DBP;
+#endif
 
-    rcc_osc_on(RCC_LSE);
-
-    RCC_BDCR |= RCC_BDCR_LSEON;           // rcc_osc_on(RCC_LSE);
-    while (!(RCC_BDCR & RCC_BDCR_LSERDY)) // rcc_wait_for_osc_ready(RCC_LSE);
+    // rcc_osc_on(RCC_LSE);
+    RCC_BDCR |= RCC_BDCR_LSEON;
+    // rcc_wait_for_osc_ready(RCC_LSE);
+    while (!(RCC_BDCR & RCC_BDCR_LSERDY))
         ;
 
     RCC_BDCR |= RCC_BDCR_RTCSEL_LSE; // rcc_set_rtc_clock_source(RCC_LSE);
@@ -149,18 +153,21 @@ static uint32_t convertFromBCD(uint32_t value)
     return 10 * ((value >> 4) & 0xf) + (value & 0xf);
 }
 
-void setRTCDateTime(struct RTCDateTime *dateTime)
+void setRTCTime(uint32_t value)
 {
-    uint32_t year = dateTime->year;
+    RTCDateTime dateTime;
+    getDateTimeFromTime(value, &dateTime);
+
+    // Set RTC dateTime
 
     uint32_t dr =
-        convertToBCD(year % 100) << RTC_DR_YU_SHIFT |
-        convertToBCD(dateTime->month) << RTC_DR_MU_SHIFT |
-        convertToBCD(dateTime->day) << RTC_DR_DU_SHIFT;
+        convertToBCD(dateTime.year % 100) << RTC_DR_YU_SHIFT |
+        convertToBCD(dateTime.month) << RTC_DR_MU_SHIFT |
+        convertToBCD(dateTime.day) << RTC_DR_DU_SHIFT;
     uint32_t tr =
-        convertToBCD(dateTime->hour) << RTC_TR_HU_SHIFT |
-        convertToBCD(dateTime->minute) << RTC_TR_MNU_SHIFT |
-        convertToBCD(dateTime->second) << RTC_TR_SU_SHIFT;
+        convertToBCD(dateTime.hour) << RTC_TR_HU_SHIFT |
+        convertToBCD(dateTime.minute) << RTC_TR_MNU_SHIFT |
+        convertToBCD(dateTime.second) << RTC_TR_SU_SHIFT;
 
     rtc_unlock();
 
@@ -177,71 +184,66 @@ void setRTCDateTime(struct RTCDateTime *dateTime)
     rtc_wait_for_synchro();
 }
 
-void getRTCDateTime(struct RTCDateTime *dateTime)
+uint32_t getRTCTime(void)
 {
+    RTCDateTime dateTime;
+
     // Wait if RTC is about to roll over
 
-    while (RTC_SSR > (255 * 990 / 1000))
+    while (RTC_SSR >= 254)
         sleep(1);
 
     uint32_t tr = RTC_TR;
     uint32_t dr = RTC_DR;
 
-    dateTime->year = 2000 + convertFromBCD(dr >> RTC_DR_YU_SHIFT);
-    dateTime->month = convertFromBCD((dr >> RTC_DR_MU_SHIFT) & 0x1f);
-    dateTime->day = convertFromBCD(dr >> RTC_DR_DU_SHIFT);
-    dateTime->hour = convertFromBCD(tr >> RTC_TR_HU_SHIFT);
-    dateTime->minute = convertFromBCD(tr >> RTC_TR_MNU_SHIFT);
-    dateTime->second = convertFromBCD(tr >> RTC_TR_SU_SHIFT);
-}
-
-void setRTCTime(uint32_t time)
-{
-    struct RTCDateTime dateTime;
-    getDateTimeFromTime(time, &dateTime);
-
-    return setRTCDateTime(&dateTime);
-}
-
-uint32_t getRTCTime(void)
-{
-    struct RTCDateTime dateTime;
-    getRTCDateTime(&dateTime);
+    dateTime.year = 2000 + convertFromBCD(dr >> RTC_DR_YU_SHIFT);
+    dateTime.month = convertFromBCD((dr >> RTC_DR_MU_SHIFT) & 0x1f);
+    dateTime.day = convertFromBCD(dr >> RTC_DR_DU_SHIFT);
+    dateTime.hour = convertFromBCD(tr >> RTC_TR_HU_SHIFT);
+    dateTime.minute = convertFromBCD(tr >> RTC_TR_MNU_SHIFT);
+    dateTime.second = convertFromBCD(tr >> RTC_TR_SU_SHIFT);
 
     return getTimeFromDateTime(&dateTime);
 }
 
 #elif defined(STM32F1)
 
-void initRTC(void)
+void initRTCHardware(void)
 {
     rcc_periph_clock_enable(RCC_PWR);
+    rcc_periph_clock_enable(RCC_BKP);
 
-    pwr_disable_backup_domain_write_protect();
+    PWR_CR |= PWR_CR_DBP; // pwr_disable_backup_domain_write_protect();
 
-    rtc_auto_awake(RCC_LSE, 32767);
+    // rtc_auto_awake(RCC_LSE, 32767);
+    bool clockSetup = !(RCC_BDCR & RCC_BDCR_RTCEN);
+    if (clockSetup)
+    {
+        // Enable LSE clock
+        RCC_BDCR |= RCC_BDCR_LSEON;
+        while (!(RCC_BDCR & RCC_BDCR_LSERDY))
+            ;
 
-    if (rtc_get_counter_val() < 86400)
+        // Select LSE as RTC clock source
+        RCC_BDCR &= ~(0b11 << 8);
+        RCC_BDCR |= (0b01 << 8);
+
+        // Enable RTC clock
+        RCC_BDCR |= RCC_BDCR_RTCEN;
+    }
+
+    // Sync
+    RTC_CRL &= ~RTC_CRL_RSF;
+    while (!(RTC_CRL & RTC_CRL_RSF))
+        ;
+
+    if (clockSetup)
         rtc_set_counter_val(RTC_TIME_START);
 }
 
-void setRTCDateTime(struct RTCDateTime *dateTime)
+void setRTCTime(uint32_t value)
 {
-    uint32_t time = getTimeFromDateTime(dateTime);
-
-    setRTCTime(time);
-}
-
-void getRTCDateTime(struct RTCDateTime *dateTime)
-{
-    uint32_t time = getRTCTime();
-
-    getDateTimeFromTime(time, dateTime);
-}
-
-void setRTCTime(uint32_t time)
-{
-    rtc_set_counter_val(time);
+    rtc_set_counter_val(value);
 }
 
 uint32_t getRTCTime(void)

@@ -2,13 +2,12 @@
  * Rad Pro
  * Data logging
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
 
 #if !defined(DATALOG_H)
-
 #define DATALOG_H
 
 #include <stdbool.h>
@@ -17,7 +16,7 @@
 #include "settings.h"
 #include "view.h"
 
-extern const struct View datalogMenuView;
+extern const View datalogMenuView;
 
 void initDatalog(void);
 
@@ -27,6 +26,6 @@ void stopDatalog(void);
 void writeDatalogEntry(bool isUpdate);
 
 void initDatalogRead(void);
-bool readDatalog(struct Dose *dose);
+bool readDatalog(Dose *dose);
 
 #endif

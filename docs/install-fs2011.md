@@ -1,8 +1,8 @@
-# Installing on the FS2011
+# Installing on the FS2011/NR950/YT-203B
 
 ## Supplies
 
-To install Rad Pro on your FS2011 Geiger counter, you will need the following tools and components:
+To install Rad Pro on your FS2011/NR950/YT-203B Geiger counter, you will need the following tools and components:
 
 * An [ST-Link V2 USB dongle (or clone)](https://www.amazon.com/s?k=st-link+v2)
 * A soldering iron and solder
@@ -61,7 +61,7 @@ Then, copy+paste the following command and verify that the resulting file, backu
 
 ![Terminal flash step 2](img/fs2011-flash2.png)
 
-Now, download the latest firmware from the [Rad Pro releases](https://github.com/Gissio/radpro/releases): get `radpro-fs2011-\[MCU\]-install-x.y.z.bin` when installing for the first time or `radpro-fs2011-\[MCU\]-update-x.y.z.bin` when updating. `\[MCU\]` is the type of microprocessor on your board: either `STM32F51`, `GD32F51` or `GD32F103`.
+Now, download the latest firmware from the [Rad Pro releases](https://github.com/Gissio/radpro/releases): get `radpro-fs2011-[MCU]-install-x.y.z.bin` when installing for the first time or `radpro-fs2011-[MCU]-update-x.y.z.bin` when updating. `[MCU]` is the type of microprocessor on your board: either `STM32F51`, `GD32F51` or `GD32F103`.
 
 Next, run this command in the terminal:
 
@@ -77,9 +77,9 @@ Last, go to Rad Pro's settings, select "Geiger tube", "Tube type" and configure 
 
 ![FS2011 FTDI connection](img/fs2011-ftdi.jpg)
 
-* Add USB connectivity. You'll need: an [FTDI module](https://www.amazon.com/s?k=ftdi+board), a regular diode (1N4148) and [wire-wrap wire](https://www.amazon.com/s?k=wirewrap+30). Important: remove batteries before connecting USB. Follow these instructions:
-  * Set up the FTDI for 3.3 V.
-  * Connect the FTDI module's GND and 5V pins to the FS2011 board's 0v and 5V pads, respectively.
+* Add USB connectivity. You'll need: an [3.3 V serial converter](https://www.amazon.com/s?k=ftdi+board), a regular diode (1N4148) and [wire-wrap wire](https://www.amazon.com/s?k=wirewrap+30). Important: remove batteries before connecting USB. Follow these instructions:
+  * Set up the serial converter for 3.3 V.
+  * Connect the serial converter's GND and 5V pins to the FS2011 board's 0v and 5V pads, respectively.
   * Connect the PA2 pin of the microprocessor to the diode's anode, and the diode's cathode to the FTDI's board RX pin.
   * Connect the PA3 pin of the microprocessor to the FTDI module's TX pin.
 * For easier access to XS1, use a file to extend the hole for the battery holder clip so that a 4-pin header connector can fit. Solder four cables between XS1 and a 4-pin header. Using a glue gun, attach the header to the inside of the back case, so you can access the header with the battery case open.
@@ -90,3 +90,15 @@ Last, go to Rad Pro's settings, select "Geiger tube", "Tube type" and configure 
 ## Step 7: Show your support
 
 If you like Rad Pro, consider showing your support by starring the project on GitHub. Your support is greatly appreciated.
+
+## Hardware-specific notes
+
+The keys are mapped as follows:
+
+  * Power on/off: Long-press POWER key.
+  * Go up/down: UP and DOWN keys.
+  * Enter menu/select option: MENU/OK key
+  * Go back/hold measurement: PLAY/PAUSE key.
+  * Reset measurement: Long-press PLAY/PAUSE key.
+
+On the FS2011, Rad Pro can store up to 31496 data points. At normal radiation levels, this allows for 21 days of data at 1-minute intervals, 54 days at 5-minute intervals, 109 days at 10-minute intervals, 328 days at 30-minute intervals, and 656 days at 60-minute intervals.

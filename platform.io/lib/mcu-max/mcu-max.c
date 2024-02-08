@@ -2,7 +2,7 @@
  * mcu-max 0.9.1
  * Chess engine for low-resource MCUs
  *
- * (C) 2022 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  *

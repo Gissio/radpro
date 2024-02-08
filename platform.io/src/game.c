@@ -2,7 +2,7 @@
  * Rad Pro
  * Nuclear chess
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
@@ -32,7 +32,7 @@
 
 #endif
 
-#define GAME_HISTORY_SIZE (GAME_MOVES_LINE_NUM * 2)
+#define GAME_HISTORY_MOVE_NUM (GAME_HISTORY_TURN_NUM * 2)
 #define GAME_VALID_MOVES_NUM_MAX 181
 
 enum GameState
@@ -57,12 +57,10 @@ static struct
     int32_t validMovesIndex;
     mcumax_move validMoves[GAME_VALID_MOVES_NUM_MAX];
 
-    mcumax_move history[GAME_HISTORY_SIZE];
+    mcumax_move history[GAME_HISTORY_TURN_NUM * 2];
 } game;
 
-static const char *const gamePieceMap = "@AACFBDE";
-
-static const uint32_t gameStrengthToNodesCount[] = {
+static const uint16_t gameStrengthToNodesCount[] = {
     1,
     256,
     512,
@@ -73,45 +71,34 @@ static const uint32_t gameStrengthToNodesCount[] = {
     16384,
 };
 
-static const char *const gameStrengthOptions[] = {
-    "Level 1",
-    "Level 2",
-    "Level 3",
-    "Level 4",
-    "Level 5",
-    "Level 6",
-    "Level 7",
-    "Level 8",
-    NULL,
-};
-
-static const struct Menu gameStrengthMenu;
-static const struct Menu gameMenu;
-static const struct View gameView;
+static const Menu gameStrengthMenu;
+static const Menu gameMenu;
 
 static void onGameCallback(void *userdata);
 
 void initGame(void)
 {
-    selectMenuIndex(&gameStrengthMenu, settings.gameStrength, GAME_STRENGTH_NUM);
+    selectMenuItem(&gameStrengthMenu,
+                   settings.gameStrength,
+                   GAMESTRENGTH_NUM);
 }
 
 static void recordGameMove(mcumax_move move)
 {
-    if (game.moveIndex < GAME_HISTORY_SIZE)
+    if (game.moveIndex < GAME_HISTORY_MOVE_NUM)
         game.history[game.moveIndex] = move;
     else
     {
         uint32_t index = game.moveIndex & 0x1;
         if (index == 0)
         {
-            for (uint32_t i = 2; i < GAME_HISTORY_SIZE; i++)
+            for (uint32_t i = 2; i < GAME_HISTORY_MOVE_NUM; i++)
                 game.history[i - 2] = game.history[i];
 
-            game.history[GAME_HISTORY_SIZE - 1] = MCUMAX_MOVE_INVALID;
+            game.history[GAME_HISTORY_MOVE_NUM - 1] = MCUMAX_MOVE_INVALID;
         }
 
-        game.history[GAME_HISTORY_SIZE - 2 + index] = move;
+        game.history[GAME_HISTORY_MOVE_NUM - 2 + index] = move;
     }
 
     game.moveIndex++;
@@ -124,7 +111,7 @@ static void updateGameBoard(void)
     switch (game.state)
     {
     case GAME_SHOWING_LAST_MOVE:
-        for (int i = 0; i < GAME_HISTORY_SIZE; i++)
+        for (int i = 0; i < GAME_HISTORY_MOVE_NUM; i++)
             if (game.history[i].from != MCUMAX_SQUARE_INVALID)
                 move = game.history[i];
 
@@ -152,18 +139,6 @@ static void updateGameBoard(void)
         {
             mcumax_square square = ((0x10 * y) + x);
 
-            uint8_t piece = mcumax_get_piece(square);
-            uint8_t pieceType = piece & 0x7;
-            uint8_t pieceColor = !(piece >> 3);
-            uint8_t squareColor = ((x + y) & 0x1);
-
-            uint8_t modifiers;
-            if ((square == move.from) ||
-                (square == move.to))
-                modifiers = (pieceColor << 7) | 0x10;
-            else
-                modifiers = (squareColor << 7) | ((pieceColor ^ squareColor) << 3);
-
             uint8_t xb, yb;
             if (game.playerIndex)
             {
@@ -176,16 +151,22 @@ static void updateGameBoard(void)
                 yb = y;
             }
 
-            game.board[yb][xb] = modifiers + gamePieceMap[pieceType];
+            uint8_t piece = mcumax_get_piece(square);
+
+            if ((square == move.from) ||
+                (square == move.to))
+                piece |= 0x10;
+
+            game.board[yb][xb] = piece;
         }
     }
 
-    refreshView();
+    updateView();
 }
 
 static void onGameCallback(void *userdata)
 {
-    updateEvents();
+    dispatchEvents();
 }
 
 static void updateValidMoves(void)
@@ -203,7 +184,7 @@ static void resetGame(uint32_t playerIndex)
     game.playerTime[0] = 0;
     game.playerTime[1] = 0;
 
-    for (uint32_t i = 0; i < GAME_HISTORY_SIZE; i++)
+    for (uint32_t i = 0; i < GAME_HISTORY_MOVE_NUM; i++)
         game.history[i] = MCUMAX_MOVE_INVALID;
 
     if (playerIndex == 0)
@@ -257,16 +238,14 @@ void updateGame(void)
     }
 }
 
-void updateGameTimer(void)
+void onGameOneSecond(void)
 {
     if ((getView() == &gameView) &&
         (game.state != GAME_OVER))
     {
         uint32_t side = (game.moveIndex & 0x1);
-
-        uint32_t time = game.playerTime[side] + 1;
-        if (time < 10 * 3600)
-            game.playerTime[side] = time;
+        game.playerTime[side] =
+            game.playerTime[side] + 1;
     }
 }
 
@@ -341,7 +320,7 @@ static void formatGameMove(char *buffer, mcumax_move move)
     }
 }
 
-static void onGameViewEvent(const struct View *view, enum Event event)
+static void onGameViewEvent(const View *view, enum Event event)
 {
     switch (event)
     {
@@ -419,7 +398,7 @@ static void onGameViewEvent(const struct View *view, enum Event event)
     case EVENT_DRAW:
     {
         // Time
-        char time[2][8];
+        char time[2][16];
 
         strcpy(time[0], "");
         strcatTime(time[0], game.playerTime[!game.playerIndex]);
@@ -428,13 +407,13 @@ static void onGameViewEvent(const struct View *view, enum Event event)
         strcatTime(time[1], game.playerTime[game.playerIndex]);
 
         // Moves
-        char moves[GAME_MOVES_LINE_NUM][2][6];
+        char history[GAME_HISTORY_TURN_NUM][2][6];
 
-        for (uint32_t y = 0; y < GAME_MOVES_LINE_NUM; y++)
+        for (uint32_t y = 0; y < GAME_HISTORY_TURN_NUM; y++)
             for (uint32_t x = 0; x < 2; x++)
-                formatGameMove(moves[y][x], game.history[2 * y + x]);
+                formatGameMove(history[y][x], game.history[2 * y + x]);
 
-        drawGameBoard(game.board, time, moves);
+        drawGame(game.board, time, history);
 
         break;
     }
@@ -444,43 +423,42 @@ static void onGameViewEvent(const struct View *view, enum Event event)
     }
 }
 
-static const struct View gameView = {
+const View gameView = {
     onGameViewEvent,
     NULL,
 };
 
-// Game strength menu
-
-static void onGameStrengthMenuSelect(const struct Menu *menu)
-{
-    settings.gameStrength = menu->state->selectedIndex;
-}
-
-static void onGameStrengthMenuBack(const struct Menu *menu)
-{
-    setView(&gameMenuView);
-}
-
-static struct MenuState gameStrengthMenuState;
-
-static const struct Menu gameStrengthMenu = {
-    "Strength",
-    &gameStrengthMenuState,
-    onMenuGetOption,
-    gameStrengthOptions,
-    onGameStrengthMenuSelect,
-    NULL,
-    onGameStrengthMenuBack,
-};
-
-static const struct View gameStrengthMenuView = {
-    onMenuEvent,
-    &gameStrengthMenu,
-};
-
 // Game menu
 
-static void onGameMenuEnter(const struct Menu *menu)
+static const View gameStrengthMenuView;
+
+static const char *const gameStartMenuOptions[] = {
+    "Play white",
+    "Play black",
+    "Strength",
+    NULL,
+};
+
+static const char *const gameContinueMenuOptions[] = {
+    "Continue game",
+    "New game",
+    "Strength",
+    NULL,
+};
+
+static const char *onGameMenuGetOption(const Menu *menu,
+                                       uint32_t index,
+                                       MenuStyle *menuStyle)
+{
+    *menuStyle = MENUSTYLE_SUBMENU;
+
+    if (!game.moveIndex)
+        return gameStartMenuOptions[index];
+    else
+        return gameContinueMenuOptions[index];
+}
+
+static void onGameMenuSelect(const Menu *menu)
 {
     switch (menu->state->selectedIndex)
     {
@@ -493,7 +471,7 @@ static void onGameMenuEnter(const struct Menu *menu)
         break;
 
     case 1:
-        selectMenuIndex(&gameMenu, 0, GAME_MENU_OPTIONS_NUM);
+        selectMenuItem(&gameMenu, 0, GAME_MENU_OPTIONS_NUM);
 
         if (!game.moveIndex)
         {
@@ -517,41 +495,60 @@ static void onGameMenuEnter(const struct Menu *menu)
     }
 }
 
-static const char *const gameStartMenuOptions[] = {
-    "Play white",
-    "Play black",
-    "Strength",
-    NULL,
-};
+static MenuState gameMenuState;
 
-static const char *const gameContinueMenuOptions[] = {
-    "Continue game",
-    "New game",
-    "Strength",
-    NULL,
-};
-
-static const char *onGameMenuGetOption(const struct Menu *menu, uint32_t index)
-{
-    if (!game.moveIndex)
-        return gameStartMenuOptions[index];
-    else
-        return gameContinueMenuOptions[index];
-}
-
-static struct MenuState gameMenuState;
-
-static const struct Menu gameMenu = {
+static const Menu gameMenu = {
     "Game",
     &gameMenuState,
     onGameMenuGetOption,
-    NULL,
-    NULL,
-    onGameMenuEnter,
+    onGameMenuSelect,
     onSettingsSubMenuBack,
 };
 
-const struct View gameMenuView = {
+const View gameMenuView = {
     onMenuEvent,
     &gameMenu,
+};
+
+// Game strength menu
+
+static const char *onGameStrengthMenuGetOption(const Menu *menu,
+                                               uint32_t index,
+                                               MenuStyle *menuStyle)
+{
+    *menuStyle = (index == settings.gameStrength);
+
+    if (index < GAMESTRENGTH_NUM)
+    {
+        strcpy(menuOption, "Level ");
+        strcatUInt32(menuOption, index + 1, 0);
+        return menuOption;
+    }
+    else
+        return NULL;
+}
+
+static void onGameStrengthMenuSelect(const Menu *menu)
+{
+    settings.gameStrength = menu->state->selectedIndex;
+}
+
+static void onGameStrengthMenuBack(const Menu *menu)
+{
+    setView(&gameMenuView);
+}
+
+static MenuState gameStrengthMenuState;
+
+static const Menu gameStrengthMenu = {
+    "Strength",
+    &gameStrengthMenuState,
+    onGameStrengthMenuGetOption,
+    onGameStrengthMenuSelect,
+    onGameStrengthMenuBack,
+};
+
+static const View gameStrengthMenuView = {
+    onMenuEvent,
+    &gameStrengthMenu,
 };

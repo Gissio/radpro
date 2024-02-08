@@ -2,7 +2,7 @@
  * Rad Pro
  * SDLSim Battery
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
@@ -22,11 +22,6 @@ void setPower(bool value)
 }
 
 bool isBatteryCharging(void)
-{
-    return false;
-}
-
-bool isLowBattery(void)
 {
     return false;
 }

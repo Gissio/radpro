@@ -158,7 +158,7 @@ def reset_life_stats(device):
 
 
 def sync_time(device):
-    timestamp = int(datetime.now().replace(tzinfo=timezone.utc).timestamp())
+    timestamp = int(datetime.now().timestamp())
 
     success, _ = device.query("SET deviceTime " + str(timestamp))
     if not success:
@@ -249,7 +249,7 @@ def live_log(device, args):
                             "value": f'{cpm:.3f}',
                             "unit": "cpm",
                             "device_id": safecast_device_id,
-                            "captured_at": f'"{capture_datetime.astimezone(timezone.utc).isoformat()}"',
+                            "captured_at": f'"{capture_datetime.isoformat()}"',
                             "latitude": f'{safecast_location_latitude:.6f}',
                             "longitude": f'{safecast_location_longitude:.6f}',
                             "height": f'{safecast_location_height:.0f}',

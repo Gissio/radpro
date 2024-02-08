@@ -2,7 +2,7 @@
  * Rad Pro
  * Communications
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
@@ -22,7 +22,7 @@
 #include "system.h"
 #include "tube.h"
 
-struct Comm comm;
+Comm comm;
 
 void startComm(void)
 {
@@ -87,7 +87,7 @@ static void sendCommError(void)
     strcpy(comm.buffer, "ERROR");
 }
 
-static void strcatDatalogEntry(char *buffer, struct Dose *entry)
+static void strcatDatalogEntry(char *buffer, const Dose *entry)
 {
     strcatUInt32(buffer, entry->time, 0);
     strcat(buffer, ",");
@@ -107,7 +107,7 @@ static void startDatalogDump(void)
     transmitComm();
 }
 
-void updateComm(void)
+void dispatchCommEvents(void)
 {
     updateCommHardware();
 
@@ -164,7 +164,7 @@ void updateComm(void)
             return;
         }
         else if (matchCommCommand("GET tubeConversionFactor"))
-            sendCommOkWithFloat(getTubeCustomConversionFactor(), 3);
+            sendCommOkWithFloat(getTubeConversionFactor(), 3);
         else if (matchCommCommand("GET tubeDeadTimeCompensation"))
             sendCommOkWithFloat(getTubeDeadTimeCompensation(), 7);
         else if (matchCommCommand("GET tubeHVDutyCycle"))
@@ -210,7 +210,7 @@ void updateComm(void)
 
             for (uint32_t i = 0; i < 2;)
             {
-                struct Dose dose;
+                Dose dose;
 
                 if (!readDatalog(&dose))
                 {

@@ -2,7 +2,7 @@
  * Rad Pro
  * System
  *
- * (C) 2022-2023 Gissio
+ * (C) 2022-2024 Gissio
  *
  * License: MIT
  */
@@ -12,7 +12,7 @@
 
 // Statistics view
 
-static void onStatisticsViewEvent(const struct View *view, enum Event event)
+static void onStatisticsViewEvent(const View *view, enum Event event)
 {
     switch (event)
     {
@@ -22,7 +22,6 @@ static void onStatisticsViewEvent(const struct View *view, enum Event event)
         break;
 
     case EVENT_DRAW:
-        drawTitle("Statistics");
         drawStatistics();
 
         break;
@@ -32,7 +31,7 @@ static void onStatisticsViewEvent(const struct View *view, enum Event event)
     }
 }
 
-const struct View statisticsView = {
+const View statisticsView = {
     onStatisticsViewEvent,
     NULL,
 };
