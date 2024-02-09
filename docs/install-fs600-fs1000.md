@@ -34,7 +34,6 @@ If your board looks different and Rad Pro does not work, create an issue on http
 Now, follow these steps:
 
 * Solder the 4-pin header to SWD on the board.
-* Make sure there are no batteries in the battery holder.
 * If you use Windows, install the [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html).
 * Connect the ST-Link V2 device to SWD. The pins, from left to right, are:
   * +3.3V
@@ -79,7 +78,7 @@ Next, run this command in the terminal:
 
 ## Step 6: Show your support
 
-If you like Rad Pro, consider showing your support by starring the project on GitHub. Your support is greatly appreciated.
+If you like Rad Pro, show your support by starring the project on GitHub. Your support is greatly appreciated.
 
 ## Hardware-specific notes
 

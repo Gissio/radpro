@@ -10,22 +10,20 @@ Download the appropriate firmware from the [Rad Pro releases](https://github.com
   * For initial installation, get `radpro-fnirsi-gc01-install-x.y.z.bin`.
   * For updating, get `radpro-fnirsi-gc01-update-x.y.z.bin`.
 
-## Step 2: Initiate update mode
+## Step 2: Flash the firmware
 
 Now, follow these steps to install Rad Pro on your FNIRSI GC-01 Geiger counter:
 
 * Turn off the FNIRSI GC-01 device.
 * Connect the device to your computer using the USB cable.
-* Power on the FNIRSI GC-01.
-* A USB disk should become available.
-* Drag the Rad Pro firmware file to the USB disk.
-* The device should restart automatically with Rad Pro installed.
+* Power on the FNIRSI GC-01. A A USB disk should become available.
+* Drag the Rad Pro firmware file to the USB disk. The device should restart automatically with Rad Pro installed.
 
 If something goes wrong, you can recover your device with the [original firmware V0.3](devices/FNIRSI%20GC-01/FNIRSI%20GC-01%20V0.3.zip) or [original firmware V1.5](devices/FNIRSI%20GC-01/FNIRSI%20GC-01%20V1.5.bin).
 
 ## Step 3: Show your support
 
-If you like Rad Pro, consider showing your support by starring the project on GitHub. Your support is greatly appreciated.
+If you like Rad Pro, show your support by starring the project on GitHub. Your support is greatly appreciated.
 
 ## Hardware-specific notes
 
