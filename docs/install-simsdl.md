@@ -1,4 +1,4 @@
-# Trying the Rad Pro simulator
+# Rad Pro simulator
 
 The Rad Pro simulator is a tool used for developing Rad Pro, but you can also download it to try the firmware before installing.
 
