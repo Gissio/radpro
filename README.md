@@ -42,13 +42,18 @@ Note: Rad Pro 2.0 uses a new settings format and requires an installation.
 ## Project overview
 
 * [Legal stuff](docs/legal.md)
+
+Installation instructions:
+
 * [Rad Pro simulator](docs/install-simsdl.md)
 * [Installing on the FS2011/NR950/YT-203B](docs/install-fs2011.md)
 * [Installing on the Bosean FS-600/Bosean FS-1000](docs/install-fs600-fs1000.md)
 * [Installing on the FNIRSI GC-01](docs/install-gc01.md)
 * [Installing on other devices](docs/install-other.md)
+
+Manuals:
+
 * [User's manual](docs/manual.md)
-* [radpro-tool](docs/radpro-tool.md)
 * [Developers](docs/developers.md)
 
 ## Acknowledgements

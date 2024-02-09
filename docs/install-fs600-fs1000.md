@@ -101,4 +101,4 @@ On the Bosean FS-1000, the keys are mapped as follows:
   * Go back/hold measurement: Long-press MODE key.
   * Reset measurement: Long-press both MODE and SET/POWER keys.
 
-On the Bosean FS-600 and Bosean FS-1000, Rad Pro can store up to 95551 data points. At normal radiation levels, this allows for 33 days of data at 1-minute intervals, 165 days at 5-minute intervals, 331 days at 10-minute intervals, 995 days at 30-minute intervals, and 1991 days at 60-minute intervals.
+On the Bosean FS-600 and Bosean FS-1000, Rad Pro can store up to 95504 data points. At normal radiation levels, this allows for 33 days of data at 1-minute intervals, 165 days at 5-minute intervals, 331 days at 10-minute intervals, 994 days at 30-minute intervals, and 1989 days at 60-minute intervals.

@@ -36,4 +36,4 @@ The keys are mapped as follows:
   * Go back/hold measurement: LEFT/BACK key.
   * Reset measurement: Long-press LEFT/BACK key.
 
-On the FNIRSI GC-01, Rad Pro can store up to 6090 data points. At normal radiation levels, this allows for 2 days of data at 1-minute intervals, 10 days at 5-minute intervals, 31 days at 10-minute intervals, 95 days at 30-minute intervals, and 190 days at 60-minute intervals.
+On the FNIRSI GC-01, Rad Pro can store up to 6084 data points. At normal radiation levels, this allows for 2 days of data at 1-minute intervals, 10 days at 5-minute intervals, 31 days at 10-minute intervals, 95 days at 30-minute intervals, and 190 days at 60-minute intervals.

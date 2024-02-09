@@ -22,7 +22,7 @@ Follow these steps to start installing Rad Pro:
 * Remove the screws holding the electronics board to the front case.
 * Remove the electronics board.
 
-The board should look like in the photo above (the tube may be different). If it does not, you may have a different hardware revision. In this case, Rad Pro may not function properly.
+The board should look like in the photos above (the tube may also be different). If it does not, you may have a different hardware revision. In this case, Rad Pro may not function properly.
 
 If your board looks different and Rad Pro does not work, create an issue on https://github.com/Gissio/radpro/issues.
 
@@ -101,4 +101,4 @@ The keys are mapped as follows:
   * Go back/hold measurement: PLAY/PAUSE key.
   * Reset measurement: Long-press PLAY/PAUSE key.
 
-On the FS2011, Rad Pro can store up to 31465 data points. At normal radiation levels, this allows for 10 days of data at 1-minute intervals, 54 days at 5-minute intervals, 109 days at 10-minute intervals, 327 days at 30-minute intervals, and 655 days at 60-minute intervals.
+On the FS2011, Rad Pro can store up to 31403 data points. At normal radiation levels, this allows for 10 days of data at 1-minute intervals, 54 days at 5-minute intervals, 109 days at 10-minute intervals, 327 days at 30-minute intervals, and 654 days at 60-minute intervals.
