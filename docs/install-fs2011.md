@@ -77,7 +77,7 @@ Last, go to Rad Pro's settings, select "Geiger tube", "Tube type" and configure 
 
 ![FS2011 FTDI connection](img/fs2011-ftdi.jpg)
 
-* Add USB connectivity. You'll need: an [3.3 V serial converter](https://www.amazon.com/s?k=ftdi+board), a regular diode (1N4148) and [wire-wrap wire](https://www.amazon.com/s?k=wirewrap+30). Important: remove batteries before connecting USB. Follow these instructions:
+* Add USB connectivity. You'll need: an [3.3 V serial converter](https://www.amazon.com/s?k=ftdi+board), a regular diode (1N4148) and [wire-wrap](https://www.amazon.com/s?k=wirewrap+30). Important: never use batteries when powering from USB. Follow these instructions:
   * Set up the serial converter for 3.3 V.
   * Connect the serial converter's GND and 5V pins to the FS2011 board's 0v and 5V pads, respectively.
   * Connect the PA2 pin of the microprocessor to the diode's anode, and the diode's cathode to the FTDI's board RX pin.
@@ -89,7 +89,7 @@ Last, go to Rad Pro's settings, select "Geiger tube", "Tube type" and configure 
 
 ## Step 7: Show your support
 
-If you like Rad Pro, consider showing your support by starring the project on GitHub. Your support is greatly appreciated.
+If you like Rad Pro, show your support by starring the project on GitHub. Your support is greatly appreciated.
 
 ## Hardware-specific notes
 
@@ -101,4 +101,4 @@ The keys are mapped as follows:
   * Go back/hold measurement: PLAY/PAUSE key.
   * Reset measurement: Long-press PLAY/PAUSE key.
 
-On the FS2011, Rad Pro can store up to 31496 data points. At normal radiation levels, this allows for 21 days of data at 1-minute intervals, 54 days at 5-minute intervals, 109 days at 10-minute intervals, 328 days at 30-minute intervals, and 656 days at 60-minute intervals.
+On the FS2011, Rad Pro can store up to 31465 data points. At normal radiation levels, this allows for 10 days of data at 1-minute intervals, 54 days at 5-minute intervals, 109 days at 10-minute intervals, 327 days at 30-minute intervals, and 655 days at 60-minute intervals.

@@ -1651,7 +1651,11 @@ static const OptionView displayMenuOptions[] = {
     {"Theme", &displayThemeMenuView},
 #endif
     {"Brightness level", &displayBrightnessMenuView},
+#if defined(DISPLAY_MONOCHROME)
+    {"Backlight", &displaySleepMenuView},
+#elif defined(DISPLAY_COLOR)
     {"Sleep", &displaySleepMenuView},
+#endif
     {NULL},
 };
 
@@ -1853,7 +1857,11 @@ static void ondisplaySleepMenuSelect(const Menu *menu)
 static MenuState displaySleepMenuState;
 
 static const Menu displaySleepMenu = {
+#if defined(DISPLAY_MONOCHROME)
+    "Backlight",
+#elif defined(DISPLAY_COLOR)
     "Sleep",
+#endif
     &displaySleepMenuState,
     ondisplaySleepMenuGetOption,
     ondisplaySleepMenuSelect,

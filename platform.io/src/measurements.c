@@ -592,10 +592,12 @@ static bool isInstantaneousRateAlarm(void)
     return svH >= rateAlarmsSvH[settings.rateAlarm];
 }
 
-static void onInstantaneousRateViewEvent(const View *view,
+// +++ TEST
+static void onInstantaneousRateViewEvent(const View *view2,
+// +++ TEST
                                          enum Event event)
 {
-    onMeasurementEvent(view, event);
+    onMeasurementEvent(view2, event);
 
     switch (event)
     {

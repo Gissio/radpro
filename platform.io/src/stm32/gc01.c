@@ -27,8 +27,8 @@
 
 // Flash memory
 
-const FlashRegion flashSettingsRegion = {0x38, 0x39};
-const FlashRegion flashDatalogRegion = {0x39, 0x40};
+const FlashRegion flashSettingsRegion = {0x39, 0x3a};
+const FlashRegion flashDatalogRegion = {0x3a, 0x40};
 
 // Communications
 

@@ -2,39 +2,43 @@
 
 ## Features
 
-* Multiple measurement units: Sievert, rem, counts per minute (cpm) and counts per second (cps).
-* Configurable average timer.
+* Multiple measurement units: Sievert, rem, counts per minute (cpm), counts per second (cps).
+* Adaptive averaging window (aiming for 50 % confidence interval).
+* Fast response (on abrupt instantaneous rate changes).
+* Configurable average timer for performing surveys.
 * Overflow alarms.
-* Configurable pulse click sounds: off, quiet, loud.
-* Configurable display options: backlight (on monochrome displays) or theme, brightness level and sleep (on color displays).
-* Configurable battery type selection (on devices with a removable battery).
-* Real-time clock data logging.
-* Customizable Geiger-Müller settings: conversion factor, dead-time compensation and HV duty cycle for tube high-voltage control.
+* Data logging with data compression.
 * Dead-time measurement.
-* Life statistics for tracking of device usage.
-* Up to 80% less energy use (depending on the device).
+* Customizable Geiger-Müller tube settings: conversion factor, dead-time compensation (at cps level), high-voltage generator frequency and duty cycle (for tube voltage control).
+* Configurable pulse click sounds: off, quiet, loud.
+* Statistics for tracking device usage and state.
+* Energy saving mode for reduced power consumption (up to 80 %).
 * Power-on self-test and safety watchdog.
 * Game: nuclear chess.
 
 ## Measurements
 
-For correct storage of the dose, always power off the device using the keyboard. Avoid removing batteries to power off.
+For correct tracking of the dose, always power off the device using the keyboard. Avoid removing the batteries to power off the device.
 
-The software measures the radiation in the following modes:
+Rad Pro supports the following measurement modes:
 
 ### Instantaneous rate
 
-The instantaneous rate is calculated as the average between a first pulse and the most recent pulse. If there are more than 11 pulses in 5 seconds, the first pulse is the first one to occur within the 5-second window. Otherwise, it is the first of the most recent 11 pulses.
+The instantaneous rate is estimated by dividing the number of pulses within an averaging window, minus one, by the time between the first and last pulse within that window.
 
-The 95% confidence intervals assume a constant level of radiation over the averaging period.
+The confidence interval estimates the range of values that contain the true instantaneous rate with a 95% probability, assuming a constant level of radiation.
+
+The averaging window's length is calculated adaptively in order to aim the confidence interval at 50%.
+
+For fast response, Rad Pro also estimates the instantaneous rate with a 1-second window. If this fast rate falls beyond a four-sigma confidence interval (99.99%) of the current instantaneous rate, the averaging window is reset.
 
 ### Average rate
 
-The average rate is calculated as the pulse average between the first and last pulse in the time window.
+The average rate is estimated by dividing the number of pulses within an averaging window, minus one, by the time between the first and last pulse within that window.
 
 The 95% confidence intervals assume a constant level of radiation over the averaging period.
 
-Averaging can be indefinite, or limited to a time period set by the average timer.
+Averaging can be indefinite, or limited by the average timer.
 
 ### Dose
 
@@ -44,16 +48,26 @@ The dose is calculated from the number of pulses in the time window.
 
 The history is calculated from the instantaneous rate, sampled once per second.
 
-## Random number generator
+## Dead-time compensation
 
-The random number generator generates 16 symbols per run. If additional symbols are needed, simply return to the menu and initiate a new run.
+Dead-time compensation is performed with the non-paralyzable model:
 
-The generator works by comparing the time interval between two successive pulses. To prevent bias, every second bit is flipped. The generator stores random number data in a 256-bit buffer.
+$$n = \frac{m}{1 - m \tau}$$
 
-Random symbols are generated from the bits using the [Fast Dice Roller](https://arxiv.org/abs/1304.1916) algorithm. "Alphanumeric" consumes approximately 6 bits per symbol, "Full ASCII" consumes 7 bits, "20-sided dice" consumes 5 bits, "Hexadecimal", "Decimal" and "12-sided dice" consumes 4 bits, "8-sided dice" and "6-sided dice" consumes 3 bits, "4-sided dice" consumes 2 bits, and "Coin flip" consumes 1 bit.
+where $m$ is the rate in counts per seconds, and $\tau$ is the tube dead-time in seconds.
+
+Dead-time compensation is applied at the cps level, at the beginning of the processing chain. Instantaneous rate, average rate, cumulative dose, tube pulse count and logged values are, thus, dead-time compensated.
+
+## Random generator
+
+The random generator generates 16 symbols per run. If additional symbols are needed, simply return to the menu and initiate a new run.
+
+The generator works by comparing the time interval between two successive pulses. To avoid bias, every second bit is flipped. The generator stores random number data in a 128-bit buffer.
+
+Random symbols are generated from the bits using the [Fast Dice Roller](https://arxiv.org/abs/1304.1916) algorithm. "Alphanumeric" uses approximately 6 bits per symbol, "Full ASCII" uses 7 bits, "20-sided dice" uses 5 bits, "Hexadecimal", "Decimal" and "12-sided dice" uses 4 bits, "8-sided dice" and "6-sided dice" uses 3 bits, "4-sided dice" uses 2 bits, and "Coin flip" uses 1 bit.
 
 To generate bits more quickly, use a radioactive source.
 
 ## Data logging
 
-To log data using Rad Pro, simply select a data logging interval in the settings. The data will be automatically stored.
+To log data using Rad Pro, simply select a data logging interval in the settings. Data is automatically stored.

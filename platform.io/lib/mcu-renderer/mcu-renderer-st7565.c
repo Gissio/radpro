@@ -16,7 +16,8 @@ static const uint8_t mr_st7565_init_sequence[] = {
     MR_SET_RESET(false),
     MR_SLEEP(1),
 
-    MR_SEND_COMMAND(MR_ST7565_POWER_VB_VR_VF),
+    MR_SEND_COMMAND(MR_ST7565_POWER | MR_ST7565_POWER_VB |
+                    MR_ST7565_POWER_VR | MR_ST7565_POWER_VF),
     MR_END(),
 };
 
