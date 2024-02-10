@@ -92,8 +92,8 @@ static void mr_st7565_refresh_display(mr_t *mr)
 
         // Send column address
 
-        mr_send_data(mr, MR_ST7565_COLUMN_LSB | 0x00);
-        mr_send_data(mr, MR_ST7565_COLUMN_MSB | 0x00);
+        mr_send_command(mr, MR_ST7565_COLUMN_LSB | 0x00);
+        mr_send_command(mr, MR_ST7565_COLUMN_MSB | 0x00);
 
         // Send data
 

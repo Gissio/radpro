@@ -17,7 +17,7 @@ With Rad Pro, you can:
 * Measure cumulative dose.
 * Set up user-adjustable rate and dose alarms.
 * Plot radiation rate history (10 minutes, 1 hour and 24 hours).
-* Log data to the built-in flash memory or live on a computer, optionally sending the data to the https://gmcmap.com, https://radmon.org or https://map.safecast.org radiation monitoring websites.
+* Log data to the built-in flash memory or live on a computer, optionally sending the data to the [gmcmap.com](https://gmcmap.com), [radmon.org](https://radmon.org) and [safecast.org](https://map.safecast.org) radiation monitoring websites.
 * Generate true random data: secure passwords (alphanumeric, full ASCII), random hexadecimal and decimal numbers, coin flips, and dice throws (4-sided, 6-sided, 8-sided, 12-sided and 20-sided).
 
 ## Updates
@@ -42,14 +42,14 @@ Note: Rad Pro 2.0 uses a new settings format and requires an installation.
 ## Project overview
 
 * [Legal stuff](docs/legal.md)
+* [Rad Pro simulator](docs/install-simsdl.md)
 
 Installation instructions:
 
-* [Rad Pro simulator](docs/install-simsdl.md)
-* [Installing on the FS2011/NR950/YT-203B](docs/install-fs2011.md)
-* [Installing on the Bosean FS-600/Bosean FS-1000](docs/install-fs600-fs1000.md)
-* [Installing on the FNIRSI GC-01](docs/install-gc01.md)
-* [Installing on other devices](docs/install-other.md)
+* [FS2011/NR950/YT-203B](docs/install-fs2011.md)
+* [Bosean FS-600/Bosean FS-1000](docs/install-fs600-fs1000.md)
+* [FNIRSI GC-01](docs/install-gc01.md)
+* [Other devices](docs/install-other.md)
 
 Manuals:
 

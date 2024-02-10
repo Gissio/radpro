@@ -15,10 +15,12 @@
 
 // Switches
 
+#if !defined(MCURENDERER_WITHOUT_DISPLAY_ROTATION)
+#define MCURENDERER_DISPLAY_ROTATION
+#endif
+
 #if !defined(MCURENDERER_WITHOUT_IMAGE_SUPPORT)
-
 #define MCURENDERER_IMAGE_SUPPORT
-
 #endif
 
 // Instance
@@ -182,7 +184,9 @@ struct mr_t_
     mr_draw_string_callback_t draw_string_callback;
     mr_draw_glyph_callback_t draw_glyph_callback;
     mr_draw_textbuffer_callback_t draw_textbuffer_callback;
+#if defined(MCURENDERER_IMAGE_SUPPORT)
     mr_draw_image_callback_t draw_image_callback;
+#endif
     mr_refresh_display_callback_t refresh_display_callback;
     mr_sleep_callback_t sleep_callback;
     mr_set_reset_callback_t set_reset_callback;

@@ -192,6 +192,8 @@ static int32_t mr_get_variable_length_word(const uint8_t **data)
 
 // Geometry
 
+#if defined(MCURENDERER_DISPLAY_ROTATION)
+
 static inline mr_point_t mr_rotate_point(mr_t *mr,
                                          const mr_point_t *point)
 {
@@ -217,36 +219,15 @@ static inline mr_point_t mr_rotate_point(mr_t *mr,
     }
 }
 
-// mr_rectangle_t mr_rotate_rectangle(mr_t *mr,
-//                                    const mr_rectangle_t *rectangle)
-// {
-//     switch (mr->display_rotation)
-//     {
-//     default:
-//         return *rectangle;
+#else
 
-//     case MR_DISPLAY_ROTATION_90:
-//         return (mr_rectangle_t){
-//             mr->display_width - (rectangle->y + rectangle->height),
-//             rectangle->x,
-//             rectangle->height,
-//             rectangle->width};
+static inline mr_point_t mr_rotate_point(mr_t *mr,
+                                         const mr_point_t *point)
+{
+    return *point;
+}
 
-//     case MR_DISPLAY_ROTATION_180:
-//         return (mr_rectangle_t){
-//             mr->display_width - (rectangle->x + rectangle->width),
-//             mr->display_height - (rectangle->y + rectangle->height),
-//             rectangle->width,
-//             rectangle->height};
-
-//     case MR_DISPLAY_ROTATION_270:
-//         return (mr_rectangle_t){
-//             rectangle->y,
-//             mr->display_height - (rectangle->x + rectangle->width),
-//             rectangle->height,
-//             rectangle->width};
-//     }
-// }
+#endif
 
 inline int16_t mr_min(int16_t a,
                       int16_t b)
@@ -370,10 +351,10 @@ void mr_draw_rectangle_framebuffer_monochrome_vertical(mr_t *mr,
              position.x++)
         {
             mr_point_t buffer_position = mr_rotate_point(mr, &position);
-            mr_color *buffer = (mr_color *)mr->buffer +
-                               (buffer_position.y >> 3) * mr->display_width +
-                               buffer_position.x;
-            uint8_t mask = 1 << (buffer_position.y & 0x7);
+            uint8_t *buffer = (uint8_t *)mr->buffer +
+                              (buffer_position.y >> 3) * mr->display_width +
+                              buffer_position.x;
+            uint8_t mask = 1 << (buffer_position.y & 0b111);
 
             if (mr->fill_color >> 15)
                 *buffer |= mask;
@@ -422,10 +403,10 @@ void mr_draw_image_framebuffer_monochrome_vertical(mr_t *mr,
              position.x++)
         {
             mr_point_t buffer_position = mr_rotate_point(mr, &position);
-            mr_color *buffer = (mr_color *)mr->buffer +
-                               (buffer_position.y >> 3) * mr->display_width +
-                               buffer_position.x;
-            uint8_t mask = 1 << (buffer_position.y & 0x7);
+            uint8_t *buffer = (uint8_t *)mr->buffer +
+                              (buffer_position.y >> 3) * mr->display_width +
+                              buffer_position.x;
+            uint8_t mask = 1 << (buffer_position.y & 0b111);
 
             if ((*image++) >> 15)
                 *buffer |= mask;
@@ -650,7 +631,7 @@ static inline uint8_t mr_get_alpha(uint8_t pixel_bitnum,
         uint8_t *buffer = (uint8_t *)mr->buffer +                    \
                           (buffer_position.y >> 3) * buffer_pitch +  \
                           buffer_position.x;                         \
-        uint8_t mask = 1 << (buffer_position.y & 0x7);               \
+        uint8_t mask = 1 << (buffer_position.y & 0b111);             \
                                                                      \
         if (mr->text_color)                                          \
             *buffer |= mask;                                         \
@@ -1195,6 +1176,10 @@ void mr_draw_image(mr_t *mr,
                    const mr_rectangle_t *rectangle,
                    const mr_color *image)
 {
+#if defined(MCURENDERER_IMAGE_SUPPORT)
+
     if (mr->draw_image_callback)
         mr->draw_image_callback(mr, rectangle, image);
+
+#endif
 }

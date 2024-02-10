@@ -285,7 +285,7 @@ void updateDisplayContrast()
 {
     mr_send_command(&mr,
                     MR_ST7565_ELECTRONIC_VOLUME);
-    mr_send_data(&mr,
+    mr_send_command(&mr,
                  28 + settings.displayContrast);
 }
 

@@ -25,6 +25,21 @@
 
 #include "mcu-renderer-st7789.h"
 
+// +++ TEST
+#include "libopencm3/stm32/spi.h"
+
+#define DISPLAY_SCLK_PORT GPIOA
+#define DISPLAY_SCLK_PIN GPIO5
+#define DISPLAY_SDA_PORT GPIOA
+#define DISPLAY_SDA_PIN GPIO7
+#define DISPLAY_RESET_PORT GPIOB
+#define DISPLAY_RESET_PIN GPIO0
+#define DISPLAY_CS_PORT GPIOB
+#define DISPLAY_CS_PIN GPIO1
+#define DISPLAY_RS_PORT GPIOB
+#define DISPLAY_RS_PIN GPIO10
+// +++ TEST
+
 // Flash memory
 
 const FlashRegion flashSettingsRegion = {0x39, 0x3a};
@@ -158,28 +173,14 @@ static const uint8_t gc01_st7789_init_sequence[] = {
     MR_SEND_DATA(0x22),
     MR_SEND_DATA(0x1f),
 
-    // +++ TEST
+// +++ TEST
+#if defined(DISPLAY_SCLK_PORT)
     MR_SEND_COMMAND(MR_ST7789_INVON), // Inverse for IPS displays
-
+#endif
     // +++ TEST
 
     MR_END(),
 };
-
-// +++ TEST
-#include "libopencm3/stm32/spi.h"
-
-#define DISPLAY_SCLK_PORT GPIOA
-#define DISPLAY_SCLK_PIN GPIO5
-#define DISPLAY_SDA_PORT GPIOA
-#define DISPLAY_SDA_PIN GPIO7
-#define DISPLAY_RESET_PORT GPIOB
-#define DISPLAY_RESET_PIN GPIO0
-#define DISPLAY_CS_PORT GPIOB
-#define DISPLAY_CS_PIN GPIO1
-#define DISPLAY_RS_PORT GPIOB
-#define DISPLAY_RS_PIN GPIO10
-// +++ TEST
 
 void onDisplaySleep(uint32_t value);
 void onDisplaySetReset(bool value);
@@ -201,13 +202,15 @@ void onDisplaySetReset(bool value)
         gpio_set(LCD_RESX_PORT,
                  LCD_RESX_PIN);
 
-    // +++ TEST
+// +++ TEST
+#if defined(DISPLAY_SCLK_PORT)
     if (value)
         gpio_clear(DISPLAY_RESET_PORT,
                    DISPLAY_RESET_PIN);
     else
         gpio_set(DISPLAY_RESET_PORT,
                  DISPLAY_RESET_PIN);
+#endif
     // +++ TEST
 }
 
@@ -220,7 +223,8 @@ void onDisplaySetCommand(bool value)
         gpio_set(LCD_DCX_PORT,
                  LCD_DCX_PIN);
 
-    // +++ TEST
+// +++ TEST
+#if defined(DISPLAY_SCLK_PORT)
     if (value)
     {
         // Trigger CS before command
@@ -233,27 +237,34 @@ void onDisplaySetCommand(bool value)
     else
         gpio_set(DISPLAY_RS_PORT,
                  DISPLAY_RS_PIN);
+#endif
     // +++ TEST
 }
 
 void onDisplaySend(uint16_t value)
 {
-    // GPIOB_BRR = LCD_WRX_PIN;
-    // GPIOB_ODR = value;
-    // GPIOB_BSRR = LCD_WRX_PIN;
-
     // +++ TEST
+#if defined(DISPLAY_SERIAL)
     spi_send(SPI1, value);
+#else
+    // +++ TEST
+    GPIOB_BRR = LCD_WRX_PIN;
+    GPIOB_ODR = value;
+    GPIOB_BSRR = LCD_WRX_PIN;
+    // +++ TEST
+#endif
     // +++ TEST
 }
 
+// +++ TEST
+#if defined(DISPLAY_SERIAL)
 void onDisplaySend16(uint16_t value)
 {
-    // +++ TEST
     spi_send(SPI1, (value >> 8) & 0xff);
     spi_send(SPI1, (value >> 0) & 0xff);
-    // +++ TEST
 }
+#endif
+// +++ TEST
 
 void initDisplayHardware(void)
 {
@@ -269,7 +280,8 @@ void initDisplayHardware(void)
                   GPIO_CNF_OUTPUT_PUSHPULL,
                   LCD_DATA_PINS);
 
-    // +++ TEST
+// +++ TEST
+#if defined(DISPLAY_SCLK_PORT)
     gpio_set(DISPLAY_CS_PORT, DISPLAY_CS_PIN);
     gpio_set_mode(GPIOB,
                   GPIO_MODE_OUTPUT_50_MHZ,
@@ -291,6 +303,7 @@ void initDisplayHardware(void)
     spi_enable_software_slave_management(SPI1);
     spi_set_nss_high(SPI1);
     spi_enable(SPI1);
+#endif
     // +++ TEST
 
     gpio_set(GPIOC,
@@ -330,7 +343,14 @@ void initDisplayHardware(void)
                    onDisplaySetReset,
                    onDisplaySetCommand,
                    onDisplaySend,
-                   onDisplaySend16);
+    // +++ TEST
+#if defined(DISPLAY_SCLK_PORT)
+                   onDisplaySend16
+#else
+                   onDisplaySend
+#endif
+                   // +++ TEST
+    );
 
     mr_send_sequence(&mr, gc01_st7789_init_sequence);
 }
