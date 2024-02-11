@@ -86,8 +86,8 @@ void initKeyboardHardware(void)
     gpio_mode_setup(GPIOB,
                     GPIO_MODE_INPUT,
                     GPIO_PUPD_PULLUP,
-                    KEY_DOWN_PIN | KEY_ENTER_PIN |
-                        KEY_BACK_PIN | KEY_POWER_PIN);
+                    KEY_DOWN_PIN | KEY_MENUOK_PIN |
+                        KEY_PLAYPAUSE_PIN | KEY_POWER_PIN);
 
 #elif defined(STM32F1)
 
@@ -98,23 +98,23 @@ void initKeyboardHardware(void)
                   KEY_UP_PIN);
 
     gpio_set(GPIOB,
-             KEY_DOWN_PIN | KEY_ENTER_PIN |
-                 KEY_BACK_PIN | KEY_POWER_PIN); // Pull-up
+             KEY_DOWN_PIN | KEY_MENUOK_PIN |
+                 KEY_PLAYPAUSE_PIN | KEY_POWER_PIN); // Pull-up
     gpio_set_mode(GPIOB, GPIO_MODE_INPUT,
                   GPIO_CNF_INPUT_PULL_UPDOWN,
-                  KEY_DOWN_PIN | KEY_ENTER_PIN |
-                      KEY_BACK_PIN | KEY_POWER_PIN);
+                  KEY_DOWN_PIN | KEY_MENUOK_PIN |
+                      KEY_PLAYPAUSE_PIN | KEY_POWER_PIN);
 
 #endif
 }
 
 void getKeyboardState(bool *isKeyDown)
 {
-    isKeyDown[KEY_POWER] = !gpio_get(KEY_POWER_PORT, KEY_POWER_PIN);
+    isKeyDown[KEY_LEFT] = !gpio_get(KEY_PLAYPAUSE_PORT, KEY_PLAYPAUSE_PIN);
+    isKeyDown[KEY_RIGHT] = !gpio_get(KEY_MENUOK_PORT, KEY_MENUOK_PIN);
     isKeyDown[KEY_UP] = !gpio_get(KEY_UP_PORT, KEY_UP_PIN);
     isKeyDown[KEY_DOWN] = !gpio_get(KEY_DOWN_PORT, KEY_DOWN_PIN);
-    isKeyDown[KEY_ENTER] = !gpio_get(KEY_ENTER_PORT, KEY_ENTER_PIN);
-    isKeyDown[KEY_BACK] = !gpio_get(KEY_BACK_PORT, KEY_BACK_PIN);
+    isKeyDown[KEY_SELECT] = !gpio_get(KEY_POWER_PORT, KEY_POWER_PIN);
 }
 
 // Display
@@ -281,12 +281,12 @@ void initDisplayHardware(void)
     updateDisplayContrast();
 }
 
-void updateDisplayContrast()
+void updateDisplayContrast(void)
 {
     mr_send_command(&mr,
                     MR_ST7565_ELECTRONIC_VOLUME);
     mr_send_command(&mr,
-                 28 + settings.displayContrast);
+                    28 + (settings.displayContrast >> 1));
 }
 
 #endif

@@ -152,9 +152,9 @@ void onRNGPulse(uint32_t pulseTime)
     }
 }
 
-// Entropy interface
+// Random data interface
 
-int32_t getEntropy(void)
+int32_t getRandomData(void)
 {
     if (getQueueSize() < 8)
         return -1;

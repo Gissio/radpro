@@ -29,20 +29,25 @@ void dispatchViewEvents(void)
     enum Event event = getKeyboardEvent();
     if (event != EVENT_NONE)
     {
-#if defined(DISPLAY_COLOR)
+#if defined(DISPLAY_MONOCHROME)
 
-        if ((settings.displayTimer != DISPLAY_TIMER_ALWAYS_ON) &&
-            !isBacklightTimerActive())
-            event = EVENT_KEY_BACKLIGHT;
+        if (((settings.displayTimer == DISPLAY_TIMER_ALWAYS_OFF) ||
+             (settings.displayTimer == DISPLAY_TIMER_PULSE_FLASHES)) ||
+            isBacklightTimerActive())
+
+#elif defined(DISPLAY_COLOR)
+
+        if (isBacklightTimerActive())
 
 #endif
+        {
+            if (event == EVENT_KEY_POWER)
+                powerOff();
+            else
+                view.currentView->onEvent(view.currentView, event);
+        }
 
         triggerBacklight();
-
-        if (event == EVENT_KEY_POWER_OFF)
-            powerOff();
-        else
-            view.currentView->onEvent(view.currentView, event);
     }
 
     if (view.drawUpdate)

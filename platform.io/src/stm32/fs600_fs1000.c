@@ -67,6 +67,8 @@ void initKeyboardHardware(void)
 {
     // GPIO
 
+#if defined(KEYBOARD_5KEYS)
+
     gpio_mode_setup(KEY_DOWN_PORT,
                     GPIO_MODE_INPUT,
                     GPIO_PUPD_PULLDOWN,
@@ -75,30 +77,43 @@ void initKeyboardHardware(void)
                     GPIO_MODE_INPUT,
                     GPIO_PUPD_NONE,
                     KEY_UP_PIN);
-    gpio_mode_setup(KEY_POWER_PORT,
+    gpio_mode_setup(KEY_SELECT_PORT,
                     GPIO_MODE_INPUT,
                     GPIO_PUPD_NONE,
-                    KEY_POWER_PIN);
+                    KEY_SELECT_PIN);
     gpio_mode_setup(GPIOC,
                     GPIO_MODE_INPUT,
                     GPIO_PUPD_NONE,
-                    KEY_ENTER_PIN | KEY_BACK_PIN);
+                    KEY_RIGHT | KEY_LEFT);
+
+#elif defined(KEYBOARD_2KEYS)
+
+    gpio_mode_setup(KEY_SELECT_PORT,
+                    GPIO_MODE_INPUT,
+                    GPIO_PUPD_NONE,
+                    KEY_SELECT_PIN);
+    gpio_mode_setup(KEY_LEFT_PORT,
+                    GPIO_MODE_INPUT,
+                    GPIO_PUPD_NONE,
+                    KEY_LEFT);
+
+#endif
 }
 
 void getKeyboardState(bool *isKeyDown)
 {
 #if defined(FS600)
 
-    isKeyDown[KEY_POWER] = !gpio_get(KEY_POWER_PORT, KEY_POWER_PIN);
+    isKeyDown[KEY_LEFT] = gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN);
+    isKeyDown[KEY_RIGHT] = gpio_get(KEY_RIGHT_PORT, KEY_RIGHT_PIN);
     isKeyDown[KEY_UP] = gpio_get(KEY_UP_PORT, KEY_UP_PIN);
     isKeyDown[KEY_DOWN] = gpio_get(KEY_DOWN_PORT, KEY_DOWN_PIN);
-    isKeyDown[KEY_ENTER] = gpio_get(KEY_ENTER_PORT, KEY_ENTER_PIN);
-    isKeyDown[KEY_BACK] = gpio_get(KEY_BACK_PORT, KEY_BACK_PIN);
+    isKeyDown[KEY_SELECT] = !gpio_get(KEY_SELECT_PORT, KEY_SELECT_PIN);
 
 #elif defined(FS1000)
 
-    isKeyDown[KEY_POWER] = !gpio_get(KEY_POWER_PORT, KEY_POWER_PIN);
-    isKeyDown[KEY_BACK] = gpio_get(KEY_BACK_PORT, KEY_BACK_PIN);
+    isKeyDown[KEY_LEFT] = gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN);
+    isKeyDown[KEY_SELECT] = !gpio_get(KEY_SELECT_PORT, KEY_SELECT_PIN);
 
 #endif
 }

@@ -1,9 +1,5 @@
 # Installing on the FNIRSI GC-01
 
-## IMPORTANT
-
-RAD PRO 2.0 IS NOT YET READY. The files in the releases are only for the FS2011 (STM32F051).
-
 ## Step 1: Get the firmware
 
 Download the appropriate firmware from the [Rad Pro releases](https://github.com/Gissio/radpro/releases):
@@ -23,17 +19,22 @@ If something goes wrong, you can recover your device with the [original firmware
 
 ## Step 3: Show your support
 
-If you like Rad Pro, show your support by starring the project on GitHub. Your support is greatly appreciated.
+If you like Rad Pro, show your support by starring the project on GitHub.
 
 ## Hardware-specific notes
 
 The keys are mapped as follows:
 
-  * Power on/off: Long-press OK/POWER key.
-  * Go up/down: UP and DOWN keys.
-  * Enter menu: RIGHT/CONFIG key.
-  * Select option: OK/POWER key.
-  * Go back/hold measurement: LEFT/BACK key.
-  * Reset measurement: Long-press LEFT/BACK key.
+  * Power on/off: long press of the power key.
+  * Go up/down: the up and down keys.
+  * Enter settings/select option: the right/settings or ok/power key.
+  * Hold measurement/go back: the left/back key.
+  * Reset measurement: long press of the left/back key.
 
 On the FNIRSI GC-01, Rad Pro can store up to 6084 data points. At normal radiation levels, this allows for 2 days of data at 1-minute intervals, 10 days at 5-minute intervals, 31 days at 10-minute intervals, 95 days at 30-minute intervals, and 190 days at 60-minute intervals.
+
+The FNIRSI GC-01 HV profile values are:
+
+* Factory default: 10 kHz frequency and [to-do] duty cycle.
+* Optimized: [to-do] kHz frequency and [to-do] duty cycle.
+* Energy-saving: [to-do] kHz frequency and [to-do] duty cycle.

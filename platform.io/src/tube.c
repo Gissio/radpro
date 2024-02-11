@@ -262,7 +262,7 @@ static const View tubeDeadTimeCompensationMenuView = {
 static const char *const tubeHVProfileMenuOptions[] = {
     "Factory default",
     "Optimized",
-    "Energy saving",
+    "Energy-saving",
     "Custom",
     NULL,
 };
@@ -318,9 +318,7 @@ static void onHVCustomProfileWarningMenuEvent(const View *view, enum Event event
 
         break;
 
-    case EVENT_KEY_UP:
-    case EVENT_KEY_DOWN:
-    case EVENT_KEY_ENTER:
+    case EVENT_KEY_SELECT:
         settings.tubeHVProfile = TUBE_HVPROFILE_CUSTOM;
 
         setView(&tubeHVCustomProfileMenuView);

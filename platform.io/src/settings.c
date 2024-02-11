@@ -74,11 +74,11 @@ void initSettings(void)
 
     if (settingsDoseTube)
     {
-        // settings = settingsDoseTube->settings;
-        // setDoseTime(settingsDoseTube->dose.time);
-        // setDosePulseCount(settingsDoseTube->dose.pulseCount);
-        // setTubeTime(settingsDoseTube->tube.time);
-        // setTubePulseCount(settingsDoseTube->tube.pulseCount);
+        settings = settingsDoseTube->settings;
+        setDoseTime(settingsDoseTube->dose.time);
+        setDosePulseCount(settingsDoseTube->dose.pulseCount);
+        setTubeTime(settingsDoseTube->tube.time);
+        setTubePulseCount(settingsDoseTube->tube.pulseCount);
     }
 }
 

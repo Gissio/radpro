@@ -31,10 +31,10 @@ Rad Pro 2.0 adds:
 * Serial port/USB data communication.
 * `radpro-tool` for downloading the data log, logging live data, submitting data to radiation monitoring websites and syncing the device clock.
 * Dead-time measurement.
-* Configurable dead-time compensation at cps level.
+* Configurable dead-time compensation.
 * Configurable high voltage generator frequency and duty cycle for tube voltage control.
 * [safecast.org](https://map.safecast.org) radiation monitoring website submission.
-* UI update.
+* UI updates with anti-aliased text rendering (on FNIRSI GC-01).
 * Several bugfixes and optimizations.
 
 Note: Rad Pro 2.0 uses a new settings format and requires an installation.
@@ -44,7 +44,7 @@ Note: Rad Pro 2.0 uses a new settings format and requires an installation.
 * [Legal stuff](docs/legal.md)
 * [Rad Pro simulator](docs/install-simsdl.md)
 
-Installation instructions:
+Installation:
 
 * [FS2011/NR950/YT-203B](docs/install-fs2011.md)
 * [Bosean FS-600/Bosean FS-1000](docs/install-fs600-fs1000.md)
@@ -54,7 +54,7 @@ Installation instructions:
 Manuals:
 
 * [User's manual](docs/manual.md)
-* [Developers](docs/developers.md)
+* [For developers](docs/developers.md)
 
 ## Acknowledgements
 

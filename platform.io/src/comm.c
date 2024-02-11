@@ -173,20 +173,20 @@ void dispatchCommEvents(void)
             sendCommOkWithFloat(getTubeHVFrequency(), 0);
         else if (matchCommCommand("GET tubeDeadTime"))
             sendCommOkWithFloat(getDeadTime(), 7);
-        else if (matchCommCommand("GET entropy"))
+        else if (matchCommCommand("GET randomData"))
         {
             sendCommOk();
 
             for (int i = 0; i < 16; i++)
             {
-                int32_t entropy = getEntropy();
-                if (entropy < 0)
+                int32_t randomData = getRandomData();
+                if (randomData < 0)
                     break;
 
                 if (i == 0)
                     strcat(comm.buffer, " ");
 
-                strcatUInt8Hex(comm.buffer, entropy);
+                strcatUInt8Hex(comm.buffer, randomData);
             }
         }
         else if (matchCommCommand("START bootloader"))

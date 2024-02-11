@@ -55,12 +55,8 @@ void mr_sdl_init(mr_t *mr,
     mr_init(mr);
 
     mr->set_display_callback = mr_sdl_set_display;
-    // mr->draw_rectangle_callback = mr_draw_rectangle_framebuffer_color;
-    // mr->draw_string_callback = mr_draw_string_framebuffer_color;
-    // +++ TEST
-    mr->draw_rectangle_callback = mr_draw_rectangle_framebuffer_monochrome_vertical;
-    mr->draw_string_callback = mr_draw_string_framebuffer_monochrome_vertical;
-    // +++ TEST
+    mr->draw_rectangle_callback = mr_draw_rectangle_framebuffer_color;
+    mr->draw_string_callback = mr_draw_string_framebuffer_color;
 #if defined(MCURENDERER_IMAGE_SUPPORT)
     mr->draw_image_callback = mr_draw_image_framebuffer_color;
 #endif
@@ -211,23 +207,8 @@ static void mr_sdl_refresh_display(mr_t *mr)
 
     if (display->enabled)
     {
-        // +++ TEST
-        // for (uint32_t i = 0; i < mr->display_width * mr->display_height; i++)
-        //     *dest++ = mr_sdl_get_color(display, *framebuffer++);
-        for (uint32_t y = 0; y < mr->display_height; y++)
-        {
-            for (uint32_t x = 0; x < mr->display_width; x++)
-            {
-                uint8_t *fb = ((uint8_t *)mr->buffer) + mr->display_width * (y >> 3);
-
-                mr_color color = ((fb[x] >> (y & 0b111)) & 0b1)
-                                     ? 0xffff
-                                     : 0x0000;
-
-                *dest++ = mr_sdl_get_color(display, color);
-            }
-        }
-        // +++ TEST
+        for (uint32_t i = 0; i < mr->display_width * mr->display_height; i++)
+            *dest++ = mr_sdl_get_color(display, *framebuffer++);
     }
     else
     {

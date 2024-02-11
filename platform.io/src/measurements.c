@@ -518,7 +518,7 @@ void setMeasurementView(int32_t index)
     if (index >= 0)
         measurements.viewIndex = index;
 
-    setKeyboardDelayedBack(true);
+    setKeyboardMode(KEYBOARD_MODE_MEASUREMENT);
 
     setView(measurementViews[measurements.viewIndex]);
 }
@@ -527,6 +527,13 @@ static void onMeasurementEvent(const View *view, enum Event event)
 {
     switch (event)
     {
+    case EVENT_KEY_SELECT:
+        setKeyboardMode(KEYBOARD_MODE_MENU);
+
+        setView(&settingsMenuView);
+
+        break;
+
     case EVENT_KEY_UP:
         measurements.viewIndex--;
         if (measurements.viewIndex < 0)
@@ -542,13 +549,6 @@ static void onMeasurementEvent(const View *view, enum Event event)
             measurements.viewIndex = 0;
 
         setMeasurementView(measurements.viewIndex);
-
-        break;
-
-    case EVENT_KEY_ENTER:
-        setKeyboardDelayedBack(false);
-
-        setView(&settingsMenuView);
 
         break;
 

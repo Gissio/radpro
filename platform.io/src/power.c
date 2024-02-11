@@ -62,7 +62,7 @@ void powerOff(void)
     setDisplay(false);
     setPower(false);
 
-    while (getKeyboardEvent() != EVENT_KEY_POWER_OFF)
+    while (getKeyboardEvent() != EVENT_KEY_POWER)
         sleep(1);
 
     // Enable devices (runs when using external power supply)

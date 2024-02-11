@@ -324,23 +324,25 @@ static void onGameViewEvent(const View *view, enum Event event)
 {
     switch (event)
     {
-    case EVENT_KEY_UP:
-    case EVENT_KEY_DOWN:
-        if (game.state == GAME_SHOWING_LAST_MOVE)
+    case EVENT_KEY_BACK:
+        if (game.state == GAME_SEARCHING)
+        {
+            mcumax_stop_search();
+
+            game.state = GAME_CANCELLING_SEARCH;
+        }
+        else if (game.state == GAME_SELECTING_TO)
         {
             game.state = GAME_SELECTING_FROM;
 
             updateGameBoard();
         }
-        else if (game.state == GAME_SELECTING_FROM)
-            selectNextMoveFrom((event == EVENT_KEY_UP) ? -1 : 1);
-
-        else if (game.state == GAME_SELECTING_TO)
-            selectNextMoveTo((event == EVENT_KEY_UP) ? -1 : 1);
+        else if (game.state != GAME_CANCELLING_SEARCH)
+            setView(&gameMenuView);
 
         break;
 
-    case EVENT_KEY_ENTER:
+    case EVENT_KEY_SELECT:
         switch (game.state)
         {
         case GAME_SELECTING_FROM:
@@ -377,21 +379,19 @@ static void onGameViewEvent(const View *view, enum Event event)
 
         break;
 
-    case EVENT_KEY_BACK:
-        if (game.state == GAME_SEARCHING)
-        {
-            mcumax_stop_search();
-
-            game.state = GAME_CANCELLING_SEARCH;
-        }
-        else if (game.state == GAME_SELECTING_TO)
+    case EVENT_KEY_UP:
+    case EVENT_KEY_DOWN:
+        if (game.state == GAME_SHOWING_LAST_MOVE)
         {
             game.state = GAME_SELECTING_FROM;
 
             updateGameBoard();
         }
-        else if (game.state != GAME_CANCELLING_SEARCH)
-            setView(&gameMenuView);
+        else if (game.state == GAME_SELECTING_FROM)
+            selectNextMoveFrom((event == EVENT_KEY_UP) ? -1 : 1);
+
+        else if (game.state == GAME_SELECTING_TO)
+            selectNextMoveTo((event == EVENT_KEY_UP) ? -1 : 1);
 
         break;
 

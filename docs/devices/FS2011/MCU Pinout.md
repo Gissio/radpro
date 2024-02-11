@@ -20,7 +20,7 @@
 * PB1 (Input, pull-up): KEY_BACK
 * PB2 (Input, pull-up): KEY_SELECT
 * PB3 (AF, TIM2 PWM): LCD_BACKLIGHT (cathode)
-* PB4 (AF, TIM3 PWM): TUBE_HV (high-voltage control)
+* PB4 (AF, TIM3 PWM): TUBE_HV (high voltage control)
 * PB5 (Output): BUZZ
 * PB6 (Output): M_VIB (vibration motor, not connected)
 * PB8[GD32F103] (Output): LCD_D5

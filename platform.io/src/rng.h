@@ -16,7 +16,7 @@
 
 extern const View rngMenuView;
 
-int32_t getEntropy(void);
+int32_t getRandomData(void);
 
 void onRNGPulse(uint32_t pulseTime);
 

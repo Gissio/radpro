@@ -101,30 +101,30 @@ void initKeyboardHardware(void)
 {
     // GPIO
 
-    gpio_clear(KEY_POWER_PORT,
-               KEY_POWER_PIN); // Pull-up
-    gpio_set_mode(KEY_POWER_PORT,
+    gpio_clear(KEY_SELECT_PORT,
+               KEY_SELECT_PIN); // Pull-up
+    gpio_set_mode(KEY_SELECT_PORT,
                   GPIO_MODE_INPUT,
                   GPIO_CNF_INPUT_PULL_UPDOWN,
-                  KEY_POWER_PIN);
+                  KEY_SELECT_PIN);
 
     gpio_clear(GPIOC,
-               KEY_ENTER_PIN | KEY_BACK_PIN |
-                   KEY_UP_PIN | KEY_DOWN_PIN); // Pull-up
+               KEY_UP_PIN | KEY_RIGHT_PIN |
+                   KEY_DOWN_PIN | KEY_LEFT_PIN); // Pull-up
     gpio_set_mode(GPIOC,
                   GPIO_MODE_INPUT,
                   GPIO_CNF_INPUT_PULL_UPDOWN,
-                  KEY_ENTER_PIN | KEY_BACK_PIN |
-                      KEY_UP_PIN | KEY_DOWN_PIN);
+                  KEY_UP_PIN | KEY_RIGHT_PIN |
+                      KEY_DOWN_PIN | KEY_LEFT_PIN);
 }
 
 void getKeyboardState(bool *isKeyDown)
 {
-    isKeyDown[KEY_POWER] = gpio_get(KEY_POWER_PORT, KEY_POWER_PIN);
-    isKeyDown[KEY_UP] = gpio_get(KEY_UP_PORT, KEY_UP_PIN);
-    isKeyDown[KEY_DOWN] = gpio_get(KEY_DOWN_PORT, KEY_DOWN_PIN);
-    isKeyDown[KEY_ENTER] = gpio_get(KEY_ENTER_PORT, KEY_ENTER_PIN);
-    isKeyDown[KEY_BACK] = gpio_get(KEY_BACK_PORT, KEY_BACK_PIN);
+    isKeyDown[KEY_LEFT] = !gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN);
+    isKeyDown[KEY_RIGHT] = !gpio_get(KEY_RIGHT_PORT, KEY_RIGHT_PIN);
+    isKeyDown[KEY_UP] = !gpio_get(KEY_UP_PORT, KEY_UP_PIN);
+    isKeyDown[KEY_DOWN] = !gpio_get(KEY_DOWN_PORT, KEY_DOWN_PIN);
+    isKeyDown[KEY_SELECT] = !gpio_get(KEY_SELECT_PORT, KEY_SELECT_PIN);
 }
 
 // Display

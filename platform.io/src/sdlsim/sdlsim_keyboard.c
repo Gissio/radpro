@@ -23,17 +23,17 @@ void getKeyboardState(bool *isKeyDown)
 
 #if defined(KEYBOARD_2KEYS)
 
-    isKeyDown[KEY_UP] = state[SDL_SCANCODE_LEFT];
-    isKeyDown[KEY_DOWN] = state[SDL_SCANCODE_RIGHT];
+    isKeyDown[KEY_LEFT] = state[SDL_SCANCODE_LEFT];
+    isKeyDown[KEY_SELECT] = state[SDL_SCANCODE_RIGHT];
 
 #elif defined(KEYBOARD_5KEYS)
 
-    isKeyDown[KEY_POWER] = state[SDL_SCANCODE_SPACE];
+    isKeyDown[KEY_LEFT] = state[SDL_SCANCODE_LEFT];
+    isKeyDown[KEY_RIGHT] = state[SDL_SCANCODE_RIGHT];
     isKeyDown[KEY_UP] = state[SDL_SCANCODE_UP];
     isKeyDown[KEY_DOWN] = state[SDL_SCANCODE_DOWN];
-    isKeyDown[KEY_ENTER] = state[SDL_SCANCODE_RIGHT];
-    isKeyDown[KEY_BACK] = state[SDL_SCANCODE_LEFT];
-
+    isKeyDown[KEY_SELECT] = state[SDL_SCANCODE_SPACE];
+ 
 #endif
 }
 

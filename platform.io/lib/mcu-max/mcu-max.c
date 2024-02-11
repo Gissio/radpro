@@ -1,5 +1,5 @@
 /*
- * mcu-max 0.9.1
+ * mcu-max 1.0.1
  * Chess engine for low-resource MCUs
  *
  * (C) 2022-2024 Gissio
@@ -104,7 +104,7 @@ static const int8_t mcumax_board_setup[] = {
 
 #define HashScramble(A, B)                \
     *(uint32_t *)(mcumax_scramble_table + \
-                  A + (B & 8) + MCUMAX_SQUARE_INVALID * (B & 7))
+                  A + (B & 8) + MCUMAX_SQUARE_INVALID * (B & 0b111))
 #define Hash(A)                                                      \
     HashScramble(step_square_to + A, mcumax.board[step_square_to]) - \
         HashScramble(scan_square_from + A, scan_piece) -             \
@@ -127,15 +127,22 @@ static struct HashEntry mcumax_hash_table[MCUMAX_HASH_TABLE_SIZE];
 
 typedef bool (*mcumax_move_callback)(mcumax_move move);
 
+static int32_t mcumax_search(int32_t alpha,
+                             int32_t beta,
+                             int32_t score,
+                             uint8_t en_passant_square,
+                             uint8_t depth,
+                             enum mcumax_mode mode);
+
 // Recursive minimax search
 // (alpha,beta)=window, score=current evaluation score, en_passant_square=e.p. sqr.
 // depth=depth, in_root=in_root; returns score
-int32_t mcumax_search(int32_t alpha,
-                      int32_t beta,
-                      int32_t score,
-                      uint8_t en_passant_square,
-                      uint8_t depth,
-                      enum mcumax_mode mode)
+static int32_t mcumax_search(int32_t alpha,
+                             int32_t beta,
+                             int32_t score,
+                             uint8_t en_passant_square,
+                             uint8_t depth,
+                             enum mcumax_mode mode)
 {
     if (mcumax.user_callback)
         mcumax.user_callback(mcumax.user_data);
@@ -278,16 +285,16 @@ int32_t mcumax_search(int32_t alpha,
             if (scan_piece & mcumax.current_side)
             {
                 // p = piece type (set r>0)
-                step_vector = scan_piece_type = (scan_piece & 7);
+                step_vector = scan_piece_type = (scan_piece & 0b111);
 
                 // First step vector for piece
                 step_vector_index = mcumax_step_vectors_indices[scan_piece_type];
 
                 // Loop over directions o[]
-                while (step_vector = (scan_piece_type > 2) &&
-                                             (step_vector < 0)
-                                         ? -step_vector
-                                         : -mcumax_step_vectors[++step_vector_index])
+                while ((step_vector = ((scan_piece_type > 2) &&
+                                       (step_vector < 0))
+                                          ? -step_vector
+                                          : -mcumax_step_vectors[++step_vector_index]))
                 {
                 replay:
                     // Resume normal after best
@@ -327,11 +334,11 @@ int32_t mcumax_search(int32_t alpha,
                         // Capture own, bad pawn mode
                         if ((capture_piece & mcumax.current_side) ||
                             ((scan_piece_type < 3) &&
-                             !((square_to - square_from) & 7) - !capture_piece))
+                             !((square_to - square_from) & 0b111) - !capture_piece))
                             break;
 
                         // Value of captured piece
-                        capture_piece_value = 37 * mcumax_capture_values[capture_piece & 7] +
+                        capture_piece_value = 37 * mcumax_capture_values[capture_piece & 0b111] +
                                               (capture_piece & 0xc0);
 
                         // King capture
@@ -398,7 +405,7 @@ int32_t mcumax_search(int32_t alpha,
                                 // Promotion / passer bonus
                                 capture_piece_value +=
                                     step_alpha =
-                                        square_to + step_vector + 1 & MCUMAX_SQUARE_INVALID
+                                        (square_to + step_vector + 1) & MCUMAX_SQUARE_INVALID
                                             ? (647 - scan_piece_type)
                                             : 2 * (scan_piece & (square_to + 0x10) & 0x20);
 
@@ -543,7 +550,8 @@ int32_t mcumax_search(int32_t alpha,
                                (step_vector_index != 7) ||
                                // No virgin rook in corner
                                (mcumax.board[castling_rook_square =
-                                                 square_from + 3 ^ step_vector >> 1 & 7] -
+                                                 ((square_from + 3) ^
+                                                  ((step_vector >> 1) & 0b111))] -
                                 mcumax.current_side - 6) ||
                                // No two empty squares next to rook
                                mcumax.board[castling_rook_square ^ 1] ||
@@ -591,10 +599,10 @@ int32_t mcumax_search(int32_t alpha,
         //         iter_depth - 2,
         //         iter_score,
         //         mcumax.node_count,
-        //         'a' + (iter_square_from & 7),
+        //         'a' + (iter_square_from & 0b111),
         //         '8' - (iter_square_from >> 4),
-        //         'a' + (iter_square_to & 7),
-        //         '8' - (iter_square_to >> 4 & 7));
+        //         'a' + (iter_square_to & 0b111),
+        //         '8' - (iter_square_to >> 4 & 0b111));
     }
 
     // Delayed-loss bonus
@@ -688,28 +696,15 @@ void mcumax_set_fen_position(const char *fen_string)
                 switch (c)
                 {
                 case '8':
-                    board_index = mcumax_set_piece(board_index, MCUMAX_EMPTY);
-
                 case '7':
-                    board_index = mcumax_set_piece(board_index, MCUMAX_EMPTY);
-
                 case '6':
-                    board_index = mcumax_set_piece(board_index, MCUMAX_EMPTY);
-
                 case '5':
-                    board_index = mcumax_set_piece(board_index, MCUMAX_EMPTY);
-
                 case '4':
-                    board_index = mcumax_set_piece(board_index, MCUMAX_EMPTY);
-
                 case '3':
-                    board_index = mcumax_set_piece(board_index, MCUMAX_EMPTY);
-
                 case '2':
-                    board_index = mcumax_set_piece(board_index, MCUMAX_EMPTY);
-
                 case '1':
-                    board_index = mcumax_set_piece(board_index, MCUMAX_EMPTY);
+                    for (int32_t i = 0; i < (c - '0'); i++)
+                        board_index = mcumax_set_piece(board_index, MCUMAX_EMPTY);
 
                     break;
 

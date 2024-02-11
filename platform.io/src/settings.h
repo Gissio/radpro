@@ -185,9 +185,12 @@ enum
 };
 
 #if defined(DISPLAY_MONOCHROME)
-#define DISPLAY_CONTRAST_DEFAULT 12
-#define DISPLAY_CONTRAST_NUM 16
+
+#define DISPLAY_CONTRAST_DEFAULT 6
+#define DISPLAY_CONTRAST_NUM 8
+
 #elif defined(DISPLAY_COLOR)
+
 enum
 {
     DISPLAY_THEME_DAY,
@@ -196,6 +199,7 @@ enum
 
     DISPLAY_THEME_NUM,
 };
+
 #endif
 
 enum

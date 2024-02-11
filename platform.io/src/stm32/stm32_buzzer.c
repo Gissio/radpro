@@ -14,6 +14,7 @@
 #include <libopencm3/stm32/timer.h>
 
 #include "../buzzer.h"
+#include "../events.h"
 
 #include "stm32.h"
 
@@ -117,6 +118,7 @@ void setBuzzer(bool value)
 void syncBuzzer(void)
 {
 #if !defined(BUZZ_TIMER)
+
     for (uint32_t i = 0; i < 10; i++)
     {
         if ((GPIO_ODR(BUZZ_PORT) &
@@ -125,6 +127,7 @@ void syncBuzzer(void)
 
         sleep(1);
     }
+
 #endif
 }
 

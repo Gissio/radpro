@@ -14,35 +14,45 @@
 
 #include "view.h"
 
+typedef enum
+{
+    KEYBOARD_MODE_MEASUREMENT,
+    KEYBOARD_MODE_MENU,
+} KeyboardMode;
+
+#if defined(KEYBOARD_5KEYS)
+
 enum Key
 {
+    KEY_LEFT,
+    KEY_RIGHT,
     KEY_UP,
     KEY_DOWN,
-
-#if defined(KEYBOARD_2KEYS)
-
-    KEY_BACK = KEY_UP,
-    KEY_ENTER = KEY_DOWN,
-    KEY_POWER = KEY_DOWN,
-
-#elif defined(KEYBOARD_5KEYS)
-
-    KEY_BACK,
-    KEY_ENTER,
-    KEY_POWER,
-
-#endif
+    KEY_SELECT,
 
     KEY_NUM,
     KEY_NONE = KEY_NUM,
 };
+
+#elif defined(KEYBOARD_2KEYS)
+
+enum Key
+{
+    KEY_LEFT,
+    KEY_SELECT,
+
+    KEY_NUM,
+    KEY_NONE = KEY_NUM,
+};
+
+#endif
 
 void initKeyboard(void);
 void initKeyboardHardware(void);
 
 void getKeyboardState(bool *);
 
-void setKeyboardDelayedBack(bool value);
+void setKeyboardMode(KeyboardMode mode);
 
 void onKeyboardTick(void);
 

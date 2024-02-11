@@ -8,7 +8,7 @@ To establish a connection with a Rad Pro device, you can use either a serial por
 * Stop bits: 1
 * Flow control: None
 
-The employed communications protocol is ASCII-based and follows a request-response model.
+The communications protocol is ASCII-based and follows a request-response model.
 
 `\n` represents the newline character.
 
@@ -124,7 +124,7 @@ Returns the tube's instantaneous rate measured in counts per minute (cpm), provi
 Example:
 
     GET tubeRate
-    OK 0.315
+    OK 142.857
 
 For improved accuracy, perform two `GET tubePulseCount` measurements over a time period and divide the pulse count difference by the time period (in minutes).
 
@@ -169,7 +169,7 @@ Example:
 * Request: `GET tubeHVDutyCycle\n` 
 * Response: `OK [value]\n`
 
-Returns the tube's PWM duty-cycle of the high-voltage generator, provided in decimal format with three decimal places.
+Returns the tube's PWM duty-cycle of the high voltage generator, provided in decimal format with three decimal places.
 
 Example:
 
@@ -181,7 +181,7 @@ Example:
 * Request: `GET tubeHVFrequency\n` 
 * Response: `OK [value]\n`
 
-Returns the tube's PWM frequency of the high-voltage generator measured in Hz, provided in decimal format.
+Returns the tube's PWM frequency of the high voltage generator measured in Hz, provided in decimal format.
 
 Example:
 
@@ -203,16 +203,16 @@ Example:
     GET datalog 1690000000
     OK time,tubePulseCount;1690000060,1542;1690000120,1618;1690000180,1693
 
-### Get entropy data (from the random number generator)
+### Get random data from the random generator
 
-* Request: `GET entropy\n`
+* Request: `GET randomData\n`
 * Response: `OK [value]\n`
 
-Returns up to 16 entropy bytes from the random number generator, provided as hexadecimal digits (0-9, a-f).
+Returns up to 16 bytes from the random generator, provided as hexadecimal digits (0-9, a-f).
 
 Example:
 
-    GET entropy
+    GET randomData
     OK 9155facb75c00e331cf7fd625102f37a
 
 ### Start bootloader

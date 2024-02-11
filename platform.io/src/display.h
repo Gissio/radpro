@@ -53,7 +53,7 @@ void initDisplay(void);
 void initDisplayHardware(void);
 
 void setDisplay(bool value);
-void updateDisplayContrast();
+void updateDisplayContrast(void);
 void setDisplayBacklight(bool value);
 void syncDisplayBacklight(void);
 void refreshDisplay(void);

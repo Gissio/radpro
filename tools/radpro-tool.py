@@ -271,7 +271,7 @@ def live_log(device, args):
             next_time = time.time() + delta_time_frac
 
             while time.time() < next_time:
-                success, response = device.query("GET entropy")
+                success, response = device.query("GET randomData")
 
                 if success and len(response) > 0:
                     try:
@@ -339,10 +339,10 @@ parser.add_argument('--get-tube-dead-time-compensation',
                     help='get tube dead-time compensation factor')
 parser.add_argument('--get-tube-hv-duty-cycle',
                     action='store_true',
-                    help='get tube PWM duty cycle of the high-voltage generator')
+                    help='get tube PWM duty cycle of the high voltage generator')
 parser.add_argument('--get-tube-hv-frequency',
                     action='store_true',
-                    help='get tube PWM frequency of the high-voltage generator')
+                    help='get tube PWM frequency of the high voltage generator')
 parser.add_argument('--get-tube-dead-time',
                     action='store_true',
                     help='get tube dead-time upper bound measurement')

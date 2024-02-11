@@ -1,4 +1,4 @@
-# Installing on the Bosean FS-600
+# Installing on the Bosean FS-600 and FS-1000
 
 ## Supplies
 
@@ -19,9 +19,9 @@ Follow these steps to start installing Rad Pro:
 
 * Remove the battery cover and batteries.
 * Remove the screws holding the back case.
+* Disconnect the battery connected to BAT1.
 * Remove the screws holding the electronics board to the front case.
 * Remove the electronics board.
-* Disconnect the battery connected to BAT1.
 
 The board should look like in the photo above. If it does not, you may have a different hardware revision. In this case, Rad Pro may not function properly.
 
@@ -51,7 +51,7 @@ Before installing for the first time, back up the original firmware. If you skip
 
 To create a backup, open a terminal and go to the bin folder within the stlink folder.
 
-Then, copy+paste the following command and verify that the resulting file, backup.bin, has a size of 131072 bytes:
+Then, copy+paste the following command and verify that the resulting file, `backup.bin`, has a size of 131072 bytes:
 
     st-flash read backup.bin 0x08000000 0x20000
 
@@ -63,8 +63,8 @@ Then, copy+paste the following command and verify that the resulting file, backu
 
 Now, download the latest firmware from the [Rad Pro releases](https://github.com/Gissio/radpro/releases):
 
-* If your device is a Bosean FS-600, get radpro-bosean-fs600-install-x.y.z.bin when installing for the first time or radpro-bosean-fs600-update-x.y.z.bin when updating.
-* If your device is a Bosean FS-1000, get radpro-bosean-fs1000-install-x.y.z.bin when installing for the first time or radpro-bosean-fs1000-update-x.y.z.bin when updating.
+* If your device is a Bosean FS-600, get ``radpro-bosean-fs600-install-x.y.z.bin`` when installing for the first time or `radpro-bosean-fs600-update-x.y.z.bin` when updating.
+* If your device is a Bosean FS-1000, get `radpro-bosean-fs1000-install-x.y.z.bin` when installing for the first time or `radpro-bosean-fs1000-update-x.y.z.bin` when updating.
 
 Next, run this command in the terminal:
 
@@ -78,27 +78,33 @@ Next, run this command in the terminal:
 
 ## Step 6: Show your support
 
-If you like Rad Pro, show your support by starring the project on GitHub. Your support is greatly appreciated.
+If you like Rad Pro, show your support by starring the project on GitHub.
 
 ## Hardware-specific notes
 
 On the Bosean FS-600, the keys are mapped as follows:
 
-  * Power on/off: Long-press POWER key.
-  * Go up/down: UP and DOWN keys.
-  * Enter menu/select option: RIGHT/CONFIG key
-  * Go back/hold measurement: BACK key.
-  * Reset measurement: Long-press BACK key.
-
-Not all FS-600 devices support the pulse LED.
+  * Power on/off: long press of the power key.
+  * Go up/down: the up and down keys.
+  * Enter settings/select option: the right/settings or ok/power key.
+  * Hold measurement/go back: the left/back key.
+  * Reset measurement: long press of the left/back key.
 
 On the Bosean FS-1000, the keys are mapped as follows:
 
-  * Power on/off: Extended press of the SET/POWER key.
-  * Go up: MODE key.
-  * Go down: SET/POWER key.
-  * Enter menu/select option: Long-press SET/POWER key.
-  * Go back/hold measurement: Long-press MODE key.
-  * Reset measurement: Long-press both MODE and SET/POWER keys.
+  * Power on/off: Extended press of the set/power key.
+  * Go up: the mode key.
+  * Go down: the set/power key.
+  * Enter settings/select option: long press of the set/power key.
+  * Hold measurement/go back: long press of the mode key.
+  * Reset measurement: long press of both the mode and set/power keys.
 
-On the Bosean FS-600 and Bosean FS-1000, Rad Pro can store up to 95504 data points. At normal radiation levels, this allows for 33 days of data at 1-minute intervals, 165 days at 5-minute intervals, 331 days at 10-minute intervals, 994 days at 30-minute intervals, and 1989 days at 60-minute intervals.
+Not all FS-600 devices support the pulse LED.
+
+On the Bosean FS-600 and FS-1000, Rad Pro can store up to 95504 data points. At normal radiation levels, this allows for 33 days of data at 1-minute intervals, 165 days at 5-minute intervals, 331 days at 10-minute intervals, 994 days at 30-minute intervals, and 1989 days at 60-minute intervals.
+
+The Bosean FS-600 and FS-1000 HV profile values are:
+
+* Factory default: 40 kHz frequency and 50 % duty cycle.
+* Optimized: 2.5 kHz frequency and 6.5 % duty cycle.
+* Energy-saving: 2.5 kHz frequency and 3.0 % duty cycle.
