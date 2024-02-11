@@ -186,7 +186,7 @@ enum
 
 #if defined(DISPLAY_MONOCHROME)
 
-#define DISPLAY_CONTRAST_DEFAULT 6
+#define DISPLAY_CONTRAST_DEFAULT 4
 #define DISPLAY_CONTRAST_NUM 8
 
 #elif defined(DISPLAY_COLOR)
@@ -306,7 +306,7 @@ typedef struct
 #endif
     unsigned int pulseClicks : 2;
 #if defined (DISPLAY_MONOCHROME)
-    unsigned int displayContrast : 4;
+    unsigned int displayContrast : 3;
 #elif defined(DISPLAY_COLOR)
     unsigned int displayTheme : 2;
 #endif

@@ -209,7 +209,7 @@ uint32_t readBatteryValue(void)
 uint32_t readDeviceTemperatureValue(void)
 {
 #if defined(STM32F0) && defined(GD32)
-    ADC_CTL1 |= ADC_CTL1_TSVREN;
+    ADC_CTL1 |= ADC_CTL1_TSVREN; // adc_tempsensor_vrefint_enable()
 #else
     adc_enable_temperature_sensor();
 #endif
@@ -217,7 +217,7 @@ uint32_t readDeviceTemperatureValue(void)
     uint32_t value = readADC(ADC_CHANNEL_TEMP, ADC_TIME_239_5);
 
 #if defined(STM32F0) && defined(GD32)
-    ADC_CTL1 &= ~ADC_CTL1_TSVREN;
+    ADC_CTL1 &= ~ADC_CTL1_TSVREN; // adc_tempsensor_vrefint_disable()
 #else
     adc_disable_temperature_sensor();
 #endif

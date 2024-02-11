@@ -368,7 +368,7 @@
 #define GAME_BOARD_HEIGHT (8 * GAME_SQUARE_HEIGHT)
 
 #if defined(DISPLAY_MONOCHROME)
-static const Menu displayContrastLevelMenu;
+static const Menu displayContrastMenu;
 #elif defined(DISPLAY_COLOR)
 static const Menu displayThemeMenu;
 #endif
@@ -515,7 +515,7 @@ void initDisplay(void)
     initDisplayHardware();
 
 #if defined(DISPLAY_MONOCHROME)
-    selectMenuItem(&displayContrastLevelMenu,
+    selectMenuItem(&displayContrastMenu,
                    settings.displayContrast,
                    DISPLAY_CONTRAST_NUM);
 #elif defined(DISPLAY_COLOR)
@@ -1639,14 +1639,14 @@ void drawGame(const uint8_t board[8][8],
 
 // Display menu
 
-const View displayContrastLevelMenuView;
+const View displayContrastMenuView;
 const View displayThemeMenuView;
 const View displayBrightnessMenuView;
 const View displaySleepMenuView;
 
 static const OptionView displayMenuOptions[] = {
 #if defined(DISPLAY_MONOCHROME)
-    {"Contrast level", &displayContrastLevelMenuView},
+    {"Contrast", &displayContrastMenuView},
 #elif defined(DISPLAY_COLOR)
     {"Theme", &displayThemeMenuView},
 #endif
@@ -1697,7 +1697,7 @@ const View displayMenuView = {
 
 #if defined(DISPLAY_MONOCHROME)
 
-static const char *onDisplayContrastLevelMenuGetOption(const Menu *menu,
+static const char *ondisplayContrastMenuGetOption(const Menu *menu,
                                                        uint32_t index,
                                                        MenuStyle *menuStyle)
 {
@@ -1712,26 +1712,26 @@ static const char *onDisplayContrastLevelMenuGetOption(const Menu *menu,
     return menuOption;
 }
 
-static void onDisplayContrastLevelMenuSelect(const Menu *menu)
+static void ondisplayContrastMenuSelect(const Menu *menu)
 {
     settings.displayContrast = menu->state->selectedIndex;
 
     updateDisplayContrast();
 }
 
-static MenuState displayContrastLevelMenuState;
+static MenuState displayContrastMenuState;
 
-static const Menu displayContrastLevelMenu = {
-    "Contrast level",
-    &displayContrastLevelMenuState,
-    onDisplayContrastLevelMenuGetOption,
-    onDisplayContrastLevelMenuSelect,
+static const Menu displayContrastMenu = {
+    "Contrast",
+    &displayContrastMenuState,
+    ondisplayContrastMenuGetOption,
+    ondisplayContrastMenuSelect,
     onDisplaySubMenuBack,
 };
 
-const View displayContrastLevelMenuView = {
+const View displayContrastMenuView = {
     onMenuEvent,
-    &displayContrastLevelMenu,
+    &displayContrastMenu,
 };
 
 #endif

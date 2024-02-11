@@ -211,7 +211,7 @@ void setKeyboardMode(KeyboardMode mode)
 #endif
 }
 
-enum Key getKeyboardEvent(void)
+enum Event getKeyboardEvent(void)
 {
     volatile enum Event event = keyboard.event;
 

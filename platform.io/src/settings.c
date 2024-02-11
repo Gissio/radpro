@@ -51,10 +51,10 @@ void initSettings(void)
     settings.pulseLED = PULSE_LED_ON;
 #endif
     settings.pulseClicks = PULSE_CLICKS_QUIET;
-    settings.displayTimer = DISPLAY_TIMER_30S;
 #if defined(DISPLAY_MONOCHROME)
     settings.displayContrast = DISPLAY_CONTRAST_DEFAULT;
 #endif
+    settings.displayTimer = DISPLAY_TIMER_30S;
 #if defined(SDLSIM)
     settings.displayBrightness = DISPLAY_BRIGHTNESS_VERYHIGH;
     time_t unixTime = time(NULL);
