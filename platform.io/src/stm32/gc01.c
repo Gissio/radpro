@@ -26,18 +26,18 @@
 #include "mcu-renderer-st7789.h"
 
 // +++ TEST
-#include "libopencm3/stm32/spi.h"
+// #include "libopencm3/stm32/spi.h"
 
-#define DISPLAY_SCLK_PORT GPIOA
-#define DISPLAY_SCLK_PIN GPIO5
-#define DISPLAY_SDA_PORT GPIOA
-#define DISPLAY_SDA_PIN GPIO7
-#define DISPLAY_RESET_PORT GPIOB
-#define DISPLAY_RESET_PIN GPIO0
-#define DISPLAY_CS_PORT GPIOB
-#define DISPLAY_CS_PIN GPIO1
-#define DISPLAY_RS_PORT GPIOB
-#define DISPLAY_RS_PIN GPIO10
+// #define DISPLAY_SCLK_PORT GPIOA
+// #define DISPLAY_SCLK_PIN GPIO5
+// #define DISPLAY_SDA_PORT GPIOA
+// #define DISPLAY_SDA_PIN GPIO7
+// #define DISPLAY_RESET_PORT GPIOB
+// #define DISPLAY_RESET_PIN GPIO0
+// #define DISPLAY_CS_PORT GPIOB
+// #define DISPLAY_CS_PIN GPIO1
+// #define DISPLAY_RS_PORT GPIOB
+// #define DISPLAY_RS_PIN GPIO10
 // +++ TEST
 
 // System
@@ -72,8 +72,6 @@ void initSystem(void)
         ;
 
     RCC_CFGR |= (RCC_CFGR_SW_SYSCLKSEL_PLLCLK << RCC_CFGR_SW_SHIFT); // Select PLL as system clock
-
-    // RCC_CR &= ~RCC_CR_HSION; // Disable HSI clock
 
     // GPIO
 
@@ -120,24 +118,11 @@ void initKeyboardHardware(void)
 
 void getKeyboardState(bool *isKeyDown)
 {
-    // +++ TEST
-    // isKeyDown[KEY_LEFT] = !gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN);
-    // isKeyDown[KEY_RIGHT] = !gpio_get(KEY_RIGHT_PORT, KEY_RIGHT_PIN);
-    // isKeyDown[KEY_UP] = !gpio_get(KEY_UP_PORT, KEY_UP_PIN);
-    // isKeyDown[KEY_DOWN] = !gpio_get(KEY_DOWN_PORT, KEY_DOWN_PIN);
-    // isKeyDown[KEY_SELECT] = !gpio_get(KEY_SELECT_PORT, KEY_SELECT_PIN);
-
-    gpio_set_mode(GPIOB,
-                  GPIO_MODE_INPUT,
-                  GPIO_CNF_INPUT_PULL_UPDOWN,
-                  GPIO15);
-
-    isKeyDown[KEY_LEFT] = false;
-    isKeyDown[KEY_RIGHT] = false;
-    isKeyDown[KEY_UP] = false;
-    isKeyDown[KEY_DOWN] = false;
-    isKeyDown[KEY_SELECT] = gpio_get(GPIOB, GPIO15);
-    // +++ TEST
+    isKeyDown[KEY_LEFT] = !gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN);
+    isKeyDown[KEY_RIGHT] = !gpio_get(KEY_RIGHT_PORT, KEY_RIGHT_PIN);
+    isKeyDown[KEY_UP] = !gpio_get(KEY_UP_PORT, KEY_UP_PIN);
+    isKeyDown[KEY_DOWN] = !gpio_get(KEY_DOWN_PORT, KEY_DOWN_PIN);
+    isKeyDown[KEY_SELECT] = !gpio_get(KEY_SELECT_PORT, KEY_SELECT_PIN);
 }
 
 // Display
