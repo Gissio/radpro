@@ -74,8 +74,6 @@ void initDatalog(void)
 
     while (decodeDatalogEntry(&datalog.writeState))
         ;
-
-    writeDatalogEntry(false);
 }
 
 static void encodeDatalogValue(int32_t value,

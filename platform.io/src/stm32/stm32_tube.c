@@ -25,9 +25,9 @@
 
 #include "stm32.h"
 
-#define TUBE_HV_PWM_LOW_FREQUENCY 1250
-#define TUBE_HV_PWM_LOW_FREQUENCY_PERIOD (TIM_FREQUENCY / TUBE_HV_PWM_LOW_FREQUENCY)
-#define TUBE_HV_PWM_LOW_DUTYCYCLE_MULTIPLIER ((TUBE_HV_PWM_LOW_FREQUENCY_PERIOD / 2) / TUBE_HVDUTYCYCLE_NUM)
+#define TUBE_PWM_LOW_FREQUENCY 1250
+#define TUBE_PWM_LOW_FREQUENCY_PERIOD (TIM_FREQUENCY / TUBE_PWM_LOW_FREQUENCY)
+#define TUBE_PWM_LOW_DUTYCYCLE_MULTIPLIER ((TUBE_PWM_LOW_FREQUENCY_PERIOD / 2) / TUBE_PWMDUTYCYCLE_NUM)
 
 #define TUBE_PULSE_QUEUE_SIZE 64
 #define TUBE_PULSE_QUEUE_MASK (TUBE_PULSE_QUEUE_SIZE - 1)
@@ -86,7 +86,7 @@ void initTubeHardware(void)
 
 #endif
 
-    // HV timer
+    // PWM timer
 
     rcc_periph_clock_enable(TUBE_HV_TIMER_RCC);
 
@@ -170,30 +170,30 @@ void updateTubeHV(void)
         break;
 
     default:
-        frequencyIndex = settings.tubeHVFrequency;
-        dutyCycleIndex = settings.tubeHVDutyCycle;
+        frequencyIndex = settings.tubePWMFrequency;
+        dutyCycleIndex = settings.tubePWMDutyCycle;
 
         break;
     }
 
     // Sanity check
 
-    if (frequencyIndex >= TUBE_HVFREQUENCY_NUM)
-        frequencyIndex = TUBE_HVFREQUENCY_NUM - 1;
-    if (dutyCycleIndex >= TUBE_HVDUTYCYCLE_NUM)
-        dutyCycleIndex = TUBE_HVDUTYCYCLE_NUM - 1;
+    if (frequencyIndex >= TUBE_PWMFREQUENCY_NUM)
+        frequencyIndex = TUBE_PWMFREQUENCY_NUM - 1;
+    if (dutyCycleIndex >= TUBE_PWMDUTYCYCLE_NUM)
+        dutyCycleIndex = TUBE_PWMDUTYCYCLE_NUM - 1;
 
     // Set PWM frequency
 
-    uint32_t arr = (TUBE_HV_PWM_LOW_FREQUENCY_PERIOD >> frequencyIndex) - 1;
+    uint32_t arr = (TUBE_PWM_LOW_FREQUENCY_PERIOD >> frequencyIndex) - 1;
     TIM_ARR(TUBE_HV_TIMER) = arr; // timer_set_period(TUBE_HV_TIMER, arr);
 
     // Set PWM duty cycle
 
     uint32_t ccr;
     if (tube.enabled)
-        ccr = (TUBE_HV_PWM_LOW_FREQUENCY_PERIOD / 2 -
-               TUBE_HV_PWM_LOW_DUTYCYCLE_MULTIPLIER * dutyCycleIndex) >>
+        ccr = (TUBE_PWM_LOW_FREQUENCY_PERIOD / 2 -
+               TUBE_PWM_LOW_DUTYCYCLE_MULTIPLIER * dutyCycleIndex) >>
               frequencyIndex;
     else
         ccr = 0;

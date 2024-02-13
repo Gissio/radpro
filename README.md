@@ -24,17 +24,18 @@ With Rad Pro, you can:
 
 Rad Pro 2.0 adds:
 
-* Support for the Bosean FS-600, Bosean FS-1000, FS2011 with GD32F150 processor, FS2011 with GD32F103 processor, and FNIRSI GC-01.
+* Support for the FNIRSI GC-01, Bosean FS-600, Bosean FS-1000, FS2011 with GD32F150 processor and FS2011 with GD32F103 processor.
 * Instantaneous rate measurement with adaptive averaging window and fast response.
 * Average rate measurement timer for performing surveys.
 * Data logging with data compression.
-* Serial port/USB data communication.
+* Serial port/USB communications.
 * `radpro-tool` for downloading the data log, logging live data, submitting data to radiation monitoring websites and syncing the device clock.
 * Dead-time measurement.
 * Configurable dead-time compensation.
 * Configurable high voltage generator frequency and duty cycle for tube voltage control.
 * [safecast.org](https://map.safecast.org) radiation monitoring website submission.
-* UI updates with anti-aliased text rendering (on FNIRSI GC-01).
+* Redesigned user interface with the [OpenBridge 4.0](https://www.openbridge.no/) design system.
+* Anti-aliased text rendering on color screens.
 * Several bugfixes and optimizations.
 
 Note: Rad Pro 2.0 uses a new settings format and requires an installation.

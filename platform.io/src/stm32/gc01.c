@@ -40,15 +40,6 @@
 #define DISPLAY_RS_PIN GPIO10
 // +++ TEST
 
-// Flash memory
-
-const FlashRegion flashSettingsRegion = {0x39, 0x3a};
-const FlashRegion flashDatalogRegion = {0x3a, 0x40};
-
-// Communications
-
-const char *const commId = "FNIRSI GC-01;" FIRMWARE_NAME " " FIRMWARE_VERSION;
-
 // System
 
 void initSystem(void)
@@ -82,7 +73,7 @@ void initSystem(void)
 
     RCC_CFGR |= (RCC_CFGR_SW_SYSCLKSEL_PLLCLK << RCC_CFGR_SW_SHIFT); // Select PLL as system clock
 
-    RCC_CR &= ~RCC_CR_HSION; // Disable HSI clock
+    // RCC_CR &= ~RCC_CR_HSION; // Disable HSI clock
 
     // GPIO
 
@@ -94,6 +85,15 @@ void initSystem(void)
     rcc_periph_clock_enable(RCC_GPIOB);
     rcc_periph_clock_enable(RCC_GPIOC);
 }
+
+// Flash memory
+
+const FlashRegion flashSettingsRegion = {0x39, 0x3a};
+const FlashRegion flashDatalogRegion = {0x3a, 0x40};
+
+// Communications
+
+const char *const commId = "FNIRSI GC-01;" FIRMWARE_NAME " " FIRMWARE_VERSION;
 
 // Keyboard
 
@@ -120,11 +120,24 @@ void initKeyboardHardware(void)
 
 void getKeyboardState(bool *isKeyDown)
 {
-    isKeyDown[KEY_LEFT] = !gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN);
-    isKeyDown[KEY_RIGHT] = !gpio_get(KEY_RIGHT_PORT, KEY_RIGHT_PIN);
-    isKeyDown[KEY_UP] = !gpio_get(KEY_UP_PORT, KEY_UP_PIN);
-    isKeyDown[KEY_DOWN] = !gpio_get(KEY_DOWN_PORT, KEY_DOWN_PIN);
-    isKeyDown[KEY_SELECT] = !gpio_get(KEY_SELECT_PORT, KEY_SELECT_PIN);
+    // +++ TEST
+    // isKeyDown[KEY_LEFT] = !gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN);
+    // isKeyDown[KEY_RIGHT] = !gpio_get(KEY_RIGHT_PORT, KEY_RIGHT_PIN);
+    // isKeyDown[KEY_UP] = !gpio_get(KEY_UP_PORT, KEY_UP_PIN);
+    // isKeyDown[KEY_DOWN] = !gpio_get(KEY_DOWN_PORT, KEY_DOWN_PIN);
+    // isKeyDown[KEY_SELECT] = !gpio_get(KEY_SELECT_PORT, KEY_SELECT_PIN);
+
+    gpio_set_mode(GPIOB,
+                  GPIO_MODE_INPUT,
+                  GPIO_CNF_INPUT_PULL_UPDOWN,
+                  GPIO15);
+
+    isKeyDown[KEY_LEFT] = false;
+    isKeyDown[KEY_RIGHT] = false;
+    isKeyDown[KEY_UP] = false;
+    isKeyDown[KEY_DOWN] = false;
+    isKeyDown[KEY_SELECT] = gpio_get(GPIOB, GPIO15);
+    // +++ TEST
 }
 
 // Display
@@ -225,6 +238,7 @@ void onDisplaySetCommand(bool value)
 
 // +++ TEST
 #if defined(DISPLAY_SCLK_PORT)
+
     if (value)
     {
         // Trigger CS before command
@@ -237,6 +251,7 @@ void onDisplaySetCommand(bool value)
     else
         gpio_set(DISPLAY_RS_PORT,
                  DISPLAY_RS_PIN);
+
 #endif
     // +++ TEST
 }
@@ -244,7 +259,7 @@ void onDisplaySetCommand(bool value)
 void onDisplaySend(uint16_t value)
 {
     // +++ TEST
-#if defined(DISPLAY_SERIAL)
+#if defined(DISPLAY_SCLK_PORT)
     spi_send(SPI1, value);
 #else
     // +++ TEST
@@ -257,12 +272,14 @@ void onDisplaySend(uint16_t value)
 }
 
 // +++ TEST
-#if defined(DISPLAY_SERIAL)
+#if defined(DISPLAY_SCLK_PORT)
+
 void onDisplaySend16(uint16_t value)
 {
     spi_send(SPI1, (value >> 8) & 0xff);
     spi_send(SPI1, (value >> 0) & 0xff);
 }
+
 #endif
 // +++ TEST
 
@@ -282,7 +299,7 @@ void initDisplayHardware(void)
 
 // +++ TEST
 #if defined(DISPLAY_SCLK_PORT)
-    gpio_set(DISPLAY_CS_PORT, DISPLAY_CS_PIN);
+
     gpio_set_mode(GPIOB,
                   GPIO_MODE_OUTPUT_50_MHZ,
                   GPIO_CNF_OUTPUT_PUSHPULL,
@@ -303,6 +320,7 @@ void initDisplayHardware(void)
     spi_enable_software_slave_management(SPI1);
     spi_set_nss_high(SPI1);
     spi_enable(SPI1);
+
 #endif
     // +++ TEST
 

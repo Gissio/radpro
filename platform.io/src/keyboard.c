@@ -51,16 +51,17 @@ void initKeyboard(void)
     initKeyboardHardware();
 
     keyboard.pressedKey = KEY_NONE;
-
-    // +++ TEST
-    // bool isKeyDown[KEY_NUM];
-    // getKeyboardState(isKeyDown);
-
-    // if (isKeyDown[KEY_LEFT])
-    //     startBootloader();
-    // +++ TEST
-
     keyboard.isInitialized = true;
+
+#if defined(START_BOOTLOADER_SUPPORT)
+
+    bool isKeyDown[KEY_NUM];
+    getKeyboardState(isKeyDown);
+
+    if (isKeyDown[KEY_LEFT])
+        startBootloader();
+
+#endif
 }
 
 void onKeyboardTick(void)

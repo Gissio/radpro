@@ -25,8 +25,8 @@ void initPowerHardware(void);
 
 void setPower(bool value);
 
-void powerOff(void);
-void powerOffLowBattery(void);
+void setPowerOffRequest(bool value);
+bool isPowerOffRequested(void);
 
 int8_t getBatteryLevel(void);
 

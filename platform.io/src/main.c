@@ -31,85 +31,119 @@
 
 int main(void)
 {
-    // Start primary devices
+    // Initialize system
 
     initSystem();
     initEvents();
     initFlash();
     initSettings();
-    initBuzzer();
-    initComm();
-
-    // POWER key delay
-
-    sleep(500);
-    setPower(true);
-
-    // Start secondary devices
-
-    initTube();
     initPower();
+    initComm();
+    initRTC();
     initADC();
+    initTube();
     initKeyboard();
+    initBuzzer();
+    initDisplay();
 #if defined(PULSE_LED)
     initPulseLED();
 #endif
 #if defined(VIBRATOR)
     initVibrator();
 #endif
-    initDisplay();
-
-    if (!verifyFlash())
-    {
-        drawNotification("WARNING",
-                         "Firmware checksum failure.", true);
-        refreshDisplay();
-        triggerBacklight();
-
-        playSystemAlert();
-
-        sleep(5000);
-    }
 
 #if defined(DEBUG_TESTMODE)
 
-    debugTestMode();
+    runTestMode();
 
 #else
+
     initMeasurements();
     initGame();
-
-    // Check low battery
-
-    updateADC();
-
-    // Welcome screen
-
-    drawNotification(FIRMWARE_NAME, FIRMWARE_VERSION, true);
-    refreshDisplay();
-    triggerBacklight();
-
-    sleep(1000);
-
-    // Complete initialization
-
-    initRTCHardware();
     initDatalog();
 
-    setTubeHV(true);
-    setEventHandling(true);
-    startComm();
-
-    // UI loop
-
-    setMeasurementView(0);
-
-    while (1)
+    while (true)
     {
-        sleep(1);
+        // Wait for power key event
 
-        updateGame();
-        dispatchEvents();
+#if defined(SDLSIM)
+
+        static bool firstStart = true;
+        while ((getKeyboardEvent() != EVENT_KEY_POWER) && !firstStart)
+        {
+            sleep(1);
+
+            updateDisplayEvents();
+        }
+        firstStart = false;
+
+#else
+
+        while (getKeyboardEvent() != EVENT_KEY_POWER)
+        {
+            sleep(1);
+
+            updateDisplayEvents();
+        }
+
+#endif
+
+        // Power on
+
+        setPower(true);
+
+        if (!verifyFlash())
+        {
+            drawNotification("WARNING",
+                             "Firmware checksum failure.", true);
+            refreshDisplay();
+            triggerBacklight();
+            playSystemAlert();
+
+            sleep(5000);
+        }
+
+        drawNotification(FIRMWARE_NAME, FIRMWARE_VERSION, true);
+        refreshDisplay();
+        triggerBacklight();
+
+        sleep(1000);
+
+        setTubeHV(true);
+        setEventHandling(true);
+        setCommEnabled(true);
+
+        writeDatalogEntry(false);
+
+        // UI loop
+
+        setMeasurementView(0);
+
+        while (!isPowerOffRequested())
+        {
+            sleep(1);
+
+            updateGame();
+            dispatchEvents();
+        }
+
+        setPowerOffRequest(false);
+
+        // Power off
+
+        writeDatalogEntry(true);
+        writeSettings();
+
+        setCommEnabled(false);
+        setEventHandling(false);
+        setTubeHV(false);
+
+#if defined(DISPLAY_MONOCHROME)
+        setDisplay(false);
+#endif
+
+        setPower(false);
     }
+
 #endif
 }

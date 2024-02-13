@@ -10,7 +10,7 @@ To establish a connection with a Rad Pro device, you can use either a serial por
 
 The communications protocol is ASCII-based and follows a request-response model.
 
-`\n` represents the newline character.
+In the following description, `\n` represents the newline character.
 
 ## Requests
 
@@ -66,7 +66,7 @@ Example:
     SET deviceTime 1690000000
     OK
 
-### Get tube time
+### Get tube's life time
 
 * Request: `GET tubeTime\n`
 * Response: `OK [value]\n`
@@ -78,7 +78,7 @@ Example:
     GET tubeTime
     OK 16000
 
-### Set tube time
+### Set tube's life time
 
 * Request: `SET tubeTime [value]\n`
 * Response: `OK\n`
@@ -90,7 +90,7 @@ Example:
     SET tubeTime 16000
     OK
 
-### Get tube pulse count
+### Get tube's life pulse count
 
 * Request: `GET tubePulseCount\n`
 * Response: `OK [value]\n`
@@ -102,7 +102,7 @@ Example:
     GET tubePulseCount
     OK 1500
 
-### Set tube pulse count
+### Set tube's life pulse count
 
 * Request: `SET tubePulseCount [value]\n`
 * Response: `OK\n`
@@ -133,7 +133,7 @@ For improved accuracy, perform two `GET tubePulseCount` measurements over a time
 * Request: `GET tubeDeadTime\n`
 * Response: `OK [value]\n`
 
-Returns an upper bound measurement of the tube's dead-time in seconds, provided in decimal format with seven decimal places.
+Returns a measured upper bound of the tube's dead-time in seconds, provided in decimal format with seven decimal places.
 
 Example:
 
@@ -164,29 +164,29 @@ Example:
     GET tubeDeadTimeCompensation
     OK 0.0002500
 
-### Get tube HV duty cycle
+### Get tube PWM frequency
 
-* Request: `GET tubeHVDutyCycle\n` 
+* Request: `GET tubePWMFrequency\n` 
+* Response: `OK [value]\n`
+
+Returns the tube's PWM frequency of the high voltage generator in Hz, provided in decimal format.
+
+Example:
+
+    GET tubePWMFrequency
+    OK 1250
+
+### Get tube PWM duty cycle
+
+* Request: `GET tubePWMDutyCycle\n` 
 * Response: `OK [value]\n`
 
 Returns the tube's PWM duty-cycle of the high voltage generator, provided in decimal format with three decimal places.
 
 Example:
 
-    GET tubeHVDutyCycle
+    GET tubePWMDutyCycle
     OK 0.415
-
-### Get tube HV frequency
-
-* Request: `GET tubeHVFrequency\n` 
-* Response: `OK [value]\n`
-
-Returns the tube's PWM frequency of the high voltage generator measured in Hz, provided in decimal format.
-
-Example:
-
-    GET tubeHVFrequency
-    OK 1250
 
 ### Get data log
 
@@ -215,7 +215,7 @@ Example:
     GET randomData
     OK 9155facb75c00e331cf7fd625102f37a
 
-### Start bootloader
+<!-- ### Start bootloader
 
 * Request: `START bootloader\n`
 * Response: `OK\n`
@@ -225,7 +225,7 @@ On certain devices, starts the bootloader for performing firmware updates.
 Example:
 
     START bootloader
-    OK
+    OK -->
 
 ### Invalid or erroneous requests
 

@@ -84,15 +84,17 @@ If you like Rad Pro, show your support by starring the project on GitHub.
 
 On the Bosean FS-600, the keys are mapped as follows:
 
-  * Power on/off: long press of the power key.
+  * Power on/off: long press of the ok/power key.
   * Go up/down: the up and down keys.
-  * Enter settings/select option: the right/settings or ok/power key.
-  * Hold measurement/go back: the left/back key.
+  * Hold measurement: the ok/power or left/back key.
   * Reset measurement: long press of the left/back key.
+  * Enter settings: the right/settings key.
+  * Select option: the ok/power or right/settings key.
+  * Bo back: the left/back key.
 
 On the Bosean FS-1000, the keys are mapped as follows:
 
-  * Power on/off: Extended press of the set/power key.
+  * Power on/off: extended press of the set/power key.
   * Go up: the mode key.
   * Go down: the set/power key.
   * Enter settings/select option: long press of the set/power key.

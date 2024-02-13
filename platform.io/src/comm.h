@@ -37,7 +37,7 @@ enum CommState
 
 typedef struct
 {
-    bool active;
+    bool enabled;
 
     volatile enum CommPort port;
     volatile enum CommState state;
@@ -48,13 +48,16 @@ typedef struct
     bool sendingDatalog;
     uint32_t datalogTimeLimit;
 
+#if defined(START_BOOTLOADER_SUPPORT)
     bool startBootloader;
+#endif
 } Comm;
 
 extern Comm comm;
 
 void initComm(void);
-void startComm(void);
+
+void setCommEnabled(bool value);
 
 void transmitComm(void);
 

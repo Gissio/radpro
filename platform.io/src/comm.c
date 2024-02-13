@@ -24,9 +24,9 @@
 
 Comm comm;
 
-void startComm(void)
+void setCommEnabled(bool value)
 {
-    comm.active = true;
+    comm.enabled = value;
 }
 
 static bool matchCommCommand(const char *command)
@@ -167,10 +167,10 @@ void dispatchCommEvents(void)
             sendCommOkWithFloat(getTubeConversionFactor(), 3);
         else if (matchCommCommand("GET tubeDeadTimeCompensation"))
             sendCommOkWithFloat(getTubeDeadTimeCompensation(), 7);
-        else if (matchCommCommand("GET tubeHVDutyCycle"))
-            sendCommOkWithFloat(getTubeHVDutyCycle(), 3);
-        else if (matchCommCommand("GET tubeHVFrequency"))
-            sendCommOkWithFloat(getTubeHVFrequency(), 0);
+        else if (matchCommCommand("GET tubePWMFrequency"))
+            sendCommOkWithFloat(getTubePWMFrequency(), 0);
+        else if (matchCommCommand("GET tubePWMDutyCycle"))
+            sendCommOkWithFloat(getTubePWMDutyCycle(), 3);
         else if (matchCommCommand("GET tubeDeadTime"))
             sendCommOkWithFloat(getDeadTime(), 7);
         else if (matchCommCommand("GET randomData"))
@@ -189,12 +189,14 @@ void dispatchCommEvents(void)
                 strcatUInt8Hex(comm.buffer, randomData);
             }
         }
+#if defined(START_BOOTLOADER_SUPPORT)
         else if (matchCommCommand("START bootloader"))
         {
             comm.startBootloader = true;
 
             sendCommOk();
         }
+#endif
         else
             sendCommError();
 
@@ -235,8 +237,12 @@ void dispatchCommEvents(void)
         }
         else
         {
+#if defined(START_BOOTLOADER_SUPPORT)
+
             if (comm.startBootloader)
                 startBootloader();
+
+#endif
 
             comm.state = COMM_RX;
         }

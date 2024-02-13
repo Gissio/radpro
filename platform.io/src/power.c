@@ -40,6 +40,8 @@ static const float batteryLevelThresholds[] =
 static const Menu batteryTypeMenu;
 #endif
 
+bool powerOffRequested;
+
 void initPower()
 {
     initPowerHardware();
@@ -51,31 +53,14 @@ void initPower()
 #endif
 }
 
-void powerOff(void)
+void setPowerOffRequest(bool value)
 {
-    writeDatalogEntry(true);
-    writeSettings();
+    powerOffRequested = value;
+}
 
-    // Disable devices
-
-    setEventHandling(false);
-    setDisplay(false);
-    setPower(false);
-
-    while (getKeyboardEvent() != EVENT_KEY_POWER)
-        sleep(1);
-
-    // Enable devices (runs when using external power supply)
-
-    setPower(true);
-    setEventHandling(true);
-    triggerBacklight();
-
-    // Resume
-
-    writeDatalogEntry(false);
-
-    updateView();
+bool isPowerOffRequested(void)
+{
+    return powerOffRequested;
 }
 
 int8_t getBatteryLevel(void)

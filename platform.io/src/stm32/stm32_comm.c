@@ -134,7 +134,7 @@ void USART_IRQ_HANDLER(void)
     {
         char c = usart_recv(USART_INTERFACE);
 
-        if (!comm.active)
+        if (!comm.enabled)
             return;
 
         comm.port = COMM_SERIAL;
@@ -374,11 +374,11 @@ static const struct usb_device_descriptor usbDeviceDescriptor = {
 };
 
 static enum usbd_request_return_codes
-respondControlRequest(usbd_device *usbdDevice,
+respondControlRequest(usbd_device *usbd_dev,
                       struct usb_setup_data *request,
                       uint8_t **buffer,
                       uint16_t *bufferSize,
-                      void (**complete)(usbd_device *usbDevice,
+                      void (**callback)(usbd_device *usbd_dev,
                                         struct usb_setup_data *request))
 {
     switch (request->bRequest)
@@ -396,22 +396,22 @@ respondControlRequest(usbd_device *usbdDevice,
     return USBD_REQ_NOTSUPP;
 }
 
-static void setConfiguration(usbd_device *usbdDevice,
+static void setConfiguration(usbd_device *usbd_dev,
                              uint16_t wValue)
 {
-    usbd_ep_setup(usbdDevice,
+    usbd_ep_setup(usbd_dev,
                   USB_CONTROL_ENDPOINT_OUT,
                   USB_ENDPOINT_ATTR_INTERRUPT,
                   USB_CONTROL_PACKET_SIZE_MAX,
                   NULL);
 
-    usbd_ep_setup(usbdDevice,
+    usbd_ep_setup(usbd_dev,
                   USB_DATA_ENDPOINT_IN,
                   USB_ENDPOINT_ATTR_BULK,
                   USB_DATA_PACKET_SIZE_MAX,
                   NULL);
 
-    usbd_ep_setup(usbdDevice,
+    usbd_ep_setup(usbd_dev,
                   USB_DATA_ENDPOINT_OUT,
                   USB_ENDPOINT_ATTR_BULK,
                   USB_DATA_PACKET_SIZE_MAX,
@@ -465,54 +465,54 @@ void usb_lp_can_rx0_isr()
 
 void updateCommHardware(void)
 {
-    char buffer[USB_DATA_PACKET_SIZE_MAX];
-    uint32_t bufferSize = usbd_ep_read_packet(usbdDevice,
-                                              USB_DATA_ENDPOINT_IN,
-                                              buffer,
-                                              USB_DATA_PACKET_SIZE_MAX);
-    uint32_t bufferIndex = 0;
+    // char buffer[USB_DATA_PACKET_SIZE_MAX];
+    // uint32_t bufferSize = usbd_ep_read_packet(usbdDevice,
+    //                                           USB_DATA_ENDPOINT_IN,
+    //                                           buffer,
+    //                                           USB_DATA_PACKET_SIZE_MAX);
+    // uint32_t bufferIndex = 0;
 
-    if (!comm.active)
-        return;
+    // if (!comm.enabled)
+    //     return;
 
-    switch (comm.state)
-    {
-    case COMM_RX:
-        while (bufferIndex < bufferSize)
-        {
-            char c = buffer[bufferIndex++];
+    // switch (comm.state)
+    // {
+    // case COMM_RX:
+    //     while (bufferIndex < bufferSize)
+    //     {
+    //         char c = buffer[bufferIndex++];
 
-            if ((c >= ' ') && (comm.bufferIndex < (COMM_BUFFER_SIZE - 1)))
-                comm.buffer[comm.bufferIndex++] = c;
-            else if (c == '\n')
-            {
-                comm.buffer[comm.bufferIndex] = '\0';
-                comm.bufferIndex = 0;
+    //         if ((c >= ' ') && (comm.bufferIndex < (COMM_BUFFER_SIZE - 1)))
+    //             comm.buffer[comm.bufferIndex++] = c;
+    //         else if (c == '\n')
+    //         {
+    //             comm.buffer[comm.bufferIndex] = '\0';
+    //             comm.bufferIndex = 0;
 
-                comm.state = COMM_RX_READY;
-            }
-        }
+    //             comm.state = COMM_RX_READY;
+    //         }
+    //     }
 
-        break;
+    //     break;
 
-    case COMM_TX:
-        bufferSize = usbd_ep_write_packet(usbdDevice,
-                                          USB_DATA_ENDPOINT_OUT,
-                                          comm.buffer,
-                                          strlen(comm.buffer));
+    // case COMM_TX:
+    //     bufferSize = usbd_ep_write_packet(usbdDevice,
+    //                                       USB_DATA_ENDPOINT_OUT,
+    //                                       comm.buffer,
+    //                                       strlen(comm.buffer));
 
-        if (bufferSize)
-        {
-            comm.bufferIndex = 0;
+    //     if (bufferSize)
+    //     {
+    //         comm.bufferIndex = 0;
 
-            comm.state = COMM_TX_READY;
-        }
+    //         comm.state = COMM_TX_READY;
+    //     }
 
-        break;
+    //     break;
 
-    default:
-        break;
-    }
+    // default:
+    //     break;
+    // }
 }
 
 #else

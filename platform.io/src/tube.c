@@ -30,16 +30,16 @@ static const Menu tubeConversionFactorMenu;
 static const Menu tubeDeadTimeCompensationMenu;
 static const Menu tubeHVProfileMenu;
 static const Menu tubeHVCustomProfileMenu;
-static const Menu tubeHVDutyCycleMenu;
-static const Menu tubeHVFrequencyMenu;
+static const Menu tubePWMDutyCycleMenu;
+static const Menu tubePWMFrequencyMenu;
 
 static const View tubeConversionFactorMenuView;
 static const View tubeDeadTimeCompensationMenuView;
 static const View tubeHVProfileMenuView;
 static const View tubeHVCustomProfileWarningMenuView;
 static const View tubeHVCustomProfileMenuView;
-static const View tubeHVDutyCycleMenuView;
-static const View tubeHVFrequencyMenuView;
+static const View tubePWMDutyCycleMenuView;
+static const View tubePWMrequencyMenuView;
 
 void initTube(void)
 {
@@ -54,12 +54,12 @@ void initTube(void)
     selectMenuItem(&tubeHVProfileMenu,
                    settings.tubeHVProfile,
                    TUBE_HVPROFILE_NUM);
-    selectMenuItem(&tubeHVFrequencyMenu,
-                   settings.tubeHVFrequency,
-                   TUBE_HVFREQUENCY_NUM);
-    selectMenuItem(&tubeHVDutyCycleMenu,
-                   settings.tubeHVDutyCycle,
-                   TUBE_HVDUTYCYCLE_NUM);
+    selectMenuItem(&tubePWMFrequencyMenu,
+                   settings.tubePWMFrequency,
+                   TUBE_PWMFREQUENCY_NUM);
+    selectMenuItem(&tubePWMDutyCycleMenu,
+                   settings.tubePWMDutyCycle,
+                   TUBE_PWMDUTYCYCLE_NUM);
 }
 
 // Tube menu
@@ -344,8 +344,8 @@ static const View tubeHVCustomProfileWarningMenuView = {
 // Tube HV custom profile menu
 
 static const char *const tubeHVCustomProfileMenuOptions[] = {
-    "HV frequency",
-    "HV duty cycle",
+    "PWM frequency",
+    "PWM duty cycle",
     NULL,
 };
 
@@ -363,11 +363,11 @@ static void onTubeHVCustomProfileMenuSelect(const Menu *menu)
     switch (menu->state->selectedIndex)
     {
     case 0:
-        setView(&tubeHVFrequencyMenuView);
+        setView(&tubePWMrequencyMenuView);
 
         break;
     case 1:
-        setView(&tubeHVDutyCycleMenuView);
+        setView(&tubePWMDutyCycleMenuView);
 
         break;
     }
@@ -393,9 +393,9 @@ static void onTubeHVCustomProfileSubMenuBack(const Menu *menu)
     setView(&tubeHVCustomProfileMenuView);
 }
 
-// Tube HV frequency menu
+// Tube PWM frequency menu
 
-static const char *const tubeHVFrequencyMenuOptions[] = {
+static const char *const tubePWMFrequencyMenuOptions[] = {
     "1.25 kHz",
     "2.5 kHz",
     "5 kHz",
@@ -405,22 +405,22 @@ static const char *const tubeHVFrequencyMenuOptions[] = {
     NULL,
 };
 
-float getTubeHVFrequency(void)
+float getTubePWMFrequency(void)
 {
-    uint32_t frequency = 1250 << settings.tubeHVFrequency;
+    uint32_t frequency = 1250 << settings.tubePWMFrequency;
 
     return (float)frequency;
 }
 
-static const char *onTubeHVFrequencyMenuGetOption(const Menu *menu,
-                                                  uint32_t index,
-                                                  MenuStyle *menuStyle)
+static const char *onTubePWMFrequencyMenuGetOption(const Menu *menu,
+                                                   uint32_t index,
+                                                   MenuStyle *menuStyle)
 {
-    *menuStyle = (index == settings.tubeHVFrequency);
+    *menuStyle = (index == settings.tubePWMFrequency);
 
-    if (index < TUBE_HVFREQUENCY_NUM)
+    if (index < TUBE_PWMFREQUENCY_NUM)
     {
-        strcpy(menuOption, tubeHVFrequencyMenuOptions[index]);
+        strcpy(menuOption, tubePWMFrequencyMenuOptions[index]);
 
         if (index == TUBE_FACTORYDEFAULT_HVFREQUENCY)
             strcat(menuOption, " (default)");
@@ -431,50 +431,50 @@ static const char *onTubeHVFrequencyMenuGetOption(const Menu *menu,
         return NULL;
 }
 
-static void onTubeHVFrequencyMenuSelect(const Menu *menu)
+static void onTubePWMFrequencyMenuSelect(const Menu *menu)
 {
-    settings.tubeHVFrequency = menu->state->selectedIndex;
+    settings.tubePWMFrequency = menu->state->selectedIndex;
 
     updateTubeHV();
 }
 
-static MenuState tubeHVFrequencyMenuState;
+static MenuState tubePWMFrequencyMenuState;
 
-static const Menu tubeHVFrequencyMenu = {
-    "HV frequency",
-    &tubeHVFrequencyMenuState,
-    onTubeHVFrequencyMenuGetOption,
-    onTubeHVFrequencyMenuSelect,
+static const Menu tubePWMFrequencyMenu = {
+    "PWM frequency",
+    &tubePWMFrequencyMenuState,
+    onTubePWMFrequencyMenuGetOption,
+    onTubePWMFrequencyMenuSelect,
     onTubeHVCustomProfileSubMenuBack,
 };
 
-static const View tubeHVFrequencyMenuView = {
+static const View tubePWMrequencyMenuView = {
     onMenuEvent,
-    &tubeHVFrequencyMenu,
+    &tubePWMFrequencyMenu,
 };
 
-// Tube HV duty cycle menu
+// Tube PWM duty cycle menu
 
-static float getTubeHVDutyCycleFromIndex(uint32_t index)
+static float getTubePWMDutyCycleFromIndex(uint32_t index)
 {
     return 0.5F - 0.0025F * index;
 }
 
-float getTubeHVDutyCycle(void)
+float getTubePWMDutyCycle(void)
 {
-    return getTubeHVDutyCycleFromIndex(settings.tubeHVDutyCycle);
+    return getTubePWMDutyCycleFromIndex(settings.tubePWMDutyCycle);
 }
 
-static const char *onTubeHVDutyCycleMenuGetOption(const Menu *menu,
-                                                  uint32_t index,
-                                                  MenuStyle *menuStyle)
+static const char *onTubePWMDutyCycleMenuGetOption(const Menu *menu,
+                                                   uint32_t index,
+                                                   MenuStyle *menuStyle)
 {
-    *menuStyle = (index == settings.tubeHVDutyCycle);
+    *menuStyle = (index == settings.tubePWMDutyCycle);
 
-    if (index < TUBE_HVDUTYCYCLE_NUM)
+    if (index < TUBE_PWMDUTYCYCLE_NUM)
     {
         strcpy(menuOption, " ");
-        strcatFloat(menuOption, 100 * getTubeHVDutyCycleFromIndex(index), 2);
+        strcatFloat(menuOption, 100 * getTubePWMDutyCycleFromIndex(index), 2);
         strcat(menuOption, " %");
 
         if (index == TUBE_FACTORYDEFAULT_HVDUTYCYCLE)
@@ -486,24 +486,24 @@ static const char *onTubeHVDutyCycleMenuGetOption(const Menu *menu,
         return NULL;
 }
 
-static void onTubeHVDutyCycleMenuSelect(const Menu *menu)
+static void onTubePWMDutyCycleMenuSelect(const Menu *menu)
 {
-    settings.tubeHVDutyCycle = menu->state->selectedIndex;
+    settings.tubePWMDutyCycle = menu->state->selectedIndex;
 
     updateTubeHV();
 }
 
-static MenuState tubeHVDutyCycleMenuState;
+static MenuState tubePWMDutyCycleMenuState;
 
-static const Menu tubeHVDutyCycleMenu = {
-    "HV duty cycle",
-    &tubeHVDutyCycleMenuState,
-    onTubeHVDutyCycleMenuGetOption,
-    onTubeHVDutyCycleMenuSelect,
+static const Menu tubePWMDutyCycleMenu = {
+    "PWM duty cycle",
+    &tubePWMDutyCycleMenuState,
+    onTubePWMDutyCycleMenuGetOption,
+    onTubePWMDutyCycleMenuSelect,
     onTubeHVCustomProfileSubMenuBack,
 };
 
-static const View tubeHVDutyCycleMenuView = {
+static const View tubePWMDutyCycleMenuView = {
     onMenuEvent,
-    &tubeHVDutyCycleMenu,
+    &tubePWMDutyCycleMenu,
 };

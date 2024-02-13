@@ -31,8 +31,8 @@ void dispatchViewEvents(void)
     {
 #if defined(DISPLAY_MONOCHROME)
 
-        if (((settings.displayTimer == DISPLAY_TIMER_ALWAYS_OFF) ||
-             (settings.displayTimer == DISPLAY_TIMER_PULSE_FLASHES)) ||
+        if (((settings.displaySleep == DISPLAY_SLEEP_ALWAYS_OFF) ||
+             (settings.displaySleep == DISPLAY_SLEEP_PULSE_FLASHES)) ||
             isBacklightTimerActive())
 
 #elif defined(DISPLAY_COLOR)
@@ -42,7 +42,7 @@ void dispatchViewEvents(void)
 #endif
         {
             if (event == EVENT_KEY_POWER)
-                powerOff();
+                setPowerOffRequest(true);
             else
                 view.currentView->onEvent(view.currentView, event);
         }

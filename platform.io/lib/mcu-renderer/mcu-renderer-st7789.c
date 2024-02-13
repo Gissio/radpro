@@ -23,7 +23,7 @@ static const uint8_t mr_st7789_init_sequence[] = {
 
 static const uint8_t mr_st7789_display_on_sequence[] = {
     MR_SEND_COMMAND(MR_ST7789_SLPOUT), // Sleep out
-    MR_SLEEP(5),
+    MR_SLEEP(120),
     MR_END(),
 };
 

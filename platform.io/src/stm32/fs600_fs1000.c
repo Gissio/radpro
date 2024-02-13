@@ -25,23 +25,6 @@
 
 #include "mcu-renderer-st7565.h"
 
-// Flash memory
-
-const FlashRegion flashSettingsRegion = {0x10, 0x11};
-const FlashRegion flashDatalogRegion = {0x11, 0x40};
-
-// Communications
-
-#if defined(FS600)
-
-const char *const commId = "Bosean FS-600;" FIRMWARE_NAME " " FIRMWARE_VERSION;
-
-#elif defined(FS1000)
-
-const char *const commId = "Bosean FS-1000;" FIRMWARE_NAME " " FIRMWARE_VERSION;
-
-#endif
-
 // System
 
 void initSystem(void)
@@ -60,6 +43,28 @@ void initSystem(void)
     // Disable UCPD strobes
     SYSCFG_CFGR1 |= (SYSCFG_CFGR1_UCPD1_STROBE | SYSCFG_CFGR1_UCPD2_STROBE);
 }
+
+// Flash memory
+
+#if !defined(DEBUG)
+const FlashRegion flashSettingsRegion = {0x10, 0x11};
+const FlashRegion flashDatalogRegion = {0x11, 0x40};
+#else
+const FlashRegion flashSettingsRegion = {0x20, 0x21};
+const FlashRegion flashDatalogRegion = {0x21, 0x40};
+#endif
+
+// Communications
+
+#if defined(FS600)
+
+const char *const commId = "Bosean FS-600;" FIRMWARE_NAME " " FIRMWARE_VERSION;
+
+#elif defined(FS1000)
+
+const char *const commId = "Bosean FS-1000;" FIRMWARE_NAME " " FIRMWARE_VERSION;
+
+#endif
 
 // Keyboard
 
@@ -120,7 +125,7 @@ void getKeyboardState(bool *isKeyDown)
 
 // Display
 
-static uint8_t framebuffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8];
+static uint8_t displayFramebuffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8];
 
 extern mr_t mr;
 
@@ -260,7 +265,7 @@ void initDisplayHardware(void)
                    DISPLAY_WIDTH,
                    DISPLAY_HEIGHT,
                    MR_DISPLAY_ROTATION_0,
-                   framebuffer,
+                   displayFramebuffer,
                    onDisplaySleep,
                    onDisplaySetReset,
                    onDisplaySetCommand,

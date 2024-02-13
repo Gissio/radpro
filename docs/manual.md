@@ -64,9 +64,9 @@ HV profiles let you control the high voltage applied to the Geiger-Müller tube.
 
 You can also define your own HV profile. Be careful, as wrong profile values MAY DAMAGE both the tube due to overvoltage as well as the switching transistor due to overcurrent.
 
-To set up a custom voltage profile you need to measure the high voltage at the tube. To do this, connect a 1 GΩ resistor in series to a multimeter with 10 MΩ input impedance. The resistor should be cleaned thorougly in order to avoid spurious currents. Set the multimeter to the 20 V range. The high voltage will approximately correspond to the voltmeter reading multiplied by a factor of 1000 MΩ / 10 MΩ = 100. Caution: high voltage CAN BE LETHAL.
+To set up a custom voltage profile you need to measure the high voltage at the tube. To do this, connect a 1 GΩ resistor in series to a high-quality multimeter (10 MΩ input impedance). The resistor should be cleaned thorougly in order to avoid spurious currents. Set the multimeter to the 20 V range. The high voltage will correspond approximately to the multimeter reading, multiplied by a factor of (1000 MΩ + 10  MΩ) / 10 MΩ = 101. Caution: high voltage CAN BE LETHAL.
 
-An HV profile consists of a frequency and a duty cycle. Typically, higher frequency values produce lower voltage ripple (voltage variations in time) but consume more power. Conversely, lower frequency values require less power, but may sacrifice measurement accuracy.
+An HV profile consists of a [PWM](https://en.wikipedia.org/wiki/Pulse-width_modulation) frequency and duty cycle. Typically, higher frequency values produce lower voltage ripple (voltage variations in time) but consume more power. Conversely, lower frequency values require less power, but may sacrifice measurement accuracy.
 
 ## Random generator
 

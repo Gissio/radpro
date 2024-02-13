@@ -96,9 +96,11 @@ The keys are mapped as follows:
 
   * Power on/off: long press of the power key.
   * Go up/down: the up and down keys.
-  * Enter settings/select option: the menu/ok or power key
-  * Hold measurement/go back: the play/pause or power key.
+  * Hold measurement: the power or play/pause key.
   * Reset measurement: long press of the play/pause key.
+  * Enter settings: the menu/ok key.
+  * Select option: the power or menu/ok key.
+  * Bo back: the play/pause key.
 
 On the FS2011, Rad Pro can store up to 31403 data points. At normal radiation levels, this allows for 10 days of data at 1-minute intervals, 54 days at 5-minute intervals, 109 days at 10-minute intervals, 327 days at 30-minute intervals, and 654 days at 60-minute intervals.
 

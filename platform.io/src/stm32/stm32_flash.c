@@ -57,6 +57,7 @@ void initFlash(void)
 
 bool verifyFlash(void)
 {
+
     rcc_periph_clock_enable(RCC_CRC);
 
     uint32_t calculatedCRC = crc_calculate_block((uint32_t *)PAYLOAD_BASE, PAYLOAD_SIZE / 4);

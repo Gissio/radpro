@@ -44,8 +44,8 @@ void initSettings(void)
     // Default values
 
     settings.tubeConversionFactor = TUBE_CONVERSIONFACTOR_DEFAULT;
-    settings.tubeHVFrequency = TUBE_FACTORYDEFAULT_HVFREQUENCY;
-    settings.tubeHVDutyCycle = TUBE_FACTORYDEFAULT_HVDUTYCYCLE;
+    settings.tubePWMFrequency = TUBE_FACTORYDEFAULT_HVFREQUENCY;
+    settings.tubePWMDutyCycle = TUBE_FACTORYDEFAULT_HVDUTYCYCLE;
 
 #if defined(PULSE_LED)
     settings.pulseLED = PULSE_LED_ON;
@@ -54,7 +54,7 @@ void initSettings(void)
 #if defined(DISPLAY_MONOCHROME)
     settings.displayContrast = DISPLAY_CONTRAST_DEFAULT;
 #endif
-    settings.displayTimer = DISPLAY_TIMER_30S;
+    settings.displaySleep = DISPLAY_SLEEP_30S;
 #if defined(SDLSIM)
     settings.displayBrightness = DISPLAY_BRIGHTNESS_VERYHIGH;
     time_t unixTime = time(NULL);

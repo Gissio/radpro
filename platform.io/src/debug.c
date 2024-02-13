@@ -16,6 +16,7 @@
 #include "display.h"
 #include "events.h"
 #include "keyboard.h"
+#include "power.h"
 #include "pulseled.h"
 
 #define DEBUG_BIT_LENGTH 100
@@ -112,9 +113,11 @@ void gpio_clear(uint32_t a, uint32_t b)
 
 extern const uint8_t font_tiny5[];
 
-void debugTestMode(void)
+void runTestMode(void)
 {
     uint32_t state = 0;
+
+    setPower(true);
 
     while (true)
     {

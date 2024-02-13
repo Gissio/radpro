@@ -154,15 +154,11 @@ uint32_t readADC(uint8_t channel, uint8_t sampleTime)
 
     // ADC conversion
 
-#if defined(STM32F0) || defined(STM32G0)
-    adc_power_on(ADC1);
-#endif
+#if defined(STM32F0) && defined(GD32)
 
     syncBuzzer();
     syncDisplayBacklight();
     syncTubeHV();
-
-#if defined(STM32F0) && defined(GD32)
 
     adc_software_trigger_enable(ADC_REGULAR_CHANNEL);
 
@@ -175,6 +171,12 @@ uint32_t readADC(uint8_t channel, uint8_t sampleTime)
 
 #elif defined(STM32F0) || defined(STM32G0)
 
+    adc_power_on(ADC1);
+
+    syncBuzzer();
+    syncDisplayBacklight();
+    syncTubeHV();
+
     adc_start_conversion_regular(ADC1);
 
     while (!adc_eoc(ADC1))
@@ -185,6 +187,10 @@ uint32_t readADC(uint8_t channel, uint8_t sampleTime)
     adc_power_off(ADC1);
 
 #elif defined(STM32F1)
+
+    syncBuzzer();
+    syncDisplayBacklight();
+    syncTubeHV();
 
     adc_start_conversion_regular(ADC1);
 

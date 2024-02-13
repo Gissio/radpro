@@ -22,8 +22,8 @@ void initTubeHardware(void);
 
 float getTubeConversionFactor(void);
 float getTubeDeadTimeCompensation(void);
-float getTubeHVDutyCycle(void);
-float getTubeHVFrequency(void);
+float getTubePWMDutyCycle(void);
+float getTubePWMFrequency(void);
 
 void setTubeHV(bool value);
 void updateTubeHV(void);

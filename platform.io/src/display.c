@@ -525,8 +525,8 @@ void initDisplay(void)
 #endif
 
     selectMenuItem(&displaySleepMenu,
-                   settings.displayTimer,
-                   DISPLAY_TIMER_NUM);
+                   settings.displaySleep,
+                   DISPLAY_SLEEP_NUM);
     selectMenuItem(&displayBrightnessMenu,
                    settings.displayBrightness,
                    DISPLAY_BRIGHTNESS_NUM);
@@ -1697,9 +1697,9 @@ const View displayMenuView = {
 
 #if defined(DISPLAY_MONOCHROME)
 
-static const char *ondisplayContrastMenuGetOption(const Menu *menu,
-                                                       uint32_t index,
-                                                       MenuStyle *menuStyle)
+static const char *onDisplayContrastMenuGetOption(const Menu *menu,
+                                                  uint32_t index,
+                                                  MenuStyle *menuStyle)
 {
     if (index >= DISPLAY_CONTRAST_NUM)
         return NULL;
@@ -1712,7 +1712,7 @@ static const char *ondisplayContrastMenuGetOption(const Menu *menu,
     return menuOption;
 }
 
-static void ondisplayContrastMenuSelect(const Menu *menu)
+static void onDisplayContrastMenuSelect(const Menu *menu)
 {
     settings.displayContrast = menu->state->selectedIndex;
 
@@ -1724,8 +1724,8 @@ static MenuState displayContrastMenuState;
 static const Menu displayContrastMenu = {
     "Contrast",
     &displayContrastMenuState,
-    ondisplayContrastMenuGetOption,
-    ondisplayContrastMenuSelect,
+    onDisplayContrastMenuGetOption,
+    onDisplayContrastMenuSelect,
     onDisplaySubMenuBack,
 };
 
@@ -1838,18 +1838,18 @@ static const char *const displaySleepMenuOptions[] = {
     NULL,
 };
 
-static const char *ondisplaySleepMenuGetOption(const Menu *menu,
+static const char *onDisplaySleepMenuGetOption(const Menu *menu,
                                                uint32_t index,
                                                MenuStyle *menuStyle)
 {
-    *menuStyle = (index == settings.displayTimer);
+    *menuStyle = (index == settings.displaySleep);
 
     return displaySleepMenuOptions[index];
 }
 
-static void ondisplaySleepMenuSelect(const Menu *menu)
+static void onDisplaySleepMenuSelect(const Menu *menu)
 {
-    settings.displayTimer = menu->state->selectedIndex;
+    settings.displaySleep = menu->state->selectedIndex;
 
     triggerBacklight();
 }
@@ -1863,8 +1863,8 @@ static const Menu displaySleepMenu = {
     "Sleep",
 #endif
     &displaySleepMenuState,
-    ondisplaySleepMenuGetOption,
-    ondisplaySleepMenuSelect,
+    onDisplaySleepMenuGetOption,
+    onDisplaySleepMenuSelect,
     onDisplaySubMenuBack,
 };
 

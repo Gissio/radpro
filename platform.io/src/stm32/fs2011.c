@@ -24,31 +24,6 @@
 
 #include "mcu-renderer-st7565.h"
 
-// Flash memory
-
-// +++ TEST
-// const FlashRegion flashSettingsRegion = {0x20, 0x21};
-// const FlashRegion flashDatalogRegion = {0x21, 0x40};
-const FlashRegion flashSettingsRegion = {0x30, 0x31};
-const FlashRegion flashDatalogRegion = {0x31, 0x40};
-// +++ TEST
-
-// Communications
-
-#if defined(STM32F0) && !defined(GD32)
-
-const char *const commId = "FS2011 (STM32F051C8);" FIRMWARE_NAME " " FIRMWARE_VERSION;
-
-#elif defined(STM32F0) && defined(GD32)
-
-const char *const commId = "FS2011 (GD32F150C8);" FIRMWARE_NAME " " FIRMWARE_VERSION;
-
-#elif defined(STM32F1)
-
-const char *const commId = "FS2011 (GD32F103C8);" FIRMWARE_NAME " " FIRMWARE_VERSION;
-
-#endif
-
 // System
 
 void initSystem(void)
@@ -72,6 +47,32 @@ void initSystem(void)
 
 #endif
 }
+
+// Flash memory
+
+#if !defined(DEBUG)
+const FlashRegion flashSettingsRegion = {0x20, 0x21};
+const FlashRegion flashDatalogRegion = {0x21, 0x40};
+#else
+const FlashRegion flashSettingsRegion = {0x30, 0x31};
+const FlashRegion flashDatalogRegion = {0x31, 0x40};
+#endif
+
+// Communications
+
+#if defined(STM32F0) && !defined(GD32)
+
+const char *const commId = "FS2011 (STM32F051C8);" FIRMWARE_NAME " " FIRMWARE_VERSION;
+
+#elif defined(STM32F0) && defined(GD32)
+
+const char *const commId = "FS2011 (GD32F150C8);" FIRMWARE_NAME " " FIRMWARE_VERSION;
+
+#elif defined(STM32F1)
+
+const char *const commId = "FS2011 (GD32F103C8);" FIRMWARE_NAME " " FIRMWARE_VERSION;
+
+#endif
 
 // Keyboard
 
@@ -119,7 +120,7 @@ void getKeyboardState(bool *isKeyDown)
 
 // Display
 
-static uint8_t framebuffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8];
+static uint8_t displayFramebuffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8];
 
 extern mr_t mr;
 
@@ -270,7 +271,7 @@ void initDisplayHardware(void)
                    DISPLAY_WIDTH,
                    DISPLAY_HEIGHT,
                    MR_DISPLAY_ROTATION_0,
-                   framebuffer,
+                   displayFramebuffer,
                    onDisplaySleep,
                    onDisplaySetReset,
                    onDisplaySetCommand,
