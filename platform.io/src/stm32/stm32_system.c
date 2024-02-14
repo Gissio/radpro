@@ -48,7 +48,7 @@ typedef struct
 
 uint32_t getDeviceId(void)
 {
-    return DESIG_UNIQUE_ID0 ^ DESIG_UNIQUE_ID1 ^ DESIG_UNIQUE_ID0;
+    return DESIG_UNIQUE_ID0 ^ DESIG_UNIQUE_ID1 ^ DESIG_UNIQUE_ID2;
 }
 
 void startBootloader(void)

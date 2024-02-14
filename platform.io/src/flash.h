@@ -37,17 +37,18 @@ void initFlash(void);
 
 bool verifyFlash(void);
 
-uint8_t *getFlash(const FlashIterator *iterator);
-void eraseFlash(const FlashIterator *iterator);
-void programFlash(const FlashIterator *iterator,
-                  uint8_t *source, uint32_t size);
+void readFlash(FlashIterator *iterator,
+               uint8_t *dest, uint32_t size);
+void eraseFlash(FlashIterator *iterator);
+void writeFlash(FlashIterator *iterator,
+                uint8_t *source, uint32_t size);
 
 bool isFlashPageFull(FlashIterator *iterator);
 void setFlashPageHead(FlashIterator *iterator);
 void setFlashPageTail(FlashIterator *iterator);
 void setFlashPageNext(FlashIterator *iterator);
 void setFlashPagePrev(FlashIterator *iterator);
-void programFlashPage(FlashIterator *iterator,
-                      uint8_t *source, uint32_t size);
+void writeFlashPage(FlashIterator *iterator,
+                    uint8_t *source, uint32_t size);
 
 #endif

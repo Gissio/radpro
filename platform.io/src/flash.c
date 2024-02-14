@@ -13,35 +13,45 @@
 
 bool isFlashPageFull(FlashIterator *iterator)
 {
-    uint8_t *page = getFlash(iterator);
+    uint8_t marker;
 
-    return (page[flashPageDataSize] != 0xff);
+    uint32_t oldIndex = iterator->index;
+    iterator->index = flashPageDataSize;
+
+    readFlash(iterator,
+              &marker,
+              sizeof(marker));
+
+    iterator->index = oldIndex;
+
+    return (marker != 0xff);
 }
 
 static void markFlashPageFull(FlashIterator *iterator)
 {
     uint8_t marker[8];
-    memset(&marker, 0, sizeof(marker));
+    memset(&marker,
+           0,
+           sizeof(marker));
 
     iterator->index = flashPageDataSize;
 
-    programFlash(iterator, marker, flashBlockSize);
+    writeFlash(iterator, marker, flashBlockSize);
 }
 
 void setFlashPageHead(FlashIterator *iterator)
 {
-    const FlashRegion *region = iterator->region;
     iterator->index = 0;
 
-    for (iterator->pageIndex = region->beginPageIndex;
-         iterator->pageIndex < region->endPageIndex;
+    for (iterator->pageIndex = iterator->region->beginPageIndex;
+         iterator->pageIndex < iterator->region->endPageIndex;
          iterator->pageIndex++)
     {
         if (!isFlashPageFull(iterator))
             return;
     }
 
-    iterator->pageIndex = region->beginPageIndex;
+    iterator->pageIndex = iterator->region->beginPageIndex;
 }
 
 void setFlashPageTail(FlashIterator *iterator)
@@ -85,8 +95,8 @@ void setFlashPagePrev(FlashIterator *iterator)
         iterator->pageIndex = region->endPageIndex - 1;
 }
 
-void programFlashPage(FlashIterator *iterator,
-                      uint8_t *source, uint32_t size)
+void writeFlashPage(FlashIterator *iterator,
+                    uint8_t *source, uint32_t size)
 {
     // Enough space?
     if ((iterator->index + size) > flashPageDataSize)
@@ -106,7 +116,5 @@ void programFlashPage(FlashIterator *iterator,
             eraseFlash(iterator);
     }
 
-    programFlash(iterator, source, size);
-
-    iterator->index += size;
+    writeFlash(iterator, source, size);
 }

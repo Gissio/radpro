@@ -9,6 +9,7 @@
 
 #include <limits.h>
 #include <stdbool.h>
+#include <string.h>
 #if defined(SDLSIM)
 #include <time.h>
 #endif
@@ -33,19 +34,20 @@ typedef struct
 
     Dose dose;
     Dose tube;
-} SettingsDoseTube;
+} FlashSettings;
 
 Settings settings;
 
-static SettingsDoseTube *getSettingsDoseTube(FlashIterator *iterator);
+static bool getFlashSettings(FlashIterator *iterator,
+                             FlashSettings *flashSettings);
 
 void initSettings(void)
 {
     // Default values
 
     settings.tubeConversionFactor = TUBE_CONVERSIONFACTOR_DEFAULT;
-    settings.tubePWMFrequency = TUBE_FACTORYDEFAULT_HVFREQUENCY;
-    settings.tubePWMDutyCycle = TUBE_FACTORYDEFAULT_HVDUTYCYCLE;
+    settings.tubeHVFrequency = TUBE_FACTORYDEFAULT_HVFREQUENCY;
+    settings.tubeHVDutyCycle = TUBE_FACTORYDEFAULT_HVDUTYCYCLE;
 
 #if defined(PULSE_LED)
     settings.pulseLED = PULSE_LED_ON;
@@ -70,58 +72,69 @@ void initSettings(void)
 
     FlashIterator iterator;
     iterator.region = &flashSettingsRegion;
-    SettingsDoseTube *settingsDoseTube = getSettingsDoseTube(&iterator);
 
-    if (settingsDoseTube)
+    FlashSettings flashSettings;
+
+    if (getFlashSettings(&iterator, &flashSettings))
     {
-        settings = settingsDoseTube->settings;
-        setDoseTime(settingsDoseTube->dose.time);
-        setDosePulseCount(settingsDoseTube->dose.pulseCount);
-        setTubeTime(settingsDoseTube->tube.time);
-        setTubePulseCount(settingsDoseTube->tube.pulseCount);
+        settings = flashSettings.settings;
+        setDoseTime(flashSettings.dose.time);
+        setDosePulseCount(flashSettings.dose.pulseCount);
+        setTubeTime(flashSettings.tube.time);
+        setTubePulseCount(flashSettings.tube.pulseCount);
     }
 }
 
-static SettingsDoseTube *getSettingsDoseTube(FlashIterator *iterator)
+static bool getFlashSettings(FlashIterator *iterator,
+                             FlashSettings *flashSettings)
 {
     setFlashPageHead(iterator);
 
-    uint8_t *page = getFlash(iterator);
+    bool entryValid = false;
 
-    SettingsDoseTube *settingsDoseTube = NULL;
-
-    for (iterator->index = 0;
-         iterator->index <= flashPageDataSize - sizeof(SettingsDoseTube);
-         iterator->index += sizeof(SettingsDoseTube))
+    while (iterator->index <= (flashPageDataSize - sizeof(FlashSettings)))
     {
-        if (!((SettingsDoseTube *)&page[iterator->index])->settings.entryEmpty)
-            settingsDoseTube = (SettingsDoseTube *)&page[iterator->index];
-        else
+        FlashSettings entry;
+
+        readFlash(iterator,
+                  (uint8_t *)&entry,
+                  sizeof(FlashSettings));
+
+        if (entry.settings.entryEmpty)
+        {
+            iterator->index -= sizeof(FlashSettings);
+
             break;
+        }
+
+        memcpy(flashSettings,
+               &entry,
+               sizeof(FlashSettings));
+
+        entryValid = true;
     }
 
-    return settingsDoseTube;
+    return entryValid;
 }
 
 void writeSettings(void)
 {
     FlashIterator iterator;
-
     iterator.region = &flashSettingsRegion;
 
-    getSettingsDoseTube(&iterator);
+    FlashSettings flashSettings;
 
-    SettingsDoseTube settingsDoseTube;
+    getFlashSettings(&iterator, &flashSettings);
 
-    settingsDoseTube.settings = settings;
-    settingsDoseTube.dose.time = getDoseTime();
-    settingsDoseTube.dose.pulseCount = getDosePulseCount();
-    settingsDoseTube.tube.time = getTubeTime();
-    settingsDoseTube.tube.pulseCount = getTubePulseCount();
+    flashSettings.settings = settings;
+    flashSettings.dose.time = getDoseTime();
+    flashSettings.dose.pulseCount = getDosePulseCount();
+    flashSettings.tube.time = getTubeTime();
+    flashSettings.tube.pulseCount = getTubePulseCount();
 
-    programFlashPage(&iterator,
-                     (uint8_t *)&settingsDoseTube,
-                     sizeof(SettingsDoseTube));
+    writeFlashPage(&iterator,
+                   (uint8_t *)&flashSettings,
+                   sizeof(FlashSettings));
 }
 
 // Settings Menu

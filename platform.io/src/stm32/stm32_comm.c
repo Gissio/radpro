@@ -180,9 +180,9 @@ void updateCommHardware(void)
 #define USB_CONTROL_PACKET_SIZE_MAX 16
 #define USB_DATA_PACKET_SIZE_MAX 64
 
-#define USB_CONTROL_ENDPOINT_OUT 0x83
 #define USB_DATA_ENDPOINT_IN 0x01
 #define USB_DATA_ENDPOINT_OUT 0x82
+#define USB_CONTROL_ENDPOINT_OUT 0x83
 
 enum
 {
@@ -202,7 +202,7 @@ enum
     USB_SERIALNUMBER_STRING,
 };
 
-static char usbSerialNumber[9];
+static char usbSerialNumber[13];
 
 static const char *const usbStrings[] = {
     "Gissio",
@@ -210,7 +210,7 @@ static const char *const usbStrings[] = {
     usbSerialNumber,
 };
 
-static usbd_device *usbdDevice;
+static usbd_device *usbdDevice = NULL;
 static uint8_t usbControlBuffer[128];
 
 // Control interface
@@ -373,13 +373,64 @@ static const struct usb_device_descriptor usbDeviceDescriptor = {
                           sizeof(usbConfigurationDescriptor[0]),
 };
 
+static void onUSBDataReceived(usbd_device *usbd_dev,
+                              uint8_t endpoint)
+{
+    char buffer[USB_DATA_PACKET_SIZE_MAX];
+    uint32_t bufferSize = usbd_ep_read_packet(usbdDevice,
+                                              USB_DATA_ENDPOINT_IN,
+                                              buffer,
+                                              USB_DATA_PACKET_SIZE_MAX);
+    uint32_t bufferIndex = 0;
+
+    if (!comm.enabled)
+        return;
+
+    if (comm.state == COMM_RX)
+    {
+        while (bufferIndex < bufferSize)
+        {
+            char c = buffer[bufferIndex++];
+
+            if ((c >= ' ') &&
+                (comm.bufferIndex < (COMM_BUFFER_SIZE - 1)))
+                comm.buffer[comm.bufferIndex++] = c;
+            else if (c == '\n')
+            {
+                comm.buffer[comm.bufferIndex] = '\0';
+                comm.bufferIndex = 0;
+
+                comm.state = COMM_RX_READY;
+            }
+        }
+    }
+}
+
+static void onUSBStartOfFrame(void)
+{
+    if (comm.state == COMM_TX)
+    {
+        uint32_t bufferSize = usbd_ep_write_packet(usbdDevice,
+                                                   USB_DATA_ENDPOINT_OUT,
+                                                   comm.buffer,
+                                                   strlen(comm.buffer));
+
+        if (bufferSize)
+        {
+            comm.bufferIndex = 0;
+
+            comm.state = COMM_TX_READY;
+        }
+    }
+}
+
 static enum usbd_request_return_codes
-respondControlRequest(usbd_device *usbd_dev,
-                      struct usb_setup_data *request,
-                      uint8_t **buffer,
-                      uint16_t *bufferSize,
-                      void (**callback)(usbd_device *usbd_dev,
-                                        struct usb_setup_data *request))
+onUSBControl(usbd_device *usbd_dev,
+             struct usb_setup_data *request,
+             uint8_t **buffer,
+             uint16_t *bufferSize,
+             void (**callback)(usbd_device *usbd_dev,
+                               struct usb_setup_data *request))
 {
     switch (request->bRequest)
     {
@@ -396,20 +447,14 @@ respondControlRequest(usbd_device *usbd_dev,
     return USBD_REQ_NOTSUPP;
 }
 
-static void setConfiguration(usbd_device *usbd_dev,
-                             uint16_t wValue)
+static void onUSBSetConfiguration(usbd_device *usbd_dev,
+                                  uint16_t wValue)
 {
-    usbd_ep_setup(usbd_dev,
-                  USB_CONTROL_ENDPOINT_OUT,
-                  USB_ENDPOINT_ATTR_INTERRUPT,
-                  USB_CONTROL_PACKET_SIZE_MAX,
-                  NULL);
-
     usbd_ep_setup(usbd_dev,
                   USB_DATA_ENDPOINT_IN,
                   USB_ENDPOINT_ATTR_BULK,
                   USB_DATA_PACKET_SIZE_MAX,
-                  NULL);
+                  onUSBDataReceived);
 
     usbd_ep_setup(usbd_dev,
                   USB_DATA_ENDPOINT_OUT,
@@ -417,10 +462,16 @@ static void setConfiguration(usbd_device *usbd_dev,
                   USB_DATA_PACKET_SIZE_MAX,
                   NULL);
 
+    usbd_ep_setup(usbd_dev,
+                  USB_CONTROL_ENDPOINT_OUT,
+                  USB_ENDPOINT_ATTR_INTERRUPT,
+                  USB_CONTROL_PACKET_SIZE_MAX,
+                  NULL);
+
     usbd_register_control_callback(usbdDevice,
                                    USB_REQ_TYPE_CLASS | USB_REQ_TYPE_INTERFACE,
                                    USB_REQ_TYPE_TYPE | USB_REQ_TYPE_RECIPIENT,
-                                   respondControlRequest);
+                                   onUSBControl);
 }
 
 void initComm(void)
@@ -435,7 +486,7 @@ void initComm(void)
 
     // Init USB
 
-    strcpy(usbSerialNumber, "");
+    strcpy(usbSerialNumber, "0000");
     strcatUInt32Hex(usbSerialNumber, getDeviceId());
 
     usbdDevice = usbd_init(&st_usbfs_v1_usb_driver,
@@ -447,7 +498,9 @@ void initComm(void)
                            sizeof(usbControlBuffer));
 
     usbd_register_set_config_callback(usbdDevice,
-                                      setConfiguration);
+                                      onUSBSetConfiguration);
+    usbd_register_sof_callback(usbdDevice,
+                               onUSBStartOfFrame);
 
     nvic_set_priority(NVIC_USB_LP_CAN_RX0_IRQ, 0x80);
     nvic_enable_irq(NVIC_USB_LP_CAN_RX0_IRQ);
@@ -465,54 +518,6 @@ void usb_lp_can_rx0_isr()
 
 void updateCommHardware(void)
 {
-    // char buffer[USB_DATA_PACKET_SIZE_MAX];
-    // uint32_t bufferSize = usbd_ep_read_packet(usbdDevice,
-    //                                           USB_DATA_ENDPOINT_IN,
-    //                                           buffer,
-    //                                           USB_DATA_PACKET_SIZE_MAX);
-    // uint32_t bufferIndex = 0;
-
-    // if (!comm.enabled)
-    //     return;
-
-    // switch (comm.state)
-    // {
-    // case COMM_RX:
-    //     while (bufferIndex < bufferSize)
-    //     {
-    //         char c = buffer[bufferIndex++];
-
-    //         if ((c >= ' ') && (comm.bufferIndex < (COMM_BUFFER_SIZE - 1)))
-    //             comm.buffer[comm.bufferIndex++] = c;
-    //         else if (c == '\n')
-    //         {
-    //             comm.buffer[comm.bufferIndex] = '\0';
-    //             comm.bufferIndex = 0;
-
-    //             comm.state = COMM_RX_READY;
-    //         }
-    //     }
-
-    //     break;
-
-    // case COMM_TX:
-    //     bufferSize = usbd_ep_write_packet(usbdDevice,
-    //                                       USB_DATA_ENDPOINT_OUT,
-    //                                       comm.buffer,
-    //                                       strlen(comm.buffer));
-
-    //     if (bufferSize)
-    //     {
-    //         comm.bufferIndex = 0;
-
-    //         comm.state = COMM_TX_READY;
-    //     }
-
-    //     break;
-
-    // default:
-    //     break;
-    // }
 }
 
 #else
@@ -523,6 +528,7 @@ void initComm(void)
 
 void transmitComm(void)
 {
+    comm.state = COMM_TX_READY;
 }
 
 void updateCommHardware(void)

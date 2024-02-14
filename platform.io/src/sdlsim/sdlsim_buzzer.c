@@ -69,7 +69,9 @@ static void onAudioBuffer(void *userdata, Uint8 *stream, int len)
         PULSE_BUFFER_MASK;
 
     if (pulseTicksAvailable < SYS_TICKS_PER_BUFFER)
-        memset(stream, 0, len);
+        memset(stream,
+               0,
+               len);
     else
     {
         uint32_t pulseTicksSize;

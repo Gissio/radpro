@@ -274,7 +274,7 @@ void dispatchEvents(void)
         events.lastMeasurementPeriodUpdate = oneSecondUpdate;
 
         onMeasurementsOneSecond();
-        writeDatalogEntry(true);
+        updateDatalog();
         updateADC();
         onGameOneSecond();
         updateView();

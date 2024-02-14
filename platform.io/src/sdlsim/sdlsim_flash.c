@@ -27,7 +27,7 @@
 
 #endif
 
-uint8_t flashMemory[0x10000];
+uint8_t flashImage[0x10000];
 
 const FlashRegion flashSettingsRegion = {
     0x20,
@@ -43,12 +43,17 @@ const uint32_t flashBlockSize = FLASH_BLOCK_SIZE;
 
 void initFlash(void)
 {
-    memset(flashMemory, 0xff, sizeof(flashMemory));
-    FILE *fp = fopen(FLASH_FILENAME, "rb");
+    memset(flashImage,
+           0xff,
+           sizeof(flashImage));
 
+    FILE *fp = fopen(FLASH_FILENAME, "rb");
     if (fp)
     {
-        fread(flashMemory, 1, sizeof(flashMemory), fp);
+        fread(flashImage,
+              1,
+              sizeof(flashImage),
+              fp);
         fclose(fp);
     }
 }
@@ -58,40 +63,55 @@ bool verifyFlash(void)
     return true;
 }
 
-static void backupFlash(void)
+static void writeFlashImage(void)
 {
     FILE *fp = fopen(FLASH_FILENAME, "wb");
     if (fp)
     {
-        fwrite(flashMemory, 1, sizeof(flashMemory), fp);
+        fwrite(flashImage,
+               1,
+               sizeof(flashImage),
+               fp);
         fclose(fp);
     }
 }
 
-uint8_t *getFlash(const FlashIterator *iterator)
+void readFlash(FlashIterator *iterator,
+               uint8_t *dest,
+               uint32_t size)
 {
-    return &flashMemory[iterator->pageIndex * FLASH_PAGE_SIZE];
+    uint32_t address = iterator->pageIndex * FLASH_PAGE_SIZE + iterator->index;
+
+    memcpy(dest,
+           flashImage + address,
+           size);
+
+    iterator->index += size;
 }
 
-void eraseFlash(const FlashIterator *iterator)
+void eraseFlash(FlashIterator *iterator)
 {
-    uint32_t offset = iterator->pageIndex * FLASH_PAGE_SIZE;
+    uint32_t address = iterator->pageIndex * FLASH_PAGE_SIZE;
 
-    for (uint32_t i = 0; i < FLASH_PAGE_SIZE; i++)
-        flashMemory[offset + i] = 0xff;
+    memset(flashImage + address,
+           0xff,
+           FLASH_PAGE_SIZE);
 
-    backupFlash();
+    writeFlashImage();
 }
 
-void programFlash(const FlashIterator *iterator,
-                  uint8_t *source, uint32_t size)
+void writeFlash(FlashIterator *iterator,
+                uint8_t *source, uint32_t size)
 {
-    uint32_t dest = iterator->pageIndex * FLASH_PAGE_SIZE + iterator->index;
+    uint32_t address = iterator->pageIndex * FLASH_PAGE_SIZE + iterator->index;
 
-    for (uint32_t i = 0; i < size; i++)
-        flashMemory[dest + i] = source[i];
+    memcpy(flashImage + address,
+           source,
+           size);
 
-    backupFlash();
+    writeFlashImage();
+
+    iterator->index += size;
 }
 
 #endif

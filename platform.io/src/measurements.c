@@ -574,7 +574,9 @@ static const float rateAlarmsSvH[] = {
 
 static void resetInstantaneousRate(void)
 {
-    memset(&measurements.instantaneous, 0, sizeof(measurements.instantaneous));
+    memset(&measurements.instantaneous,
+           0,
+           sizeof(measurements.instantaneous));
 }
 
 float getInstantaneousRate(void)
@@ -698,7 +700,9 @@ const View instantaneousRateView = {
 
 static void resetAverageRate(void)
 {
-    memset(&measurements.average, 0, sizeof(measurements.average));
+    memset(&measurements.average,
+           0,
+           sizeof(measurements.average));
 }
 
 static void onAverageRateViewEvent(const View *view,
@@ -834,7 +838,9 @@ uint32_t getDosePulseCount(void)
 
 static void resetDose(void)
 {
-    memset(&measurements.cumulative, 0, sizeof(measurements.cumulative));
+    memset(&measurements.cumulative,
+           0,
+           sizeof(measurements.cumulative));
 }
 
 static bool isDoseAlarm(void)
@@ -964,7 +970,8 @@ uint32_t getTubePulseCount(void)
 
 static void resetHistory(void)
 {
-    memset(&measurements.history.states, 0,
+    memset(&measurements.history.states,
+           0,
            sizeof(measurements.history.states));
 
     measurements.history.sampleIndex = 0;

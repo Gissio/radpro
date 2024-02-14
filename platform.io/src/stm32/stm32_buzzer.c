@@ -123,7 +123,7 @@ void syncBuzzer(void)
     {
         if ((GPIO_ODR(BUZZ_PORT) &
              BUZZ_PIN) == 0)
-             break;
+            break;
 
         sleep(1);
     }

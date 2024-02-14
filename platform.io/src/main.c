@@ -62,6 +62,8 @@ int main(void)
     initGame();
     initDatalog();
 
+    // Power loop
+
     while (true)
     {
         // Wait for power key event
@@ -100,7 +102,7 @@ int main(void)
             triggerBacklight();
             playSystemAlert();
 
-            sleep(5000);
+            sleep(1000);
         }
 
         drawNotification(FIRMWARE_NAME, FIRMWARE_VERSION, true);
@@ -113,7 +115,7 @@ int main(void)
         setEventHandling(true);
         setCommEnabled(true);
 
-        writeDatalogEntry(false);
+        writeDatalog();
 
         // UI loop
 
@@ -131,7 +133,7 @@ int main(void)
 
         // Power off
 
-        writeDatalogEntry(true);
+        writeDatalog();
         writeSettings();
 
         setCommEnabled(false);

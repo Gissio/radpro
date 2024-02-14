@@ -25,9 +25,9 @@
 
 #include "stm32.h"
 
-#define TUBE_PWM_LOW_FREQUENCY 1250
-#define TUBE_PWM_LOW_FREQUENCY_PERIOD (TIM_FREQUENCY / TUBE_PWM_LOW_FREQUENCY)
-#define TUBE_PWM_LOW_DUTYCYCLE_MULTIPLIER ((TUBE_PWM_LOW_FREQUENCY_PERIOD / 2) / TUBE_PWMDUTYCYCLE_NUM)
+#define TUBE_HV_LOW_FREQUENCY 1250
+#define TUBE_HV_LOW_FREQUENCY_PERIOD (TIM_FREQUENCY / TUBE_HV_LOW_FREQUENCY)
+#define TUBE_HV_LOW_DUTYCYCLE_MULTIPLIER ((TUBE_HV_LOW_FREQUENCY_PERIOD / 2) / TUBE_HVDUTYCYCLE_NUM)
 
 #define TUBE_PULSE_QUEUE_SIZE 64
 #define TUBE_PULSE_QUEUE_MASK (TUBE_PULSE_QUEUE_SIZE - 1)
@@ -86,7 +86,7 @@ void initTubeHardware(void)
 
 #endif
 
-    // PWM timer
+    // HV PWM timer
 
     rcc_periph_clock_enable(TUBE_HV_TIMER_RCC);
 
@@ -102,7 +102,7 @@ void initTubeHardware(void)
     rcc_periph_clock_enable(TUBE_DET_TIMER_LOW_RCC);
     rcc_periph_clock_enable(TUBE_DET_TIMER_HIGH_RCC);
 
-    TIM_CR2(TUBE_DET_TIMER_LOW) |= TIM_CR2_MMS_UPDATE; // timer_set_master_mode(TUBE_DET_TIMER, TIM_CR2_MMS_UPDATE);
+    TIM_CR2(TUBE_DET_TIMER_LOW) |= TIM_CR2_MMS_UPDATE;         // timer_set_master_mode(TUBE_DET_TIMER, TIM_CR2_MMS_UPDATE);
     TIM_PSC(TUBE_DET_TIMER_LOW) = TIM_FREQUENCY / 8000000 - 1; // timer_set_prescaler(TUBE_DET_TIMER_LOW, TIM_FREQUENCY / 8000000 - 1);
 
     TIM_SMCR(TUBE_DET_TIMER_HIGH) |= TIM_SMCR_TS_ITR0;  // timer_slave_set_trigger(TUBE_DET_TIMER_HIGH, TIM_SMCR_TS_ITR0);
@@ -121,7 +121,7 @@ void initTubeHardware(void)
 
     nvic_enable_irq(TUBE_DET_EXTI_IRQ);
 
-    // PWM debug test
+    // HV PWM debugging
 
 #if defined(DEBUG_TEST_PWM)
 
@@ -170,30 +170,30 @@ void updateTubeHV(void)
         break;
 
     default:
-        frequencyIndex = settings.tubePWMFrequency;
-        dutyCycleIndex = settings.tubePWMDutyCycle;
+        frequencyIndex = settings.tubeHVFrequency;
+        dutyCycleIndex = settings.tubeHVDutyCycle;
 
         break;
     }
 
     // Sanity check
 
-    if (frequencyIndex >= TUBE_PWMFREQUENCY_NUM)
-        frequencyIndex = TUBE_PWMFREQUENCY_NUM - 1;
-    if (dutyCycleIndex >= TUBE_PWMDUTYCYCLE_NUM)
-        dutyCycleIndex = TUBE_PWMDUTYCYCLE_NUM - 1;
+    if (frequencyIndex >= TUBE_HVFREQUENCY_NUM)
+        frequencyIndex = TUBE_HVFREQUENCY_NUM - 1;
+    if (dutyCycleIndex >= TUBE_HVDUTYCYCLE_NUM)
+        dutyCycleIndex = TUBE_HVDUTYCYCLE_NUM - 1;
 
-    // Set PWM frequency
+    // Set HV PWM frequency
 
-    uint32_t arr = (TUBE_PWM_LOW_FREQUENCY_PERIOD >> frequencyIndex) - 1;
+    uint32_t arr = (TUBE_HV_LOW_FREQUENCY_PERIOD >> frequencyIndex) - 1;
     TIM_ARR(TUBE_HV_TIMER) = arr; // timer_set_period(TUBE_HV_TIMER, arr);
 
-    // Set PWM duty cycle
+    // Set HV PWM duty cycle
 
     uint32_t ccr;
     if (tube.enabled)
-        ccr = (TUBE_PWM_LOW_FREQUENCY_PERIOD / 2 -
-               TUBE_PWM_LOW_DUTYCYCLE_MULTIPLIER * dutyCycleIndex) >>
+        ccr = (TUBE_HV_LOW_FREQUENCY_PERIOD / 2 -
+               TUBE_HV_LOW_DUTYCYCLE_MULTIPLIER * dutyCycleIndex) >>
               frequencyIndex;
     else
         ccr = 0;

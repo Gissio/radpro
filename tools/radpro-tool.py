@@ -337,10 +337,10 @@ parser.add_argument('--get-tube-conversion-factor',
 parser.add_argument('--get-tube-dead-time-compensation',
                     action='store_true',
                     help='get tube dead-time compensation factor')
-parser.add_argument('--get-tube-pwm-duty-cycle',
+parser.add_argument('--get-tube-hv-duty-cycle',
                     action='store_true',
                     help='get tube PWM duty cycle of the high voltage generator')
-parser.add_argument('--get-tube-pwm-frequency',
+parser.add_argument('--get-tube-hv-frequency',
                     action='store_true',
                     help='get tube PWM frequency of the high voltage generator')
 parser.add_argument('--get-tube-dead-time',
@@ -390,11 +390,11 @@ if args.get_tube_conversion_factor:
 if args.get_tube_dead_time_compensation:
     show_property(device, 'tubeDeadTimeCompensation')
 
-if args.get_tube_pwm_duty_cycle:
-    show_property(device, 'tubePWMDutyCycle')
+if args.get_tube_hv_duty_cycle:
+    show_property(device, 'tubeHVDutyCycle')
 
-if args.get_tube_pwm_frequency:
-    show_property(device, 'tubePWMFrequency')
+if args.get_tube_hv_frequency:
+    show_property(device, 'tubeHVFrequency')
 
 if args.get_tube_dead_time:
     show_property(device, 'tubeDeadTime')

@@ -94,14 +94,13 @@ static void strcatDatalogEntry(char *buffer, const Dose *entry)
     strcatUInt32(buffer, entry->pulseCount, 0);
 }
 
-static void startDatalogDump(void)
+static void startDatalogDumpTemp(void)
 {
     sendCommOk();
 
     strcat(comm.buffer, " time,tubePulseCount");
 
-    stopDatalog();
-    initDatalogRead();
+    startDatalogDownload();
     comm.sendingDatalog = true;
 
     transmitComm();
@@ -149,9 +148,19 @@ void dispatchCommEvents(void)
         }
         else if (matchCommCommand("GET tubeRate"))
             sendCommOkWithFloat(60.0F * getInstantaneousRate(), 3);
+        else if (matchCommCommand("GET tubeDeadTime"))
+            sendCommOkWithFloat(getDeadTime(), 7);
+        else if (matchCommCommand("GET tubeConversionFactor"))
+            sendCommOkWithFloat(getTubeConversionFactor(), 3);
+        else if (matchCommCommand("GET tubeDeadTimeCompensation"))
+            sendCommOkWithFloat(getTubeDeadTimeCompensation(), 7);
+        else if (matchCommCommand("GET tubeHVFrequency"))
+            sendCommOkWithFloat(getTubeHVFrequency(), 0);
+        else if (matchCommCommand("GET tubeHVDutyCycle"))
+            sendCommOkWithFloat(getTubeHVDutyCycle(), 3);
         else if (matchCommCommandWithUInt32("GET datalog", &comm.datalogTimeLimit))
         {
-            startDatalogDump();
+            startDatalogDumpTemp();
 
             return;
         }
@@ -159,20 +168,10 @@ void dispatchCommEvents(void)
         {
             comm.datalogTimeLimit = 0;
 
-            startDatalogDump();
+            startDatalogDumpTemp();
 
             return;
         }
-        else if (matchCommCommand("GET tubeConversionFactor"))
-            sendCommOkWithFloat(getTubeConversionFactor(), 3);
-        else if (matchCommCommand("GET tubeDeadTimeCompensation"))
-            sendCommOkWithFloat(getTubeDeadTimeCompensation(), 7);
-        else if (matchCommCommand("GET tubePWMFrequency"))
-            sendCommOkWithFloat(getTubePWMFrequency(), 0);
-        else if (matchCommCommand("GET tubePWMDutyCycle"))
-            sendCommOkWithFloat(getTubePWMDutyCycle(), 3);
-        else if (matchCommCommand("GET tubeDeadTime"))
-            sendCommOkWithFloat(getDeadTime(), 7);
         else if (matchCommCommand("GET randomData"))
         {
             sendCommOk();
@@ -210,21 +209,21 @@ void dispatchCommEvents(void)
         {
             strcpy(comm.buffer, "");
 
-            for (uint32_t i = 0; i < 2;)
+            uint32_t i = 0;
+            while (i < 2)
             {
                 Dose dose;
 
-                if (!readDatalog(&dose))
+                if (!getDatalogDownloadEntry(&dose))
                 {
                     comm.sendingDatalog = false;
-                    startDatalog();
 
                     strcat(comm.buffer, "\n");
 
                     break;
                 }
 
-                if (dose.time > comm.datalogTimeLimit)
+                if (dose.time >= comm.datalogTimeLimit)
                 {
                     strcat(comm.buffer, ";");
                     strcatDatalogEntry(comm.buffer, &dose);

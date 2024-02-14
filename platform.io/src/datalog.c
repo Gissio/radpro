@@ -36,7 +36,7 @@ static struct
     uint32_t bufferSize;
     uint8_t buffer[DATALOG_BUFFER_SIZE];
 
-    bool stopped;
+    uint8_t lock;
 } datalog;
 
 static const uint16_t datalogTimeIntervals[] = {
@@ -91,7 +91,7 @@ static void encodeDatalogValue(int32_t value,
         data[i] = value >> (bitshift - 8 * i);
 }
 
-static int32_t decodeDatalogValue(const uint8_t *data,
+static int32_t decodeDatalogValue(FlashIterator *iterator,
                                   uint32_t size,
                                   uint32_t bitsInFirstByte)
 {
@@ -99,40 +99,40 @@ static int32_t decodeDatalogValue(const uint8_t *data,
     int32_t value = 0;
 
     for (uint32_t i = 0; i < size; i++)
-        value = (value << 8) | data[i];
+    {
+        uint8_t symbol;
+        readFlash(iterator,
+                  &symbol,
+                  1);
+        value = (value << 8) | symbol;
+    }
 
     value = (value << bitshift) >> bitshift;
 
     return value;
 }
 
-static void programDatalogBuffer(void)
+static void writeDatalogBuffer(void)
 {
     uint32_t paddedBufferSize =
         ((datalog.bufferSize + flashBlockSize - 1) / flashBlockSize) *
         flashBlockSize;
 
-    memset(datalog.buffer + datalog.bufferSize, 0xfe, paddedBufferSize - datalog.bufferSize);
+    memset(datalog.buffer + datalog.bufferSize,
+           0xfe,
+           paddedBufferSize - datalog.bufferSize);
 
-    programFlashPage(&datalog.writeState.iterator, datalog.buffer, paddedBufferSize);
+    writeFlashPage(&datalog.writeState.iterator,
+                   datalog.buffer,
+                   paddedBufferSize);
 
     datalog.bufferSize = 0;
 }
 
-void startDatalog(void)
-{
-    datalog.stopped = false;
-}
-
-void stopDatalog(void)
-{
-    datalog.stopped = true;
-}
-
-void writeDatalogEntry(bool isUpdate)
+static void writeDatalogEntry(bool isUpdate)
 {
     if ((settings.datalogInterval == DATALOGGING_OFF) ||
-        datalog.stopped)
+        datalog.lock)
         return;
 
     // Update?
@@ -198,7 +198,7 @@ void writeDatalogEntry(bool isUpdate)
         // Block crossing?
 
         if ((datalog.bufferSize + entrySize) > flashBlockSize)
-            programDatalogBuffer();
+            writeDatalogBuffer();
 
         // Page crossing?
 
@@ -220,18 +220,40 @@ void writeDatalogEntry(bool isUpdate)
         encodeDatalogValue(dose.pulseCount, entry + entrySize, 4, 8);
         entrySize += 4;
 
-        // An absolute entry always crosses a flash block: program buffered data
+        // An absolute entry always crosses a flash block: write buffered data
 
-        programDatalogBuffer();
+        writeDatalogBuffer();
     }
 
-    // Program entry
+    // Write entry
 
-    memcpy(datalog.buffer + datalog.bufferSize, entry, entrySize);
+    memcpy(datalog.buffer + datalog.bufferSize,
+           entry,
+           entrySize);
     datalog.bufferSize += entrySize;
 
     if (datalog.bufferSize >= flashBlockSize)
-        programDatalogBuffer();
+        writeDatalogBuffer();
+}
+
+void updateDatalog(void)
+{
+    writeDatalogEntry(true);
+}
+
+void writeDatalog(void)
+{
+    writeDatalogEntry(false);
+}
+
+void lockDatalog(void)
+{
+    datalog.lock++;
+}
+
+void unlockDatalog(void)
+{
+    datalog.lock--;
 }
 
 static bool decodeDatalogEntry(DatalogState *state)
@@ -246,67 +268,60 @@ static bool decodeDatalogEntry(DatalogState *state)
             setFlashPageNext(&datalog.readState.iterator);
         }
 
-        uint8_t *page = getFlash(&state->iterator);
-        int32_t value = page[state->iterator.index];
+        uint8_t symbol;
+        readFlash(&state->iterator,
+                  &symbol,
+                  1);
 
-        if (value < 0xf0)
+        if (symbol < 0xf0)
         {
             // 7, 14, 21 or 28-bit differential pulse count value
 
             uint32_t size;
-
-            if ((value & 0x80) == 0x00)
+            if ((symbol & 0x80) == 0x00)
                 size = 1;
-            else if ((value & 0xc0) == 0x80)
+            else if ((symbol & 0xc0) == 0x80)
                 size = 2;
-            else if ((value & 0xe0) == 0xc0)
+            else if ((symbol & 0xe0) == 0xc0)
                 size = 3;
             else
                 size = 4;
 
             state->dose.time += state->timeInterval;
 
+            state->iterator.index--;
             state->dose.pulseCount +=
-                decodeDatalogValue(page + state->iterator.index, size, 8 - size);
-            state->iterator.index += size;
+                decodeDatalogValue(&state->iterator, size, 8 - size);
         }
-        else if (value == 0xf0)
+        else if (symbol == 0xf0)
         {
             // 32-bit data differential pulse count value
 
             state->dose.time += state->timeInterval;
-            state->iterator.index++;
-
             state->dose.pulseCount +=
-                decodeDatalogValue(page + state->iterator.index, 4, 8);
-            state->iterator.index += 4;
+                decodeDatalogValue(&state->iterator, 4, 8);
         }
-        else if (value <= 0xf5)
+        else if (symbol <= 0xf5)
         {
             // Sample interval + absolute timestamp and pulse count value
 
-            state->timeInterval = datalogTimeIntervals[value - 0xf1 + 1];
-            state->iterator.index++;
-
+            state->timeInterval = datalogTimeIntervals[symbol - 0xf1 + 1];
             state->dose.time =
-                decodeDatalogValue(page + state->iterator.index, 4, 8);
-            state->iterator.index += 4;
-
+                decodeDatalogValue(&state->iterator, 4, 8);
             state->dose.pulseCount =
-                decodeDatalogValue(page + state->iterator.index, 4, 8);
-            state->iterator.index += 4;
+                decodeDatalogValue(&state->iterator, 4, 8);
         }
-        else if (value < 0xff)
+        else if (symbol < 0xff)
         {
             // Filler byte
-
-            state->iterator.index++;
 
             continue;
         }
         else
         {
-            // Unprogrammed entry
+            // Unflashed value
+
+            state->iterator.index--;
 
             return false;
         }
@@ -315,18 +330,23 @@ static bool decodeDatalogEntry(DatalogState *state)
     }
 }
 
-void initDatalogRead(void)
+void startDatalogDownload(void)
 {
+    lockDatalog();
+
     datalog.readState.iterator.region = &flashDatalogRegion;
 
     setFlashPageTail(&datalog.readState.iterator);
 }
 
-bool readDatalog(Dose *dose)
+bool getDatalogDownloadEntry(Dose *dose)
 {
     bool entryValid = decodeDatalogEntry(&datalog.readState);
 
-    *dose = datalog.readState.dose;
+    if (entryValid)
+        *dose = datalog.readState.dose;
+    else
+        unlockDatalog();
 
     return entryValid;
 }

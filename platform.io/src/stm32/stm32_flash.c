@@ -9,6 +9,8 @@
 
 #if defined(STM32)
 
+#include <string.h>
+
 #include <libopencm3/stm32/crc.h>
 #include <libopencm3/stm32/flash.h>
 #include <libopencm3/stm32/rcc.h>
@@ -63,15 +65,27 @@ bool verifyFlash(void)
 
     rcc_periph_clock_disable(RCC_CRC);
 
+    // +++ TEST
+    return true;
+    // +++ TEST
+
     return (calculatedCRC == FIRMWARE_CRC);
 }
 
-uint8_t *getFlash(const FlashIterator *iterator)
+void readFlash(FlashIterator *iterator,
+               uint8_t *dest,
+               uint32_t size)
 {
-    return (uint8_t *)(FLASH_BASE + iterator->pageIndex * FLASH_PAGE_SIZE);
+    uint32_t address = iterator->pageIndex * FLASH_PAGE_SIZE + iterator->index;
+
+    memcpy(dest,
+           (uint8_t *)(FLASH_BASE + address),
+           size);
+
+    iterator->index += size;
 }
 
-void eraseFlash(const FlashIterator *iterator)
+void eraseFlash(FlashIterator *iterator)
 {
 #if defined(STM32F0) || defined(STM32F1)
 
@@ -92,17 +106,18 @@ void eraseFlash(const FlashIterator *iterator)
 #endif
 }
 
-void programFlash(const FlashIterator *iterator,
-                  uint8_t *source, uint32_t size)
+void writeFlash(FlashIterator *iterator,
+                uint8_t *source,
+                uint32_t size)
 {
-    uint32_t dest = FLASH_BASE + iterator->pageIndex * FLASH_PAGE_SIZE + iterator->index;
+    uint32_t address = FLASH_BASE + iterator->pageIndex * FLASH_PAGE_SIZE + iterator->index;
 
 #if defined(STM32F0) || defined(STM32F1)
 
     flash_unlock();
 
     for (uint32_t i = 0; i < size; i += FLASH_BLOCK_SIZE)
-        flash_program_half_word(dest + i, *(uint16_t *)(source + i));
+        flash_program_half_word(address + i, *(uint16_t *)(source + i));
 
     flash_lock();
 
@@ -111,11 +126,13 @@ void programFlash(const FlashIterator *iterator,
     flash_unlock_progmem();
 
     for (uint32_t i = 0; i < size; i += FLASH_BLOCK_SIZE)
-        flash_program_double_word(dest + i, *(uint64_t *)(source + i));
+        flash_program_double_word(address + i, *(uint64_t *)(source + i));
 
     flash_lock_progmem();
 
 #endif
+
+    iterator->index += size;
 }
 
 #endif

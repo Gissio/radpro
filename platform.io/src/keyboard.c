@@ -85,9 +85,9 @@ void onKeyboardTick(void)
         {
 #if defined(KEYBOARD_5KEYS)
 
-            if (!((keyboard.mode == KEYBOARD_MODE_MEASUREMENT) &&
-                  (i == KEY_LEFT)) &&
-                (i != KEY_SELECT))
+            if (!(((keyboard.mode == KEYBOARD_MODE_MEASUREMENT) &&
+                 (i == KEY_LEFT)) ||
+                (i == KEY_SELECT)))
                 event = i;
 
 #endif

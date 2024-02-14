@@ -46,9 +46,6 @@ void initDisplayHardware(void)
                 FIRMWARE_NAME);
 
 #endif
-
-    writeDatalogEntry(true);
-    writeSettings();
 }
 
 void setDisplayBacklight(bool value)
@@ -73,7 +70,7 @@ void updateDisplay(void)
     {
         if (event.type == SDL_QUIT)
         {
-            writeDatalogEntry(true);
+            writeDatalog();
             writeSettings();
 
             exit(0);
