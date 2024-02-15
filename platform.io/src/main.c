@@ -99,7 +99,7 @@ int main(void)
             drawNotification("WARNING",
                              "Firmware checksum failure.", true);
             refreshDisplay();
-            triggerBacklight();
+            triggerDisplay();
             playSystemAlert();
 
             sleep(1000);
@@ -107,7 +107,10 @@ int main(void)
 
         drawNotification(FIRMWARE_NAME, FIRMWARE_VERSION, true);
         refreshDisplay();
-        triggerBacklight();
+        triggerDisplay();
+#if defined(DISPLAY_MONOCHROME)
+        setDisplay(true);
+#endif
 
         sleep(1000);
 

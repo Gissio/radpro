@@ -1803,7 +1803,7 @@ static void onDisplayBrightnessMenuSelect(const Menu *menu)
 {
     settings.displayBrightness = menu->state->selectedIndex;
 
-    triggerBacklight();
+    triggerDisplay();
 }
 
 static MenuState displayBrightnessMenuState;
@@ -1851,7 +1851,7 @@ static void onDisplaySleepMenuSelect(const Menu *menu)
 {
     settings.displaySleep = menu->state->selectedIndex;
 
-    triggerBacklight();
+    triggerDisplay();
 }
 
 static MenuState displaySleepMenuState;

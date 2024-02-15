@@ -63,8 +63,8 @@ Then, copy+paste the following command and verify that the resulting file, `back
 
 Now, download the latest firmware from the [Rad Pro releases](https://github.com/Gissio/radpro/releases):
 
-* If your device is a Bosean FS-600, get ``radpro-bosean-fs600-install-x.y.z.bin`` when installing for the first time or `radpro-bosean-fs600-update-x.y.z.bin` when updating.
-* If your device is a Bosean FS-1000, get `radpro-bosean-fs1000-install-x.y.z.bin` when installing for the first time or `radpro-bosean-fs1000-update-x.y.z.bin` when updating.
+* If your device is an FS-600, get ``radpro-bosean-fs600-install-x.y.z.bin`` when installing for the first time or `radpro-bosean-fs600-update-x.y.z.bin` when updating.
+* If your device is an FS-1000, get `radpro-bosean-fs1000-install-x.y.z.bin` when installing for the first time or `radpro-bosean-fs1000-update-x.y.z.bin` when updating.
 
 Next, run this command in the terminal:
 
@@ -76,13 +76,17 @@ Next, run this command in the terminal:
 * Close the device.
 * To enable USB data logging under Windows, install the [CH340 driver](https://www.catalog.update.microsoft.com/Search.aspx?q=USB%5CVID_1A86%26PID_7523).
 
-## Step 6: Show your support
+## Step 6: Configure your device
+
+Last, start your device and go to Rad Pro's settings, select "Geiger tube", select "HV Profile" and choose an appropriate HV profile: "Energy-saving" is ideal for measuring background levels of radiation, while "Optimized" consumes more power but allows measuring higher radiation levels; "Factory default" is the profile from the original firmware and consumes considerably more power.
+
+## Step 7: Show your support
 
 If you like Rad Pro, show your support by starring the project on GitHub.
 
 ## Hardware-specific notes
 
-On the Bosean FS-600, the keys are mapped as follows:
+On the FS-600, the keys are mapped as follows:
 
   * Power on/off: long press of the ok/power key.
   * Go up/down: the up and down keys.
@@ -92,7 +96,7 @@ On the Bosean FS-600, the keys are mapped as follows:
   * Select option: the ok/power or right/settings key.
   * Bo back: the left/back key.
 
-On the Bosean FS-1000, the keys are mapped as follows:
+On the FS-1000, the keys are mapped as follows:
 
   * Power on/off: extended press of the set/power key.
   * Go up: the mode key.
@@ -101,11 +105,13 @@ On the Bosean FS-1000, the keys are mapped as follows:
   * Hold measurement/go back: long press of the mode key.
   * Reset measurement: long press of both the mode and set/power keys.
 
-Not all FS-600 devices support the pulse LED.
+Not all devices support the pulse LED.
 
-On the Bosean FS-600 and FS-1000, Rad Pro can store up to 95504 data points. At normal radiation levels, this allows for 33 days of data at 1-minute intervals, 165 days at 5-minute intervals, 331 days at 10-minute intervals, 994 days at 30-minute intervals, and 1989 days at 60-minute intervals.
+On the FS-600 and FS-1000, Rad Pro can store up to 95128 data points. At normal radiation levels, this allows for 66 days of data at 1-minute intervals, 165 days at 5-minute intervals, 330 days at 10-minute intervals, 990 days at 30-minute intervals, and 1981 days at 60-minute intervals.
 
-The Bosean FS-600 and FS-1000 HV profile values are:
+The FS-600 and FS-1000 include two Zener diodes that limit the maximum voltage to 440 V (nominal).
+
+The FS-600 and FS-1000 HV profile values are:
 
 * Factory default: 40 kHz frequency and 50 % duty cycle.
 * Optimized: 2.5 kHz frequency and 6.5 % duty cycle.

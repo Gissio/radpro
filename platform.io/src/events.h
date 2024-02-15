@@ -33,8 +33,8 @@ void dispatchEvents(void);
 
 float getDeadTime(void);
 
-void triggerBacklight(void);
-bool isBacklightTimerActive(void);
+void triggerDisplay(void);
+bool isDisplayTimerActive(void);
 void triggerPulse(void);
 void triggerAlarm(void);
 

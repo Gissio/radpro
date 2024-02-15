@@ -16,10 +16,10 @@
 #include "settings.h"
 #include "tube.h"
 
-#define VAR_CONVERSIONFACTOR_MIN 25.0F
-#define VAR_CONVERSIONFACTOR_MAX 400.01F
-#define VAR_CONVERSIONFACTOR_LOG_MAX_MIN 4.0F
-#define VAR_CONVERSIONFACTOR_NUM 64
+#define CONVERSIONFACTOR_MIN 25.0F
+#define CONVERSIONFACTOR_MAX 400.01F
+#define CONVERSIONFACTOR_LOG_MAX_MIN 4.0F
+#define CONVERSIONFACTOR_NUM 64
 
 #define DEADTIME_MIN 0.000040F
 #define DEADTIME_MAX 0.000640F
@@ -47,7 +47,7 @@ void initTube(void)
 
     selectMenuItem(&tubeConversionFactorMenu,
                    settings.tubeConversionFactor,
-                   VAR_CONVERSIONFACTOR_NUM);
+                   CONVERSIONFACTOR_NUM);
     selectMenuItem(&tubeDeadTimeCompensationMenu,
                    settings.tubeDeadTimeCompensation,
                    DEADTIME_NUM);
@@ -138,10 +138,10 @@ static float getTubeConversionFactorForIndex(uint32_t index)
 
     index -= TUBE_CONVERSIONFACTOR_NUM;
 
-    return VAR_CONVERSIONFACTOR_MIN *
+    return CONVERSIONFACTOR_MIN *
            exp2f(index *
-                 (VAR_CONVERSIONFACTOR_LOG_MAX_MIN /
-                  (VAR_CONVERSIONFACTOR_NUM - 1)));
+                 (CONVERSIONFACTOR_LOG_MAX_MIN /
+                  (CONVERSIONFACTOR_NUM - 1)));
 }
 
 float getTubeConversionFactor(void)
@@ -164,7 +164,7 @@ static const char *onTubeConversionFactorMenuGetOption(const Menu *menu,
 
         return menuOption;
     }
-    else if (index < (TUBE_CONVERSIONFACTOR_NUM + VAR_CONVERSIONFACTOR_NUM))
+    else if (index < (TUBE_CONVERSIONFACTOR_NUM + CONVERSIONFACTOR_NUM))
     {
         strcpy(menuOption, "");
         strcatFloat(menuOption, getTubeConversionFactorForIndex(index), 1);
@@ -457,7 +457,7 @@ static const View tubeHVrequencyMenuView = {
 
 static float getTubeHVDutyCycleFromIndex(uint32_t index)
 {
-    return 0.5F - 0.0025F * index;
+    return 0.9F - 0.0025F * index;
 }
 
 float getTubeHVDutyCycle(void)

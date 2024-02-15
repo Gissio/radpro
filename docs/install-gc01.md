@@ -17,7 +17,11 @@ Now, follow these steps to install Rad Pro on your FNIRSI GC-01 Geiger counter:
 
 If something goes wrong, you can recover your device with the [original firmware V0.3](devices/FNIRSI%20GC-01/FNIRSI%20GC-01%20V0.3.zip) or [original firmware V1.5](devices/FNIRSI%20GC-01/FNIRSI%20GC-01%20V1.5.bin).
 
-## Step 3: Show your support
+## Step 3: Configure your device
+
+Last, start your device and go to Rad Pro's settings, select "Geiger tube", select "HV Profile" and choose an appropriate HV profile: "Energy-saving" is ideal for measuring background levels of radiation, while "Optimized" consumes more power but allows measuring higher radiation levels.
+
+## Step 4: Show your support
 
 If you like Rad Pro, show your support by starring the project on GitHub.
 
@@ -33,10 +37,10 @@ The keys are mapped as follows:
   * Select option: the ok/power or right/settings key.
   * Bo back: the left/back key.
 
-On the FNIRSI GC-01, Rad Pro can store up to 6084 data points. At normal radiation levels, this allows for 2 days of data at 1-minute intervals, 10 days at 5-minute intervals, 31 days at 10-minute intervals, 95 days at 30-minute intervals, and 190 days at 60-minute intervals.
+On the FNIRSI GC-01, Rad Pro can store up to 6072 data points. At normal radiation levels, this allows for 4 days of data at 1-minute intervals, 10 days at 5-minute intervals, 31 days at 10-minute intervals, 94 days at 30-minute intervals, and 189 days at 60-minute intervals.
 
 The FNIRSI GC-01 HV profile values are:
 
-* Factory default: 10 kHz frequency and [to-do] duty cycle.
+* Factory default: 10 kHz frequency and 75 % duty cycle.
 * Optimized: [to-do] kHz frequency and [to-do] duty cycle.
 * Energy-saving: [to-do] kHz frequency and [to-do] duty cycle.

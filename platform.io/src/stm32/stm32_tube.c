@@ -244,7 +244,6 @@ void TUBE_DET_IRQ_HANDLER(void)
 
 void syncTubeHV(void)
 {
-
 #if TIM_FREQUENCY == 8000000
     // while ((TIM_CNT(TUBE_HV_TIMER) & (~0b11)) != (20 & (~0b11)))
     //     ;

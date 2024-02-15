@@ -141,7 +141,7 @@ void runTestMode(void)
         else
             gpio_set(GPIOA, GPIO11);
 
-        triggerBacklight();
+        triggerDisplay();
 
         drawTestMode(lines);
 

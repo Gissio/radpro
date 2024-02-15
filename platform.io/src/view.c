@@ -33,11 +33,11 @@ void dispatchViewEvents(void)
 
         if (((settings.displaySleep == DISPLAY_SLEEP_ALWAYS_OFF) ||
              (settings.displaySleep == DISPLAY_SLEEP_PULSE_FLASHES)) ||
-            isBacklightTimerActive())
+            isDisplayTimerActive())
 
 #elif defined(DISPLAY_COLOR)
 
-        if (isBacklightTimerActive())
+        if (isDisplayTimerActive())
 
 #endif
         {
@@ -47,7 +47,7 @@ void dispatchViewEvents(void)
                 view.currentView->onEvent(view.currentView, event);
         }
 
-        triggerBacklight();
+        triggerDisplay();
     }
 
     if (view.drawUpdate)

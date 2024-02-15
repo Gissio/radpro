@@ -313,7 +313,9 @@ static void setBacklightTimer(int32_t value)
 {
     if (value != 1)
     {
+#if defined(DISPLAY_COLOR)
         setDisplay(true);
+#endif
         setDisplayBacklight(true);
     }
 
@@ -332,7 +334,7 @@ static void setBuzzerTimer(int32_t value, int32_t noiseValue)
     }
 }
 
-void triggerBacklight(void)
+void triggerDisplay(void)
 {
     syncTimerThread();
 
@@ -341,7 +343,7 @@ void triggerBacklight(void)
     setBacklightTimer(backlightTimerValues[settings.displaySleep]);
 }
 
-bool isBacklightTimerActive(void)
+bool isDisplayTimerActive(void)
 {
     return events.displayTimer != 0;
 }

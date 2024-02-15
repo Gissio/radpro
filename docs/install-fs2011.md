@@ -66,11 +66,15 @@ Next, run this command in the terminal:
 
     st-flash write [firmware-filename] 0x08000000
 
-## Step 5: Configure your Geiger-Müller tube
+After successfully flashing the firmware, close the device.
+
+## Step 5: Configure your device
 
 ![FS2011 tube types](img/fs2011-tube-type.jpg)
 
-Last, go to Rad Pro's settings, select "Geiger tube", "Conversion factor" and configure the Geiger-Müller tube. The photos above should help you identify the tube.
+Start your device and go to Rad Pro's settings, select "Geiger tube", "Conversion factor", and select the option that matches the Geiger-Müller tube installed in your device. The photos above should help you identify the tube.
+
+Last, within the "Geiger tube" settings, select "HV Profile" and choose an appropriate HV profile: "Energy-saving" is ideal for measuring background levels of radiation, while "Optimized" consumes more power but allows measuring higher radiation levels; "Factory default" is the profile from the original firmware and consumes considerably more power.
 
 ## Step 6: Optional mods
 
@@ -102,9 +106,9 @@ The keys are mapped as follows:
   * Select option: the power or menu/ok key.
   * Bo back: the play/pause key.
 
-On the FS2011, Rad Pro can store up to 31403 data points. At normal radiation levels, this allows for 10 days of data at 1-minute intervals, 54 days at 5-minute intervals, 109 days at 10-minute intervals, 327 days at 30-minute intervals, and 654 days at 60-minute intervals.
+On the FS2011, Rad Pro can store up to 31372 data points. At normal radiation levels, this allows for 21 days of data at 1-minute intervals, 54 days at 5-minute intervals, 108 days at 10-minute intervals, 326 days at 30-minute intervals, and 653 days at 60-minute intervals.
 
-The FS2011 includes two high voltage Zener diodes
+The FS2011 includes two Zener diodes that limit the maximum voltage to 440 V (nominal).
 
 The FS2011 HV profile values are:
 
