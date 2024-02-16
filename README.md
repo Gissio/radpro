@@ -6,7 +6,7 @@ RAD PRO 2.0 IS NOT YET READY. The files in the releases are only for the FS2011 
 
 ## Introduction
 
-Rad Pro is a custom firmware that enhances the capabilities of several commercially available Geiger counters, including the [FS2011](https://www.amazon.com/s?k=fs2011), [FS9000](https://www.amazon.com/s?k=fs9000), [NR-950](https://www.amazon.com/s?k=nr950), [YT-203B](https://www.amazon.com/s?k=yt-203b), [Bosean FS-600](https://www.bosean.net/products/nuclear_radiation_detector.html), [Bosean FS-1000](https://www.bosean.net/products/FS-1000_nuclear_radiation_detector.html) and [FNIRSI GC-01](https://www.fnirsi.com.cn/product/704376090398953472).
+Rad Pro is a custom firmware that enhances the capabilities of several commercially available Geiger counters, including the [FS2011](https://www.amazon.com/s?k=fs2011), [NR-950](https://www.amazon.com/s?k=nr950), [YT-203B](https://www.amazon.com/s?k=yt-203b), [Bosean FS-600](https://www.bosean.net/products/nuclear_radiation_detector.html), [Bosean FS-1000](https://www.bosean.net/products/FS-1000_nuclear_radiation_detector.html) and [FNIRSI GC-01](https://www.fnirsi.com.cn/product/704376090398953472).
 
 Support for other devices, including the [Bosean FS-5000](https://www.bosean.net/FS-5000-Nuclear-Radiation-Detector.html), [GQ GMC-500](https://www.gqelectronicsllc.com/comersus/store/comersus_viewItem.asp?idProduct=5629), [GQ GMC-600](https://www.gqelectronicsllc.com/comersus/store/comersus_viewItem.asp?idProduct=5637) and [GQ GMC-800](https://www.gqelectronicsllc.com/comersus/store/comersus_viewItem.asp?idProduct=5859) is planned.
 
@@ -25,7 +25,7 @@ With Rad Pro, you can:
 Rad Pro 2.0 adds:
 
 * Support for the FNIRSI GC-01, Bosean FS-600, Bosean FS-1000, FS2011 with GD32F150 processor and FS2011 with GD32F103 processor.
-* Instantaneous rate measurement with adaptive averaging window and fast response.
+* Instantaneous rate measurement with adaptive averaging window.
 * Average rate measurement timer for performing surveys.
 * Data logging with data compression.
 * Serial port/USB communications.
@@ -60,5 +60,5 @@ Manuals:
 ## Acknowledgements
 
 * Rad Pro's user interface is based on the [OpenBridge 4.0](https://www.openbridge.no/) design system.
-* Thanks to `Alfred90`, `danielhahn76`, `felixsteghofer`, `DG0MG`, `murkle`, `cromagn` and `ivohar` for device testing.
+* Thanks to `Alfred90`, `danielhahn76`, `felixsteghofer`, `DG0MG`, `murkle`, `cromagn`, `ivohar` and `mryndzionek` for device testing.
 * Thanks to `pixitha` for the FS2011/GD32F150 board photo with a J305 Geiger tube, `felixsteghofer` for the FS2011/STM32F103 board photo, `DG0MG` for the Bosean FS-600 board photo, `murkle` for the Bosean FS-1000 board photo, and `ivohar` for the FNIRSCI GC-01 schematics.

@@ -75,7 +75,7 @@ int main(void)
         {
             sleep(1);
 
-            updateDisplayEvents();
+            dispatchDisplayEvents();
         }
         firstStart = false;
 
@@ -85,7 +85,7 @@ int main(void)
         {
             sleep(1);
 
-            updateDisplayEvents();
+            dispatchDisplayEvents();
         }
 
 #endif

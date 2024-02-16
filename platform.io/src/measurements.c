@@ -90,6 +90,7 @@ static struct
 
     struct
     {
+        uint32_t queueHead;
         uint32_t queueTail;
         Measurement queue[MEASUREMENT_QUEUE_SIZE];
 
@@ -176,7 +177,7 @@ void initMeasurements(void)
                    settings.doseAlarm,
                    DOSEALARM_NUM);
 
-    updateTube();
+    updateMeasurementUnits();
 }
 
 // Events
@@ -208,7 +209,7 @@ static Units units[] = {
      {"count", 1, 2}},
 };
 
-void updateTube(void)
+void updateMeasurementUnits(void)
 {
     float conversionFactor = getTubeConversionFactor();
 
@@ -218,7 +219,7 @@ void updateTube(void)
     units[1].dose.scale = (60 * 1E-4F / 3600) / conversionFactor;
 }
 
-static float getTubeCompensationFactor(float value)
+static float getDeadTimeCompensationFactor(float value)
 {
     if (!settings.tubeDeadTimeCompensation)
         return 1.0F;
@@ -235,31 +236,31 @@ static float getTubeCompensationFactor(float value)
 
 static uint32_t calculateAveragingPeriod(float value)
 {
-    float uSvHScale = units[UNITS_SIEVERTS].rate.scale * 1E6F;
+    float uSvHConstant = units[UNITS_SIEVERTS].rate.scale * 1E6F;
 
-    float uSvH = value * uSvHScale;
+    float uSvH = value * uSvHConstant;
     float averagingPeriod;
 
-    if (uSvH == 0.0F)
-        averagingPeriod = 300;
-    else if ((uSvH > 0.3F) && (uSvH < 1))
+    if ((uSvH > 0.3F) && (uSvH < 1))
     {
         float averagingPeriodExponent =
             log10f((AVERAGING_PERIOD_TIME_CONSTANT / 0.3F /
                     AVERAGING_PERIOD_TIME_LIMIT) *
-                   uSvHScale) /
+                   uSvHConstant) /
             log10f(0.3F);
 
         averagingPeriod = (AVERAGING_PERIOD_TIME_LIMIT *
-                           powf(uSvH, averagingPeriodExponent));
+                           powf(uSvH, averagingPeriodExponent)) +
+                          1;
     }
     else
-    {
-        averagingPeriod = (AVERAGING_PERIOD_TIME_CONSTANT / value);
+        averagingPeriod = (value == 0.0F)
+                              ? 300
+                              : ((AVERAGING_PERIOD_TIME_CONSTANT / value) + 1);
 
-        if ((uSvH > 1) && (averagingPeriod > AVERAGING_PERIOD_TIME_LIMIT))
-            averagingPeriod = AVERAGING_PERIOD_TIME_LIMIT;
-    }
+    if ((uSvH > 1) &&
+        (averagingPeriod > AVERAGING_PERIOD_TIME_LIMIT))
+        averagingPeriod = AVERAGING_PERIOD_TIME_LIMIT;
 
     return (uint32_t)averagingPeriod;
 }
@@ -267,7 +268,12 @@ static uint32_t calculateAveragingPeriod(float value)
 static void calculateRate(uint32_t pulseCount, uint32_t ticks, Rate *rate)
 {
     if (!ticks)
+    {
+        rate->value = 0;
+        rate->confidence = 0;
+
         return;
+    }
 
     // Value and confidence intervals
 
@@ -282,9 +288,9 @@ static void calculateRate(uint32_t pulseCount, uint32_t ticks, Rate *rate)
     // float compValue = value * valueFactor;
     // float compAbsConfidenceInterval = absConfidenceInterval * confidenceIntervalFactor;
     // float compConfidenceInterval = (compAbsConfidenceInterval - compValue) / compValue;
-    float valueFactor = getTubeCompensationFactor(value);
+    float valueFactor = getDeadTimeCompensationFactor(value);
     float confidenceIntervalFactor =
-        getTubeCompensationFactor(value * (1 + confidenceInterval));
+        getDeadTimeCompensationFactor(value * (1 + confidenceInterval));
 
     rate->value = valueFactor * value;
     rate->confidence =
@@ -326,7 +332,7 @@ void onMeasurementsOneSecond(void)
 
     measurements.tick.pulseCountFraction +=
         measurements.tick.snapshotMeasurement.pulseCount *
-        getTubeCompensationFactor(measurements.instantaneous.rate.value);
+        getDeadTimeCompensationFactor(measurements.instantaneous.rate.value);
     compensatedMeasurement.pulseCount =
         (uint32_t)measurements.tick.pulseCountFraction;
     measurements.tick.pulseCountFraction -= compensatedMeasurement.pulseCount;
@@ -335,54 +341,62 @@ void onMeasurementsOneSecond(void)
 
     if (compensatedMeasurement.pulseCount)
     {
+        // Enqueue
+
         measurements.instantaneous.queue[measurements.instantaneous.queueTail] =
             compensatedMeasurement;
+        measurements.instantaneous.queueTail =
+            (measurements.instantaneous.queueTail + 1) & MEASUREMENT_QUEUE_MASK;
+
+        if (measurements.instantaneous.queueTail ==
+            measurements.instantaneous.queueHead)
+        {
+            measurements.instantaneous.queueHead =
+                (measurements.instantaneous.queueTail + 1) & MEASUREMENT_QUEUE_MASK;
+        }
+
+        // Process queue
 
         Measurement instantaneousMeasurement;
-        instantaneousMeasurement.firstPulseTick = compensatedMeasurement.lastPulseTick;
         instantaneousMeasurement.lastPulseTick = compensatedMeasurement.lastPulseTick;
         instantaneousMeasurement.pulseCount = 0;
 
         uint32_t averagingPeriod =
-            1000 * calculateAveragingPeriod(measurements.instantaneous.rate.value);
+            calculateAveragingPeriod(measurements.instantaneous.rate.value);
 
-        bool clear = false;
-        for (uint32_t i = MEASUREMENT_QUEUE_SIZE; i > 0; i--)
+        for (uint32_t i = 0; i < (MEASUREMENT_QUEUE_SIZE - 1); i++)
         {
             uint32_t queueIndex =
-                (measurements.instantaneous.queueTail + i) & MEASUREMENT_QUEUE_MASK;
+                (measurements.instantaneous.queueTail - 1 - i) & MEASUREMENT_QUEUE_MASK;
 
-            if (!measurements.instantaneous.queue[queueIndex].pulseCount)
-                break;
+            uint32_t timePeriod =
+                1 +
+                (measurements.tick.snapshotTick -
+                 measurements.instantaneous.queue[queueIndex].firstPulseTick) /
+                    SYSTICK_FREQUENCY;
 
-            if (!clear)
+            if (timePeriod > averagingPeriod)
             {
-                instantaneousMeasurement.pulseCount +=
-                    measurements.instantaneous.queue[queueIndex].pulseCount;
-                instantaneousMeasurement.firstPulseTick =
-                    measurements.instantaneous.queue[queueIndex].firstPulseTick;
+                measurements.instantaneous.queueHead =
+                    (queueIndex + 1) & MEASUREMENT_QUEUE_MASK;
 
-                uint32_t measurementPeriod = instantaneousMeasurement.lastPulseTick -
-                                             instantaneousMeasurement.firstPulseTick;
-                if (measurementPeriod >= averagingPeriod)
-                    clear = true;
+                break;
             }
-            else
-                measurements.instantaneous.queue[queueIndex].pulseCount = 0;
+
+            instantaneousMeasurement.firstPulseTick =
+                measurements.instantaneous.queue[queueIndex].firstPulseTick;
+            instantaneousMeasurement.pulseCount +=
+                measurements.instantaneous.queue[queueIndex].pulseCount;
+            measurements.instantaneous.rate.time = timePeriod;
+
+            if (queueIndex == measurements.instantaneous.queueHead)
+                break;
         }
 
         calculateRate(instantaneousMeasurement.pulseCount,
                       instantaneousMeasurement.lastPulseTick -
                           instantaneousMeasurement.firstPulseTick,
                       &measurements.instantaneous.rate);
-
-        measurements.instantaneous.rate.time =
-            1 + (measurements.tick.snapshotTick -
-                 instantaneousMeasurement.firstPulseTick) /
-                    SYSTICK_FREQUENCY;
-
-        measurements.instantaneous.queueTail =
-            (measurements.instantaneous.queueTail + 1) & MEASUREMENT_QUEUE_MASK;
 
         if ((instantaneousMeasurement.pulseCount > 10) &&
             (measurements.instantaneous.rate.value >

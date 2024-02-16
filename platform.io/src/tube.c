@@ -180,7 +180,7 @@ static void onTubeConversionFactorMenuSelect(const Menu *menu)
 {
     settings.tubeConversionFactor = menu->state->selectedIndex;
 
-    updateTube();
+    updateMeasurementUnits();
 }
 
 static MenuState tubeConversionFactorMenuState;
@@ -239,7 +239,7 @@ static void onTubeDeadTimeCompensationMenuSelect(const Menu *menu)
 {
     settings.tubeDeadTimeCompensation = menu->state->selectedIndex;
 
-    updateTube();
+    updateMeasurementUnits();
 }
 
 static MenuState tubeDeadTimeCompensationMenuState;

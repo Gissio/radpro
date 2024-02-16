@@ -65,10 +65,6 @@ bool verifyFlash(void)
 
     rcc_periph_clock_disable(RCC_CRC);
 
-    // +++ TEST
-    return true;
-    // +++ TEST
-
     return (calculatedCRC == FIRMWARE_CRC);
 }
 

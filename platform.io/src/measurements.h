@@ -28,7 +28,7 @@ extern const View averageTimerMenuView;
 
 void initMeasurements(void);
 
-void updateTube(void);
+void updateMeasurementUnits(void);
 
 void onMeasurementTick(uint32_t pulseCount);
 void onMeasurementPeriod(void);

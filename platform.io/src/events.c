@@ -36,7 +36,7 @@ enum TimerState
     TIMER_RUNNING,
 };
 
-static uint32_t backlightTimerValues[] = {
+static uint32_t displayTimerValues[] = {
 #if defined(DISPLAY_MONOCHROME)
     1,
 #endif
@@ -161,9 +161,7 @@ void onTick(void)
     // Buzzer
 
 #if defined(SDLSIM)
-
     updateBuzzer();
-
 #endif
 
     switch (updateTimer(&events.buzzerTimer))
@@ -249,7 +247,7 @@ void setEventHandling(bool value)
     events.measurementsEnabled = value;
 }
 
-void updateDisplayEvents(void)
+void dispatchDisplayEvents(void)
 {
     if (events.displayDisable)
     {
@@ -266,8 +264,6 @@ void dispatchEvents(void)
 {
     sleep(0);
 
-    updateDisplayEvents();
-
     uint32_t oneSecondUpdate = events.measurementPeriodUpdate;
     if (events.lastMeasurementPeriodUpdate != oneSecondUpdate)
     {
@@ -280,6 +276,7 @@ void dispatchEvents(void)
         updateView();
     }
 
+    dispatchDisplayEvents();
     dispatchViewEvents();
     dispatchCommEvents();
 }
@@ -309,7 +306,7 @@ static void setPulseLEDTimer(int32_t value)
 
 static bool isAlarmTimerActive(void);
 
-static void setBacklightTimer(int32_t value)
+static void setDisplayTimer(int32_t value)
 {
     if (value != 1)
     {
@@ -340,7 +337,7 @@ void triggerDisplay(void)
 
     events.displayTimer = 0;
 
-    setBacklightTimer(backlightTimerValues[settings.displaySleep]);
+    setDisplayTimer(displayTimerValues[settings.displaySleep]);
 }
 
 bool isDisplayTimerActive(void)
@@ -354,17 +351,13 @@ void triggerPulse(void)
         return;
 
 #if defined(PULSE_LED)
-
     if (settings.pulseLED)
         setPulseLEDTimer(PULSE_LED_TICKS);
-
 #endif
 
 #if defined(DISPLAY_MONOCHROME)
-
     if (settings.displaySleep == DISPLAY_SLEEP_PULSE_FLASHES)
-        setBacklightTimer(PULSE_BACKLIGHT_TICKS);
-
+        setDisplayTimer(PULSE_BACKLIGHT_TICKS);
 #endif
 
     setBuzzerTimer(buzzerTimerValues[settings.pulseClicks] + 1,
@@ -379,7 +372,7 @@ void triggerAlarm(void)
     setPulseLEDTimer(ALARM_TICKS);
 #endif
     setBuzzerTimer(ALARM_TICKS, 1);
-    setBacklightTimer(ALARM_TICKS);
+    setDisplayTimer(ALARM_TICKS);
 #if defined(VIBRATOR)
     setVibrator(true);
 #endif

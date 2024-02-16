@@ -28,7 +28,7 @@ uint32_t getTick(void);
 void sleep(uint32_t value);
 
 void setEventHandling(bool value);
-void updateDisplayEvents(void);
+void dispatchDisplayEvents(void);
 void dispatchEvents(void);
 
 float getDeadTime(void);
