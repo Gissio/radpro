@@ -1,4 +1,6 @@
-[![Rad Pro Demonstration](docs/img/radpro-video.jpg)](https://www.youtube.com/watch?v=7dpVG1jSLn8)
+![Title](docs/img/title.png)
+
+<!-- [![Rad Pro Demonstration](docs/img/radpro-video.jpg)](https://www.youtube.com/watch?v=7dpVG1jSLn8) -->
 
 ## IMPORTANT
 
