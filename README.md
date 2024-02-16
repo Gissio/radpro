@@ -1,4 +1,4 @@
-![Title](docs/img/title.png)
+![Title](docs/img/radpro-title.png)
 
 <!-- [![Rad Pro Demonstration](docs/img/radpro-video.jpg)](https://www.youtube.com/watch?v=7dpVG1jSLn8) -->
 
