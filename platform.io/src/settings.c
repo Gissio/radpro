@@ -144,8 +144,8 @@ static const OptionView settingsMenuOptions[] = {
     {"Average timer", &averageTimerMenuView},
     {"Rate alarm", &rateAlarmMenuView},
     {"Dose alarm", &doseAlarmMenuView},
-    {"Data logging", &datalogMenuView},
     {"Geiger tube", &tubeMenuView},
+    {"Data logging", &datalogMenuView},
 #if defined(PULSE_LED)
     {"Pulse LED", &pulseLEDMenuView},
 #endif
