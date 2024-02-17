@@ -99,16 +99,16 @@ void initKeyboardHardware(void)
 {
     // GPIO
 
-    gpio_clear(KEY_SELECT_PORT,
-               KEY_SELECT_PIN); // Pull-up
+    gpio_set(KEY_SELECT_PORT,
+             KEY_SELECT_PIN); // Pull-up
     gpio_set_mode(KEY_SELECT_PORT,
                   GPIO_MODE_INPUT,
                   GPIO_CNF_INPUT_PULL_UPDOWN,
                   KEY_SELECT_PIN);
 
-    gpio_clear(GPIOC,
-               KEY_UP_PIN | KEY_RIGHT_PIN |
-                   KEY_DOWN_PIN | KEY_LEFT_PIN); // Pull-up
+    gpio_set(GPIOC,
+             KEY_UP_PIN | KEY_RIGHT_PIN |
+                 KEY_DOWN_PIN | KEY_LEFT_PIN); // Pull-up
     gpio_set_mode(GPIOC,
                   GPIO_MODE_INPUT,
                   GPIO_CNF_INPUT_PULL_UPDOWN,
