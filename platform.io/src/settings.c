@@ -46,8 +46,8 @@ void initSettings(void)
     // Default values
 
     settings.tubeConversionFactor = TUBE_CONVERSIONFACTOR_DEFAULT;
-    settings.tubeHVFrequency = TUBE_FACTORYDEFAULT_HVFREQUENCY;
-    settings.tubeHVDutyCycle = TUBE_FACTORYDEFAULT_HVDUTYCYCLE;
+    settings.tubeHVFrequency = TUBE_DEFAULT_HVFREQUENCY;
+    settings.tubeHVDutyCycle = TUBE_DEFAULT_HVDUTYCYCLE;
 
 #if defined(PULSE_LED)
     settings.pulseLED = PULSE_LED_ON;

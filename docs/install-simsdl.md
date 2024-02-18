@@ -5,3 +5,5 @@ The Rad Pro simulator is a tool used for developing Rad Pro, but you can also do
 Download the appropriate simulator from the [Rad Pro releases](https://github.com/Gissio/radpro/releases).
 
 Measurements are simulated. The arrow keys let you navigate the menus, the spacebar key functions as the ok/power key. You can also hold the 1, 2, 3, 4 and 5 keys pressed to simulate increased levels of radiation.
+
+The simulator tries automatically to connect to the first available serial port. To test Rad Pro's serial communications locally, install the [com0com null-modem driver](https://com0com.sourceforge.net/) and connect with a serial terminal to the second available serial port.

@@ -258,7 +258,7 @@ void initDisplayHardware(void)
     rcc_periph_clock_enable(LCD_BACKLIGHT_TIMER_RCC);
 
     LCD_BACKLIGHT_TIMER_CCMR(LCD_BACKLIGHT_TIMER) |= LCD_BACKLIGHT_TIMER_CCMR_MODE; // timer_set_oc_mode(LCD_BACKLIGHT_TIMER, TIM_OC1, TIM_OCM_PWM1);
-    TIM_ARR(LCD_BACKLIGHT_TIMER) = LCD_BACKLIGHT_PWM_PERIOD;                        // timer_set_period(LCD_BACKLIGHT_TIMER, BACKLIGHT_PWM_PERIOD);
+    TIM_ARR(LCD_BACKLIGHT_TIMER) = LCD_BACKLIGHT_PWM_PERIOD - 1;                    // timer_set_period(LCD_BACKLIGHT_TIMER, BACKLIGHT_PWM_PERIOD);
 
     setDisplayBacklight(false);
 

@@ -20,7 +20,7 @@ With Rad Pro, you can:
 * Set up user-adjustable rate and dose alarms.
 * Plot radiation rate history (10 minutes, 1 hour and 24 hours).
 * Log data to the built-in flash memory or live on a computer, optionally sending the data to the [gmcmap.com](https://gmcmap.com), [radmon.org](https://radmon.org) and [safecast.org](https://map.safecast.org) radiation monitoring websites.
-* Generate true random data: secure passwords (alphanumeric, full ASCII), random hexadecimal and decimal numbers, coin flips, and dice throws (4-sided, 6-sided, 8-sided, 12-sided and 20-sided).
+* Generate true random data: secure passwords (alphanumeric, full ASCII), random hexadecimal and decimal numbers, dice throws (4-sided, 6-sided, 8-sided, 12-sided and 20-sided) and coin flips.
 
 ## Updates
 

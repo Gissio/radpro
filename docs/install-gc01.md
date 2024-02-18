@@ -10,16 +10,16 @@ Download the appropriate firmware from the [Rad Pro releases](https://github.com
 
 Now, follow these steps to install Rad Pro on your FNIRSI GC-01 Geiger counter:
 
-* Turn off the FNIRSI GC-01 device.
+* Turn off the device.
 * Connect the device to your computer using the USB cable.
-* Power on the FNIRSI GC-01. A A USB disk should become available.
+* Power on the device. A USB disk should become available.
 * Drag the Rad Pro firmware file to the USB disk. The device should restart automatically with Rad Pro installed.
 
 If something goes wrong, you can recover your device with the [original firmware V0.3](devices/FNIRSI%20GC-01/FNIRSI%20GC-01%20V0.3.zip) or [original firmware V1.5](devices/FNIRSI%20GC-01/FNIRSI%20GC-01%20V1.5.bin).
 
 ## Step 3: Configure your device
 
-Last, start your device and go to Rad Pro's settings, select "Geiger tube", select "HV Profile" and choose an appropriate HV profile: "Energy-saving" is ideal for measuring background levels of radiation, while "Optimized" consumes more power but allows measuring higher radiation levels.
+Last, start your device and go to Rad Pro's settings, select "Geiger tube", select "HV Profile" and choose an appropriate HV profile: "Energy-saving" reduces power consumption at the expense of lower accuracy, while "Accuracy" requires more power but provides more accurate measurements.
 
 ## Step 4: Show your support
 
@@ -39,8 +39,7 @@ The keys are mapped as follows:
 
 On the FNIRSI GC-01, Rad Pro can store up to 6072 data points. At normal radiation levels, this allows for 4 days of data at 1-minute intervals, 10 days at 5-minute intervals, 31 days at 10-minute intervals, 94 days at 30-minute intervals, and 189 days at 60-minute intervals.
 
-The FNIRSI GC-01 HV profile values are:
+The FNIRSI GC-01 HV profile settings are:
 
-* Factory default: 10 kHz frequency and 75 % duty cycle.
-* Optimized: [to-do] kHz frequency and [to-do] duty cycle.
-* Energy-saving: [to-do] kHz frequency and [to-do] duty cycle.
+* Accuracy: 10 kHz frequency and 72 % duty cycle.
+* Energy-saving: 2.5 kHz frequency and 10 % duty cycle.

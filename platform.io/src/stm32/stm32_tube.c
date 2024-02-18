@@ -26,8 +26,10 @@
 #include "stm32.h"
 
 #define TUBE_HV_LOW_FREQUENCY 1250
-#define TUBE_HV_LOW_FREQUENCY_PERIOD (TIM_FREQUENCY / TUBE_HV_LOW_FREQUENCY)
-#define TUBE_HV_LOW_DUTYCYCLE_MULTIPLIER ((TUBE_HV_LOW_FREQUENCY_PERIOD / 2) / TUBE_HVDUTYCYCLE_NUM)
+#define TUBE_HV_LOW_FREQUENCY_PERIOD (TIM_FREQUENCY / \
+                                      TUBE_HV_LOW_FREQUENCY)
+#define TUBE_HV_LOW_DUTYCYCLE_MULTIPLIER ((uint32_t)(TUBE_HVDUTYCYCLE_VALUE_STEP * \
+                                                     TUBE_HV_LOW_FREQUENCY_PERIOD))
 
 #define TUBE_PULSE_QUEUE_SIZE 64
 #define TUBE_PULSE_QUEUE_MASK (TUBE_PULSE_QUEUE_SIZE - 1)
@@ -151,15 +153,17 @@ void updateTubeHV(void)
 
     switch (settings.tubeHVProfile)
     {
+#if defined(TUBE_HVPROFILE_FACTORY_DEFAULT)
     case TUBE_HVPROFILE_FACTORY_DEFAULT:
         frequencyIndex = TUBE_FACTORYDEFAULT_HVFREQUENCY;
         dutyCycleIndex = TUBE_FACTORYDEFAULT_HVDUTYCYCLE;
 
         break;
+#endif
 
-    case TUBE_HVPROFILE_OPTIMIZED:
-        frequencyIndex = TUBE_OPTIMIZED_HVFREQUENCY;
-        dutyCycleIndex = TUBE_OPTIMIZED_HVDUTYCYCLE;
+    case TUBE_HVPROFILE_ACCURACY:
+        frequencyIndex = TUBE_ACCURACY_HVFREQUENCY;
+        dutyCycleIndex = TUBE_ACCURACY_HVDUTYCYCLE;
 
         break;
 
@@ -192,7 +196,8 @@ void updateTubeHV(void)
 
     uint32_t ccr;
     if (tube.enabled)
-        ccr = (TUBE_HV_LOW_FREQUENCY_PERIOD / 2 -
+        ccr = ((uint32_t)(TUBE_HVDUTYCYCLE_VALUE_MIN /
+                          TUBE_HVDUTYCYCLE_VALUE_STEP) +
                TUBE_HV_LOW_DUTYCYCLE_MULTIPLIER * dutyCycleIndex) >>
               frequencyIndex;
     else

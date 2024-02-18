@@ -15,19 +15,19 @@ To build the software, follow these steps:
 Data is stored internally using a compressed storage format:
 
     0b0sxxxxxx
-   
+
 Encodes a differential value from -64 to 63.
 
     0b10sxxxxx 0bxxxxxxxx
-   
+
 Encodes a differential value from -8192 to 8191.
 
     0b110sxxxx 0bxxxxxxxx 0bxxxxxxxx
-    
+
 Encodes a differential value from -1048576 to 1048575.
 
     0b1110sxxx 0bxxxxxxxx 0bxxxxxxxx 0bxxxxxxxx
-    
+
 Encodes a differential value from -134217728 to 134217727.
 
     0b11110000 0bsxxxxxxx 0bxxxxxxxx 0bxxxxxxxx 0bxxxxxxxx
@@ -51,7 +51,7 @@ Sets 10 minute time intervals and encodes initial timestamp and pulse count.
 Sets 30 minute time intervals and encodes initial timestamp and pulse count.
 
     0b11110101 [32-bit timestamp] [32-bit pulse count]
-    
+
 Sets 60 minute time intervals and encodes initial timestamp and pulse count.
 
     0b11111110

@@ -63,12 +63,15 @@ void initBuzzerHardware(void)
     rcc_periph_clock_enable(BUZZ_TIMER_RCC);
 
     BUZZ_TIMER_CCMR(BUZZ_TIMER) |= BUZZ_TIMER_CCMR_MODE; // timer_set_oc_mode(TUBE_HV_TIMER, TIM_OC1, TIM_OCM_PWM1);
-    TIM_ARR(BUZZ_TIMER) = BUZZ_PWM_PERIOD;               // timer_set_period(BUZZ_TIMER, BUZZ_PWM_PERIOD);
+    TIM_ARR(BUZZ_TIMER) = BUZZ_PWM_PERIOD - 1;           // timer_set_period(BUZZ_TIMER, BUZZ_PWM_PERIOD);
 
     setBuzzer(false);
 
     TIM_CCER(BUZZ_TIMER) |= BUZZ_TIMER_CCER_CC; // timer_enable_oc_output(TUBE_HV_TIMER, TIM_OC1);
-    TIM_CR1(BUZZ_TIMER) |= TIM_CR1_CEN;         // timer_enable_counter(TUBE_HV_TIMER);
+#if defined(BUZZ_TIMER_MOE)
+    TIM_BDTR(BUZZ_TIMER) |= TIM_BDTR_MOE; // timer_enable_break_main_output(BUZZ_TIMER);
+#endif
+    TIM_CR1(BUZZ_TIMER) |= TIM_CR1_CEN; // timer_enable_counter(TUBE_HV_TIMER);
 
 #endif
 }

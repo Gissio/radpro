@@ -78,7 +78,7 @@ Next, run this command in the terminal:
 
 ## Step 6: Configure your device
 
-Last, start your device and go to Rad Pro's settings, select "Geiger tube", select "HV Profile" and choose an appropriate HV profile: "Energy-saving" is ideal for measuring background levels of radiation, while "Optimized" consumes more power but allows measuring higher radiation levels; "Factory default" is the profile from the original firmware and consumes considerably more power.
+Last, start your device and go to Rad Pro's settings, select "Geiger tube", select "HV Profile" and choose an appropriate HV profile: "Energy-saving" is ideal for measuring background levels of radiation, while "Accuracy" consumes more power but allows measuring higher radiation levels; "Factory default" is the profile from the original firmware and consumes considerably more power.
 
 ## Step 7: Show your support
 
@@ -111,8 +111,8 @@ On the FS-600 and FS-1000, Rad Pro can store up to 95128 data points. At normal 
 
 The FS-600 and FS-1000 include two Zener diodes that limit the maximum voltage to 440 V (nominal).
 
-The FS-600 and FS-1000 HV profile values are:
+The FS-600 and FS-1000 HV profile settings are:
 
 * Factory default: 40 kHz frequency and 50 % duty cycle.
-* Optimized: 2.5 kHz frequency and 6.5 % duty cycle.
+* Accuracy: 2.5 kHz frequency and 6.5 % duty cycle.
 * Energy-saving: 2.5 kHz frequency and 3.0 % duty cycle.

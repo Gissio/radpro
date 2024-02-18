@@ -260,8 +260,10 @@ static const View tubeDeadTimeCompensationMenuView = {
 // Tube HV profile menu
 
 static const char *const tubeHVProfileMenuOptions[] = {
+#if defined(TUBE_FACTORYDEFAULT)
     "Factory default",
-    "Optimized",
+#endif
+    "Accuracy",
     "Energy-saving",
     "Custom",
     NULL,
@@ -282,7 +284,11 @@ static const char *onTubeHVProfileMenuGetOption(const Menu *menu,
 static void onTubeHVProfileMenuSelect(const Menu *menu)
 {
     if (menu->state->selectedIndex < TUBE_HVPROFILE_CUSTOM)
+    {
         settings.tubeHVProfile = menu->state->selectedIndex;
+
+        updateTubeHV();
+    }
     else
         setView(&tubeHVCustomProfileWarningMenuView);
 }
@@ -321,13 +327,16 @@ static void onHVCustomProfileWarningMenuEvent(const View *view, enum Event event
     case EVENT_KEY_SELECT:
         settings.tubeHVProfile = TUBE_HVPROFILE_CUSTOM;
 
+        updateTubeHV();
+
         setView(&tubeHVCustomProfileMenuView);
 
         break;
 
     case EVENT_DRAW:
         drawNotification("WARNING",
-                         "Wrong values may harm device.", false);
+                         "Wrong values may harm device.",
+                         false);
 
         break;
 
@@ -422,7 +431,7 @@ static const char *onTubeHVFrequencyMenuGetOption(const Menu *menu,
     {
         strcpy(menuOption, tubeHVFrequencyMenuOptions[index]);
 
-        if (index == TUBE_FACTORYDEFAULT_HVFREQUENCY)
+        if (index == TUBE_DEFAULT_HVFREQUENCY)
             strcat(menuOption, " (default)");
 
         return menuOption;
@@ -457,7 +466,7 @@ static const View tubeHVrequencyMenuView = {
 
 static float getTubeHVDutyCycleFromIndex(uint32_t index)
 {
-    return 0.9F - 0.0025F * index;
+    return 0.0025F * (index + 1);
 }
 
 float getTubeHVDutyCycle(void)
@@ -477,7 +486,7 @@ static const char *onTubeHVDutyCycleMenuGetOption(const Menu *menu,
         strcatFloat(menuOption, 100 * getTubeHVDutyCycleFromIndex(index), 2);
         strcat(menuOption, " %");
 
-        if (index == TUBE_FACTORYDEFAULT_HVDUTYCYCLE)
+        if (index == TUBE_DEFAULT_HVDUTYCYCLE)
             strcat(menuOption, " (default)");
 
         return menuOption;

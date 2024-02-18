@@ -277,13 +277,15 @@ void initDisplayHardware(void)
                   GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
                   LCD_BACKLIGHT_PIN);
 
+// +++ TEST
+#if !defined(DISPLAY_SCLK_PORT)
+
     gpio_set_mode(LCD_DATA_PORT,
                   GPIO_MODE_OUTPUT_50_MHZ,
                   GPIO_CNF_OUTPUT_PUSHPULL,
                   LCD_DATA_PINS);
 
-// +++ TEST
-#if defined(DISPLAY_SCLK_PORT)
+#else
 
     gpio_set_mode(GPIOB,
                   GPIO_MODE_OUTPUT_50_MHZ,

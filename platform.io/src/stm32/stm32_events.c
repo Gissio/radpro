@@ -37,8 +37,10 @@ void initEventsHardware(void)
 
     // Watchdog
 
-    iwdg_set_period_ms(500 * 40000 / 32768);
-    iwdg_start();
+    // +++ TEST
+    // iwdg_set_period_ms(500 * 40000 / 32768);
+    // iwdg_start();
+    // +++ TEST
 }
 
 void sys_tick_handler(void)

@@ -252,11 +252,12 @@ void initDisplayHardware(void)
     rcc_periph_clock_enable(LCD_BACKLIGHT_TIMER_RCC);
 
     LCD_BACKLIGHT_TIMER_CCMR(LCD_BACKLIGHT_TIMER) |= LCD_BACKLIGHT_TIMER_CCMR_MODE; // timer_set_oc_mode(LCD_BACKLIGHT_TIMER, TIM_OC1, TIM_OCM_PWM1);
-    TIM_ARR(LCD_BACKLIGHT_TIMER) = LCD_BACKLIGHT_PWM_PERIOD;                        // timer_set_period(LCD_BACKLIGHT_TIMER, BACKLIGHT_PWM_PERIOD);
+    TIM_ARR(LCD_BACKLIGHT_TIMER) = LCD_BACKLIGHT_PWM_PERIOD - 1;                    // timer_set_period(LCD_BACKLIGHT_TIMER, BACKLIGHT_PWM_PERIOD);
 
     setDisplayBacklight(false);
 
     TIM_CCER(LCD_BACKLIGHT_TIMER) |= LCD_BACKLIGHT_TIMER_CCER_CC; // timer_enable_oc_output(LCD_BACKLIGHT_TIMER, TIM_OC1);
+    TIM_BDTR(LCD_BACKLIGHT_TIMER) |= TIM_BDTR_MOE;                // timer_enable_break_main_output(LCD_BACKLIGHT_TIMER);
     TIM_CR1(LCD_BACKLIGHT_TIMER) |= TIM_CR1_CEN;                  // timer_enable_counter(LCD_BACKLIGHT_TIMER);
 
     // mcu-renderer

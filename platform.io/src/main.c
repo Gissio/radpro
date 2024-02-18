@@ -29,6 +29,31 @@
 #include "vibrator.h"
 #include "view.h"
 
+// +++ TEST
+// #include <libopencm3/stm32/gpio.h>
+
+// void initBlink(void)
+// {
+//     gpio_set_mode(GPIOC,
+//                   GPIO_MODE_OUTPUT_2_MHZ,
+//                   GPIO_CNF_OUTPUT_PUSHPULL,
+//                   GPIO13);
+// }
+
+// void blink(void)
+// {
+//     gpio_clear(GPIOC,
+//                GPIO13);
+
+//     sleep(100);
+
+//     gpio_set(GPIOC,
+//              GPIO13);
+
+//     sleep(400);
+// }
+// +++ TEST
+
 int main(void)
 {
     // Initialize system
@@ -97,15 +122,22 @@ int main(void)
         if (!verifyFlash())
         {
             drawNotification("WARNING",
-                             "Firmware checksum failure.", true);
+                             "Firmware checksum failure.",
+                             true);
             refreshDisplay();
             triggerDisplay();
+#if defined(DISPLAY_MONOCHROME)
+        setDisplay(true);
+#endif
+
             playSystemAlert();
 
             sleep(1000);
         }
 
-        drawNotification(FIRMWARE_NAME, FIRMWARE_VERSION, true);
+        drawNotification(FIRMWARE_NAME,
+                         FIRMWARE_VERSION,
+                         true);
         refreshDisplay();
         triggerDisplay();
 #if defined(DISPLAY_MONOCHROME)

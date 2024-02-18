@@ -32,7 +32,7 @@ enum RNGMode
     RNG_MODE_8SIDED_DICE,
     RNG_MODE_6SIDED_DICE,
     RNG_MODE_4SIDED_DICE,
-    RNG_MODE_COIN_TOSS,
+    RNG_MODE_COIN_FLIP,
 };
 
 static const uint8_t rngModeRanges[] = {62, 94, 16, 10, 20, 12, 8, 6, 4, 2};
@@ -47,7 +47,7 @@ static const char *const rngModeMenuOptions[] = {
     "8-sided dice",
     "6-sided dice",
     "4-sided dice",
-    "Coin toss",
+    "Coin flip",
     NULL,
 };
 
@@ -243,6 +243,7 @@ static void updateFastDiceRollerText(void)
         case RNG_MODE_ALPHANUMERIC:
         case RNG_MODE_HEXADECIMAL:
         case RNG_MODE_DECIMAL:
+        case RNG_MODE_COIN_FLIP:
             c = getFastDiceRollerChar(digit);
 
             break;
@@ -252,12 +253,11 @@ static void updateFastDiceRollerText(void)
 
             break;
 
-        case RNG_MODE_20SIDED_DICE:
-        case RNG_MODE_12SIDED_DICE:
-        case RNG_MODE_8SIDED_DICE:
-        case RNG_MODE_6SIDED_DICE:
         case RNG_MODE_4SIDED_DICE:
-        case RNG_MODE_COIN_TOSS:
+        case RNG_MODE_6SIDED_DICE:
+        case RNG_MODE_8SIDED_DICE:
+        case RNG_MODE_12SIDED_DICE:
+        case RNG_MODE_20SIDED_DICE:
             c = getFastDiceRollerChar(digit + 1);
 
             break;

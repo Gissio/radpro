@@ -11,7 +11,7 @@
 * Customizable Geiger-Müller tube settings: conversion factor, dead-time compensation, high voltage generator frequency and duty cycle (for tube voltage control).
 * Configurable pulse click sounds: off, quiet, loud.
 * Statistics for tracking device usage and state.
-* Configurable high voltage profiles, including an energy-saving profile that reduces power consumption by up to 80 %.
+* Configurable high voltage profiles, including an energy-saving profile that reduces power consumption.
 * Power-on self-test and safety watchdog.
 * Game: nuclear chess.
 
@@ -27,7 +27,7 @@ The instantaneous rate is estimated by dividing the number of pulses within a ti
 
 The confidence interval estimates the range of values that contain the true instantaneous rate with a 95 % probability, assuming a constant level of radiation.
 
-The time window is adaptively adjusted, aiming for a confidence interval of less than 50 %. On radiation levels above 1 µSv/h, the time window is at most 5 seconds.
+The time window is adaptively adjusted, aiming for a confidence interval of less than 50 %. On radiation levels above 1 µSv/h, the time window is limited to 5 seconds to ensure a fast response.
 
 ### Average rate
 
@@ -57,11 +57,11 @@ Dead-time compensation is applied at the beginning of the processing chain, thus
 
 ## HV profiles
 
-HV profiles let you control the high voltage applied to the Geiger-Müller tube. Rad Pro includes several pre-configured profiles, including a factory default profile with the original firmware's settings, an optimized profile that balances power consumption and accuracy, and an energy-saving profile that significantly reduces power consumption at the expense of lower accuracy at higher radiation levels.
+HV profiles let you control the high voltage applied to the Geiger-Müller tube. Rad Pro includes several pre-configured profiles that let you balance power consumption and accuracy.
 
-You can also define your own HV profile. Be careful, as wrong profile values MAY DAMAGE both the tube due to overvoltage as well as the switching transistor due to overcurrent.
+You can also define your own HV profile. Be careful, as wrong profile settings MAY DAMAGE both the tube due to overvoltage as well as the switching transistor due to overcurrent.
 
-To set up a custom voltage profile you need to measure the high voltage at the tube. To do this, connect a 1 GΩ resistor in series to a high-quality multimeter (10 MΩ input impedance). The resistor should be cleaned thorougly in order to avoid spurious currents. Set the multimeter to the 20 V range. The high voltage will correspond approximately to the multimeter reading, multiplied by a factor of (1000 MΩ + 10  MΩ) / 10 MΩ = 101. Caution: high voltage CAN BE LETHAL.
+To set up a custom HV profile you need to measure the high voltage at the tube. To do this, connect a 1 GΩ resistor in series to a high-quality multimeter (10 MΩ input impedance). The resistor should be cleaned thorougly in order to avoid spurious currents. Set the multimeter to the 20 V range. The high voltage will correspond approximately to the multimeter reading, multiplied by a factor of (1000 MΩ + 10 MΩ) / 10 MΩ = 101. Caution: high voltage CAN BE LETHAL.
 
 An HV profile consists of a [PWM](https://en.wikipedia.org/wiki/Pulse-width_modulation) frequency and duty cycle. Typically, higher frequency values produce lower voltage ripple (voltage variations in time) but consume more power. Conversely, lower frequency values require less power, but may sacrifice measurement accuracy.
 
@@ -77,7 +77,7 @@ For faster bit generation, use a radioactive source.
 
 ## Data logging
 
-To log data using Rad Pro, select a data logging interval in the settings. Data is automatically stored.
+To log data using Rad Pro, select a data logging interval in the settings. Data is automatically logged in the background.
 
 ## radpro-tool
 
@@ -95,4 +95,4 @@ To get help about `radpro-tool`, run the following command in a terminal:
 
 ## Communications
 
-To communcate with Rad Pro through a serial port or ST-LINK dongle through SWD, check out the [description of the communications protocol](comm.md).
+To communicate with Rad Pro through a serial port or ST-LINK dongle through SWD, read the [communications protocol description](comm.md).
