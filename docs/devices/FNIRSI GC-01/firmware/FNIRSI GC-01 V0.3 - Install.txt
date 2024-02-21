@@ -1,0 +1,11 @@
+GC-01 firmware upgrade operation:
+1: When the device is turned off, connect the USB-C data cable to the computer,
+2: Short press the power button, a GC01 disk will be displayed on the computer,
+3: After dragging the firmware that needs to be upgraded to the disk, the device will be automatically powered on and the upgrade will be completed.
+
+
+Upgrade video：https://www.mediafire.com/file/3ikpbnmz4mlwtx2/GC-01_Nuclear_Radiation_Detector_Upgrade_Video.mp4/file
+
+
+Need to use win10 and above system upgrade,
+If you can't boot after the upgrade, you can use another computer to try to upgrade again.

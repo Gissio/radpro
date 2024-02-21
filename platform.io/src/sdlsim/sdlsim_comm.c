@@ -16,7 +16,7 @@
 #include "../comm.h"
 #include "../system.h"
 
-const char *const commId = "SDLSim;Rad Pro " FIRMWARE_VERSION;
+const char *const commId = "Rad Pro simulator;Rad Pro " FIRMWARE_VERSION;
 
 static struct
 {

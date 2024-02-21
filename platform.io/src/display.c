@@ -102,7 +102,7 @@
 #define GAME_BOARD_Y 0
 #define GAME_SQUARE_WIDTH 9
 #define GAME_SQUARE_HEIGHT 8
-#define GAME_TOP_TIMER_WIDTH (DISPLAY_WIDTH / 4)
+#define GAME_TOP_TIMER_WIDTH 23
 #define GAME_HISTORY_SPACE_LEFT_WIDTH 32
 #define GAME_HISTORY_SPACE_LEFT_OFFSET_X 8
 #define GAME_SPACE_X (GAME_TOP_TIMER_X + GAME_TOP_TIMER_WIDTH)
@@ -670,9 +670,11 @@ void drawStatusBar(void)
 
     int8_t batteryLevel = getBatteryLevel();
 
-    char symbolsString[3] = "";
+    char symbolsString[4] = "";
     uint32_t bufferIndex = 0;
 
+    if (settings.datalogInterval != DATALOGGING_OFF)
+        symbolsString[bufferIndex++] = '8';
     if (settings.rateAlarm || settings.doseAlarm)
         symbolsString[bufferIndex++] = '7';
     symbolsString[bufferIndex++] =
@@ -1550,7 +1552,7 @@ void drawGame(const uint8_t board[8][8],
         }
     }
 
-    // Timers
+    // Top timers
 
     setFont(FONT_SMALL);
     setTextColor(COLOR_ELEMENT_NEUTRAL);

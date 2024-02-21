@@ -15,7 +15,7 @@
 #include "view.h"
 
 #define FIRMWARE_NAME "Rad Pro"
-#define FIRMWARE_VERSION "2.0beta15"
+#define FIRMWARE_VERSION "2.0beta16"
 
 extern const View statisticsView;
 

@@ -21,7 +21,7 @@ In the following description, `\n` represents the newline character.
 
 Identifies the device's hardware and software. The response consists of these components:
 
-* `[hardware-id]`: The device's hardware, which may be one of the following: `FS2011 (STM32F051C8)`, `FS2011 (GD32F150C8)`, `FS2011 (GD32F103C8)`, `Bosean FS-600`, `Bosean FS-1000`, `FNIRSI GC-01` or `SDLSim`.
+* `[hardware-id]`: The device's hardware, which may be one of the following: `FS2011 (STM32F051C8)`, `FS2011 (GD32F150C8)`, `FS2011 (GD32F103C8)`, `Bosean FS-600`, `Bosean FS-1000`, `FNIRSI GC-01` or `Rad Pro simulator`.
 * `[software-id]`: The device's software, typically `Rad Pro` followed by the software version.
 * `[device-id]`: A unique device ID.
 

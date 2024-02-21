@@ -1,5 +1,6 @@
 {
   "build": {
+    "core": "stm32",
     "cpu": "cortex-m0",
     "extra_flags": "-DSTM32 -DSTM32F0 -DSTM32F051x8",
     "f_cpu": "48000000L",
@@ -10,10 +11,12 @@
     "default_tools": [
       "stlink"
     ],
+    "jlink_device": "STM32F051C8",
     "openocd_target": "stm32f0x",
     "svd_path": "STM32F0x1.svd"
   },
   "frameworks": [
+    "cmsis",
     "libopencm3"
   ],
   "name": "STM32F051C8",
@@ -22,9 +25,12 @@
     "maximum_size": 65536,
     "protocol": "stlink",
     "protocols": [
+      "jlink",
       "cmsis-dap",
       "stlink",
-      "blackmagic"
+      "blackmagic",
+      "mbed",
+      "dfu"
     ]
   },
   "url": "https://www.st.com/",

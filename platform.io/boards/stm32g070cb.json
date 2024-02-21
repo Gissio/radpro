@@ -1,5 +1,6 @@
 {
   "build": {
+    "core": "stm32",
     "cpu": "cortex-m0plus",
     "extra_flags": "-DSTM32 -DSTM32G0 -DSTM32G070xx",
     "f_cpu": "64000000L",
@@ -10,10 +11,12 @@
     "default_tools": [
       "stlink"
     ],
+    "jlink_device": "STM32G070CB",
     "openocd_target": "stm32g0x",
     "svd_path": "STM32G070.svd"
   },
   "frameworks": [
+    "cmsis",
     "libopencm3"
   ],
   "name": "STM32G070CB",
@@ -22,9 +25,12 @@
     "maximum_size": 131072,
     "protocol": "stlink",
     "protocols": [
+      "jlink",
       "cmsis-dap",
       "stlink",
-      "blackmagic"
+      "blackmagic",
+      "mbed",
+      "dfu"
     ]
   },
   "url": "https://www.st.com/",

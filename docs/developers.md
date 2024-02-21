@@ -1,4 +1,4 @@
-# For developers
+# Developers's manual
 
 ## Build
 

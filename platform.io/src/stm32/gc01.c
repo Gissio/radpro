@@ -9,6 +9,8 @@
 
 #if defined(GC01)
 
+#include <libopencm3/cm3/scb.h>
+
 #include <libopencm3/stm32/flash.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/rcc.h>
@@ -46,8 +48,6 @@ void initSystem(void)
 {
     // Clocks
 
-    // rcc_clock_setup_in_hse_8mhz_out_72mhz();
-
     RCC_CR |= RCC_CR_HSEON; // Enable HSE clock
     while (!(RCC_CR & RCC_CR_HSERDY))
         ;
@@ -72,6 +72,10 @@ void initSystem(void)
         ;
 
     RCC_CFGR |= (RCC_CFGR_SW_SYSCLKSEL_PLLCLK << RCC_CFGR_SW_SHIFT); // Select PLL as system clock
+
+    // SCB
+
+    // SCB_VTOR = PAYLOAD_BASE;
 
     // GPIO
 
@@ -294,18 +298,26 @@ void initDisplayHardware(void)
                       DISPLAY_RS_PIN);
 
     rcc_periph_clock_enable(RCC_SPI1);
+
     gpio_set_mode(GPIOA,
                   GPIO_MODE_OUTPUT_50_MHZ,
                   GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
                   DISPLAY_SCLK_PIN | DISPLAY_SDA_PIN);
-    spi_init_master(SPI1,
-                    SPI_CR1_BAUDRATE_FPCLK_DIV_2,
-                    SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
-                    SPI_CR1_CPHA_CLK_TRANSITION_2,
-                    SPI_CR1_DFF_8BIT,
-                    SPI_CR1_MSBFIRST);
-    spi_enable_software_slave_management(SPI1);
-    spi_set_nss_high(SPI1);
+    // spi_init_master(SPI1,
+    //                 SPI_CR1_BAUDRATE_FPCLK_DIV_2,
+    //                 SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
+    //                 SPI_CR1_CPHA_CLK_TRANSITION_2,
+    //                 SPI_CR1_DFF_8BIT,
+    //                 SPI_CR1_MSBFIRST);
+    // spi_enable_software_slave_management(SPI1);
+    // spi_set_nss_high(SPI1);
+    // spi_set_baudrate_prescaler(SPI1, SPI_CR1_BAUDRATE_FPCLK_DIV_2);
+
+    SPI1_CR1 = SPI_CR1_CPHA_CLK_TRANSITION_2 |
+               SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE |
+               SPI_CR1_MSTR |
+               SPI_CR1_SSI |
+               SPI_CR1_SSM;
     spi_enable(SPI1);
 
 #endif

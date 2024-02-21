@@ -57,7 +57,7 @@ Installation:
 Manuals:
 
 * [User's manual](docs/manual.md)
-* [For developers](docs/developers.md)
+* [Developers's manual](docs/developers.md)
 
 ## Acknowledgements
 

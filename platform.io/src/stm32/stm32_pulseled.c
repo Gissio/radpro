@@ -19,9 +19,7 @@ void initPulseLEDHardware(void)
 {
     // GPIO
 
-#if defined(PULSE_LED_ACTIVE_LOW)
     setPulseLED(false);
-#endif
 
 #if defined(STM32F0) || defined(STM32G0)
     gpio_mode_setup(PULSE_LED_PORT,

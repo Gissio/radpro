@@ -1,4 +1,4 @@
-# Rad Pro User's manual
+# User's manual
 
 ## Features
 
@@ -8,10 +8,10 @@
 * Overflow alarms.
 * Data logging with data compression.
 * Dead-time measurement.
-* Customizable Geiger-Müller tube settings: conversion factor, dead-time compensation, high voltage generator frequency and duty cycle (for tube voltage control).
+* Customizable Geiger-Müller tube settings: conversion factor, dead-time compensation, high voltage generator PWM frequency and duty cycle (for tube voltage control).
+* Configurable high voltage profiles, including an energy-saving profile that reduces power consumption.
 * Configurable pulse click sounds: off, quiet, loud.
 * Statistics for tracking device usage and state.
-* Configurable high voltage profiles, including an energy-saving profile that reduces power consumption.
 * Power-on self-test and safety watchdog.
 * Game: nuclear chess.
 

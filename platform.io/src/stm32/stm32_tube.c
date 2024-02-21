@@ -196,9 +196,10 @@ void updateTubeHV(void)
 
     uint32_t ccr;
     if (tube.enabled)
-        ccr = ((uint32_t)(TUBE_HVDUTYCYCLE_VALUE_MIN /
-                          TUBE_HVDUTYCYCLE_VALUE_STEP) +
-               TUBE_HV_LOW_DUTYCYCLE_MULTIPLIER * dutyCycleIndex) >>
+        ccr = (TUBE_HV_LOW_DUTYCYCLE_MULTIPLIER *
+               ((uint32_t)(TUBE_HVDUTYCYCLE_VALUE_MIN /
+                           TUBE_HVDUTYCYCLE_VALUE_STEP) +
+                dutyCycleIndex)) >>
               frequencyIndex;
     else
         ccr = 0;
