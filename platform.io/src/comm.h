@@ -37,13 +37,15 @@ enum CommState
 
 typedef struct
 {
-    bool enabled;
-
+    // vvv These settings should remain fixed for SWD communications.
     volatile enum CommPort port;
     volatile enum CommState state;
 
     volatile uint32_t bufferIndex;
     char buffer[COMM_BUFFER_SIZE];
+    // ^^^ These settings should remain fixed for SWD communications.
+
+    bool enabled;
 
     bool sendingDatalog;
     uint32_t datalogTimeLimit;
