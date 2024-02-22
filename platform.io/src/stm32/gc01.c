@@ -75,7 +75,7 @@ void initSystem(void)
 
     // SCB
 
-    // SCB_VTOR = PAYLOAD_BASE;
+    SCB_VTOR = PAYLOAD_BASE;
 
     // GPIO
 
@@ -350,6 +350,7 @@ void initDisplayHardware(void)
 
     // mcu-renderer
 
+#if defined(DISPLAY_SCLK_PORT)
     mr_st7789_init(&mr,
                    240,
                    320,
@@ -360,14 +361,20 @@ void initDisplayHardware(void)
                    onDisplaySetReset,
                    onDisplaySetCommand,
                    onDisplaySend,
-    // +++ TEST
-#if defined(DISPLAY_SCLK_PORT)
-                   onDisplaySend16
+                   onDisplaySend16);
 #else
-                   onDisplaySend
+    mr_st7789_init(&mr,
+                   240,
+                   320,
+                   MR_DISPLAY_ROTATION_90,
+                   textbuffer,
+                   sizeof(textbuffer),
+                   onDisplaySleep,
+                   onDisplaySetReset,
+                   onDisplaySetCommand,
+                   onDisplaySend,
+                   onDisplaySend);
 #endif
-                   // +++ TEST
-    );
 
     mr_send_sequence(&mr, gc01_st7789_init_sequence);
 }

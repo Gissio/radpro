@@ -29,31 +29,6 @@
 #include "vibrator.h"
 #include "view.h"
 
-// +++ TEST
-// #include <libopencm3/stm32/gpio.h>
-
-// void initBlink(void)
-// {
-//     gpio_set_mode(GPIOC,
-//                   GPIO_MODE_OUTPUT_2_MHZ,
-//                   GPIO_CNF_OUTPUT_PUSHPULL,
-//                   GPIO13);
-// }
-
-// void blink(void)
-// {
-//     gpio_clear(GPIOC,
-//                GPIO13);
-
-//     sleep(100);
-
-//     gpio_set(GPIOC,
-//              GPIO13);
-
-//     sleep(400);
-// }
-// +++ TEST
-
 int main(void)
 {
     // Initialize system

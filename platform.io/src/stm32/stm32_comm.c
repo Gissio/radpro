@@ -184,6 +184,8 @@ void updateCommHardware(void)
 #define USB_DATA_ENDPOINT_OUT 0x82
 #define USB_CONTROL_ENDPOINT_OUT 0x83
 
+#define USB_DEVICE_RELEASE 0x0100
+
 enum
 {
     USB_CONTROL_INTERFACE_INDEX,
@@ -205,8 +207,8 @@ enum
 static char usbSerialNumber[13];
 
 static const char *const usbStrings[] = {
-    "Gissio",
-    "Rad Pro",
+    FIRMWARE_AUTHOR,
+    FIRMWARE_NAME,
     usbSerialNumber,
 };
 
