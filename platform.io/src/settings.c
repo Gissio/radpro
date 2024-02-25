@@ -56,15 +56,18 @@ void initSettings(void)
 #if defined(DISPLAY_MONOCHROME)
     settings.displayContrast = DISPLAY_CONTRAST_DEFAULT;
 #endif
-    settings.displaySleep = DISPLAY_SLEEP_30S;
 #if defined(SDLSIM)
     settings.displayBrightness = DISPLAY_BRIGHTNESS_VERYHIGH;
+#else
+    settings.displayBrightness = DISPLAY_BRIGHTNESS_HIGH;
+#endif
+    settings.displaySleep = DISPLAY_SLEEP_30S;
+#if defined(SDLSIM)
     time_t unixTime = time(NULL);
     struct tm *localTM = gmtime(&unixTime);
     time_t localTime = mktime(localTM);
     settings.rtcTimeZone = 12 + (unixTime - localTime) / 3600;
 #else
-    settings.displayBrightness = DISPLAY_BRIGHTNESS_HIGH;
     settings.rtcTimeZone = RTC_TIMEZONE_P0000;
 #endif
 
@@ -75,14 +78,16 @@ void initSettings(void)
 
     FlashSettings flashSettings;
 
-    if (getFlashSettings(&iterator, &flashSettings))
-    {
-        settings = flashSettings.settings;
-        setDoseTime(flashSettings.dose.time);
-        setDosePulseCount(flashSettings.dose.pulseCount);
-        setTubeTime(flashSettings.tube.time);
-        setTubePulseCount(flashSettings.tube.pulseCount);
-    }
+    // +++ TEST
+    // if (getFlashSettings(&iterator, &flashSettings))
+    // {
+    //     settings = flashSettings.settings;
+    //     setDoseTime(flashSettings.dose.time);
+    //     setDosePulseCount(flashSettings.dose.pulseCount);
+    //     setTubeTime(flashSettings.tube.time);
+    //     setTubePulseCount(flashSettings.tube.pulseCount);
+    // }
+    // +++ TEST
 }
 
 static bool getFlashSettings(FlashIterator *iterator,

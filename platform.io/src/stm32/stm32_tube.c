@@ -15,7 +15,7 @@
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/timer.h>
-#if defined(STM32F0)
+#if defined(STM32F0) || defined(STM32L4)
 #include <libopencm3/stm32/syscfg.h>
 #endif
 
@@ -23,7 +23,7 @@
 #include "../settings.h"
 #include "../tube.h"
 
-#include "stm32.h"
+#include "device.h"
 
 #define TUBE_HV_LOW_FREQUENCY 1250
 #define TUBE_HV_LOW_FREQUENCY_PERIOD (TIM_FREQUENCY / \
@@ -125,7 +125,7 @@ void initTubeHardware(void)
 
     // HV PWM debugging
 
-#if defined(DEBUG_TEST_PWM)
+#if defined(TEST_PWM)
 
     rcc_periph_clock_enable(RCC_TIM14);
 
@@ -206,7 +206,7 @@ void updateTubeHV(void)
     TUBE_HV_TIMER_CCR(TUBE_HV_TIMER) = ccr; // timer_set_oc_value(TUBE_HV_TIMER, xxx, crr);
 }
 
-#if defined(DEBUG_TEST_PWM)
+#if defined(TEST_PWM)
 
 void tim14_isr(void)
 {

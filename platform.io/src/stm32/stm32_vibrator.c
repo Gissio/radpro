@@ -13,7 +13,7 @@
 
 #include "../vibrator.h"
 
-#include "stm32.h"
+#include "device.h"
 
 void initVibrator(void)
 {

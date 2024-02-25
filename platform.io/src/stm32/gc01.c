@@ -23,23 +23,12 @@
 #include "../settings.h"
 #include "../system.h"
 
-#include "stm32.h"
+#include "device.h"
 
 #include "mcu-renderer-st7789.h"
 
 // +++ TEST
-// #include "libopencm3/stm32/spi.h"
-
-// #define DISPLAY_SCLK_PORT GPIOA
-// #define DISPLAY_SCLK_PIN GPIO5
-// #define DISPLAY_SDA_PORT GPIOA
-// #define DISPLAY_SDA_PIN GPIO7
-// #define DISPLAY_RESET_PORT GPIOB
-// #define DISPLAY_RESET_PIN GPIO0
-// #define DISPLAY_CS_PORT GPIOB
-// #define DISPLAY_CS_PIN GPIO1
-// #define DISPLAY_RS_PORT GPIOB
-// #define DISPLAY_RS_PIN GPIO10
+// #define DISPLAY_SERIAL
 // +++ TEST
 
 // System
@@ -133,14 +122,14 @@ void getKeyboardState(bool *isKeyDown)
 
 extern mr_t mr;
 
-static uint8_t textbuffer[2 * 36 * 50];
+static uint8_t displayTextbuffer[2 * 36 * 50];
 
-static const uint8_t gc01_st7789_init_sequence[] = {
+static const uint8_t displayInitSequence[] = {
     MR_SEND_COMMAND(MR_ST7789_VCOMS),
     MR_SEND_DATA(0x28), // Set: 1.1 V (default 0.9 V)
     MR_SEND_COMMAND(MR_ST7789_PWCTRL1),
-    MR_SEND_DATA(0xa4),
-    MR_SEND_DATA(0xa1), // Set: AVDD 6.8 V, AVCL -4.8 V, VDDS 2.3 V
+    MR_SEND_DATA(0xa4), // Set: AVDD 6.8 V, AVCL -4.8 V, VDDS 2.3 V
+    MR_SEND_DATA(0xa1),
     MR_SEND_COMMAND(MR_ST7789_RAMCTRL),
     MR_SEND_DATA(0x00),
     MR_SEND_DATA(0xe0),
@@ -176,7 +165,7 @@ static const uint8_t gc01_st7789_init_sequence[] = {
     MR_SEND_DATA(0x1f),
 
 // +++ TEST
-#if defined(DISPLAY_SCLK_PORT)
+#if defined(DISPLAY_SERIAL)
     MR_SEND_COMMAND(MR_ST7789_INVON), // Inverse for IPS displays
 #endif
     // +++ TEST
@@ -184,50 +173,39 @@ static const uint8_t gc01_st7789_init_sequence[] = {
     MR_END(),
 };
 
-void onDisplaySleep(uint32_t value);
-void onDisplaySetReset(bool value);
-void onDisplaySetCommand(bool value);
-void onDisplaySend(uint16_t value);
-void onDisplaySend16(uint16_t value);
+// +++ TEST
+#if defined(DISPLAY_SERIAL)
 
-void onDisplaySleep(uint32_t value)
+#include "libopencm3/stm32/spi.h"
+
+#define DISPLAY_SCLK_PORT GPIOA
+#define DISPLAY_SCLK_PIN GPIO5
+#define DISPLAY_SDA_PORT GPIOA
+#define DISPLAY_SDA_PIN GPIO7
+#define DISPLAY_RESET_PORT GPIOB
+#define DISPLAY_RESET_PIN GPIO0
+#define DISPLAY_CS_PORT GPIOB
+#define DISPLAY_CS_PIN GPIO1
+#define DISPLAY_RS_PORT GPIOB
+#define DISPLAY_RS_PIN GPIO10
+
+static void onDisplaySleep(uint32_t value)
 {
     sleep(value);
 }
 
-void onDisplaySetReset(bool value)
+static void onDisplaySetReset(bool value)
 {
-    if (value)
-        gpio_clear(LCD_RESX_PORT,
-                   LCD_RESX_PIN);
-    else
-        gpio_set(LCD_RESX_PORT,
-                 LCD_RESX_PIN);
-
-// +++ TEST
-#if defined(DISPLAY_SCLK_PORT)
     if (value)
         gpio_clear(DISPLAY_RESET_PORT,
                    DISPLAY_RESET_PIN);
     else
         gpio_set(DISPLAY_RESET_PORT,
                  DISPLAY_RESET_PIN);
-#endif
-    // +++ TEST
 }
 
-void onDisplaySetCommand(bool value)
+static void onDisplaySetCommand(bool value)
 {
-    if (value)
-        gpio_clear(LCD_DCX_PORT,
-                   LCD_DCX_PIN);
-    else
-        gpio_set(LCD_DCX_PORT,
-                 LCD_DCX_PIN);
-
-// +++ TEST
-#if defined(DISPLAY_SCLK_PORT)
-
     if (value)
     {
         // Trigger CS before command
@@ -240,56 +218,63 @@ void onDisplaySetCommand(bool value)
     else
         gpio_set(DISPLAY_RS_PORT,
                  DISPLAY_RS_PIN);
-
-#endif
-    // +++ TEST
 }
 
-void onDisplaySend(uint16_t value)
+static void onDisplaySend(uint16_t value)
 {
-    // +++ TEST
-#if defined(DISPLAY_SCLK_PORT)
     spi_send(SPI1, value);
-#else
-    // +++ TEST
-    GPIOB_BRR = LCD_WRX_PIN;
-    GPIOB_ODR = value;
-    GPIOB_BSRR = LCD_WRX_PIN;
-    // +++ TEST
-#endif
-    // +++ TEST
 }
 
-// +++ TEST
-#if defined(DISPLAY_SCLK_PORT)
-
-void onDisplaySend16(uint16_t value)
+static void onDisplaySend16(uint16_t value)
 {
     spi_send(SPI1, (value >> 8) & 0xff);
     spi_send(SPI1, (value >> 0) & 0xff);
 }
 
+#else
+
+static void onDisplaySleep(uint32_t value)
+{
+    sleep(value);
+}
+
+static void onDisplaySetReset(bool value)
+{
+    if (value)
+        gpio_clear(LCD_RESX_PORT,
+                   LCD_RESX_PIN);
+    else
+        gpio_set(LCD_RESX_PORT,
+                 LCD_RESX_PIN);
+}
+
+static void onDisplaySetCommand(bool value)
+{
+    if (value)
+        gpio_clear(LCD_DCX_PORT,
+                   LCD_DCX_PIN);
+    else
+        gpio_set(LCD_DCX_PORT,
+                 LCD_DCX_PIN);
+}
+
+static void onDisplaySend(uint16_t value)
+{
+    GPIOC_BRR = LCD_CSX_PIN;
+    GPIOC_BRR = LCD_WRX_PIN;
+    GPIOB_ODR = value;
+    GPIOC_BSRR = LCD_WRX_PIN;
+    GPIOC_BSRR = LCD_CSX_PIN;
+}
+
 #endif
-// +++ TEST
 
 void initDisplayHardware(void)
 {
     // GPIO
 
-    gpio_set_mode(LCD_BACKLIGHT_PORT,
-                  GPIO_MODE_OUTPUT_2_MHZ,
-                  GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
-                  LCD_BACKLIGHT_PIN);
-
 // +++ TEST
-#if !defined(DISPLAY_SCLK_PORT)
-
-    gpio_set_mode(LCD_DATA_PORT,
-                  GPIO_MODE_OUTPUT_50_MHZ,
-                  GPIO_CNF_OUTPUT_PUSHPULL,
-                  LCD_DATA_PINS);
-
-#else
+#if defined(DISPLAY_SERIAL)
 
     gpio_set_mode(GPIOB,
                   GPIO_MODE_OUTPUT_50_MHZ,
@@ -320,8 +305,12 @@ void initDisplayHardware(void)
                SPI_CR1_SSM;
     spi_enable(SPI1);
 
-#endif
-    // +++ TEST
+#else
+
+    gpio_set_mode(LCD_DATA_PORT,
+                  GPIO_MODE_OUTPUT_50_MHZ,
+                  GPIO_CNF_OUTPUT_PUSHPULL,
+                  LCD_DATA_PINS);
 
     gpio_set(GPIOC,
              LCD_RESX_PIN | LCD_RDX_PIN |
@@ -332,6 +321,14 @@ void initDisplayHardware(void)
                   LCD_RESX_PIN | LCD_RDX_PIN |
                       LCD_WRX_PIN | LCD_DCX_PIN |
                       LCD_CSX_PIN);
+
+#endif
+    // +++ TEST
+
+    gpio_set_mode(LCD_BACKLIGHT_PORT,
+                  GPIO_MODE_OUTPUT_2_MHZ,
+                  GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
+                  LCD_BACKLIGHT_PIN);
 
     // Backlight timer
 
@@ -350,33 +347,37 @@ void initDisplayHardware(void)
 
     // mcu-renderer
 
-#if defined(DISPLAY_SCLK_PORT)
+#if defined(DISPLAY_SERIAL)
+
     mr_st7789_init(&mr,
                    240,
                    320,
                    MR_DISPLAY_ROTATION_90,
-                   textbuffer,
-                   sizeof(textbuffer),
+                   displayTextbuffer,
+                   sizeof(displayTextbuffer),
                    onDisplaySleep,
                    onDisplaySetReset,
                    onDisplaySetCommand,
                    onDisplaySend,
                    onDisplaySend16);
+
 #else
+
     mr_st7789_init(&mr,
                    240,
                    320,
                    MR_DISPLAY_ROTATION_90,
-                   textbuffer,
-                   sizeof(textbuffer),
+                   displayTextbuffer,
+                   sizeof(displayTextbuffer),
                    onDisplaySleep,
                    onDisplaySetReset,
                    onDisplaySetCommand,
                    onDisplaySend,
                    onDisplaySend);
+
 #endif
 
-    mr_send_sequence(&mr, gc01_st7789_init_sequence);
+    mr_send_sequence(&mr, displayInitSequence);
 }
 
 #endif

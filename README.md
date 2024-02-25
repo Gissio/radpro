@@ -45,13 +45,13 @@ Note: Rad Pro 2.0 uses a new settings format and requires an installation.
 ## Project overview
 
 * [Legal stuff](docs/legal.md)
-* [Rad Pro simulator](docs/install-simsdl.md)
 
 Installation:
 
-* [FS2011/NR950/YT-203B](docs/install-fs2011.md)
-* [Bosean FS-600/Bosean FS-1000](docs/install-fs600-fs1000.md)
-* [FNIRSI GC-01](docs/install-gc01.md)
+* [Rad Pro simulator](docs/install-simulator.md)
+* [FS2011/NR950/YT-203B](docs/devices/FS2011/install.md)
+* [Bosean FS-600/Bosean FS-1000](docs/devices/Bosean%20FS-600,%20FS-1000/install.md)
+* [FNIRSI GC-01](docs/devices/FNIRSI%20GC-01/install.md)
 * [Other devices](docs/install-other.md)
 
 Manuals:

@@ -31,7 +31,7 @@
 #include "../system.h"
 #include "../tube.h"
 
-#include "stm32.h"
+#include "device.h"
 
 // ADC constants
 
@@ -194,8 +194,7 @@ uint32_t readADC(uint8_t channel, uint8_t sampleTime)
 
     adc_start_conversion_regular(ADC1);
 
-    while (!adc_eoc(ADC1))
-        ;
+    sleep(2);
 
     // Clear EOC (for GD32F103)
     ADC_SR(ADC1) &= ~ADC_SR_EOC;
@@ -260,6 +259,10 @@ static float readDeviceTemperature(void)
 #elif defined(STM32F1) && defined(CH32)
 
     return 25.0F + (1.34F - value * ADC_VALUE_TO_VOLTAGE) / 0.0043F;
+
+#elif defined(STM32F1) && defined(APM32)
+
+    return 25.0F + (1.41F - value * ADC_VALUE_TO_VOLTAGE) / 0.0042F;
 
 #elif defined(STM32F1)
 

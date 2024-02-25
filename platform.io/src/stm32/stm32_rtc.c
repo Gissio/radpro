@@ -135,7 +135,7 @@ void initRTCHardware(void)
     RCC_BDCR |= RCC_BDCR_LSEON;
     // rcc_wait_for_osc_ready(RCC_LSE);
     while (!(RCC_BDCR & RCC_BDCR_LSERDY))
-        ;
+        sleep(1);
 
     RCC_BDCR |= RCC_BDCR_RTCSEL_LSE; // rcc_set_rtc_clock_source(RCC_LSE);
     RCC_BDCR |= RCC_BDCR_RTCEN;      // rcc_enable_rtc_clock();
@@ -222,7 +222,7 @@ void initRTCHardware(void)
         // Enable LSE clock
         RCC_BDCR |= RCC_BDCR_LSEON;
         while (!(RCC_BDCR & RCC_BDCR_LSERDY))
-            ;
+            sleep(1);
 
         // Select LSE as RTC clock source
         RCC_BDCR &= ~(0b11 << 8);

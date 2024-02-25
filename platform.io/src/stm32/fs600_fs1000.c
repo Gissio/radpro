@@ -21,7 +21,7 @@
 #include "../settings.h"
 #include "../system.h"
 
-#include "stm32.h"
+#include "device.h"
 
 #include "mcu-renderer-st7565.h"
 
@@ -125,11 +125,11 @@ void getKeyboardState(bool *isKeyDown)
 
 // Display
 
-static uint8_t displayFramebuffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8];
-
 extern mr_t mr;
 
-static const uint8_t fs600_fs1000_st7567_init_sequence[] = {
+static uint8_t displayFramebuffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8];
+
+static const uint8_t displayInitSequence[] = {
     MR_SEND_COMMAND(MR_ST7565_BIAS_1_9),
     MR_SEND_COMMAND(MR_ST7565_SEG_NORMAL),
     MR_SEND_COMMAND(MR_ST7565_COM_REVERSE),
@@ -137,17 +137,12 @@ static const uint8_t fs600_fs1000_st7567_init_sequence[] = {
     MR_END(),
 };
 
-void onDisplaySleep(uint32_t value);
-void onDisplaySetReset(bool value);
-void onDisplaySetCommand(bool value);
-void onDisplaySend(uint16_t value);
-
-void onDisplaySleep(uint32_t value)
+static void onDisplaySleep(uint32_t value)
 {
     sleep(value);
 }
 
-void onDisplaySetReset(bool value)
+static void onDisplaySetReset(bool value)
 {
     if (value)
         gpio_clear(LCD_RSTB_PORT,
@@ -157,7 +152,7 @@ void onDisplaySetReset(bool value)
                  LCD_RSTB_PIN);
 }
 
-void onDisplaySetCommand(bool value)
+static void onDisplaySetCommand(bool value)
 {
     if (value)
         gpio_clear(LCD_A0_PORT,
@@ -167,7 +162,7 @@ void onDisplaySetCommand(bool value)
                  LCD_A0_PIN);
 }
 
-void onDisplaySend(uint16_t value)
+static void onDisplaySend(uint16_t value)
 {
     uint32_t data = 0x1ff << (16 + 11 - 7) |
                     (value << (12 - 7));
@@ -272,7 +267,7 @@ void initDisplayHardware(void)
                    onDisplaySetCommand,
                    onDisplaySend);
 
-    mr_send_sequence(&mr, fs600_fs1000_st7567_init_sequence);
+    mr_send_sequence(&mr, displayInitSequence);
 
     updateDisplayContrast();
 }

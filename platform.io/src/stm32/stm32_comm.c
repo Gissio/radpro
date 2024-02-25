@@ -16,7 +16,7 @@
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/rcc.h>
 
-#include "stm32.h"
+#include "device.h"
 
 #if defined(USART_INTERFACE)
 

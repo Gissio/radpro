@@ -14,7 +14,7 @@
 #include "../adc.h"
 #include "../power.h"
 
-#include "stm32.h"
+#include "device.h"
 
 #define BATTERY_LOW_VOLTAGE_THRESHOLD 1.0F
 #define BATTERY_EXTERNAL_POWER_SUPPLY_VOLTAGE_THRESHOLD 0.5F

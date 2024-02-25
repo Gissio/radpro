@@ -17,7 +17,7 @@
 
 #include "../flash.h"
 
-#include "stm32.h"
+#include "device.h"
 
 // Flash
 
@@ -36,6 +36,13 @@
 
 #define FLASH_PAGE_SIZE 0x800
 #define FLASH_BLOCK_SIZE 0x8
+
+#elif defined(STM32L4)
+
+// +++ FIX
+#define FLASH_PAGE_SIZE 0x400
+#define FLASH_BLOCK_SIZE 0x2
+// +++ FIX
 
 #endif
 

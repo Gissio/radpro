@@ -15,7 +15,7 @@
 #include "../display.h"
 #include "../settings.h"
 
-#include "stm32.h"
+#include "device.h"
 
 void setDisplayBacklight(bool value)
 {

@@ -9,11 +9,14 @@
 
 #if defined(STM32_HARD_FAULT_HANDLER)
 
+#include <libopencm3/cm3/nvic.h>
+
 #include "../debug.h"
+#include "../events.h"
 
 void onHardFault(uint32_t *args);
 
-// args: r0, r1, r2, r3, r12, lr, pc, psr
+// Args: R0, R1, R2, R3, R12, LR, PC, PSR
 void onHardFault(uint32_t *args)
 {
     debugUInt32(0);

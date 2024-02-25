@@ -17,15 +17,7 @@
 #define FLASH_PAGE_SIZE 0x400
 #define FLASH_BLOCK_SIZE 0x8
 
-#if defined(DISPLAY_MONOCHROME)
-
-#define FLASH_FILENAME "radpro-monochrome.bin"
-
-#elif defined(DISPLAY_COLOR)
-
-#define FLASH_FILENAME "radpro-color.bin"
-
-#endif
+#define FLASH_FILENAME "radpro-simulator-settings.bin"
 
 uint8_t flashImage[0x10000];
 

@@ -15,7 +15,6 @@ add_definitions(-D BATTERY_REMOVABLE)
 add_definitions(-D KEYBOARD_5KEYS)
 add_definitions(-D PULSE_LED)
 add_definitions(-D SIMULATE_PULSES)
-# add_definitions(-D DEBUG_TESTMODE)
 add_definitions(-D MCURENDERER_SDL)
 add_definitions(-D _CRT_SECURE_NO_WARNINGS)
 

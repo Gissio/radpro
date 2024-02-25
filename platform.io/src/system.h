@@ -16,7 +16,7 @@
 
 #define FIRMWARE_AUTHOR "The Rad Pro Project"
 #define FIRMWARE_NAME "Rad Pro"
-#define FIRMWARE_VERSION "2.0beta16"
+#define FIRMWARE_VERSION "2.0beta17"
 
 extern const View statisticsView;
 

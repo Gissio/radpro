@@ -22,7 +22,7 @@
 #include "../system.h"
 #include "../tube.h"
 
-#include "stm32.h"
+#include "device.h"
 
 typedef struct
 {
@@ -43,6 +43,14 @@ typedef struct
 #include <libopencm3/stm32/syscfg.h>
 
 #define BOOT_VECTOR_TABLE ((STM32VectorTable *)0x1fff0000)
+
+#elif defined(STM32L4)
+
+// +++ FIX
+#include <libopencm3/stm32/syscfg.h>
+
+#define BOOT_VECTOR_TABLE ((STM32VectorTable *)0x1fff0000)
+// +++ FIX
 
 #endif
 

@@ -542,9 +542,7 @@ void setDisplay(bool value)
 void refreshDisplay(void)
 {
 #if !defined(SDLSIM)
-
     mr_refresh_display(&mr);
-
 #endif
 }
 
@@ -921,26 +919,25 @@ void drawTestMode(const char lines[8][32])
     mr_rectangle_t rectangle;
     const mr_point_t offset = {0, 0};
 
-    rectangle = (mr_rectangle_t){
-        0, 0,
-        DISPLAY_WIDTH, DISPLAY_HEIGHT};
-
-    drawRectangle(&rectangle);
-
     for (uint32_t y = 0; y < 4; y++)
         for (uint32_t x = 0; x < 2; x++)
         {
             rectangle = (mr_rectangle_t){
                 (DISPLAY_WIDTH / 2) * x,
-                (DISPLAY_HEIGHT - 4 * FONT_SMALL_LINE_HEIGHT) / 2 +
-                    FONT_SMALL_LINE_HEIGHT * y,
-                DISPLAY_WIDTH / 2,
+                FONT_SMALL_LINE_HEIGHT * y,
+                (DISPLAY_WIDTH / 2),
                 FONT_SMALL_LINE_HEIGHT};
 
             drawText(lines[y * 2 + x],
                      &rectangle,
                      &offset);
         }
+
+    rectangle = (mr_rectangle_t){
+        0, (4 * FONT_SMALL_LINE_HEIGHT),
+        DISPLAY_WIDTH, DISPLAY_HEIGHT - (4 * FONT_SMALL_LINE_HEIGHT)};
+
+    drawRectangle(&rectangle);
 }
 
 void drawMeasurement(const char *title,

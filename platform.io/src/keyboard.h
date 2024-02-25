@@ -34,6 +34,18 @@ enum Key
     KEY_NONE = KEY_NUM,
 };
 
+#elif defined(KEYBOARD_3KEYS)
+
+enum Key
+{
+    KEY_LEFT,
+    KEY_RIGHT,
+    KEY_SELECT,
+
+    KEY_NUM,
+    KEY_NONE = KEY_NUM,
+};
+
 #elif defined(KEYBOARD_2KEYS)
 
 enum Key

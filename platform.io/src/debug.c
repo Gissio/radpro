@@ -18,6 +18,7 @@
 #include "keyboard.h"
 #include "power.h"
 #include "pulseled.h"
+#include "settings.h"
 
 #define DEBUG_BIT_LENGTH 100
 #define DEBUG_BIT0_LENGTH 1
@@ -26,7 +27,6 @@
 void debugBeep(void)
 {
     setBuzzer(true);
-
 #if defined(PULSE_LED)
     setPulseLED(true);
 #endif
@@ -36,7 +36,6 @@ void debugBeep(void)
 #if defined(PULSE_LED)
     setPulseLED(false);
 #endif
-
     setBuzzer(false);
 
     sleep(400);
@@ -44,7 +43,7 @@ void debugBeep(void)
 
 void debugWait(uint32_t ms)
 {
-    uint32_t n = 200 * ms;
+    uint32_t n = 9 * 200 * ms;
 
     for (uint32_t i = 0; i < n; i++)
         sleep(0);
@@ -70,8 +69,14 @@ void debugBit(bool value)
         break;
     }
 
+#if defined(PULSE_LED)
+    setPulseLED(true);
+#endif
     setBuzzer(true);
     debugWait(onTime);
+#if defined(PULSE_LED)
+    setPulseLED(false);
+#endif
     setBuzzer(false);
     debugWait(offTime);
 }
@@ -105,6 +110,7 @@ uint32_t GPIOD_IDR = 0x13579bdf;
 void gpio_set(uint32_t a, uint32_t b)
 {
 }
+
 void gpio_clear(uint32_t a, uint32_t b)
 {
 }
@@ -115,35 +121,11 @@ extern const uint8_t font_tiny5[];
 
 void runTestMode(void)
 {
-    uint32_t state = 0;
-
-    setPower(true);
+    sleep(500);
 
     while (true)
     {
         char lines[8][32];
-
-        enum Event event = getKeyboardEvent();
-        if (event == EVENT_KEY_UP)
-        {
-            state++;
-            if (state > 3)
-                state = 0;
-        }
-
-        if ((state & 0b01) == 0)
-            gpio_clear(GPIOB, GPIO0);
-        else
-            gpio_set(GPIOB, GPIO0);
-
-        if ((state & 0b10) == 0)
-            gpio_clear(GPIOA, GPIO11);
-        else
-            gpio_set(GPIOA, GPIO11);
-
-        triggerDisplay();
-
-        drawTestMode(lines);
 
         strcpy(lines[0], "GPIOA: ");
         strcatUInt32Hex(lines[0], GPIOA_IDR);
@@ -157,22 +139,28 @@ void runTestMode(void)
         strcpy(lines[3], "GPIOD: ");
         strcatUInt32Hex(lines[3], GPIOD_IDR);
 
-        strcpy(lines[4], "ADC1: ");
-        strcatUInt32Hex(lines[4], readADC(1, 0x7));
+        strcpy(lines[4], "ADC: ");
+        strcatUInt32Hex(lines[4], readADC(4, 7));
 
-        strcpy(lines[5], "ADC2: ");
-        strcatUInt32Hex(lines[5], readADC(2, 0x7));
+        strcpy(lines[5], "TIM1: ");
+        strcatUInt32Hex(lines[5], 0);
 
-        strcpy(lines[6], "ADC3: ");
-        strcatUInt32Hex(lines[6], readADC(3, 0x7));
+        strcpy(lines[6], "TIM2: ");
+        strcatUInt32Hex(lines[6], 0);
 
-        strcpy(lines[7], "OUT: ");
-        strcatUInt32Hex(lines[7], state);
+        strcpy(lines[7], "TIM3: ");
+        strcatUInt32Hex(lines[7], 0);
 
+        debugBeep();
         drawTestMode(lines);
-
+        debugBeep();
         refreshDisplay();
+        debugBeep();
+        triggerDisplay();
+#if defined(DISPLAY_MONOCHROME)
+        setDisplay(true);
+#endif
 
-        sleep(200);
+        debugBeep();
     }
 }

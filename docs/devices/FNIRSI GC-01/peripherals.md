@@ -14,10 +14,10 @@
 
 * PB0-PB15 (Output): LCD_DATA
 
-* PC0 (Input, pull-down): KEY_?
-* PC1 (Input, pull-down): KEY_?
-* PC2 (Input, pull-down): KEY_?
-* PC3 (Input, pull-down): KEY_?
+* PC0 (Input, pull-down): KEY_UP
+* PC1 (Input, pull-down): KEY_RIGHT
+* PC2 (Input, pull-down): KEY_DOWN
+* PC3 (Input, pull-down): KEY_LEFT
 * PC5 (Output): LCD_RESX
 * PC6 (Output): LCD_RDX (Initialized to 1 on start)
 * PC7 (Output): LCD_WRX (set to 0 before writing)

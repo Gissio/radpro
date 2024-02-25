@@ -13,7 +13,7 @@
 
 #include "../pulseled.h"
 
-#include "stm32.h"
+#include "device.h"
 
 void initPulseLEDHardware(void)
 {

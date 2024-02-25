@@ -38,22 +38,38 @@ int main(void)
     initFlash();
     initSettings();
     initPower();
-    initComm();
-    initRTC();
-    initADC();
-    initTube();
-    initKeyboard();
+// +++ TEST
+    setPower(true);
     initBuzzer();
+    initPulseLED();
+// +++ TEST
+    debugBeep();
+    initComm();
+    debugBeep();
+    initRTC();
+    debugBeep();
+    initADC();
+    debugBeep();
+    initTube();
+    debugBeep();
+    initKeyboard();
+    debugBeep();
+    initBuzzer();
+    debugBeep();
     initDisplay();
+    debugBeep();
 #if defined(PULSE_LED)
     initPulseLED();
 #endif
+    debugBeep();
 #if defined(VIBRATOR)
     initVibrator();
 #endif
+    debugBeep();
 
-#if defined(DEBUG_TESTMODE)
+#if defined(TEST_MODE)
 
+    setPower(true);
     runTestMode();
 
 #else
@@ -102,7 +118,7 @@ int main(void)
             refreshDisplay();
             triggerDisplay();
 #if defined(DISPLAY_MONOCHROME)
-        setDisplay(true);
+            setDisplay(true);
 #endif
 
             playSystemAlert();

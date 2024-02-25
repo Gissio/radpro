@@ -132,6 +132,22 @@ enum
 #define TUBE_ENERGYSAVING_HVFREQUENCY TUBE_HVFREQUENCY_2_5
 #define TUBE_ENERGYSAVING_HVDUTYCYCLE_VALUE 0.03
 
+#elif defined(FS5000)
+
+// +++ FIX
+#define TUBE_CONVERSIONFACTOR_DEFAULT TUBE_CONVERSIONFACTOR_HH614
+
+#define TUBE_FACTORYDEFAULT
+#define TUBE_FACTORYDEFAULT_HVFREQUENCY TUBE_HVFREQUENCY_40
+#define TUBE_FACTORYDEFAULT_HVDUTYCYCLE_VALUE 0.5
+
+#define TUBE_ACCURACY_HVFREQUENCY TUBE_HVFREQUENCY_2_5
+#define TUBE_ACCURACY_HVDUTYCYCLE_VALUE 0.065
+
+#define TUBE_ENERGYSAVING_HVFREQUENCY TUBE_HVFREQUENCY_2_5
+#define TUBE_ENERGYSAVING_HVDUTYCYCLE_VALUE 0.03
+// +++ FIX
+
 #elif defined(GC01)
 
 #define TUBE_CONVERSIONFACTOR_DEFAULT TUBE_CONVERSIONFACTOR_J321
@@ -327,8 +343,8 @@ typedef struct
 #elif defined(DISPLAY_COLOR)
     unsigned int displayTheme : 2;
 #endif
-    unsigned int displaySleep : 3;
     unsigned int displayBrightness : 2;
+    unsigned int displaySleep : 3;
     unsigned int rtcTimeZone : 5;
 #if defined(BATTERY_REMOVABLE)
     unsigned int batteryType : 1;

@@ -16,7 +16,7 @@
 #include "../buzzer.h"
 #include "../events.h"
 
-#include "stm32.h"
+#include "device.h"
 
 void initBuzzerHardware(void)
 {

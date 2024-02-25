@@ -14,21 +14,23 @@ static const uint8_t mr_st7789_init_sequence[] = {
     MR_SET_RESET(true),
     MR_SLEEP(1),
     MR_SET_RESET(false),
-    MR_SLEEP(5),
+    MR_SLEEP(120),
     MR_SEND_COMMAND(MR_ST7789_COLMOD), // Interface pixel format: 16 bpp
     MR_SEND_DATA(MR_ST7789_COLMOD_16BPP),
-    MR_SEND_COMMAND(MR_ST7789_DISPON), // Display on
     MR_END(),
 };
 
 static const uint8_t mr_st7789_display_on_sequence[] = {
     MR_SEND_COMMAND(MR_ST7789_SLPOUT), // Sleep out
-    MR_SLEEP(120),
+    MR_SLEEP(5),
+    MR_SEND_COMMAND(MR_ST7789_DISPON), // Display on
+    MR_SLEEP(115),
     MR_END(),
 };
 
 static const uint8_t mr_st7789_display_off_sequence[] = {
-    MR_SEND_COMMAND(MR_ST7789_SLPIN), // Sleep in
+    MR_SEND_COMMAND(MR_ST7789_DISPOFF), // Display off
+    MR_SEND_COMMAND(MR_ST7789_SLPIN),   // Sleep in
     MR_SLEEP(120),
     MR_END(),
 };
@@ -105,7 +107,7 @@ void mr_st7789_set_display(mr_t *mr, bool value)
 }
 
 static void mr_st7789_send_short(mr_t *mr,
-                             uint16_t value)
+                                 uint16_t value)
 {
     mr_send_data(mr, (value >> 8) & 0xff);
     mr_send_data(mr, (value >> 0) & 0xff);

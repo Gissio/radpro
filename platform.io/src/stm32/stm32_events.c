@@ -17,7 +17,7 @@
 
 #include "../events.h"
 
-#include "stm32.h"
+#include "device.h"
 
 extern volatile uint32_t eventsCurrentTick;
 
