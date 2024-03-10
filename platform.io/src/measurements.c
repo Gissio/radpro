@@ -279,13 +279,13 @@ static void calculateRate(uint32_t pulseCount, uint32_t ticks, Rate *rate)
 
     if (pulseCount > ticks)
     {
-        pulseCount++;
-        ticks++;
+        addClamped(&pulseCount, 1);
+        addClamped(&ticks, 1);
     }
 
     // Value and confidence intervals
 
-    float value = (float)((pulseCount - 1) * SYSTICK_FREQUENCY) / ticks;
+    float value = ((float)(pulseCount - 1) * SYSTICK_FREQUENCY) / ticks;
 
     float confidenceInterval =
         getConfidenceInterval(pulseCount - 1);

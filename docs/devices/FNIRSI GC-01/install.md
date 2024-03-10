@@ -42,7 +42,9 @@ The keys are mapped as follows:
   * Select option: the ok/power or right/settings key.
   * Bo back: the left/back key.
 
-On the FNIRSI GC-01, Rad Pro can store up to 6072 data points. At normal radiation levels, this allows for 4 days of data at 1-minute intervals, 10 days at 5-minute intervals, 31 days at 10-minute intervals, 94 days at 30-minute intervals, and 189 days at 60-minute intervals.
+On the FNIRSI GC-01 with an APM32F103RB (Geehy) processor, Rad Pro can store up to 63756 data points. At normal radiation levels, this allows for 44 days of data at 1-minute intervals, 110 days at 5-minute intervals, 221 days at 10-minute intervals, 664 days at 30-minute intervals, and 1328 days at 60-minute intervals.
+
+On the FNIRSI GC-01 with a CH32F103R8 processor, Rad Pro can store up to 5060 data points. At normal radiation levels, this allows for 3 days of data at 1-minute intervals, 8 days at 5-minute intervals, 17 days at 10-minute intervals, 52 days at 30-minute intervals, and 105 days at 60-minute intervals.
 
 The FNIRSI GC-01 HV profile settings are:
 
