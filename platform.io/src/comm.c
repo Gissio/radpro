@@ -108,7 +108,7 @@ static void startDatalogDumpTemp(void)
 
 void dispatchCommEvents(void)
 {
-    updateCommHardware();
+    updateCommController();
 
     if (comm.state == COMM_RX_READY)
     {
@@ -120,13 +120,15 @@ void dispatchCommEvents(void)
             strcat(comm.buffer, ";");
             strcatUInt32Hex(comm.buffer, getDeviceId());
         }
+        else if (matchCommCommand("GET deviceBatteryVoltage"))
+            sendCommOkWithFloat(getDeviceBatteryVoltage(), 3);
         else if (matchCommCommand("GET deviceTemperature"))
             sendCommOkWithFloat(getDeviceTemperature(), 1);
         else if (matchCommCommand("GET deviceTime"))
-            sendCommOkWithUInt32(getRTCTime());
+            sendCommOkWithUInt32(getDeviceTime());
         else if (matchCommCommandWithUInt32("SET deviceTime", &value))
         {
-            setRTCTime(value);
+            setDeviceTime(value);
 
             sendCommOk();
         }
@@ -149,7 +151,7 @@ void dispatchCommEvents(void)
         else if (matchCommCommand("GET tubeRate"))
             sendCommOkWithFloat(60.0F * getInstantaneousRate(), 3);
         else if (matchCommCommand("GET tubeDeadTime"))
-            sendCommOkWithFloat(getDeadTime(), 7);
+            sendCommOkWithFloat(getTubeDeadTime(), 7);
         else if (matchCommCommand("GET tubeConversionFactor"))
             sendCommOkWithFloat(getTubeConversionFactor(), 3);
         else if (matchCommCommand("GET tubeDeadTimeCompensation"))
@@ -157,7 +159,7 @@ void dispatchCommEvents(void)
         else if (matchCommCommand("GET tubeHVFrequency"))
             sendCommOkWithFloat(getTubeHVFrequency(), 0);
         else if (matchCommCommand("GET tubeHVDutyCycle"))
-            sendCommOkWithFloat(getTubeHVDutyCycle(), 3);
+            sendCommOkWithFloat(getTubeHVDutyCycle(), 4);
         else if (matchCommCommandWithUInt32("GET datalog", &comm.datalogTimeLimit))
         {
             startDatalogDumpTemp();
@@ -216,9 +218,9 @@ void dispatchCommEvents(void)
 
                 if (!getDatalogDownloadEntry(&dose))
                 {
-                    comm.sendingDatalog = false;
-
                     strcat(comm.buffer, "\n");
+
+                    comm.sendingDatalog = false;
 
                     break;
                 }
@@ -243,6 +245,7 @@ void dispatchCommEvents(void)
 
 #endif
 
+            comm.bufferIndex = 0;
             comm.state = COMM_RX;
         }
     }

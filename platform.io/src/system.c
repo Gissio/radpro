@@ -12,7 +12,7 @@
 
 // Statistics view
 
-static void onStatisticsViewEvent(const View *view, enum Event event)
+static void onStatisticsViewEvent(const View *view, Event event)
 {
     switch (event)
     {

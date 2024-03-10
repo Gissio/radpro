@@ -15,31 +15,29 @@
 
 #include "datalog.h"
 
-#define COMM_BAUDRATE 115200
-
 #define COMM_BUFFER_SIZE 64
 
 extern const char *const commId;
 
-enum CommPort
+typedef enum
 {
     COMM_SERIAL,
     COMM_SWD,
-};
+} CommPort;
 
-enum CommState
+typedef enum
 {
     COMM_RX,
     COMM_RX_READY,
     COMM_TX,
     COMM_TX_READY,
-};
+} CommState;
 
 typedef struct
 {
     // vvv These settings should remain fixed for SWD communications.
-    volatile enum CommPort port;
-    volatile enum CommState state;
+    volatile CommPort port;
+    volatile CommState state;
 
     volatile uint32_t bufferIndex;
     char buffer[COMM_BUFFER_SIZE];
@@ -64,6 +62,6 @@ void setCommEnabled(bool value);
 void transmitComm(void);
 
 void dispatchCommEvents(void);
-void updateCommHardware(void);
+void updateCommController(void);
 
 #endif

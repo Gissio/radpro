@@ -43,7 +43,7 @@ static const View tubeHVrequencyMenuView;
 
 void initTube(void)
 {
-    initTubeHardware();
+    initTubeController();
 
     selectMenuItem(&tubeConversionFactorMenu,
                    settings.tubeConversionFactor,
@@ -66,7 +66,11 @@ void initTube(void)
 
 static const char *const tubeMenuOptions[] = {
     "Conversion factor",
+#if defined(DISPLAY_320X240)
+    "Dead-time compensation",
+#else
     "Dead-time comp.",
+#endif
     "HV profile",
     NULL,
 };
@@ -126,7 +130,7 @@ static const char *const tubeConversionFactorMenuOptions[] = {
     "HH614",
     "J305",
     "J321",
-    "J614",
+    "J613",
     "M4011",
     "SBM-20",
 };
@@ -315,7 +319,7 @@ static void onTubeHVGeneratorSubMenuBack(const Menu *menu)
 
 // Tube HV custom profile warning
 
-static void onHVCustomProfileWarningMenuEvent(const View *view, enum Event event)
+static void onHVCustomProfileWarningMenuEvent(const View *view, Event event)
 {
     switch (event)
     {

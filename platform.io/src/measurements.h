@@ -32,7 +32,7 @@ void updateMeasurementUnits(void);
 
 void onMeasurementTick(uint32_t pulseCount);
 void onMeasurementPeriod(void);
-void onMeasurementsOneSecond(void);
+void updateMeasurements(void);
 
 void setMeasurementView(int32_t index);
 

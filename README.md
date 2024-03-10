@@ -34,7 +34,7 @@ Rad Pro 2.0 adds:
 * `radpro-tool` for downloading the data log, logging live data, submitting data to radiation monitoring websites and syncing the device clock.
 * Dead-time measurement.
 * Configurable dead-time compensation.
-* Configurable high voltage generator frequency and duty cycle for tube voltage control.
+* Configurable high voltage generator PWM frequency and duty cycle for tube voltage control.
 * [safecast.org](https://map.safecast.org) radiation monitoring website submission.
 * Redesigned user interface with the [OpenBridge 4.0](https://www.openbridge.no/) design system.
 * Anti-aliased text rendering on color screens.

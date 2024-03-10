@@ -204,9 +204,9 @@ static Units units[] = {
     {{"rem/h", (60 * 1E-4F), 0},
      {"rem", (60 * 1E-4F / 3600), 0}},
     {{"cpm", 60, 2},
-     {"count", 1, 2}},
+     {"counts", 1, 2}},
     {{"cps", 1, 2},
-     {"count", 1, 2}},
+     {"counts", 1, 2}},
 };
 
 void updateMeasurementUnits(void)
@@ -275,6 +275,14 @@ static void calculateRate(uint32_t pulseCount, uint32_t ticks, Rate *rate)
         return;
     }
 
+    // Fix ticks for improved accuracy with high radiation rate
+
+    if (pulseCount > ticks)
+    {
+        pulseCount++;
+        ticks++;
+    }
+
     // Value and confidence intervals
 
     float value = (float)((pulseCount - 1) * SYSTICK_FREQUENCY) / ticks;
@@ -319,7 +327,7 @@ void onMeasurementPeriod(void)
     measurements.tick.measurement.pulseCount = 0;
 }
 
-void onMeasurementsOneSecond(void)
+void updateMeasurements(void)
 {
     // Dead-time compensation
 
@@ -358,6 +366,7 @@ void onMeasurementsOneSecond(void)
         // Process queue
 
         Measurement instantaneousMeasurement;
+        instantaneousMeasurement.firstPulseTick = compensatedMeasurement.lastPulseTick;
         instantaneousMeasurement.lastPulseTick = compensatedMeasurement.lastPulseTick;
         instantaneousMeasurement.pulseCount = 0;
 
@@ -537,7 +546,7 @@ void setMeasurementView(int32_t index)
     setView(measurementViews[measurements.viewIndex]);
 }
 
-static void onMeasurementEvent(const View *view, enum Event event)
+static void onMeasurementEvent(const View *view, Event event)
 {
     switch (event)
     {
@@ -609,7 +618,7 @@ static bool isInstantaneousRateAlarm(void)
 }
 
 static void onInstantaneousRateViewEvent(const View *view,
-                                         enum Event event)
+                                         Event event)
 {
     onMeasurementEvent(view, event);
 
@@ -658,7 +667,7 @@ static void onInstantaneousRateViewEvent(const View *view,
         strcpy(stateValueString, "");
         strcpy(stateUnitString, "");
 
-        enum MeasurementStyle style = MEASUREMENTSTYLE_NORMAL;
+        MeasurementStyle style = MEASUREMENTSTYLE_NORMAL;
 
         if (measurements.instantaneous.isHold)
         {
@@ -720,7 +729,7 @@ static void resetAverageRate(void)
 }
 
 static void onAverageRateViewEvent(const View *view,
-                                   enum Event event)
+                                   Event event)
 {
     onMeasurementEvent(view, event);
 
@@ -770,7 +779,7 @@ static void onAverageRateViewEvent(const View *view,
                          &units[settings.units].rate);
 
         stateString = "";
-        enum MeasurementStyle style = MEASUREMENTSTYLE_NORMAL;
+        MeasurementStyle style = MEASUREMENTSTYLE_NORMAL;
 
         if (measurements.average.isHold)
         {
@@ -868,7 +877,7 @@ static bool isDoseAlarm(void)
 }
 
 static void onDoseViewEvent(const View *view,
-                            enum Event event)
+                            Event event)
 {
     onMeasurementEvent(view, event);
 
@@ -914,7 +923,7 @@ static void onDoseViewEvent(const View *view,
                          &units[settings.units].dose);
 
         stateString = "";
-        enum MeasurementStyle style = MEASUREMENTSTYLE_NORMAL;
+        MeasurementStyle style = MEASUREMENTSTYLE_NORMAL;
 
         if (measurements.cumulative.isHold)
         {
@@ -991,7 +1000,7 @@ static void resetHistory(void)
     measurements.history.sampleIndex = 0;
 }
 
-static void onHistoryViewEvent(const View *view, enum Event event)
+static void onHistoryViewEvent(const View *view, Event event)
 {
     onMeasurementEvent(view, event);
 

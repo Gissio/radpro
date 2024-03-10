@@ -10,7 +10,7 @@
 #if !defined(VIEW_H)
 #define VIEW_H
 
-enum Event
+typedef enum
 {
     EVENT_KEY_BACK,
     EVENT_KEY_SELECT,
@@ -22,11 +22,11 @@ enum Event
     EVENT_DRAW,
 
     EVENT_NONE,
-};
+} Event;
 
 typedef struct View_ View;
 
-typedef void OnEvent(const View *view, enum Event event);
+typedef void OnEvent(const View *view, Event event);
 
 struct View_
 {

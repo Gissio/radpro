@@ -20,18 +20,21 @@
 extern float timerCountToSeconds;
 
 void initEvents(void);
-void initEventsHardware(void);
+void initEventsController(void);
 void updateEventsMenus(void);
 
 void onTick(void);
 uint32_t getTick(void);
 void sleep(uint32_t value);
 
+void syncTimerThread(void);
+void enableMeasurements(void);
+void disableMeasurements(void);
 void setEventHandling(bool value);
 void dispatchDisplayEvents(void);
 void dispatchEvents(void);
 
-float getDeadTime(void);
+float getTubeDeadTime(void);
 
 void triggerDisplay(void);
 bool isDisplayTimerActive(void);

@@ -13,11 +13,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-// Switches
-
-#if !defined(MCURENDERER_WITHOUT_DISPLAY_ROTATION)
-#define MCURENDERER_DISPLAY_ROTATION
-#endif
+// Switches (defined as compiler define parameters)
 
 #if !defined(MCURENDERER_WITHOUT_IMAGE_SUPPORT)
 #define MCURENDERER_IMAGE_SUPPORT
@@ -36,16 +32,16 @@ typedef uint16_t mr_color;
 #define COLOR_BLEND_TABLE_SIZE ((1 << 5) + 1)
 
 /**
- * Macro that converts an RGB888 color code to an mcu-renderer color.
+ * Macro that converts an RGB888 color code to an RGB565 color.
  *
  * @param color_code The RGB888 color code.
  *
- * @return The mcu-renderer color.
+ * @return The RGB565 color.
  */
-#define mr_get_color(color_code)                   \
-    ((((color_code >> 16) & 0xff) >> 3) << 11) |   \
-        ((((color_code >> 8) & 0xff) >> 2) << 5) | \
-        ((((color_code >> 0) & 0xff) >> 3) << 0)
+#define mr_get_color(color_code)                                  \
+    (((((color_code >> 16) & 0xff) * 249 + 1014) >> 11) << 11) |  \
+        (((((color_code >> 8) & 0xff) * 253 + 505) >> 10) << 5) | \
+        (((((color_code >> 0) & 0xff) * 249 + 1014) >> 11) << 0)
 
 // Geometry
 
@@ -161,6 +157,9 @@ void mr_send_sequence(mr_t *mr,
 typedef void (*mr_set_display_callback_t)(mr_t *mr, bool value);
 typedef void (*mr_draw_rectangle_callback_t)(mr_t *mr,
                                              const mr_rectangle_t *rectangle);
+typedef void (*mr_draw_image_callback_t)(mr_t *mr,
+                                         const mr_rectangle_t *rectangle,
+                                         const mr_color *image);
 typedef void (*mr_draw_string_callback_t)(mr_t *mr,
                                           const uint8_t *str,
                                           const mr_rectangle_t *rectangle,
@@ -172,21 +171,18 @@ typedef void (*mr_draw_textbuffer_callback_t)(mr_t *mr,
                                               uint8_t *buffer,
                                               uint32_t buffer_pitch,
                                               mr_rectangle_t *rectangle);
-typedef void (*mr_draw_image_callback_t)(mr_t *mr,
-                                         const mr_rectangle_t *rectangle,
-                                         const mr_color *image);
 typedef void (*mr_refresh_display_callback_t)(mr_t *mr);
 
 struct mr_t_
 {
     mr_set_display_callback_t set_display_callback;
     mr_draw_rectangle_callback_t draw_rectangle_callback;
-    mr_draw_string_callback_t draw_string_callback;
-    mr_draw_glyph_callback_t draw_glyph_callback;
-    mr_draw_textbuffer_callback_t draw_textbuffer_callback;
 #if defined(MCURENDERER_IMAGE_SUPPORT)
     mr_draw_image_callback_t draw_image_callback;
 #endif
+    mr_draw_string_callback_t draw_string_callback;
+    mr_draw_glyph_callback_t draw_glyph_callback;
+    mr_draw_textbuffer_callback_t draw_textbuffer_callback;
     mr_refresh_display_callback_t refresh_display_callback;
     mr_sleep_callback_t sleep_callback;
     mr_set_reset_callback_t set_reset_callback;
@@ -204,9 +200,9 @@ struct mr_t_
     uint32_t buffer_pitch;
 
     mr_color fill_color;
+
     mr_color text_color;
     mr_color blend_table[COLOR_BLEND_TABLE_SIZE];
-
     const uint8_t *font;
     mr_glyph_t glyph;
 };

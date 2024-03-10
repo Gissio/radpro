@@ -18,7 +18,7 @@
 extern const View tubeMenuView;
 
 void initTube(void);
-void initTubeHardware(void);
+void initTubeController(void);
 
 float getTubeConversionFactor(void);
 float getTubeDeadTimeCompensation(void);
@@ -27,7 +27,6 @@ float getTubeHVFrequency(void);
 
 void setTubeHV(bool value);
 void updateTubeHV(void);
-void syncTubeHV(void);
 bool getTubePulse(uint32_t *pulseTime);
 
 #endif

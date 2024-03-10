@@ -9,12 +9,7 @@
 
 #if defined(GC01)
 
-#include <libopencm3/cm3/scb.h>
-
-#include <libopencm3/stm32/flash.h>
-#include <libopencm3/stm32/gpio.h>
-#include <libopencm3/stm32/rcc.h>
-#include <libopencm3/stm32/timer.h>
+#include "stm32.h"
 
 #include "../display.h"
 #include "../events.h"
@@ -35,78 +30,93 @@
 
 void initSystem(void)
 {
-    // Clocks
+    // Set stack pointer to fix bootloader madness
+    __set_MSP(*((uint32_t *)PAYLOAD_BASE));
 
-    RCC_CR |= RCC_CR_HSEON; // Enable HSE clock
-    while (!(RCC_CR & RCC_CR_HSERDY))
-        ;
+    // Enable HSE
+    set_bits(RCC->CR, RCC_CR_HSEON);
+    wait_until_bits_set(RCC->CR, RCC_CR_HSERDY);
 
-    RCC_CFGR =                                                    // Configure RCC
-        (RCC_CFGR_SW_SYSCLKSEL_HSICLK << RCC_CFGR_SW_SHIFT) |     // Select HSI as system clock
-        (RCC_CFGR_HPRE_SYSCLK_NODIV << RCC_CFGR_HPRE_SHIFT) |     // Set AHB clock: 72 / 1 = 72 MHz
-        (RCC_CFGR_PPRE1_HCLK_DIV2 << RCC_CFGR_PPRE1_SHIFT) |      // Set APB1 clock: 72 / 2 = 36 MHz
-        (RCC_CFGR_PPRE2_HCLK_NODIV << RCC_CFGR_PPRE2_SHIFT) |     // Set APB2 clock: 72 / 1 = 72 MHz
-        (RCC_CFGR_PLLMUL_PLL_CLK_MUL9 << RCC_CFGR_PLLMUL_SHIFT) | // Set PLL multiplier
-        (RCC_CFGR_PLLSRC_HSE_CLK << 16) |                         // Set PLL source
-        (RCC_CFGR_PLLXTPRE_HSE_CLK << 17) |                       // Set PLL predivision factor
-        (RCC_CFGR_ADCPRE_PCLK2_DIV8 << RCC_CFGR_ADCPRE_SHIFT) |   // Set ADC clock: 72 / 8 = 9 MHz
-        RCC_CFGR_USBPRE_PLL_CLK_DIV1_5 |                          // Set USB prescaler
-        RCC_CFGR_MCO_NOCLK;                                       // Disable microcontroller clock output
+    // Set 2 wait states for flash
+    modify_bits(FLASH->ACR,
+                FLASH_ACR_LATENCY_Msk,
+                FLASH_ACR_LATENCY_2WS);
 
-    FLASH_ACR &= ~(FLASH_ACR_LATENCY_MASK << FLASH_ACR_LATENCY_SHIFT); // Set flash latency
-    FLASH_ACR |= (FLASH_ACR_LATENCY_2WS << FLASH_ACR_LATENCY_SHIFT);
+    // Configure RCC
+    RCC->CFGR =
+        RCC_CFGR_SW_HSI |        // Select HSI as system clock
+        RCC_CFGR_HPRE_DIV1 |     // Set AHB clock: 72 MHz / 1 = 72 MHz
+        RCC_CFGR_PPRE1_DIV2 |    // Set APB1 clock: 72 MHz / 2 = 36 MHz
+        RCC_CFGR_PPRE2_DIV1 |    // Set APB2 clock: 72 MHz / 1 = 72 MHz
+        RCC_CFGR_ADCPRE_DIV8 |   // Set ADC clock: 72 MHz / 8 = 9 MHz
+        RCC_CFGR_PLLSRC_HSE |    // Set PLL source: HSE
+        RCC_CFGR_PLLXTPRE_HSE |  // Set PLL HSE predivision factor: 1x
+        RCC_CFGR_PLLMULL9 |      // Set PLL multiplier: 9x
+        RCC_CFGR_USBPRE_DIV1_5 | // Set USB prescaler: 1.5x
+        RCC_CFGR_MCO_NOCLOCK;    // Disable MCO
 
-    RCC_CR |= RCC_CR_PLLON; // Enable PLL clock
-    while (!(RCC_CR & RCC_CR_PLLRDY))
-        ;
+    // Enable PLL
+    set_bits(RCC->CR, RCC_CR_PLLON);
+    wait_until_bits_set(RCC->CR, RCC_CR_PLLRDY);
 
-    RCC_CFGR |= (RCC_CFGR_SW_SYSCLKSEL_PLLCLK << RCC_CFGR_SW_SHIFT); // Select PLL as system clock
+    // Select PLL as system clock
+    modify_bits(RCC->CFGR, RCC_CFGR_SW_Msk, RCC_CFGR_SW_PLL);
+    wait_until_bits_value(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_PLL);
 
-    // SCB
+    // Set vector table
+    NVIC_DisableAllIRQs();
+    SCB->VTOR = PAYLOAD_BASE;
 
-    SCB_VTOR = PAYLOAD_BASE;
+    // Disable JTAG
+    rcc_enable_afio();
+    modify_bits(AFIO->MAPR,
+                AFIO_MAPR_SWJ_CFG_Msk,
+                AFIO_MAPR_SWJ_CFG_JTAGDISABLE);
 
-    // GPIO
-
-    rcc_periph_clock_enable(RCC_AFIO);
-    gpio_primary_remap(AFIO_MAPR_SWJ_CFG_JTAG_OFF_SW_ON,
-                       0);
-
-    rcc_periph_clock_enable(RCC_GPIOA);
-    rcc_periph_clock_enable(RCC_GPIOB);
-    rcc_periph_clock_enable(RCC_GPIOC);
+    // Enable RCC GPIOA, GPIOB, GPIOC
+    set_bits(RCC->APB2ENR,
+             RCC_APB2ENR_IOPAEN |
+                 RCC_APB2ENR_IOPBEN |
+                 RCC_APB2ENR_IOPCEN);
 }
 
 // Flash memory
 
-const FlashRegion flashSettingsRegion = {0x39, 0x3a};
-const FlashRegion flashDatalogRegion = {0x3a, 0x40};
+#if defined(CH32)
+const FlashRegion flashSettingsRegion = {0x3a, 0x3b};
+const FlashRegion flashDatalogRegion = {0x3b, 0x40};
+#elif defined(APM32)
+const FlashRegion flashSettingsRegion = {0x40, 0x41};
+const FlashRegion flashDatalogRegion = {0x41, 0x80};
+#endif
 
 // Communications
 
-const char *const commId = "FNIRSI GC-01;" FIRMWARE_NAME " " FIRMWARE_VERSION;
+#if defined(CH32)
+const char *const commId = "FNIRSI GC-01 (CH32F103C8);" FIRMWARE_NAME " " FIRMWARE_VERSION;
+#elif defined(APM32)
+const char *const commId = "FNIRSI GC-01 (APM32F103CB);" FIRMWARE_NAME " " FIRMWARE_VERSION;
+#endif
 
 // Keyboard
 
-void initKeyboardHardware(void)
+void initKeyboardController(void)
 {
-    // GPIO
-
-    gpio_set(KEY_SELECT_PORT,
-             KEY_SELECT_PIN); // Pull-up
-    gpio_set_mode(KEY_SELECT_PORT,
-                  GPIO_MODE_INPUT,
-                  GPIO_CNF_INPUT_PULL_UPDOWN,
-                  KEY_SELECT_PIN);
-
-    gpio_set(GPIOC,
-             KEY_UP_PIN | KEY_RIGHT_PIN |
-                 KEY_DOWN_PIN | KEY_LEFT_PIN); // Pull-up
-    gpio_set_mode(GPIOC,
-                  GPIO_MODE_INPUT,
-                  GPIO_CNF_INPUT_PULL_UPDOWN,
-                  KEY_UP_PIN | KEY_RIGHT_PIN |
-                      KEY_DOWN_PIN | KEY_LEFT_PIN);
+    gpio_setup(KEY_LEFT_PORT,
+               KEY_LEFT_PIN,
+               GPIO_MODE_INPUT_PULLUP);
+    gpio_setup(KEY_RIGHT_PORT,
+               KEY_RIGHT_PIN,
+               GPIO_MODE_INPUT_PULLUP);
+    gpio_setup(KEY_UP_PORT,
+               KEY_UP_PIN,
+               GPIO_MODE_INPUT_PULLUP);
+    gpio_setup(KEY_DOWN_PORT,
+               KEY_DOWN_PIN,
+               GPIO_MODE_INPUT_PULLUP);
+    gpio_setup(KEY_SELECT_PORT,
+               KEY_SELECT_PIN,
+               GPIO_MODE_INPUT_PULLUP);
 }
 
 void getKeyboardState(bool *isKeyDown)
@@ -176,18 +186,16 @@ static const uint8_t displayInitSequence[] = {
 // +++ TEST
 #if defined(DISPLAY_SERIAL)
 
-#include "libopencm3/stm32/spi.h"
-
 #define DISPLAY_SCLK_PORT GPIOA
-#define DISPLAY_SCLK_PIN GPIO5
+#define DISPLAY_SCLK_PIN 5
 #define DISPLAY_SDA_PORT GPIOA
-#define DISPLAY_SDA_PIN GPIO7
+#define DISPLAY_SDA_PIN 7
 #define DISPLAY_RESET_PORT GPIOB
-#define DISPLAY_RESET_PIN GPIO0
+#define DISPLAY_RESET_PIN 0
 #define DISPLAY_CS_PORT GPIOB
-#define DISPLAY_CS_PIN GPIO1
+#define DISPLAY_CS_PIN 1
 #define DISPLAY_RS_PORT GPIOB
-#define DISPLAY_RS_PIN GPIO10
+#define DISPLAY_RS_PIN 10
 
 static void onDisplaySleep(uint32_t value)
 {
@@ -196,12 +204,9 @@ static void onDisplaySleep(uint32_t value)
 
 static void onDisplaySetReset(bool value)
 {
-    if (value)
-        gpio_clear(DISPLAY_RESET_PORT,
-                   DISPLAY_RESET_PIN);
-    else
-        gpio_set(DISPLAY_RESET_PORT,
-                 DISPLAY_RESET_PIN);
+    gpio_modify(DISPLAY_RESET_PORT,
+                DISPLAY_RESET_PIN,
+                !value);
 }
 
 static void onDisplaySetCommand(bool value)
@@ -211,13 +216,11 @@ static void onDisplaySetCommand(bool value)
         // Trigger CS before command
         gpio_set(DISPLAY_CS_PORT, DISPLAY_CS_PIN);
         gpio_clear(DISPLAY_CS_PORT, DISPLAY_CS_PIN);
-
-        gpio_clear(DISPLAY_RS_PORT,
-                   DISPLAY_RS_PIN);
     }
-    else
-        gpio_set(DISPLAY_RS_PORT,
-                 DISPLAY_RS_PIN);
+
+    gpio_modify(DISPLAY_RS_PORT,
+                DISPLAY_RS_PIN,
+                !value);
 }
 
 static void onDisplaySend(uint16_t value)
@@ -240,110 +243,110 @@ static void onDisplaySleep(uint32_t value)
 
 static void onDisplaySetReset(bool value)
 {
-    if (value)
-        gpio_clear(LCD_RESX_PORT,
-                   LCD_RESX_PIN);
-    else
-        gpio_set(LCD_RESX_PORT,
-                 LCD_RESX_PIN);
+    gpio_modify(DISPLAY_RESX_PORT,
+                DISPLAY_RESX_PIN,
+                !value);
 }
 
 static void onDisplaySetCommand(bool value)
 {
-    if (value)
-        gpio_clear(LCD_DCX_PORT,
-                   LCD_DCX_PIN);
-    else
-        gpio_set(LCD_DCX_PORT,
-                 LCD_DCX_PIN);
+    gpio_modify(DISPLAY_DCX_PORT,
+                DISPLAY_DCX_PIN,
+                !value);
 }
 
 static void onDisplaySend(uint16_t value)
 {
-    GPIOC_BRR = LCD_CSX_PIN;
-    GPIOC_BRR = LCD_WRX_PIN;
-    GPIOB_ODR = value;
-    GPIOC_BSRR = LCD_WRX_PIN;
-    GPIOC_BSRR = LCD_CSX_PIN;
+    DISPLAY_CSX_PORT->BRR = DISPLAY_CSX_PIN;
+    DISPLAY_WRX_PORT->BRR = DISPLAY_WRX_PIN;
+    DISPLAY_DATA_PORT->ODR = value;
+    DISPLAY_WRX_PORT->BSRR = DISPLAY_WRX_PIN;
+    DISPLAY_CSX_PORT->BSRR = DISPLAY_CSX_PIN;
 }
 
 #endif
 
-void initDisplayHardware(void)
+void initDisplayController(void)
 {
-    // GPIO
-
 // +++ TEST
 #if defined(DISPLAY_SERIAL)
 
-    gpio_set_mode(GPIOB,
-                  GPIO_MODE_OUTPUT_50_MHZ,
-                  GPIO_CNF_OUTPUT_PUSHPULL,
-                  DISPLAY_RESET_PIN | DISPLAY_CS_PIN |
-                      DISPLAY_RS_PIN);
+    gpio_set(DISPLAY_RESET_PORT, DISPLAY_RESET_PIN);
+    gpio_set(DISPLAY_CS_PORT, DISPLAY_CS_PIN);
 
-    rcc_periph_clock_enable(RCC_SPI1);
+    gpio_setup(DISPLAY_RESET_PORT,
+               DISPLAY_RESET_PIN,
+               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+    gpio_setup(DISPLAY_CS_PORT,
+               DISPLAY_CS_PIN,
+               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+    gpio_setup(DISPLAY_RS_PORT,
+               DISPLAY_RS_PIN,
+               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+    gpio_setup(DISPLAY_SCLK_PORT,
+               DISPLAY_SCLK_PIN,
+               GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL);
+    gpio_setup(DISPLAY_SDA_PORT,
+               DISPLAY_SDA_PIN,
+               GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL);
 
-    gpio_set_mode(GPIOA,
-                  GPIO_MODE_OUTPUT_50_MHZ,
-                  GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
-                  DISPLAY_SCLK_PIN | DISPLAY_SDA_PIN);
-    // spi_init_master(SPI1,
-    //                 SPI_CR1_BAUDRATE_FPCLK_DIV_2,
-    //                 SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
-    //                 SPI_CR1_CPHA_CLK_TRANSITION_2,
-    //                 SPI_CR1_DFF_8BIT,
-    //                 SPI_CR1_MSBFIRST);
-    // spi_enable_software_slave_management(SPI1);
-    // spi_set_nss_high(SPI1);
-    // spi_set_baudrate_prescaler(SPI1, SPI_CR1_BAUDRATE_FPCLK_DIV_2);
+    set_bits(RCC->APB2ENR, RCC_APB2ENR_SPI1EN);
 
-    SPI1_CR1 = SPI_CR1_CPHA_CLK_TRANSITION_2 |
-               SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE |
-               SPI_CR1_MSTR |
-               SPI_CR1_SSI |
-               SPI_CR1_SSM;
-    spi_enable(SPI1);
+    // Configure SPI
+    SPI1->CR1 = SPI_CR1_CPHA |
+                SPI_CR1_CPOL |
+                SPI_CR1_MSTR |
+                SPI_CR1_SSI |
+                SPI_CR1_SSM;
+
+    // Enable SPI
+    set_bits(SPI1->CR1,
+             SPI_CR1_SPE);
 
 #else
 
-    gpio_set_mode(LCD_DATA_PORT,
-                  GPIO_MODE_OUTPUT_50_MHZ,
-                  GPIO_CNF_OUTPUT_PUSHPULL,
-                  LCD_DATA_PINS);
+    gpio_set(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN);
+    gpio_set(DISPLAY_RDX_PORT, DISPLAY_RDX_PIN);
+    gpio_set(DISPLAY_WRX_PORT, DISPLAY_WRX_PIN);
+    gpio_clear(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN);
 
-    gpio_set(GPIOC,
-             LCD_RESX_PIN | LCD_RDX_PIN |
-                 LCD_WRX_PIN);
-    gpio_set_mode(GPIOC,
-                  GPIO_MODE_OUTPUT_50_MHZ,
-                  GPIO_CNF_OUTPUT_PUSHPULL,
-                  LCD_RESX_PIN | LCD_RDX_PIN |
-                      LCD_WRX_PIN | LCD_DCX_PIN |
-                      LCD_CSX_PIN);
+    gpio_setup(DISPLAY_RESX_PORT,
+               DISPLAY_RESX_PIN,
+               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+    gpio_setup(DISPLAY_RDX_PORT,
+               DISPLAY_RDX_PIN,
+               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+    gpio_setup(DISPLAY_WRX_PORT,
+               DISPLAY_WRX_PIN,
+               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+    gpio_setup(DISPLAY_DCX_PORT,
+               DISPLAY_DCX_PIN,
+               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+    gpio_setup(DISPLAY_CSX_PORT,
+               DISPLAY_CSX_PIN,
+               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+
+    DISPLAY_DATA_PORT->CRL =
+        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 0) |
+        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 4) |
+        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 8) |
+        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 12) |
+        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 16) |
+        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 20) |
+        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 24) |
+        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 28);
+    DISPLAY_DATA_PORT->CRH =
+        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 0) |
+        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 4) |
+        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 8) |
+        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 12) |
+        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 16) |
+        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 20) |
+        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 24) |
+        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 28);
 
 #endif
     // +++ TEST
-
-    gpio_set_mode(LCD_BACKLIGHT_PORT,
-                  GPIO_MODE_OUTPUT_2_MHZ,
-                  GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
-                  LCD_BACKLIGHT_PIN);
-
-    // Backlight timer
-
-    // Already set by buzzer:
-    // rcc_periph_clock_enable(LCD_BACKLIGHT_TIMER_RCC);
-
-    LCD_BACKLIGHT_TIMER_CCMR(LCD_BACKLIGHT_TIMER) |= LCD_BACKLIGHT_TIMER_CCMR_MODE; // timer_set_oc_mode(LCD_BACKLIGHT_TIMER, TIM_OC1, TIM_OCM_PWM1);
-    // Already set by buzzer:
-    // TIM_ARR(LCD_BACKLIGHT_TIMER) = BACKLIGHT_PWM_PERIOD; // timer_set_period(LCD_BACKLIGHT_TIMER, BACKLIGHT_PWM_PERIOD);
-
-    setDisplayBacklight(false);
-
-    TIM_CCER(LCD_BACKLIGHT_TIMER) |= LCD_BACKLIGHT_TIMER_CCER_CC; // timer_enable_oc_output(LCD_BACKLIGHT_TIMER, TIM_OC1);
-    // Already set by buzzer:
-    // TIM_CR1(LCD_BACKLIGHT_TIMER) |= TIM_CR1_CEN; // timer_enable_counter(LCD_BACKLIGHT_TIMER);
 
     // mcu-renderer
 

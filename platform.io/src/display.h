@@ -38,24 +38,25 @@ extern const View displayMenuView;
 
 #endif
 
-enum MeasurementStyle
+typedef enum
 {
     MEASUREMENTSTYLE_NORMAL,
     MEASUREMENTSTYLE_ALARM,
     MEASUREMENTSTYLE_HOLD,
-};
+} MeasurementStyle;
 
 extern const uint32_t menuLineNum;
 
 extern uint16_t displayBrightnessValue[];
 
 void initDisplay(void);
-void initDisplayHardware(void);
+void initDisplayController(void);
+void initDisplayBacklight(void);
 
-void setDisplay(bool value);
+void setDisplayOn(bool value);
+bool isDisplayOn(void);
 void updateDisplayContrast(void);
 void setDisplayBacklight(bool value);
-void syncDisplayBacklight(void);
 void refreshDisplay(void);
 
 void drawStatusBar(void);
@@ -72,7 +73,7 @@ void drawMeasurement(const char *title,
                      const char *stateString,
                      const char *stateValueString,
                      const char *stateUnitString,
-                     enum MeasurementStyle style);
+                     MeasurementStyle style);
 void drawHistory(const char *title,
                  const char *topLegendString,
                  const char *bottomLegendString,

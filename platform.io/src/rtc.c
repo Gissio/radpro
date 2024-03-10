@@ -18,7 +18,7 @@ static const Menu rtcTimeZoneMenu;
 
 void initRTC(void)
 {
-    initRTCHardware();
+    initRTCController();
 
     selectMenuItem(&rtcTimeZoneMenu,
                    settings.rtcTimeZone,
@@ -91,14 +91,14 @@ static uint32_t getDaysInMonth(uint32_t year, uint32_t month)
     return daysInMonth[month - 1];
 }
 
-void setRTCDateTime(RTCDateTime *dateTime)
+void setDeviceDateTime(RTCDateTime *dateTime)
 {
-    setRTCTime(getTimeFromDateTime(dateTime) - getTimeZoneOffset());
+    setDeviceTime(getTimeFromDateTime(dateTime) - getTimeZoneOffset());
 }
 
-void getRTCDateTime(RTCDateTime *dateTime)
+void getDeviceDateTime(RTCDateTime *dateTime)
 {
-    getDateTimeFromTime(getRTCTime() + getTimeZoneOffset(), dateTime);
+    getDateTimeFromTime(getDeviceTime() + getTimeZoneOffset(), dateTime);
 }
 
 // RTC menu common
@@ -174,7 +174,7 @@ static const char *onRTCSubMenuGetOption(const Menu *menu,
 static void onRTCSubMenuSelect(const Menu *menu)
 {
     RTCDateTime dateTime;
-    getRTCDateTime(&dateTime);
+    getDeviceDateTime(&dateTime);
     normalizeDateTime(&dateTime);
 
     switch (rtcMenuState.selectedIndex)
@@ -206,7 +206,7 @@ static void onRTCSubMenuSelect(const Menu *menu)
         break;
     }
 
-    setRTCDateTime(&dateTime);
+    setDeviceDateTime(&dateTime);
     rtcCurrentDateTime = dateTime;
 }
 
@@ -360,7 +360,7 @@ static const char *onRTCMenuGetOption(const Menu *menu,
 
 static void onRTCMenuSelect(const Menu *menu)
 {
-    getRTCDateTime(&rtcCurrentDateTime);
+    getDeviceDateTime(&rtcCurrentDateTime);
     normalizeDateTime(&rtcCurrentDateTime);
 
     const View *view = NULL;

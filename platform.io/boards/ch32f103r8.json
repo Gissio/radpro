@@ -1,0 +1,38 @@
+{
+    "build": {
+        "core": "stm32",
+        "cpu": "cortex-m3",
+        "extra_flags": "-D STM32 -D STM32F1 -D STM32F103xB -D CH32",
+        "f_cpu": "72000000L",
+        "mcu": "stm32f103cbt6",
+        "product_line": "STM32F103xB"
+    },
+    "debug": {
+        "default_tools": [
+            "stlink"
+        ],
+        "jlink_device": "STM32F103CB",
+        "openocd_target": "stm32f1x",
+        "svd_path": "STM32F103xx.svd"
+    },
+    "frameworks": [
+        "cmsis",
+        "libopencm3"
+    ],
+    "name": "CH32F103R8",
+    "upload": {
+        "maximum_ram_size": 20480,
+        "maximum_size": 65536,
+        "protocol": "stlink",
+        "protocols": [
+            "jlink",
+            "cmsis-dap",
+            "stlink",
+            "blackmagic",
+            "mbed",
+            "dfu"
+        ]
+    },
+    "url": "https://wch-ic.com/",
+    "vendor": "WCH"
+}

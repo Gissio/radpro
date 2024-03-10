@@ -14,7 +14,6 @@
 
 // ILI9341 level 1 commands
 
-
 #define MR_ILI9341_NOP 0x00
 #define MR_ILI9341_SWRESET 0x01
 #define MR_ILI9341_RDDID 0x04

@@ -19,7 +19,7 @@ extern const View gameView;
 
 void initGame(void);
 
+void dispatchGameEvents(void);
 void updateGame(void);
-void onGameOneSecond(void);
 
 #endif

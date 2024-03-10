@@ -17,17 +17,15 @@
 extern const View pulseClicksMenuView;
 
 void initBuzzer(void);
-void initBuzzerHardware(void);
+void initBuzzerController(void);
 
-#if defined(SDLSIM)
+#if defined(SIMULATOR)
 
 void updateBuzzer(void);
 
 #endif
 
 void setBuzzer(bool value);
-
-void syncBuzzer(void);
 
 void playSystemAlert(void);
 

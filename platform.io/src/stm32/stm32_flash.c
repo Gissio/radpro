@@ -11,40 +11,11 @@
 
 #include <string.h>
 
-#include <libopencm3/stm32/crc.h>
-#include <libopencm3/stm32/flash.h>
-#include <libopencm3/stm32/rcc.h>
-
 #include "../flash.h"
 
 #include "device.h"
 
 // Flash
-
-#if !defined(FLASH_BASE)
-
-#define FLASH_BASE 0x08000000
-
-#endif
-
-#if defined(STM32F0) || defined(STM32F1)
-
-#define FLASH_PAGE_SIZE 0x400
-#define FLASH_BLOCK_SIZE 0x2
-
-#elif defined(STM32G0)
-
-#define FLASH_PAGE_SIZE 0x800
-#define FLASH_BLOCK_SIZE 0x8
-
-#elif defined(STM32L4)
-
-// +++ FIX
-#define FLASH_PAGE_SIZE 0x400
-#define FLASH_BLOCK_SIZE 0x2
-// +++ FIX
-
-#endif
 
 const uint32_t flashPageDataSize = FLASH_PAGE_SIZE - FLASH_BLOCK_SIZE;
 const uint32_t flashBlockSize = FLASH_BLOCK_SIZE;
@@ -55,25 +26,24 @@ const uint32_t flashBlockSize = FLASH_BLOCK_SIZE;
 
 void initFlash(void)
 {
-    // Clocks
-
 #if defined(STM32G0)
-
-    rcc_periph_clock_enable(RCC_FLASH);
-
+    rcc_enable_flash();
 #endif
 }
 
 bool verifyFlash(void)
 {
-    rcc_periph_clock_enable(RCC_CRC);
+    rcc_enable_crc();
 
     crc_reset();
-    uint32_t calculatedCRC = crc_calculate_block((uint32_t *)PAYLOAD_BASE, PAYLOAD_SIZE / 4);
 
-    rcc_periph_clock_disable(RCC_CRC);
+    for (int i = 0; i < PAYLOAD_SIZE / 4; i++)
+        crc_write(((uint32_t *)PAYLOAD_BASE)[i]);
+    uint32_t crc = crc_read();
 
-    return (calculatedCRC == FIRMWARE_CRC);
+    rcc_disable_crc();
+
+    return (crc == FIRMWARE_CRC);
 }
 
 void readFlash(FlashIterator *iterator,
@@ -91,23 +61,11 @@ void readFlash(FlashIterator *iterator,
 
 void eraseFlash(FlashIterator *iterator)
 {
-#if defined(STM32F0) || defined(STM32F1)
-
     flash_unlock();
-
-    flash_erase_page(FLASH_BASE + iterator->pageIndex * FLASH_PAGE_SIZE);
-
-    flash_lock();
-
-#elif defined(STM32G0)
-
-    flash_unlock_progmem();
 
     flash_erase_page(iterator->pageIndex);
 
-    flash_lock_progmem();
-
-#endif
+    flash_lock();
 }
 
 void writeFlash(FlashIterator *iterator,
@@ -116,25 +74,21 @@ void writeFlash(FlashIterator *iterator,
 {
     uint32_t address = FLASH_BASE + iterator->pageIndex * FLASH_PAGE_SIZE + iterator->index;
 
-#if defined(STM32F0) || defined(STM32F1)
-
     flash_unlock();
 
-    for (uint32_t i = 0; i < size; i += FLASH_BLOCK_SIZE)
-        flash_program_half_word(address + i, *(uint16_t *)(source + i));
+#if defined(STM32F0) || defined(STM32F1)
 
-    flash_lock();
+    for (uint32_t i = 0; i < size; i += FLASH_BLOCK_SIZE)
+        flash_program_halfword(address + i, *(uint16_t *)(source + i));
 
 #elif defined(STM32G0)
 
-    flash_unlock_progmem();
-
     for (uint32_t i = 0; i < size; i += FLASH_BLOCK_SIZE)
-        flash_program_double_word(address + i, *(uint64_t *)(source + i));
-
-    flash_lock_progmem();
+        flash_program_doubleword(address + i, *(uint64_t *)(source + i));
 
 #endif
+
+    flash_lock();
 
     iterator->index += size;
 }

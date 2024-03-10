@@ -38,34 +38,18 @@ int main(void)
     initFlash();
     initSettings();
     initPower();
-// +++ TEST
-    setPower(true);
-    initBuzzer();
-    initPulseLED();
-// +++ TEST
-    debugBeep();
     initComm();
-    debugBeep();
-    initRTC();
-    debugBeep();
     initADC();
-    debugBeep();
     initTube();
-    debugBeep();
     initKeyboard();
-    debugBeep();
     initBuzzer();
-    debugBeep();
     initDisplay();
-    debugBeep();
-#if defined(PULSE_LED)
+#if defined(PULSELED)
     initPulseLED();
 #endif
-    debugBeep();
 #if defined(VIBRATOR)
     initVibrator();
 #endif
-    debugBeep();
 
 #if defined(TEST_MODE)
 
@@ -82,27 +66,10 @@ int main(void)
 
     while (true)
     {
-        // Wait for power key event
-
-#if defined(SDLSIM)
-
-        static bool firstStart = true;
-        while ((getKeyboardEvent() != EVENT_KEY_POWER) && !firstStart)
-        {
-            sleep(1);
-
-            dispatchDisplayEvents();
-        }
-        firstStart = false;
-
-#else
+#if defined(KEYBOARD_WAIT_FOR_POWERON)
 
         while (getKeyboardEvent() != EVENT_KEY_POWER)
-        {
             sleep(1);
-
-            dispatchDisplayEvents();
-        }
 
 #endif
 
@@ -116,10 +83,8 @@ int main(void)
                              "Firmware checksum failure.",
                              true);
             refreshDisplay();
-            triggerDisplay();
-#if defined(DISPLAY_MONOCHROME)
-            setDisplay(true);
-#endif
+            setDisplayOn(true);
+            setDisplayBacklight(true);
 
             playSystemAlert();
 
@@ -130,15 +95,20 @@ int main(void)
                          FIRMWARE_VERSION,
                          true);
         refreshDisplay();
-        triggerDisplay();
-#if defined(DISPLAY_MONOCHROME)
-        setDisplay(true);
-#endif
+        setDisplayOn(true);
+        setDisplayBacklight(true);
 
-        sleep(1000);
+        uint32_t splashStartTime = getTick();
+
+        initRTC();
+
+        uint32_t splashTime = getTick() - splashStartTime;
+        if (splashTime < 1000)
+            splashTime = 1000;
+        sleep(splashTime);
 
         setTubeHV(true);
-        setEventHandling(true);
+        enableMeasurements();
         setCommEnabled(true);
 
         writeDatalog();
@@ -146,16 +116,15 @@ int main(void)
         // UI loop
 
         setMeasurementView(0);
+        triggerDisplay();
 
         while (!isPowerOffRequested())
         {
             sleep(1);
 
-            updateGame();
+            dispatchGameEvents();
             dispatchEvents();
         }
-
-        setPowerOffRequest(false);
 
         // Power off
 
@@ -163,14 +132,18 @@ int main(void)
         writeSettings();
 
         setCommEnabled(false);
-        setEventHandling(false);
+        disableMeasurements();
         setTubeHV(false);
 
-#if defined(DISPLAY_MONOCHROME)
-        setDisplay(false);
-#endif
+        setDisplayBacklight(false);
+        setDisplayOn(false);
 
         setPower(false);
+
+#if !defined(KEYBOARD_WAIT_FOR_POWERON)
+        while (getKeyboardEvent() != EVENT_KEY_POWER)
+            sleep(1);
+#endif
     }
 
 #endif

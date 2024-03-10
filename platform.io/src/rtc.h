@@ -17,7 +17,7 @@
 #define RTC_YEAR_MIN 2020
 #define RTC_YEAR_MAX 2099
 #define RTC_YEAR_NUM (RTC_YEAR_MAX - RTC_YEAR_MIN + 1)
-#define RTC_TIME_START 946684800 // 2000-01-01 00:00:00
+#define RTC_TIME_INIT 946684800 // 2000-01-01T00:00:00+0000
 
 typedef struct
 {
@@ -32,16 +32,16 @@ typedef struct
 extern const View dateAndTimeMenuView;
 
 void initRTC(void);
-void initRTCHardware(void);
+void initRTCController(void);
 
 uint32_t getTimeFromDateTime(const RTCDateTime *dateTime);
 void getDateTimeFromTime(uint32_t value, RTCDateTime *dateTime);
 uint32_t getTimeZoneOffset(void);
 
-void setRTCDateTime(RTCDateTime *dateTime);
-void getRTCDateTime(RTCDateTime *dateTime);
+void setDeviceDateTime(RTCDateTime *dateTime);
+void getDeviceDateTime(RTCDateTime *dateTime);
 
-void setRTCTime(uint32_t value);
-uint32_t getRTCTime(void);
+void setDeviceTime(uint32_t value);
+uint32_t getDeviceTime(void);
 
 #endif

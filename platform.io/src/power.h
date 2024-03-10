@@ -18,17 +18,24 @@
 #define BATTERY_LEVEL_MAX 5
 #define BATTERY_LEVEL_CHARGING -1
 
+typedef enum
+{
+    POWERSTATE_ON,
+    POWERSTATE_OFF_REQUESTED,
+    POWERSTATE_OFF,
+} PowerState;
+
 extern const View batteryTypeMenuView;
 
 void initPower(void);
-void initPowerHardware(void);
+void initPowerController(void);
 
 void setPower(bool value);
 
-void setPowerOffRequest(bool value);
+void requestPowerOff(void);
 bool isPowerOffRequested(void);
 
-int8_t getBatteryLevel(void);
+int8_t getDeviceBatteryLevel(void);
 
 bool isBatteryCharging(void);
 

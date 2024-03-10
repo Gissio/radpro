@@ -35,7 +35,7 @@
 #define GAME_HISTORY_MOVE_NUM (GAME_HISTORY_TURN_NUM * 2)
 #define GAME_VALID_MOVES_NUM_MAX 181
 
-enum GameState
+typedef enum
 {
     GAME_SHOWING_LAST_MOVE,
     GAME_SELECTING_FROM,
@@ -43,11 +43,11 @@ enum GameState
     GAME_SEARCHING,
     GAME_CANCELLING_SEARCH,
     GAME_OVER,
-};
+} GameState;
 
 static struct
 {
-    enum GameState state;
+    GameState state;
     uint32_t moveIndex;
     uint32_t playerIndex;
     uint32_t playerTime[2];
@@ -199,7 +199,7 @@ static void resetGame(uint32_t playerIndex)
     updateGameBoard();
 }
 
-void updateGame(void)
+void dispatchGameEvents(void)
 {
     if (game.state == GAME_SEARCHING)
     {
@@ -238,7 +238,7 @@ void updateGame(void)
     }
 }
 
-void onGameOneSecond(void)
+void updateGame(void)
 {
     if ((getView() == &gameView) &&
         (game.state != GAME_OVER))
@@ -320,7 +320,7 @@ static void formatGameMove(char *buffer, mcumax_move move)
     }
 }
 
-static void onGameViewEvent(const View *view, enum Event event)
+static void onGameViewEvent(const View *view, Event event)
 {
     switch (event)
     {

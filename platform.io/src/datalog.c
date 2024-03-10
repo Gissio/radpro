@@ -138,7 +138,7 @@ static void writeDatalogEntry(bool isUpdate)
     // Update?
 
     Dose dose;
-    dose.time = getRTCTime();
+    dose.time = getDeviceTime();
     dose.pulseCount = getTubePulseCount();
 
     uint32_t timeInterval = dose.time - datalog.writeState.dose.time;

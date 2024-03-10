@@ -16,7 +16,7 @@ static const Menu pulseClicksMenu;
 
 void initBuzzer(void)
 {
-    initBuzzerHardware();
+    initBuzzerController();
 
     selectMenuItem(&pulseClicksMenu,
                    settings.pulseClicks,

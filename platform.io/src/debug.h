@@ -13,6 +13,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+void initDebug(void);
+void printDebug(char *s);
+
+uint32_t getGPIO(uint32_t gpio_index);
+
 void debugBeep(void);
 void debugWait(uint32_t ms);
 void debugBit(bool value);

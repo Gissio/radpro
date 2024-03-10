@@ -298,6 +298,12 @@ parser.add_argument('-p', '--port',
 parser.add_argument('--get-device-id',
                     action='store_true',
                     help='get device id')
+parser.add_argument('--get-device-battery-voltage',
+                    action='store_true',
+                    help='get device battery voltage (per cell)')
+parser.add_argument('--get-device-temperature',
+                    action='store_true',
+                    help='get device temperature')
 parser.add_argument('--no-sync-time',
                     action='store_true',
                     help='do not synchronize device\'s date and time')
@@ -330,7 +336,7 @@ parser.add_argument('--download-datalog',
                     help='download the datalog to a file')
 parser.add_argument('--get-tube-rate',
                     action='store_true',
-                    help='get tube instantaneous rate (cpm)')
+                    help='get tube instantaneous rate (in cpm)')
 parser.add_argument('--get-tube-conversion-factor',
                     action='store_true',
                     help='get tube conversion factor')
@@ -363,6 +369,8 @@ except Exception as e:
 
 if not args.no_sync_time:
     if not args.get_device_id and\
+            not args.get_device_battery_voltage and\
+            not args.get_device_temperature and\
             not args.get_tube_rate and\
             not args.get_tube_hv_duty_cycle and\
             not args.get_tube_hv_frequency and\
@@ -380,6 +388,12 @@ if args.reset_life_stats:
 
 if args.get_device_id:
     show_property(device, 'deviceId')
+
+if args.get_device_battery_voltage:
+    show_property(device, 'deviceBatteryVoltage')
+
+if args.get_device_temperature:
+    show_property(device, 'deviceTemperature')
 
 if args.get_tube_rate:
     show_property(device, 'tubeRate')

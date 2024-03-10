@@ -27,13 +27,16 @@
 
 #endif
 
+#define EVENT_QUEUE_SIZE 16
+#define EVENT_QUEUE_MASK (EVENT_QUEUE_SIZE - 1)
+
 static struct
 {
     bool isInitialized;
 
     bool wasKeyDown[KEY_NUM];
 
-    enum Key pressedKey;
+    Key pressedKey;
     uint32_t pressedTicks;
 
 #if defined(KEYBOARD_5KEYS)
@@ -42,13 +45,14 @@ static struct
 
 #endif
 
-    volatile enum Event event;
-    volatile enum Event lastEvent;
+    volatile uint32_t eventQueueHead;
+    volatile uint32_t eventQueueTail;
+    volatile Event eventQueue[EVENT_QUEUE_SIZE];
 } keyboard;
 
 void initKeyboard(void)
 {
-    initKeyboardHardware();
+    initKeyboardController();
 
     keyboard.pressedKey = KEY_NONE;
     keyboard.isInitialized = true;
@@ -69,7 +73,7 @@ void onKeyboardTick(void)
     if (!keyboard.isInitialized)
         return;
 
-    enum Event event = EVENT_NONE;
+    Event event = EVENT_NONE;
 
     bool isKeyDown[KEY_NUM];
     getKeyboardState(isKeyDown);
@@ -86,8 +90,8 @@ void onKeyboardTick(void)
 #if defined(KEYBOARD_5KEYS)
 
             if (!(((keyboard.mode == KEYBOARD_MODE_MEASUREMENT) &&
-                 (i == KEY_LEFT)) ||
-                (i == KEY_SELECT)))
+                   (i == KEY_LEFT)) ||
+                  (i == KEY_SELECT)))
                 event = i;
 
 #endif
@@ -195,10 +199,13 @@ void onKeyboardTick(void)
 #endif
     }
 
-    // Send key event
+    // Enqueue key event
 
     if (event != EVENT_NONE)
-        keyboard.event = ((keyboard.event & ~0xf) + 0x10) | event;
+    {
+        keyboard.eventQueue[keyboard.eventQueueHead] = event;
+        keyboard.eventQueueHead = (keyboard.eventQueueHead + 1) & EVENT_QUEUE_MASK;
+    }
 }
 
 void setKeyboardMode(KeyboardMode mode)
@@ -212,16 +219,13 @@ void setKeyboardMode(KeyboardMode mode)
 #endif
 }
 
-enum Event getKeyboardEvent(void)
+Event getKeyboardEvent(void)
 {
-    volatile enum Event event = keyboard.event;
+    if (keyboard.eventQueueHead == keyboard.eventQueueTail)
+        return EVENT_NONE;
 
-    if (keyboard.lastEvent != event)
-    {
-        keyboard.lastEvent = event;
+    Event event = keyboard.eventQueue[keyboard.eventQueueTail];
+    keyboard.eventQueueTail = (keyboard.eventQueueTail + 1) & EVENT_QUEUE_MASK;
 
-        return event & 0xf;
-    }
-
-    return EVENT_NONE;
+    return event;
 }

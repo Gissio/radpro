@@ -1,38 +1,38 @@
 {
-  "build": {
-    "core": "stm32",
-    "cpu": "cortex-m0plus",
-    "extra_flags": "-DSTM32 -DSTM32G0 -DSTM32G070xx",
-    "f_cpu": "64000000L",
-    "mcu": "stm32g070cbt6",
-    "product_line": "STM32G070xx"
-  },
-  "debug": {
-    "default_tools": [
-      "stlink"
+    "build": {
+        "core": "stm32",
+        "cpu": "cortex-m0plus",
+        "extra_flags": "-D STM32 -D STM32G0 -D STM32G070xx",
+        "f_cpu": "64000000L",
+        "mcu": "stm32g070cbt6",
+        "product_line": "STM32G070xx"
+    },
+    "debug": {
+        "default_tools": [
+            "stlink"
+        ],
+        "jlink_device": "STM32G070CB",
+        "openocd_target": "stm32g0x",
+        "svd_path": "STM32G070.svd"
+    },
+    "frameworks": [
+        "cmsis",
+        "libopencm3"
     ],
-    "jlink_device": "STM32G070CB",
-    "openocd_target": "stm32g0x",
-    "svd_path": "STM32G070.svd"
-  },
-  "frameworks": [
-    "cmsis",
-    "libopencm3"
-  ],
-  "name": "STM32G070CB",
-  "upload": {
-    "maximum_ram_size": 32768,
-    "maximum_size": 131072,
-    "protocol": "stlink",
-    "protocols": [
-      "jlink",
-      "cmsis-dap",
-      "stlink",
-      "blackmagic",
-      "mbed",
-      "dfu"
-    ]
-  },
-  "url": "https://www.st.com/",
-  "vendor": "ST"
+    "name": "STM32G070CB",
+    "upload": {
+        "maximum_ram_size": 32768,
+        "maximum_size": 131072,
+        "protocol": "stlink",
+        "protocols": [
+            "jlink",
+            "cmsis-dap",
+            "stlink",
+            "blackmagic",
+            "mbed",
+            "dfu"
+        ]
+    },
+    "url": "https://www.st.com/",
+    "vendor": "ST"
 }

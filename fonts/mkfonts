@@ -6,8 +6,14 @@
 ./fontconv.exe -s '0x30-0x38' radpro-symbols5.bdf ../platform.io/src/fonts/font_symbols5.h
 ./fontconv.exe -s '0x40-0x56' radpro-chess8.bdf ../platform.io/src/fonts/font_chess8.h
 
-./fontconv.exe -p 17 -d 4 -c 12 -b 2 -s '0x20-0x7e,0xb0,0xb1,0xb5' radpro-Roboto-Medium.ttf ../platform.io/src/fonts/font_robotoR12_2.h
-./fontconv.exe -p 25 -c 18 -b 2 -s '0x20-0x81,0xb5' radpro-Roboto-Medium.ttf ../platform.io/src/fonts/font_robotoR18_2.h
-./fontconv.exe -p 68 -c 48 -b 2 -s '0x2e,0x30-0x39,0x7f' radpro-Roboto-Medium.ttf ../platform.io/src/fonts/font_robotoR48_2_digits.h
-./fontconv.exe -p 30 -b 2 -s '0x30-0x38' radpro-Material-Symbols.ttf ../platform.io/src/fonts/font_symbols30_2.h
-./fontconv.exe -p 25 -b 2 -s '0x40-0x47' radpro-chess-FreeSerif.ttf ../platform.io/src/fonts/font_chess25_2.h
+./fontconv.exe -b 3 -p 17 -d 4 -c 12 -s '0x20-0x7e,0xb0,0xb1,0xb5' radpro-Roboto-Medium.ttf ../platform.io/src/fonts/font_robotoR12_3.h
+./fontconv.exe -b 3 -p 25 -c 18 -s '0x20-0x81,0xb5' radpro-Roboto-Medium.ttf ../platform.io/src/fonts/font_robotoR18_3.h
+./fontconv.exe -b 3 -p 68 -c 48 -s '0x2e,0x30-0x39,0x7f' radpro-Roboto-Medium.ttf ../platform.io/src/fonts/font_robotoR48_3_digits.h
+./fontconv.exe -b 3 -p 30 -s '0x30-0x38' radpro-Material-Symbols.ttf ../platform.io/src/fonts/font_symbols30_3.h
+./fontconv.exe -b 3 -p 25 -s '0x40-0x47' radpro-chess-FreeSerif.ttf ../platform.io/src/fonts/font_chess25_3.h
+
+./fontconv.exe -b 4 -p 17 -d 4 -c 12 -s '0x20-0x7e,0xb0,0xb1,0xb5' radpro-Roboto-Medium.ttf ../platform.io/src/fonts/font_robotoR12_4.h
+./fontconv.exe -b 4 -p 25 -c 18 -s '0x20-0x81,0xb5' radpro-Roboto-Medium.ttf ../platform.io/src/fonts/font_robotoR18_4.h
+./fontconv.exe -b 4 -p 68 -c 48 -s '0x2e,0x30-0x39,0x7f' radpro-Roboto-Medium.ttf ../platform.io/src/fonts/font_robotoR48_4_digits.h
+./fontconv.exe -b 4 -p 30 -s '0x30-0x38' radpro-Material-Symbols.ttf ../platform.io/src/fonts/font_symbols30_4.h
+./fontconv.exe -b 4 -p 25 -s '0x40-0x47' radpro-chess-FreeSerif.ttf ../platform.io/src/fonts/font_chess25_4.h

@@ -29,7 +29,7 @@ void selectMenuItem(const Menu *menu,
         menu->state->startIndex = optionsNum - menuLineNum;
 }
 
-void onMenuEvent(const View *view, enum Event event)
+void onMenuEvent(const View *view, Event event)
 {
     const Menu *menu = (const Menu *)view->userdata;
     MenuState *menuState = menu->state;

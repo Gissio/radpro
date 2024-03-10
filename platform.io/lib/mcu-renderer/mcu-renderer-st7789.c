@@ -175,14 +175,16 @@ void mr_st7789_draw_textbuffer(mr_t *mr,
 {
     mr_st7789_set_rectangle(mr, rectangle);
 
-    for (int16_t y = 0;
-         y < rectangle->height;
-         y++)
+    mr_point_t position;
+
+    for (position.y = 0;
+         position.y < rectangle->height;
+         position.y++)
     {
-        for (int16_t x = 0;
-             x < rectangle->width;
-             x++)
-            mr_send16(mr, mr->blend_table[buffer[x]]);
+        for (position.x = 0;
+             position.x < rectangle->width;
+             position.x++)
+            mr_send16(mr, mr->blend_table[buffer[position.x]]);
 
         buffer += buffer_pitch;
     }

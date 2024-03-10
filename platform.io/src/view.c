@@ -20,35 +20,61 @@ static struct
     const View *currentView;
 
     bool drawUpdate;
+
+    bool displayEnabled;
 } view;
 
 void dispatchViewEvents(void)
 {
+    syncTimerThread();
+
+#if defined(DISPLAY_COLOR)
+    bool displayOn = isDisplayOn();
+#endif
+    bool displayTimerActive = isDisplayTimerActive();
+
     // Key events
 
-    enum Event event = getKeyboardEvent();
-    if (event != EVENT_NONE)
+    while (true)
     {
-#if defined(DISPLAY_MONOCHROME)
+        Event event = getKeyboardEvent();
+        if (event == EVENT_NONE)
+            break;
 
+#if defined(DISPLAY_MONOCHROME)
         if (((settings.displaySleep == DISPLAY_SLEEP_ALWAYS_OFF) ||
              (settings.displaySleep == DISPLAY_SLEEP_PULSE_FLASHES)) ||
-            isDisplayTimerActive())
-
+            displayTimerActive)
 #elif defined(DISPLAY_COLOR)
-
-        if (isDisplayTimerActive())
-
+        if (displayTimerActive)
 #endif
         {
             if (event == EVENT_KEY_POWER)
-                setPowerOffRequest(true);
+                requestPowerOff();
             else
-                view.currentView->onEvent(view.currentView, event);
-        }
+            {
+                triggerDisplay();
 
-        triggerDisplay();
+                view.currentView->onEvent(view.currentView, event);
+            }
+        }
+        else
+            triggerDisplay();
     }
+
+    // Draw events
+
+#if defined(DISPLAY_COLOR)
+    if (displayOn &&
+        !displayTimerActive)
+    {
+        setDisplayBacklight(false);
+        setDisplayOn(false);
+    }
+
+    if (displayOn != displayTimerActive)
+        view.drawUpdate = displayTimerActive;
+#endif
 
     if (view.drawUpdate)
     {
@@ -60,6 +86,15 @@ void dispatchViewEvents(void)
 
         refreshDisplay();
     }
+
+#if defined(DISPLAY_COLOR)
+    if (!displayOn &&
+        displayTimerActive)
+    {
+        setDisplayBacklight(true);
+        setDisplayOn(true);
+    }
+#endif
 }
 
 void setView(const View *newView)

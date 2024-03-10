@@ -46,6 +46,64 @@
 
 #define FONT_GAME font_chess8
 
+#elif defined(DISPLAY_320X240) || defined(DISPLAY_240X320)
+
+#if defined(DISPLAY_FONT_3BPP)
+
+#include "fonts/font_robotoR12_3.h"
+#include "fonts/font_robotoR18_3.h"
+#include "fonts/font_robotoR48_3_digits.h"
+#include "fonts/font_symbols30_3.h"
+#include "fonts/font_chess25_3.h"
+
+#define FONT_SMALL font_robotoR12_3
+#define FONT_SMALL_CAP_HEIGHT FONT_ROBOTOR12_3_CAP_HEIGHT
+#define FONT_SMALL_LINE_HEIGHT FONT_ROBOTOR12_3_LINE_HEIGHT
+
+#define FONT_MEDIUM font_robotoR18_3
+#define FONT_MEDIUM_CAP_HEIGHT FONT_ROBOTOR18_3_CAP_HEIGHT
+#define FONT_MEDIUM_LINE_HEIGHT FONT_ROBOTOR18_3_LINE_HEIGHT
+
+#define FONT_LARGE font_robotoR48_3_digits
+#define FONT_LARGE_CAP_HEIGHT FONT_ROBOTOR48_3_DIGITS_CAP_HEIGHT
+#define FONT_LARGE_LINE_HEIGHT FONT_ROBOTOR48_3_DIGITS_LINE_HEIGHT
+
+#define FONT_SYMBOLS font_symbols30_3
+#define FONT_SYMBOLS_LINE_HEIGHT FONT_SYMBOLS30_3_LINE_HEIGHT
+
+#define FONT_GAME font_chess25_3
+
+#else
+
+#include "fonts/font_robotoR12_4.h"
+#include "fonts/font_robotoR18_4.h"
+#include "fonts/font_robotoR48_4_digits.h"
+#include "fonts/font_symbols30_4.h"
+#include "fonts/font_chess25_4.h"
+
+#define FONT_SMALL font_robotoR12_4
+#define FONT_SMALL_CAP_HEIGHT FONT_ROBOTOR12_4_CAP_HEIGHT
+#define FONT_SMALL_LINE_HEIGHT FONT_ROBOTOR12_4_LINE_HEIGHT
+
+#define FONT_MEDIUM font_robotoR18_4
+#define FONT_MEDIUM_CAP_HEIGHT FONT_ROBOTOR18_4_CAP_HEIGHT
+#define FONT_MEDIUM_LINE_HEIGHT FONT_ROBOTOR18_4_LINE_HEIGHT
+
+#define FONT_LARGE font_robotoR48_4_digits
+#define FONT_LARGE_CAP_HEIGHT FONT_ROBOTOR48_4_DIGITS_CAP_HEIGHT
+#define FONT_LARGE_LINE_HEIGHT FONT_ROBOTOR48_4_DIGITS_LINE_HEIGHT
+
+#define FONT_SYMBOLS font_symbols30_4
+#define FONT_SYMBOLS_LINE_HEIGHT FONT_SYMBOLS30_4_LINE_HEIGHT
+
+#define FONT_GAME font_chess25_4
+
+#endif
+
+#endif
+
+#if defined(DISPLAY_128X64)
+
 #define NOTIFICATION_TOP_VERTICAL_OFFSET 0
 #define NOTIFICATION_BOTTOM_VERTICAL_OFFSET 4
 
@@ -55,6 +113,7 @@
 
 #define MENU_TITLE_HEIGHT 8
 #define MENU_LINE_HEIGHT 12
+#define MENU_LINE_OFFSET_X 3
 #define MENU_SUBMENU_WIDTH 5
 #define MENU_CHECKED_WIDTH 8
 
@@ -112,21 +171,23 @@
 
 #elif defined(DISPLAY_320X240)
 
+#define DATA_X 26
+
 #define MENU_TITLE_HEIGHT 28
 #define MENU_LINE_HEIGHT 48
 
-#define MEASUREMENT_VALUE_WIDTH 210
+#define MEASUREMENT_VALUE_WIDTH 202
 #define MEASUREMENT_VALUE_HEIGHT (MEASUREMENT_TIME_Y - MEASUREMENT_VALUE_Y)
 #define MEASUREMENT_CONFIDENCE_X (MEASUREMENT_VALUE_X + MEASUREMENT_VALUE_WIDTH)
 #define MEASUREMENT_CONFIDENCE_Y MEASUREMENT_VALUE_Y
-#define MEASUREMENT_CONFIDENCE_HEIGHT 22
+#define MEASUREMENT_CONFIDENCE_HEIGHT 32
 #define MEASUREMENT_CONFIDENCE_OFFSET_X 0
-#define MEASUREMENT_CONFIDENCE_OFFSET_Y 2
+#define MEASUREMENT_CONFIDENCE_OFFSET_Y 10
 #define MEASUREMENT_UNIT_X MEASUREMENT_CONFIDENCE_X
 #define MEASUREMENT_UNIT_Y (MEASUREMENT_CONFIDENCE_Y + MEASUREMENT_CONFIDENCE_HEIGHT)
 #define MEASUREMENT_UNIT_HEIGHT (MEASUREMENT_VALUE_HEIGHT - MEASUREMENT_CONFIDENCE_HEIGHT)
 #define MEASUREMENT_UNIT_OFFSET_X 0
-#define MEASUREMENT_UNIT_OFFSET_Y 10
+#define MEASUREMENT_UNIT_OFFSET_Y 0
 #define MEASUREMENT_TIME_Y 167
 #define MEASUREMENT_TIME_WIDTH MEASUREMENT_VALUE_WIDTH
 #define MEASUREMENT_TIME_VALUE_HEIGHT (DISPLAY_HEIGHT - MEASUREMENT_TIME_VALUE_Y)
@@ -158,6 +219,8 @@
 #define GAME_SPACE_HEIGHT (DISPLAY_HEIGHT - GAME_SPACE_Y)
 
 #elif defined(DISPLAY_240X320)
+
+#define DATA_X 34
 
 #define MENU_TITLE_HEIGHT 24
 #define MENU_LINE_HEIGHT 46
@@ -229,38 +292,14 @@
 
 #if defined(DISPLAY_320X240) || defined(DISPLAY_240X320)
 
-#include "fonts/font_robotoR12_2.h"
-#include "fonts/font_robotoR18_2.h"
-#include "fonts/font_robotoR48_2_digits.h"
-#include "fonts/font_symbols30_2.h"
-#include "fonts/font_chess25_2.h"
-
-#define FONT_SMALL font_robotoR12_2
-#define FONT_SMALL_CAP_HEIGHT FONT_ROBOTOR12_2_CAP_HEIGHT
-#define FONT_SMALL_LINE_HEIGHT FONT_ROBOTOR12_2_LINE_HEIGHT
-
-#define FONT_MEDIUM font_robotoR18_2
-#define FONT_MEDIUM_CAP_HEIGHT FONT_ROBOTOR18_2_CAP_HEIGHT
-#define FONT_MEDIUM_LINE_HEIGHT FONT_ROBOTOR18_2_LINE_HEIGHT
-
-#define FONT_LARGE font_robotoR48_2_digits
-#define FONT_LARGE_CAP_HEIGHT FONT_ROBOTOR48_2_DIGITS_CAP_HEIGHT
-#define FONT_LARGE_LINE_HEIGHT FONT_ROBOTOR48_2_DIGITS_LINE_HEIGHT
-
-#define FONT_SYMBOLS font_symbols30_2
-#define FONT_SYMBOLS_LINE_HEIGHT FONT_SYMBOLS30_2_LINE_HEIGHT
-
-#define FONT_GAME font_chess25_2
-
 #define NOTIFICATION_TOP_VERTICAL_OFFSET -1
 #define NOTIFICATION_BOTTOM_VERTICAL_OFFSET 9
-
-#define DATA_X 34
 
 #define TITLE_HEIGHT 60
 
 #define MENU_SUBMENU_WIDTH 12
 #define MENU_CHECKED_WIDTH 21
+#define MENU_LINE_OFFSET_X 11
 
 #define MEASUREMENT_VALUE_OFFSET_X (DATA_X - 1)
 #define MEASUREMENT_VALUE_OFFSET_Y -9
@@ -304,7 +343,6 @@
 #define MENU_TITLE_BOTTOM (MENU_TITLE_Y + MENU_TITLE_HEIGHT)
 #define MENU_LINES_TOP MENU_TITLE_BOTTOM
 #define MENU_LINE_NUM ((DISPLAY_HEIGHT - MENU_TITLE_BOTTOM) / MENU_LINE_HEIGHT)
-#define MENU_LINE_OFFSET_X (FONT_MEDIUM_CAP_HEIGHT / 3)
 
 #define MEASUREMENT_VALUE_X 0
 #define MEASUREMENT_VALUE_Y (TITLE_Y + TITLE_HEIGHT)
@@ -379,6 +417,8 @@ const uint32_t menuLineNum = MENU_LINE_NUM;
 
 mr_t mr;
 
+bool displayOn;
+
 // Linear display brightness values (gamma corrected):
 // value = 8000 * [0.25, 0.5, 0.75, 1] ^ 2.2
 uint16_t displayBrightnessValue[] = {
@@ -413,79 +453,79 @@ typedef enum
 
 static const mr_color displayColors[][3] = {
     // Element active
-    {mr_get_color(0x181818),
+    {mr_get_color(0x1a1a1a),
      mr_get_color(0xffffff),
-     mr_get_color(0x686800)},
+     mr_get_color(0x686c00)}, // 0x686800
 
-    // Element neutral
-    {mr_get_color(0x606060),
-     mr_get_color(0xa8a8a8),
-     mr_get_color(0x484800)},
+    // Element neutral (on container background)
+    {mr_get_color(0x626262),
+     mr_get_color(0xa7a7a7),
+     mr_get_color(0x474700)},
 
     // Container background
-    {mr_get_color(0xf8f8f8),
-     mr_get_color(0x303030),
+    {mr_get_color(0xf7f7f7),
+     mr_get_color(0x2e2f2e), // 0x2e2e2e
      mr_get_color(0x000000)},
 
     // Container global
-    {mr_get_color(0xffffff),
-     mr_get_color(0x383838),
+    {mr_get_color(0xfcfdfc), // 0xfcfcfc
+     mr_get_color(0x363736), // 0x363636
      mr_get_color(0x000000)},
 
     // Instrument enhanced primary
-    {mr_get_color(0x1470d0),
+    {mr_get_color(0x16ce4),
      mr_get_color(0x28a0ff),
-     mr_get_color(0x104c28)},
+     mr_get_color(0x0f4c24)},
 
-    // Instrument enhanced tertiary over instrument frame primary
-    {mr_get_color(0xb8d4f0),
+    // Instrument enhanced tertiary (on instrument frame primary)
+    {mr_get_color(0xb9d2f6),
      mr_get_color(0x385c78),
-     mr_get_color(0x001008)},
+     mr_get_color(0x030f07)},
 
-    // Instrument enhanced tertiary over instrument frame tertiary
-    {mr_get_color(0xa0b8d8),
-     mr_get_color(0x204060),
-     mr_get_color(0x203008)},
+    // Instrument enhanced tertiary (on instrument frame tertiary)
+    {mr_get_color(0x9cb6da),
+     mr_get_color(0x1c405c),
+     mr_get_color(0x222e07)},
 
     // Instrument frame primary
     {mr_get_color(0xffffff),
      mr_get_color(0x404040),
-     mr_get_color(0x000000)},
+     mr_get_color(0x030300)},
 
     // Instrument frame tertiary
-    {mr_get_color(0xd8d8d8),
-     mr_get_color(0x181818),
-     mr_get_color(0x282800)},
+    {mr_get_color(0xd6d6d6),
+     mr_get_color(0x141414),
+     mr_get_color(0x292900)},
 
     // Alarm
-    {mr_get_color(0xe01818),
-     mr_get_color(0xe82828),
-     mr_get_color(0xb01818)},
+    {mr_get_color(0xdf1b1b),
+     mr_get_color(0xe52626),
+     mr_get_color(0xac1515)},
 
     // Normal enabled background
     {mr_get_color(0xffffff),
-     mr_get_color(0x404040),
+     mr_get_color(0x424242),
      mr_get_color(0x000000)},
 
-    // Flat checked background
-    {mr_get_color(0xe8ecf0),
-     mr_get_color(0x282828),
-     mr_get_color(0x080c10)},
+    // Flat checked background (on container global)
+    {mr_get_color(0xe7ebf1),
+     mr_get_color(0x34404a),  // Alt: 0x35393f
+     mr_get_color(0x050a06)}, // Alt: 0x04080e
 
-    // On flat active
-    {mr_get_color(0x181818),
+    // On flat active (on container global)
+    {mr_get_color(0x191919),
      mr_get_color(0xffffff),
-     mr_get_color(0x686800)},
+     mr_get_color(0x686c00)}, // 0x686800
 
-    // On flat neutral
-    {mr_get_color(0x707070),
-     mr_get_color(0xb0b0b0),
-     mr_get_color(0x404000)},
+    // On flat neutral (on container global)
+    {mr_get_color(0x717171),
+     mr_get_color(0xaaadaa), // 0xaaaaaa
+     mr_get_color(0x424200)},
 
     // Selected enabled background
-    {mr_get_color(0x305890),
-     mr_get_color(0x5878a0),
-     mr_get_color(0x183020)},
+    {mr_get_color(0x305792),
+     mr_get_color(0x5779a2),
+     mr_get_color(0x193422)},
 
     // Game square black
     {mr_get_color(0xb89070),
@@ -512,7 +552,8 @@ static const mr_color displayColors[][3] = {
 
 void initDisplay(void)
 {
-    initDisplayHardware();
+    initDisplayController();
+    initDisplayBacklight();
 
 #if defined(DISPLAY_MONOCHROME)
     selectMenuItem(&displayContrastMenu,
@@ -534,14 +575,21 @@ void initDisplay(void)
 
 // Drawing functions
 
-void setDisplay(bool value)
+void setDisplayOn(bool value)
 {
+    displayOn = value;
+
     mr_set_display(&mr, value);
+}
+
+bool isDisplayOn(void)
+{
+    return displayOn;
 }
 
 void refreshDisplay(void)
 {
-#if !defined(SDLSIM)
+#if !defined(SIMULATOR)
     mr_refresh_display(&mr);
 #endif
 }
@@ -640,7 +688,7 @@ void drawStatusBar(void)
     // Date and time
 
     RTCDateTime dateTime;
-    getRTCDateTime(&dateTime);
+    getDeviceDateTime(&dateTime);
 
     char timeString[6] = "";
 
@@ -666,7 +714,7 @@ void drawStatusBar(void)
 
     // Symbols
 
-    int8_t batteryLevel = getBatteryLevel();
+    int8_t batteryLevel = getDeviceBatteryLevel();
 
     char symbolsString[4] = "";
     uint32_t bufferIndex = 0;
@@ -948,7 +996,7 @@ void drawMeasurement(const char *title,
                      const char *stateString,
                      const char *stateValueString,
                      const char *stateUnitString,
-                     enum MeasurementStyle style)
+                     MeasurementStyle style)
 {
     drawTitle(title);
 
@@ -1391,7 +1439,7 @@ void drawStatistics(void)
         case 4:
             strcpy(key, "Dead-time");
 #endif
-            float deadTime = getDeadTime();
+            float deadTime = getTubeDeadTime();
             if (deadTime >= 1)
                 strcpy(valueString, "-");
             else
@@ -1826,7 +1874,11 @@ static const char *const displaySleepMenuOptions[] = {
 #if defined(DISPLAY_MONOCHROME)
     "Off",
 #endif
+#if defined(DISPLAY_240X320)
+    "On for 30 sec.",
+#else
     "On for 30 seconds",
+#endif
     "On for 1 minute",
     "On for 2 minutes",
     "On for 5 minutes",

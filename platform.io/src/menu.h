@@ -50,6 +50,6 @@ void selectMenuItem(const Menu *menu,
                     uint32_t index,
                     uint32_t optionsNum);
 
-void onMenuEvent(const View *view, enum Event event);
+void onMenuEvent(const View *view, Event event);
 
 #endif

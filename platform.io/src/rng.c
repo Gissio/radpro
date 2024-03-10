@@ -21,7 +21,7 @@
 
 #define RNG_TEXT_MAX_SIZE 16
 
-enum RNGMode
+typedef enum
 {
     RNG_MODE_ALPHANUMERIC,
     RNG_MODE_FULL_ASCII,
@@ -33,7 +33,7 @@ enum RNGMode
     RNG_MODE_6SIDED_DICE,
     RNG_MODE_4SIDED_DICE,
     RNG_MODE_COIN_FLIP,
-};
+} RNGMode;
 
 static const uint8_t rngModeRanges[] = {62, 94, 16, 10, 20, 12, 8, 6, 4, 2};
 
@@ -68,7 +68,7 @@ static struct
     uint32_t lastPulseTimeCount;
     bool bitFlip;
 
-    enum RNGMode mode;
+    RNGMode mode;
     uint32_t fdrN;
     uint32_t fdrV;
     uint32_t fdrC;
@@ -200,7 +200,7 @@ static int32_t getFastDiceRollerInt(void)
     }
 }
 
-static void initFastDiceRoller(enum RNGMode mode)
+static void initFastDiceRoller(RNGMode mode)
 {
     rng.mode = mode;
     rng.fdrN = rngModeRanges[mode];
@@ -310,7 +310,7 @@ const View rngMenuView = {
 
 // RNG view
 
-static void onRNGEvent(const View *view, enum Event event)
+static void onRNGEvent(const View *view, Event event)
 {
     switch (event)
     {

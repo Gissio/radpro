@@ -19,6 +19,7 @@
 #include "power.h"
 #include "pulseled.h"
 #include "settings.h"
+#include "vibrator.h"
 
 #define DEBUG_BIT_LENGTH 100
 #define DEBUG_BIT0_LENGTH 1
@@ -27,17 +28,21 @@
 void debugBeep(void)
 {
     setBuzzer(true);
-#if defined(PULSE_LED)
+#if defined(PULSELED)
     setPulseLED(true);
 #endif
-
+#if defined(VIBRATOR)
+    setVibrator(true);
+#endif
     sleep(100);
 
-#if defined(PULSE_LED)
+    setBuzzer(false);
+#if defined(PULSELED)
     setPulseLED(false);
 #endif
-    setBuzzer(false);
-
+#if defined(VIBRATOR)
+    setVibrator(false);
+#endif
     sleep(400);
 }
 
@@ -51,34 +56,29 @@ void debugWait(uint32_t ms)
 
 void debugBit(bool value)
 {
-    uint32_t onTime;
-    uint32_t offTime;
-
-    switch (value)
-    {
-    case 0:
-        onTime = DEBUG_BIT0_LENGTH;
-        offTime = DEBUG_BIT_LENGTH - DEBUG_BIT0_LENGTH;
-
-        break;
-
-    case 1:
-        onTime = DEBUG_BIT1_LENGTH;
-        offTime = DEBUG_BIT_LENGTH - DEBUG_BIT1_LENGTH;
-
-        break;
-    }
-
-#if defined(PULSE_LED)
+    setBuzzer(true);
+#if defined(PULSELED)
     setPulseLED(true);
 #endif
-    setBuzzer(true);
-    debugWait(onTime);
-#if defined(PULSE_LED)
+#if defined(VIBRATOR)
+    setVibrator(true);
+#endif
+    if (value)
+        debugWait(DEBUG_BIT0_LENGTH);
+    else
+        debugWait(DEBUG_BIT1_LENGTH);
+
+    setBuzzer(false);
+#if defined(PULSELED)
     setPulseLED(false);
 #endif
-    setBuzzer(false);
-    debugWait(offTime);
+#if defined(VIBRATOR)
+    setVibrator(false);
+#endif
+    if (value)
+        debugWait(DEBUG_BIT_LENGTH - DEBUG_BIT0_LENGTH);
+    else
+        debugWait(DEBUG_BIT_LENGTH - DEBUG_BIT1_LENGTH);
 }
 
 void debugUInt32(uint32_t value)
@@ -92,55 +92,32 @@ void debugUInt32(uint32_t value)
     }
 }
 
-#if defined(STM32)
-
-#include <libopencm3/stm32/gpio.h>
-
-#elif defined(SDLSIM)
-
-uint32_t GPIOA_IDR = 0x01234567;
-uint32_t GPIOB_IDR = 0x89abcdef;
-uint32_t GPIOC_IDR = 0x02468ace;
-uint32_t GPIOD_IDR = 0x13579bdf;
-#define GPIOA 0
-#define GPIOB 0
-#define GPIO0 0
-#define GPIO11 0
-
-void gpio_set(uint32_t a, uint32_t b)
-{
-}
-
-void gpio_clear(uint32_t a, uint32_t b)
-{
-}
-
-#endif
-
 extern const uint8_t font_tiny5[];
 
 void runTestMode(void)
 {
     sleep(500);
 
+    setDisplayOn(true);
+
     while (true)
     {
         char lines[8][32];
 
         strcpy(lines[0], "GPIOA: ");
-        strcatUInt32Hex(lines[0], GPIOA_IDR);
+        strcatUInt32Hex(lines[0], getGPIO(0));
 
         strcpy(lines[1], "GPIOB: ");
-        strcatUInt32Hex(lines[1], GPIOB_IDR);
+        strcatUInt32Hex(lines[1], getGPIO(1));
 
         strcpy(lines[2], "GPIOC: ");
-        strcatUInt32Hex(lines[2], GPIOC_IDR);
+        strcatUInt32Hex(lines[2], getGPIO(2));
 
         strcpy(lines[3], "GPIOD: ");
-        strcatUInt32Hex(lines[3], GPIOD_IDR);
+        strcatUInt32Hex(lines[3], getGPIO(3));
 
         strcpy(lines[4], "ADC: ");
-        strcatUInt32Hex(lines[4], readADC(4, 7));
+        strcatUInt32Hex(lines[4], 0);
 
         strcpy(lines[5], "TIM1: ");
         strcatUInt32Hex(lines[5], 0);
@@ -151,16 +128,7 @@ void runTestMode(void)
         strcpy(lines[7], "TIM3: ");
         strcatUInt32Hex(lines[7], 0);
 
-        debugBeep();
         drawTestMode(lines);
-        debugBeep();
         refreshDisplay();
-        debugBeep();
-        triggerDisplay();
-#if defined(DISPLAY_MONOCHROME)
-        setDisplay(true);
-#endif
-
-        debugBeep();
     }
 }

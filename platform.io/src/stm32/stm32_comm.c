@@ -1,6 +1,6 @@
 /*
  * Rad Pro
- * STM32 USART/USB communications
+ * STM32 communications
  *
  * (C) 2022-2024 Gissio
  *
@@ -11,23 +11,7 @@
 
 #include <string.h>
 
-#include <libopencm3/cm3/nvic.h>
-
-#include <libopencm3/stm32/gpio.h>
-#include <libopencm3/stm32/rcc.h>
-
 #include "device.h"
-
-#if defined(USART_INTERFACE)
-
-#include <libopencm3/stm32/usart.h>
-
-#elif defined(USB_INTERFACE)
-
-#include <libopencm3/usb/cdc.h>
-#include <libopencm3/usb/usbd.h>
-
-#endif
 
 #include "../comm.h"
 #include "../cstring.h"
@@ -36,103 +20,59 @@
 
 #if defined(USART_INTERFACE)
 
-#if defined(STM32F0) || defined(STM32G0)
-
-static bool usart_recv_ready(uint32_t usart)
-{
-    return USART_ISR(usart) & USART_ISR_RXNE;
-}
-
-static bool usart_send_ready(uint32_t usart)
-{
-    return USART_ISR(usart) & USART_ISR_TXE;
-}
-
-#elif defined(STM32F1)
-
-static bool usart_recv_ready(uint32_t usart)
-{
-    return (USART_SR(usart) & USART_SR_RXNE);
-}
-
-static bool usart_send_ready(uint32_t usart)
-{
-    return USART_SR(usart) & USART_SR_TXE;
-}
-
-#endif
+#define COMM_SERIAL_BAUDRATE 115200
 
 void initComm(void)
 {
-    // GPIO
-
 #if defined(STM32F0) || defined(STM32G0)
 
-    gpio_mode_setup(USART_RX_PORT,
-                    GPIO_MODE_AF,
-                    GPIO_PUPD_NONE,
-                    USART_RX_PIN);
-    gpio_set_af(USART_RX_PORT,
-                USART_RX_AF,
-                USART_RX_PIN);
+    gpio_setup_af(USART_RX_PORT,
+                  USART_RX_PIN,
+                  GPIO_OUTPUTTYPE_PUSHPULL,
+                  GPIO_OUTPUTSPEED_50MHZ,
+                  GPIO_PULL_NONE,
+                  USART_RX_AF);
 
-    gpio_mode_setup(USART_TX_PORT,
-                    GPIO_MODE_AF,
-                    GPIO_PUPD_NONE,
-                    USART_TX_PIN);
-    gpio_set_af(USART_TX_PORT,
-                USART_TX_AF,
-                USART_TX_PIN);
+    gpio_setup_af(USART_TX_PORT,
+                  USART_TX_PIN,
+                  GPIO_OUTPUTTYPE_PUSHPULL,
+                  GPIO_OUTPUTSPEED_50MHZ,
+                  GPIO_PULL_NONE,
+                  USART_TX_AF);
 
 #elif defined(STM32F1)
 
-    gpio_set_mode(USART_RX_PORT,
-                  GPIO_MODE_INPUT,
-                  GPIO_CNF_INPUT_FLOAT,
-                  USART_RX_PIN);
-    gpio_set_mode(USART_TX_PORT,
-                  GPIO_MODE_OUTPUT_50_MHZ,
-                  GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
-                  USART_TX_PIN);
+    gpio_setup(USART_RX_PORT,
+               USART_RX_PIN,
+               GPIO_MODE_INPUT_FLOATING);
+    gpio_setup(USART_TX_PORT,
+               USART_TX_PIN,
+               GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL);
 
 #endif
 
-    // USART
+    usart_setup_8n1(USART_INTERFACE,
+                    (USART_APB_FREQUENCY + COMM_SERIAL_BAUDRATE / 2) / COMM_SERIAL_BAUDRATE);
+    usart_enable_receive_interrupt(USART_INTERFACE);
 
-    rcc_periph_clock_enable(USART_RCC);
-
-    // usart_set_baudrate(USART_INTERFACE, COMM_BAUDRATE);
-    USART_BRR(USART_INTERFACE) =
-        (APB1_FREQUENCY + COMM_BAUDRATE / 2) /
-        COMM_BAUDRATE;
-
-    // usart_set_databits(USART_INTERFACE, 8);
-    // usart_set_parity(USART_INTERFACE, USART_PARITY_NONE);
-    // usart_set_stopbits(USART_INTERFACE, USART_STOPBITS_1);
-    // usart_set_flow_control(USART_INTERFACE, USART_FLOWCONTROL_NONE);
-    usart_set_mode(USART_INTERFACE, USART_MODE_TX_RX);
-
-    usart_enable_rx_interrupt(USART_INTERFACE);
-
-    nvic_set_priority(USART_IRQ, 0x80);
-    nvic_enable_irq(USART_IRQ);
-
-    usart_enable(USART_INTERFACE);
+    NVIC_SetPriority(USART_IRQ, 0x80);
+    NVIC_EnableIRQ(USART_IRQ);
 }
 
 void transmitComm(void)
 {
+    comm.bufferIndex = 0;
     comm.state = COMM_TX;
 
     if (comm.port == COMM_SERIAL)
-        usart_enable_tx_interrupt(USART_INTERFACE);
+        usart_enable_transmit_interrupt(USART_INTERFACE);
 }
 
 void USART_IRQ_HANDLER(void)
 {
-    if (usart_recv_ready(USART_INTERFACE))
+    if (usart_is_receive_ready(USART_INTERFACE))
     {
-        char c = usart_recv(USART_INTERFACE);
+        char c = usart_receive(USART_INTERFACE);
 
         if (!comm.enabled)
             return;
@@ -141,29 +81,27 @@ void USART_IRQ_HANDLER(void)
 
         if (comm.state == COMM_RX)
         {
-            if ((c >= ' ') && (comm.bufferIndex < (COMM_BUFFER_SIZE - 1)))
+            if ((c >= ' ') &&
+                (comm.bufferIndex < (COMM_BUFFER_SIZE - 1)))
                 comm.buffer[comm.bufferIndex++] = c;
             else if (c == '\n')
             {
                 comm.buffer[comm.bufferIndex] = '\0';
-                comm.bufferIndex = 0;
-
                 comm.state = COMM_RX_READY;
             }
         }
     }
 
-    if (usart_send_ready(USART_INTERFACE))
+    if (usart_is_send_ready(USART_INTERFACE))
     {
         if (comm.state == COMM_TX)
         {
             if (comm.buffer[comm.bufferIndex] != '\0')
-                usart_send(USART_INTERFACE, comm.buffer[comm.bufferIndex++]);
+                usart_send(USART_INTERFACE,
+                           comm.buffer[comm.bufferIndex++]);
             else
             {
-                usart_disable_tx_interrupt(USART_INTERFACE);
-
-                comm.bufferIndex = 0;
+                usart_disable_transmit_interrupt(USART_INTERFACE);
 
                 comm.state = COMM_TX_READY;
             }
@@ -171,228 +109,274 @@ void USART_IRQ_HANDLER(void)
     }
 }
 
-void updateCommHardware(void)
+void updateCommController(void)
 {
 }
 
 #elif defined(USB_INTERFACE)
 
-#define USB_CONTROL_PACKET_SIZE_MAX 16
-#define USB_DATA_PACKET_SIZE_MAX 64
+#include "usb.h"
+#include "usb_cdc.h"
 
-#define USB_DATA_ENDPOINT_IN 0x01
-#define USB_DATA_ENDPOINT_OUT 0x82
-#define USB_CONTROL_ENDPOINT_OUT 0x83
+#define USB_VID 0x0483
+#define USB_PID 0x5740
 
-#define USB_DEVICE_RELEASE 0x0100
+#define USB_DATA_RECEIVE_ENDPOINT 0x01
+#define USB_DATA_TRANSMIT_ENDPOINT 0x81
+#define USB_CONTROL_ENDPOINT 0x82
 
-enum
+#define USB_EP0_PACKETSIZE_MAX 0x08
+#define USB_DATA_PACKETSIZE_MAX 0x40
+#define USB_CONTROL_PACKETSIZE_MAX 0x08
+
+// Declaration of the report descriptor
+
+struct cdc_config
 {
-    USB_CONTROL_INTERFACE_INDEX,
-    USB_DATA_INTERFACE_INDEX,
-};
-
-enum
-{
-    USB_CONFIGURATION_INDEX = 1,
-};
-
-enum
-{
-    USB_MANUFACTURER_STRING = 1,
-    USB_PRODUCT_STRING,
-    USB_SERIALNUMBER_STRING,
-};
-
-static char usbSerialNumber[13];
-
-static const char *const usbStrings[] = {
-    FIRMWARE_AUTHOR,
-    FIRMWARE_NAME,
-    usbSerialNumber,
-};
-
-static usbd_device *usbdDevice = NULL;
-static uint8_t usbControlBuffer[128];
-
-// Control interface
-
-static const struct usb_endpoint_descriptor usbControlEndpoints[] = {
-    {
-        .bLength = USB_DT_ENDPOINT_SIZE,
-        .bDescriptorType = USB_DT_ENDPOINT,
-        .bEndpointAddress = USB_CONTROL_ENDPOINT_OUT,
-        .bmAttributes = USB_ENDPOINT_ATTR_INTERRUPT,
-        .wMaxPacketSize = USB_CONTROL_PACKET_SIZE_MAX,
-        .bInterval = 16, // Polling interval (2 ^ bInterval - 1 ms)
-    },
-};
-
-static const struct
-{
-    struct usb_cdc_header_descriptor header;
-    struct usb_cdc_call_management_descriptor call_mgmt;
-    struct usb_cdc_acm_descriptor acm;
-    struct usb_cdc_union_descriptor cdc_union;
-} __attribute__((packed)) usbControlFunctionalDescriptors = {
-    .header = {
-        .bFunctionLength = sizeof(struct usb_cdc_header_descriptor),
-        .bDescriptorType = CS_INTERFACE,
-        .bDescriptorSubtype = USB_CDC_TYPE_HEADER,
-        .bcdCDC = 0x0110, // CDC specification 1.10
-    },
-    .call_mgmt = {
-        .bFunctionLength = sizeof(struct usb_cdc_call_management_descriptor),
-        .bDescriptorType = CS_INTERFACE,
-        .bDescriptorSubtype = USB_CDC_TYPE_CALL_MANAGEMENT,
-        .bmCapabilities = 0, // No call management commands supported
-        .bDataInterface = USB_DATA_INTERFACE_INDEX,
-    },
-    .acm = {
-        .bFunctionLength = sizeof(struct usb_cdc_acm_descriptor), //
-        .bDescriptorType = CS_INTERFACE,
-        .bDescriptorSubtype = USB_CDC_TYPE_ACM,
-        .bmCapabilities = 0, // No ACM commands supported
-    },
-    .cdc_union = {
-        .bFunctionLength = sizeof(struct usb_cdc_union_descriptor),
-        .bDescriptorType = CS_INTERFACE,
-        .bDescriptorSubtype = USB_CDC_TYPE_UNION,
-        .bControlInterface = USB_CONTROL_INTERFACE_INDEX,
-        .bSubordinateInterface0 = USB_DATA_INTERFACE_INDEX,
-    },
-};
-
-static const struct usb_interface_descriptor usbControlInterfaces[] = {
-    {
-        .bLength = USB_DT_INTERFACE_SIZE,
-        .bDescriptorType = USB_DT_INTERFACE,
-        .bInterfaceNumber = USB_CONTROL_INTERFACE_INDEX,
-        .bAlternateSetting = 0,
-        .bNumEndpoints = sizeof(usbControlEndpoints) /
-                         sizeof(usbControlEndpoints[0]),
-        .bInterfaceClass = USB_CLASS_CDC,
-        .bInterfaceSubClass = USB_CDC_SUBCLASS_ACM,
-        .bInterfaceProtocol = USB_CDC_PROTOCOL_NONE,
-        .iInterface = 0, // Interface string descriptor: none
-        .endpoint = usbControlEndpoints,
-        .extra = &usbControlFunctionalDescriptors,
-        .extralen = sizeof(usbControlFunctionalDescriptors),
-    },
-};
-
-// Data interface
-
-static const struct usb_endpoint_descriptor usbDataEndpoints[] = {
-    {
-        .bLength = USB_DT_ENDPOINT_SIZE,
-        .bDescriptorType = USB_DT_ENDPOINT,
-        .bEndpointAddress = USB_DATA_ENDPOINT_IN,
-        .bmAttributes = USB_ENDPOINT_ATTR_BULK,
-        .wMaxPacketSize = USB_DATA_PACKET_SIZE_MAX,
-        .bInterval = 0, // Polling interval (2 ^ bInterval - 1 ms)
-    },
-    {
-        .bLength = USB_DT_ENDPOINT_SIZE,
-        .bDescriptorType = USB_DT_ENDPOINT,
-        .bEndpointAddress = USB_DATA_ENDPOINT_OUT,
-        .bmAttributes = USB_ENDPOINT_ATTR_BULK,
-        .wMaxPacketSize = USB_DATA_PACKET_SIZE_MAX,
-        .bInterval = 0, // Polling interval (2 ^ bInterval - 1 ms)
-    },
-};
-
-static const struct usb_interface_descriptor usbDataInterfaces[] = {
-    {
-        .bLength = USB_DT_INTERFACE_SIZE,
-        .bDescriptorType = USB_DT_INTERFACE,
-        .bInterfaceNumber = USB_DATA_INTERFACE_INDEX,
-        .bAlternateSetting = 0,
-        .bNumEndpoints = sizeof(usbDataEndpoints) /
-                         sizeof(usbDataEndpoints[0]),
-        .bInterfaceClass = USB_CLASS_DATA,
-        .bInterfaceSubClass = 0, // Unused with data interface
-        .bInterfaceProtocol = 0, // Unused with data interface
-        .iInterface = 0,         // Interface string descriptor: none
-        .endpoint = usbDataEndpoints,
-    },
-};
-
-// Interfaces
-
-static const struct usb_interface usbInterfaces[] = {
-    {
-        .num_altsetting = sizeof(usbControlInterfaces) /
-                          sizeof(usbControlInterfaces[0]),
-        .altsetting = usbControlInterfaces,
-    },
-    {
-        .num_altsetting = sizeof(usbDataInterfaces) /
-                          sizeof(usbDataInterfaces[0]),
-        .altsetting = usbDataInterfaces,
-    },
-};
-
-// Configuration descriptor
-
-static const struct usb_config_descriptor usbConfigurationDescriptor[] = {
-    {
-        .bLength = USB_DT_CONFIGURATION_SIZE,
-        .bDescriptorType = USB_DT_CONFIGURATION,
-        .wTotalLength = sizeof(struct usb_config_descriptor) +
-                        sizeof(usbControlInterfaces) +
-                        sizeof(usbControlEndpoints) +
-                        sizeof(usbControlFunctionalDescriptors) +
-                        sizeof(usbDataInterfaces) +
-                        sizeof(usbDataEndpoints),
-        .bNumInterfaces = sizeof(usbInterfaces) /
-                          sizeof(usbInterfaces[0]),
-        .bConfigurationValue = USB_CONFIGURATION_INDEX,
-        .iConfiguration = 0, // Interface string descriptor: none
-        .bmAttributes = USB_CONFIG_ATTR_DEFAULT,
-        .bMaxPower = 50, // Maximum power consumption in 2 mA units [100 mA]
-        .interface = usbInterfaces,
-    },
-};
+    struct usb_config_descriptor config;
+    struct usb_iad_descriptor comm_iad;
+    struct usb_interface_descriptor comm;
+    struct usb_cdc_header_desc cdc_hdr;
+    struct usb_cdc_call_mgmt_desc cdc_mgmt;
+    struct usb_cdc_acm_desc cdc_acm;
+    struct usb_cdc_union_desc cdc_union;
+    struct usb_endpoint_descriptor comm_ep;
+    struct usb_interface_descriptor data;
+    struct usb_endpoint_descriptor data_eprx;
+    struct usb_endpoint_descriptor data_eptx;
+} __attribute__((packed));
 
 // Device descriptor
 
-static const struct usb_device_descriptor usbDeviceDescriptor = {
-    .bLength = USB_DT_DEVICE_SIZE,
-    .bDescriptorType = USB_DT_DEVICE,
-    .bcdUSB = 0x0200, // USB Version (2.00)
-    .bDeviceClass = USB_CLASS_CDC,
-    .bDeviceSubClass = 0, // Unused with communications device class
-    .bDeviceProtocol = 0, // Unused with communications device class
-    .bMaxPacketSize0 = 64,
+static const struct usb_device_descriptor device_desc = {
+    .bLength = sizeof(struct usb_device_descriptor),
+    .bDescriptorType = USB_DTYPE_DEVICE,
+    .bcdUSB = VERSION_BCD(2, 0, 0),
+    .bDeviceClass = USB_CLASS_IAD,
+    .bDeviceSubClass = USB_SUBCLASS_IAD,
+    .bDeviceProtocol = USB_PROTO_IAD,
+    .bMaxPacketSize0 = USB_EP0_PACKETSIZE_MAX,
     .idVendor = USB_VID,
     .idProduct = USB_PID,
-    .bcdDevice = USB_DEVICE_RELEASE,
-    .iManufacturer = USB_MANUFACTURER_STRING,
-    .iProduct = USB_PRODUCT_STRING,
-    .iSerialNumber = USB_SERIALNUMBER_STRING,
-    .bNumConfigurations = sizeof(usbConfigurationDescriptor) /
-                          sizeof(usbConfigurationDescriptor[0]),
+    .bcdDevice = VERSION_BCD(1, 0, 0),
+    .iManufacturer = 1,
+    .iProduct = 2,
+    .iSerialNumber = INTSERIALNO_DESCRIPTOR,
+    .bNumConfigurations = 1,
 };
 
-static void onUSBDataReceived(usbd_device *usbd_dev,
-                              uint8_t endpoint)
+// Device configuration descriptor
+
+static const struct cdc_config config_desc = {
+    .config = {
+        .bLength = sizeof(struct usb_config_descriptor),
+        .bDescriptorType = USB_DTYPE_CONFIGURATION,
+        .wTotalLength = sizeof(struct cdc_config),
+        .bNumInterfaces = 2,
+        .bConfigurationValue = 1,
+        .iConfiguration = NO_DESCRIPTOR,
+        .bmAttributes = USB_CFG_ATTR_RESERVED | USB_CFG_ATTR_SELFPOWERED,
+        .bMaxPower = USB_CFG_POWER_MA(500),
+    },
+    .comm_iad = {
+        .bLength = sizeof(struct usb_iad_descriptor),
+        .bDescriptorType = USB_DTYPE_INTERFASEASSOC,
+        .bFirstInterface = 0,
+        .bInterfaceCount = 2,
+        .bFunctionClass = USB_CLASS_CDC,
+        .bFunctionSubClass = USB_CDC_SUBCLASS_ACM,
+        .bFunctionProtocol = USB_PROTO_NONE,
+        .iFunction = NO_DESCRIPTOR,
+    },
+    .comm = {
+        .bLength = sizeof(struct usb_interface_descriptor),
+        .bDescriptorType = USB_DTYPE_INTERFACE,
+        .bInterfaceNumber = 0,
+        .bAlternateSetting = 0,
+        .bNumEndpoints = 1,
+        .bInterfaceClass = USB_CLASS_CDC,
+        .bInterfaceSubClass = USB_CDC_SUBCLASS_ACM,
+        .bInterfaceProtocol = USB_PROTO_NONE,
+        .iInterface = NO_DESCRIPTOR,
+    },
+    .cdc_hdr = {
+        .bFunctionLength = sizeof(struct usb_cdc_header_desc),
+        .bDescriptorType = USB_DTYPE_CS_INTERFACE,
+        .bDescriptorSubType = USB_DTYPE_CDC_HEADER,
+        .bcdCDC = VERSION_BCD(1, 1, 0),
+    },
+    .cdc_mgmt = {
+        .bFunctionLength = sizeof(struct usb_cdc_call_mgmt_desc),
+        .bDescriptorType = USB_DTYPE_CS_INTERFACE,
+        .bDescriptorSubType = USB_DTYPE_CDC_CALL_MANAGEMENT,
+        .bmCapabilities = 0,
+        .bDataInterface = 1,
+
+    },
+    .cdc_acm = {
+        .bFunctionLength = sizeof(struct usb_cdc_acm_desc),
+        .bDescriptorType = USB_DTYPE_CS_INTERFACE,
+        .bDescriptorSubType = USB_DTYPE_CDC_ACM,
+        .bmCapabilities = 0,
+    },
+    .cdc_union = {
+        .bFunctionLength = sizeof(struct usb_cdc_union_desc),
+        .bDescriptorType = USB_DTYPE_CS_INTERFACE,
+        .bDescriptorSubType = USB_DTYPE_CDC_UNION,
+        .bMasterInterface0 = 0,
+        .bSlaveInterface0 = 1,
+    },
+    .comm_ep = {
+        .bLength = sizeof(struct usb_endpoint_descriptor),
+        .bDescriptorType = USB_DTYPE_ENDPOINT,
+        .bEndpointAddress = USB_CONTROL_ENDPOINT,
+        .bmAttributes = USB_EPTYPE_INTERRUPT,
+        .wMaxPacketSize = USB_CONTROL_PACKETSIZE_MAX,
+        .bInterval = 0xFF,
+    },
+    .data = {
+        .bLength = sizeof(struct usb_interface_descriptor),
+        .bDescriptorType = USB_DTYPE_INTERFACE,
+        .bInterfaceNumber = 1,
+        .bAlternateSetting = 0,
+        .bNumEndpoints = 2,
+        .bInterfaceClass = USB_CLASS_CDC_DATA,
+        .bInterfaceSubClass = USB_SUBCLASS_NONE,
+        .bInterfaceProtocol = USB_PROTO_NONE,
+        .iInterface = NO_DESCRIPTOR,
+    },
+    .data_eprx = {
+        .bLength = sizeof(struct usb_endpoint_descriptor),
+        .bDescriptorType = USB_DTYPE_ENDPOINT,
+        .bEndpointAddress = USB_DATA_RECEIVE_ENDPOINT,
+        .bmAttributes = USB_EPTYPE_BULK,
+        .wMaxPacketSize = USB_DATA_PACKETSIZE_MAX,
+        .bInterval = 0x01,
+    },
+    .data_eptx = {
+        .bLength = sizeof(struct usb_endpoint_descriptor),
+        .bDescriptorType = USB_DTYPE_ENDPOINT,
+        .bEndpointAddress = USB_DATA_TRANSMIT_ENDPOINT,
+        .bmAttributes = USB_EPTYPE_BULK,
+        .wMaxPacketSize = USB_DATA_PACKETSIZE_MAX,
+        .bInterval = 0x01,
+    },
+};
+
+static const struct usb_string_descriptor lang_desc = USB_ARRAY_DESC(USB_LANGID_ENG_US);
+static const struct usb_string_descriptor manuf_desc_en = USB_STRING_DESC(FIRMWARE_AUTHOR);
+static const struct usb_string_descriptor prod_desc_en = USB_STRING_DESC(FIRMWARE_NAME);
+
+static const struct usb_string_descriptor *const dtable[] = {
+    &lang_desc,
+    &manuf_desc_en,
+    &prod_desc_en,
+};
+
+usbd_device usbdDevice;
+uint32_t usbdBuffer[0x20];
+
+static struct usb_cdc_line_coding cdc_line = {
+    .dwDTERate = 115200,
+    .bCharFormat = USB_CDC_1_STOP_BITS,
+    .bParityType = USB_CDC_NO_PARITY,
+    .bDataBits = 8,
+};
+
+static usbd_respond onUSBGetDescription(usbd_ctlreq *req, void **address, uint16_t *length)
 {
-    char buffer[USB_DATA_PACKET_SIZE_MAX];
-    uint32_t bufferSize = usbd_ep_read_packet(usbdDevice,
-                                              USB_DATA_ENDPOINT_IN,
-                                              buffer,
-                                              USB_DATA_PACKET_SIZE_MAX);
-    uint32_t bufferIndex = 0;
+    const uint8_t dtype = req->wValue >> 8;
+    const uint8_t dnumber = req->wValue & 0xFF;
+    const void *desc;
+    uint16_t len = 0;
+
+    switch (dtype)
+    {
+    case USB_DTYPE_DEVICE:
+        desc = &device_desc;
+
+        break;
+
+    case USB_DTYPE_CONFIGURATION:
+        desc = &config_desc;
+        len = sizeof(config_desc);
+
+        break;
+
+    case USB_DTYPE_STRING:
+        if (dnumber < 3)
+            desc = dtable[dnumber];
+        else
+            return usbd_fail;
+
+        break;
+
+    default:
+        return usbd_fail;
+    }
+
+    if (len == 0)
+        len = ((struct usb_header_descriptor *)desc)->bLength;
+
+    *address = (void *)desc;
+    *length = len;
+
+    return usbd_ack;
+}
+
+static usbd_respond onUSBControl(usbd_device *dev, usbd_ctlreq *req, usbd_rqc_callback *callback)
+{
+    if (((USB_REQ_RECIPIENT | USB_REQ_TYPE) & req->bmRequestType) ==
+            (USB_REQ_INTERFACE | USB_REQ_CLASS) &&
+        req->wIndex == 0)
+    {
+        switch (req->bRequest)
+        {
+        case USB_CDC_SET_CONTROL_LINE_STATE:
+            return usbd_ack;
+
+        case USB_CDC_SET_LINE_CODING:
+            memcpy(&cdc_line, req->data, sizeof(cdc_line));
+
+            return usbd_ack;
+
+        case USB_CDC_GET_LINE_CODING:
+            dev->status.data_ptr = &cdc_line;
+            dev->status.data_count = sizeof(cdc_line);
+
+            return usbd_ack;
+
+        default:
+            return usbd_fail;
+        }
+    }
+
+    return usbd_fail;
+}
+
+static void onUsbData(usbd_device *dev, uint8_t event, uint8_t ep)
+{
+    char receiveBuffer[USB_DATA_PACKETSIZE_MAX];
+    int32_t receivedBytes;
+
+    if (event == usbd_evt_eprx)
+        receivedBytes = usbd_ep_read(dev,
+                                     USB_DATA_RECEIVE_ENDPOINT,
+                                     receiveBuffer,
+                                     USB_DATA_PACKETSIZE_MAX);
+    else
+        receivedBytes = 0;
 
     if (!comm.enabled)
         return;
 
     if (comm.state == COMM_RX)
     {
-        while (bufferIndex < bufferSize)
+        for (int32_t i = 0;
+             i < receivedBytes;
+             i++)
         {
-            char c = buffer[bufferIndex++];
+            char c = receiveBuffer[i];
 
             if ((c >= ' ') &&
                 (comm.bufferIndex < (COMM_BUFFER_SIZE - 1)))
@@ -400,125 +384,106 @@ static void onUSBDataReceived(usbd_device *usbd_dev,
             else if (c == '\n')
             {
                 comm.buffer[comm.bufferIndex] = '\0';
-                comm.bufferIndex = 0;
-
                 comm.state = COMM_RX_READY;
             }
         }
     }
-}
 
-static void onUSBStartOfFrame(void)
-{
-    if (comm.state == COMM_TX)
+    if (comm.state == COMM_RX_READY)
     {
-        uint32_t bufferSize = usbd_ep_write_packet(usbdDevice,
-                                                   USB_DATA_ENDPOINT_OUT,
-                                                   comm.buffer,
-                                                   strlen(comm.buffer));
+        usbd_ep_write(dev,
+                      USB_DATA_TRANSMIT_ENDPOINT,
+                      NULL,
+                      0);
+    }
+    else if (comm.state == COMM_TX)
+    {
+        char *sendBuffer = comm.buffer + comm.bufferIndex;
+        int32_t sentBytes = usbd_ep_write(dev,
+                                          USB_DATA_TRANSMIT_ENDPOINT,
+                                          sendBuffer,
+                                          strlen(sendBuffer));
 
-        if (bufferSize)
+        if (sentBytes >= 0)
         {
-            comm.bufferIndex = 0;
+            comm.bufferIndex += sentBytes;
 
-            comm.state = COMM_TX_READY;
+            if (comm.buffer[comm.bufferIndex] == '\0')
+                comm.state = COMM_TX_READY;
         }
     }
 }
 
-static enum usbd_request_return_codes
-onUSBControl(usbd_device *usbd_dev,
-             struct usb_setup_data *request,
-             uint8_t **buffer,
-             uint16_t *bufferSize,
-             void (**callback)(usbd_device *usbd_dev,
-                               struct usb_setup_data *request))
+static usbd_respond onUSBConfigure(usbd_device *dev, uint8_t cfg)
 {
-    switch (request->bRequest)
+    switch (cfg)
     {
-    case USB_CDC_REQ_SET_CONTROL_LINE_STATE:
-        return USBD_REQ_HANDLED;
+    case 0:
+        // Deconfigure device
 
-    case USB_CDC_REQ_SET_LINE_CODING:
-        if (*bufferSize < sizeof(struct usb_cdc_line_coding))
-            return USBD_REQ_NOTSUPP;
+        usbd_ep_deconfig(dev, USB_CONTROL_ENDPOINT);
+        usbd_ep_deconfig(dev, USB_DATA_TRANSMIT_ENDPOINT);
+        usbd_ep_deconfig(dev, USB_DATA_RECEIVE_ENDPOINT);
 
-        return USBD_REQ_HANDLED;
+        usbd_reg_endpoint(dev, USB_DATA_RECEIVE_ENDPOINT, NULL);
+        usbd_reg_endpoint(dev, USB_DATA_TRANSMIT_ENDPOINT, NULL);
+
+        return usbd_ack;
+
+    case 1:
+        // Configure device
+
+        usbd_ep_config(dev, USB_DATA_RECEIVE_ENDPOINT, USB_EPTYPE_BULK, USB_DATA_PACKETSIZE_MAX);
+        usbd_ep_config(dev, USB_DATA_TRANSMIT_ENDPOINT, USB_EPTYPE_BULK, USB_DATA_PACKETSIZE_MAX);
+        usbd_ep_config(dev, USB_CONTROL_ENDPOINT, USB_EPTYPE_INTERRUPT, USB_CONTROL_PACKETSIZE_MAX);
+
+        usbd_reg_endpoint(dev, USB_DATA_RECEIVE_ENDPOINT, onUsbData);
+        usbd_reg_endpoint(dev, USB_DATA_TRANSMIT_ENDPOINT, onUsbData);
+
+        return usbd_ack;
+
+    default:
+        return usbd_fail;
     }
-
-    return USBD_REQ_NOTSUPP;
 }
 
-static void onUSBSetConfiguration(usbd_device *usbd_dev,
-                                  uint16_t wValue)
+void transmitComm(void)
 {
-    usbd_ep_setup(usbd_dev,
-                  USB_DATA_ENDPOINT_IN,
-                  USB_ENDPOINT_ATTR_BULK,
-                  USB_DATA_PACKET_SIZE_MAX,
-                  onUSBDataReceived);
+    comm.bufferIndex = 0;
+    comm.state = COMM_TX;
+}
 
-    usbd_ep_setup(usbd_dev,
-                  USB_DATA_ENDPOINT_OUT,
-                  USB_ENDPOINT_ATTR_BULK,
-                  USB_DATA_PACKET_SIZE_MAX,
-                  NULL);
-
-    usbd_ep_setup(usbd_dev,
-                  USB_CONTROL_ENDPOINT_OUT,
-                  USB_ENDPOINT_ATTR_INTERRUPT,
-                  USB_CONTROL_PACKET_SIZE_MAX,
-                  NULL);
-
-    usbd_register_control_callback(usbdDevice,
-                                   USB_REQ_TYPE_CLASS | USB_REQ_TYPE_INTERFACE,
-                                   USB_REQ_TYPE_TYPE | USB_REQ_TYPE_RECIPIENT,
-                                   onUSBControl);
+void USB_IRQ_HANDLER(void)
+{
+    usbd_poll(&usbdDevice);
 }
 
 void initComm(void)
 {
     // Force USB device reenumeration
-
-    gpio_set_mode(USB_DP_PORT, GPIO_MODE_OUTPUT_50_MHZ,
-                  GPIO_CNF_OUTPUT_PUSHPULL, USB_DP_PIN);
+    gpio_setup(USB_DP_PORT,
+               USB_DP_PIN,
+               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
     gpio_clear(USB_DP_PORT, USB_DP_PIN);
-
     sleep(50);
 
-    // Init USB
+    usbd_init(&usbdDevice,
+              &usbd_hw,
+              USB_EP0_PACKETSIZE_MAX,
+              usbdBuffer,
+              sizeof(usbdBuffer));
+    usbd_reg_config(&usbdDevice, onUSBConfigure);
+    usbd_reg_control(&usbdDevice, onUSBControl);
+    usbd_reg_descr(&usbdDevice, onUSBGetDescription);
 
-    strcpy(usbSerialNumber, "0000");
-    strcatUInt32Hex(usbSerialNumber, getDeviceId());
+    NVIC_SetPriority(USB_IRQ, 0x80);
+    NVIC_EnableIRQ(USB_IRQ);
 
-    usbdDevice = usbd_init(&st_usbfs_v1_usb_driver,
-                           &usbDeviceDescriptor,
-                           usbConfigurationDescriptor,
-                           usbStrings,
-                           sizeof(usbStrings) / sizeof(usbStrings[0]),
-                           usbControlBuffer,
-                           sizeof(usbControlBuffer));
-
-    usbd_register_set_config_callback(usbdDevice,
-                                      onUSBSetConfiguration);
-    usbd_register_sof_callback(usbdDevice,
-                               onUSBStartOfFrame);
-
-    nvic_set_priority(NVIC_USB_LP_CAN_RX0_IRQ, 0x80);
-    nvic_enable_irq(NVIC_USB_LP_CAN_RX0_IRQ);
+    usbd_enable(&usbdDevice, true);
+    usbd_connect(&usbdDevice, true);
 }
 
-void transmitComm(void)
-{
-    comm.state = COMM_TX;
-}
-
-void usb_lp_can_rx0_isr()
-{
-    usbd_poll(usbdDevice);
-}
-
-void updateCommHardware(void)
+void updateCommController(void)
 {
 }
 
@@ -528,12 +493,7 @@ void initComm(void)
 {
 }
 
-void transmitComm(void)
-{
-    comm.state = COMM_TX_READY;
-}
-
-void updateCommHardware(void)
+void updateCommController(void)
 {
 }
 

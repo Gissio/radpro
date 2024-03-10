@@ -1,6 +1,6 @@
 /*
  * Rad Pro
- * Bosean FS-600/FS-1000 specifics
+ * STM32 display
  *
  * (C) 2022-2024 Gissio
  *
@@ -9,28 +9,42 @@
 
 #if defined(STM32)
 
-#include <libopencm3/stm32/gpio.h>
-#include <libopencm3/stm32/timer.h>
-
 #include "../display.h"
 #include "../settings.h"
 
 #include "device.h"
 
-void setDisplayBacklight(bool value)
+void initDisplayBacklight(void)
 {
-    uint32_t ccr =
-        value
-            ? displayBrightnessValue[settings.displayBrightness] *
-                  (LCD_BACKLIGHT_PWM_PERIOD / 1000)
-            : 0;
-    LCD_BACKLIGHT_TIMER_CCR(LCD_BACKLIGHT_TIMER) = ccr; // timer_set_oc_value(LCD_BACKLIGHT_TIMER, TIM_OC1, crr);
+#if defined(STM32F0) || defined(STM32G0)
+    gpio_setup_af(DISPLAY_BACKLIGHT_PORT,
+                  DISPLAY_BACKLIGHT_PIN,
+                  GPIO_OUTPUTTYPE_PUSHPULL,
+                  GPIO_OUTPUTSPEED_2MHZ,
+                  GPIO_PULL_NONE,
+                  DISPLAY_BACKLIGHT_AF);
+#elif defined(STM32F1)
+    gpio_setup(DISPLAY_BACKLIGHT_PORT,
+               DISPLAY_BACKLIGHT_PIN,
+               GPIO_MODE_OUTPUT_2MHZ_AF_PUSHPULL);
+#endif
+
+    tim_setup_pwm(DISPLAY_BACKLIGHT_TIMER,
+                  DISPLAY_BACKLIGHT_TIMER_CHANNEL);
+    setDisplayBacklight(false);
+    tim_set_period(DISPLAY_BACKLIGHT_TIMER,
+                   DISPLAY_BACKLIGHT_TIMER_PERIOD);
+    tim_enable(DISPLAY_BACKLIGHT_TIMER);
 }
 
-void syncDisplayBacklight(void)
+void setDisplayBacklight(bool value)
 {
-    while (TIM_CNT(LCD_BACKLIGHT_TIMER) >= (LCD_BACKLIGHT_PWM_PERIOD / 4))
-        ;
+    tim_set_ontime(DISPLAY_BACKLIGHT_TIMER,
+                   DISPLAY_BACKLIGHT_TIMER_CHANNEL,
+                   value
+                       ? displayBrightnessValue[settings.displayBrightness] *
+                             (DISPLAY_BACKLIGHT_TIMER_PERIOD / 1000)
+                       : 0);
 }
 
 #endif

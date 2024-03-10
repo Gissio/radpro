@@ -25,16 +25,16 @@
 #include "tube.h"
 #include "vibrator.h"
 
-#define PULSE_LED_TICKS ((uint32_t)(0.050 * SYSTICK_FREQUENCY))
+#define PULSELED_TICKS ((uint32_t)(0.050 * SYSTICK_FREQUENCY))
 #define PULSE_BACKLIGHT_TICKS ((uint32_t)(0.050 * SYSTICK_FREQUENCY))
 #define ALARM_TICKS ((uint32_t)(0.100 * SYSTICK_FREQUENCY))
 
-enum TimerState
+typedef enum
 {
     TIMER_OFF = -1,
     TIMER_ELAPSED,
     TIMER_RUNNING,
-};
+} TimerState;
 
 static uint32_t displayTimerValues[] = {
 #if defined(DISPLAY_MONOCHROME)
@@ -65,9 +65,8 @@ static struct
     uint32_t deadTimeCount;
 
     volatile int32_t displayTimer;
-    volatile bool displayDisable;
 
-#if defined(PULSE_LED)
+#if defined(PULSELED)
     volatile int32_t pulseLEDTimer;
 #endif
 
@@ -86,14 +85,14 @@ static struct
 
 void initEvents(void)
 {
-    initEventsHardware();
+    initEventsController();
 
     events.deadTimeCount = UINT32_MAX;
     events.measurementPeriodTimer = SYSTICK_FREQUENCY;
     events.keyboardTimer = KEY_TICKS;
 }
 
-static enum TimerState updateTimer(volatile int32_t *timer)
+static TimerState updateTimer(volatile int32_t *timer)
 {
     int32_t timerValue = *timer;
 
@@ -160,7 +159,7 @@ void onTick(void)
 
     // Buzzer
 
-#if defined(SDLSIM)
+#if defined(SIMULATOR)
     updateBuzzer();
 #endif
 
@@ -196,19 +195,21 @@ void onTick(void)
 
     if (updateTimer(&events.displayTimer) == TIMER_ELAPSED)
     {
-        events.displayDisable = true;
+#if defined(DISPLAY_MONOCHROME)
+        setDisplayBacklight(false);
+#endif
     }
 
     // Pulse LED
 
-#if defined(PULSE_LED)
+#if defined(PULSELED)
     if (updateTimer(&events.pulseLEDTimer) == TIMER_ELAPSED)
     {
         setPulseLED(false);
     }
 #endif
 
-    // Vibrator
+    // Alarm
 
     if (updateTimer(&events.alarmTimer) == TIMER_ELAPSED)
     {
@@ -225,39 +226,28 @@ uint32_t getTick(void)
 
 // Events
 
-static void syncTimerThread(void)
+void syncTimerThread(void)
 {
     sleep(1);
 }
 
-void setEventHandling(bool value)
+void enableMeasurements(void)
+{
+    events.measurementsEnabled = true;
+}
+
+void disableMeasurements(void)
 {
     syncTimerThread();
 
-    if (!value)
-    {
-        events.displayTimer = 1;
-#if defined(PULSE_LED)
-        events.pulseLEDTimer = 1;
+    events.displayTimer = 1;
+#if defined(PULSELED)
+    events.pulseLEDTimer = 1;
 #endif
-        events.buzzerTimer = 1;
-        events.alarmTimer = 1;
-    }
+    events.buzzerTimer = 1;
+    events.alarmTimer = 1;
 
-    events.measurementsEnabled = value;
-}
-
-void dispatchDisplayEvents(void)
-{
-    if (events.displayDisable)
-    {
-        events.displayDisable = false;
-
-        setDisplayBacklight(false);
-#if defined(DISPLAY_COLOR)
-        setDisplay(false);
-#endif
-    }
+    events.measurementsEnabled = false;
 }
 
 void dispatchEvents(void)
@@ -269,28 +259,27 @@ void dispatchEvents(void)
     {
         events.lastMeasurementPeriodUpdate = oneSecondUpdate;
 
-        onMeasurementsOneSecond();
+        updateMeasurements();
         updateDatalog();
         updateADC();
-        onGameOneSecond();
+        updateGame();
         updateView();
     }
 
-    dispatchDisplayEvents();
     dispatchViewEvents();
     dispatchCommEvents();
 }
 
 // Dead-time
 
-float getDeadTime(void)
+float getTubeDeadTime(void)
 {
     return events.deadTimeCount * timerCountToSeconds;
 }
 
 // Timers
 
-#if defined(PULSE_LED)
+#if defined(PULSELED)
 
 static void setPulseLEDTimer(int32_t value)
 {
@@ -308,13 +297,10 @@ static bool isAlarmTimerActive(void);
 
 static void setDisplayTimer(int32_t value)
 {
+#if defined(DISPLAY_MONOCHROME)
     if (value != 1)
-    {
-#if defined(DISPLAY_COLOR)
-        setDisplay(true);
-#endif
         setDisplayBacklight(true);
-    }
+#endif
 
     if ((value < 0) ||
         ((value > events.displayTimer) &&
@@ -350,9 +336,9 @@ void triggerPulse(void)
     if (isAlarmTimerActive())
         return;
 
-#if defined(PULSE_LED)
+#if defined(PULSELED)
     if (settings.pulseLED)
-        setPulseLEDTimer(PULSE_LED_TICKS);
+        setPulseLEDTimer(PULSELED_TICKS);
 #endif
 
 #if defined(DISPLAY_MONOCHROME)
@@ -368,7 +354,7 @@ void triggerAlarm(void)
 {
     syncTimerThread();
 
-#if defined(PULSE_LED)
+#if defined(PULSELED)
     setPulseLEDTimer(ALARM_TICKS);
 #endif
     setBuzzerTimer(ALARM_TICKS, 1);

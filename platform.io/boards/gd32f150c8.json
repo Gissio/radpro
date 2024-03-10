@@ -1,38 +1,38 @@
 {
-  "build": {
-    "core": "stm32",
-    "cpu": "cortex-m3",
-    "extra_flags": "-DSTM32 -DSTM32F0 -DGD32 -DGD32F150x8",
-    "f_cpu": "48000000L",
-    "mcu": "stm32f051c8t6",
-    "product_line": "STM32F051x8"
-  },
-  "debug": {
-    "default_tools": [
-      "stlink"
+    "build": {
+        "core": "stm32",
+        "cpu": "cortex-m3",
+        "extra_flags": "-D STM32 -D STM32F0 -D STM32F051x8 -D GD32",
+        "f_cpu": "48000000L",
+        "mcu": "stm32f051c8t6",
+        "product_line": "STM32F051x8"
+    },
+    "debug": {
+        "default_tools": [
+            "stlink"
+        ],
+        "jlink_device": "STM32F051C8",
+        "openocd_target": "stm32f0x",
+        "svd_path": "STM32F0x1.svd"
+    },
+    "frameworks": [
+        "cmsis",
+        "libopencm3"
     ],
-    "jlink_device": "STM32F051C8",
-    "openocd_target": "stm32f0x",
-    "svd_path": "STM32F0x1.svd"
-  },
-  "frameworks": [
-    "cmsis",
-    "libopencm3"
-  ],
-  "name": "GD32F051C8",
-  "upload": {
-    "maximum_ram_size": 8192,
-    "maximum_size": 65536,
-    "protocol": "stlink",
-    "protocols": [
-      "jlink",
-      "cmsis-dap",
-      "stlink",
-      "blackmagic",
-      "mbed",
-      "dfu"
-    ]
-  },
-  "url": "https://www.gigadevice.com/",
-  "vendor": "GigaDevice"
+    "name": "GD32F051C8",
+    "upload": {
+        "maximum_ram_size": 8192,
+        "maximum_size": 65536,
+        "protocol": "stlink",
+        "protocols": [
+            "jlink",
+            "cmsis-dap",
+            "stlink",
+            "blackmagic",
+            "mbed",
+            "dfu"
+        ]
+    },
+    "url": "https://www.gigadevice.com/",
+    "vendor": "GigaDevice"
 }

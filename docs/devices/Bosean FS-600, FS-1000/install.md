@@ -63,8 +63,8 @@ Then, copy+paste the following command and verify that the resulting file, `back
 
 Now, download the latest firmware from the [Rad Pro releases](https://github.com/Gissio/radpro/releases):
 
-* If your device is an FS-600, get ``radpro-bosean-fs600-install-x.y.z.bin`` when installing for the first time or `radpro-bosean-fs600-update-x.y.z.bin` when updating.
-* If your device is an FS-1000, get `radpro-bosean-fs1000-install-x.y.z.bin` when installing for the first time or `radpro-bosean-fs1000-update-x.y.z.bin` when updating.
+* If your device is an FS-600, download ``radpro-bosean-fs600-x.y.z-install.bin`` when installing for the first time or `radpro-bosean-fs600-x.y.z-update.bin` when updating.
+* If your device is an FS-1000, download `radpro-bosean-fs1000-x.y.z-install.bin` when installing for the first time or `radpro-bosean-fs1000-x.y.z-update.bin` when updating.
 
 Next, run this command in the terminal:
 

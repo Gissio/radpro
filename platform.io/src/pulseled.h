@@ -7,8 +7,8 @@
  * License: MIT
  */
 
-#if !defined(PULSE_LED_H)
-#define PULSE_LED_H
+#if !defined(PULSELED_H)
+#define PULSELED_H
 
 #include <stdbool.h>
 
@@ -17,7 +17,7 @@
 extern const View pulseLEDMenuView;
 
 void initPulseLED(void);
-void initPulseLEDHardware(void);
+void initPulseLEDController(void);
 
 void setPulseLED(bool value);
 

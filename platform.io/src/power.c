@@ -15,36 +15,29 @@
 #include "power.h"
 #include "settings.h"
 
-#if defined(BATTERY_REMOVABLE)
+bool powerOffRequested;
 
+#if defined(BATTERY_REMOVABLE)
 static const float batteryLevelThresholds[2][5] = {
     // Alkaline
-
     {1.204F, 1.240F, 1.261F, 1.276F, 1.310F},
 
     // Ni-MH
-
     {1.186F, 1.260F, 1.296F, 1.338F, 1.395F},
 };
-
 #else
-
 static const float batteryLevelThresholds[] =
     // Li-Ion
-
     {3.377F, 3.554F, 3.660F, 3.824F, 3.889F};
-
 #endif
 
 #if defined(BATTERY_REMOVABLE)
 static const Menu batteryTypeMenu;
 #endif
 
-bool powerOffRequested;
-
 void initPower()
 {
-    initPowerHardware();
+    initPowerController();
 
 #if defined(BATTERY_REMOVABLE)
     selectMenuItem(&batteryTypeMenu,
@@ -53,17 +46,24 @@ void initPower()
 #endif
 }
 
-void setPowerOffRequest(bool value)
+void requestPowerOff(void)
 {
-    powerOffRequested = value;
+    powerOffRequested = true;
 }
 
 bool isPowerOffRequested(void)
 {
-    return powerOffRequested;
+    if (powerOffRequested)
+    {
+        powerOffRequested = false;
+
+        return true;
+    }
+
+    return false;
 }
 
-int8_t getBatteryLevel(void)
+int8_t getDeviceBatteryLevel(void)
 {
     if (isBatteryCharging())
         return BATTERY_LEVEL_CHARGING;
@@ -75,7 +75,7 @@ int8_t getBatteryLevel(void)
 #endif
 
     int8_t level = BATTERY_LEVEL_MAX;
-    float voltage = getBatteryVoltage();
+    float voltage = getDeviceBatteryVoltage();
 
     for (uint32_t i = 0; i < BATTERY_LEVEL_MAX; i++)
     {
@@ -112,8 +112,6 @@ static const char *onPulseClicksMenuGetOption(const Menu *menu,
 static void onBatteryTypeMenuSelect(const Menu *menu)
 {
     settings.batteryType = menu->state->selectedIndex;
-
-    resetADCFilters();
 }
 
 static MenuState batteryTypeMenuState;

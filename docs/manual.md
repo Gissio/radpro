@@ -2,16 +2,17 @@
 
 ## Features
 
-* Multiple measurement units: Sievert, rem, counts per minute (cpm), counts per second (cps).
-* Adaptive averaging window (aiming for a confidence interval of less than 50 %).
+* Multiple measurement units: Sievert, rem, cpm (counts per minute), cps (counts per second).
+* Adaptive averaging window, aiming for a confidence interval of less than 50 %.
 * Configurable average timer for performing surveys.
-* Overflow alarms.
 * Data logging with data compression.
+* Configurable pulse click sounds: off, quiet, loud.
 * Dead-time measurement.
 * Customizable Geiger-Müller tube settings: conversion factor, dead-time compensation, high voltage generator PWM frequency and duty cycle (for tube voltage control).
 * Configurable high voltage profiles, including an energy-saving profile that reduces power consumption.
-* Configurable pulse click sounds: off, quiet, loud.
+* Overflow alarms.
 * Statistics for tracking device usage and state.
+* User interface with the [OpenBridge 4.0](https://www.openbridge.no/) design system and anti-aliased text rendering on color screens.
 * Power-on self-test and safety watchdog.
 * Game: nuclear chess.
 
@@ -53,7 +54,7 @@ $$n = \frac{m}{1 - m \tau}$$
 
 where $m$ is the rate in counts per seconds, and $\tau$ is the tube's dead-time in seconds.
 
-Dead-time compensation is applied at the beginning of the processing chain, thus instantaneous rate, average rate, cumulative dose, tube pulse count and logged values are all dead-time compensated.
+Dead-time compensation is applied at the beginning of the processing chain, thus instantaneous rate, average rate, cumulative dose, tube pulse count and logged values are dead-time compensated.
 
 ## HV profiles
 
@@ -71,7 +72,7 @@ The random generator produces 16 symbols per run. If additional symbols are need
 
 The generator produces random bits by comparing the time interval between two successive pulses. To avoid bias, every second bit is flipped. The generator stores random data in a 128-bit buffer.
 
-Random symbols are generated from the bits using the [Fast Dice Roller](https://arxiv.org/abs/1304.1916) algorithm. "Alphanumeric" uses approximately 6 bits per symbol, "Full ASCII" uses 7 bits, "20-sided dice" uses 5 bits, "Hexadecimal", "Decimal" and "12-sided dice" uses 4 bits, "8-sided dice" and "6-sided dice" uses 3 bits, "4-sided dice" uses 2 bits, and "Coin flip" uses 1 bit.
+Random symbols are generated from the bits using the [Fast Dice Roller](https://arxiv.org/abs/1304.1916) algorithm. "Alphanumeric" uses approximately 6 bits per symbol, "Full ASCII" uses 7 bits, "20-sided dice" uses 5 bits, "Hexadecimal", "Decimal" and "12-sided dice" use 4 bits, "8-sided dice" and "6-sided dice" use 3 bits, "4-sided dice" uses 2 bits, and "Coin flip" uses 1 bit.
 
 For faster bit generation, use a radioactive source.
 
@@ -81,7 +82,7 @@ To log data using Rad Pro, select a data logging interval in the settings. Data 
 
 ## radpro-tool
 
-`radpro-tool` lets you download data logs, log live data on your computer, submit live data to radiation monitoring websites, and sync the real-time clock.
+`radpro-tool` lets you download data logs, log live data on your computer, submit live data to radiation monitoring websites, and sync the device's clock.
 
 To use `radpro-tool`, install [Python](https://www.python.org) on your computer and install the necessary requirements by running the following command in a terminal:
 

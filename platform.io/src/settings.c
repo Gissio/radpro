@@ -10,7 +10,7 @@
 #include <limits.h>
 #include <stdbool.h>
 #include <string.h>
-#if defined(SDLSIM)
+#if defined(SIMULATOR)
 #include <time.h>
 #endif
 
@@ -49,20 +49,20 @@ void initSettings(void)
     settings.tubeHVFrequency = TUBE_DEFAULT_HVFREQUENCY;
     settings.tubeHVDutyCycle = TUBE_DEFAULT_HVDUTYCYCLE;
 
-#if defined(PULSE_LED)
-    settings.pulseLED = PULSE_LED_ON;
+#if defined(PULSELED)
+    settings.pulseLED = PULSELED_ON;
 #endif
     settings.pulseClicks = PULSE_CLICKS_QUIET;
 #if defined(DISPLAY_MONOCHROME)
     settings.displayContrast = DISPLAY_CONTRAST_DEFAULT;
 #endif
-#if defined(SDLSIM)
+#if defined(SIMULATOR)
     settings.displayBrightness = DISPLAY_BRIGHTNESS_VERYHIGH;
 #else
     settings.displayBrightness = DISPLAY_BRIGHTNESS_HIGH;
 #endif
     settings.displaySleep = DISPLAY_SLEEP_30S;
-#if defined(SDLSIM)
+#if defined(SIMULATOR)
     time_t unixTime = time(NULL);
     struct tm *localTM = gmtime(&unixTime);
     time_t localTime = mktime(localTM);
@@ -78,16 +78,29 @@ void initSettings(void)
 
     FlashSettings flashSettings;
 
-    // +++ TEST
-    // if (getFlashSettings(&iterator, &flashSettings))
-    // {
-    //     settings = flashSettings.settings;
-    //     setDoseTime(flashSettings.dose.time);
-    //     setDosePulseCount(flashSettings.dose.pulseCount);
-    //     setTubeTime(flashSettings.tube.time);
-    //     setTubePulseCount(flashSettings.tube.pulseCount);
-    // }
-    // +++ TEST
+    if (getFlashSettings(&iterator, &flashSettings))
+    {
+        settings = flashSettings.settings;
+        setDoseTime(flashSettings.dose.time);
+        setDosePulseCount(flashSettings.dose.pulseCount);
+        setTubeTime(flashSettings.tube.time);
+        setTubePulseCount(flashSettings.tube.pulseCount);
+    }
+}
+
+static bool isFlashSettingsEmpty(FlashSettings *entry)
+{
+    uint8_t *data = (uint8_t *)entry;
+
+    for (uint32_t i = 0;
+         i < sizeof(FlashSettings);
+         i++)
+    {
+        if (data[i] != 0xff)
+            return false;
+    }
+
+    return true;
 }
 
 static bool getFlashSettings(FlashIterator *iterator,
@@ -105,7 +118,7 @@ static bool getFlashSettings(FlashIterator *iterator,
                   (uint8_t *)&entry,
                   sizeof(FlashSettings));
 
-        if (entry.settings.entryEmpty)
+        if (isFlashSettingsEmpty(&entry))
         {
             iterator->index -= sizeof(FlashSettings);
 
@@ -151,7 +164,7 @@ static const OptionView settingsMenuOptions[] = {
     {"Dose alarm", &doseAlarmMenuView},
     {"Geiger tube", &tubeMenuView},
     {"Data logging", &datalogMenuView},
-#if defined(PULSE_LED)
+#if defined(PULSELED)
     {"Pulse LED", &pulseLEDMenuView},
 #endif
     {"Pulse clicks", &pulseClicksMenuView},
@@ -160,7 +173,11 @@ static const OptionView settingsMenuOptions[] = {
 #if defined(BATTERY_REMOVABLE)
     {"Battery type", &batteryTypeMenuView},
 #endif
+#if defined(DISPLAY_240X320)
+    {"Random gen.", &rngMenuView},
+#else
     {"Random generator", &rngMenuView},
+#endif
     {"Game", &gameMenuView},
     {"Statistics", &statisticsView},
     {NULL},

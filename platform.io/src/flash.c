@@ -98,9 +98,10 @@ void setFlashPagePrev(FlashIterator *iterator)
 void writeFlashPage(FlashIterator *iterator,
                     uint8_t *source, uint32_t size)
 {
-    // Enough space?
     if ((iterator->index + size) > flashPageDataSize)
     {
+        // Not enough space in page
+
         FlashIterator startIterator = *iterator;
 
         setFlashPageNext(iterator);

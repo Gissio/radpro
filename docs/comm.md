@@ -21,7 +21,7 @@ In the following description, `\n` represents the newline character.
 
 Identifies the device's hardware and software. The response consists of these components:
 
-* `[hardware-id]`: The device's hardware, which may be one of the following: `FS2011 (STM32F051C8)`, `FS2011 (GD32F150C8)`, `FS2011 (GD32F103C8)`, `Bosean FS-600`, `Bosean FS-1000`, `FNIRSI GC-01` or `Rad Pro simulator`.
+* `[hardware-id]`: The device's hardware, which may be one of the following: `FS2011 (STM32F051C8)`, `FS2011 (GD32F150C8)`, `FS2011 (GD32F103C8)`, `Bosean FS-600`, `Bosean FS-1000`, `FNIRSI GC-01 (CH32F103C8)`, `FNIRSI GC-01 (APM32F103CB)` or `Rad Pro simulator`.
 * `[software-id]`: The device's software, typically `Rad Pro` followed by the software version.
 * `[device-id]`: A unique device ID.
 
@@ -30,12 +30,24 @@ Example:
     GET deviceId
     OK FS2011 (STM32F051C8);Rad Pro 2.0;9748af1b
 
+### Get device battery voltage
+
+* Request: `GET deviceBatteryVoltage\n`
+* Response: `OK [value]\n`
+
+Returns the device's battery voltage (averaged per cell) in Volt, provided in decimal format with three decimal places.
+
+Example:
+
+    GET deviceBatteryVoltage
+    OK 1.421
+
 ### Get device temperature
 
 * Request: `GET deviceTemperature\n`
 * Response: `OK [value]\n`
 
-Returns the device's temperature in degrees Celsius, provided in decimal format with one decimal place.
+Returns the microcontroller's temperature in degrees Celsius, provided in decimal format with one decimal place.
 
 Example:
 
@@ -181,19 +193,19 @@ Example:
 * Request: `GET tubeHVDutyCycle\n` 
 * Response: `OK [value]\n`
 
-Returns the tube's PWM duty-cycle of the high voltage generator, provided in decimal format with three decimal places.
+Returns the tube's PWM duty-cycle of the high voltage generator, provided in decimal format with four decimal places.
 
 Example:
 
     GET tubeHVDutyCycle
-    OK 0.415
+    OK 0.0975
 
 ### Get data log
 
 * Request: `GET datalog [value]\n`
 * Response: `OK [data]\n`
 
-Returns the data log stored in the device's flash memory. `[value]` is an optional UNIX timestamp (number of seconds since 1/1/1970), provided in decimal format, that limits the output to entries newer than this date and time. `[data]` is a list of records, separated by `;`; each record's fields are separated by `,`. The first record lists the field names, and the following records are actual measurements ordered from least recent to most recent. Valid fields include:
+Returns the data log stored in the device's flash memory. `[value]` is an optional UNIX timestamp (number of seconds since 1/1/1970), provided in decimal format, that limits the output to entries newer than this date and time. `[data]` is a list of records, separated by `;`. Each record's fields are separated by `,`. The first record lists the field names, and the following records are actual measurements ordered from least recent to most recent. Valid fields include:
 
 * `time`: The record's UNIX timestamp (number of seconds since 1/1/1970), provided in decimal format.
 * `tubePulseCount`: The tube's life pulse count, provided in decimal format.

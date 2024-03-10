@@ -22,7 +22,7 @@ typedef enum
 
 #if defined(KEYBOARD_5KEYS)
 
-enum Key
+typedef enum
 {
     KEY_LEFT,
     KEY_RIGHT,
@@ -32,11 +32,11 @@ enum Key
 
     KEY_NUM,
     KEY_NONE = KEY_NUM,
-};
+} Key;
 
 #elif defined(KEYBOARD_3KEYS)
 
-enum Key
+typedef enum
 {
     KEY_LEFT,
     KEY_RIGHT,
@@ -44,23 +44,23 @@ enum Key
 
     KEY_NUM,
     KEY_NONE = KEY_NUM,
-};
+} Key;
 
 #elif defined(KEYBOARD_2KEYS)
 
-enum Key
+typedef enum
 {
     KEY_LEFT,
     KEY_SELECT,
 
     KEY_NUM,
     KEY_NONE = KEY_NUM,
-};
+} Key;
 
 #endif
 
 void initKeyboard(void);
-void initKeyboardHardware(void);
+void initKeyboardController(void);
 
 void getKeyboardState(bool *);
 
@@ -68,6 +68,6 @@ void setKeyboardMode(KeyboardMode mode);
 
 void onKeyboardTick(void);
 
-enum Event getKeyboardEvent(void);
+Event getKeyboardEvent(void);
 
 #endif

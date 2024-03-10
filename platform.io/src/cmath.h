@@ -13,7 +13,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#if defined(SDLSIM)
+#if defined(SIMULATOR)
 
 #include <math.h>
 

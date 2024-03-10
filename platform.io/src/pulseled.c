@@ -7,7 +7,7 @@
  * License: MIT
  */
 
-#if defined(PULSE_LED)
+#if defined(PULSELED)
 
 #include "menu.h"
 #include "pulseled.h"
@@ -17,11 +17,11 @@ static const Menu pulseLEDMenu;
 
 void initPulseLED(void)
 {
-    initPulseLEDHardware();
+    initPulseLEDController();
 
     selectMenuItem(&pulseLEDMenu,
                    settings.pulseLED,
-                   PULSE_LED_NUM);
+                   PULSELED_NUM);
 }
 
 // Pulse LED menu

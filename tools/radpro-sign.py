@@ -50,7 +50,7 @@ def store_word(buffer, address, value):
     buffer[address:address+4] = bytearray(struct.pack('<L', value))
 
 
-def sign_firmware(env_name, container_size, flash_size):
+def sign_firmware(env_name, container_offset, container_size, flash_size):
     """ Sign firmware
     """
 
@@ -71,8 +71,9 @@ def sign_firmware(env_name, container_size, flash_size):
 
     footer_size = 0x4
     footer_index = container_size - footer_size
+    file_size = flash_size - container_offset
 
-    flash = bytearray(b'\xff' * flash_size)
+    flash = bytearray(b'\xff' * file_size)
 
     firmware = None
     with open(bin_file, 'rb') as f:
@@ -102,9 +103,10 @@ def sign_firmware(env_name, container_size, flash_size):
 
 
 # Variables
-sign_firmware('fs2011-stm32f051c8', 0x8000, 0x10000)
-sign_firmware('fs2011-gd32f150c8', 0x8000, 0x10000)
-sign_firmware('fs2011-gd32f103c8', 0x8000, 0x10000)
-sign_firmware('bosean-fs600', 0x8000, 0x20000)
-sign_firmware('bosean-fs1000', 0x8000, 0x20000)
-sign_firmware('fnirsi-gc01', 0xa400, 0xc000)
+sign_firmware('fs2011-stm32f051c8', 0x0, 0x8000, 0x10000)
+sign_firmware('fs2011-gd32f150c8', 0x0, 0x8000, 0x10000)
+sign_firmware('fs2011-gd32f103c8', 0x0, 0x8000, 0x10000)
+sign_firmware('bosean-fs600', 0x0, 0x8000, 0x20000)
+sign_firmware('bosean-fs1000', 0x0, 0x8000, 0x20000)
+sign_firmware('fnirsi-gc01-ch32f103r8', 0x4000, 0xa800, 0x10000)
+sign_firmware('fnirsi-gc01-apm32f103rb', 0x4000, 0xc000, 0x20000)
