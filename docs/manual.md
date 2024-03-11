@@ -28,7 +28,7 @@ The instantaneous rate is estimated by dividing the number of pulses within a ti
 
 The confidence interval estimates the range of values that contain the true instantaneous rate with a 95 % probability, assuming a constant level of radiation.
 
-The time window is adaptively adjusted, aiming for a confidence interval of less than 50 %. On radiation levels above 1 µSv/h, the time window is limited to 5 seconds to ensure a fast response.
+The time window is adaptively adjusted, aiming for an error of less than 50 %. On radiation levels above 1 µSv/h, the time window is limited to 5 seconds to ensure a fast response.
 
 ### Average rate
 
