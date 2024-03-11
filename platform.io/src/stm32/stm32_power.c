@@ -76,7 +76,8 @@ bool isBatteryCharging(void)
 #if defined(PWR_CHRG_ACTIVE_LOW)
         !
 #endif
-        gpio_get(PWR_CHRG_PORT, PWR_CHRG_PIN))
+        gpio_get(PWR_CHRG_PORT,
+                 PWR_CHRG_PIN))
         return true;
 
     if (getDeviceBatteryVoltage() < BATTERY_EXTERNAL_POWER_SUPPLY_VOLTAGE_THRESHOLD)

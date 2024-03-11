@@ -1439,6 +1439,7 @@ void drawStatistics(void)
         case 4:
             strcpy(key, "Dead-time");
 #endif
+            // +++ TEST
             float deadTime = getTubeDeadTime();
             if (deadTime >= 1)
                 strcpy(valueString, "-");
@@ -1449,6 +1450,10 @@ void drawStatistics(void)
                 strcpy(unitString, " \xb5"
                                    "s");
             }
+            // strcatUInt16Hex(valueString, getPulseTimerHigh());
+            // strcat(valueString, ":");
+            // strcatUInt16Hex(valueString, getPulseTimerLow());
+            // +++ TEST
 
             break;
 

@@ -15,8 +15,6 @@
 
 void initVibrator(void)
 {
-    // GPIO
-
     setVibrator(false);
 
 #if defined(STM32F0) || defined(STM32G0)

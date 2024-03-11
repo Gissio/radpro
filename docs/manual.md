@@ -3,7 +3,7 @@
 ## Features
 
 * Multiple measurement units: Sievert, rem, cpm (counts per minute), cps (counts per second).
-* Adaptive averaging window, aiming for a confidence interval of less than 50 %.
+* Adaptive averaging window, aiming for confidence intervals below ±50 %.
 * Configurable average timer for performing surveys.
 * Data logging with data compression.
 * Configurable pulse click sounds: off, quiet, loud.
@@ -26,15 +26,15 @@ Rad Pro supports the following measurement modes:
 
 The instantaneous rate is estimated by dividing the number of pulses within a time window, minus one, by the time between the first and last pulse within that window.
 
-The confidence interval estimates the range of values that contain the true instantaneous rate with a 95 % probability, assuming a constant level of radiation.
+The confidence intervals estimate the range of values that contain the true instantaneous rate with a 95 % probability, assuming a constant level of radiation.
 
-The time window is adaptively adjusted, aiming for a confidence interval of less than 50 %. On radiation levels above 1 µSv/h, the time window is limited to 5 seconds to ensure a fast response.
+The time window is adaptively adjusted, aiming for confidence intervals below ±50 %. On radiation levels above 1 µSv/h, the time window is limited to 5 seconds to ensure a fast response.
 
 ### Average rate
 
 The average rate is estimated by dividing the number of pulses within a time window, minus one, by the time between the first and last pulse within that window.
 
-The 95 % confidence interval assumes a constant level of radiation over the averaging period.
+The 95 % confidence intervals assumes a constant level of radiation over the averaging period.
 
 Averaging can be indefinite, or limited by the average timer.
 

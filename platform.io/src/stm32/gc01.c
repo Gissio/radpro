@@ -31,7 +31,7 @@
 void initSystem(void)
 {
     // Set stack pointer to fix bootloader madness
-    __set_MSP(*((uint32_t *)PAYLOAD_BASE));
+    __set_MSP(*((uint32_t *)FIRMWARE_BASE));
 
     // Enable HSE
     set_bits(RCC->CR, RCC_CR_HSEON);
@@ -65,7 +65,7 @@ void initSystem(void)
 
     // Set vector table
     NVIC_DisableAllIRQs();
-    SCB->VTOR = PAYLOAD_BASE;
+    SCB->VTOR = FIRMWARE_BASE;
 
     // Disable JTAG
     rcc_enable_afio();
@@ -257,11 +257,11 @@ static void onDisplaySetCommand(bool value)
 
 static void onDisplaySend(uint16_t value)
 {
-    DISPLAY_CSX_PORT->BRR = DISPLAY_CSX_PIN;
-    DISPLAY_WRX_PORT->BRR = DISPLAY_WRX_PIN;
+    DISPLAY_CSX_PORT->BRR = get_bitvalue(DISPLAY_CSX_PIN);
+    DISPLAY_WRX_PORT->BRR = get_bitvalue(DISPLAY_WRX_PIN);
     DISPLAY_DATA_PORT->ODR = value;
-    DISPLAY_WRX_PORT->BSRR = DISPLAY_WRX_PIN;
-    DISPLAY_CSX_PORT->BSRR = DISPLAY_CSX_PIN;
+    DISPLAY_WRX_PORT->BSRR = get_bitvalue(DISPLAY_WRX_PIN);
+    DISPLAY_CSX_PORT->BSRR = get_bitvalue(DISPLAY_CSX_PIN);
 }
 
 #endif
@@ -369,7 +369,7 @@ void initDisplayController(void)
     mr_st7789_init(&mr,
                    240,
                    320,
-                   MR_DISPLAY_ROTATION_90,
+                   MR_DISPLAY_ROTATION_270,
                    displayTextbuffer,
                    sizeof(displayTextbuffer),
                    onDisplaySleep,

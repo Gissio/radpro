@@ -187,6 +187,7 @@ static void onDisplaySend(uint16_t value)
 
 void initDisplayController(void)
 {
+    gpio_set(DISPLAY_RSTB_PORT, DISPLAY_RSTB_PIN);
     gpio_set(DISPLAY_CSB_PORT, DISPLAY_CSB_PIN);
     gpio_set(DISPLAY_SCLK_PORT, DISPLAY_SCLK_PIN);
 

@@ -538,38 +538,35 @@ __STATIC_INLINE void exti_setup(GPIO_TypeDef *base,
                                 bool rising_trigger,
                                 bool falling_trigger)
 {
+    uint32_t shift4 = 4 * (pin & 0b11);
+
     if (base == GPIOA)
         modify_bits(STM32EXT_EXTI->EXTICR[pin / 4],
-                    0b1111 << (pin & 0b11),
-                    0);
-
+                    0b1111 << shift4,
+                    0 << shift4);
     else if (base == GPIOB)
         modify_bits(STM32EXT_EXTI->EXTICR[pin / 4],
-                    0b1111 << (pin & 0b11),
-                    1);
-
+                    0b1111 << shift4,
+                    1 << shift4);
     else if (base == GPIOC)
         modify_bits(STM32EXT_EXTI->EXTICR[pin / 4],
-                    0b1111 << (pin & 0b11),
-                    2);
-
+                    0b1111 << shift4,
+                    2 << shift4);
     else if (base == GPIOD)
         modify_bits(STM32EXT_EXTI->EXTICR[pin / 4],
-                    0b1111 << (pin & 0b11),
-                    3);
-
+                    0b1111 << shift4,
+                    3 << shift4);
 #if defined(GPIOF)
     else if (base == GPIOF)
         modify_bits(STM32EXT_EXTI->EXTICR[pin / 4],
-                    0b1111 << (pin & 0b11),
-                    5);
+                    0b1111 << shift4,
+                    5 << shift4);
 #endif
 
 #if defined(STM32F0) || defined(STM32F1)
     modify_bits(EXTI->RTSR,
                 1 << pin,
                 rising_trigger << pin);
-
     modify_bits(EXTI->FTSR,
                 1 << pin,
                 falling_trigger << pin);
@@ -577,7 +574,6 @@ __STATIC_INLINE void exti_setup(GPIO_TypeDef *base,
     modify_bits(EXTI->RTSR1,
                 1 << pin,
                 rising_trigger << pin);
-
     modify_bits(EXTI->FTSR1,
                 1 << pin,
                 falling_trigger << pin);
@@ -821,8 +817,11 @@ __STATIC_INLINE void adc_start_conversion_oneshot(ADC_TypeDef *base,
 #if defined(STM32F0) && defined(GD32)
     ADC_GD32_TypeDef *gdBase = (ADC_GD32_TypeDef *)base;
     gdBase->RSQ0 = 0;
-    gdBase->RSQ1 = 0;
     gdBase->RSQ2 = channel;
+
+    modify_bits(gdBase->CTL1,
+                ADC_CTL1_ETERC_Msk | ADC_CTL1_ETSRC_Msk,
+                ADC_CTL1_ETERC | ADC_CTL1_ETSRC_SWRCST);
 
     if (channel < 10)
         gdBase->SAMPT0 = sample_time << (3 * channel);
@@ -839,8 +838,11 @@ __STATIC_INLINE void adc_start_conversion_oneshot(ADC_TypeDef *base,
              ADC_CR_ADSTART);
 #elif defined(STM32F1)
     base->SQR1 = 0;
-    base->SQR2 = 0;
     base->SQR3 = channel;
+
+    modify_bits(base->CR2,
+                ADC_CR2_EXTTRIG_Msk | ADC_CR2_EXTSEL_Msk,
+                ADC_CR2_EXTTRIG | ADC_CR2_EXTSEL_SWSTART);
 
     if (channel < 10)
         base->SMPR2 = sample_time << (3 * channel);
@@ -848,7 +850,7 @@ __STATIC_INLINE void adc_start_conversion_oneshot(ADC_TypeDef *base,
         base->SMPR1 = sample_time << (3 * (channel - 10));
 
     set_bits(base->CR2,
-             ADC_CR2_ADON);
+             ADC_CR2_SWSTART);
 #endif
 }
 

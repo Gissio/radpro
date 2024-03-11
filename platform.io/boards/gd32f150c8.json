@@ -2,7 +2,7 @@
     "build": {
         "core": "stm32",
         "cpu": "cortex-m3",
-        "extra_flags": "-D STM32 -D STM32F0 -D STM32F051x8 -D GD32",
+        "extra_flags": "-D STM32 -D STM32F0 -D STM32F051x8 -D GD32 -D SRAM_SIZE=8192",
         "f_cpu": "48000000L",
         "mcu": "stm32f051c8t6",
         "product_line": "STM32F051x8"

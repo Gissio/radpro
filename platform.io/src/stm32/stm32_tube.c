@@ -199,4 +199,16 @@ bool getTubePulse(uint32_t *pulseTime)
     return true;
 }
 
+// +++ TEST
+uint16_t getPulseTimerLow(void)
+{
+    return TUBE_DET_TIMER_MASTER->CNT;
+}
+
+uint16_t getPulseTimerHigh(void)
+{
+    return TUBE_DET_TIMER_SLAVE->CNT;
+}
+// +++ TEST
+
 #endif

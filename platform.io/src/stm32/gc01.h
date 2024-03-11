@@ -18,8 +18,12 @@
 #define LSE_FREQUENCY 32768
 #define LSI_FREQUENCY 40000
 
-#define PAYLOAD_BASE 0x08004000
-#define PAYLOAD_SIZE (0xa400 - 0x4)
+#define FIRMWARE_BASE 0x08004000
+#if defined(CH32)
+#define FIRMWARE_SIZE 0xa800
+#elif defined(APM32)
+#define FIRMWARE_SIZE 0xc000
+#endif
 
 #define PWR_EN_PORT GPIOA
 #define PWR_EN_PIN 2

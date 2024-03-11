@@ -20,7 +20,7 @@
 const uint32_t flashPageDataSize = FLASH_PAGE_SIZE - FLASH_BLOCK_SIZE;
 const uint32_t flashBlockSize = FLASH_BLOCK_SIZE;
 
-#define FIRMWARE_CRC (*(uint32_t *)(PAYLOAD_BASE + PAYLOAD_SIZE))
+#define FIRMWARE_CRC (*(uint32_t *)(FIRMWARE_BASE + FIRMWARE_SIZE - 0x4))
 
 // Flash
 
@@ -37,8 +37,8 @@ bool verifyFlash(void)
 
     crc_reset();
 
-    for (int i = 0; i < PAYLOAD_SIZE / 4; i++)
-        crc_write(((uint32_t *)PAYLOAD_BASE)[i]);
+    for (int i = 0; i < (FIRMWARE_SIZE - 0x4) / 4; i++)
+        crc_write(((uint32_t *)FIRMWARE_BASE)[i]);
     uint32_t crc = crc_read();
 
     rcc_disable_crc();
