@@ -17,11 +17,6 @@ void initADC(void)
 {
 }
 
-uint32_t readADC(uint8_t channel, uint8_t sampleTime)
-{
-    return 0x1234;
-}
-
 void updateADC(void)
 {
 }

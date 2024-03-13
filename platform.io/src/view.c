@@ -28,9 +28,6 @@ void dispatchViewEvents(void)
 {
     syncTimerThread();
 
-#if defined(DISPLAY_COLOR)
-    bool displayOn = isDisplayOn();
-#endif
     bool displayTimerActive = isDisplayTimerActive();
 
     // Key events
@@ -65,15 +62,16 @@ void dispatchViewEvents(void)
     // Draw events
 
 #if defined(DISPLAY_COLOR)
-    if (displayOn &&
-        !displayTimerActive)
+    if (!displayTimerActive)
     {
-        setDisplayBacklight(false);
-        setDisplayOn(false);
-    }
+        if (isDisplayOn())
+        {
+            setDisplayBacklight(false);
+            setDisplayOn(false);
+        }
 
-    if (displayOn != displayTimerActive)
-        view.drawUpdate = displayTimerActive;
+        view.drawUpdate = false;
+    }
 #endif
 
     if (view.drawUpdate)
@@ -88,7 +86,7 @@ void dispatchViewEvents(void)
     }
 
 #if defined(DISPLAY_COLOR)
-    if (!displayOn &&
+    if (!isDisplayOn() &&
         displayTimerActive)
     {
         setDisplayBacklight(true);

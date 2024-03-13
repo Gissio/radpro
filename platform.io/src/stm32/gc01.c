@@ -257,11 +257,9 @@ static void onDisplaySetCommand(bool value)
 
 static void onDisplaySend(uint16_t value)
 {
-    DISPLAY_CSX_PORT->BRR = get_bitvalue(DISPLAY_CSX_PIN);
     DISPLAY_WRX_PORT->BRR = get_bitvalue(DISPLAY_WRX_PIN);
     DISPLAY_DATA_PORT->ODR = value;
     DISPLAY_WRX_PORT->BSRR = get_bitvalue(DISPLAY_WRX_PIN);
-    DISPLAY_CSX_PORT->BSRR = get_bitvalue(DISPLAY_CSX_PIN);
 }
 
 #endif
@@ -380,7 +378,8 @@ void initDisplayController(void)
 
 #endif
 
-    mr_send_sequence(&mr, displayInitSequence);
+    mr_send_sequence(&mr,
+                     displayInitSequence);
 }
 
 #endif

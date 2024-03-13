@@ -30,13 +30,13 @@ void initBuzzerController(void)
                       BUZZ_PIN,
                       GPIO_OUTPUTTYPE_PUSHPULL,
                       GPIO_OUTPUTSPEED_2MHZ,
-                      GPIO_PULL_NONE);
+                      GPIO_PULL_FLOATING);
 #if defined(BUZZ2_PORT)
     gpio_setup_output(BUZZ2_PORT,
                       BUZZ2_PIN,
                       GPIO_OUTPUTTYPE_PUSHPULL,
                       GPIO_OUTPUTSPEED_2MHZ,
-                      GPIO_PULL_NONE);
+                      GPIO_PULL_FLOATING);
 #endif
 #elif defined(STM32F1)
     gpio_setup(BUZZ_PORT,

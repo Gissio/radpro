@@ -113,7 +113,6 @@ static TimerState updateTimer(volatile int32_t *timer)
 void onTick(void)
 {
     // Measurement
-
     if (events.measurementsEnabled)
     {
         uint32_t pulseCount = 0;
@@ -149,7 +148,6 @@ void onTick(void)
     }
 
     // Keyboard
-
     if (updateTimer(&events.keyboardTimer) == TIMER_ELAPSED)
     {
         events.keyboardTimer = KEY_TICKS;
@@ -158,7 +156,6 @@ void onTick(void)
     }
 
     // Buzzer
-
 #if defined(SIMULATOR)
     updateBuzzer();
 #endif
@@ -192,7 +189,6 @@ void onTick(void)
     }
 
     // Display
-
     if (updateTimer(&events.displayTimer) == TIMER_ELAPSED)
     {
 #if defined(DISPLAY_MONOCHROME)
@@ -201,7 +197,6 @@ void onTick(void)
     }
 
     // Pulse LED
-
 #if defined(PULSELED)
     if (updateTimer(&events.pulseLEDTimer) == TIMER_ELAPSED)
     {
@@ -210,7 +205,6 @@ void onTick(void)
 #endif
 
     // Alarm
-
     if (updateTimer(&events.alarmTimer) == TIMER_ELAPSED)
     {
 #if defined(VIBRATOR)

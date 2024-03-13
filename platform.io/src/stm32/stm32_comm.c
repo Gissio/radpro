@@ -30,14 +30,14 @@ void initComm(void)
                   USART_RX_PIN,
                   GPIO_OUTPUTTYPE_PUSHPULL,
                   GPIO_OUTPUTSPEED_50MHZ,
-                  GPIO_PULL_NONE,
+                  GPIO_PULL_FLOATING,
                   USART_RX_AF);
 
     gpio_setup_af(USART_TX_PORT,
                   USART_TX_PIN,
                   GPIO_OUTPUTTYPE_PUSHPULL,
                   GPIO_OUTPUTSPEED_50MHZ,
-                  GPIO_PULL_NONE,
+                  GPIO_PULL_FLOATING,
                   USART_TX_AF);
 
 #elif defined(STM32F1)

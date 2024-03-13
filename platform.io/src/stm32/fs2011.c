@@ -74,20 +74,20 @@ void initKeyboardController(void)
 {
 #if defined(STM32F0)
     gpio_setup_input(KEY_PLAYPAUSE_PORT,
-               KEY_PLAYPAUSE_PIN,
-               GPIO_PULL_UP);
+                     KEY_PLAYPAUSE_PIN,
+                     GPIO_PULL_UP);
     gpio_setup_input(KEY_MENUOK_PORT,
-               KEY_MENUOK_PIN,
-               GPIO_PULL_UP);
+                     KEY_MENUOK_PIN,
+                     GPIO_PULL_UP);
     gpio_setup_input(KEY_UP_PORT,
-               KEY_UP_PIN,
-               GPIO_PULL_UP);
+                     KEY_UP_PIN,
+                     GPIO_PULL_UP);
     gpio_setup_input(KEY_DOWN_PORT,
-               KEY_DOWN_PIN,
-               GPIO_PULL_UP);
+                     KEY_DOWN_PIN,
+                     GPIO_PULL_UP);
     gpio_setup_input(KEY_POWER_PORT,
-               KEY_POWER_PIN,
-               GPIO_PULL_UP);
+                     KEY_POWER_PIN,
+                     GPIO_PULL_UP);
 #elif defined(STM32F1)
     gpio_setup(KEY_PLAYPAUSE_PORT,
                KEY_PLAYPAUSE_PIN,
@@ -170,65 +170,65 @@ void initDisplayController(void)
 
 #if defined(STM32F0)
     gpio_setup_output(DISPLAY_RSTB_PORT,
-               DISPLAY_RSTB_PIN,
-               GPIO_OUTPUTTYPE_PUSHPULL,
-               GPIO_OUTPUTSPEED_50MHZ,
-               GPIO_PULL_NONE);
+                      DISPLAY_RSTB_PIN,
+                      GPIO_OUTPUTTYPE_PUSHPULL,
+                      GPIO_OUTPUTSPEED_50MHZ,
+                      GPIO_PULL_FLOATING);
     gpio_setup_output(DISPLAY_A0_PORT,
-               DISPLAY_A0_PIN,
-               GPIO_OUTPUTTYPE_PUSHPULL,
-               GPIO_OUTPUTSPEED_50MHZ,
-               GPIO_PULL_NONE);
+                      DISPLAY_A0_PIN,
+                      GPIO_OUTPUTTYPE_PUSHPULL,
+                      GPIO_OUTPUTSPEED_50MHZ,
+                      GPIO_PULL_FLOATING);
     gpio_setup_output(DISPLAY_RW_PORT,
-               DISPLAY_RW_PIN,
-               GPIO_OUTPUTTYPE_PUSHPULL,
-               GPIO_OUTPUTSPEED_50MHZ,
-               GPIO_PULL_NONE);
+                      DISPLAY_RW_PIN,
+                      GPIO_OUTPUTTYPE_PUSHPULL,
+                      GPIO_OUTPUTSPEED_50MHZ,
+                      GPIO_PULL_FLOATING);
     gpio_setup_output(DISPLAY_E_PORT,
-               DISPLAY_E_PIN,
-               GPIO_OUTPUTTYPE_PUSHPULL,
-               GPIO_OUTPUTSPEED_50MHZ,
-               GPIO_PULL_NONE);
+                      DISPLAY_E_PIN,
+                      GPIO_OUTPUTTYPE_PUSHPULL,
+                      GPIO_OUTPUTSPEED_50MHZ,
+                      GPIO_PULL_FLOATING);
     gpio_setup_output(DISPLAY_D0_PORT,
-               DISPLAY_D0_PIN,
-               GPIO_OUTPUTTYPE_PUSHPULL,
-               GPIO_OUTPUTSPEED_50MHZ,
-               GPIO_PULL_NONE);
+                      DISPLAY_D0_PIN,
+                      GPIO_OUTPUTTYPE_PUSHPULL,
+                      GPIO_OUTPUTSPEED_50MHZ,
+                      GPIO_PULL_FLOATING);
     gpio_setup_output(DISPLAY_D1_PORT,
-               DISPLAY_D1_PIN,
-               GPIO_OUTPUTTYPE_PUSHPULL,
-               GPIO_OUTPUTSPEED_50MHZ,
-               GPIO_PULL_NONE);
+                      DISPLAY_D1_PIN,
+                      GPIO_OUTPUTTYPE_PUSHPULL,
+                      GPIO_OUTPUTSPEED_50MHZ,
+                      GPIO_PULL_FLOATING);
     gpio_setup_output(DISPLAY_D2_PORT,
-               DISPLAY_D2_PIN,
-               GPIO_OUTPUTTYPE_PUSHPULL,
-               GPIO_OUTPUTSPEED_50MHZ,
-               GPIO_PULL_NONE);
+                      DISPLAY_D2_PIN,
+                      GPIO_OUTPUTTYPE_PUSHPULL,
+                      GPIO_OUTPUTSPEED_50MHZ,
+                      GPIO_PULL_FLOATING);
     gpio_setup_output(DISPLAY_D3_PORT,
-               DISPLAY_D3_PIN,
-               GPIO_OUTPUTTYPE_PUSHPULL,
-               GPIO_OUTPUTSPEED_50MHZ,
-               GPIO_PULL_NONE);
+                      DISPLAY_D3_PIN,
+                      GPIO_OUTPUTTYPE_PUSHPULL,
+                      GPIO_OUTPUTSPEED_50MHZ,
+                      GPIO_PULL_FLOATING);
     gpio_setup_output(DISPLAY_D4_PORT,
-               DISPLAY_D4_PIN,
-               GPIO_OUTPUTTYPE_PUSHPULL,
-               GPIO_OUTPUTSPEED_50MHZ,
-               GPIO_PULL_NONE);
+                      DISPLAY_D4_PIN,
+                      GPIO_OUTPUTTYPE_PUSHPULL,
+                      GPIO_OUTPUTSPEED_50MHZ,
+                      GPIO_PULL_FLOATING);
     gpio_setup_output(DISPLAY_D5_PORT,
-               DISPLAY_D5_PIN,
-               GPIO_OUTPUTTYPE_PUSHPULL,
-               GPIO_OUTPUTSPEED_50MHZ,
-               GPIO_PULL_NONE);
+                      DISPLAY_D5_PIN,
+                      GPIO_OUTPUTTYPE_PUSHPULL,
+                      GPIO_OUTPUTSPEED_50MHZ,
+                      GPIO_PULL_FLOATING);
     gpio_setup_output(DISPLAY_D6_PORT,
-               DISPLAY_D6_PIN,
-               GPIO_OUTPUTTYPE_PUSHPULL,
-               GPIO_OUTPUTSPEED_50MHZ,
-               GPIO_PULL_NONE);
+                      DISPLAY_D6_PIN,
+                      GPIO_OUTPUTTYPE_PUSHPULL,
+                      GPIO_OUTPUTSPEED_50MHZ,
+                      GPIO_PULL_FLOATING);
     gpio_setup_output(DISPLAY_D7_PORT,
-               DISPLAY_D7_PIN,
-               GPIO_OUTPUTTYPE_PUSHPULL,
-               GPIO_OUTPUTSPEED_50MHZ,
-               GPIO_PULL_NONE);
+                      DISPLAY_D7_PIN,
+                      GPIO_OUTPUTTYPE_PUSHPULL,
+                      GPIO_OUTPUTSPEED_50MHZ,
+                      GPIO_PULL_FLOATING);
 #elif defined(STM32F1)
     gpio_setup(DISPLAY_RSTB_PORT,
                DISPLAY_RSTB_PIN,
@@ -280,7 +280,8 @@ void initDisplayController(void)
                    onDisplaySetCommand,
                    onDisplaySend);
 
-    mr_send_sequence(&mr, displayInitSequence);
+    mr_send_sequence(&mr,
+                     displayInitSequence);
 
     updateDisplayContrast();
 }

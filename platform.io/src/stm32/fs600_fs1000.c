@@ -38,7 +38,7 @@ void initSystem(void)
     // Enable GPIOA, GPIOB, GPIOC, GPIOD
     set_bits(RCC->IOPENR,
              RCC_IOPENR_GPIOAEN |
-                 RCC_IOPENR_GPIOAEN |
+                 RCC_IOPENR_GPIOBEN |
                  RCC_IOPENR_GPIOCEN |
                  RCC_IOPENR_GPIODEN);
 }
@@ -69,19 +69,19 @@ void initKeyboardController(void)
 
     gpio_setup_input(KEY_LEFT_PORT,
                      KEY_LEFT_PIN,
-                     GPIO_PULL_NONE);
+                     GPIO_PULL_FLOATING);
     gpio_setup_input(KEY_RIGHT_PORT,
                      KEY_RIGHT_PIN,
-                     GPIO_PULL_NONE);
+                     GPIO_PULL_FLOATING);
     gpio_setup_input(KEY_UP_PORT,
                      KEY_UP_PIN,
-                     GPIO_PULL_NONE);
+                     GPIO_PULL_FLOATING);
     gpio_setup_input(KEY_DOWN_PORT,
                      KEY_DOWN_PIN,
                      GPIO_PULL_DOWN);
     gpio_setup_input(KEY_SELECT_PORT,
                      KEY_SELECT_PIN,
-                     GPIO_PULL_NONE);
+                     GPIO_PULL_FLOATING);
 }
 
 void getKeyboardState(bool *isKeyDown)
@@ -195,27 +195,27 @@ void initDisplayController(void)
                       DISPLAY_RSTB_PIN,
                       GPIO_OUTPUTTYPE_PUSHPULL,
                       GPIO_OUTPUTSPEED_50MHZ,
-                      GPIO_PULL_NONE);
+                      GPIO_PULL_FLOATING);
     gpio_setup_output(DISPLAY_CSB_PORT,
                       DISPLAY_CSB_PIN,
                       GPIO_OUTPUTTYPE_PUSHPULL,
                       GPIO_OUTPUTSPEED_50MHZ,
-                      GPIO_PULL_NONE);
+                      GPIO_PULL_FLOATING);
     gpio_setup_output(DISPLAY_A0_PORT,
                       DISPLAY_A0_PIN,
                       GPIO_OUTPUTTYPE_PUSHPULL,
                       GPIO_OUTPUTSPEED_50MHZ,
-                      GPIO_PULL_NONE);
+                      GPIO_PULL_FLOATING);
     gpio_setup_output(DISPLAY_SCLK_PORT,
                       DISPLAY_SCLK_PIN,
                       GPIO_OUTPUTTYPE_PUSHPULL,
                       GPIO_OUTPUTSPEED_50MHZ,
-                      GPIO_PULL_NONE);
+                      GPIO_PULL_FLOATING);
     gpio_setup_output(DISPLAY_SDA_PORT,
                       DISPLAY_SDA_PIN,
                       GPIO_OUTPUTTYPE_PUSHPULL,
                       GPIO_OUTPUTSPEED_50MHZ,
-                      GPIO_PULL_NONE);
+                      GPIO_PULL_FLOATING);
 
     // mcu-renderer
 
@@ -229,7 +229,8 @@ void initDisplayController(void)
                    onDisplaySetCommand,
                    onDisplaySend);
 
-    mr_send_sequence(&mr, displayInitSequence);
+    mr_send_sequence(&mr,
+                     displayInitSequence);
 
     updateDisplayContrast();
 }

@@ -43,9 +43,6 @@ static struct
     float filteredMCUTemperatureValue;
 } adc;
 
-static float readBatteryVoltageValue(void);
-static float readMCUTemperatureValue(void);
-
 void initADC(void)
 {
     syncTimerThread();

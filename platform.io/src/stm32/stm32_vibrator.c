@@ -22,7 +22,7 @@ void initVibrator(void)
                VIBRATOR_PIN,
                GPIO_OUTPUTTYPE_PUSHPULL,
                GPIO_OUTPUTSPEED_2MHZ,
-               GPIO_PULL_NONE);
+               GPIO_PULL_FLOATING);
 #elif defined(STM32F1)
     gpio_setup(VIBRATOR_PORT,
                VIBRATOR_PIN,
@@ -34,7 +34,7 @@ void setVibrator(bool value)
 {
     gpio_modify(VIBRATOR_PORT,
                 VIBRATOR_PIN,
-#if VIBRATOR_ACTIVE_LOW
+#if defined(VIBRATOR_ACTIVE_LOW)
                 !
 #endif
                 value);

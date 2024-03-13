@@ -40,8 +40,6 @@ Rad Pro 2.0 adds:
 * Anti-aliased text rendering on color screens.
 * Several bugfixes and optimizations.
 
-Note: Rad Pro 2.0 uses a new settings format and requires an installation.
-
 ## Project overview
 
 * [Legal stuff](docs/legal.md)

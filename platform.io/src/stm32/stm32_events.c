@@ -9,6 +9,7 @@
 
 #if defined(STM32)
 
+#include "../comm.h"
 #include "../events.h"
 #include "../power.h"
 
@@ -53,12 +54,10 @@ void sleep(uint32_t value)
 
     while ((eventsCurrentTick - startTick) < value)
     {
-#if defined(GC01) && defined(CH32)
-        // Disable sleep when charging as CH32F103 does not wake USB on IRQ
-        // +++ TEST
-        // if (!isBatteryCharging())
-        //     __asm volatile("wfi");
-        // +++ TEST
+#if defined(USB_MODE)
+        // Disable sleep in USB mode as CH32F103 does not wake USB on IRQ
+        if (!isUSBMode())
+            __asm volatile("wfi");
 #else
         __asm volatile("wfi");
 #endif

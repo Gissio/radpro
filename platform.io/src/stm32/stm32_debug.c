@@ -28,7 +28,7 @@ void initDebug(void)
                   DEBUG_USART_TX_PIN,
                   GPIO_OUTPUTTYPE_PUSHPULL,
                   GPIO_OUTPUTSPEED_50MHZ,
-                  GPIO_PULL_NONE,
+                  GPIO_PULL_FLOATING,
                   DEBUG_USART_TX_AF);
 
 #elif defined(STM32F1)

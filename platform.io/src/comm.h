@@ -55,6 +55,8 @@ typedef struct
 
 extern Comm comm;
 
+extern const View usbModeView;
+
 void initComm(void);
 
 void setCommEnabled(bool value);
@@ -63,5 +65,7 @@ void transmitComm(void);
 
 void dispatchCommEvents(void);
 void updateCommController(void);
+
+bool isUSBMode(void);
 
 #endif

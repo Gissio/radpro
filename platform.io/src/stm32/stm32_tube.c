@@ -42,7 +42,7 @@ void initTubeController(void)
                   TUBE_HV_PIN,
                   GPIO_OUTPUTTYPE_PUSHPULL,
                   GPIO_OUTPUTSPEED_50MHZ,
-                  GPIO_PULL_NONE,
+                  GPIO_PULL_FLOATING,
                   TUBE_HV_AF);
 
     gpio_setup_input(TUBE_DET_PORT,
@@ -52,7 +52,7 @@ void initTubeController(void)
 #elif defined(TUBE_DET_PULLDOWN)
                      GPIO_PULL_DOWN
 #else
-                     GPIO_PULL_NONE
+                     GPIO_PULL_FLOATING
 #endif
     );
 
@@ -113,54 +113,15 @@ void setTubeHV(bool value)
 
 void updateTubeHV(void)
 {
-    uint32_t frequencyIndex;
-    uint32_t dutyCycleIndex;
-
-    switch (settings.tubeHVProfile)
-    {
-#if defined(TUBE_HVPROFILE_FACTORY_DEFAULT)
-    case TUBE_HVPROFILE_FACTORY_DEFAULT:
-        frequencyIndex = TUBE_FACTORYDEFAULT_HVFREQUENCY;
-        dutyCycleIndex = TUBE_FACTORYDEFAULT_HVDUTYCYCLE;
-
-        break;
-#endif
-
-    case TUBE_HVPROFILE_ACCURACY:
-        frequencyIndex = TUBE_ACCURACY_HVFREQUENCY;
-        dutyCycleIndex = TUBE_ACCURACY_HVDUTYCYCLE;
-
-        break;
-
-    case TUBE_HVPROFILE_ENERGY_SAVING:
-        frequencyIndex = TUBE_ENERGYSAVING_HVFREQUENCY;
-        dutyCycleIndex = TUBE_ENERGYSAVING_HVDUTYCYCLE;
-
-        break;
-
-    default:
-        frequencyIndex = settings.tubeHVFrequency;
-        dutyCycleIndex = settings.tubeHVDutyCycle;
-
-        break;
-    }
-
-    // Sanity check
-    if (frequencyIndex >= TUBE_HVFREQUENCY_NUM)
-        frequencyIndex = TUBE_HVFREQUENCY_NUM - 1;
-    if (dutyCycleIndex >= TUBE_HVDUTYCYCLE_NUM)
-        dutyCycleIndex = TUBE_HVDUTYCYCLE_NUM - 1;
+    uint32_t period = TIM_FREQUENCY / getTubeHVFrequency();
 
     tim_set_period(TUBE_HV_TIMER,
-                   TUBE_HV_LOW_FREQUENCY_PERIOD >> frequencyIndex);
+                   period);
+
     tim_set_ontime(TUBE_HV_TIMER,
                    TUBE_HV_TIMER_CHANNEL,
                    tube.enabled
-                       ? (TUBE_HV_LOW_DUTYCYCLE_MULTIPLIER *
-                          ((uint32_t)(TUBE_HVDUTYCYCLE_VALUE_MIN /
-                                      TUBE_HVDUTYCYCLE_VALUE_STEP) +
-                           dutyCycleIndex)) >>
-                             frequencyIndex
+                       ? period * getTubeHVDutyCycle()
                        : 0);
 }
 
@@ -198,17 +159,5 @@ bool getTubePulse(uint32_t *pulseTime)
 
     return true;
 }
-
-// +++ TEST
-uint16_t getPulseTimerLow(void)
-{
-    return TUBE_DET_TIMER_MASTER->CNT;
-}
-
-uint16_t getPulseTimerHigh(void)
-{
-    return TUBE_DET_TIMER_SLAVE->CNT;
-}
-// +++ TEST
 
 #endif

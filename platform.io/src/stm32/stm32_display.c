@@ -21,7 +21,7 @@ void initDisplayBacklight(void)
                   DISPLAY_BACKLIGHT_PIN,
                   GPIO_OUTPUTTYPE_PUSHPULL,
                   GPIO_OUTPUTSPEED_2MHZ,
-                  GPIO_PULL_NONE,
+                  GPIO_PULL_FLOATING,
                   DISPLAY_BACKLIGHT_AF);
 #elif defined(STM32F1)
     gpio_setup(DISPLAY_BACKLIGHT_PORT,
@@ -39,12 +39,20 @@ void initDisplayBacklight(void)
 
 void setDisplayBacklight(bool value)
 {
+    uint32_t ontime =
+        value
+            ? displayBrightnessValue[settings.displayBrightness] *
+                  (DISPLAY_BACKLIGHT_TIMER_PERIOD / 1000)
+            : 0;
+
     tim_set_ontime(DISPLAY_BACKLIGHT_TIMER,
                    DISPLAY_BACKLIGHT_TIMER_CHANNEL,
-                   value
-                       ? displayBrightnessValue[settings.displayBrightness] *
-                             (DISPLAY_BACKLIGHT_TIMER_PERIOD / 1000)
-                       : 0);
+#if defined(DISPLAY_BACKLIGHT_ACTIVE_LOW)
+                   DISPLAY_BACKLIGHT_TIMER_PERIOD - ontime
+#else
+                   ontime
+#endif
+    );
 }
 
 #endif

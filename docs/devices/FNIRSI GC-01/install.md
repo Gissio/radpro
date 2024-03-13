@@ -4,7 +4,7 @@
 
 Download the appropriate firmware from the [Rad Pro releases page](https://github.com/Gissio/radpro/releases):
   * For initial installation, download both `radpro-fnirsi-gc01-apm32f103rb-x.y.z-install.bin` and `radpro-fnirsi-gc01-ch32f103r8-x.y.z-install.bin`.
-  * For updating, download both `radpro-fnirsi-gc01-apm32f103rb-x.y.z-update.bin` and `radpro-fnirsi-gc01-ch32f103r8-x.y.z-update.bin`.
+  * For updating, download `radpro-fnirsi-gc01-apm32f103rb-x.y.z-update.bin` if you previously installed `radpro-fnirsi-gc01-apm32f103rb-x.y.z-install.bin`, or `radpro-fnirsi-gc01-ch32f103r8-x.y.z-update.bin` if you previously installed `radpro-fnirsi-gc01-ch32f103r8-x.y.z-install.bin`.
 
 The `radpro-fnirsi-gc01-apm32f103rb-x.y.z-install.bin` firmware is for devices with a APM32F103RB (Geehy) microprocessor, the `radpro-fnirsi-gc01-ch32f103r8-x.y.z-install.bin`firmware is for devices with a CH32F103R8 microprocessor.
 
@@ -22,7 +22,7 @@ If something goes wrong, you can recover your device with the [original firmware
 
 ## Step 3: Configure your device
 
-Last, start your device and go to Rad Pro's settings, select "Geiger tube", select "HV Profile" and choose an appropriate HV profile: "Energy-saving" reduces power consumption at the expense of lower accuracy, while "Accuracy" requires more power but provides more accurate measurements.
+Last, start your device and go to Rad Pro's settings, select "Geiger tube", select "HV Profile" and choose an appropriate HV profile: "Factory default 1" is the profile of the original firmware V0.3 and V1.5, "Factory default 2" is the profile of the original firmware V1.6-2.
 
 If the indicated radiation rate is not correct, turn off your device, open it, identify the installed Geiger tube, close your device, restart it and go to Rad Pro's settings, select "Geiger tube", "Conversion factor", and select the option that matches the Geiger-Müller tube installed in your device.
 
@@ -42,11 +42,13 @@ The keys are mapped as follows:
   * Select option: the ok/power or right/settings key.
   * Bo back: the left/back key.
 
+On the FNIRSI GC-01 with an APM32F103R8 (Geehy) processor, the USB connection is always available. On the FNIRSI GC-01 with a CH32F103R8 processor, you must enter "USB mode" in the Settings to enable a USB connection.
+
 On the FNIRSI GC-01 with an APM32F103RB (Geehy) processor, Rad Pro can store up to 63756 data points. At normal radiation levels, this allows for 44 days of data at 1-minute intervals, 110 days at 5-minute intervals, 221 days at 10-minute intervals, 664 days at 30-minute intervals, and 1328 days at 60-minute intervals.
 
 On the FNIRSI GC-01 with a CH32F103R8 processor, Rad Pro can store up to 5060 data points. At normal radiation levels, this allows for 3 days of data at 1-minute intervals, 8 days at 5-minute intervals, 17 days at 10-minute intervals, 52 days at 30-minute intervals, and 105 days at 60-minute intervals.
 
 The FNIRSI GC-01 HV profile settings are:
 
-* Accuracy: 10 kHz frequency and 72 % duty cycle.
-* Energy-saving: 2.5 kHz frequency and 10 % duty cycle.
+* Factory default 1: 9.207 kHz frequency and 75 % duty cycle.
+* Factory default 2: 47.058 kHz frequency and 50 % duty cycle.

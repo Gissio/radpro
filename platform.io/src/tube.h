@@ -22,10 +22,11 @@ void initTubeController(void);
 
 float getTubeConversionFactor(void);
 float getTubeDeadTimeCompensation(void);
-float getTubeHVDutyCycle(void);
 float getTubeHVFrequency(void);
+float getTubeHVDutyCycle(void);
 
 void setTubeHV(bool value);
+bool getTubeHV(void);
 void updateTubeHV(void);
 bool getTubePulse(uint32_t *pulseTime);
 

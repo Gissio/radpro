@@ -426,6 +426,9 @@ uint16_t displayBrightnessValue[] = {
 
 // Colors
 
+// Online color blender: https://pinetools.com/blend-colors
+// Online RGB565 color picker: https://rgbcolorpicker.com/565
+
 typedef enum
 {
     COLOR_ELEMENT_ACTIVE,
@@ -510,7 +513,7 @@ static const mr_color displayColors[][3] = {
     // Flat checked background (on container global)
     {mr_get_color(0xe7ebf1),
      mr_get_color(0x34404a),  // Alt: 0x35393f
-     mr_get_color(0x050a06)}, // Alt: 0x04080e
+     mr_get_color(0x080f1a)}, // Changed alpha to 18%
 
     // On flat active (on container global)
     {mr_get_color(0x191919),
@@ -1439,7 +1442,6 @@ void drawStatistics(void)
         case 4:
             strcpy(key, "Dead-time");
 #endif
-            // +++ TEST
             float deadTime = getTubeDeadTime();
             if (deadTime >= 1)
                 strcpy(valueString, "-");
@@ -1450,10 +1452,6 @@ void drawStatistics(void)
                 strcpy(unitString, " \xb5"
                                    "s");
             }
-            // strcatUInt16Hex(valueString, getPulseTimerHigh());
-            // strcat(valueString, ":");
-            // strcatUInt16Hex(valueString, getPulseTimerLow());
-            // +++ TEST
 
             break;
 
@@ -1855,7 +1853,7 @@ static void onDisplayBrightnessMenuSelect(const Menu *menu)
 {
     settings.displayBrightness = menu->state->selectedIndex;
 
-    triggerDisplay();
+    setDisplayBacklight(true);
 }
 
 static MenuState displayBrightnessMenuState;

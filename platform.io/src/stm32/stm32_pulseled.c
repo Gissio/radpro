@@ -22,7 +22,7 @@ void initPulseLEDController(void)
                PULSELED_PIN,
                GPIO_OUTPUTTYPE_PUSHPULL,
                GPIO_OUTPUTSPEED_2MHZ,
-               GPIO_PULL_NONE);
+               GPIO_PULL_FLOATING);
 #elif defined(STM32F1)
     gpio_setup(PULSELED_PORT,
                PULSELED_PIN,
@@ -34,7 +34,7 @@ void setPulseLED(bool value)
 {
     gpio_modify(PULSELED_PORT,
                 PULSELED_PIN,
-#if PULSELED_ACTIVE_LOW
+#if defined(PULSELED_ACTIVE_LOW)
                 !
 #endif
                 value);

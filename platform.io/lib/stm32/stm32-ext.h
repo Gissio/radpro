@@ -306,7 +306,7 @@ __STATIC_INLINE void flash_program_doubleword(uint32_t addr,
 #define GPIO_OUTPUTSPEED_10MHZ 0b01
 #define GPIO_OUTPUTSPEED_50MHZ 0b11
 
-#define GPIO_PULL_NONE 0b00
+#define GPIO_PULL_FLOATING 0b00
 #define GPIO_PULL_UP 0b01
 #define GPIO_PULL_DOWN 0b10
 
@@ -770,7 +770,7 @@ __STATIC_INLINE void adc_start_calibration(ADC_TypeDef *base)
 #if defined(STM32F0) && defined(GD32)
     ADC_GD32_TypeDef *gdBase = (ADC_GD32_TypeDef *)base;
     set_bits(gdBase->CTL1,
-             ADC_CTL1_RSTCLB);
+             ADC_CTL1_CLB);
 #elif defined(STM32F0) || defined(STM32G0)
     set_bits(base->CR,
              ADC_CR_ADCAL);
@@ -823,16 +823,16 @@ __STATIC_INLINE void adc_start_conversion_oneshot(ADC_TypeDef *base,
                 ADC_CTL1_ETERC_Msk | ADC_CTL1_ETSRC_Msk,
                 ADC_CTL1_ETERC | ADC_CTL1_ETSRC_SWRCST);
 
-    if (channel < 10)
-        gdBase->SAMPT0 = sample_time << (3 * channel);
+    if (channel >= 10)
+        gdBase->SAMPT0 = sample_time << (3 * (channel - 10));
     else
-        gdBase->SAMPT1 = sample_time << (3 * (channel - 10));
+        gdBase->SAMPT1 = sample_time << (3 * channel);
 
     set_bits(gdBase->CTL1,
              ADC_CTL1_SWRCST);
 #elif defined(STM32F0) || defined(STM32G0)
-    ADC1->CHSELR = get_bitvalue(channel);
-    ADC1->SMPR = sample_time;
+    base->CHSELR = get_bitvalue(channel);
+    base->SMPR = sample_time;
 
     set_bits(base->CR,
              ADC_CR_ADSTART);
@@ -844,10 +844,10 @@ __STATIC_INLINE void adc_start_conversion_oneshot(ADC_TypeDef *base,
                 ADC_CR2_EXTTRIG_Msk | ADC_CR2_EXTSEL_Msk,
                 ADC_CR2_EXTTRIG | ADC_CR2_EXTSEL_SWSTART);
 
-    if (channel < 10)
-        base->SMPR2 = sample_time << (3 * channel);
-    else
+    if (channel >= 10)
         base->SMPR1 = sample_time << (3 * (channel - 10));
+    else
+        base->SMPR2 = sample_time << (3 * channel);
 
     set_bits(base->CR2,
              ADC_CR2_SWSTART);
@@ -856,7 +856,7 @@ __STATIC_INLINE void adc_start_conversion_oneshot(ADC_TypeDef *base,
 
 __STATIC_INLINE uint32_t adc_get_conversion_oneshot(ADC_TypeDef *base)
 {
-    return ADC1->DR;
+    return base->DR;
 }
 
 // TIM
@@ -1013,10 +1013,12 @@ __STATIC_INLINE void tim_setup_linked(TIM_TypeDef *base_master,
     rcc_enable_tim(base_master);
     set_bits(base_master->CR2,
              TIM_CR2_MMS_UPDATE);
+    base_master->ARR = 0xffff;
 
     rcc_enable_tim(base_slave);
     set_bits(base_slave->SMCR,
              (trigger_connection << TIM_SMCR_TS_Pos) | TIM_SMCR_SMS_ECM1);
+    base_slave->ARR = 0xffff;
 
     tim_enable_update_events(base_master);
 }
@@ -1146,7 +1148,7 @@ __STATIC_INLINE void rtc_leave_configuration_mode(void)
 
 #if defined(STM32F0) || defined(STM32G0)
 
-__STATIC_INLINE uint32_t rtc_get_date_time(uint32_t *dr,
+__STATIC_INLINE void rtc_get_date_time(uint32_t *dr,
                                            uint32_t *tr)
 {
     *tr = RTC->TR;

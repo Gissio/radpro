@@ -36,7 +36,7 @@ static const Menu tubeHVFrequencyMenu;
 static const View tubeConversionFactorMenuView;
 static const View tubeDeadTimeCompensationMenuView;
 static const View tubeHVProfileMenuView;
-static const View tubeHVCustomProfileWarningMenuView;
+static const View tubeHVCustomProfileWarningView;
 static const View tubeHVCustomProfileMenuView;
 static const View tubeHVDutyCycleMenuView;
 static const View tubeHVrequencyMenuView;
@@ -119,8 +119,8 @@ const View tubeMenuView = {
 
 static const float tubeConversionFactorMenuValues[] = {
     68.4F,
-    123.0F,
-    123.0F,
+    175.0F,
+    153.0F,
     68.4F,
     153.0F,
     175.0F,
@@ -264,11 +264,18 @@ static const View tubeDeadTimeCompensationMenuView = {
 // Tube HV profile menu
 
 static const char *const tubeHVProfileMenuOptions[] = {
-#if defined(TUBE_FACTORYDEFAULT)
+#if !defined(TUBE_HVPROFILE_FACTORYDEFAULT2_FREQUENCY)
     "Factory default",
+#else
+    "Factory default 1",
+    "Factory default 2",
 #endif
+#if defined(TUBE_HVPROFILE_ACCURACY_FREQUENCY)
     "Accuracy",
+#endif
+#if defined(TUBE_HVPROFILE_ENERGYSAVING_FREQUENCY)
     "Energy-saving",
+#endif
     "Custom",
     NULL,
 };
@@ -294,7 +301,7 @@ static void onTubeHVProfileMenuSelect(const Menu *menu)
         updateTubeHV();
     }
     else
-        setView(&tubeHVCustomProfileWarningMenuView);
+        setView(&tubeHVCustomProfileWarningView);
 }
 
 static MenuState tubeHVProfileMenuState;
@@ -319,7 +326,7 @@ static void onTubeHVGeneratorSubMenuBack(const Menu *menu)
 
 // Tube HV custom profile warning
 
-static void onHVCustomProfileWarningMenuEvent(const View *view, Event event)
+static void onHVCustomProfileWarningEvent(const View *view, Event event)
 {
     switch (event)
     {
@@ -349,9 +356,9 @@ static void onHVCustomProfileWarningMenuEvent(const View *view, Event event)
     }
 }
 
-static const View tubeHVCustomProfileWarningMenuView = {
-    onHVCustomProfileWarningMenuEvent,
-    &tubeHVCustomProfileMenu,
+static const View tubeHVCustomProfileWarningView = {
+    onHVCustomProfileWarningEvent,
+    NULL,
 };
 
 // Tube HV custom profile menu
@@ -418,11 +425,38 @@ static const char *const tubeHVFrequencyMenuOptions[] = {
     NULL,
 };
 
+float getTubeHVCustomProfileFrequency(uint32_t index)
+{
+    uint32_t value = 1250 << index;
+
+    return value;
+}
+
 float getTubeHVFrequency(void)
 {
-    uint32_t frequency = 1250 << settings.tubeHVFrequency;
+    switch (settings.tubeHVProfile)
+    {
+    case TUBE_HVPROFILE_FACTORYDEFAULT:
+        return TUBE_HVPROFILE_FACTORYDEFAULT_FREQUENCY;
 
-    return (float)frequency;
+#if defined(TUBE_HVPROFILE_FACTORYDEFAULT2_FREQUENCY)
+    case TUBE_HVPROFILE_FACTORYDEFAULT2:
+        return TUBE_HVPROFILE_FACTORYDEFAULT2_FREQUENCY;
+#endif
+#if defined(TUBE_HVPROFILE_ACCURACY_FREQUENCY)
+    case TUBE_HVPROFILE_ACCURACY:
+        return TUBE_HVPROFILE_ACCURACY_FREQUENCY;
+#endif
+#if defined(TUBE_HVPROFILE_ENERGYSAVING_FREQUENCY)
+    case TUBE_HVPROFILE_ENERGYSAVING:
+        return TUBE_HVPROFILE_ENERGYSAVING_FREQUENCY;
+#endif
+    case TUBE_HVPROFILE_CUSTOM:
+        return getTubeHVCustomProfileFrequency(settings.tubeHVFrequency);
+
+    default:
+        return 1250;
+    }
 }
 
 static const char *onTubeHVFrequencyMenuGetOption(const Menu *menu,
@@ -434,9 +468,6 @@ static const char *onTubeHVFrequencyMenuGetOption(const Menu *menu,
     if (index < TUBE_HVFREQUENCY_NUM)
     {
         strcpy(menuOption, tubeHVFrequencyMenuOptions[index]);
-
-        if (index == TUBE_DEFAULT_HVFREQUENCY)
-            strcat(menuOption, " (default)");
 
         return menuOption;
     }
@@ -468,14 +499,38 @@ static const View tubeHVrequencyMenuView = {
 
 // Tube HV duty cycle menu
 
-static float getTubeHVDutyCycleFromIndex(uint32_t index)
+static float getTubeHVCustomProfileDutyCycle(uint32_t index)
 {
-    return 0.0025F * (index + 1);
+    float value = index + 1;
+
+    return TUBE_HVDUTYCYCLE_MIN * value;
 }
 
 float getTubeHVDutyCycle(void)
 {
-    return getTubeHVDutyCycleFromIndex(settings.tubeHVDutyCycle);
+    switch (settings.tubeHVProfile)
+    {
+    case TUBE_HVPROFILE_FACTORYDEFAULT:
+        return TUBE_HVPROFILE_FACTORYDEFAULT_DUTYCYCLE;
+
+#if defined(TUBE_HVPROFILE_FACTORYDEFAULT2_DUTYCYCLE)
+    case TUBE_HVPROFILE_FACTORYDEFAULT2:
+        return TUBE_HVPROFILE_FACTORYDEFAULT2_DUTYCYCLE;
+#endif
+#if defined(TUBE_HVPROFILE_ACCURACY_DUTYCYCLE)
+    case TUBE_HVPROFILE_ACCURACY:
+        return TUBE_HVPROFILE_ACCURACY_DUTYCYCLE;
+#endif
+#if defined(TUBE_HVPROFILE_ENERGYSAVING_DUTYCYCLE)
+    case TUBE_HVPROFILE_ENERGYSAVING:
+        return TUBE_HVPROFILE_ENERGYSAVING_DUTYCYCLE;
+#endif
+    case TUBE_HVPROFILE_CUSTOM:
+        return getTubeHVCustomProfileDutyCycle(settings.tubeHVDutyCycle);
+
+    default:
+        return 0;
+    }
 }
 
 static const char *onTubeHVDutyCycleMenuGetOption(const Menu *menu,
@@ -487,11 +542,8 @@ static const char *onTubeHVDutyCycleMenuGetOption(const Menu *menu,
     if (index < TUBE_HVDUTYCYCLE_NUM)
     {
         strcpy(menuOption, " ");
-        strcatFloat(menuOption, 100 * getTubeHVDutyCycleFromIndex(index), 2);
+        strcatFloat(menuOption, 100 * getTubeHVCustomProfileDutyCycle(index), 2);
         strcat(menuOption, " %");
-
-        if (index == TUBE_DEFAULT_HVDUTYCYCLE)
-            strcat(menuOption, " (default)");
 
         return menuOption;
     }

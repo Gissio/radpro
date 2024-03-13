@@ -15,6 +15,7 @@
 #endif
 
 #include "buzzer.h"
+#include "comm.h"
 #include "datalog.h"
 #include "display.h"
 #include "flash.h"
@@ -46,8 +47,6 @@ void initSettings(void)
     // Default values
 
     settings.tubeConversionFactor = TUBE_CONVERSIONFACTOR_DEFAULT;
-    settings.tubeHVFrequency = TUBE_DEFAULT_HVFREQUENCY;
-    settings.tubeHVDutyCycle = TUBE_DEFAULT_HVDUTYCYCLE;
 
 #if defined(PULSELED)
     settings.pulseLED = PULSELED_ON;
@@ -81,6 +80,12 @@ void initSettings(void)
     if (getFlashSettings(&iterator, &flashSettings))
     {
         settings = flashSettings.settings;
+
+        if (settings.tubeHVFrequency >= TUBE_HVFREQUENCY_NUM)
+            settings.tubeHVFrequency = TUBE_HVFREQUENCY_NUM - 1;
+        if (settings.tubeHVDutyCycle >= TUBE_HVDUTYCYCLE_NUM)
+            settings.tubeHVDutyCycle = TUBE_HVDUTYCYCLE_NUM - 1;
+
         setDoseTime(flashSettings.dose.time);
         setDosePulseCount(flashSettings.dose.pulseCount);
         setTubeTime(flashSettings.tube.time);
@@ -180,6 +185,9 @@ static const OptionView settingsMenuOptions[] = {
 #endif
     {"Game", &gameMenuView},
     {"Statistics", &statisticsView},
+#if defined(USB_MODE)
+    {"USB mode", &usbModeView},
+#endif
     {NULL},
 };
 

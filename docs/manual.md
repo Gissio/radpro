@@ -3,13 +3,13 @@
 ## Features
 
 * Multiple measurement units: Sievert, rem, cpm (counts per minute), cps (counts per second).
-* Adaptive averaging window, aiming for confidence intervals below ±50 %.
+* Adaptive averaging window, aiming for a confidence interval below ±50 %.
 * Configurable average timer for performing surveys.
 * Data logging with data compression.
 * Configurable pulse click sounds: off, quiet, loud.
 * Dead-time measurement.
 * Customizable Geiger-Müller tube settings: conversion factor, dead-time compensation, high voltage generator PWM frequency and duty cycle (for tube voltage control).
-* Configurable high voltage profiles, including an energy-saving profile that reduces power consumption.
+* Configurable high voltage profiles.
 * Overflow alarms.
 * Statistics for tracking device usage and state.
 * User interface with the [OpenBridge 4.0](https://www.openbridge.no/) design system and anti-aliased text rendering on color screens.
@@ -26,15 +26,15 @@ Rad Pro supports the following measurement modes:
 
 The instantaneous rate is estimated by dividing the number of pulses within a time window, minus one, by the time between the first and last pulse within that window.
 
-The confidence intervals estimate the range of values that contain the true instantaneous rate with a 95 % probability, assuming a constant level of radiation.
+The confidence interval estimates the range of values that contain the true instantaneous rate with a 95 % probability, assuming a constant level of radiation.
 
-The time window is adaptively adjusted, aiming for confidence intervals below ±50 %. On radiation levels above 1 µSv/h, the time window is limited to 5 seconds to ensure a fast response.
+The time window is adaptively adjusted, aiming for a confidence interval below ±50 %. On radiation levels above 1 µSv/h, the time window is limited to 5 seconds to ensure a fast response.
 
 ### Average rate
 
 The average rate is estimated by dividing the number of pulses within a time window, minus one, by the time between the first and last pulse within that window.
 
-The 95 % confidence intervals assumes a constant level of radiation over the averaging period.
+The confidence interval assumes a constant level of radiation over the averaging period.
 
 Averaging can be indefinite, or limited by the average timer.
 
@@ -45,6 +45,19 @@ The dose is calculated from the number of pulses in the time window.
 ### History
 
 The history is calculated from the instantaneous rate, sampled once per second.
+
+## Conversion factor
+
+The conversion factor specifies the relationship between cpm (pulse counts per minute) and µSv/h of a Geiger-Müller tube. 
+
+Rad Pro's default conversion factors are:
+
+* HH614: 68.4 µSv/h/cpm
+* J305: 175.0 µSv/h/cpm
+* J321: 153.0 µSv/h/cpm
+* J613: 68.4 µSv/h/cpm
+* M4011: 153.0 µSv/h/cpm
+* SBM-20: 175.0F µSv/h/cpm
 
 ## Dead-time compensation
 

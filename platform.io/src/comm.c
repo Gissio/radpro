@@ -15,6 +15,7 @@
 #include "adc.h"
 #include "comm.h"
 #include "cstring.h"
+#include "display.h"
 #include "events.h"
 #include "measurements.h"
 #include "rng.h"
@@ -250,3 +251,46 @@ void dispatchCommEvents(void)
         }
     }
 }
+
+// USB connection mode
+
+#if defined(USB_MODE)
+
+bool commUSBMode;
+
+bool isUSBMode(void)
+{
+    return commUSBMode;
+}
+
+static void onUSBModeEvent(const View *view, Event event)
+{
+    switch (event)
+    {
+    case EVENT_KEY_BACK:
+        commUSBMode = false;
+
+        onSettingsSubMenuBack(NULL);
+
+        break;
+
+    case EVENT_DRAW:
+        commUSBMode = true;
+
+        drawNotification("USB mode",
+                         "USB connection enabled.",
+                         false);
+
+        break;
+
+    default:
+        break;
+    }
+}
+
+const View usbModeView = {
+    onUSBModeEvent,
+    NULL,
+};
+
+#endif
