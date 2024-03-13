@@ -60,5 +60,5 @@ Manuals:
 ## Acknowledgements
 
 * Rad Pro's user interface is based on the [OpenBridge 4.0](https://www.openbridge.no/) design system.
-* Thanks to `Alfred90`, `danielhahn76`, `felixsteghofer`, `DG0MG`, `murkle`, `cromagn`, `ivohar` and `mryndzionek` for device testing.
-* Thanks to `pixitha` for the FS2011/GD32F150 board photo with a J305 Geiger tube, `felixsteghofer` for the FS2011/STM32F103 board photo, `DG0MG` for the Bosean FS-600 board photo, `murkle` for the Bosean FS-1000 board photo, and `ivohar` for the FNIRSCI GC-01 schematics.
+* Thanks to `Alfred90`, `danielhahn76`, `felixsteghofer`, `DG0MG`, `murkle`, `cromagn`, `ivohar`,`mryndzionek`, `ivohar`, `JantarX`,  `mizsha`, ``Tig3rch3n`, `Arparela`, `w01fdev` and many others who helped with device testing.
+* Thanks to `pixitha` for the FS2011/GD32F150 board photo with a J305 Geiger tube, `felixsteghofer` for the FS2011/GD32F103 board photo, `DG0MG` for the Bosean FS-600 board photo, `murkle` for the Bosean FS-1000 board photo, and `ivohar` for the FNIRSCI GC-01 schematics.

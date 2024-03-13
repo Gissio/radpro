@@ -52,10 +52,10 @@ The conversion factor specifies the relationship between cpm (pulse counts per m
 
 Rad Pro's default conversion factors are:
 
-* HH614: 68.4 µSv/h/cpm
 * J305: 175.0 µSv/h/cpm
 * J321: 153.0 µSv/h/cpm
 * J613: 68.4 µSv/h/cpm
+* J614: 68.4 µSv/h/cpm
 * M4011: 153.0 µSv/h/cpm
 * SBM-20: 175.0F µSv/h/cpm
 
