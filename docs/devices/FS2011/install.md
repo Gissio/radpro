@@ -1,8 +1,8 @@
-# Installing on the FS2011, NR950 and YT-203B
+# Installing on the FS2011 and YT-203B
 
 ## Supplies
 
-To install Rad Pro on your FS2011, NR950 or YT-203B Geiger counter, you will need the following tools and components:
+To install Rad Pro on your FS2011 or YT-203B Geiger counter, you will need the following tools and components:
 
 * An [ST-Link V2 USB dongle (or clone)](https://www.amazon.com/s?k=st-link+v2)
 * A soldering iron and solder
