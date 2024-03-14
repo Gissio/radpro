@@ -6,6 +6,7 @@
 
 Follow these steps to start installing Rad Pro on your FNIRSI GC-01:
 
+* Turn off the device.
 * Remove the four screws holding the back panel and open the device.
 * Take note of the MCU (microprocessor) installed in your device: either CH32F103R8T6 (WCH) or APM32F103RBT6 (Geehy). The picture above should help you identify the MCU.
 * Close the device.
@@ -20,7 +21,7 @@ Download the appropriate firmware from the [Rad Pro releases page](https://githu
 
 ## Step 3: Flash the firmware
 
-Now, follow these steps to install Rad Pro on your FNIRSI GC-01 Geiger counter:
+Next:
 
 * Turn off the device.
 * Connect the device to your computer using the USB cable.
