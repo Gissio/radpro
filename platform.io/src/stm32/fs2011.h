@@ -1,6 +1,6 @@
 /*
  * Rad Pro
- * FS2011 pin definitions
+ * FS2011 specifics
  *
  * (C) 2022-2024 Gissio
  *

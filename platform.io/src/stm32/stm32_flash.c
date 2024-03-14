@@ -26,9 +26,6 @@ const uint32_t flashBlockSize = FLASH_BLOCK_SIZE;
 
 void initFlash(void)
 {
-#if defined(STM32G0)
-    rcc_enable_flash();
-#endif
 }
 
 bool verifyFlash(void)
@@ -77,15 +74,11 @@ void writeFlash(FlashIterator *iterator,
     flash_unlock();
 
 #if defined(STM32F0) || defined(STM32F1)
-
     for (uint32_t i = 0; i < size; i += FLASH_BLOCK_SIZE)
         flash_program_halfword(address + i, *(uint16_t *)(source + i));
-
 #elif defined(STM32G0)
-
     for (uint32_t i = 0; i < size; i += FLASH_BLOCK_SIZE)
         flash_program_doubleword(address + i, *(uint64_t *)(source + i));
-
 #endif
 
     flash_lock();

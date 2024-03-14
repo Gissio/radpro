@@ -262,7 +262,7 @@ __STATIC_INLINE void flash_erase_page(uint32_t page)
              FLASH_CR_PER);
     modify_bits(FLASH->CR,
                 FLASH_CR_PNB_Msk,
-                (page << FLASH_CR_PNB_Pos) & FLASH_CR_PNB_Msk);
+                (page << FLASH_CR_PNB_Pos));
     set_bits(FLASH->CR,
              FLASH_CR_STRT);
     flash_wait_while_busy();
@@ -278,7 +278,8 @@ __STATIC_INLINE void flash_program_doubleword(uint32_t addr,
 
     set_bits(FLASH->CR,
              FLASH_CR_PG);
-    *(volatile uint32_t *)(addr + 0) = (uint32_t)(value);
+    *(volatile uint32_t *)(addr + 0) = (uint32_t)(value >> 0);
+    __ISB(); // Barrier to ensure programming is performed in right order
     *(volatile uint32_t *)(addr + 4) = (uint32_t)(value >> 32);
     flash_wait_while_busy();
 
@@ -856,7 +857,12 @@ __STATIC_INLINE void adc_start_conversion_oneshot(ADC_TypeDef *base,
 
 __STATIC_INLINE uint32_t adc_get_conversion_oneshot(ADC_TypeDef *base)
 {
+#if defined(STM32F0) && defined(GD32)
+    ADC_GD32_TypeDef *gdBase = (ADC_GD32_TypeDef *)base;
+    return gdBase->RDATA;
+#else
     return base->DR;
+#endif
 }
 
 // TIM
@@ -1149,7 +1155,7 @@ __STATIC_INLINE void rtc_leave_configuration_mode(void)
 #if defined(STM32F0) || defined(STM32G0)
 
 __STATIC_INLINE void rtc_get_date_time(uint32_t *dr,
-                                           uint32_t *tr)
+                                       uint32_t *tr)
 {
     *tr = RTC->TR;
     *dr = RTC->DR;

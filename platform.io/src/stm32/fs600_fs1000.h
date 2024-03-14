@@ -1,6 +1,6 @@
 /*
  * Rad Pro
- * Bosean FS-600/FS-1000 pin definitions
+ * Bosean FS-600/FS-1000 specifics
  *
  * (C) 2022-2024 Gissio
  *
