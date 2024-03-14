@@ -17,7 +17,7 @@ Download the appropriate firmware from the [Rad Pro releases page](https://githu
   * For initial installation, download `radpro-fnirsi-gc01-[MCU]-x.y.z-install.bin`.
   * For updating, download `radpro-fnirsi-gc01-[MCU]-x.y.z-update.bin`.
 
-`[MCU]` is the type of microprocessor on your board: `CH32F103R8T6` or `APM32F103RBT6`.
+`[MCU]` is the type of microprocessor on your device: `CH32F103R8T6` or `APM32F103RBT6`.
 
 ## Step 3: Flash the firmware
 
