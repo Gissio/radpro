@@ -18,7 +18,7 @@ Now, follow these steps to install Rad Pro on your FNIRSI GC-01 Geiger counter:
 * Drag the `radpro-fnirsi-gc01-apm32f103rb-x.y.z-install.bin` (or `update`) file onto the USB drive. The device should restart with Rad Pro installed.
 * If the file gets copied but the device does not restart, disconnect the USB cable and repeat the previous steps with the `radpro-fnirsi-gc01-ch32f103r8-x.y.z-install.bin` (or `update`) file.
 
-If something goes wrong, you can recover your device with the [original firmware](devices/FNIRSI%20GC-01/firmware).
+If something goes wrong, you can recover your device with the [original firmware](firmware).
 
 ## Step 3: Configure your device
 
