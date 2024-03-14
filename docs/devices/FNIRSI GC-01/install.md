@@ -28,7 +28,7 @@ Next:
 * Power on the device. A USB drive should become available.
 * Drag the firmware file onto the USB drive. The device should restart with Rad Pro installed.
 
-If something goes wrong, open the device again, remove the main battery connector, and connect your device to the computer with the USB cable. You can recover your device with the [original firmware](firmware).
+If something goes wrong, open the device again, remove the main battery connector, and connect the device to your computer with the USB cable. You can recover your device with the [original firmware](firmware).
 
 ## Step 4: Configure your device
 
