@@ -26,7 +26,7 @@ Next:
 * Turn off the device.
 * Connect the device to your computer using the USB cable.
 * Power on the device. A USB drive should become available.
-* Drag the `radpro-fnirsi-gc01-[MCU]-x.y.z-install.bin` (or `update`) file onto the USB drive. The device should restart with Rad Pro installed.
+* Drag the firmware file onto the USB drive. The device should restart with Rad Pro installed.
 
 If something goes wrong, open the device again, remove the main battery connector, and connect your device to the computer with the USB cable. You can recover your device with the [original firmware](firmware).
 
