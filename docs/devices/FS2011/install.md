@@ -60,7 +60,12 @@ Then, copy+paste the following command and verify that the resulting file, `back
 
 ![Terminal flash step 2](img/fs2011-flash2.png)
 
-Now, download the latest firmware from the [Rad Pro releases](https://github.com/Gissio/radpro/releases): download `radpro-fs2011-[MCU]-x.y.z-install.bin` when installing for the first time or `radpro-fs2011-[MCU]-x.y.z-update.bin` when updating. `[MCU]` is the type of microprocessor on your board: `STM32F051`, `GD32F150` or `GD32F103`.
+Now, download the latest firmware from the [Rad Pro releases](https://github.com/Gissio/radpro/releases): 
+
+* For initial installation, download `radpro-fs2011-[MCU]-x.y.z-install.bin`.
+* For updating, download `radpro-fs2011-[MCU]-x.y.z-update.bin`.
+
+`[MCU]` is the type of microprocessor on your board: `STM32F051`, `GD32F150` or `GD32F103`.
 
 Next, run this command in the terminal:
 
