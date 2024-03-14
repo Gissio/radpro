@@ -2,10 +2,6 @@
 
 <!-- [![Rad Pro Demonstration](docs/img/radpro-video.jpg)](https://www.youtube.com/watch?v=7dpVG1jSLn8) -->
 
-## IMPORTANT
-
-RAD PRO 2.0 IS NOT YET READY. The files in the releases are only for the FS2011 (STM32F051). Do not install these files on other devices.
-
 ## Introduction
 
 Rad Pro is a custom firmware that enhances the capabilities of several commercially available Geiger counters, including the [FS2011](https://www.amazon.com/s?k=fs2011), [YT-203B](https://www.amazon.com/s?k=yt-203b), [Bosean FS-600](https://www.bosean.net/products/nuclear_radiation_detector.html), [Bosean FS-1000](https://www.bosean.net/products/FS-1000_nuclear_radiation_detector.html) and [FNIRSI GC-01](https://www.fnirsi.com.cn/product/704376090398953472).
@@ -40,19 +36,16 @@ Rad Pro 2.0 adds:
 * Anti-aliased text rendering on color screens.
 * Several bugfixes and optimizations.
 
-## Project overview
+## Installation
 
 * [Legal stuff](docs/legal.md)
-
-Installation:
-
-* [Rad Pro simulator](docs/install-simulator.md)
 * [FS2011/YT-203B](docs/devices/FS2011/install.md)
 * [Bosean FS-600/Bosean FS-1000](docs/devices/Bosean%20FS-600,%20FS-1000/install.md)
 * [FNIRSI GC-01](docs/devices/FNIRSI%20GC-01/install.md)
+* [Rad Pro simulator](docs/install-simulator.md)
 * [Other devices](docs/install-other.md)
 
-Manuals:
+## Manuals
 
 * [User's manual](docs/manual.md)
 * [Developers's manual](docs/developers.md)
