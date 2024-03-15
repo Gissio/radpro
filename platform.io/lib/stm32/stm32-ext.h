@@ -221,11 +221,36 @@ __STATIC_INLINE void flash_wait_while_busy(void)
 #endif
 }
 
+__STATIC_INLINE void flash_clear_status(void)
+{
+#if defined(STM32F0)
+    FLASH->SR = FLASH_SR_EOP |
+                FLASH_SR_WRPERR |
+                FLASH_SR_PGERR;
+#elif defined(STM32F1)
+    FLASH->SR = FLASH_SR_EOP |
+                FLASH_SR_WRPRTERR |
+                FLASH_SR_PGERR;
+#elif defined(STM32G0)
+    FLASH->SR = FLASH_SR_OPTVERR |
+                FLASH_SR_FASTERR |
+                FLASH_SR_MISERR |
+                FLASH_SR_PGSERR |
+                FLASH_SR_SIZERR |
+                FLASH_SR_PGAERR |
+                FLASH_SR_WRPERR |
+                FLASH_SR_PROGERR |
+                FLASH_SR_OPERR |
+                FLASH_SR_EOP;
+#endif
+}
+
 #if defined(STM32F0) || defined(STM32F1)
 
 __STATIC_INLINE void flash_erase_page(uint32_t page)
 {
     flash_wait_while_busy();
+    flash_clear_status();
 
     set_bits(FLASH->CR,
              FLASH_CR_PER);
@@ -242,6 +267,7 @@ __STATIC_INLINE void flash_program_halfword(uint32_t addr,
                                             uint16_t value)
 {
     flash_wait_while_busy();
+    flash_clear_status();
 
     set_bits(FLASH->CR,
              FLASH_CR_PG);
@@ -257,6 +283,7 @@ __STATIC_INLINE void flash_program_halfword(uint32_t addr,
 __STATIC_INLINE void flash_erase_page(uint32_t page)
 {
     flash_wait_while_busy();
+    flash_clear_status();
 
     set_bits(FLASH->CR,
              FLASH_CR_PER);
@@ -275,6 +302,7 @@ __STATIC_INLINE void flash_program_doubleword(uint32_t addr,
                                               uint64_t value)
 {
     flash_wait_while_busy();
+    flash_clear_status();
 
     set_bits(FLASH->CR,
              FLASH_CR_PG);

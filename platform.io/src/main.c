@@ -31,8 +31,7 @@
 
 int main(void)
 {
-    // Initialize system
-
+    // System initialization
     initSystem();
     initEvents();
     initFlash();
@@ -62,21 +61,17 @@ int main(void)
     initGame();
     initDatalog();
 
-    // Power loop
-
-    while (true)
-    {
 #if defined(KEYBOARD_WAIT_FOR_POWERON)
-
-        while (getKeyboardEvent() != EVENT_KEY_POWER)
-            sleep(1);
-
+    sleep(1000);
 #endif
 
+    // Main loop
+    while (true)
+    {
         // Power on
-
         setPower(true);
 
+        // Firmware checksum
         if (!verifyFlash())
         {
             drawNotification("WARNING",
@@ -91,33 +86,36 @@ int main(void)
             sleep(1000);
         }
 
+        // Splash screen
         drawNotification(FIRMWARE_NAME,
                          FIRMWARE_VERSION,
                          true);
         refreshDisplay();
         setDisplayOn(true);
         setDisplayBacklight(true);
-
         uint32_t splashStartTime = getTick();
-
         initRTC();
-
         uint32_t splashTime = getTick() - splashStartTime;
         if (splashTime < 1000)
             splashTime = 1000;
         sleep(splashTime);
 
+        // Enable devices
         setTubeHV(true);
         enableMeasurements();
         setCommEnabled(true);
 
         writeDatalog();
 
-        // UI loop
+        // Consume keyboard events
+        while (getKeyboardEvent() != EVENT_NONE)
+            ;
 
+        // UI setup
         setMeasurementView(0);
         triggerDisplay();
 
+        // UI loop
         while (!isPowerOffRequested())
         {
             sleep(1);
@@ -126,8 +124,7 @@ int main(void)
             dispatchEvents();
         }
 
-        // Power off
-
+        // Disable devices
         writeDatalog();
         writeSettings();
 
@@ -138,12 +135,11 @@ int main(void)
         setDisplayBacklight(false);
         setDisplayOn(false);
 
+        // Power off
         setPower(false);
 
-#if !defined(KEYBOARD_WAIT_FOR_POWERON)
         while (getKeyboardEvent() != EVENT_KEY_POWER)
             sleep(1);
-#endif
     }
 
 #endif

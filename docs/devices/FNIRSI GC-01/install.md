@@ -8,7 +8,8 @@ Follow these steps to start installing Rad Pro on your FNIRSI GC-01:
 
 * Turn off the device.
 * Remove the four screws holding the back panel and open the device.
-* Take note of the MCU (microprocessor) installed in your device: either CH32F103R8T6 (WCH) or APM32F103RBT6 (Geehy). The picture above should help you identify the MCU.
+* Take note of the MCU (microprocessor) installed in your device: CH32F103R8T6 (WCH) or APM32F103RBT6 (Geehy). The picture above should help you identify the MCU.
+* Also, take note of the type of Geiger tube: the markings on the glass should be either J321 (as in the picture above), J305 or J614. If you have an unmarked tube measuring 55 or 65 mm long, you probably have a J614 or J613 tube, respectively.
 * Close the device.
 
 ## Step 2: Get the firmware
@@ -24,17 +25,17 @@ Download the appropriate firmware from the [Rad Pro releases page](https://githu
 Next:
 
 * Turn off the device.
-* Connect the device to your computer using the USB cable.
+* Connect the device to your Windows computer using the USB cable. **IMPORTANT**: The installation only works with Windows computers. Do not use macOS or Linux to install Rad Pro.
 * Power on the device. A USB drive should become available.
 * Drag the firmware file onto the USB drive. The device should restart with Rad Pro installed.
 
-If something goes wrong, open the device again, remove the main battery connector, and connect the device to your computer with the USB cable. You can recover your device with the [original firmware](firmware).
+If something goes wrong, open the device again, remove the main battery connector, and connect the device to your computer using the USB cable. You can recover your device with the [original firmware](firmware).
 
 ## Step 4: Configure your device
 
-Last, start your device and go to Rad Pro's settings, select "Geiger tube", select "HV Profile" and choose an appropriate HV profile: "Factory default 1" is the profile of the original firmware V0.3 and V1.5, "Factory default 2" is the profile of the original firmware V1.6-2.
+Last, go to Rad Pro's settings, select "Geiger tube", select "HV Profile" and choose an appropriate HV profile: "Factory default 1" is the profile of the original firmware V0.3 and V1.5, "Factory default 2" is the profile of the original firmware V1.6-2.
 
-If the indicated radiation rate is not correct, turn off your device, open it, identify the installed Geiger tube, close your device, restart it and go to Rad Pro's settings, select "Geiger tube", "Conversion factor", and select the option that matches the Geiger-Müller tube installed in your device.
+Also, within "Geiger tube", select "Conversion factor", and select the option that matches the Geiger-Müller tube installed in your device.
 
 ## Step 5: Getting involved
 

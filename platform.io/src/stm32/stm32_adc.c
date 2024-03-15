@@ -50,7 +50,6 @@ void initADC(void)
     rcc_enable_adc(ADC1);
 
 #if (defined(STM32F0) && defined(GD32)) || defined(STM32F1)
-
     adc_enable(ADC1);
     sleep(1);
 
@@ -62,14 +61,10 @@ void initADC(void)
 
     adc_disable(ADC1);
     sleep(1);
-
 #elif defined(STM32F0)
-
     adc_start_calibration(ADC1);
     sleep(1);
-
 #elif defined(STM32G0)
-
     adc_enable_vreg(ADC1);
     sleep(1);
 
@@ -77,7 +72,6 @@ void initADC(void)
     sleep(1);
 
     adc_disable_vreg(ADC1);
-
 #endif
 
     updateADC();
@@ -171,7 +165,8 @@ float getDeviceTemperature(void)
 #elif defined(STM32F1)
     return 25.0F + (1.43F - value * ADC_VALUE_TO_VOLTAGE) / 0.0043F;
 #elif defined(STM32G0)
-    return 30.0F + (value - TS_CAL1) * ADC_VALUE_TO_VOLTAGE / 0.0025F;
+    float valueLow = TS_CAL1;
+    return 30.0F + (value - valueLow) * ADC_VALUE_TO_VOLTAGE / 0.0025F;
 #endif
 }
 

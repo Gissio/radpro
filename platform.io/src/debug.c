@@ -46,14 +46,6 @@ void debugBeep(void)
     sleep(400);
 }
 
-void debugWait(uint32_t ms)
-{
-    uint32_t n = 9 * 200 * ms;
-
-    for (uint32_t i = 0; i < n; i++)
-        sleep(0);
-}
-
 void debugBit(bool value)
 {
     setBuzzer(true);

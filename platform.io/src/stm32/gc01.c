@@ -80,16 +80,6 @@ void initSystem(void)
                  RCC_APB2ENR_IOPCEN);
 }
 
-// Flash memory
-
-#if defined(CH32)
-const FlashRegion flashSettingsRegion = {0x3a, 0x3b};
-const FlashRegion flashDatalogRegion = {0x3b, 0x40};
-#elif defined(APM32)
-const FlashRegion flashSettingsRegion = {0x40, 0x41};
-const FlashRegion flashDatalogRegion = {0x41, 0x80};
-#endif
-
 // Communications
 
 #if defined(CH32)

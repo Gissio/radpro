@@ -43,16 +43,6 @@ void initSystem(void)
                  RCC_IOPENR_GPIODEN);
 }
 
-// Flash memory
-
-#if !defined(DEBUG)
-const FlashRegion flashSettingsRegion = {0x10, 0x11};
-const FlashRegion flashDatalogRegion = {0x11, 0x40};
-#else
-const FlashRegion flashSettingsRegion = {0x20, 0x21};
-const FlashRegion flashDatalogRegion = {0x21, 0x40};
-#endif
-
 // Communications
 
 #if defined(FS600)

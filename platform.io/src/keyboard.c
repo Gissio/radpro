@@ -54,15 +54,14 @@ void initKeyboard(void)
 {
     initKeyboardController();
 
+    getKeyboardState(keyboard.wasKeyDown);
+
     keyboard.pressedKey = KEY_NONE;
     keyboard.isInitialized = true;
 
 #if defined(START_BOOTLOADER_SUPPORT)
 
-    bool isKeyDown[KEY_NUM];
-    getKeyboardState(isKeyDown);
-
-    if (isKeyDown[KEY_LEFT])
+    if (keyboard.wasKeyDown[KEY_LEFT])
         startBootloader();
 
 #endif

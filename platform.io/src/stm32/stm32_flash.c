@@ -15,7 +15,15 @@
 
 #include "device.h"
 
-// Flash
+// Flash memory
+
+#define SETTINGS_PAGE_BEGIN ((FIRMWARE_BASE - FLASH_BASE + FIRMWARE_SIZE) / FLASH_PAGE_SIZE)
+#define SETTINGS_PAGE_END (SETTINGS_PAGE_BEGIN + 1)
+#define DATALOG_PAGE_BEGIN SETTINGS_PAGE_END
+#define DATALOG_PAGE_END (FLASH_SIZE / FLASH_PAGE_SIZE)
+
+const FlashRegion flashSettingsRegion = {SETTINGS_PAGE_BEGIN, SETTINGS_PAGE_END};
+const FlashRegion flashDatalogRegion = {DATALOG_PAGE_BEGIN, DATALOG_PAGE_END};
 
 const uint32_t flashPageDataSize = FLASH_PAGE_SIZE - FLASH_BLOCK_SIZE;
 const uint32_t flashBlockSize = FLASH_BLOCK_SIZE;

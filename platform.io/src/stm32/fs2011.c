@@ -48,16 +48,6 @@ void initSystem(void)
 #endif
 }
 
-// Flash memory
-
-#if !defined(DEBUG)
-const FlashRegion flashSettingsRegion = {0x20, 0x21};
-const FlashRegion flashDatalogRegion = {0x21, 0x40};
-#else
-const FlashRegion flashSettingsRegion = {0x30, 0x31};
-const FlashRegion flashDatalogRegion = {0x31, 0x40};
-#endif
-
 // Communications
 
 #if defined(STM32F0) && !defined(GD32)

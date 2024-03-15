@@ -2,7 +2,7 @@
     "build": {
         "core": "stm32",
         "cpu": "cortex-m0plus",
-        "extra_flags": "-D STM32 -D STM32G0 -D STM32G070xx -D SRAM_SIZE=32768",
+        "extra_flags": "-D STM32 -D STM32G0 -D STM32G070xx",
         "f_cpu": "64000000L",
         "mcu": "stm32g070cbt6",
         "product_line": "STM32G070xx"

@@ -23,28 +23,28 @@
 
 #if defined(DISPLAY_128X64)
 
-#include "fonts/font_tiny5.h"
-#include "fonts/font_robotoR8.h"
-#include "fonts/font_robotoM18_digits.h"
-#include "fonts/font_symbols5.h"
-#include "fonts/font_chess8.h"
+#include "fonts/font_tiny5_1.h"
+#include "fonts/font_robotoR8_1.h"
+#include "fonts/font_robotoM18_1_digits.h"
+#include "fonts/font_symbols5_1.h"
+#include "fonts/font_chess8_1.h"
 
-#define FONT_SMALL font_tiny5
-#define FONT_SMALL_CAP_HEIGHT FONT_TINY5_CAP_HEIGHT
-#define FONT_SMALL_LINE_HEIGHT FONT_TINY5_LINE_HEIGHT
+#define FONT_SMALL font_tiny5_1
+#define FONT_SMALL_CAP_HEIGHT FONT_TINY5_1_CAP_HEIGHT
+#define FONT_SMALL_LINE_HEIGHT FONT_TINY5_1_LINE_HEIGHT
 
-#define FONT_MEDIUM font_robotoR8
-#define FONT_MEDIUM_CAP_HEIGHT FONT_ROBOTOR8_CAP_HEIGHT
-#define FONT_MEDIUM_LINE_HEIGHT FONT_ROBOTOR8_LINE_HEIGHT
+#define FONT_MEDIUM font_robotoR8_1
+#define FONT_MEDIUM_CAP_HEIGHT FONT_ROBOTOR8_1_CAP_HEIGHT
+#define FONT_MEDIUM_LINE_HEIGHT FONT_ROBOTOR8_1_LINE_HEIGHT
 
-#define FONT_LARGE font_robotoM18_digits
-#define FONT_LARGE_CAP_HEIGHT FONT_ROBOTOM18_DIGITS_CAP_HEIGHT
-#define FONT_LARGE_LINE_HEIGHT FONT_ROBOTOM18_DIGITS_LINE_HEIGHT
+#define FONT_LARGE font_robotoM18_1_digits
+#define FONT_LARGE_CAP_HEIGHT FONT_ROBOTOM18_1_DIGITS_CAP_HEIGHT
+#define FONT_LARGE_LINE_HEIGHT FONT_ROBOTOM18_1_DIGITS_LINE_HEIGHT
 
-#define FONT_SYMBOLS font_symbols5
-#define FONT_SYMBOLS_LINE_HEIGHT FONT_SYMBOLS5_LINE_HEIGHT
+#define FONT_SYMBOLS font_symbols5_1
+#define FONT_SYMBOLS_LINE_HEIGHT FONT_SYMBOLS5_1_LINE_HEIGHT
 
-#define FONT_GAME font_chess8
+#define FONT_GAME font_chess8_1
 
 #elif defined(DISPLAY_320X240) || defined(DISPLAY_240X320)
 

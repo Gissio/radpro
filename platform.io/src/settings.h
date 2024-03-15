@@ -315,6 +315,7 @@ typedef struct
     unsigned int pulseLED : 1;
 #endif
     unsigned int pulseClicks : 2;
+
 #if defined(DISPLAY_MONOCHROME)
     unsigned int displayContrast : 3;
 #elif defined(DISPLAY_COLOR)
@@ -322,7 +323,9 @@ typedef struct
 #endif
     unsigned int displayBrightness : 2;
     unsigned int displaySleep : 3;
+
     unsigned int rtcTimeZone : 5;
+
 #if defined(BATTERY_REMOVABLE)
     unsigned int batteryType : 1;
 #endif

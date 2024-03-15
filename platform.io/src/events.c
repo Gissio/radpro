@@ -87,7 +87,7 @@ void initEvents(void)
 {
     initEventsController();
 
-    events.deadTimeCount = UINT32_MAX;
+    events.deadTimeCount = PULSE_MEASUREMENT_FREQUENCY;
     events.measurementPeriodTimer = SYSTICK_FREQUENCY;
     events.keyboardTimer = KEY_TICKS;
 }

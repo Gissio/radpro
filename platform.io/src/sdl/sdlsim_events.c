@@ -19,7 +19,6 @@
 #define SDL_EVENTS_CALLS_MAX (4 * 9)
 
 #define TIM_FREQUENCY 8000000
-#define PULSE_MEASUREMENT_FREQUENCY TIM_FREQUENCY
 
 extern volatile uint32_t eventsCurrentTick;
 

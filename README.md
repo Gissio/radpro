@@ -22,7 +22,7 @@ With Rad Pro, you can:
 
 Rad Pro 2.0 adds:
 
-* Support for the FNIRSI GC-01, YT203-B, Bosean FS-600, Bosean FS-1000, FS2011 with GD32F150 processor and FS2011 with GD32F103 processor.
+* Support for the FNIRSI GC-01, Bosean FS-600, Bosean FS-1000, YT203-B, FS2011 with GD32F150 processor and FS2011 with GD32F103 processor.
 * Instantaneous rate measurement with adaptive averaging window.
 * Average rate measurement timer for performing surveys.
 * Data logging with data compression.
