@@ -264,15 +264,7 @@ static const View tubeDeadTimeCompensationMenuView = {
 // Tube HV profile menu
 
 static const char *const tubeHVProfileMenuOptions[] = {
-#if !defined(TUBE_HVPROFILE_FACTORYDEFAULT2_FREQUENCY)
     "Factory default",
-#elif defined(CH32)
-    "Factory default (WCH)",
-    "Factory default (Geehy)",
-#elif defined(APM32)
-    "Factory default (Geehy)",
-    "Factory default (WCH)",
-#endif
 #if defined(TUBE_HVPROFILE_ACCURACY_FREQUENCY)
     "Accuracy",
 #endif
@@ -442,18 +434,16 @@ float getTubeHVFrequency(void)
     case TUBE_HVPROFILE_FACTORYDEFAULT:
         return TUBE_HVPROFILE_FACTORYDEFAULT_FREQUENCY;
 
-#if defined(TUBE_HVPROFILE_FACTORYDEFAULT2_FREQUENCY)
-    case TUBE_HVPROFILE_FACTORYDEFAULT2:
-        return TUBE_HVPROFILE_FACTORYDEFAULT2_FREQUENCY;
-#endif
 #if defined(TUBE_HVPROFILE_ACCURACY_FREQUENCY)
     case TUBE_HVPROFILE_ACCURACY:
         return TUBE_HVPROFILE_ACCURACY_FREQUENCY;
 #endif
+
 #if defined(TUBE_HVPROFILE_ENERGYSAVING_FREQUENCY)
     case TUBE_HVPROFILE_ENERGYSAVING:
         return TUBE_HVPROFILE_ENERGYSAVING_FREQUENCY;
 #endif
+
     case TUBE_HVPROFILE_CUSTOM:
         return getTubeHVCustomProfileFrequency(settings.tubeHVFrequency);
 
@@ -516,18 +506,16 @@ float getTubeHVDutyCycle(void)
     case TUBE_HVPROFILE_FACTORYDEFAULT:
         return TUBE_HVPROFILE_FACTORYDEFAULT_DUTYCYCLE;
 
-#if defined(TUBE_HVPROFILE_FACTORYDEFAULT2_DUTYCYCLE)
-    case TUBE_HVPROFILE_FACTORYDEFAULT2:
-        return TUBE_HVPROFILE_FACTORYDEFAULT2_DUTYCYCLE;
-#endif
 #if defined(TUBE_HVPROFILE_ACCURACY_DUTYCYCLE)
     case TUBE_HVPROFILE_ACCURACY:
         return TUBE_HVPROFILE_ACCURACY_DUTYCYCLE;
 #endif
+
 #if defined(TUBE_HVPROFILE_ENERGYSAVING_DUTYCYCLE)
     case TUBE_HVPROFILE_ENERGYSAVING:
         return TUBE_HVPROFILE_ENERGYSAVING_DUTYCYCLE;
 #endif
+
     case TUBE_HVPROFILE_CUSTOM:
         return getTubeHVCustomProfileDutyCycle(settings.tubeHVDutyCycle);
 

@@ -12,6 +12,7 @@ import math
 import requests
 import serial
 import swd
+import sys
 import time
 
 # https://gmcmap.com radiation monitoring website credentials:
@@ -29,6 +30,8 @@ safecast_location_latitude = 0
 safecast_location_longitude = 0
 safecast_location_height = 0
 
+
+# Code
 
 class RadProDevice:
     def __init__(self, port):
@@ -289,11 +292,16 @@ def live_log(device, args):
         last_time += args.log_period
 
 
+radpro_tool_version = '1.0'
+
 parser = argparse.ArgumentParser(
     description='Tool for interfacing with a Rad Pro device.')
+parser.add_argument('--version',
+                    dest='version',
+                    action='store_true',
+                    help='print version information')
 parser.add_argument('-p', '--port',
                     dest='port',
-                    required=True,
                     help='port (serial port device id or "SWD")')
 parser.add_argument('--get-device-id',
                     action='store_true',
@@ -355,6 +363,15 @@ parser.add_argument('--get-tube-dead-time',
 
 args = parser.parse_args()
 
+if args.version:
+    print('radpro-tool ' + radpro_tool_version)
+    sys.exit(0)
+
+if not args.port:
+    parser.print_usage()
+    print('Error: the following arguments are required: -p/--port')
+    sys.exit(1)
+
 device = RadProDevice(args.port)
 
 try:
@@ -364,8 +381,8 @@ except Exception as e:
     if str(e) == '':
         e = 'Could not open port.'
 
-    print("Error: " + str(e))
-    exit(1)
+    print('Error: ' + str(e))
+    sys.exit(1)
 
 if not args.no_sync_time:
     if not args.get_device_id and\
