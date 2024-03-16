@@ -97,7 +97,7 @@ Last, within the "Geiger tube" settings, select "HV Profile" and choose an appro
 
 ## Step 7: Getting involved
 
-If you like Rad Pro, consider watching the project so you get notified when new releases are out. Also, show your support by starring the project on GitHub.
+If you like Rad Pro, consider watching the project to get notified when new releases are out. Also, show your support by starring the project on GitHub.
 
 ## Hardware-specific notes
 

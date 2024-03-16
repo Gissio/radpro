@@ -39,7 +39,7 @@ Also, within "Geiger tube", select "Conversion factor", and select the option th
 
 ## Step 5: Getting involved
 
-If you like Rad Pro, consider watching the project so you get notified when new releases are out. Also, show your support by starring the project on GitHub.
+If you like Rad Pro, consider watching the project to get notified when new releases are out. Also, show your support by starring the project on GitHub.
 
 ## Hardware-specific notes
 
@@ -53,9 +53,9 @@ The keys are mapped as follows:
   * Select option: the ok/power or right/settings key.
   * Bo back: the left/back key.
 
-### FNIRSI GC-01 with a CH32F103R8 (WCH) processor
+### FNIRSI GC-01 with a CH32F103R8 (WCH) microprocessor
 
-On the FNIRSI GC-01 with a CH32F103R8 processor, you must enter "USB mode" in the Settings to enable a USB connection.
+On the FNIRSI GC-01 with a CH32F103R8 microprocessor, you must enter "USB mode" in the Settings to enable a USB data connection.
 
 Data logging can store up to 5060 data points. At normal radiation levels, this allows for 3 days of data at 1-minute intervals, 8 days at 5-minute intervals, 17 days at 10-minute intervals, 52 days at 30-minute intervals, and 105 days at 60-minute intervals.
 
@@ -63,12 +63,16 @@ The HV profile settings are:
 
 * Factory default (WCH): 9.207 kHz frequency and 75 % duty cycle.
 
+Please do not use the "Factory default (Geehy)" profile with a CH32F103R8 (WCH) microprocessor.
+
 ### FNIRSI GC-01 with a APM32F103R8 (Geehy) processor
 
-On the FNIRSI GC-01 with an APM32F103R8 (Geehy) processor, the USB connection is always available. 
+On the FNIRSI GC-01 with an APM32F103R8 (Geehy) processor, the USB data connection is always available. 
 
 Data logging can store up to 63756 data points. At normal radiation levels, this allows for 44 days of data at 1-minute intervals, 110 days at 5-minute intervals, 221 days at 10-minute intervals, 664 days at 30-minute intervals, and 1328 days at 60-minute intervals.
 
 The HV profile settings are:
 
 * Factory default (Geehy): 47.058 kHz frequency and 50 % duty cycle.
+
+Please do not use the "Factory default (WCH)" profile with a APM32F103R8 (Geehy) microprocessor.
