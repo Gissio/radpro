@@ -23,7 +23,7 @@
 #include "mcu-renderer-st7789.h"
 
 // +++ TEST
-#define DISPLAY_SERIAL
+// #define DISPLAY_SERIAL
 // +++ TEST
 
 // System
