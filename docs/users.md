@@ -6,6 +6,8 @@
 * Adaptive averaging window, aiming for a confidence interval below ±50 %.
 * Configurable average timer for performing surveys.
 * Data logging with data compression.
+* Serial port/USB data communications.
+* `radpro-tool` for downloading the data log, logging live data, submitting data to radiation monitoring websites and syncing the device clock.
 * Configurable pulse click sounds: off, quiet, loud.
 * Dead-time measurement.
 * Customizable Geiger-Müller tube settings: conversion factor, dead-time compensation, high voltage generator PWM frequency and duty cycle (for tube voltage control).

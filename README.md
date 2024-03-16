@@ -18,24 +18,6 @@ With Rad Pro, you can:
 * Log data to the built-in flash memory or live on a computer, optionally sending the data to the [gmcmap.com](https://gmcmap.com), [radmon.org](https://radmon.org) and [safecast.org](https://map.safecast.org) radiation monitoring websites.
 * Generate true random data: secure passwords (alphanumeric, full ASCII), random hexadecimal and decimal numbers, dice throws (4-sided, 6-sided, 8-sided, 12-sided and 20-sided) and coin flips.
 
-## Updates
-
-Rad Pro 2.0 adds:
-
-* Support for the FNIRSI GC-01, Bosean FS-600, Bosean FS-1000, YT203-B, FS2011 with GD32F150 processor and FS2011 with GD32F103 processor.
-* Instantaneous rate measurement with adaptive averaging window.
-* Average rate measurement timer for performing surveys.
-* Data logging with data compression.
-* Serial port/USB communications.
-* `radpro-tool` for downloading the data log, logging live data, submitting data to radiation monitoring websites and syncing the device clock.
-* Dead-time measurement.
-* Configurable dead-time compensation.
-* Configurable high voltage generator PWM frequency and duty cycle for tube voltage control.
-* [safecast.org](https://map.safecast.org) radiation monitoring website submission.
-* Redesigned user interface with the [OpenBridge 4.0](https://www.openbridge.no/) design system.
-* Anti-aliased text rendering on color screens.
-* Several bugfixes and optimizations.
-
 ## Installation
 
 * [Read before installing: legal stuff](docs/legal.md)
