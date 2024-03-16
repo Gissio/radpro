@@ -39,7 +39,7 @@ Also, within "Geiger tube", select "Conversion factor", and select the option th
 
 ## Step 5: Getting involved
 
-If you like Rad Pro, consider watching the project to you get notified when new releases are out. Also, show your support by starring the project on GitHub.
+If you like Rad Pro, consider watching the project so you get notified when new releases are out. Also, show your support by starring the project on GitHub.
 
 ## Hardware-specific notes
 

@@ -245,51 +245,20 @@ __STATIC_INLINE void flash_clear_status(void)
 #endif
 }
 
+__STATIC_INLINE void flash_erase_page(uint32_t page)
+{
+    flash_wait_while_busy();
+    flash_clear_status();
+
+    set_bits(FLASH->CR,
+             FLASH_CR_PER);
 #if defined(STM32F0) || defined(STM32F1)
-
-__STATIC_INLINE void flash_erase_page(uint32_t page)
-{
-    flash_wait_while_busy();
-    flash_clear_status();
-
-    set_bits(FLASH->CR,
-             FLASH_CR_PER);
     FLASH->AR = FLASH_BASE + page * FLASH_PAGE_SIZE;
-    set_bits(FLASH->CR,
-             FLASH_CR_STRT);
-    flash_wait_while_busy();
-
-    clear_bits(FLASH->CR,
-               FLASH_CR_PER);
-}
-
-__STATIC_INLINE void flash_program_halfword(uint32_t addr,
-                                            uint16_t value)
-{
-    flash_wait_while_busy();
-    flash_clear_status();
-
-    set_bits(FLASH->CR,
-             FLASH_CR_PG);
-    *(volatile uint16_t *)addr = value;
-    flash_wait_while_busy();
-
-    clear_bits(FLASH->CR,
-               FLASH_CR_PG);
-}
-
 #elif defined(STM32G0)
-
-__STATIC_INLINE void flash_erase_page(uint32_t page)
-{
-    flash_wait_while_busy();
-    flash_clear_status();
-
-    set_bits(FLASH->CR,
-             FLASH_CR_PER);
     modify_bits(FLASH->CR,
                 FLASH_CR_PNB_Msk,
                 (page << FLASH_CR_PNB_Pos));
+#endif
     set_bits(FLASH->CR,
              FLASH_CR_STRT);
     flash_wait_while_busy();
@@ -298,24 +267,25 @@ __STATIC_INLINE void flash_erase_page(uint32_t page)
                FLASH_CR_PER);
 }
 
-__STATIC_INLINE void flash_program_doubleword(uint32_t addr,
-                                              uint64_t value)
+__STATIC_INLINE void flash_program(uint8_t *dest,
+                                   uint8_t *source)
 {
     flash_wait_while_busy();
     flash_clear_status();
 
     set_bits(FLASH->CR,
              FLASH_CR_PG);
-    *(volatile uint32_t *)(addr + 0) = (uint32_t)(value >> 0);
-    __ISB(); // Barrier to ensure programming is performed in right order
-    *(volatile uint32_t *)(addr + 4) = (uint32_t)(value >> 32);
+#if defined(STM32F0) || defined(STM32F1)
+    ((uint16_t *)dest)[0] = ((uint16_t *)source)[0];
+#elif defined(STM32G0)
+    ((uint32_t *)dest)[0] = ((uint32_t *)source)[0];
+    ((uint32_t *)dest)[1] = ((uint32_t *)source)[1];
+#endif
     flash_wait_while_busy();
 
     clear_bits(FLASH->CR,
                FLASH_CR_PG);
 }
-
-#endif
 
 // GPIO
 
@@ -646,7 +616,7 @@ __STATIC_INLINE void exti_clear_pending_interrupt(uint8_t pin)
 
 // ADC
 
-#if defined(STM32F0)|| defined(STM32F1)
+#if defined(STM32F0) || defined(STM32F1)
 #define ADC_TEMP_CHANNEL 16
 #define ADC_VREF_CHANNEL 17
 #define ADC_VBAT_CHANNEL 18

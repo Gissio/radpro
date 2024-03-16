@@ -77,17 +77,15 @@ void writeFlash(FlashIterator *iterator,
                 uint8_t *source,
                 uint32_t size)
 {
-    uint32_t address = FLASH_BASE + iterator->pageIndex * FLASH_PAGE_SIZE + iterator->index;
+    uint8_t *dest =
+        (uint8_t *)(FLASH_BASE +
+                    iterator->pageIndex * FLASH_PAGE_SIZE +
+                    iterator->index);
 
     flash_unlock();
 
-#if defined(STM32F0) || defined(STM32F1)
     for (uint32_t i = 0; i < size; i += FLASH_WORD_SIZE)
-        flash_program_halfword(address + i, *(uint16_t *)(source + i));
-#elif defined(STM32G0)
-    for (uint32_t i = 0; i < size; i += FLASH_WORD_SIZE)
-        flash_program_doubleword(address + i, *(uint64_t *)(source + i));
-#endif
+        flash_program(dest + i, source + i);
 
     flash_lock();
 
