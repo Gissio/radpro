@@ -1471,17 +1471,16 @@ void drawStatistics(void)
 
 #if defined(DISPLAY_128X64)
         case 4:
-            strcpy(key, "Device temp.");
+            strcpy(key, "Device voltage");
 #elif defined(DISPLAY_320X240)
         case 6:
-            strcpy(key, "Device temp.");
+            strcpy(key, "Device voltage");
 #elif defined(DISPLAY_240X320)
         case 8:
-            strcpy(key, "Temp.");
+            strcpy(key, "Voltage");
 #endif
-            strcatFloat(valueString, getDeviceTemperature(), 1);
-            strcpy(unitString, " \xb0"
-                               "C");
+            strcatFloat(valueString, getDeviceBatteryVoltage(), 3);
+            strcpy(unitString, " V");
 
             break;
         };

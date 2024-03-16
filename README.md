@@ -4,7 +4,7 @@
 
 ## Introduction
 
-Rad Pro is a custom firmware that enhances the capabilities of several commercially available Geiger counters, including the [FS2011](https://www.amazon.com/s?k=fs2011), [YT-203B](https://www.amazon.com/s?k=yt-203b), [Bosean FS-600](https://www.bosean.net/products/nuclear_radiation_detector.html), [Bosean FS-1000](https://www.bosean.net/products/FS-1000_nuclear_radiation_detector.html) and [FNIRSI GC-01](https://www.fnirsi.com.cn/product/704376090398953472).
+Rad Pro is a custom firmware that enhances the capabilities of several commercially available Geiger counters, including the [FS2011](docs/devices/FS2011/install.md), [YT-203B](docs/devices/FS2011/install.md), [Bosean FS-600](docs/devices/Bosean%20FS-600,%20FS-1000/install.md), [Bosean FS-1000](docs/devices/Bosean%20FS-600,%20FS-1000/install.md) and [FNIRSI GC-01](docs/devices/FNIRSI%20GC-01/install.md).
 
 Support for other devices, including the [Bosean FS-5000](https://www.bosean.net/FS-5000-Nuclear-Radiation-Detector.html), [GQ GMC-500](https://www.gqelectronicsllc.com/comersus/store/comersus_viewItem.asp?idProduct=5629), [GQ GMC-600](https://www.gqelectronicsllc.com/comersus/store/comersus_viewItem.asp?idProduct=5637) and [GQ GMC-800](https://www.gqelectronicsllc.com/comersus/store/comersus_viewItem.asp?idProduct=5859) is planned.
 
@@ -38,12 +38,12 @@ Rad Pro 2.0 adds:
 
 ## Installation
 
-* [Legal stuff](docs/legal.md)
-* [FS2011/YT-203B](docs/devices/FS2011/install.md)
-* [Bosean FS-600/Bosean FS-1000](docs/devices/Bosean%20FS-600,%20FS-1000/install.md)
-* [FNIRSI GC-01](docs/devices/FNIRSI%20GC-01/install.md)
+* [Read before installing: legal stuff](docs/legal.md)
+* [Installing on the FS2011/YT-203B](docs/devices/FS2011/install.md)
+* [Installing on the Bosean FS-600/Bosean FS-1000](docs/devices/Bosean%20FS-600,%20FS-1000/install.md)
+* [Installing on the FNIRSI GC-01](docs/devices/FNIRSI%20GC-01/install.md)
 * [Rad Pro simulator](docs/install-simulator.md)
-* [Other devices](docs/install-other.md)
+* [Installing on other devices](docs/install-other.md)
 
 ## Manuals
 

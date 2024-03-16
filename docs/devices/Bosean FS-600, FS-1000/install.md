@@ -1,4 +1,4 @@
-# Installing on the Bosean FS-600 and FS-1000
+# Installing on the Bosean FS-600/FS-1000
 
 ## Supplies
 

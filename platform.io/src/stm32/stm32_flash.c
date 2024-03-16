@@ -25,8 +25,8 @@
 const FlashRegion flashSettingsRegion = {SETTINGS_PAGE_BEGIN, SETTINGS_PAGE_END};
 const FlashRegion flashDatalogRegion = {DATALOG_PAGE_BEGIN, DATALOG_PAGE_END};
 
-const uint32_t flashPageDataSize = FLASH_PAGE_SIZE - FLASH_BLOCK_SIZE;
-const uint32_t flashBlockSize = FLASH_BLOCK_SIZE;
+const uint32_t flashPageDataSize = FLASH_PAGE_SIZE - FLASH_WORD_SIZE;
+const uint32_t flashBlockSize = FLASH_WORD_SIZE;
 
 #define FIRMWARE_CRC (*(uint32_t *)(FIRMWARE_BASE + FIRMWARE_SIZE - 0x4))
 
@@ -82,10 +82,10 @@ void writeFlash(FlashIterator *iterator,
     flash_unlock();
 
 #if defined(STM32F0) || defined(STM32F1)
-    for (uint32_t i = 0; i < size; i += FLASH_BLOCK_SIZE)
+    for (uint32_t i = 0; i < size; i += FLASH_WORD_SIZE)
         flash_program_halfword(address + i, *(uint16_t *)(source + i));
 #elif defined(STM32G0)
-    for (uint32_t i = 0; i < size; i += FLASH_BLOCK_SIZE)
+    for (uint32_t i = 0; i < size; i += FLASH_WORD_SIZE)
         flash_program_doubleword(address + i, *(uint64_t *)(source + i));
 #endif
 

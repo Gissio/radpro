@@ -184,10 +184,10 @@ __STATIC_INLINE uint32_t crc_read(void)
 
 #if defined(STM32F0) || defined(STM32F1)
 #define FLASH_PAGE_SIZE 0x400
-#define FLASH_BLOCK_SIZE 0x2
+#define FLASH_WORD_SIZE 0x2
 #elif defined(STM32G0)
 #define FLASH_PAGE_SIZE 0x800
-#define FLASH_BLOCK_SIZE 0x8
+#define FLASH_WORD_SIZE 0x8
 
 #define FLASH_KEY1 0x45670123UL
 #define FLASH_KEY2 0xCDEF89ABUL
@@ -646,9 +646,15 @@ __STATIC_INLINE void exti_clear_pending_interrupt(uint8_t pin)
 
 // ADC
 
+#if defined(STM32F0)|| defined(STM32F1)
 #define ADC_TEMP_CHANNEL 16
-#define ADC_VBAT_CHANNEL 17
-#define ADC_VREF_CHANNEL 18
+#define ADC_VREF_CHANNEL 17
+#define ADC_VBAT_CHANNEL 18
+#elif defined(STM32G0)
+#define ADC_TEMP_CHANNEL 12
+#define ADC_VREF_CHANNEL 13
+#define ADC_VBAT_CHANNEL 14
+#endif
 
 #if defined(STM32F0) && defined(GD32)
 

@@ -266,9 +266,12 @@ static const View tubeDeadTimeCompensationMenuView = {
 static const char *const tubeHVProfileMenuOptions[] = {
 #if !defined(TUBE_HVPROFILE_FACTORYDEFAULT2_FREQUENCY)
     "Factory default",
-#else
-    "Factory default 1",
-    "Factory default 2",
+#elif defined(CH32)
+    "Factory default (WCH)",
+    "Factory default (Geehy)",
+#elif defined(APM32)
+    "Factory default (Geehy)",
+    "Factory default (WCH)",
 #endif
 #if defined(TUBE_HVPROFILE_ACCURACY_FREQUENCY)
     "Accuracy",

@@ -15,7 +15,7 @@
 #include "../flash.h"
 
 #define FLASH_PAGE_SIZE 0x400
-#define FLASH_BLOCK_SIZE 0x8
+#define FLASH_WORD_SIZE 0x8
 
 #define FLASH_FILENAME "radpro-simulator-settings.bin"
 
@@ -30,8 +30,8 @@ const FlashRegion flashDatalogRegion = {
     0x40,
 };
 
-const uint32_t flashPageDataSize = FLASH_PAGE_SIZE - FLASH_BLOCK_SIZE;
-const uint32_t flashBlockSize = FLASH_BLOCK_SIZE;
+const uint32_t flashPageDataSize = FLASH_PAGE_SIZE - FLASH_WORD_SIZE;
+const uint32_t flashBlockSize = FLASH_WORD_SIZE;
 
 void initFlash(void)
 {

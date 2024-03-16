@@ -1,4 +1,4 @@
-# Installing on the FS2011 and YT-203B
+# Installing on the FS2011/YT-203B
 
 ## Supplies
 
