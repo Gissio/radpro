@@ -47,7 +47,7 @@ Example:
 * Request: `GET deviceTemperature\n`
 * Response: `OK [value]\n`
 
-Returns the microcontroller's temperature in degrees Celsius, provided in decimal format with one decimal place.
+Returns the microcontroller's temperature in degrees Celsius, provided in decimal format with one decimal place. This value is calibrated on FS2011 (STM32F051C8) and Bosean FS-600/FS-1000 devices; on other devices it is uncalibrated.
 
 Example:
 
