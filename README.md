@@ -6,8 +6,6 @@
 
 Rad Pro is a custom firmware that enhances the capabilities of several commercially available Geiger counters, including the [FS2011](docs/devices/FS2011/install.md), [YT-203B](docs/devices/FS2011/install.md), [Bosean FS-600](docs/devices/Bosean%20FS-600,%20FS-1000/install.md), [Bosean FS-1000](docs/devices/Bosean%20FS-600,%20FS-1000/install.md) and [FNIRSI GC-01](docs/devices/FNIRSI%20GC-01/install.md).
 
-Support for other devices, including the [Bosean FS-5000](https://www.bosean.net/FS-5000-Nuclear-Radiation-Detector.html), [GQ GMC-500](https://www.gqelectronicsllc.com/comersus/store/comersus_viewItem.asp?idProduct=5629), [GQ GMC-600](https://www.gqelectronicsllc.com/comersus/store/comersus_viewItem.asp?idProduct=5637) and [GQ GMC-800](https://www.gqelectronicsllc.com/comersus/store/comersus_viewItem.asp?idProduct=5859) is planned.
-
 With Rad Pro, you can:
 
 * Measure instantaneous radiation rate.
