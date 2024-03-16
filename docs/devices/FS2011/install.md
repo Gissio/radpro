@@ -79,7 +79,9 @@ After successfully flashing the firmware, close the device.
 
 Start your device and go to Rad Pro's settings, select "Geiger tube", "Conversion factor", and select the option that matches the Geiger-Müller tube installed in your device. The photos above should help you identify the tube.
 
-Last, within the "Geiger tube" settings, select "HV Profile" and choose an appropriate HV profile: "Energy-saving" is ideal for measuring background levels of radiation, while "Optimized" consumes more power but allows measuring higher radiation levels; "Factory default" is the profile from the original firmware and consumes considerably more power.
+Within the "Geiger tube" settings, select "HV Profile" and choose an appropriate HV profile: "Energy-saving" is ideal for measuring background levels of radiation, while "Optimized" consumes more power but allows measuring higher radiation levels; "Factory default" is the profile from the original firmware and consumes considerably more power.
+
+Last, read the [user's manual](../../users.md) for learning how to use Rad Pro.
 
 ## Step 6: Optional mods
 
