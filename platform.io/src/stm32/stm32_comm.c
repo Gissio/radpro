@@ -389,7 +389,8 @@ static void onUsbData(usbd_device *dev, uint8_t event, uint8_t ep)
         }
     }
 
-    if (comm.state == COMM_RX_READY)
+    if ((comm.state == COMM_RX_READY) ||
+        (comm.state == COMM_TX_READY))
     {
         usbd_ep_write(dev,
                       USB_DATA_TRANSMIT_ENDPOINT,
