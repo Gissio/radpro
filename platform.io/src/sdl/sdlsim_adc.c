@@ -26,9 +26,4 @@ float getDeviceBatteryVoltage(void)
     return 1.296F;
 }
 
-float getDeviceTemperature(void)
-{
-    return 24.2F;
-}
-
 #endif

@@ -95,7 +95,7 @@ static void strcatDatalogEntry(char *buffer, const Dose *entry)
     strcatUInt32(buffer, entry->pulseCount, 0);
 }
 
-static void startDatalogDumpTemp(void)
+static void startDatalogDump(void)
 {
     sendCommOk();
 
@@ -123,8 +123,6 @@ void dispatchCommEvents(void)
         }
         else if (matchCommCommand("GET deviceBatteryVoltage"))
             sendCommOkWithFloat(getDeviceBatteryVoltage(), 3);
-        else if (matchCommCommand("GET deviceTemperature"))
-            sendCommOkWithFloat(getDeviceTemperature(), 1);
         else if (matchCommCommand("GET deviceTime"))
             sendCommOkWithUInt32(getDeviceTime());
         else if (matchCommCommandWithUInt32("SET deviceTime", &value))
@@ -158,12 +156,12 @@ void dispatchCommEvents(void)
         else if (matchCommCommand("GET tubeDeadTimeCompensation"))
             sendCommOkWithFloat(getTubeDeadTimeCompensation(), 7);
         else if (matchCommCommand("GET tubeHVFrequency"))
-            sendCommOkWithFloat(getTubeHVFrequency(), 0);
+            sendCommOkWithFloat(getTubeHVFrequency(), 2);
         else if (matchCommCommand("GET tubeHVDutyCycle"))
             sendCommOkWithFloat(getTubeHVDutyCycle(), 4);
         else if (matchCommCommandWithUInt32("GET datalog", &comm.datalogTimeLimit))
         {
-            startDatalogDumpTemp();
+            startDatalogDump();
 
             return;
         }
@@ -171,7 +169,7 @@ void dispatchCommEvents(void)
         {
             comm.datalogTimeLimit = 0;
 
-            startDatalogDumpTemp();
+            startDatalogDump();
 
             return;
         }

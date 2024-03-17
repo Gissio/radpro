@@ -1434,13 +1434,13 @@ void drawStatistics(void)
 
 #if defined(DISPLAY_128X64)
         case 2:
-            strcpy(key, "Tube dead-time");
+            strcpy(key, "Tube dead time");
 #elif defined(DISPLAY_320X240)
         case 3:
-            strcpy(key, "Tube dead-time");
+            strcpy(key, "Tube dead time");
 #elif defined(DISPLAY_240X320)
         case 4:
-            strcpy(key, "Dead-time");
+            strcpy(key, "Dead time");
 #endif
             float deadTime = getTubeDeadTime();
             if (deadTime >= 1)

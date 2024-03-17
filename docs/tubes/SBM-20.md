@@ -37,7 +37,7 @@ Thickness: 0.05 mm
 * Initial voltage: 260 V - 320 V
 * Plateau length: at least 100 V
 * Maximum plateau slope: 0.1 %/V
-* Minimum dead-time: 190 µs (@ 400 V)
+* Minimum dead time: 190 µs (@ 400 V)
 * Working range: 0.004 µR/s (40 µR/s)
 * Working range: 0.014 mR/h (144 mR/h)
 * Gamma sensitivity Ra-226: 29 cps/mR/h (198.4 cpm/µSv/h)

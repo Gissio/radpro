@@ -42,18 +42,6 @@ Example:
     GET deviceBatteryVoltage
     OK 1.421
 
-### Get device temperature
-
-* Request: `GET deviceTemperature\n`
-* Response: `OK [value]\n`
-
-Returns the microcontroller's temperature in degrees Celsius, provided in decimal format with one decimal place. This value is calibrated on FS2011 (STM32F051C8) and Bosean FS-600/FS-1000 devices; on other devices it is uncalibrated.
-
-Example:
-
-    GET deviceTemperature
-    OK 24.2
-
 ### Get device date and time
 
 * Request: `GET deviceTime\n`
@@ -140,18 +128,6 @@ Example:
 
 For improved accuracy, perform two `GET tubePulseCount` measurements over a time period and divide the pulse count difference by the time period (in minutes).
 
-### Get tube dead-time measurement
-
-* Request: `GET tubeDeadTime\n`
-* Response: `OK [value]\n`
-
-Returns a measured upper bound of the tube's dead-time in seconds, provided in decimal format with seven decimal places.
-
-Example:
-
-    GET tubeDeadTime
-    OK 0.0002425
-
 ### Get tube conversion factor
 
 * Request: `GET tubeConversionFactor\n`
@@ -163,6 +139,18 @@ Example:
 
     GET tubeConversionFactor
     OK 153.000
+
+### Get tube dead time measurement
+
+* Request: `GET tubeDeadTime\n`
+* Response: `OK [value]\n`
+
+Returns a measured upper bound of the tube's dead time in seconds, provided in decimal format with seven decimal places.
+
+Example:
+
+    GET tubeDeadTime
+    OK 0.0002425
 
 ### Get tube dead-time compensation
 
@@ -181,12 +169,12 @@ Example:
 * Request: `GET tubeHVFrequency\n` 
 * Response: `OK [value]\n`
 
-Returns the tube's PWM frequency of the high voltage generator in Hz, provided in decimal format.
+Returns the tube's PWM frequency of the high voltage generator in Hz, provided in decimal format with two decimal places.
 
 Example:
 
     GET tubeHVFrequency
-    OK 1250
+    OK 1250.00
 
 ### Get tube PWM duty cycle
 
@@ -202,10 +190,10 @@ Example:
 
 ### Get data log
 
-* Request: `GET datalog [value]\n`
+* Request: `GET datalog [time]\n`
 * Response: `OK [data]\n`
 
-Returns the data log stored in the device's flash memory. `[value]` is an optional UNIX timestamp (number of seconds since 1/1/1970), provided in decimal format, that limits the output to entries newer than this date and time. `[data]` is a list of records, separated by `;`. Each record's fields are separated by `,`. The first record lists the field names, and the following records are actual measurements ordered from least recent to most recent. Valid fields include:
+Returns the data log stored in the device's flash memory. `[time]` is an optional UNIX timestamp (number of seconds since 1/1/1970), provided in decimal format, that limits the output to entries that occur at this date and time or later. `[data]` is a list of records, separated by `;`. Each record's fields are separated by `,`. The first record lists the field names, and the following records are actual measurements ordered from least recent to most recent. Valid fields include:
 
 * `time`: The record's UNIX timestamp (number of seconds since 1/1/1970), provided in decimal format.
 * `tubePulseCount`: The tube's life pulse count, provided in decimal format.
@@ -226,18 +214,6 @@ Example:
 
     GET randomData
     OK 9155facb75c00e331cf7fd625102f37a
-
-<!-- ### Start bootloader
-
-* Request: `START bootloader\n`
-* Response: `OK\n`
-
-On certain devices, starts the bootloader for performing firmware updates.
-
-Example:
-
-    START bootloader
-    OK -->
 
 ### Invalid or erroneous requests
 

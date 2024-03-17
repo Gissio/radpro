@@ -17,6 +17,5 @@ void initADC(void);
 void updateADC(void);
 
 float getDeviceBatteryVoltage(void);
-float getDeviceTemperature(void);
 
 #endif

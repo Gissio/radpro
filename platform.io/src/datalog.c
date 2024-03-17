@@ -136,7 +136,6 @@ static void writeDatalogEntry(bool isUpdate)
         return;
 
     // Update?
-
     Dose dose;
     dose.time = getDeviceTime();
     dose.pulseCount = getTubePulseCount();
@@ -148,7 +147,6 @@ static void writeDatalogEntry(bool isUpdate)
         return;
 
     // Build entry
-
     uint8_t entry[9];
     uint32_t entrySize = 0;
 
@@ -171,7 +169,6 @@ static void writeDatalogEntry(bool isUpdate)
         if ((deltaPulseCount >= -(1 << 27)) && (deltaPulseCount < (1 << 27)))
         {
             // Encode 7, 14, 21 or 28-bit differential pulse count value
-
             uint32_t size;
             if ((deltaPulseCount >= -(1 << 6)) && (deltaPulseCount < (1 << 6)))
                 size = 1;
@@ -188,7 +185,6 @@ static void writeDatalogEntry(bool isUpdate)
         else
         {
             // Encode 32-bit differential pulse count value
-
             entry[entrySize++] = 0xf0;
 
             encodeDatalogValue(deltaPulseCount, entry + entrySize, 4, 8);
@@ -196,12 +192,10 @@ static void writeDatalogEntry(bool isUpdate)
         }
 
         // Block crossing?
-
         if ((datalog.bufferSize + entrySize) > flashBlockSize)
             writeDatalogBuffer();
 
         // Page crossing?
-
         absoluteEntry =
             (datalog.writeState.iterator.index + entrySize) > flashPageDataSize;
     }
@@ -209,7 +203,6 @@ static void writeDatalogEntry(bool isUpdate)
     if (absoluteEntry)
     {
         // Encode sample interval, absolute timestamp and absolute pulse count value
-
         entrySize = 0;
 
         entry[entrySize++] = 0xf1 + settings.datalogInterval - 1;
@@ -221,7 +214,6 @@ static void writeDatalogEntry(bool isUpdate)
         entrySize += 4;
 
         // An absolute entry always crosses a flash block: write buffered data
-
         writeDatalogBuffer();
     }
 
@@ -276,7 +268,6 @@ static bool decodeDatalogEntry(DatalogState *state)
         if (symbol < 0xf0)
         {
             // 7, 14, 21 or 28-bit differential pulse count value
-
             uint32_t size;
             if ((symbol & 0x80) == 0x00)
                 size = 1;
@@ -296,7 +287,6 @@ static bool decodeDatalogEntry(DatalogState *state)
         else if (symbol == 0xf0)
         {
             // 32-bit data differential pulse count value
-
             state->dose.time += state->timeInterval;
             state->dose.pulseCount +=
                 decodeDatalogValue(&state->iterator, 4, 8);
@@ -304,7 +294,6 @@ static bool decodeDatalogEntry(DatalogState *state)
         else if (symbol <= 0xf5)
         {
             // Sample interval + absolute timestamp and pulse count value
-
             state->timeInterval = datalogTimeIntervals[symbol - 0xf1 + 1];
             state->dose.time =
                 decodeDatalogValue(&state->iterator, 4, 8);
@@ -314,12 +303,13 @@ static bool decodeDatalogEntry(DatalogState *state)
         else if (symbol < 0xff)
         {
             // Filler byte
-
             continue;
         }
         else
         {
             // Unflashed value
+            if (isFlashPageFull(&datalog.readState.iterator))
+                continue;
 
             state->iterator.index--;
 

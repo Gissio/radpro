@@ -264,7 +264,7 @@ void dispatchEvents(void)
     dispatchCommEvents();
 }
 
-// Dead-time
+// Dead time
 
 float getTubeDeadTime(void)
 {
