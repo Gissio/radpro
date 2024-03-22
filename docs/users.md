@@ -41,7 +41,7 @@ An example: suppose you measure an instantaneous rate of 1.0 µSv/h with a confi
 
 The average rate is estimated by dividing the number of pulses within a time window, minus one, by the time between the first and last pulse within that window.
 
-The average time is the length of the time window used for calculating the instantaneous rate.
+The average time is the length of the time window used for calculating the average rate.
 
 The confidence interval assumes a constant level of radiation over the averaging period.
 
@@ -92,7 +92,7 @@ To live log data on a computer or download the datalogs, use the [GeigerLog](htt
 
 Rad Pro lets you compensate these missed counts by applying dead-time compensation.
 
-To use dead-time compensation you need to first measure the dead time. To do so, go to the settings, select "Statistics" and monitor the "Dead time" value until it stabilizes. This process can take several hours under normal levels of radiation.
+To use dead-time compensation you need to measure the dead time first. To do so, go to the settings, select "Statistics" and monitor the "Dead time" value until it stabilizes. This process can take several hours under normal levels of radiation.
 
 Dead-time compensation follows the non-paralyzable model:
 
