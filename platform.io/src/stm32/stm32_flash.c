@@ -86,13 +86,11 @@ void writeFlash(FlashIterator *iterator,
 
     for (uint32_t i = 0; i < size; i += FLASH_WORD_SIZE)
     {
-        if (!flash_program(dest + i, source + i))
+        if (!flash_program(dest + i, source + i) &&
+            (iterator->index == 0) &&
+            flash_erase_page(iterator->pageIndex))
         {
-            if (!flash_erase_page(iterator->pageIndex))
-                break;
-
-            if (!flash_program(dest + i, source + i))
-                break;
+            flash_program(dest + i, source + i);
         }
     }
 

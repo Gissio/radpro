@@ -7,13 +7,14 @@
 * Configurable average timer for performing surveys.
 * Data logging with data compression.
 * Serial port/USB data communications.
-* `radpro-tool` for downloading the data log, logging live data, submitting data to radiation monitoring websites and syncing the device clock.
+* Compatibility with the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software.
 * Configurable pulse click sounds: off, quiet, loud.
 * Dead time measurement.
 * Customizable Geiger-Müller tube settings: conversion factor, dead-time compensation, high voltage generator PWM frequency and duty cycle (for tube voltage control).
 * Configurable high voltage profiles.
 * Overflow alarms.
 * Statistics for tracking device usage and state.
+* `radpro-tool` for low-level access to the device from a computer.
 * User interface with the [OpenBridge 4.0](https://www.openbridge.no/) design system and anti-aliased text rendering on color screens.
 * Power-on self-test and safety watchdog.
 * Game: nuclear chess.
@@ -62,20 +63,28 @@ The conversion factor specifies the relationship between cpm (counts per minute)
 
 Rad Pro comes with default conversion factors for various Geiger-Müller tubes:
 
-* J305: 175.0 µSv/h/cpm
-* J321: 153.0 µSv/h/cpm
-* J613: 68.4 µSv/h/cpm
-* J614: 68.4 µSv/h/cpm
-* M4011: 153.0 µSv/h/cpm
-* SBM-20: 175.0 µSv/h/cpm
+* J305: 175.0 cpm/µSv/h
+* J321: 153.0 cpm/µSv/h
+* J613: 68.4 cpm/µSv/h
+* J614: 68.4 cpm/µSv/h
+* M4011: 153.0 cpm/µSv/h
+* SBM-20: 175.0 cpm/µSv/h
 
-You can also set a custom conversion factor by going to the settings, selecting "Geiger tube", "Conversion Factor", and choosing the appropriate value in the list.
+You can also set a custom conversion factor by going to the settings, selecting "Geiger tube", "Conversion Factor", and choosing an appropriate value from the list.
 
-## Background level measurements
+## Background level measurement
 
-Geiger-Müller tubes are, for obvious reasons, made of matter. With the currently available technology, it is not possible to make a tube without atoms subject to radioactive decay. Thus the tube itself will produce radiation. This intrinsic radiation will depend on the tube type, tube size, and even the production batch.
+Geiger-Müller tubes, being composed of matter, inherently contain atoms prone to radioactive decay. Consequently, the tubes themselves emit radiation. This intrinsic radiation will depend on factors such as tube type, size, and production batch.
 
-Therefore, background level measurements will be affected by this intrinsic radiation.
+Hence, it's important to account for this intrinsic radiation when comparing the background level of radiation measured by different devices, as it will influence the measurement.
+
+## Data logging
+
+Rad Pro lets you log cumulative dose count, from which both rate and dose can be derived.
+
+To log data, simply select a data logging interval in the settings. Data is automatically logged in the background.
+
+To live log data on a computer or download the datalogs, use the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software.
 
 ## Dead time and dead-time compensation
 
@@ -113,13 +122,9 @@ Random symbols are generated from the bits using the [Fast Dice Roller](https://
 
 For faster bit generation, use a radioactive source.
 
-## Data logging
-
-To log data using Rad Pro, select a data logging interval in the settings. Data is automatically logged in the background.
-
 ## radpro-tool
 
-`radpro-tool` lets you download data logs, log live data on your computer, submit live data to radiation monitoring websites, and sync the device's clock.
+`radpro-tool` gives you low-level access to your device, allowing you to download data logs, log live data on your computer, submit live data to radiation monitoring websites, get device information and sync the device's clock.
 
 To use `radpro-tool`, install [Python](https://www.python.org) and the necessary requirements by running the following command in a terminal:
 
@@ -137,10 +142,10 @@ To download the datalog to the file `datalog.csv`:
 
     python radpro-tool.py --port COM13 --download-datalog datalog.csv
 
-This example live submits the level of radiation to the https://gmcmap.com website:
+To live submit the level of radiation to the https://gmcmap.com website:
 
     python radpro-tool.py --port COM13 --submit-gmcmap [USER_ACCOUNT_ID] [GEIGER_COUNTER_ID]
 
 ## Data communications
 
-To communicate with Rad Pro through a serial port or ST-LINK dongle through SWD, read the [communications protocol description](comm.md).
+To communicate with Rad Pro through a serial port or SWD (through an ST-LINK dongle), read the [communications protocol description](comm.md).
