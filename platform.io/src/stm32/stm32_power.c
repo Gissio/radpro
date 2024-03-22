@@ -48,7 +48,7 @@ void initPowerController(void)
                GPIO_MODE_INPUT_ANALOG);
 
     gpio_setup(PWR_CHRG_PORT,
-               PWR_EN_PIN,
+               PWR_CHRG_PIN,
 #if defined(PWR_CHRG_PULLUP)
                GPIO_MODE_INPUT_PULLUP
 #else

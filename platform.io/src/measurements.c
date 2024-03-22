@@ -276,7 +276,6 @@ static void calculateRate(uint32_t pulseCount, uint32_t ticks, Rate *rate)
     }
 
     // Fix ticks for improved accuracy with high radiation rate
-
     if (pulseCount > ticks)
     {
         addClamped(&pulseCount, 1);
@@ -284,14 +283,12 @@ static void calculateRate(uint32_t pulseCount, uint32_t ticks, Rate *rate)
     }
 
     // Value and confidence intervals
-
     float value = ((float)(pulseCount - 1) * SYSTICK_FREQUENCY) / ticks;
 
     float confidenceInterval =
         getConfidenceInterval(pulseCount - 1);
 
     // Dead-time compensation
-
     // float absConfidenceInterval = value * (1 + confidenceInterval);
     // float compValue = value * valueFactor;
     // float compAbsConfidenceInterval = absConfidenceInterval * confidenceIntervalFactor;
@@ -330,7 +327,6 @@ void onMeasurementPeriod(void)
 void updateMeasurements(void)
 {
     // Dead-time compensation
-
     Measurement compensatedMeasurement;
 
     compensatedMeasurement.firstPulseTick =
@@ -346,11 +342,9 @@ void updateMeasurements(void)
     measurements.tick.pulseCountFraction -= compensatedMeasurement.pulseCount;
 
     // Instantaneous rate
-
     if (compensatedMeasurement.pulseCount)
     {
         // Enqueue
-
         measurements.instantaneous.queue[measurements.instantaneous.queueTail] =
             compensatedMeasurement;
         measurements.instantaneous.queueTail =
@@ -364,7 +358,6 @@ void updateMeasurements(void)
         }
 
         // Process queue
-
         Measurement instantaneousMeasurement;
         instantaneousMeasurement.firstPulseTick = compensatedMeasurement.lastPulseTick;
         instantaneousMeasurement.lastPulseTick = compensatedMeasurement.lastPulseTick;
@@ -417,7 +410,6 @@ void updateMeasurements(void)
         measurements.instantaneous.rate.time++;
 
     // Average rate
-
     if ((measurements.average.rate.time < UINT32_MAX) &&
         (measurements.average.pulseCount < UINT32_MAX))
     {
@@ -455,7 +447,6 @@ void updateMeasurements(void)
     }
 
     // Cumulative dose
-
     if ((measurements.cumulative.dose.time < UINT32_MAX) &&
         (measurements.cumulative.dose.pulseCount < UINT32_MAX))
     {
@@ -465,7 +456,6 @@ void updateMeasurements(void)
     }
 
     // Tube
-
     if ((measurements.tube.dose.time < UINT32_MAX) &&
         (measurements.tube.dose.pulseCount < UINT32_MAX))
     {
@@ -475,7 +465,6 @@ void updateMeasurements(void)
     }
 
     // History
-
     measurements.history.sampleIndex++;
     if (measurements.history.sampleIndex >
         histories[HISTORY_NUM - 1].samplesPerDataPoint)
@@ -512,7 +501,6 @@ void updateMeasurements(void)
     }
 
     // Alarms
-
     if (isInstantaneousRateAlarm() || isDoseAlarm())
         triggerAlarm();
 }

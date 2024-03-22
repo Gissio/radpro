@@ -31,7 +31,6 @@ void dispatchViewEvents(void)
     bool displayTimerActive = isDisplayTimerActive();
 
     // Key events
-
     while (true)
     {
         Event event = getKeyboardEvent();
@@ -60,7 +59,6 @@ void dispatchViewEvents(void)
     }
 
     // Draw events
-
 #if defined(DISPLAY_COLOR)
     if (!displayTimerActive)
     {

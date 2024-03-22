@@ -17,7 +17,6 @@
 void initBuzzerController(void)
 {
     // GPIO
-
     setBuzzer(false);
 
 #if defined(BUZZ_TIMER)
@@ -51,7 +50,6 @@ void initBuzzerController(void)
 #endif
 
     // Buzzer timer
-
 #if defined(BUZZ_TIMER)
     tim_setup_pwm(BUZZ_TIMER,
                   BUZZ_TIMER_CHANNEL);

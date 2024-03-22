@@ -26,7 +26,7 @@ const FlashRegion flashSettingsRegion = {SETTINGS_PAGE_BEGIN, SETTINGS_PAGE_END}
 const FlashRegion flashDatalogRegion = {DATALOG_PAGE_BEGIN, DATALOG_PAGE_END};
 
 const uint32_t flashPageDataSize = FLASH_PAGE_SIZE - FLASH_WORD_SIZE;
-const uint32_t flashBlockSize = FLASH_WORD_SIZE;
+const uint32_t flashWordSize = FLASH_WORD_SIZE;
 
 #define FIRMWARE_CRC (*(uint32_t *)(FIRMWARE_BASE + FIRMWARE_SIZE - 0x4))
 
@@ -85,7 +85,16 @@ void writeFlash(FlashIterator *iterator,
     flash_unlock();
 
     for (uint32_t i = 0; i < size; i += FLASH_WORD_SIZE)
-        flash_program(dest + i, source + i);
+    {
+        if (!flash_program(dest + i, source + i))
+        {
+            if (!flash_erase_page(iterator->pageIndex))
+                break;
+
+            if (!flash_program(dest + i, source + i))
+                break;
+        }
+    }
 
     flash_lock();
 

@@ -332,7 +332,11 @@ typedef struct
 #endif
 
     unsigned int gameStrength : 3;
-} Settings;
+} Settings
+#if defined(STM32G0)
+    __attribute__((aligned(8)))
+#endif
+    ;
 
 extern Settings settings;
 

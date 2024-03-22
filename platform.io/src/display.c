@@ -914,7 +914,6 @@ void drawMenu(const Menu *menu)
                          : COLOR_CONTAINER_GLOBAL);
 
         // Submenu
-
         if (menuStyle & MENUSTYLE_SUBMENU)
         {
             rectangle.width = MENU_SUBMENU_WIDTH + MENU_LINE_OFFSET_X;
@@ -927,7 +926,6 @@ void drawMenu(const Menu *menu)
         }
 
         // Checked
-
         if (menuStyle & MENUSTYLE_CHECKED)
         {
             rectangle.width = MENU_CHECKED_WIDTH + MENU_LINE_OFFSET_X;
@@ -940,7 +938,6 @@ void drawMenu(const Menu *menu)
         }
 
         // Text
-
         rectangle.width = rectangle.x;
         rectangle.x = 0;
         setTextColor(COLOR_ON_FLAT_ACTIVE);
@@ -952,7 +949,6 @@ void drawMenu(const Menu *menu)
     }
 
     // Bottom space
-
     rectangle.x = 0;
     rectangle.width = DISPLAY_WIDTH;
     rectangle.height = DISPLAY_HEIGHT - rectangle.y;
@@ -1009,7 +1005,6 @@ void drawMeasurement(const char *title,
             : COLOR_INSTRUMENT_ENHANCED_PRIMARY;
 
     // Value
-
     const mr_rectangle_t valueRectangle = {
         MEASUREMENT_VALUE_X, MEASUREMENT_VALUE_Y,
         MEASUREMENT_VALUE_WIDTH, MEASUREMENT_VALUE_HEIGHT};
@@ -1026,7 +1021,6 @@ void drawMeasurement(const char *title,
              &valueOffset);
 
     // Confidence
-
     char confidenceString[8];
     char confidenceUnit[8];
 
@@ -1066,7 +1060,6 @@ void drawMeasurement(const char *title,
                      style == MEASUREMENTSTYLE_HOLD);
 
     // Unit
-
     const mr_rectangle_t unitRectangle = {
         MEASUREMENT_UNIT_X, MEASUREMENT_UNIT_Y,
         MEASUREMENT_UNIT_WIDTH, MEASUREMENT_UNIT_HEIGHT};
@@ -1087,7 +1080,6 @@ void drawMeasurement(const char *title,
 #endif
 
     // Time
-
     const mr_rectangle_t timeRectangle = {
         MEASUREMENT_TIME_X, MEASUREMENT_TIME_Y,
         MEASUREMENT_TIME_WIDTH, MEASUREMENT_TIME_HEIGHT};
@@ -1101,7 +1093,6 @@ void drawMeasurement(const char *title,
              &timeOffset);
 
     // Time value
-
     const mr_rectangle_t timeValueRectangle = {
         MEASUREMENT_TIME_VALUE_X, MEASUREMENT_TIME_VALUE_Y,
         MEASUREMENT_TIME_VALUE_WIDTH, MEASUREMENT_TIME_VALUE_HEIGHT};
@@ -1117,7 +1108,6 @@ void drawMeasurement(const char *title,
              &timeValueOffset);
 
     // State
-
     const mr_rectangle_t stateRectangle = {
         MEASUREMENT_STATE_X, MEASUREMENT_STATE_Y,
         MEASUREMENT_STATE_WIDTH, MEASUREMENT_STATE_HEIGHT};
@@ -1131,7 +1121,6 @@ void drawMeasurement(const char *title,
              &stateOffset);
 
     // State value
-
     const mr_rectangle_t stateValueRectangle = {
         MEASUREMENT_STATE_VALUE_X, MEASUREMENT_STATE_VALUE_Y,
         MEASUREMENT_STATE_VALUE_WIDTH, MEASUREMENT_STATE_VALUE_HEIGHT};
@@ -1157,7 +1146,6 @@ void drawHistory(const char *title,
     drawTitle(title);
 
     // Legends
-
     const mr_rectangle_t topLegendRectangle = {
         HISTORY_TOP_LEGEND_X, HISTORY_TOP_LEGEND_Y,
         HISTORY_TOP_LEGEND_WIDTH, HISTORY_TOP_LEGEND_HEIGHT};
@@ -1183,7 +1171,6 @@ void drawHistory(const char *title,
                          &bottomLegendOffset);
 
     // Space
-
     const mr_rectangle_t leftSpaceRectangle = {
         HISTORY_SPACE_LEFT_X, HISTORY_SPACE_LEFT_Y,
         HISTORY_SPACE_LEFT_WIDTH, HISTORY_SPACE_LEFT_HEIGHT};
@@ -1339,7 +1326,6 @@ void drawRNG(const char *title,
     drawTitle(title);
 
     // RNG string
-
     const mr_rectangle_t rngStringRectangle = {
         RNG_STRING_X, RNG_STRING_Y,
         RNG_STRING_WIDTH, RNG_STRING_HEIGHT};
@@ -1354,7 +1340,6 @@ void drawRNG(const char *title,
              &rngStringOffset);
 
     // State
-
     const mr_rectangle_t rngStateRectangle = {
         RNG_STATE_X, RNG_STATE_Y,
         RNG_STATE_WIDTH, RNG_STATE_HEIGHT};
@@ -1486,7 +1471,6 @@ void drawStatistics(void)
         };
 
         // Key
-
         rectangle = (mr_rectangle_t){
             STATISTICS_X, y,
             STATISTICS_WIDTH, STATISTICS_HEIGHT};
@@ -1504,7 +1488,6 @@ void drawStatistics(void)
                  &offset);
 
         // Value & unit
-
         rectangle = (mr_rectangle_t){
             STATISTICS_VALUE_X, y,
             STATISTICS_VALUE_WIDTH, STATISTICS_VALUE_HEIGHT};
@@ -1536,7 +1519,6 @@ void drawGame(const uint8_t board[8][8],
     mr_point_t offset;
 
     // Board
-
     static const char *const gamePieceMap = "@AACFBDE";
 
     setFont(FONT_GAME);
@@ -1600,7 +1582,6 @@ void drawGame(const uint8_t board[8][8],
     }
 
     // Top timers
-
     setFont(FONT_SMALL);
     setTextColor(COLOR_ELEMENT_NEUTRAL);
     setFillColor(COLOR_CONTAINER_BACKGROUND);
@@ -1623,7 +1604,6 @@ void drawGame(const uint8_t board[8][8],
 #endif
 
     // History
-
     rectangle.y = GAME_HISTORY_Y;
     rectangle.height = FONT_SMALL_LINE_HEIGHT;
 
@@ -1651,7 +1631,6 @@ void drawGame(const uint8_t board[8][8],
     }
 
     // Bottom timer
-
     const mr_rectangle_t bottomTimerRectangle = {
         GAME_BOTTOM_TIMER_X, GAME_BOTTOM_TIMER_Y,
         GAME_BOTTOM_TIMER_WIDTH, GAME_BOTTOM_TIMER_HEIGHT};
@@ -1670,7 +1649,6 @@ void drawGame(const uint8_t board[8][8],
 #endif
 
     // Spaces
-
     const mr_rectangle_t gameSpaceRectangle = {
         GAME_SPACE_X, GAME_SPACE_Y,
         GAME_SPACE_WIDTH, GAME_SPACE_HEIGHT};

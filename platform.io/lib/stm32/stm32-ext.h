@@ -182,15 +182,40 @@ __STATIC_INLINE uint32_t crc_read(void)
 #define FLASH_ACR_LATENCY_1WS FLASH_ACR_LATENCY_0
 #define FLASH_ACR_LATENCY_2WS FLASH_ACR_LATENCY_1
 
-#if defined(STM32F0) || defined(STM32F1)
+#if defined(STM32F0)
 #define FLASH_PAGE_SIZE 0x400
 #define FLASH_WORD_SIZE 0x2
+
+#define FLASH_SR_ERRORS FLASH_SR_WRPERR | \
+                            FLASH_SR_PGERR
+#define FLASH_SR_CLEAR FLASH_SR_EOP | \
+                           FLASH_SR_ERRORS
+#elif defined(STM32F1)
+#define FLASH_PAGE_SIZE 0x400
+#define FLASH_WORD_SIZE 0x2
+
+#define FLASH_SR_ERRORS FLASH_SR_WRPRTERR | \
+                            FLASH_SR_PGERR
+#define FLASH_SR_CLEAR FLASH_SR_EOP | \
+                           FLASH_SR_ERRORS
 #elif defined(STM32G0)
 #define FLASH_PAGE_SIZE 0x800
 #define FLASH_WORD_SIZE 0x8
 
 #define FLASH_KEY1 0x45670123UL
 #define FLASH_KEY2 0xCDEF89ABUL
+
+#define FLASH_SR_ERRORS (FLASH_SR_OPTVERR | \
+                         FLASH_SR_FASTERR | \
+                         FLASH_SR_MISERR |  \
+                         FLASH_SR_PGSERR |  \
+                         FLASH_SR_SIZERR |  \
+                         FLASH_SR_PGAERR |  \
+                         FLASH_SR_WRPERR |  \
+                         FLASH_SR_PROGERR | \
+                         FLASH_SR_OPERR)
+#define FLASH_SR_CLEAR (FLASH_SR_ERRORS | \
+                        FLASH_SR_EOP)
 #endif
 
 __STATIC_INLINE uint32_t flash_get_kb_size(void)
@@ -223,29 +248,10 @@ __STATIC_INLINE void flash_wait_while_busy(void)
 
 __STATIC_INLINE void flash_clear_status(void)
 {
-#if defined(STM32F0)
-    FLASH->SR = FLASH_SR_EOP |
-                FLASH_SR_WRPERR |
-                FLASH_SR_PGERR;
-#elif defined(STM32F1)
-    FLASH->SR = FLASH_SR_EOP |
-                FLASH_SR_WRPRTERR |
-                FLASH_SR_PGERR;
-#elif defined(STM32G0)
-    FLASH->SR = FLASH_SR_OPTVERR |
-                FLASH_SR_FASTERR |
-                FLASH_SR_MISERR |
-                FLASH_SR_PGSERR |
-                FLASH_SR_SIZERR |
-                FLASH_SR_PGAERR |
-                FLASH_SR_WRPERR |
-                FLASH_SR_PROGERR |
-                FLASH_SR_OPERR |
-                FLASH_SR_EOP;
-#endif
+    FLASH->SR = FLASH_SR_CLEAR;
 }
 
-__STATIC_INLINE void flash_erase_page(uint32_t page)
+__STATIC_INLINE bool flash_erase_page(uint32_t pageIndex)
 {
     flash_wait_while_busy();
     flash_clear_status();
@@ -253,11 +259,11 @@ __STATIC_INLINE void flash_erase_page(uint32_t page)
     set_bits(FLASH->CR,
              FLASH_CR_PER);
 #if defined(STM32F0) || defined(STM32F1)
-    FLASH->AR = FLASH_BASE + page * FLASH_PAGE_SIZE;
+    FLASH->AR = FLASH_BASE + pageIndex * FLASH_PAGE_SIZE;
 #elif defined(STM32G0)
     modify_bits(FLASH->CR,
                 FLASH_CR_PNB_Msk,
-                (page << FLASH_CR_PNB_Pos));
+                (pageIndex << FLASH_CR_PNB_Pos));
 #endif
     set_bits(FLASH->CR,
              FLASH_CR_STRT);
@@ -265,9 +271,11 @@ __STATIC_INLINE void flash_erase_page(uint32_t page)
 
     clear_bits(FLASH->CR,
                FLASH_CR_PER);
+
+    return (get_bits(FLASH->SR, FLASH_SR_ERRORS) == 0);
 }
 
-__STATIC_INLINE void flash_program(uint8_t *dest,
+__STATIC_INLINE bool flash_program(uint8_t *dest,
                                    uint8_t *source)
 {
     flash_wait_while_busy();
@@ -285,6 +293,8 @@ __STATIC_INLINE void flash_program(uint8_t *dest,
 
     clear_bits(FLASH->CR,
                FLASH_CR_PG);
+
+    return (get_bits(FLASH->SR, FLASH_SR_ERRORS) == 0);
 }
 
 // GPIO

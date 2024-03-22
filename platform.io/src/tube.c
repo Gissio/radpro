@@ -118,12 +118,12 @@ const View tubeMenuView = {
 // Custom conversion factor menu
 
 static const float tubeConversionFactorMenuValues[] = {
-    175.0F,
+    153.0F,
     153.0F,
     68.4F,
     68.4F,
     153.0F,
-    175.0F,
+    153.0F,
 };
 
 static const char *const tubeConversionFactorMenuOptions[] = {

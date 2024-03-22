@@ -23,7 +23,7 @@ extern const FlashRegion flashSettingsRegion;
 extern const FlashRegion flashDatalogRegion;
 
 extern const uint32_t flashPageDataSize;
-extern const uint32_t flashBlockSize;
+extern const uint32_t flashWordSize;
 
 typedef struct
 {

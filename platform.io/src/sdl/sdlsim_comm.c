@@ -26,7 +26,6 @@ static struct
 void initComm(void)
 {
     commController.port = ser_create();
-
     if (commController.port == NULL)
     {
         printf("Could not create serial port instance.\n");
@@ -48,13 +47,17 @@ void initComm(void)
     {
         printf("Could not open serial port: %s\n", sererr_last());
 
+        ser_destroy(commController.port);
+        commController.port = NULL;
+
         return;
     }
 }
 
 void transmitComm(void)
 {
-    comm.bufferIndex = 0;
+    comm.receiveBufferIndex = 0;
+    comm.sendBufferIndex = 0;
     comm.state = COMM_TX;
 }
 
@@ -64,33 +67,30 @@ void updateCommController(void)
         return;
 
     char c;
-
     while (ser_read(commController.port,
                     &c,
                     1,
                     NULL) == 0)
     {
-        comm.port = COMM_SERIAL;
-
-        if (comm.state == COMM_RX)
+        if (comm.enabled)
         {
             if ((c >= ' ') &&
-                (comm.bufferIndex < (COMM_BUFFER_SIZE - 1)))
-                comm.buffer[comm.bufferIndex++] = c;
-            else if (c == '\n')
+                (comm.receiveBufferIndex < (COMM_BUFFER_SIZE - 1)))
+                comm.receiveBuffer[comm.receiveBufferIndex++] = c;
+            else if ((c == '\n') &&
+                     (comm.receiveBufferIndex < COMM_BUFFER_SIZE))
             {
-                comm.buffer[comm.bufferIndex] = '\0';
+                comm.receiveBuffer[comm.receiveBufferIndex++] = '\0';
                 comm.state = COMM_RX_READY;
             }
         }
     }
 
-    while ((comm.port == COMM_SERIAL) &&
-           (comm.state == COMM_TX))
+    while (comm.state == COMM_TX)
     {
-        if (comm.buffer[comm.bufferIndex] != '\0')
+        if (comm.sendBuffer[comm.sendBufferIndex] != '\0')
             ser_write(commController.port,
-                      &comm.buffer[comm.bufferIndex++],
+                      &comm.sendBuffer[comm.sendBufferIndex++],
                       1,
                       NULL);
         else

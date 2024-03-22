@@ -115,16 +115,19 @@ static int32_t decodeDatalogValue(FlashIterator *iterator,
 static void writeDatalogBuffer(void)
 {
     uint32_t paddedBufferSize =
-        ((datalog.bufferSize + flashBlockSize - 1) / flashBlockSize) *
-        flashBlockSize;
+        ((datalog.bufferSize + flashWordSize - 1) / flashWordSize) *
+        flashWordSize;
 
-    memset(datalog.buffer + datalog.bufferSize,
-           0xfe,
-           paddedBufferSize - datalog.bufferSize);
+    if (paddedBufferSize)
+    {
+        memset(datalog.buffer + datalog.bufferSize,
+               0xfe,
+               paddedBufferSize - datalog.bufferSize);
 
-    writeFlashPage(&datalog.writeState.iterator,
-                   datalog.buffer,
-                   paddedBufferSize);
+        writeFlashPage(&datalog.writeState.iterator,
+                       datalog.buffer,
+                       paddedBufferSize);
+    }
 
     datalog.bufferSize = 0;
 }
@@ -192,7 +195,7 @@ static void writeDatalogEntry(bool isUpdate)
         }
 
         // Block crossing?
-        if ((datalog.bufferSize + entrySize) > flashBlockSize)
+        if ((datalog.bufferSize + entrySize) > flashWordSize)
             writeDatalogBuffer();
 
         // Page crossing?
@@ -218,13 +221,12 @@ static void writeDatalogEntry(bool isUpdate)
     }
 
     // Write entry
-
     memcpy(datalog.buffer + datalog.bufferSize,
            entry,
            entrySize);
     datalog.bufferSize += entrySize;
 
-    if (datalog.bufferSize >= flashBlockSize)
+    if (datalog.bufferSize >= flashWordSize)
         writeDatalogBuffer();
 }
 
@@ -308,7 +310,7 @@ static bool decodeDatalogEntry(DatalogState *state)
         else
         {
             // Unflashed value
-            if (isFlashPageFull(&datalog.readState.iterator))
+            if (isFlashPageFull(&state->iterator))
                 continue;
 
             state->iterator.index--;

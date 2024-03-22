@@ -52,10 +52,9 @@ static float getUniformRandomValue(void)
     return (float)rand() / RAND_MAX;
 }
 
-// https://en.wikipedia.org/wiki/Poisson_distribution
-
 static uint32_t getPoisson(double lambda)
 {
+    // https://en.wikipedia.org/wiki/Poisson_distribution
     double l = exp(-lambda);
     uint32_t n = 0;
     double p = 1;

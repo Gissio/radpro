@@ -20,7 +20,7 @@ bool powerOffRequested;
 #if defined(BATTERY_REMOVABLE)
 static const float batteryLevelThresholds[2][5] = {
     // Ni-MH
-    {1.204F, 1.240F, 1.261F, 1.276F, 1.310F},
+    {1.188F, 1.231F, 1.257F, 1.274F, 1.307F},
 
     // Alkaline
     {1.186F, 1.260F, 1.296F, 1.338F, 1.395F},
@@ -28,7 +28,7 @@ static const float batteryLevelThresholds[2][5] = {
 #else
 static const float batteryLevelThresholds[] =
     // Li-Ion
-    {3.680F, 3.735F, 3.779F, 3.863F, 3.989F};
+    {3.527F, 3.653F, 3.780F, 3.907F, 4.033F};
 #endif
 
 #if defined(BATTERY_REMOVABLE)

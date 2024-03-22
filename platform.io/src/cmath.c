@@ -24,7 +24,6 @@ void addClamped(uint32_t *px, uint32_t y)
 float getConfidenceInterval(uint32_t n)
 {
     // Patel, V. - Comparison of Confidence Intervals for the Poisson Mean: Some New Aspects (2012)
-
     if (n <= 1)
         return 2.6888794541139354F;
     else if (n == 2)
@@ -32,11 +31,9 @@ float getConfidenceInterval(uint32_t n)
     else
     {
         // Normal approximation
-
         float normalApproximation = 1.959964F / sqrtf((float)n);
 
         // First order correction
-
         return normalApproximation + 0.92095147F / (0.34074598F + n);
     }
 }
@@ -44,7 +41,6 @@ float getConfidenceInterval(uint32_t n)
 bool getRandomBit(void)
 {
     // https://en.wikipedia.org/wiki/Linear-feedback_shift_register#Galois_LFSRs
-
     int32_t lsb = randomLFSR & 1;
 
     randomLFSR = (randomLFSR >> 1) ^ (-lsb & 0xb400);

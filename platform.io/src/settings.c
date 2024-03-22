@@ -45,7 +45,6 @@ static bool getFlashSettings(FlashIterator *iterator,
 void initSettings(void)
 {
     // Default values
-
     settings.tubeConversionFactor = TUBE_CONVERSIONFACTOR_DEFAULT;
 
 #if defined(PULSELED)
@@ -71,7 +70,6 @@ void initSettings(void)
 #endif
 
     // Read settings
-
     FlashIterator iterator;
     iterator.region = &flashSettingsRegion;
 

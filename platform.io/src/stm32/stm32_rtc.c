@@ -53,7 +53,6 @@ void setDeviceTime(uint32_t value)
     getDateTimeFromTime(value, &dateTime);
 
     // Set RTC dateTime
-
     uint32_t dr =
         convertToBCD(dateTime.year % 100) << RTC_DR_YU_Pos |
         convertToBCD(dateTime.month) << RTC_DR_MU_Pos |
@@ -73,7 +72,6 @@ uint32_t getDeviceTime(void)
     RTCDateTime dateTime;
 
     // Wait if RTC is about to roll over
-
     while (!rtc_is_read_safe())
         sleep(1);
 

@@ -79,7 +79,7 @@ Therefore, background level measurements will be affected by this intrinsic radi
 
 ## Dead time and dead-time compensation
 
-Dead time is the period of time during which the Geiger-Müller tube is unable to detect another radiation event immediately after detecting one. This occurs because the tube becomes saturated after each radiation event, typically for a time of 50-200 µs. Consequently, measurements of high levels of radiation will be inaccurate as the tube fails to register the counts during this dead time period.
+[Dead time](https://en.wikipedia.org/wiki/Geiger%E2%80%93M%C3%BCller_tube#Quenching_and_dead_time) is the period of time during which the Geiger-Müller tube is unable to detect another radiation event immediately after detecting one. This occurs because the tube becomes saturated after each radiation event, typically for a time of 50-200 µs. Consequently, measurements of high levels of radiation will be inaccurate as the tube fails to register the counts during this dead time period.
 
 Rad Pro lets you compensate these missed counts by applying dead-time compensation.
 
@@ -105,7 +105,7 @@ An HV profile consists of a [PWM](https://en.wikipedia.org/wiki/Pulse-width_modu
 
 ## Random generator
 
-The random generator produces 16 symbols per run. If additional symbols are needed, simply return to the menu and initiate a new run.
+The [random generator](https://en.wikipedia.org/wiki/Hardware_random_number_generator) produces 16 symbols per run. If additional symbols are needed, simply return to the menu and initiate a new run.
 
 The generator produces random bits by comparing the time interval between two successive pulses. To avoid bias, every second bit is flipped. The generator stores random data in a 128-bit buffer.
 
@@ -129,17 +129,17 @@ To get help about `radpro-tool`, run the following command in a terminal:
 
     python radpro-tool.py --help
 
-This example syncs the clock of a Rad Pro devices connected to COM13:
+To sync the clock of a Rad Pro device connected to COM13:
 
     python radpro-tool.py --port COM13
 
-This example downloads the datalog to the file `datalog.csv`:
+To download the datalog to the file `datalog.csv`:
 
-    python radpro-tool.py --port COM13 --get-datalog datalog.csv
+    python radpro-tool.py --port COM13 --download-datalog datalog.csv
 
-This example streams the level of radiation to the https://gmcmap.com website:
+This example live submits the level of radiation to the https://gmcmap.com website:
 
-    python radpro-tool.py --port COM13 --get-datalog datalog.csv
+    python radpro-tool.py --port COM13 --submit-gmcmap [USER_ACCOUNT_ID] [GEIGER_COUNTER_ID]
 
 ## Data communications
 

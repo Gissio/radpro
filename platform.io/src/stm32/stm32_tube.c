@@ -36,7 +36,6 @@ static struct
 void initTubeController(void)
 {
     // GPIO
-
 #if defined(STM32F0) || defined(STM32G0)
     gpio_setup_af(TUBE_HV_PORT,
                   TUBE_HV_PIN,
@@ -74,14 +73,12 @@ void initTubeController(void)
 #endif
 
     // HV timer
-
     tim_setup_pwm(TUBE_HV_TIMER,
                   TUBE_HV_TIMER_CHANNEL);
     updateTubeHV();
     tim_enable(TUBE_HV_TIMER);
 
     // Pulse timer
-
     tim_setup_linked(TUBE_DET_TIMER_MASTER,
                      TUBE_DET_TIMER_SLAVE,
                      TUBE_DET_TIMER_TRIGGER_CONNECTION);
@@ -92,7 +89,6 @@ void initTubeController(void)
     tim_enable(TUBE_DET_TIMER_MASTER);
 
     // EXTI
-
     exti_setup(TUBE_DET_PORT,
                TUBE_DET_PIN,
                false,
@@ -130,7 +126,6 @@ void TUBE_DET_IRQ_HANDLER(void)
     exti_clear_pending_interrupt(TUBE_DET_PIN);
 
     // Pulse timer
-
     uint32_t countHigh1 = TUBE_DET_TIMER_SLAVE->CNT;
     uint32_t count = TUBE_DET_TIMER_MASTER->CNT;
     uint32_t countHigh2 = TUBE_DET_TIMER_SLAVE->CNT;

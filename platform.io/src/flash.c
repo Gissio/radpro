@@ -36,7 +36,7 @@ static void markFlashPageFull(FlashIterator *iterator)
 
     iterator->index = flashPageDataSize;
 
-    writeFlash(iterator, marker, flashBlockSize);
+    writeFlash(iterator, marker, flashWordSize);
 }
 
 void setFlashPageHead(FlashIterator *iterator)
@@ -101,7 +101,6 @@ void writeFlashPage(FlashIterator *iterator,
     if ((iterator->index + size) > flashPageDataSize)
     {
         // Not enough space in page
-
         FlashIterator startIterator = *iterator;
 
         setFlashPageNext(iterator);

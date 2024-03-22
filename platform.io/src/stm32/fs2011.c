@@ -154,6 +154,7 @@ static void onDisplaySend(uint16_t value)
 
 void initDisplayController(void)
 {
+    // GPIO
     gpio_set(DISPLAY_RSTB_PORT, DISPLAY_RSTB_PIN);
     gpio_clear(DISPLAY_RW_PORT, DISPLAY_RW_PIN);
     gpio_clear(DISPLAY_E_PORT, DISPLAY_E_PIN);
@@ -259,7 +260,6 @@ void initDisplayController(void)
 #endif
 
     // mcu-renderer
-
     mr_st7565_init(&mr,
                    DISPLAY_WIDTH,
                    DISPLAY_HEIGHT,

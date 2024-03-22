@@ -39,6 +39,7 @@
 #define PWR_CHRG_PORT GPIOA
 #define PWR_CHRG_PIN 4
 #define PWR_CHRG_PULLUP
+#define PWR_CHRG_ACTIVE_LOW
 
 #define TUBE_HV_PORT GPIOA
 #define TUBE_HV_PIN 3

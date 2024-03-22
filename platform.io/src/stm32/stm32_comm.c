@@ -61,7 +61,8 @@ void initComm(void)
 
 void transmitComm(void)
 {
-    comm.bufferIndex = 0;
+    comm.receiveBufferIndex = 0;
+    comm.sendBufferIndex = 0;
     comm.state = COMM_TX;
 
     if (comm.port == COMM_SERIAL)
@@ -74,20 +75,21 @@ void USART_IRQ_HANDLER(void)
     {
         char c = usart_receive(USART_INTERFACE);
 
-        if (!comm.enabled)
-            return;
-
-        comm.port = COMM_SERIAL;
-
-        if (comm.state == COMM_RX)
+        if (comm.enabled)
         {
-            if ((c >= ' ') &&
-                (comm.bufferIndex < (COMM_BUFFER_SIZE - 1)))
-                comm.buffer[comm.bufferIndex++] = c;
-            else if (c == '\n')
+            comm.port = COMM_SERIAL;
+
+            if (comm.state == COMM_RX)
             {
-                comm.buffer[comm.bufferIndex] = '\0';
-                comm.state = COMM_RX_READY;
+                if ((c >= ' ') &&
+                    (comm.receiveBufferIndex < (COMM_BUFFER_SIZE - 1)))
+                    comm.receiveBuffer[comm.receiveBufferIndex++] = c;
+                else if ((c == '\n') &&
+                         (comm.receiveBufferIndex < COMM_BUFFER_SIZE))
+                {
+                    comm.receiveBuffer[comm.receiveBufferIndex++] = '\0';
+                    comm.state = COMM_RX_READY;
+                }
             }
         }
     }
@@ -96,9 +98,9 @@ void USART_IRQ_HANDLER(void)
     {
         if (comm.state == COMM_TX)
         {
-            if (comm.buffer[comm.bufferIndex] != '\0')
+            if (comm.sendBuffer[comm.sendBufferIndex] != '\0')
                 usart_send(USART_INTERFACE,
-                           comm.buffer[comm.bufferIndex++]);
+                           comm.sendBuffer[comm.sendBufferIndex++]);
             else
             {
                 usart_disable_transmit_interrupt(USART_INTERFACE);
@@ -367,10 +369,7 @@ static void onUsbData(usbd_device *dev, uint8_t event, uint8_t ep)
     else
         receivedBytes = 0;
 
-    if (!comm.enabled)
-        return;
-
-    if (comm.state == COMM_RX)
+    if (comm.enabled)
     {
         for (int32_t i = 0;
              i < receivedBytes;
@@ -379,11 +378,12 @@ static void onUsbData(usbd_device *dev, uint8_t event, uint8_t ep)
             char c = receiveBuffer[i];
 
             if ((c >= ' ') &&
-                (comm.bufferIndex < (COMM_BUFFER_SIZE - 1)))
-                comm.buffer[comm.bufferIndex++] = c;
-            else if (c == '\n')
+                (comm.receiveBufferIndex < (COMM_BUFFER_SIZE - 1)))
+                comm.receiveBuffer[comm.receiveBufferIndex++] = c;
+            else if ((c == '\n') &&
+                     (comm.receiveBufferIndex < COMM_BUFFER_SIZE))
             {
-                comm.buffer[comm.bufferIndex] = '\0';
+                comm.receiveBuffer[comm.receiveBufferIndex++] = '\0';
                 comm.state = COMM_RX_READY;
             }
         }
@@ -399,7 +399,7 @@ static void onUsbData(usbd_device *dev, uint8_t event, uint8_t ep)
     }
     else if (comm.state == COMM_TX)
     {
-        char *sendBuffer = comm.buffer + comm.bufferIndex;
+        char *sendBuffer = comm.sendBuffer + comm.sendBufferIndex;
         int32_t sentBytes = usbd_ep_write(dev,
                                           USB_DATA_TRANSMIT_ENDPOINT,
                                           sendBuffer,
@@ -407,9 +407,9 @@ static void onUsbData(usbd_device *dev, uint8_t event, uint8_t ep)
 
         if (sentBytes >= 0)
         {
-            comm.bufferIndex += sentBytes;
+            comm.sendBufferIndex += sentBytes;
 
-            if (comm.buffer[comm.bufferIndex] == '\0')
+            if (comm.sendBuffer[comm.sendBufferIndex] == '\0')
                 comm.state = COMM_TX_READY;
         }
     }
@@ -421,7 +421,6 @@ static usbd_respond onUSBConfigure(usbd_device *dev, uint8_t cfg)
     {
     case 0:
         // Deconfigure device
-
         usbd_ep_deconfig(dev, USB_CONTROL_ENDPOINT);
         usbd_ep_deconfig(dev, USB_DATA_TRANSMIT_ENDPOINT);
         usbd_ep_deconfig(dev, USB_DATA_RECEIVE_ENDPOINT);
@@ -433,7 +432,6 @@ static usbd_respond onUSBConfigure(usbd_device *dev, uint8_t cfg)
 
     case 1:
         // Configure device
-
         usbd_ep_config(dev, USB_DATA_RECEIVE_ENDPOINT, USB_EPTYPE_BULK, USB_DATA_PACKETSIZE_MAX);
         usbd_ep_config(dev, USB_DATA_TRANSMIT_ENDPOINT, USB_EPTYPE_BULK, USB_DATA_PACKETSIZE_MAX);
         usbd_ep_config(dev, USB_CONTROL_ENDPOINT, USB_EPTYPE_INTERRUPT, USB_CONTROL_PACKETSIZE_MAX);
@@ -450,7 +448,8 @@ static usbd_respond onUSBConfigure(usbd_device *dev, uint8_t cfg)
 
 void transmitComm(void)
 {
-    comm.bufferIndex = 0;
+    comm.receiveBufferIndex = 0;
+    comm.sendBufferIndex = 0;
     comm.state = COMM_TX;
 }
 
@@ -492,6 +491,13 @@ void updateCommController(void)
 
 void initComm(void)
 {
+}
+
+void transmitComm(void)
+{
+    comm.receiveBufferIndex = 0;
+    comm.sendBufferIndex = 0;
+    comm.state = COMM_TX;
 }
 
 void updateCommController(void)

@@ -78,11 +78,9 @@ void onKeyboardTick(void)
     getKeyboardState(isKeyDown);
 
     // Key changes
-
     for (int32_t i = 0; i < KEY_NUM; i++)
     {
         // Key down
-
         if (!keyboard.wasKeyDown[i] &&
             isKeyDown[i])
         {
@@ -100,7 +98,6 @@ void onKeyboardTick(void)
         }
 
         // Key up
-
         if (keyboard.wasKeyDown[i] &&
             !isKeyDown[i] &&
             (i == keyboard.pressedKey))
@@ -136,7 +133,6 @@ void onKeyboardTick(void)
     }
 
     // Key timer
-
     if (keyboard.pressedKey != KEY_NONE)
     {
         addClamped(&keyboard.pressedTicks, 1);
@@ -199,7 +195,6 @@ void onKeyboardTick(void)
     }
 
     // Enqueue key event
-
     if (event != EVENT_NONE)
     {
         keyboard.eventQueue[keyboard.eventQueueHead] = event;

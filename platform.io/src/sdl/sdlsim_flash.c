@@ -15,7 +15,7 @@
 #include "../flash.h"
 
 #define FLASH_PAGE_SIZE 0x400
-#define FLASH_WORD_SIZE 0x8
+#define FLASH_WORD_SIZE 0x2
 
 #define FLASH_FILENAME "radpro-simulator-settings.bin"
 
@@ -31,7 +31,7 @@ const FlashRegion flashDatalogRegion = {
 };
 
 const uint32_t flashPageDataSize = FLASH_PAGE_SIZE - FLASH_WORD_SIZE;
-const uint32_t flashBlockSize = FLASH_WORD_SIZE;
+const uint32_t flashWordSize = FLASH_WORD_SIZE;
 
 void initFlash(void)
 {
@@ -93,11 +93,12 @@ void eraseFlash(FlashIterator *iterator)
 }
 
 void writeFlash(FlashIterator *iterator,
-                uint8_t *source, uint32_t size)
+                uint8_t *source,
+                uint32_t size)
 {
-    uint32_t address = iterator->pageIndex * FLASH_PAGE_SIZE + iterator->index;
+    uint32_t destAddress = iterator->pageIndex * FLASH_PAGE_SIZE + iterator->index;
 
-    memcpy(flashImage + address,
+    memcpy(flashImage + destAddress,
            source,
            size);
 

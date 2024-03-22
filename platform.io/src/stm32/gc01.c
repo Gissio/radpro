@@ -293,6 +293,7 @@ void initDisplayController(void)
 
 #else
 
+    // GPIO
     gpio_set(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN);
     gpio_set(DISPLAY_RDX_PORT, DISPLAY_RDX_PIN);
     gpio_set(DISPLAY_WRX_PORT, DISPLAY_WRX_PIN);
@@ -337,7 +338,6 @@ void initDisplayController(void)
     // +++ TEST
 
     // mcu-renderer
-
 #if defined(DISPLAY_SERIAL)
 
     mr_st7789_init(&mr,

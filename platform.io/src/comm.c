@@ -36,7 +36,7 @@ static bool matchCommCommand(const char *command)
 
     while (true)
     {
-        char c1 = comm.buffer[index];
+        char c1 = comm.receiveBuffer[index];
         char c2 = command[index];
         index++;
 
@@ -53,39 +53,39 @@ static bool matchCommCommandWithUInt32(const char *command, uint32_t *value)
     if (!matchCommCommand(command))
         return false;
 
-    return (strlen(comm.buffer) > (strlen(command) + 1)) &&
-           parseUInt32(comm.buffer + strlen(command) + 1, value);
+    return (strlen(comm.receiveBuffer) > (strlen(command) + 1)) &&
+           parseUInt32(comm.receiveBuffer + strlen(command) + 1, value);
 }
 
 static void sendCommOk(void)
 {
-    strcpy(comm.buffer, "OK");
+    strcpy(comm.sendBuffer, "OK");
 }
 
 static void sendCommOkWithString(const char *value)
 {
     sendCommOk();
-    strcat(comm.buffer, " ");
-    strcat(comm.buffer, value);
+    strcat(comm.sendBuffer, " ");
+    strcat(comm.sendBuffer, value);
 }
 
 static void sendCommOkWithUInt32(uint32_t value)
 {
     sendCommOk();
-    strcat(comm.buffer, " ");
-    strcatUInt32(comm.buffer, value, 0);
+    strcat(comm.sendBuffer, " ");
+    strcatUInt32(comm.sendBuffer, value, 0);
 }
 
 static void sendCommOkWithFloat(float value, uint32_t fractionalDecimals)
 {
     sendCommOk();
-    strcat(comm.buffer, " ");
-    strcatFloat(comm.buffer, value, fractionalDecimals);
+    strcat(comm.sendBuffer, " ");
+    strcatFloat(comm.sendBuffer, value, fractionalDecimals);
 }
 
 static void sendCommError(void)
 {
-    strcpy(comm.buffer, "ERROR");
+    strcpy(comm.sendBuffer, "ERROR");
 }
 
 static void strcatDatalogEntry(char *buffer, const Dose *entry)
@@ -99,7 +99,7 @@ static void startDatalogDump(void)
 {
     sendCommOk();
 
-    strcat(comm.buffer, " time,tubePulseCount");
+    strcat(comm.sendBuffer, " time,tubePulseCount");
 
     startDatalogDownload();
     comm.sendingDatalog = true;
@@ -118,8 +118,8 @@ void dispatchCommEvents(void)
         if (matchCommCommand("GET deviceId"))
         {
             sendCommOkWithString(commId);
-            strcat(comm.buffer, ";");
-            strcatUInt32Hex(comm.buffer, getDeviceId());
+            strcat(comm.sendBuffer, ";");
+            strcatUInt32Hex(comm.sendBuffer, getDeviceId());
         }
         else if (matchCommCommand("GET deviceBatteryVoltage"))
             sendCommOkWithFloat(getDeviceBatteryVoltage(), 3);
@@ -184,9 +184,9 @@ void dispatchCommEvents(void)
                     break;
 
                 if (i == 0)
-                    strcat(comm.buffer, " ");
+                    strcat(comm.sendBuffer, " ");
 
-                strcatUInt8Hex(comm.buffer, randomData);
+                strcatUInt8Hex(comm.sendBuffer, randomData);
             }
         }
 #if defined(START_BOOTLOADER_SUPPORT)
@@ -200,7 +200,7 @@ void dispatchCommEvents(void)
         else
             sendCommError();
 
-        strcat(comm.buffer, "\n");
+        strcat(comm.sendBuffer, "\n");
 
         transmitComm();
     }
@@ -208,7 +208,7 @@ void dispatchCommEvents(void)
     {
         if (comm.sendingDatalog)
         {
-            strcpy(comm.buffer, "");
+            strcpy(comm.sendBuffer, "");
 
             uint32_t i = 0;
             while (i < 2)
@@ -217,7 +217,7 @@ void dispatchCommEvents(void)
 
                 if (!getDatalogDownloadEntry(&dose))
                 {
-                    strcat(comm.buffer, "\n");
+                    strcat(comm.sendBuffer, "\n");
 
                     comm.sendingDatalog = false;
 
@@ -226,8 +226,8 @@ void dispatchCommEvents(void)
 
                 if (dose.time >= comm.datalogTimeLimit)
                 {
-                    strcat(comm.buffer, ";");
-                    strcatDatalogEntry(comm.buffer, &dose);
+                    strcat(comm.sendBuffer, ";");
+                    strcatDatalogEntry(comm.sendBuffer, &dose);
 
                     i++;
                 }
@@ -244,7 +244,7 @@ void dispatchCommEvents(void)
 
 #endif
 
-            comm.bufferIndex = 0;
+            comm.receiveBufferIndex = 0;
             comm.state = COMM_RX;
         }
     }
