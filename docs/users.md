@@ -84,7 +84,7 @@ Rad Pro lets you log cumulative dose count, from which both rate and dose can be
 
 To log data, simply select a data logging interval in the settings. Data is automatically logged in the background.
 
-To live log data on a computer or download the datalogs, use the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software.
+To live log data on a computer or download the datalogs, use the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software. "CPM" data is Rad Pro's instantaneous counts per minute value, averaged through Rad Pro's adaptive averaging algorithm. "CPS" data is the low-level counts per second value. "CPS" data conforms to a Poisson curve fit, "CPM", not.
 
 ## Dead time and dead-time compensation
 
