@@ -35,9 +35,7 @@ If something goes wrong, open the device again, remove the main battery connecto
 
 ## Step 4: Configure your device
 
-Go to Rad Pro's settings, select "Geiger tube", select "HV Profile" and choose an appropriate HV profile: "Factory default 1" is the profile of the original firmware V0.3 and V1.5, "Factory default 2" is the profile of the original firmware V1.6-2.
-
-Also, within "Geiger tube", select "Conversion factor", and select the option that matches the Geiger-Müller tube installed in your device.
+Go to Rad Pro's settings, select "Geiger tube", select "Conversion factor", and select the option that matches the Geiger-Müller tube installed in your device.
 
 Last, read the [user's manual](../../users.md) for learning how to use Rad Pro.
 
