@@ -84,7 +84,7 @@ Rad Pro lets you log cumulative dose count, from which both rate and dose can be
 
 To log data, simply select a data logging interval in the settings. Data is automatically logged in the background.
 
-To live log data on a computer or download the datalogs, use the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software. "CPM" data is Rad Pro's instantaneous counts per minute value, averaged through Rad Pro's adaptive averaging algorithm. "CPS" data is the low-level counts per second value. "CPS" data conforms to a Poisson curve fit, "CPM", not.
+To live log data on a computer or download the datalogs, use the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software. "CPM" data is Rad Pro's instantaneous counts per minute value, averaged through Rad Pro's adaptive averaging algorithm. "CPS" data is the low-level counts per second value. "CPS" data should conform to a Poisson distribution, "CPM" not.
 
 ## Dead time and dead-time compensation
 
@@ -124,7 +124,7 @@ For faster bit generation, use a radioactive source.
 
 ## radpro-tool
 
-`radpro-tool` gives you low-level access to your device, allowing you to download data logs, log live data on your computer, submit live data to radiation monitoring websites, get device information and sync the device's clock.
+`radpro-tool` gives you low-level access to your device from a computer, allowing you to log live data, download datalogs, submit live data to radiation monitoring websites, get device information and sync the device's clock.
 
 To use `radpro-tool`, install [Python](https://www.python.org) and the necessary requirements by running the following command in a terminal:
 
@@ -134,9 +134,13 @@ To get help about `radpro-tool`, run the following command in a terminal:
 
     python radpro-tool.py --help
 
-To sync the clock of a Rad Pro device connected to COM13:
+To sync the clock of a Rad Pro device connected on COM13:
 
     python radpro-tool.py --port COM13
+
+To live log data to the file `live.csv` every 60 seconds:
+
+    python radpro-tool.py --port COM13 --live-datalog live.csv --live-datalog-period 60
 
 To download the datalog to the file `datalog.csv`:
 

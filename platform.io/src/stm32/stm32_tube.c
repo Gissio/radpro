@@ -43,7 +43,6 @@ void initTubeController(void)
                   GPIO_OUTPUTSPEED_50MHZ,
                   GPIO_PULL_FLOATING,
                   TUBE_HV_AF);
-
     gpio_setup_input(TUBE_DET_PORT,
                      TUBE_DET_PIN,
 #if defined(TUBE_DET_PULLUP)
@@ -59,7 +58,6 @@ void initTubeController(void)
     gpio_setup(TUBE_HV_PORT,
                TUBE_HV_PIN,
                GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL);
-
     gpio_setup(TUBE_DET_PORT,
                TUBE_DET_PIN,
 #if defined(TUBE_DET_PULLUP)

@@ -24,33 +24,30 @@
 
 void initComm(void)
 {
+    // GPIO
 #if defined(STM32F0) || defined(STM32G0)
-
     gpio_setup_af(USART_RX_PORT,
                   USART_RX_PIN,
                   GPIO_OUTPUTTYPE_PUSHPULL,
                   GPIO_OUTPUTSPEED_50MHZ,
                   GPIO_PULL_FLOATING,
                   USART_RX_AF);
-
     gpio_setup_af(USART_TX_PORT,
                   USART_TX_PIN,
                   GPIO_OUTPUTTYPE_PUSHPULL,
                   GPIO_OUTPUTSPEED_50MHZ,
                   GPIO_PULL_FLOATING,
                   USART_TX_AF);
-
 #elif defined(STM32F1)
-
     gpio_setup(USART_RX_PORT,
                USART_RX_PIN,
                GPIO_MODE_INPUT_FLOATING);
     gpio_setup(USART_TX_PORT,
                USART_TX_PIN,
                GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL);
-
 #endif
 
+    // USART
     usart_setup_8n1(USART_INTERFACE,
                     (USART_APB_FREQUENCY + COMM_SERIAL_BAUDRATE / 2) / COMM_SERIAL_BAUDRATE);
     usart_enable_receive_interrupt(USART_INTERFACE);
@@ -279,7 +276,7 @@ usbd_device usbdDevice;
 uint32_t usbdBuffer[0x20];
 
 static struct usb_cdc_line_coding cdc_line = {
-    .dwDTERate = 115200,
+    .dwDTERate = COMM_SERIAL_BAUDRATE,
     .bCharFormat = USB_CDC_1_STOP_BITS,
     .bParityType = USB_CDC_NO_PARITY,
     .bDataBits = 8,

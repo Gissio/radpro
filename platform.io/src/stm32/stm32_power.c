@@ -25,11 +25,9 @@ void initPowerController(void)
                       GPIO_OUTPUTTYPE_PUSHPULL,
                       GPIO_OUTPUTSPEED_2MHZ,
                       GPIO_PULL_FLOATING);
-
     gpio_setup_analog(PWR_BAT_PORT,
                       PWR_BAT_PIN,
                       GPIO_PULL_FLOATING);
-
     gpio_setup_input(PWR_CHRG_PORT,
                      PWR_CHRG_PIN,
 #if defined(PWR_CHRG_PULLUP)
@@ -42,11 +40,9 @@ void initPowerController(void)
     gpio_setup(PWR_EN_PORT,
                PWR_EN_PIN,
                GPIO_MODE_OUTPUT_2MHZ_PUSHPULL);
-
     gpio_setup(PWR_BAT_PORT,
                PWR_BAT_PIN,
                GPIO_MODE_INPUT_ANALOG);
-
     gpio_setup(PWR_CHRG_PORT,
                PWR_CHRG_PIN,
 #if defined(PWR_CHRG_PULLUP)

@@ -29,7 +29,7 @@ Next:
 * Power on the device. A USB drive should become available.
 * Drag the firmware file onto the USB drive. The device should restart with Rad Pro installed.
 
-Some people report that a USB 2.0 port is necessary (i.e. not USB 3.0). Also, some other people report that they have to press the settings key while powering on the device for the USB drive to become available.
+Some people report that installation works only if the power button is kept pressed from power on until the firmware is copied to the USB drive and the device restarts. Some people report that a USB 2.0 port is necessary (i.e. not USB 3.0). Even some other people report that the settings key has to be pressed while powering on the device for the USB drive to become available.
 
 If something goes wrong, open the device again, remove the main battery connector, and connect the device to your computer using the USB cable. You can recover your device with the [original firmware](firmware).
 

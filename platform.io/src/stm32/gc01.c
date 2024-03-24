@@ -22,10 +22,6 @@
 
 #include "mcu-renderer-st7789.h"
 
-// +++ TEST
-// #define DISPLAY_SERIAL
-// +++ TEST
-
 // System
 
 void initSystem(void)
@@ -33,35 +29,37 @@ void initSystem(void)
     // Set stack pointer to fix bootloader madness
     __set_MSP(*((uint32_t *)FIRMWARE_BASE));
 
-    // Enable HSE
-    set_bits(RCC->CR, RCC_CR_HSEON);
-    wait_until_bits_set(RCC->CR, RCC_CR_HSERDY);
+    // +++ TEST
+    // // Enable HSE
+    // set_bits(RCC->CR, RCC_CR_HSEON);
+    // wait_until_bits_set(RCC->CR, RCC_CR_HSERDY);
 
-    // Set 2 wait states for flash
-    modify_bits(FLASH->ACR,
-                FLASH_ACR_LATENCY_Msk,
-                FLASH_ACR_LATENCY_2WS);
+    // // Set 2 wait states for flash
+    // modify_bits(FLASH->ACR,
+    //             FLASH_ACR_LATENCY_Msk,
+    //             FLASH_ACR_LATENCY_2WS);
 
-    // Configure RCC
-    RCC->CFGR =
-        RCC_CFGR_SW_HSI |        // Select HSI as system clock
-        RCC_CFGR_HPRE_DIV1 |     // Set AHB clock: 72 MHz / 1 = 72 MHz
-        RCC_CFGR_PPRE1_DIV2 |    // Set APB1 clock: 72 MHz / 2 = 36 MHz
-        RCC_CFGR_PPRE2_DIV1 |    // Set APB2 clock: 72 MHz / 1 = 72 MHz
-        RCC_CFGR_ADCPRE_DIV8 |   // Set ADC clock: 72 MHz / 8 = 9 MHz
-        RCC_CFGR_PLLSRC_HSE |    // Set PLL source: HSE
-        RCC_CFGR_PLLXTPRE_HSE |  // Set PLL HSE predivision factor: 1x
-        RCC_CFGR_PLLMULL9 |      // Set PLL multiplier: 9x
-        RCC_CFGR_USBPRE_DIV1_5 | // Set USB prescaler: 1.5x
-        RCC_CFGR_MCO_NOCLOCK;    // Disable MCO
+    // // Configure RCC
+    // RCC->CFGR =
+    //     RCC_CFGR_SW_HSI |        // Select HSI as system clock
+    //     RCC_CFGR_HPRE_DIV1 |     // Set AHB clock: 72 MHz / 1 = 72 MHz
+    //     RCC_CFGR_PPRE1_DIV2 |    // Set APB1 clock: 72 MHz / 2 = 36 MHz
+    //     RCC_CFGR_PPRE2_DIV1 |    // Set APB2 clock: 72 MHz / 1 = 72 MHz
+    //     RCC_CFGR_ADCPRE_DIV8 |   // Set ADC clock: 72 MHz / 8 = 9 MHz
+    //     RCC_CFGR_PLLSRC_HSE |    // Set PLL source: HSE
+    //     RCC_CFGR_PLLXTPRE_HSE |  // Set PLL HSE predivision factor: 1x
+    //     RCC_CFGR_PLLMULL9 |      // Set PLL multiplier: 9x
+    //     RCC_CFGR_USBPRE_DIV1_5 | // Set USB prescaler: 1.5x
+    //     RCC_CFGR_MCO_NOCLOCK;    // Disable MCO
 
-    // Enable PLL
-    set_bits(RCC->CR, RCC_CR_PLLON);
-    wait_until_bits_set(RCC->CR, RCC_CR_PLLRDY);
+    // // Enable PLL
+    // set_bits(RCC->CR, RCC_CR_PLLON);
+    // wait_until_bits_set(RCC->CR, RCC_CR_PLLRDY);
 
-    // Select PLL as system clock
-    modify_bits(RCC->CFGR, RCC_CFGR_SW_Msk, RCC_CFGR_SW_PLL);
-    wait_until_bits_value(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_PLL);
+    // // Select PLL as system clock
+    // modify_bits(RCC->CFGR, RCC_CFGR_SW_Msk, RCC_CFGR_SW_PLL);
+    // wait_until_bits_value(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_PLL);
+    // +++ TEST
 
     // Set vector table
     NVIC_DisableAllIRQs();
@@ -71,7 +69,11 @@ void initSystem(void)
     rcc_enable_afio();
     modify_bits(AFIO->MAPR,
                 AFIO_MAPR_SWJ_CFG_Msk,
-                AFIO_MAPR_SWJ_CFG_JTAGDISABLE);
+                AFIO_MAPR_SWJ_CFG_JTAGDISABLE
+#if defined(GC01_DEV)
+                    | AFIO_MAPR_USART1_REMAP
+#endif
+    );
 
     // Enable RCC GPIOA, GPIOB, GPIOC
     set_bits(RCC->APB2ENR,
@@ -164,28 +166,12 @@ static const uint8_t displayInitSequence[] = {
     MR_SEND_DATA(0x22),
     MR_SEND_DATA(0x1f),
 
-// +++ TEST
-#if defined(DISPLAY_SERIAL)
+#if defined(GC01_DEV)
     MR_SEND_COMMAND(MR_ST7789_INVON), // Inverse for IPS displays
 #endif
-    // +++ TEST
 
     MR_END(),
 };
-
-// +++ TEST
-#if defined(DISPLAY_SERIAL)
-
-#define DISPLAY_SCLK_PORT GPIOA
-#define DISPLAY_SCLK_PIN 5
-#define DISPLAY_SDA_PORT GPIOA
-#define DISPLAY_SDA_PIN 7
-#define DISPLAY_RESET_PORT GPIOB
-#define DISPLAY_RESET_PIN 0
-#define DISPLAY_CS_PORT GPIOB
-#define DISPLAY_CS_PIN 1
-#define DISPLAY_RS_PORT GPIOB
-#define DISPLAY_RS_PIN 10
 
 static void onDisplaySleep(uint32_t value)
 {
@@ -194,22 +180,24 @@ static void onDisplaySleep(uint32_t value)
 
 static void onDisplaySetReset(bool value)
 {
-    gpio_modify(DISPLAY_RESET_PORT,
-                DISPLAY_RESET_PIN,
+    gpio_modify(DISPLAY_RESX_PORT,
+                DISPLAY_RESX_PIN,
                 !value);
 }
+
+#if defined(GC01_DEV)
 
 static void onDisplaySetCommand(bool value)
 {
     if (value)
     {
         // Trigger CS before command
-        gpio_set(DISPLAY_CS_PORT, DISPLAY_CS_PIN);
-        gpio_clear(DISPLAY_CS_PORT, DISPLAY_CS_PIN);
+        gpio_set(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN);
+        gpio_clear(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN);
     }
 
-    gpio_modify(DISPLAY_RS_PORT,
-                DISPLAY_RS_PIN,
+    gpio_modify(DISPLAY_DCX_PORT,
+                DISPLAY_DCX_PIN,
                 !value);
 }
 
@@ -225,18 +213,6 @@ static void onDisplaySend16(uint16_t value)
 }
 
 #else
-
-static void onDisplaySleep(uint32_t value)
-{
-    sleep(value);
-}
-
-static void onDisplaySetReset(bool value)
-{
-    gpio_modify(DISPLAY_RESX_PORT,
-                DISPLAY_RESX_PIN,
-                !value);
-}
 
 static void onDisplaySetCommand(bool value)
 {
@@ -256,23 +232,23 @@ static void onDisplaySend(uint16_t value)
 
 void initDisplayController(void)
 {
-// +++ TEST
-#if defined(DISPLAY_SERIAL)
+#if defined(GC01_DEV)
 
-    gpio_set(DISPLAY_RESET_PORT, DISPLAY_RESET_PIN);
-    gpio_set(DISPLAY_CS_PORT, DISPLAY_CS_PIN);
+    // GPIO
+    gpio_set(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN);
+    gpio_set(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN);
 
-    gpio_setup(DISPLAY_RESET_PORT,
-               DISPLAY_RESET_PIN,
+    gpio_setup(DISPLAY_RESX_PORT,
+               DISPLAY_RESX_PIN,
                GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_CS_PORT,
-               DISPLAY_CS_PIN,
+    gpio_setup(DISPLAY_CSX_PORT,
+               DISPLAY_CSX_PIN,
                GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_RS_PORT,
-               DISPLAY_RS_PIN,
+    gpio_setup(DISPLAY_DCX_PORT,
+               DISPLAY_DCX_PIN,
                GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_SCLK_PORT,
-               DISPLAY_SCLK_PIN,
+    gpio_setup(DISPLAY_SCL_PORT,
+               DISPLAY_SCL_PIN,
                GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL);
     gpio_setup(DISPLAY_SDA_PORT,
                DISPLAY_SDA_PIN,
@@ -280,14 +256,12 @@ void initDisplayController(void)
 
     set_bits(RCC->APB2ENR, RCC_APB2ENR_SPI1EN);
 
-    // Configure SPI
+    // SPI
     SPI1->CR1 = SPI_CR1_CPHA |
                 SPI_CR1_CPOL |
                 SPI_CR1_MSTR |
                 SPI_CR1_SSI |
                 SPI_CR1_SSM;
-
-    // Enable SPI
     set_bits(SPI1->CR1,
              SPI_CR1_SPE);
 
@@ -295,9 +269,9 @@ void initDisplayController(void)
 
     // GPIO
     gpio_set(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN);
+    gpio_clear(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN);
     gpio_set(DISPLAY_RDX_PORT, DISPLAY_RDX_PIN);
     gpio_set(DISPLAY_WRX_PORT, DISPLAY_WRX_PIN);
-    gpio_clear(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN);
 
     gpio_setup(DISPLAY_RESX_PORT,
                DISPLAY_RESX_PIN,
@@ -335,15 +309,13 @@ void initDisplayController(void)
         (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 28);
 
 #endif
-    // +++ TEST
 
     // mcu-renderer
-#if defined(DISPLAY_SERIAL)
-
+#if defined(GC01_DEV)
     mr_st7789_init(&mr,
                    240,
                    320,
-                   MR_DISPLAY_ROTATION_90,
+                   MR_DISPLAY_ROTATION_270,
                    displayTextbuffer,
                    sizeof(displayTextbuffer),
                    onDisplaySleep,
@@ -351,9 +323,7 @@ void initDisplayController(void)
                    onDisplaySetCommand,
                    onDisplaySend,
                    onDisplaySend16);
-
 #else
-
     mr_st7789_init(&mr,
                    240,
                    320,
@@ -365,7 +335,6 @@ void initDisplayController(void)
                    onDisplaySetCommand,
                    onDisplaySend,
                    onDisplaySend);
-
 #endif
 
     mr_send_sequence(&mr,
