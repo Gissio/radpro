@@ -63,9 +63,7 @@ Data logging can store up to 5060 data points. At normal radiation levels, this 
 
 The HV profile settings are:
 
-* Factory default (WCH): 9.207 kHz frequency and 75 % duty cycle.
-
-Please do not use the "Factory default (Geehy)" profile with a CH32F103R8 (WCH) microprocessor.
+* Factory default: 9.207 kHz frequency and 75 % duty cycle.
 
 ### FNIRSI GC-01 with a APM32F103R8 (Geehy) processor
 
@@ -75,6 +73,4 @@ Data logging can store up to 63756 data points. At normal radiation levels, this
 
 The HV profile settings are:
 
-* Factory default (Geehy): 47.058 kHz frequency and 50 % duty cycle.
-
-Please do not use the "Factory default (WCH)" profile with a APM32F103R8 (Geehy) microprocessor.
+* Factory default: 47.058 kHz frequency and 50 % duty cycle.
