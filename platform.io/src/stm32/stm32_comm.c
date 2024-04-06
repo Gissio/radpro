@@ -18,9 +18,9 @@
 #include "../events.h"
 #include "../system.h"
 
-#if defined(USART_INTERFACE)
-
 #define COMM_SERIAL_BAUDRATE 115200
+
+#if defined(USART_INTERFACE)
 
 void initComm(void)
 {
@@ -56,10 +56,34 @@ void initComm(void)
     NVIC_EnableIRQ(USART_IRQ);
 }
 
+void freeComm(void)
+{
+    // USART
+    NVIC_DisableIRQ(USART_IRQ);
+
+    usart_disable_receive_interrupt(USART_INTERFACE);
+    usart_disable_transmit_interrupt(USART_INTERFACE);
+
+    // GPIO
+#if defined(STM32F0) || defined(STM32G0)
+    gpio_setup_analog(USART_RX_PORT,
+                      USART_RX_PIN,
+                      GPIO_PULL_FLOATING);
+    gpio_setup_analog(USART_TX_PORT,
+                      USART_TX_PIN,
+                      GPIO_PULL_FLOATING);
+#elif defined(STM32F1)
+    gpio_setup(USART_RX_PORT,
+               USART_RX_PIN,
+               GPIO_MODE_INPUT_ANALOG);
+    gpio_setup(USART_TX_PORT,
+               USART_TX_PIN,
+               GPIO_MODE_INPUT_ANALOG);
+#endif
+}
+
 void transmitComm(void)
 {
-    comm.receiveBufferIndex = 0;
-    comm.sendBufferIndex = 0;
     comm.state = COMM_TX;
 
     if (comm.port == COMM_SERIAL)
@@ -68,44 +92,62 @@ void transmitComm(void)
 
 void USART_IRQ_HANDLER(void)
 {
+    char c;
+
     if (usart_is_receive_ready(USART_INTERFACE))
     {
-        char c = usart_receive(USART_INTERFACE);
+        c = usart_receive(USART_INTERFACE);
 
-        if (comm.enabled)
+        comm.port = COMM_SERIAL;
+
+        if (comm.enabled &&
+            (comm.state == COMM_RX))
         {
-            comm.port = COMM_SERIAL;
-
-            if (comm.state == COMM_RX)
+            if ((c >= ' ') &&
+                (comm.bufferIndex < (COMM_BUFFER_SIZE - 1)))
+                comm.buffer[comm.bufferIndex++] = c;
+            else if ((c == '\n') &&
+                     (comm.bufferIndex < COMM_BUFFER_SIZE))
             {
-                if ((c >= ' ') &&
-                    (comm.receiveBufferIndex < (COMM_BUFFER_SIZE - 1)))
-                    comm.receiveBuffer[comm.receiveBufferIndex++] = c;
-                else if ((c == '\n') &&
-                         (comm.receiveBufferIndex < COMM_BUFFER_SIZE))
-                {
-                    comm.receiveBuffer[comm.receiveBufferIndex++] = '\0';
-                    comm.state = COMM_RX_READY;
-                }
+                comm.buffer[comm.bufferIndex] = '\0';
+
+                comm.bufferIndex = 0;
+                comm.state = COMM_RX_READY;
             }
         }
     }
 
-    if (usart_is_send_ready(USART_INTERFACE))
+    if (usart_is_overrun(USART_INTERFACE))
+        usart_clear_overrun(USART_INTERFACE);
+
+    if (usart_is_send_ready(USART_INTERFACE) &&
+        (comm.state == COMM_TX))
     {
-        if (comm.state == COMM_TX)
-        {
-            if (comm.sendBuffer[comm.sendBufferIndex] != '\0')
-                usart_send(USART_INTERFACE,
-                           comm.sendBuffer[comm.sendBufferIndex++]);
-            else
-            {
-                usart_disable_transmit_interrupt(USART_INTERFACE);
+        c = comm.buffer[comm.bufferIndex];
 
-                comm.state = COMM_TX_READY;
+        if (c != '\0')
+        {
+            usart_send(USART_INTERFACE,
+                       c);
+
+            comm.bufferIndex++;
+
+            if (c == '\n')
+            {
+                comm.bufferIndex = 0;
+                comm.state = COMM_RX;
             }
         }
+        else
+        {
+            comm.bufferIndex = 0;
+            comm.state = COMM_TX_READY;
+        }
     }
+
+    if ((comm.state != COMM_TX) &&
+        usart_is_transmit_interrupt_enabled(USART_INTERFACE))
+        usart_disable_transmit_interrupt(USART_INTERFACE);
 }
 
 void updateCommController(void)
@@ -366,7 +408,8 @@ static void onUsbData(usbd_device *dev, uint8_t event, uint8_t ep)
     else
         receivedBytes = 0;
 
-    if (comm.enabled)
+    if (comm.enabled &&
+        (comm.state == COMM_RX))
     {
         for (int32_t i = 0;
              i < receivedBytes;
@@ -375,12 +418,14 @@ static void onUsbData(usbd_device *dev, uint8_t event, uint8_t ep)
             char c = receiveBuffer[i];
 
             if ((c >= ' ') &&
-                (comm.receiveBufferIndex < (COMM_BUFFER_SIZE - 1)))
-                comm.receiveBuffer[comm.receiveBufferIndex++] = c;
+                (comm.bufferIndex < (COMM_BUFFER_SIZE - 1)))
+                comm.buffer[comm.bufferIndex++] = c;
             else if ((c == '\n') &&
-                     (comm.receiveBufferIndex < COMM_BUFFER_SIZE))
+                     (comm.bufferIndex < COMM_BUFFER_SIZE))
             {
-                comm.receiveBuffer[comm.receiveBufferIndex++] = '\0';
+                comm.buffer[comm.bufferIndex] = '\0';
+
+                comm.bufferIndex = 0;
                 comm.state = COMM_RX_READY;
             }
         }
@@ -396,7 +441,7 @@ static void onUsbData(usbd_device *dev, uint8_t event, uint8_t ep)
     }
     else if (comm.state == COMM_TX)
     {
-        char *sendBuffer = comm.sendBuffer + comm.sendBufferIndex;
+        char *sendBuffer = comm.buffer + comm.bufferIndex;
         int32_t sentBytes = usbd_ep_write(dev,
                                           USB_DATA_TRANSMIT_ENDPOINT,
                                           sendBuffer,
@@ -404,10 +449,18 @@ static void onUsbData(usbd_device *dev, uint8_t event, uint8_t ep)
 
         if (sentBytes >= 0)
         {
-            comm.sendBufferIndex += sentBytes;
+            comm.bufferIndex += sentBytes;
 
-            if (comm.sendBuffer[comm.sendBufferIndex] == '\0')
+            if (comm.buffer[comm.bufferIndex - 1] == '\n')
+            {
+                comm.bufferIndex = 0;
+                comm.state = COMM_RX;
+            }
+            else if (comm.buffer[comm.bufferIndex] == '\0')
+            {
+                comm.bufferIndex = 0;
                 comm.state = COMM_TX_READY;
+            }
         }
     }
 }
@@ -445,8 +498,6 @@ static usbd_respond onUSBConfigure(usbd_device *dev, uint8_t cfg)
 
 void transmitComm(void)
 {
-    comm.receiveBufferIndex = 0;
-    comm.sendBufferIndex = 0;
     comm.state = COMM_TX;
 }
 
@@ -480,6 +531,14 @@ void initComm(void)
     usbd_connect(&usbdDevice, true);
 }
 
+void freeComm(void)
+{
+    NVIC_DisableIRQ(USB_IRQ);
+
+    usbd_connect(&usbdDevice, false);
+    usbd_enable(&usbdDevice, false);
+}
+
 void updateCommController(void)
 {
 }
@@ -490,11 +549,13 @@ void initComm(void)
 {
 }
 
+void freeComm(void)
+{
+}
+
 void transmitComm(void)
 {
-    comm.receiveBufferIndex = 0;
-    comm.sendBufferIndex = 0;
-    comm.state = COMM_TX;
+    comm.state = COMM_RX;
 }
 
 void updateCommController(void)

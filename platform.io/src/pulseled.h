@@ -7,8 +7,8 @@
  * License: MIT
  */
 
-#if !defined(PULSELED_H)
-#define PULSELED_H
+#if !defined(PULSE_LED_H)
+#define PULSE_LED_H
 
 #include <stdbool.h>
 

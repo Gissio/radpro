@@ -95,7 +95,7 @@ Example:
 * Request: `GET tubePulseCount\n`
 * Response: `OK [value]\n`
 
-Returns the tube's life pulse count, provided in decimal format.
+Returns the tube's life pulse count, provided in decimal format. After (2^32 - 1), the value overflows to 0.
 
 Example:
 
@@ -138,9 +138,9 @@ Returns the tube's conversion factor in cpm/µSv/h, provided in decimal format w
 Example:
 
     GET tubeConversionFactor
-    OK 153.000
+    OK 153.800
 
-### Get tube dead time measurement
+### Get tube dead-time measurement
 
 * Request: `GET tubeDeadTime\n`
 * Response: `OK [value]\n`
@@ -157,12 +157,24 @@ Example:
 * Request: `GET tubeDeadTimeCompensation\n`
 * Response: `OK [value]\n`
 
-Returns the tube's dead-time compensation factor in seconds, provided in decimal format with seven decimal places. Returns `0.0000000` if dead-time compensation is turned off.
+Returns the tube's dead-time compensation in seconds, provided in decimal format with seven decimal places. Returns `0.0000000` if dead-time compensation is turned off.
 
 Example:
 
     GET tubeDeadTimeCompensation
     OK 0.0002500
+
+### Get tube background compensation
+
+* Request: `GET tubeBackgroundCompensation\n`
+* Response: `OK [value]\n`
+
+Returns the tube's background compensation in cpm, provided in decimal format with one decimal place. Returns `0.0` if background compensation is turned off.
+
+Example:
+
+    GET tubeBackgroundCompensation
+    OK 2.0
 
 ### Get tube PWM frequency
 
@@ -201,7 +213,7 @@ Returns the data log stored in the device's flash memory. `[time]` is an optiona
 Example:
 
     GET datalog 1690000000
-    OK time,tubePulseCount;1690000060,1542;1690000120,1618;1690000180,1693
+    OK time,tubePulseCount;1690000000,1542;1690000060,1618;1690000120,1693
 
 ### Get random data from the random generator
 
@@ -217,7 +229,7 @@ Example:
 
 ### Invalid or erroneous requests
 
-Invalid or erroneous requests yield an `ERROR` response.
+Invalid or erroneous requests yield an `ERROR\n` response.
 
 Example:
 

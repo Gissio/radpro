@@ -21,7 +21,6 @@
 
 float exp2f(float x);
 float log2f(float x);
-float exp10f(float x);
 float log10f(float x);
 float powf(float x, float y);
 float sqrtf(float x);

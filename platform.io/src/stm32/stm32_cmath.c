@@ -132,6 +132,16 @@ int __aeabi_fcmpun(float x, float y)
     return (qfp_fcmp(x, y) != 0);
 }
 
+float expf(float x)
+{
+    return qfp_fexp(x);
+}
+
+float logf(float x)
+{
+    return qfp_fln(x);
+}
+
 float exp2f(float x)
 {
     return qfp_fexp(0.693147180559945F * x);
@@ -140,11 +150,6 @@ float exp2f(float x)
 float log2f(float x)
 {
     return 1.44269504088896F * qfp_fln(x);
-}
-
-float exp10f(float x)
-{
-    return qfp_fexp(2.302585092994045F * x);
 }
 
 float log10f(float x)

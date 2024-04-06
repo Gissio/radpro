@@ -87,11 +87,11 @@ Last, read the [user's manual](../../users.md) for learning how to use Rad Pro.
 
 ![FS2011 FTDI connection](img/fs2011-ftdi.jpg)
 
-* Add USB connectivity. You'll need: an [3.3 V USB serial converter](https://www.amazon.com/s?k=ftdi+board), a 10 kΩ resistor and [wire-wrap](https://www.amazon.com/s?k=wirewrap+30). Important: never use batteries when powering from USB. Follow these instructions:
+* Add USB connectivity. You'll need: an [3.3 V USB serial converter](https://www.amazon.com/s?k=ftdi+board) and [wire-wrap](https://www.amazon.com/s?k=wirewrap+30). Important: never use batteries when powering from USB. Follow these instructions:
   * Set up the serial converter for 3.3 V.
   * Connect the serial converter's GND and 5V pins to the FS2011 board's 0V and 5V pads, respectively.
   * Connect the PA2 pin of the microprocessor to the serial converter's RX pin.
-  * Connect the PA3 pin of the microprocessor to the 10 kΩ resistor; connect the other end of the resistor to the serial converter's TX pin.
+  * Connect the PA3 pin of the microprocessor to the serial converter's TX pin.
 * For easier access to XS1, use a file to extend the hole for the battery holder clip so that a 4-pin header connector can fit. Solder four cables between XS1 and the 4-pin header. Using a glue gun, attach the header to the inside of the back case, so you can access the header with the battery case open.
 * On some FS2011 devices, the tube is not aligned to the holes of the back case. For improved measurement, align the tube to the holes using a heat gun/glue gun. Be careful, as the tube's glass is very delicate.
 * Some AA rechargeable batteries have low-profile caps that don't make electrical contact with the battery holder. To fix this problem, apply solder on the battery holder's pads.
@@ -107,11 +107,11 @@ The keys are mapped as follows:
 
   * Power on/off: long press of the power key.
   * Go up/down: the up and down keys.
-  * Hold measurement: the play/pause or power key.
+  * Toggle measurement view: the play/pause or power key.
   * Reset measurement: long press of the play/pause key.
   * Enter settings: the menu/ok key.
   * Select option: the menu/ok or power key.
-  * Bo back: the play/pause key.
+  * Go back: the play/pause key.
 
 On the FS2011, Rad Pro can store up to 31372 data points. At normal radiation levels, this allows for 21 days of data at 1-minute intervals, 54 days at 5-minute intervals, 108 days at 10-minute intervals, 326 days at 30-minute intervals, and 653 days at 60-minute intervals.
 

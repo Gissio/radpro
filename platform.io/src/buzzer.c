@@ -11,6 +11,7 @@
 #include "events.h"
 #include "menu.h"
 #include "settings.h"
+#include "tube.h"
 
 static const Menu pulseClicksMenu;
 
@@ -64,7 +65,7 @@ static const Menu pulseClicksMenu = {
     &pulseClicksMenuState,
     onPulseClicksMenuGetOption,
     onPulseClicksMenuSelect,
-    onSettingsSubMenuBack,
+    onPulsesSubMenuBack,
 };
 
 const View pulseClicksMenuView = {

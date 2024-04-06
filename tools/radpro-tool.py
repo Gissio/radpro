@@ -50,7 +50,7 @@ class RadProDevice:
         else:
             self.serial = serial.Serial(port=self.port,
                                         baudrate=115200,
-                                        timeout=5)
+                                        timeout=0.5)
 
     def wait_while_comm_state(self, comm_state_dest):
         end_time = time.time() + 5

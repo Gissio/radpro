@@ -21,11 +21,16 @@
 #include "system.h"
 #include "tube.h"
 
+#define TUBE_FAULT_TIMEOUT 300
+
 #define MEASUREMENT_QUEUE_SIZE 32
 #define MEASUREMENT_QUEUE_MASK (MEASUREMENT_QUEUE_SIZE - 1)
 
-#define AVERAGING_PERIOD_TIME_CONSTANT 18.0F
-#define AVERAGING_PERIOD_TIME_LIMIT 5.0F
+#define AVERAGING_PERIOD_TIME_CONSTANT 20.0F
+#define AVERAGING_PERIOD_TIME_MIN 5.0F
+#define AVERAGING_PERIOD_TIME_MAX 300.0F
+#define AVERAGING_TRANSITION_USVH_MIN 0.3F
+#define AVERAGING_TRANSITION_USVH_MAX 1.0F
 
 #if defined(DISPLAY_128X64)
 #define HISTORY_BUFFER_SIZE 120
@@ -37,6 +42,15 @@
 
 #define HISTORY_CPS_MIN 0.02F
 #define HISTORY_VALUE_DECADE 40
+
+enum
+{
+    INSTANTANEOUS_TAB_BAR,
+    INSTANTANEOUS_TAB_TIME,
+    INSTANTANEOUS_TAB_MAX,
+
+    INSTANTANEOUS_TAB_NUM,
+};
 
 typedef struct
 {
@@ -69,9 +83,9 @@ typedef struct
 } History;
 
 static const History histories[] = {
-    {"History (10 m)", 10 * 60 / HISTORY_BUFFER_SIZE, 10},
+    {"History (10 min)", 10 * 60 / HISTORY_BUFFER_SIZE, 10},
     {"History (1 h)", 60 * 60 / HISTORY_BUFFER_SIZE, 6},
-    {"History (24 h)", 24 * 60 * 60 / HISTORY_BUFFER_SIZE, 6},
+    {"History (24 h)", 24 * 60 * 60 / HISTORY_BUFFER_SIZE, 8},
 };
 
 #define HISTORY_NUM (sizeof(histories) / sizeof(History))
@@ -86,6 +100,9 @@ static struct
         Measurement snapshotMeasurement;
 
         float pulseCountFraction;
+
+        uint32_t faultPulseTime;
+        uint32_t faultLastPulseTime;
     } tick;
 
     struct
@@ -96,10 +113,9 @@ static struct
 
         Rate rate;
         float maxValue;
-
-        bool isHold;
-        Rate holdRate;
     } instantaneous;
+
+    uint32_t instantaneousTabIndex;
 
     struct
     {
@@ -108,18 +124,15 @@ static struct
         uint32_t pulseCount;
 
         Rate rate;
+        bool timerExpired;
         Rate timerRate;
-
-        bool isHold;
-        Rate holdRate;
     } average;
 
     struct
     {
         Dose dose;
 
-        bool isHold;
-        Dose holdDose;
+        uint32_t updateTime;
     } cumulative;
 
     struct
@@ -138,7 +151,7 @@ static struct
     int32_t viewIndex;
 } measurements;
 
-static const uint32_t averageTimerTimes[] = {
+static const int32_t averageTimerTimes[] = {
     30 * 24 * 60 * 60, // Off (actually 30 days)
     5 * 60,            // 5 minutes
     10 * 60,           // 10 minutes
@@ -146,10 +159,23 @@ static const uint32_t averageTimerTimes[] = {
     60 * 60,           // 60 minutes
 };
 
+static const float averageTimerConfidences[] = {
+    0.405F,  // ±40 % confidence
+    0.205F,  // ±20 % confidence
+    0.105F,  // ±10 % confidence
+    0.0505F, // ±5 % confidence
+};
+
 static const Menu unitsMenu;
 static const Menu rateAlarmMenu;
 static const Menu doseAlarmMenu;
 static const Menu averageTimerMenu;
+
+static void updatePulseEnabled(void);
+
+static bool isTubeFaultAlarm(void);
+static bool isInstantaneousRateAlarm(void);
+static bool isDoseAlarm(void);
 
 // Measurements
 
@@ -178,12 +204,10 @@ void initMeasurements(void)
                    DOSEALARM_NUM);
 
     updateMeasurementUnits();
+    updatePulseEnabled();
 }
 
 // Events
-
-static bool isInstantaneousRateAlarm(void);
-static bool isDoseAlarm(void);
 
 typedef struct
 {
@@ -213,10 +237,10 @@ void updateMeasurementUnits(void)
 {
     float conversionFactor = getTubeConversionFactor();
 
-    units[0].rate.scale = (60 * 1E-6F) / conversionFactor;
-    units[0].dose.scale = (60 * 1E-6F / 3600) / conversionFactor;
-    units[1].rate.scale = (60 * 1E-4F) / conversionFactor;
-    units[1].dose.scale = (60 * 1E-4F / 3600) / conversionFactor;
+    units[UNITS_SIEVERTS].rate.scale = (60 * 1E-6F) / conversionFactor;
+    units[UNITS_SIEVERTS].dose.scale = (60 * 1E-6F / 3600) / conversionFactor;
+    units[UNITS_REM].rate.scale = (60 * 1E-4F) / conversionFactor;
+    units[UNITS_REM].dose.scale = (60 * 1E-4F / 3600) / conversionFactor;
 }
 
 static float getDeadTimeCompensationFactor(float value)
@@ -234,40 +258,46 @@ static float getDeadTimeCompensationFactor(float value)
     }
 }
 
-static uint32_t calculateAveragingPeriod(float value)
+static uint32_t getInstantaneousAveragingPeriod(float value)
 {
     float uSvHConstant = units[UNITS_SIEVERTS].rate.scale * 1E6F;
 
     float uSvH = value * uSvHConstant;
     float averagingPeriod;
 
-    if ((uSvH > 0.3F) && (uSvH < 1))
+    if ((uSvH > AVERAGING_TRANSITION_USVH_MIN) &&
+        (uSvH < AVERAGING_TRANSITION_USVH_MAX))
     {
         float averagingPeriodExponent =
-            log10f((AVERAGING_PERIOD_TIME_CONSTANT / 0.3F /
-                    AVERAGING_PERIOD_TIME_LIMIT) *
+            log10f((AVERAGING_PERIOD_TIME_CONSTANT /
+                    AVERAGING_TRANSITION_USVH_MIN /
+                    AVERAGING_PERIOD_TIME_MIN) *
                    uSvHConstant) /
-            log10f(0.3F);
+            log10f(AVERAGING_TRANSITION_USVH_MIN);
 
-        averagingPeriod = (AVERAGING_PERIOD_TIME_LIMIT *
-                           powf(uSvH, averagingPeriodExponent)) +
-                          1;
+        averagingPeriod = (AVERAGING_PERIOD_TIME_MIN *
+                           powf(uSvH, averagingPeriodExponent));
     }
     else
-        averagingPeriod = (value == 0.0F)
-                              ? 300
-                              : ((AVERAGING_PERIOD_TIME_CONSTANT / value) + 1);
+    {
+        if (value < (AVERAGING_PERIOD_TIME_CONSTANT / AVERAGING_PERIOD_TIME_MAX))
+            averagingPeriod = AVERAGING_PERIOD_TIME_MAX;
+        else if (value > AVERAGING_PERIOD_TIME_CONSTANT)
+            averagingPeriod = 1;
+        else
+            averagingPeriod = AVERAGING_PERIOD_TIME_CONSTANT / value;
 
-    if ((uSvH > 1) &&
-        (averagingPeriod > AVERAGING_PERIOD_TIME_LIMIT))
-        averagingPeriod = AVERAGING_PERIOD_TIME_LIMIT;
+        if ((uSvH > AVERAGING_TRANSITION_USVH_MAX) &&
+            (averagingPeriod > AVERAGING_PERIOD_TIME_MIN))
+            averagingPeriod = AVERAGING_PERIOD_TIME_MIN;
+    }
 
-    return (uint32_t)averagingPeriod;
+    return (uint32_t)(averagingPeriod + 0.999F);
 }
 
 static void calculateRate(uint32_t pulseCount, uint32_t ticks, Rate *rate)
 {
-    if (!ticks)
+    if (ticks < 2)
     {
         rate->value = 0;
         rate->confidence = 0;
@@ -275,7 +305,7 @@ static void calculateRate(uint32_t pulseCount, uint32_t ticks, Rate *rate)
         return;
     }
 
-    // Fix ticks for improved accuracy with high radiation rate
+    // Improves accuracy when radiation rate is high
     if (pulseCount > ticks)
     {
         addClamped(&pulseCount, 1);
@@ -324,6 +354,18 @@ void onMeasurementPeriod(void)
     measurements.tick.measurement.pulseCount = 0;
 }
 
+uint8_t getHistoryValue(float value)
+{
+    int32_t historyValue = (int32_t)(HISTORY_VALUE_DECADE *
+                                     log10f(value / HISTORY_CPS_MIN));
+    if (historyValue < 0)
+        historyValue = 0;
+    else if (historyValue > UCHAR_MAX)
+        historyValue = UCHAR_MAX;
+
+    return historyValue;
+}
+
 void updateMeasurements(void)
 {
     // Dead-time compensation
@@ -341,6 +383,11 @@ void updateMeasurements(void)
         (uint32_t)measurements.tick.pulseCountFraction;
     measurements.tick.pulseCountFraction -= compensatedMeasurement.pulseCount;
 
+    // Pulse activity
+    measurements.tick.faultPulseTime++;
+    if (compensatedMeasurement.pulseCount)
+        measurements.tick.faultLastPulseTime = measurements.tick.faultPulseTime;
+
     // Instantaneous rate
     if (compensatedMeasurement.pulseCount)
     {
@@ -356,58 +403,66 @@ void updateMeasurements(void)
             measurements.instantaneous.queueHead =
                 (measurements.instantaneous.queueTail + 1) & MEASUREMENT_QUEUE_MASK;
         }
+    }
 
-        // Process queue
-        Measurement instantaneousMeasurement;
-        instantaneousMeasurement.firstPulseTick = compensatedMeasurement.lastPulseTick;
-        instantaneousMeasurement.lastPulseTick = compensatedMeasurement.lastPulseTick;
-        instantaneousMeasurement.pulseCount = 0;
+    Measurement instantaneousMeasurement;
+    instantaneousMeasurement.firstPulseTick = 0;
+    instantaneousMeasurement.lastPulseTick = 0;
+    instantaneousMeasurement.pulseCount = 0;
 
-        uint32_t averagingPeriod =
-            calculateAveragingPeriod(measurements.instantaneous.rate.value);
+    measurements.instantaneous.rate.time = 0;
 
-        for (uint32_t i = 0; i < (MEASUREMENT_QUEUE_SIZE - 1); i++)
+    uint32_t averagingPeriod =
+        getInstantaneousAveragingPeriod(measurements.instantaneous.rate.value);
+
+    uint32_t queueSize = (measurements.instantaneous.queueTail -
+                          measurements.instantaneous.queueHead) &
+                         MEASUREMENT_QUEUE_MASK;
+    for (uint32_t i = 0; i < queueSize; i++)
+    {
+        uint32_t queueIndex =
+            (measurements.instantaneous.queueTail - 1 - i) & MEASUREMENT_QUEUE_MASK;
+
+        uint32_t timePeriod =
+            1 +
+            (measurements.tick.snapshotTick -
+             measurements.instantaneous.queue[queueIndex].firstPulseTick) /
+                SYSTICK_FREQUENCY;
+
+        if (timePeriod > averagingPeriod)
         {
-            uint32_t queueIndex =
-                (measurements.instantaneous.queueTail - 1 - i) & MEASUREMENT_QUEUE_MASK;
+            measurements.instantaneous.queueHead =
+                (queueIndex + 1) & MEASUREMENT_QUEUE_MASK;
 
-            uint32_t timePeriod =
-                1 +
-                (measurements.tick.snapshotTick -
-                 measurements.instantaneous.queue[queueIndex].firstPulseTick) /
-                    SYSTICK_FREQUENCY;
-
-            if (timePeriod > averagingPeriod)
-            {
-                measurements.instantaneous.queueHead =
-                    (queueIndex + 1) & MEASUREMENT_QUEUE_MASK;
-
-                break;
-            }
-
-            instantaneousMeasurement.firstPulseTick =
-                measurements.instantaneous.queue[queueIndex].firstPulseTick;
-            instantaneousMeasurement.pulseCount +=
-                measurements.instantaneous.queue[queueIndex].pulseCount;
-            measurements.instantaneous.rate.time = timePeriod;
-
-            if (queueIndex == measurements.instantaneous.queueHead)
-                break;
+            break;
         }
 
-        calculateRate(instantaneousMeasurement.pulseCount,
-                      instantaneousMeasurement.lastPulseTick -
-                          instantaneousMeasurement.firstPulseTick,
-                      &measurements.instantaneous.rate);
-
-        if ((instantaneousMeasurement.pulseCount > 10) &&
-            (measurements.instantaneous.rate.value >
-             measurements.instantaneous.maxValue))
-            measurements.instantaneous.maxValue =
-                measurements.instantaneous.rate.value;
+        instantaneousMeasurement.firstPulseTick =
+            measurements.instantaneous.queue[queueIndex].firstPulseTick;
+        if (!instantaneousMeasurement.pulseCount)
+            instantaneousMeasurement.lastPulseTick =
+                measurements.instantaneous.queue[queueIndex].lastPulseTick;
+        instantaneousMeasurement.pulseCount +=
+            measurements.instantaneous.queue[queueIndex].pulseCount;
+        measurements.instantaneous.rate.time = timePeriod;
     }
-    else
-        measurements.instantaneous.rate.time++;
+
+    calculateRate(instantaneousMeasurement.pulseCount,
+                  instantaneousMeasurement.lastPulseTick -
+                      instantaneousMeasurement.firstPulseTick,
+                  &measurements.instantaneous.rate);
+
+    measurements.instantaneous.rate.value -= getTubeBackgroundCompensation();
+    if (measurements.instantaneous.rate.value < 0)
+        measurements.instantaneous.rate.value = 0.0F;
+
+    if ((instantaneousMeasurement.pulseCount > 10) &&
+        (measurements.instantaneous.rate.value >
+         measurements.instantaneous.maxValue))
+        measurements.instantaneous.maxValue =
+            measurements.instantaneous.rate.value;
+
+    updatePulseEnabled();
 
     // Average rate
     if ((measurements.average.rate.time < UINT32_MAX) &&
@@ -429,21 +484,37 @@ void updateMeasurements(void)
                           measurements.average.lastPulseTick -
                               measurements.average.firstPulseTick,
                           &measurements.average.rate);
+
+            measurements.average.rate.value -= getTubeBackgroundCompensation();
+            if (measurements.average.rate.value < 0)
+                measurements.average.rate.value = 0.0F;
         }
 
         if ((measurements.average.rate.time < UINT32_MAX) &&
             (measurements.average.pulseCount < UINT32_MAX))
             measurements.average.rate.time++;
 
-        if (measurements.average.rate.time <=
-            averageTimerTimes[settings.averageTimer])
-        {
+        // Average timer
+        bool timerExpired =
+            (settings.averageTimer < AVERAGETIMER_TIME_NUM)
+                ? (measurements.average.rate.time >=
+                   averageTimerTimes[settings.averageTimer])
+                : (measurements.average.rate.confidence != 0.0F) &&
+                      (measurements.average.rate.confidence <
+                       averageTimerConfidences[settings.averageTimer - AVERAGETIMER_TIME_NUM]);
+
+        if (!timerExpired)
             measurements.average.timerRate = measurements.average.rate;
 
-            if (measurements.average.rate.time ==
-                averageTimerTimes[settings.averageTimer])
-                triggerAlarm();
+        if (timerExpired && !measurements.average.timerExpired)
+        {
+            measurements.average.timerExpired = true;
+            measurements.average.timerRate = measurements.average.rate;
+
+            triggerAlarm();
         }
+        else if (!timerExpired && measurements.average.timerExpired)
+            measurements.average.timerExpired = false;
     }
 
     // Cumulative dose
@@ -451,11 +522,18 @@ void updateMeasurements(void)
         (measurements.cumulative.dose.pulseCount < UINT32_MAX))
     {
         addClamped(&measurements.cumulative.dose.time, 1);
-        addClamped(&measurements.cumulative.dose.pulseCount,
-                   compensatedMeasurement.pulseCount);
+
+        if (compensatedMeasurement.pulseCount)
+        {
+            addClamped(&measurements.cumulative.dose.pulseCount,
+                       compensatedMeasurement.pulseCount);
+
+            measurements.cumulative.updateTime =
+                measurements.cumulative.dose.time;
+        }
     }
 
-    // Tube
+    // Tube life
     if ((measurements.tube.dose.time < UINT32_MAX) &&
         (measurements.tube.dose.pulseCount < UINT32_MAX))
     {
@@ -483,13 +561,8 @@ void updateMeasurements(void)
         {
             float averageRate = historyState->averageSum /
                                 historyState->averageCount;
-            int32_t value = (int32_t)(HISTORY_VALUE_DECADE *
-                                      log10f(averageRate / HISTORY_CPS_MIN));
-            if (value < 0)
-                value = 0;
-            else if (value > UCHAR_MAX)
-                value = UCHAR_MAX;
-            historyState->buffer[historyState->bufferIndex] = (uint8_t)value;
+            historyState->buffer[historyState->bufferIndex] =
+                getHistoryValue(averageRate);
 
             historyState->averageSum = 0;
             historyState->averageCount = 0;
@@ -501,7 +574,9 @@ void updateMeasurements(void)
     }
 
     // Alarms
-    if (isInstantaneousRateAlarm() || isDoseAlarm())
+    if (isInstantaneousRateAlarm() ||
+        isDoseAlarm() ||
+        isTubeFaultAlarm())
         triggerAlarm();
 }
 
@@ -572,7 +647,6 @@ static void onMeasurementEvent(const View *view, Event event)
 
 static const float rateAlarmsSvH[] = {
     0,
-    0.2E-6F,
     0.5E-6F,
     1E-6F,
     2E-6F,
@@ -582,6 +656,14 @@ static const float rateAlarmsSvH[] = {
     50E-6F,
     100E-6F,
 };
+
+static void updatePulseEnabled(void)
+{
+    float svH = units[UNITS_SIEVERTS].rate.scale *
+                measurements.instantaneous.rate.value;
+
+    setPulsesEnabled(svH >= rateAlarmsSvH[settings.pulseThreshold]);
+}
 
 static void resetInstantaneousRate(void)
 {
@@ -593,6 +675,12 @@ static void resetInstantaneousRate(void)
 float getInstantaneousRate(void)
 {
     return measurements.instantaneous.rate.value;
+}
+
+static bool isTubeFaultAlarm(void)
+{
+    return (measurements.tick.faultPulseTime - measurements.tick.faultLastPulseTime) >=
+           TUBE_FAULT_TIMEOUT;
 }
 
 static bool isInstantaneousRateAlarm(void)
@@ -613,10 +701,10 @@ static void onInstantaneousRateViewEvent(const View *view,
     switch (event)
     {
     case EVENT_KEY_BACK:
-        measurements.instantaneous.isHold = !measurements.instantaneous.isHold;
+        measurements.instantaneousTabIndex++;
 
-        if (measurements.instantaneous.isHold)
-            measurements.instantaneous.holdRate = measurements.instantaneous.rate;
+        if (measurements.instantaneousTabIndex >= INSTANTANEOUS_TAB_NUM)
+            measurements.instantaneousTabIndex = 0;
 
         updateView();
 
@@ -631,68 +719,130 @@ static void onInstantaneousRateViewEvent(const View *view,
 
     case EVENT_DRAW:
     {
-        Rate rate;
-        if (measurements.instantaneous.isHold)
-            rate = measurements.instantaneous.holdRate;
-        else
-            rate = measurements.instantaneous.rate;
-
         char valueString[32];
         char *unitString;
-        char timeString[16];
-        char *stateString = "";
-        char stateValueString[32];
-        char stateUnitString[16];
+        char *stateString;
+        MeasurementStyle style;
 
         buildValueString(valueString,
                          &unitString,
-                         rate.value,
+                         measurements.instantaneous.rate.value,
                          &units[settings.units].rate);
 
-        strcpy(timeString, "");
-        strcatTime(timeString, rate.time);
-
-        strcpy(stateValueString, "");
-        strcpy(stateUnitString, "");
-
-        MeasurementStyle style = MEASUREMENTSTYLE_NORMAL;
-
-        if (measurements.instantaneous.isHold)
+        if (isInstantaneousRateAlarm())
         {
-            stateString = "Hold";
-
-            style = MEASUREMENTSTYLE_HOLD;
-        }
-        else if (isInstantaneousRateAlarm())
-        {
-            stateString = "Rate alarm";
+            stateString = "ALARM";
 
             style = MEASUREMENTSTYLE_ALARM;
         }
-        else if (measurements.instantaneous.maxValue > 0)
+        else if (isTubeFaultAlarm())
         {
-            stateString = "Max";
+            stateString = "FAULT";
 
-            char *unit;
+            style = MEASUREMENTSTYLE_NORMAL;
+        }
+        else
+        {
+            stateString = "";
 
-            buildValueString(stateValueString,
-                             &unit,
-                             measurements.instantaneous.maxValue,
-                             &units[settings.units].rate);
-
-            strcpy(stateUnitString, " ");
-            strcat(stateUnitString, unit);
+            style = MEASUREMENTSTYLE_NORMAL;
         }
 
-        drawMeasurement("Instantaneous",
-                        valueString,
-                        unitString,
-                        rate.confidence,
-                        timeString,
-                        stateString,
-                        stateValueString,
-                        stateUnitString,
-                        style);
+        drawTitleBar("Instantaneous");
+        drawMeasurementValue(valueString,
+                             unitString,
+                             measurements.instantaneous.rate.confidence,
+                             style);
+
+        switch (measurements.instantaneousTabIndex)
+        {
+        case INSTANTANEOUS_TAB_BAR:
+        {
+            float scaleFactor;
+            int32_t exponent;
+
+            switch (settings.units)
+            {
+            case UNITS_SIEVERTS:
+                scaleFactor = units[UNITS_SIEVERTS].rate.scale;
+                exponent = -8;
+
+                break;
+
+            case UNITS_REM:
+                scaleFactor = units[UNITS_REM].rate.scale;
+                exponent = -6;
+
+                break;
+
+            case UNITS_CPM:
+                scaleFactor = 60.0F;
+                exponent = 0;
+
+                break;
+
+            case UNITS_CPS:
+                scaleFactor = 1.0F;
+                exponent = -2;
+
+                break;
+            }
+
+            drawMeasurementBar(measurements.instantaneous.rate.value * scaleFactor,
+                               exponent,
+                               1.0E-6F / units[UNITS_SIEVERTS].rate.scale * scaleFactor,
+                               1.0E-5F / units[UNITS_SIEVERTS].rate.scale * scaleFactor);
+
+            break;
+        }
+
+        case INSTANTANEOUS_TAB_TIME:
+
+            if (measurements.instantaneous.rate.time == 0)
+                strcpy(valueString, "");
+            else
+            {
+                strcpy(valueString, "");
+                strcatTime(valueString,
+                           measurements.instantaneous.rate.time);
+            }
+
+            drawMeasurementInfo("Time",
+                                valueString,
+                                "",
+                                stateString,
+                                style);
+
+            break;
+
+        case INSTANTANEOUS_TAB_MAX:
+        {
+            char unitString[16];
+
+            strcpy(valueString, "");
+            strcpy(unitString, "");
+
+            if (measurements.instantaneous.maxValue > 0)
+            {
+                char *unit;
+                buildValueString(valueString,
+                                 &unit,
+                                 measurements.instantaneous.maxValue,
+                                 &units[settings.units].rate);
+
+                strcpy(unitString, " ");
+                strcat(unitString, unit);
+            }
+
+            drawMeasurementInfo("Max",
+                                valueString,
+                                unitString,
+                                stateString,
+                                style);
+
+            break;
+        }
+        }
 
         break;
     }
@@ -723,21 +873,6 @@ static void onAverageRateViewEvent(const View *view,
 
     switch (event)
     {
-    case EVENT_KEY_BACK:
-        if (measurements.average.isHold ||
-            (measurements.average.rate.time <
-             averageTimerTimes[settings.averageTimer]))
-        {
-            measurements.average.isHold = !measurements.average.isHold;
-
-            if (measurements.average.isHold)
-                measurements.average.holdRate = measurements.average.rate;
-
-            updateView();
-        }
-
-        break;
-
     case EVENT_KEY_RESET:
         resetAverageRate();
 
@@ -747,57 +882,56 @@ static void onAverageRateViewEvent(const View *view,
 
     case EVENT_DRAW:
     {
-        Rate rate;
-        if (measurements.average.isHold)
-            rate = measurements.average.holdRate;
-        else
-            rate = measurements.average.timerRate;
-
         char timeString[16];
         char valueString[32];
         char *unitString;
         char *stateString;
+        MeasurementStyle style;
 
         strcpy(timeString, "");
-        strcatTime(timeString, rate.time);
+        strcatTime(timeString,
+                   measurements.average.timerRate.time);
 
         buildValueString(valueString,
                          &unitString,
-                         rate.value,
+                         measurements.average.timerRate.value,
                          &units[settings.units].rate);
 
-        stateString = "";
-        MeasurementStyle style = MEASUREMENTSTYLE_NORMAL;
-
-        if (measurements.average.isHold)
+        if (measurements.average.timerExpired)
         {
-            stateString = "Hold";
-
-            style = MEASUREMENTSTYLE_HOLD;
-        }
-        else if (measurements.average.rate.time >=
-                 averageTimerTimes[settings.averageTimer])
-        {
-            stateString = "Done";
+            stateString = "DONE";
 
             style = MEASUREMENTSTYLE_HOLD;
         }
         else if (measurements.average.pulseCount == UINT32_MAX)
         {
-            stateString = "Overflow";
+            stateString = "OVER";
 
             style = MEASUREMENTSTYLE_HOLD;
         }
+        else if (isTubeFaultAlarm())
+        {
+            stateString = "FAULT";
 
-        drawMeasurement("Average",
-                        valueString,
-                        unitString,
-                        rate.confidence,
-                        timeString,
-                        stateString,
-                        "",
-                        "",
-                        style);
+            style = MEASUREMENTSTYLE_NORMAL;
+        }
+        else
+        {
+            stateString = "";
+
+            style = MEASUREMENTSTYLE_NORMAL;
+        }
+
+        drawTitleBar("Average");
+        drawMeasurementValue(valueString,
+                             unitString,
+                             measurements.average.timerRate.confidence,
+                             style);
+        drawMeasurementInfo("Time",
+                            timeString,
+                            "",
+                            stateString,
+                            style);
 
         break;
     }
@@ -824,12 +958,12 @@ static const float doseAlarmsSv[] = {
     100E-6F,
     200E-6F,
     500E-6F,
-    1000E-6F,
 };
 
 void setDoseTime(uint32_t value)
 {
     measurements.cumulative.dose.time = value;
+    measurements.cumulative.updateTime = value;
 }
 
 uint32_t getDoseTime(void)
@@ -840,6 +974,8 @@ uint32_t getDoseTime(void)
 void setDosePulseCount(uint32_t value)
 {
     measurements.cumulative.dose.pulseCount = value;
+    measurements.cumulative.updateTime =
+        measurements.cumulative.dose.time;
 }
 
 uint32_t getDosePulseCount(void)
@@ -871,16 +1007,6 @@ static void onDoseViewEvent(const View *view,
 
     switch (event)
     {
-    case EVENT_KEY_BACK:
-        measurements.cumulative.isHold = !measurements.cumulative.isHold;
-
-        if (measurements.cumulative.isHold)
-            measurements.cumulative.holdDose = measurements.cumulative.dose;
-
-        updateView();
-
-        break;
-
     case EVENT_KEY_RESET:
         resetDose();
 
@@ -890,57 +1016,60 @@ static void onDoseViewEvent(const View *view,
 
     case EVENT_DRAW:
     {
-        Dose dose;
-
-        if (!measurements.cumulative.isHold)
-            dose = measurements.cumulative.dose;
-        else
-            dose = measurements.cumulative.holdDose;
-
         char timeString[16];
         char valueString[32];
         char *unitString;
         char *stateString;
+        MeasurementStyle style;
 
         strcpy(timeString, "");
-        strcatTime(timeString, dose.time);
+        strcatTime(timeString,
+                   measurements.cumulative.dose.time);
+
+        float doseValue = measurements.cumulative.dose.pulseCount;
+        doseValue -= getTubeBackgroundCompensation() *
+                     measurements.cumulative.updateTime;
 
         buildValueString(valueString,
                          &unitString,
-                         dose.pulseCount,
+                         doseValue,
                          &units[settings.units].dose);
 
-        stateString = "";
-        MeasurementStyle style = MEASUREMENTSTYLE_NORMAL;
-
-        if (measurements.cumulative.isHold)
+        if (measurements.cumulative.dose.pulseCount == UINT32_MAX)
         {
-            stateString = "Hold";
-
-            style = MEASUREMENTSTYLE_HOLD;
-        }
-        else if (dose.pulseCount == UINT32_MAX)
-        {
-            stateString = "Overflow";
+            stateString = "OVER";
 
             style = MEASUREMENTSTYLE_HOLD;
         }
         else if (isDoseAlarm())
         {
-            stateString = "Dose alarm";
+            stateString = "ALARM";
 
             style = MEASUREMENTSTYLE_ALARM;
         }
+        else if (isTubeFaultAlarm())
+        {
+            stateString = "FAULT";
 
-        drawMeasurement("Dose",
-                        valueString,
-                        unitString,
-                        0,
-                        timeString,
-                        stateString,
-                        "",
-                        "",
-                        style);
+            style = MEASUREMENTSTYLE_NORMAL;
+        }
+        else
+        {
+            stateString = "";
+
+            style = MEASUREMENTSTYLE_NORMAL;
+        }
+
+        drawTitleBar("Dose");
+        drawMeasurementValue(valueString,
+                             unitString,
+                             0,
+                             style);
+        drawMeasurementInfo("Time",
+                            timeString,
+                            "",
+                            stateString,
+                            style);
 
         break;
     }
@@ -1072,27 +1201,25 @@ static void onHistoryViewEvent(const View *view, Event event)
              dataIndex < HISTORY_BUFFER_SIZE;
              dataIndex++)
         {
-            uint32_t bufferIndex = 2 * HISTORY_BUFFER_SIZE -
-                                   ((HISTORY_BUFFER_SIZE - 1) - dataIndex) +
-                                   (historyState->bufferIndex - 1);
-            while (bufferIndex >= HISTORY_BUFFER_SIZE)
-                bufferIndex -= HISTORY_BUFFER_SIZE;
-
-            uint32_t value = historyState->buffer[bufferIndex];
-
-            if (value)
-                data[dataIndex] = 255 * (value - exponentValueMin) /
-                                  valueRange;
-            else
-                data[dataIndex] = 0;
+            uint32_t value = historyState->buffer[(dataIndex +
+                                                   historyState->bufferIndex) %
+                                                  HISTORY_BUFFER_SIZE];
+            data[dataIndex] = value
+                                  ? 255 * (value - exponentValueMin) / valueRange
+                                  : 0;
         }
+
+        uint8_t alertZone1Value = 0;
+        uint8_t alertZone2Value = 0;
 
         drawHistory(histories[measurements.history.tabIndex].name,
                     topLegendString,
                     bottomLegendString,
                     data,
                     histories[measurements.history.tabIndex].xTickNum,
-                    yTickNum);
+                    yTickNum,
+                    alertZone1Value,
+                    alertZone2Value);
 
         break;
     }
@@ -1154,6 +1281,14 @@ static const char *const averageTimerMenuOptions[] = {
     "10 minutes",
     "30 minutes",
     "60 minutes",
+    "\xb1"
+    "40 % confidence",
+    "\xb1"
+    "20 % confidence",
+    "\xb1"
+    "10 % confidence",
+    "\xb1"
+    "5 % confidence",
     NULL,
 };
 
@@ -1188,6 +1323,21 @@ const View averageTimerMenuView = {
 
 // Rate alarm menu
 
+static char *buildRateAlarmMenuOption(uint32_t index)
+{
+    Unit *rateUnit = &units[settings.units].rate;
+    float value = rateAlarmsSvH[index] /
+                  units[UNITS_SIEVERTS].rate.scale;
+
+    strcpy(menuOption, "");
+    strcatFloatWithMetricPrefix(menuOption,
+                                rateUnit->scale * value,
+                                rateUnit->minMetricPower);
+    strcat(menuOption, rateUnit->name);
+
+    return menuOption;
+}
+
 static const char *onRateAlarmMenuGetOption(const Menu *menu,
                                             uint32_t index,
                                             MenuStyle *menuStyle)
@@ -1197,19 +1347,7 @@ static const char *onRateAlarmMenuGetOption(const Menu *menu,
     if (index == 0)
         return "Off";
     else if (index < RATEALARM_NUM)
-    {
-        Unit *rateUnit = &units[settings.units].rate;
-        float value = rateAlarmsSvH[index] /
-                      units[UNITS_SIEVERTS].rate.scale;
-
-        strcpy(menuOption, "");
-        strcatFloatWithMetricPrefix(menuOption,
-                                    rateUnit->scale * value,
-                                    rateUnit->minMetricPower);
-        strcat(menuOption, rateUnit->name);
-
-        return menuOption;
-    }
+        return buildRateAlarmMenuOption(index);
     else
         return NULL;
 }
@@ -1280,4 +1418,40 @@ static const Menu doseAlarmMenu = {
 const View doseAlarmMenuView = {
     onMenuEvent,
     &doseAlarmMenu,
+};
+
+// Pulses threshold menu
+
+static const char *onPulsesThresholdMenuGetOption(const Menu *menu,
+                                                  uint32_t index,
+                                                  MenuStyle *menuStyle)
+{
+    *menuStyle = (index == settings.pulseThreshold);
+
+    if (index == 0)
+        return "Off";
+    else if (index < RATEALARM_NUM)
+        return buildRateAlarmMenuOption(index);
+    else
+        return NULL;
+}
+
+static void onPulsesThresholdMenuSelect(const Menu *menu)
+{
+    settings.pulseThreshold = menu->state->selectedIndex;
+}
+
+static MenuState pulsesThresholdMenuState;
+
+static const Menu pulsesThresholdMenu = {
+    "Pulses threshold",
+    &pulsesThresholdMenuState,
+    onPulsesThresholdMenuGetOption,
+    onPulsesThresholdMenuSelect,
+    onPulsesSubMenuBack,
+};
+
+const View pulsesThresholdMenuView = {
+    onMenuEvent,
+    &pulsesThresholdMenu,
 };

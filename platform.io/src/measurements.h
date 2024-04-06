@@ -22,9 +22,10 @@ extern const View doseView;
 extern const View historyView;
 
 extern const View unitsMenuView;
+extern const View averageTimerMenuView;
 extern const View rateAlarmMenuView;
 extern const View doseAlarmMenuView;
-extern const View averageTimerMenuView;
+extern const View pulsesThresholdMenuView;
 
 void initMeasurements(void);
 

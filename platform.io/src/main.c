@@ -37,13 +37,15 @@ int main(void)
     initFlash();
     initSettings();
     initPower();
+#if !defined(DATA_MODE)
     initComm();
+#endif
     initADC();
     initTube();
     initKeyboard();
     initBuzzer();
     initDisplay();
-#if defined(PULSELED)
+#if defined(PULSE_LED)
     initPulseLED();
 #endif
 #if defined(VIBRATOR)
@@ -75,8 +77,7 @@ int main(void)
         if (!verifyFlash())
         {
             drawNotification("WARNING",
-                             "Firmware checksum failure.",
-                             true);
+                             "Firmware checksum failure.");
             refreshDisplay();
             setDisplayOn(true);
             setDisplayBacklight(true);
@@ -88,8 +89,7 @@ int main(void)
 
         // Splash screen
         drawNotification(FIRMWARE_NAME,
-                         FIRMWARE_VERSION,
-                         true);
+                         FIRMWARE_VERSION);
         refreshDisplay();
         setDisplayOn(true);
         setDisplayBacklight(true);

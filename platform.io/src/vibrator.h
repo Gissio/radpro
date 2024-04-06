@@ -12,7 +12,12 @@
 
 #include <stdbool.h>
 
+#include "view.h"
+
+extern const View pulseVibrationsMenuView;
+
 void initVibrator(void);
+void initVibratorController(void);
 
 void setVibrator(bool value);
 

@@ -296,7 +296,11 @@ static void onRNGMenuSelect(const Menu *menu)
 static MenuState rngMenuState;
 
 static const Menu rngMenu = {
+#if !defined(DISPLAY_240X320)
     "Random generator",
+#else
+    "Random gen.",
+#endif
     &rngMenuState,
     onRNGMenuGetOption,
     onRNGMenuSelect,

@@ -92,11 +92,11 @@ On the FS-600, the keys are mapped as follows:
 
   * Power on/off: long press of the ok/power key.
   * Go up/down: the up and down keys.
-  * Hold measurement: the ok/power or left/back key.
+  * Toggle mesurement view: the ok/power or left/back key.
   * Reset measurement: long press of the left/back key.
   * Enter settings: the right/settings key.
   * Select option: the ok/power or right/settings key.
-  * Bo back: the left/back key.
+  * Go back: the left/back key.
 
 On the FS-1000, the keys are mapped as follows:
 
@@ -104,7 +104,7 @@ On the FS-1000, the keys are mapped as follows:
   * Go up: the mode key.
   * Go down: the set/power key.
   * Enter settings/select option: long press of the set/power key.
-  * Hold measurement/go back: long press of the mode key.
+  * Toggle measurement view/go back: long press of the mode key.
   * Reset measurement: long press of both the mode and set/power keys.
 
 Not all devices support the pulse LED.

@@ -36,7 +36,7 @@ static bool matchCommCommand(const char *command)
 
     while (true)
     {
-        char c1 = comm.receiveBuffer[index];
+        char c1 = comm.buffer[index];
         char c2 = command[index];
         index++;
 
@@ -53,39 +53,39 @@ static bool matchCommCommandWithUInt32(const char *command, uint32_t *value)
     if (!matchCommCommand(command))
         return false;
 
-    return (strlen(comm.receiveBuffer) > (strlen(command) + 1)) &&
-           parseUInt32(comm.receiveBuffer + strlen(command) + 1, value);
+    return (strlen(comm.buffer) > (strlen(command) + 1)) &&
+           parseUInt32(comm.buffer + strlen(command) + 1, value);
 }
 
 static void sendCommOk(void)
 {
-    strcpy(comm.sendBuffer, "OK");
+    strcpy(comm.buffer, "OK");
 }
 
 static void sendCommOkWithString(const char *value)
 {
     sendCommOk();
-    strcat(comm.sendBuffer, " ");
-    strcat(comm.sendBuffer, value);
+    strcat(comm.buffer, " ");
+    strcat(comm.buffer, value);
 }
 
 static void sendCommOkWithUInt32(uint32_t value)
 {
     sendCommOk();
-    strcat(comm.sendBuffer, " ");
-    strcatUInt32(comm.sendBuffer, value, 0);
+    strcat(comm.buffer, " ");
+    strcatUInt32(comm.buffer, value, 0);
 }
 
 static void sendCommOkWithFloat(float value, uint32_t fractionalDecimals)
 {
     sendCommOk();
-    strcat(comm.sendBuffer, " ");
-    strcatFloat(comm.sendBuffer, value, fractionalDecimals);
+    strcat(comm.buffer, " ");
+    strcatFloat(comm.buffer, value, fractionalDecimals);
 }
 
 static void sendCommError(void)
 {
-    strcpy(comm.sendBuffer, "ERROR");
+    strcpy(comm.buffer, "ERROR");
 }
 
 static void strcatDatalogEntry(char *buffer, const Dose *entry)
@@ -99,7 +99,7 @@ static void startDatalogDump(void)
 {
     sendCommOk();
 
-    strcat(comm.sendBuffer, " time,tubePulseCount");
+    strcat(comm.buffer, " time,tubePulseCount");
 
     startDatalogDownload();
     comm.sendingDatalog = true;
@@ -118,8 +118,8 @@ void dispatchCommEvents(void)
         if (matchCommCommand("GET deviceId"))
         {
             sendCommOkWithString(commId);
-            strcat(comm.sendBuffer, ";");
-            strcatUInt32Hex(comm.sendBuffer, getDeviceId());
+            strcat(comm.buffer, ";");
+            strcatUInt32Hex(comm.buffer, getDeviceId());
         }
         else if (matchCommCommand("GET deviceBatteryVoltage"))
             sendCommOkWithFloat(getDeviceBatteryVoltage(), 3);
@@ -155,6 +155,8 @@ void dispatchCommEvents(void)
             sendCommOkWithFloat(getTubeConversionFactor(), 3);
         else if (matchCommCommand("GET tubeDeadTimeCompensation"))
             sendCommOkWithFloat(getTubeDeadTimeCompensation(), 7);
+        else if (matchCommCommand("GET tubeBackgroundCompensation"))
+            sendCommOkWithFloat(60.0F * getTubeBackgroundCompensation(), 1);
         else if (matchCommCommand("GET tubeHVFrequency"))
             sendCommOkWithFloat(getTubeHVFrequency(), 2);
         else if (matchCommCommand("GET tubeHVDutyCycle"))
@@ -184,9 +186,9 @@ void dispatchCommEvents(void)
                     break;
 
                 if (i == 0)
-                    strcat(comm.sendBuffer, " ");
+                    strcat(comm.buffer, " ");
 
-                strcatUInt8Hex(comm.sendBuffer, randomData);
+                strcatUInt8Hex(comm.buffer, randomData);
             }
         }
 #if defined(START_BOOTLOADER_SUPPORT)
@@ -200,7 +202,7 @@ void dispatchCommEvents(void)
         else
             sendCommError();
 
-        strcat(comm.sendBuffer, "\n");
+        strcat(comm.buffer, "\n");
 
         transmitComm();
     }
@@ -208,7 +210,7 @@ void dispatchCommEvents(void)
     {
         if (comm.sendingDatalog)
         {
-            strcpy(comm.sendBuffer, "");
+            strcpy(comm.buffer, "");
 
             uint32_t i = 0;
             while (i < 2)
@@ -217,7 +219,7 @@ void dispatchCommEvents(void)
 
                 if (!getDatalogDownloadEntry(&dose))
                 {
-                    strcat(comm.sendBuffer, "\n");
+                    strcat(comm.buffer, "\n");
 
                     comm.sendingDatalog = false;
 
@@ -226,8 +228,8 @@ void dispatchCommEvents(void)
 
                 if (dose.time >= comm.datalogTimeLimit)
                 {
-                    strcat(comm.sendBuffer, ";");
-                    strcatDatalogEntry(comm.sendBuffer, &dose);
+                    strcat(comm.buffer, ";");
+                    strcatDatalogEntry(comm.buffer, &dose);
 
                     i++;
                 }
@@ -244,40 +246,47 @@ void dispatchCommEvents(void)
 
 #endif
 
-            comm.receiveBufferIndex = 0;
             comm.state = COMM_RX;
         }
     }
 }
 
-// USB connection mode
+// Communications mode
 
-#if defined(USB_MODE)
+#if defined(DATA_MODE)
 
-bool commUSBMode;
+bool dataMode;
 
-bool isUSBMode(void)
+bool isCommMode(void)
 {
-    return commUSBMode;
+    return dataMode;
 }
 
-static void onUSBModeEvent(const View *view, Event event)
+static void onCommModeEvent(const View *view, Event event)
 {
     switch (event)
     {
     case EVENT_KEY_BACK:
-        commUSBMode = false;
+        if (dataMode)
+        {
+            freeComm();
+
+            dataMode = false;
+        }
 
         onSettingsSubMenuBack(NULL);
 
         break;
 
     case EVENT_DRAW:
-        commUSBMode = true;
+        if (!dataMode)
+        {
+            dataMode = true;
 
-        drawNotification("USB mode",
-                         "USB connection enabled.",
-                         false);
+            initComm();
+        }
+
+        drawCommMode();
 
         break;
 
@@ -286,8 +295,8 @@ static void onUSBModeEvent(const View *view, Event event)
     }
 }
 
-const View usbModeView = {
-    onUSBModeEvent,
+const View dataModeView = {
+    onCommModeEvent,
     NULL,
 };
 

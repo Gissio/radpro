@@ -14,7 +14,6 @@
 #include <time.h>
 #endif
 
-#include "buzzer.h"
 #include "comm.h"
 #include "datalog.h"
 #include "display.h"
@@ -47,8 +46,8 @@ void initSettings(void)
     // Default values
     settings.tubeConversionFactor = TUBE_CONVERSIONFACTOR_DEFAULT;
 
-#if defined(PULSELED)
-    settings.pulseLED = PULSELED_ON;
+#if defined(PULSE_LED)
+    settings.pulseLED = PULSE_LED_ON;
 #endif
     settings.pulseClicks = PULSE_CLICKS_QUIET;
 #if defined(DISPLAY_MONOCHROME)
@@ -169,24 +168,21 @@ static const OptionView settingsMenuOptions[] = {
     {"Dose alarm", &doseAlarmMenuView},
     {"Geiger tube", &tubeMenuView},
     {"Data logging", &datalogMenuView},
-#if defined(PULSELED)
-    {"Pulse LED", &pulseLEDMenuView},
-#endif
-    {"Pulse clicks", &pulseClicksMenuView},
+    {"Pulses", &pulsesMenuView},
     {"Display", &displayMenuView},
     {"Date and time", &dateAndTimeMenuView},
 #if defined(BATTERY_REMOVABLE)
     {"Battery type", &batteryTypeMenuView},
 #endif
-#if defined(DISPLAY_240X320)
-    {"Random gen.", &rngMenuView},
-#else
+#if !defined(DISPLAY_240X320)
     {"Random generator", &rngMenuView},
+#else
+    {"Random gen.", &rngMenuView},
 #endif
     {"Game", &gameMenuView},
     {"Statistics", &statisticsView},
-#if defined(USB_MODE)
-    {"USB mode", &usbModeView},
+#if defined(DATA_MODE)
+    {"Data mode", &dataModeView},
 #endif
     {NULL},
 };

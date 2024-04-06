@@ -13,7 +13,7 @@
 
 #include "device.h"
 
-void initVibrator(void)
+void initVibratorController(void)
 {
     setVibrator(false);
 

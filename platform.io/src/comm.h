@@ -39,10 +39,8 @@ typedef struct
     volatile CommPort port;
     volatile CommState state;
 
-    volatile uint32_t receiveBufferIndex;
-    char receiveBuffer[COMM_BUFFER_SIZE];
-    volatile uint32_t sendBufferIndex;
-    char sendBuffer[COMM_BUFFER_SIZE];
+    volatile uint32_t bufferIndex;
+    char buffer[COMM_BUFFER_SIZE];
     // ^^^ These settings should remain fixed for SWD communications.
 
     bool enabled;
@@ -57,7 +55,7 @@ typedef struct
 
 extern Comm comm;
 
-extern const View usbModeView;
+extern const View dataModeView;
 
 void initComm(void);
 
@@ -68,6 +66,6 @@ void transmitComm(void);
 void dispatchCommEvents(void);
 void updateCommController(void);
 
-bool isUSBMode(void);
+bool isCommMode(void);
 
 #endif

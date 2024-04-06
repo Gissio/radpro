@@ -1269,6 +1269,17 @@ __STATIC_INLINE void usart_disable_receive_interrupt(USART_TypeDef *base)
 #endif
 }
 
+__STATIC_INLINE bool usart_is_receive_interrupt_enabled(USART_TypeDef *base)
+{
+#if defined(STM32F0) || defined(STM32F1)
+    return get_bits(base->CR1,
+                    USART_CR1_RXNEIE);
+#elif defined(STM32G0)
+    return set_bits(base->CR1,
+                    USART_CR1_RXNEIE_RXFNEIE);
+#endif
+}
+
 __STATIC_INLINE void usart_enable_transmit_interrupt(USART_TypeDef *base)
 {
 #if defined(STM32F0) || defined(STM32F1)
@@ -1288,6 +1299,17 @@ __STATIC_INLINE void usart_disable_transmit_interrupt(USART_TypeDef *base)
 #elif defined(STM32G0)
     clear_bits(base->CR1,
                USART_CR1_TXEIE_TXFNFIE);
+#endif
+}
+
+__STATIC_INLINE bool usart_is_transmit_interrupt_enabled(USART_TypeDef *base)
+{
+#if defined(STM32F0) || defined(STM32F1)
+    return get_bits(base->CR1,
+                    USART_CR1_TXEIE);
+#elif defined(STM32G0)
+    return set_bits(base->CR1,
+                    USART_CR1_TXEIE_TXFNFIE);
 #endif
 }
 
@@ -1316,6 +1338,27 @@ __STATIC_INLINE bool usart_is_send_ready(USART_TypeDef *base)
 #elif defined(STM32G0)
     return get_bits(base->ISR,
                     USART_ISR_TXE_TXFNF);
+#endif
+}
+
+__STATIC_INLINE bool usart_is_overrun(USART_TypeDef *base)
+{
+#if defined(STM32F0) || defined(STM32G0)
+    return get_bits(base->ISR,
+                    USART_ISR_ORE);
+#elif defined(STM32F1)
+    return get_bits(base->SR,
+                    USART_SR_ORE);
+#endif
+}
+
+__STATIC_INLINE void usart_clear_overrun(USART_TypeDef *base)
+{
+#if defined(STM32F0) || defined(STM32G0)
+    set_bits(base->ICR,
+             USART_ICR_ORECF);
+#elif defined(STM32F1)
+    base->DR;
 #endif
 }
 

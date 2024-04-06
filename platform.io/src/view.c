@@ -38,8 +38,8 @@ void dispatchViewEvents(void)
             break;
 
 #if defined(DISPLAY_MONOCHROME)
-        if (((settings.displaySleep == DISPLAY_SLEEP_ALWAYS_OFF) ||
-             (settings.displaySleep == DISPLAY_SLEEP_PULSE_FLASHES)) ||
+        if ((settings.displaySleep == DISPLAY_SLEEP_ALWAYS_OFF) ||
+            //  (settings.displaySleep == DISPLAY_SLEEP_PULSE_FLASHES)) ||
             displayTimerActive)
 #elif defined(DISPLAY_COLOR)
         if (displayTimerActive)
@@ -75,9 +75,6 @@ void dispatchViewEvents(void)
     if (view.drawUpdate)
     {
         view.drawUpdate = false;
-
-        drawStatusBar();
-
         view.currentView->onEvent(view.currentView, EVENT_DRAW);
 
         refreshDisplay();

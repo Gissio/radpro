@@ -16,17 +16,19 @@
 #include "../comm.h"
 #include "../system.h"
 
+#define COMM_SERIAL_BAUDRATE 115200
+
 const char *const commId = "Rad Pro simulator;Rad Pro " FIRMWARE_VERSION;
 
 static struct
 {
-    ser_t *port;
+    ser_t *sercomm;
 } commController;
 
 void initComm(void)
 {
-    commController.port = ser_create();
-    if (commController.port == NULL)
+    commController.sercomm = ser_create();
+    if (commController.sercomm == NULL)
     {
         printf("Could not create serial port instance.\n");
 
@@ -35,52 +37,62 @@ void initComm(void)
 
     ser_opts_t options = {
         "COM1",
-        115200,
+        COMM_SERIAL_BAUDRATE,
         SER_BYTESZ_8,
         SER_PAR_NONE,
         SER_STOPB_ONE,
         {0, 0},
     };
 
-    int32_t result = ser_open(commController.port, &options);
+    int32_t result = ser_open(commController.sercomm, &options);
     if (result)
     {
         printf("Could not open serial port: %s\n", sererr_last());
 
-        ser_destroy(commController.port);
-        commController.port = NULL;
+        ser_destroy(commController.sercomm);
+        commController.sercomm = NULL;
 
         return;
     }
 }
 
+void freeComm(void)
+{
+    ser_close(commController.sercomm);
+    ser_destroy(commController.sercomm);
+
+    commController.sercomm = NULL;
+}
+
 void transmitComm(void)
 {
-    comm.receiveBufferIndex = 0;
-    comm.sendBufferIndex = 0;
     comm.state = COMM_TX;
 }
 
 void updateCommController(void)
 {
-    if (commController.port == NULL)
+    if (commController.sercomm == NULL)
         return;
 
     char c;
-    while (ser_read(commController.port,
+
+    while (ser_read(commController.sercomm,
                     &c,
                     1,
                     NULL) == 0)
     {
-        if (comm.enabled)
+        if (comm.enabled &&
+            (comm.state == COMM_RX))
         {
             if ((c >= ' ') &&
-                (comm.receiveBufferIndex < (COMM_BUFFER_SIZE - 1)))
-                comm.receiveBuffer[comm.receiveBufferIndex++] = c;
+                (comm.bufferIndex < (COMM_BUFFER_SIZE - 1)))
+                comm.buffer[comm.bufferIndex++] = c;
             else if ((c == '\n') &&
-                     (comm.receiveBufferIndex < COMM_BUFFER_SIZE))
+                     (comm.bufferIndex < COMM_BUFFER_SIZE))
             {
-                comm.receiveBuffer[comm.receiveBufferIndex++] = '\0';
+                comm.buffer[comm.bufferIndex] = '\0';
+
+                comm.bufferIndex = 0;
                 comm.state = COMM_RX_READY;
             }
         }
@@ -88,13 +100,28 @@ void updateCommController(void)
 
     while (comm.state == COMM_TX)
     {
-        if (comm.sendBuffer[comm.sendBufferIndex] != '\0')
-            ser_write(commController.port,
-                      &comm.sendBuffer[comm.sendBufferIndex++],
+        c = comm.buffer[comm.bufferIndex];
+
+        if (c != '\0')
+        {
+            ser_write(commController.sercomm,
+                      &c,
                       1,
                       NULL);
+
+            comm.bufferIndex++;
+
+            if (c == '\n')
+            {
+                comm.bufferIndex = 0;
+                comm.state = COMM_RX;
+            }
+        }
         else
+        {
+            comm.bufferIndex = 0;
             comm.state = COMM_TX_READY;
+        }
     }
 }
 

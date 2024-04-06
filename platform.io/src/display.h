@@ -17,6 +17,7 @@
 #include "view.h"
 
 extern const View displayMenuView;
+extern const View displayFlashesMenuView;
 
 #if defined(DISPLAY_128X64)
 
@@ -59,27 +60,32 @@ void updateDisplayContrast(void);
 void setDisplayBacklight(bool value);
 void refreshDisplay(void);
 
-void drawStatusBar(void);
+void drawTitleBar(const char *title);
 void drawNotification(const char *title,
-                      const char *subtitle,
-                      bool fullscreen);
+                      const char *subtitle);
 void drawMenu(const Menu *menu);
 void drawLowBattery(void);
-void drawMeasurement(const char *title,
-                     const char *valueString,
-                     const char *unitString,
-                     float confidence,
-                     const char *time,
-                     const char *stateString,
-                     const char *stateValueString,
-                     const char *stateUnitString,
-                     MeasurementStyle style);
+void drawMeasurementValue(const char *valueString,
+                          const char *unitString,
+                          float confidence,
+                          MeasurementStyle style);
+void drawMeasurementInfo(const char *infoKeyString,
+                         const char *infoValueString,
+                         const char *infoUnitString,
+                         const char *stateString,
+                         MeasurementStyle style);
+void drawMeasurementBar(float value,
+                        int32_t exponent,
+                        float alertZone1Value,
+                        float alertZone2Value);
 void drawHistory(const char *title,
                  const char *topLegendString,
                  const char *bottomLegendString,
                  const uint8_t *data,
                  uint32_t xTickNum,
-                 uint32_t yTickNum);
+                 uint32_t yTickNum,
+                 uint8_t alertZone1Value,
+                 uint8_t alertZone2Value);
 void drawRNG(const char *title,
              const char *rngString,
              const char *stateString);
@@ -87,6 +93,7 @@ void drawStatistics(void);
 void drawGame(const uint8_t board[8][8],
               const char time[2][16],
               const char history[3][2][6]);
+void drawCommMode();
 void drawTestMode(const char lines[8][32]);
 
 #endif

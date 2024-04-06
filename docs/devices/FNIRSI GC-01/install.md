@@ -7,7 +7,7 @@
 Follow these steps to start installing Rad Pro on your FNIRSI GC-01:
 
 * Turn off the device.
-* Remove the four screws holding the back panel and open the device.
+* Remove the screws holding the back panel and open the device.
 * Take note of the MCU (microprocessor) installed in your device: CH32F103R8T6 (WCH) or APM32F103RBT6 (Geehy). The picture above should help you identify the MCU.
 * Also, take note of the type of Geiger tube: the markings on the glass should be either J321 (as in the picture above), J305 or J614. If you have an unmarked tube measuring 55 or 65 mm long, you probably have a J614 or J613 tube, respectively.
 * Close the device.
@@ -49,11 +49,11 @@ The keys are mapped as follows:
 
   * Power on/off: long press of the ok/power key.
   * Go up/down: the up and down keys.
-  * Hold measurement: the ok/power or left/back key.
+  * Toggle measurement view: the ok/power or left/back key.
   * Reset measurement: long press of the left/back key.
   * Enter settings: the right/settings key.
   * Select option: the ok/power or right/settings key.
-  * Bo back: the left/back key.
+  * Go back: the left/back key.
 
 ### FNIRSI GC-01 with a CH32F103R8 (WCH) microprocessor
 

@@ -9,20 +9,20 @@
 
 #if defined(SIMULATOR)
 
-#if defined(PULSE_LED)
+#if defined(VIBRATOR)
 
 #include "../display.h"
 #include "../settings.h"
 
-static bool pulseLED;
+static bool vibrator;
 
-void initPulseLEDController(void)
+void initVibratorController(void)
 {
 }
 
-void setPulseLED(bool value)
+void setVibrator(bool value)
 {
-    pulseLED = value;
+    vibrator = value;
 }
 
 #endif

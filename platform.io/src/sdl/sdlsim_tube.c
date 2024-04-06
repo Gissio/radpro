@@ -24,7 +24,9 @@
 
 #endif
 
-#define SIM_CPS 0.3825F
+#define SIM_USVH 0.15F
+#define SIM_CONVERSION_FACTOR 153.8F
+#define SIM_CPS (SIM_USVH * SIM_CONVERSION_FACTOR / 60.0F)
 
 static struct
 {

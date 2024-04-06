@@ -46,6 +46,8 @@ static const uint16_t datalogTimeIntervals[] = {
     10 * 60,
     5 * 60,
     1 * 60,
+    30,
+    10,
 };
 
 static const char *const datalogMenuOptions[] = {
@@ -55,6 +57,8 @@ static const char *const datalogMenuOptions[] = {
     "Every 10 minutes",
     "Every 5 minutes",
     "Every minute",
+    "Every 30 seconds",
+    "Every 10 seconds",
     NULL,
 };
 
@@ -208,7 +212,7 @@ static void writeDatalogEntry(bool isUpdate)
         // Encode sample interval, absolute timestamp and absolute pulse count value
         entrySize = 0;
 
-        entry[entrySize++] = 0xf1 + settings.datalogInterval - 1;
+        entry[entrySize++] = (0xf1 - 1) + settings.datalogInterval;
 
         encodeDatalogValue(dose.time, entry + entrySize, 4, 8);
         entrySize += 4;
@@ -293,7 +297,7 @@ static bool decodeDatalogEntry(DatalogState *state)
             state->dose.pulseCount +=
                 decodeDatalogValue(&state->iterator, 4, 8);
         }
-        else if (symbol <= 0xf5)
+        else if (symbol <= ((0xf1 - 1) + DATALOGGING_NUM))
         {
             // Sample interval + absolute timestamp and pulse count value
             state->timeInterval = datalogTimeIntervals[symbol - 0xf1 + 1];

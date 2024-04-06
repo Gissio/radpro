@@ -2,20 +2,20 @@
 
 ## Features
 
+* Large display, ideal for field application such as mineralogy.
 * Multiple measurement units: Sievert, rem, cpm (counts per minute), cps (counts per second).
 * Adaptive averaging window, aiming for a confidence interval below ±50 %.
 * Configurable average timer for performing surveys.
-* Data logging with data compression.
-* Serial port/USB data communications.
+* Live and offline data logging with data compression.
 * Compatibility with the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software.
-* Configurable pulse click sounds: off, quiet, loud.
-* Dead time measurement.
-* Customizable Geiger-Müller tube settings: conversion factor, dead-time compensation, high voltage generator PWM frequency and duty cycle (for tube voltage control).
+* Configurable pulse indication, optionally limited by a radiation level threshold: pulse clicks (off, quiet, loud), pulse LED (on supported devices), display flashes (on backlight timeout) and haptic pulses (on supported devices).
+* Dead-time measurement.
+* Customizable Geiger-Müller tube settings: conversion factor, dead-time compensation, background compensation, high voltage generator PWM frequency and duty cycle (for tube voltage control).
 * Configurable high voltage profiles.
-* Overflow alarms.
+* Tube fault alarm.
 * Statistics for tracking device usage and state.
-* `radpro-tool` for low-level access to the device from a computer.
 * User interface with the [OpenBridge 4.0](https://www.openbridge.no/) design system and anti-aliased text rendering on color screens.
+* `radpro-tool` for low-level access to the device from a computer.
 * Power-on self-test and safety watchdog.
 * Game: nuclear chess.
 
@@ -29,7 +29,7 @@ Rad Pro supports the following measurement modes:
 
 The instantaneous rate is estimated by dividing the number of pulses within a time window, minus one, by the time between the first and last pulse within that window.
 
-The instantaneous time is the length of the time window used for calculating the instantaneous rate.
+The view can be switched between an instantaneous rate bar view, a time view that shows the length of the time window used for calculating the instantaneous rate, and an instantaneous rate max view.
 
 The [confidence interval](https://en.wikipedia.org/wiki/Confidence_interval) estimates the range of values that contain the true, actual instantaneous rate with a 95 % probability, assuming a constant level of radiation.
 
@@ -45,7 +45,7 @@ The average time is the length of the time window used for calculating the avera
 
 The confidence interval assumes a constant level of radiation over the averaging period.
 
-Averaging can be continuous or limited by the average timer. Upon timer expiration, the device will flash and emit a beep, signaling the completion of the measurement.
+Averaging can be continuous or limited by the average timer, which may be triggered by a predefined timeout or upon reaching a certain confidence level. Upon timer expiration, the device will flash and emit a beep, signaling the completion of the measurement.
 
 An example: suppose you averaged background radiation for 1 minute, resulting in a measurement of 0.210 µSv/h with a confidence interval of ±36 %. This means that the actual level of radiation has a 95 % probability of falling within the interval [0.134 µSv/h, 0.286 µSv/h] (36 % below and above the measured value). Suppose you consider this confidence interval too high, so you repeat the measurement with a 30-minute time window. Your new measurement is 0.154 µSv/h with a confidence interval of ±7.7 %, which you now consider much more acceptable.
 
@@ -63,32 +63,26 @@ The conversion factor specifies the relationship between cpm (counts per minute)
 
 Rad Pro comes with default conversion factors for various Geiger-Müller tubes:
 
-* J305: 175.0 cpm/µSv/h
-* J321: 153.0 cpm/µSv/h
+* J305: 153.8 cpm/µSv/h
+* J321: 153.8 cpm/µSv/h
 * J613: 68.4 cpm/µSv/h
 * J614: 68.4 cpm/µSv/h
-* M4011: 153.0 cpm/µSv/h
-* SBM-20: 175.0 cpm/µSv/h
+* M4011: 153.8 cpm/µSv/h
+* SBM-20: 153.8 cpm/µSv/h
 
 You can also set a custom conversion factor by going to the settings, selecting "Geiger tube", "Conversion Factor", and choosing an appropriate value from the list.
-
-## Background level measurement
-
-Geiger-Müller tubes, being composed of matter, inherently contain atoms prone to radioactive decay. Consequently, the tubes themselves emit radiation. This intrinsic radiation will depend on factors such as tube type, size, and production batch.
-
-Hence, it's important to account for this intrinsic radiation when comparing the background level of radiation measured by different devices, as it will influence the measurement.
 
 ## Data logging
 
 Rad Pro lets you log cumulative dose count, from which both rate and dose can be derived.
 
-To log data, simply select a data logging interval in the settings. Data is automatically logged in the background.
+To start logging, simply select a data logging interval in the settings. Data is automatically logged in the background. When memory gets full, old data is overwritten.
 
 To live log data on a computer or download the datalogs, use the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software. "CPM" data is Rad Pro's instantaneous counts per minute value, averaged through Rad Pro's adaptive averaging algorithm. "CPS" data is the low-level counts per second value. "CPS" data should conform to a Poisson distribution, "CPM" not.
 
 ## Dead time and dead-time compensation
 
-[Dead time](https://en.wikipedia.org/wiki/Geiger%E2%80%93M%C3%BCller_tube#Quenching_and_dead_time) is the period of time during which the Geiger-Müller tube is unable to detect another radiation event immediately after detecting one. This occurs because the tube becomes saturated after each radiation event, typically for a time of 50-200 µs. Consequently, measurements of high levels of radiation will be inaccurate as the tube fails to register the counts during this dead time period.
+[Dead time](https://en.wikipedia.org/wiki/Geiger%E2%80%93M%C3%BCller_tube#Quenching_and_dead_time) is the period of time during which the Geiger-Müller tube is unable to detect another radiation event immediately after detecting one. This occurs because the tube becomes saturated after each radiation event, typically for a time of 50-200 µs. Consequently, measurements of high levels of radiation will be inaccurate as the tube fails to register the counts during this dead-time period.
 
 Rad Pro lets you compensate these missed counts by applying dead-time compensation.
 
@@ -98,9 +92,17 @@ Dead-time compensation follows the non-paralyzable model:
 
 $$n = \frac{m}{1 - m \tau}$$
 
-where $m$ is the rate in counts per seconds, and $\tau$ is the tube's dead time in seconds. To prevent overflow, the compensation factor is limited to 10.
+where $m$ is the rate in counts per seconds, and $\tau$ is the tube's dead time in seconds. To prevent overflow, the compensation factor is limited to a maximum value of 10.
 
-Dead-time compensation is applied at the beginning of the processing chain. Consequently the instantaneous rate, average rate, cumulative dose, tube pulse count and logged values all undergo dead-time compensation.
+Dead-time compensation is applied at the beginning of the processing chain. Consequently the instantaneous rate, average rate, cumulative dose, history, tube life pulse count and datalog all undergo dead-time compensation.
+
+## Background compensation
+
+Geiger-Müller tubes, being composed of matter, inherently contain atoms prone to radioactive decay. Consequently, the tubes themselves emit radiation. This intrinsic radiation will depend on factors such as tube type, size, and production batch.
+
+Rad Pro lets you compensate these extra counts by applying background compensation.
+
+Background compensation is applied at the end of the processing chain on instantaneous rate, average rate, cumulative dose and history. It is not applied to the tube life pulse count nor to the datalog.
 
 ## HV profiles
 
@@ -111,6 +113,14 @@ You can also define your own HV profile. Be careful, as wrong profile settings M
 Setting up a custom HV profile requires measuring the high voltage at the tube. To accomplish this, connect a 1 GΩ resistor in series with a high-quality multimeter (with a 10 MΩ input impedance). Ensure the resistor is clean to prevent spurious currents. Set the multimeter to the 20 V range. The high voltage approximately corresponds to the multimeter reading multiplied by a factor of (1000 MΩ + 10 MΩ) / 10 MΩ = 101. Caution: high voltage CAN BE LETHAL.
 
 An HV profile consists of a [PWM](https://en.wikipedia.org/wiki/Pulse-width_modulation) frequency and duty cycle. Typically, higher frequency values produce lower voltage ripple (voltage variations in time) but consume more power. Conversely, lower frequency values require less power, but may sacrifice measurement accuracy.
+
+## Tube fault alarm
+
+When no pulses are generated within a five-minute interval, Rad Pro produces a fault alarm. This can occur due to:
+
+* A malfunctioning of the HV source or Geiger-Müller tube.
+* HV source overvoltage.
+* Extremely high levels of radiation.
 
 ## Random generator
 
@@ -126,7 +136,7 @@ For faster bit generation, use a radioactive source.
 
 `radpro-tool` gives you low-level access to your device from a computer, allowing you to log live data, download datalogs, submit live data to radiation monitoring websites, get device information and sync the device's clock.
 
-To use `radpro-tool`, install [Python](https://www.python.org) and the necessary requirements by running the following command in a terminal:
+To use `radpro-tool`, install [Python](https://www.python.org), [PIP](https://pip.pypa.io/en/stable/), and the necessary requirements by running the following command in a terminal:
 
     pip install -r tools/requirements.txt
 

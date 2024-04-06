@@ -38,6 +38,12 @@ enum
     AVERAGETIMER_10M,
     AVERAGETIMER_30M,
     AVERAGETIMER_60M,
+    AVERAGETIMER_TIME_NUM,
+
+    AVERAGETIMER_40CONFIDENCE = AVERAGETIMER_TIME_NUM,
+    AVERAGETIMER_20CONFIDENCE,
+    AVERAGETIMER_10CONFIDENCE,
+    AVERAGETIMER_5CONFIDENCE,
 
     AVERAGETIMER_NUM,
 };
@@ -60,6 +66,7 @@ enum
 enum
 {
     DOSEALARM_OFF,
+    DOSEALARM_2,
     DOSEALARM_5,
     DOSEALARM_10,
     DOSEALARM_20,
@@ -67,7 +74,6 @@ enum
     DOSEALARM_100,
     DOSEALARM_200,
     DOSEALARM_500,
-    DOSEALARM_1000,
 
     DOSEALARM_NUM,
 };
@@ -80,6 +86,8 @@ enum
     DATALOGGING_10M,
     DATALOGGING_5M,
     DATALOGGING_1M,
+    DATALOGGING_30S,
+    DATALOGGING_10S,
 
     DATALOGGING_NUM,
 };
@@ -176,16 +184,6 @@ enum
                                           TUBE_HVDUTYCYCLE_STEP) / \
                                          TUBE_HVDUTYCYCLE_STEP))
 
-#if defined(PULSELED)
-enum
-{
-    PULSELED_OFF,
-    PULSELED_ON,
-
-    PULSELED_NUM,
-};
-#endif
-
 enum
 {
     PULSE_CLICKS_OFF,
@@ -194,6 +192,35 @@ enum
 
     PULSE_CLICKS_NUM,
 };
+
+#if defined(PULSE_LED)
+enum
+{
+    PULSE_LED_OFF,
+    PULSE_LED_ON,
+
+    PULSE_LED_NUM,
+};
+#endif
+
+enum
+{
+    PULSE_FLASHES_OFF,
+    PULSE_FLASHES_ON,
+
+    PULSE_FLASHES_NUM,
+};
+
+#if defined(VIBRATOR)
+enum
+{
+    PULSE_VIBRATIONS_OFF,
+    PULSE_VIBRATIONS_WEAK,
+    PULSE_VIBRATIONS_STRONG,
+
+    PULSE_VIBRATIONS_NUM,
+};
+#endif
 
 #if defined(DISPLAY_MONOCHROME)
 
@@ -218,13 +245,11 @@ enum
 #if defined(DISPLAY_MONOCHROME)
     DISPLAY_SLEEP_ALWAYS_OFF,
 #endif
+    DISPLAY_SLEEP_10S,
     DISPLAY_SLEEP_30S,
     DISPLAY_SLEEP_1M,
     DISPLAY_SLEEP_2M,
     DISPLAY_SLEEP_5M,
-#if defined(DISPLAY_MONOCHROME)
-    DISPLAY_SLEEP_PULSE_FLASHES,
-#endif
     DISPLAY_SLEEP_ALWAYS_ON,
 
     DISPLAY_SLEEP_NUM,
@@ -302,20 +327,26 @@ typedef struct
     unsigned int entryEmpty : 1;
 
     unsigned int units : 2;
-    unsigned int averageTimer : 3;
+    unsigned int averageTimer : 4;
     unsigned int rateAlarm : 4;
     unsigned int doseAlarm : 4;
     unsigned int datalogInterval : 3;
     unsigned int tubeConversionFactor : 7;
     unsigned int tubeDeadTimeCompensation : 6;
+    unsigned int tubeBackgroundCompensation : 4;
     unsigned int tubeHVProfile : 3;
     unsigned int tubeHVFrequency : 3;
     unsigned int tubeHVDutyCycle : 9;
 
-#if defined(PULSELED)
+    unsigned int pulseClicks : 2;
+#if defined(PULSE_LED)
     unsigned int pulseLED : 1;
 #endif
-    unsigned int pulseClicks : 2;
+    unsigned int pulseFlashes : 1;
+#if defined(VIBRATOR)
+    unsigned int pulseVibrations : 2;
+#endif
+    unsigned int pulseThreshold : 4;
 
 #if defined(DISPLAY_MONOCHROME)
     unsigned int displayContrast : 3;

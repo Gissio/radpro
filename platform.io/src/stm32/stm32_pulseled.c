@@ -7,7 +7,7 @@
  * License: MIT
  */
 
-#if defined(STM32) && defined(PULSELED)
+#if defined(STM32) && defined(PULSE_LED)
 
 #include "../pulseled.h"
 
@@ -18,23 +18,23 @@ void initPulseLEDController(void)
     setPulseLED(false);
 
 #if defined(STM32F0) || defined(STM32G0)
-    gpio_setup_output(PULSELED_PORT,
-               PULSELED_PIN,
+    gpio_setup_output(PULSE_LED_PORT,
+               PULSE_LED_PIN,
                GPIO_OUTPUTTYPE_PUSHPULL,
                GPIO_OUTPUTSPEED_2MHZ,
                GPIO_PULL_FLOATING);
 #elif defined(STM32F1)
-    gpio_setup(PULSELED_PORT,
-               PULSELED_PIN,
+    gpio_setup(PULSE_LED_PORT,
+               PULSE_LED_PIN,
                GPIO_MODE_OUTPUT_2MHZ_PUSHPULL);
 #endif
 }
 
 void setPulseLED(bool value)
 {
-    gpio_modify(PULSELED_PORT,
-                PULSELED_PIN,
-#if defined(PULSELED_ACTIVE_LOW)
+    gpio_modify(PULSE_LED_PORT,
+                PULSE_LED_PIN,
+#if defined(PULSE_LED_ACTIVE_LOW)
                 !
 #endif
                 value);

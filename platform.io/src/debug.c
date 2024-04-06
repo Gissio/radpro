@@ -28,7 +28,7 @@
 void debugBeep(void)
 {
     setBuzzer(true);
-#if defined(PULSELED)
+#if defined(PULSE_LED)
     setPulseLED(true);
 #endif
 #if defined(VIBRATOR)
@@ -37,7 +37,7 @@ void debugBeep(void)
     sleep(100);
 
     setBuzzer(false);
-#if defined(PULSELED)
+#if defined(PULSE_LED)
     setPulseLED(false);
 #endif
 #if defined(VIBRATOR)
@@ -49,7 +49,7 @@ void debugBeep(void)
 void debugBit(bool value)
 {
     setBuzzer(true);
-#if defined(PULSELED)
+#if defined(PULSE_LED)
     setPulseLED(true);
 #endif
 #if defined(VIBRATOR)
@@ -61,7 +61,7 @@ void debugBit(bool value)
         debugWait(DEBUG_BIT1_LENGTH);
 
     setBuzzer(false);
-#if defined(PULSELED)
+#if defined(PULSE_LED)
     setPulseLED(false);
 #endif
 #if defined(VIBRATOR)

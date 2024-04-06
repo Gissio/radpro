@@ -9,25 +9,31 @@
 
 #include <string.h>
 
+#include "buzzer.h"
 #include "cmath.h"
 #include "cstring.h"
 #include "display.h"
 #include "measurements.h"
+#include "pulseled.h"
 #include "settings.h"
 #include "tube.h"
+#include "vibrator.h"
 
 #define VALUE_CONVERSIONFACTOR_MIN 25.0F
 #define VALUE_CONVERSIONFACTOR_MAX 400.01F
 #define VALUE_CONVERSIONFACTOR_LOG_MAX_MIN 4.0F
 #define VALUE_CONVERSIONFACTOR_NUM 64
 
-#define DEADTIME_MIN 0.000040F
-#define DEADTIME_MAX 0.000640F
-#define DEADTIME_LOG_MAX_MIN 4.0F
-#define DEADTIME_NUM 64
+#define DEADTIME_COMPENSATION_MIN 0.000040F
+#define DEADTIME_COMPENSATION_MAX 0.000640F
+#define DEADTIME_COMPENSATION_LOG_MAX_MIN 4.0F
+#define DEADTIME_COMPENSATION_NUM 64
+
+#define BACKGROUND_COMPENSATION_NUM 16
 
 static const Menu tubeConversionFactorMenu;
 static const Menu tubeDeadTimeCompensationMenu;
+static const Menu tubeBackgroundCompensationMenu;
 static const Menu tubeHVProfileMenu;
 static const Menu tubeHVCustomProfileMenu;
 static const Menu tubeHVDutyCycleMenu;
@@ -35,6 +41,7 @@ static const Menu tubeHVFrequencyMenu;
 
 static const View tubeConversionFactorMenuView;
 static const View tubeDeadTimeCompensationMenuView;
+static const View tubeBackgroundCompensationMenuView;
 static const View tubeHVProfileMenuView;
 static const View tubeHVCustomProfileWarningView;
 static const View tubeHVCustomProfileMenuView;
@@ -50,7 +57,10 @@ void initTube(void)
                    TUBE_CONVERSIONFACTOR_NUM + VALUE_CONVERSIONFACTOR_NUM);
     selectMenuItem(&tubeDeadTimeCompensationMenu,
                    settings.tubeDeadTimeCompensation,
-                   DEADTIME_NUM);
+                   DEADTIME_COMPENSATION_NUM);
+    selectMenuItem(&tubeBackgroundCompensationMenu,
+                   settings.tubeBackgroundCompensation,
+                   BACKGROUND_COMPENSATION_NUM);
     selectMenuItem(&tubeHVProfileMenu,
                    settings.tubeHVProfile,
                    TUBE_HVPROFILE_NUM);
@@ -66,10 +76,12 @@ void initTube(void)
 
 static const char *const tubeMenuOptions[] = {
     "Conversion factor",
-#if defined(DISPLAY_320X240)
-    "Dead-time compensation",
-#else
+#if !defined(DISPLAY_240X320)
     "Dead-time comp.",
+    "Background comp.",
+#else
+    "Dead-time com.",
+    "Background com.",
 #endif
     "HV profile",
     NULL,
@@ -78,6 +90,7 @@ static const char *const tubeMenuOptions[] = {
 static const View *tubeMenuOptionViews[] = {
     &tubeConversionFactorMenuView,
     &tubeDeadTimeCompensationMenuView,
+    &tubeBackgroundCompensationMenuView,
     &tubeHVProfileMenuView,
 };
 
@@ -118,12 +131,12 @@ const View tubeMenuView = {
 // Custom conversion factor menu
 
 static const float tubeConversionFactorMenuValues[] = {
-    153.0F,
-    153.0F,
+    153.8F,
+    153.8F,
     68.4F,
     68.4F,
-    153.0F,
-    153.0F,
+    153.8F,
+    153.8F,
 };
 
 static const char *const tubeConversionFactorMenuOptions[] = {
@@ -209,9 +222,9 @@ static float getTubeDeadTimeCompensationFromIndex(uint32_t index)
     if (index == 0)
         return 0;
 
-    return DEADTIME_MIN * exp2f((index - 1) *
-                                (DEADTIME_LOG_MAX_MIN /
-                                 (DEADTIME_NUM - 2)));
+    return DEADTIME_COMPENSATION_MIN * exp2f((index - 1) *
+                                             (DEADTIME_COMPENSATION_LOG_MAX_MIN /
+                                              (DEADTIME_COMPENSATION_NUM - 2)));
 }
 
 float getTubeDeadTimeCompensation(void)
@@ -227,7 +240,7 @@ static const char *onTubeDeadTimeCompensationMenuGetOption(const Menu *menu,
 
     if (index == 0)
         return "Off";
-    else if (index < DEADTIME_NUM)
+    else if (index < DEADTIME_COMPENSATION_NUM)
     {
         strcpy(menuOption, "");
         strcatFloat(menuOption, 1000000 * getTubeDeadTimeCompensationFromIndex(index), 1);
@@ -249,7 +262,11 @@ static void onTubeDeadTimeCompensationMenuSelect(const Menu *menu)
 static MenuState tubeDeadTimeCompensationMenuState;
 
 static const Menu tubeDeadTimeCompensationMenu = {
+#if !defined(DISPLAY_240X320)
     "Dead-time compensation",
+#else
+    "Dead-time com.",
+#endif
     &tubeDeadTimeCompensationMenuState,
     onTubeDeadTimeCompensationMenuGetOption,
     onTubeDeadTimeCompensationMenuSelect,
@@ -259,6 +276,65 @@ static const Menu tubeDeadTimeCompensationMenu = {
 static const View tubeDeadTimeCompensationMenuView = {
     onMenuEvent,
     &tubeDeadTimeCompensationMenu,
+};
+
+// Tube background compensation menu
+
+static float getTubeBackgroundCompensationFromIndex(uint32_t index)
+{
+    if (index == 0)
+        return 0;
+
+    return index / 60.0F;
+}
+
+float getTubeBackgroundCompensation(void)
+{
+    return getTubeBackgroundCompensationFromIndex(settings.tubeBackgroundCompensation);
+}
+
+static const char *onTubeBackgroundCompensationMenuGetOption(const Menu *menu,
+                                                             uint32_t index,
+                                                             MenuStyle *menuStyle)
+{
+    *menuStyle = (index == settings.tubeBackgroundCompensation);
+
+    if (index == 0)
+        return "Off";
+    else if (index < BACKGROUND_COMPENSATION_NUM)
+    {
+        strcpy(menuOption, "");
+        strcatFloat(menuOption, 60.0F * getTubeBackgroundCompensationFromIndex(index), 0);
+        strcat(menuOption, " cpm");
+
+        return menuOption;
+    }
+    else
+        return NULL;
+}
+
+static void onTubeBackgroundCompensationMenuSelect(const Menu *menu)
+{
+    settings.tubeBackgroundCompensation = menu->state->selectedIndex;
+}
+
+static MenuState tubeBackgroundCompensationMenuState;
+
+static const Menu tubeBackgroundCompensationMenu = {
+#if !defined(DISPLAY_240X320)
+    "Background compensation",
+#else
+    "Background com.",
+#endif
+    &tubeBackgroundCompensationMenuState,
+    onTubeBackgroundCompensationMenuGetOption,
+    onTubeBackgroundCompensationMenuSelect,
+    onTubeSubMenuBack,
+};
+
+static const View tubeBackgroundCompensationMenuView = {
+    onMenuEvent,
+    &tubeBackgroundCompensationMenu,
 };
 
 // Tube HV profile menu
@@ -271,7 +347,7 @@ static const char *const tubeHVProfileMenuOptions[] = {
 #if defined(TUBE_HVPROFILE_ENERGYSAVING_FREQUENCY)
     "Energy-saving",
 #endif
-    "Custom",
+    "Custom profile",
     NULL,
 };
 
@@ -341,8 +417,7 @@ static void onHVCustomProfileWarningEvent(const View *view, Event event)
 
     case EVENT_DRAW:
         drawNotification("WARNING",
-                         "Wrong values may harm device.",
-                         false);
+                         "Wrong values can harm device.");
 
         break;
 
@@ -391,7 +466,7 @@ static void onTubeHVCustomProfileMenuSelect(const Menu *menu)
 static MenuState tubeHVCustomProfileMenuState;
 
 static const Menu tubeHVCustomProfileMenu = {
-    "Custom",
+    "Custom profile",
     &tubeHVCustomProfileMenuState,
     onTubeHVCustomProfileMenuGetOption,
     onTubeHVCustomProfileMenuSelect,
@@ -563,3 +638,95 @@ static const View tubeHVDutyCycleMenuView = {
     onMenuEvent,
     &tubeHVDutyCycleMenu,
 };
+
+// Pulses menu
+
+enum
+{
+    PULSES_MENU_OPTIONS_PULSE_CLICKS,
+#if defined(PULSE_LED)
+    PULSES_MENU_OPTIONS_PULSE_LED,
+#endif
+    PULSES_MENU_OPTIONS_DISPLAY_FLASHES,
+#if defined(VIBRATOR)
+    PULSES_MENU_OPTIONS_HAPTIC_PULSES,
+#endif
+    PULSES_MENU_OPTIONS_PULSES_THRESHOLD,
+};
+
+static const char *const pulsesMenuOptions[] = {
+    "Pulse clicks",
+#if defined(PULSE_LED)
+    "Pulse LED",
+#endif
+    "Display flashes",
+#if defined(VIBRATOR)
+    "Haptic pulses",
+#endif
+    "Pulses threshold",
+    NULL,
+};
+
+static const char *onPulsesMenuGetOption(const Menu *menu,
+                                         uint32_t index,
+                                         MenuStyle *menuStyle)
+{
+    *menuStyle = MENUSTYLE_SUBMENU;
+
+    return pulsesMenuOptions[index];
+}
+
+static void onPulsesMenuSelect(const Menu *menu)
+{
+    switch (menu->state->selectedIndex)
+    {
+    case PULSES_MENU_OPTIONS_PULSE_CLICKS:
+        setView(&pulseClicksMenuView);
+
+        break;
+
+#if defined(PULSE_LED)
+    case PULSES_MENU_OPTIONS_PULSE_LED:
+        setView(&pulseLEDMenuView);
+
+        break;
+#endif
+
+    case PULSES_MENU_OPTIONS_DISPLAY_FLASHES:
+        setView(&displayFlashesMenuView);
+
+        break;
+
+#if defined(VIBRATOR)
+    case PULSES_MENU_OPTIONS_HAPTIC_PULSES:
+        setView(&pulseVibrationsMenuView);
+
+        break;
+#endif
+
+    case PULSES_MENU_OPTIONS_PULSES_THRESHOLD:
+        setView(&pulsesThresholdMenuView);
+
+        break;
+    }
+}
+
+static MenuState pulsesMenuState;
+
+static const Menu pulsesMenu = {
+    "Pulses",
+    &pulsesMenuState,
+    onPulsesMenuGetOption,
+    onPulsesMenuSelect,
+    onSettingsSubMenuBack,
+};
+
+const View pulsesMenuView = {
+    onMenuEvent,
+    &pulsesMenu,
+};
+
+void onPulsesSubMenuBack(const Menu *menu)
+{
+    setView(&pulsesMenuView);
+}

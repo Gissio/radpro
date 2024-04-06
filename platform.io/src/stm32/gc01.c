@@ -29,37 +29,35 @@ void initSystem(void)
     // Set stack pointer to fix bootloader madness
     __set_MSP(*((uint32_t *)FIRMWARE_BASE));
 
-    // +++ TEST
-    // // Enable HSE
-    // set_bits(RCC->CR, RCC_CR_HSEON);
-    // wait_until_bits_set(RCC->CR, RCC_CR_HSERDY);
+    // Enable HSE
+    set_bits(RCC->CR, RCC_CR_HSEON);
+    wait_until_bits_set(RCC->CR, RCC_CR_HSERDY);
 
-    // // Set 2 wait states for flash
-    // modify_bits(FLASH->ACR,
-    //             FLASH_ACR_LATENCY_Msk,
-    //             FLASH_ACR_LATENCY_2WS);
+    // Set 2 wait states for flash
+    modify_bits(FLASH->ACR,
+                FLASH_ACR_LATENCY_Msk,
+                FLASH_ACR_LATENCY_2WS);
 
-    // // Configure RCC
-    // RCC->CFGR =
-    //     RCC_CFGR_SW_HSI |        // Select HSI as system clock
-    //     RCC_CFGR_HPRE_DIV1 |     // Set AHB clock: 72 MHz / 1 = 72 MHz
-    //     RCC_CFGR_PPRE1_DIV2 |    // Set APB1 clock: 72 MHz / 2 = 36 MHz
-    //     RCC_CFGR_PPRE2_DIV1 |    // Set APB2 clock: 72 MHz / 1 = 72 MHz
-    //     RCC_CFGR_ADCPRE_DIV8 |   // Set ADC clock: 72 MHz / 8 = 9 MHz
-    //     RCC_CFGR_PLLSRC_HSE |    // Set PLL source: HSE
-    //     RCC_CFGR_PLLXTPRE_HSE |  // Set PLL HSE predivision factor: 1x
-    //     RCC_CFGR_PLLMULL9 |      // Set PLL multiplier: 9x
-    //     RCC_CFGR_USBPRE_DIV1_5 | // Set USB prescaler: 1.5x
-    //     RCC_CFGR_MCO_NOCLOCK;    // Disable MCO
+    // Configure RCC
+    RCC->CFGR =
+        RCC_CFGR_SW_HSI |        // Select HSI as system clock
+        RCC_CFGR_HPRE_DIV1 |     // Set AHB clock: 72 MHz / 1 = 72 MHz
+        RCC_CFGR_PPRE1_DIV2 |    // Set APB1 clock: 72 MHz / 2 = 36 MHz
+        RCC_CFGR_PPRE2_DIV1 |    // Set APB2 clock: 72 MHz / 1 = 72 MHz
+        RCC_CFGR_ADCPRE_DIV8 |   // Set ADC clock: 72 MHz / 8 = 9 MHz
+        RCC_CFGR_PLLSRC_HSE |    // Set PLL source: HSE
+        RCC_CFGR_PLLXTPRE_HSE |  // Set PLL HSE predivision factor: 1x
+        RCC_CFGR_PLLMULL9 |      // Set PLL multiplier: 9x
+        RCC_CFGR_USBPRE_DIV1_5 | // Set USB prescaler: 1.5x
+        RCC_CFGR_MCO_NOCLOCK;    // Disable MCO
 
-    // // Enable PLL
-    // set_bits(RCC->CR, RCC_CR_PLLON);
-    // wait_until_bits_set(RCC->CR, RCC_CR_PLLRDY);
+    // Enable PLL
+    set_bits(RCC->CR, RCC_CR_PLLON);
+    wait_until_bits_set(RCC->CR, RCC_CR_PLLRDY);
 
-    // // Select PLL as system clock
-    // modify_bits(RCC->CFGR, RCC_CFGR_SW_Msk, RCC_CFGR_SW_PLL);
-    // wait_until_bits_value(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_PLL);
-    // +++ TEST
+    // Select PLL as system clock
+    modify_bits(RCC->CFGR, RCC_CFGR_SW_Msk, RCC_CFGR_SW_PLL);
+    wait_until_bits_value(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_PLL);
 
     // Set vector table
     NVIC_DisableAllIRQs();
@@ -70,7 +68,7 @@ void initSystem(void)
     modify_bits(AFIO->MAPR,
                 AFIO_MAPR_SWJ_CFG_Msk,
                 AFIO_MAPR_SWJ_CFG_JTAGDISABLE
-#if defined(GC01_DEV)
+#if defined(GC01_USART)
                     | AFIO_MAPR_USART1_REMAP
 #endif
     );
@@ -124,7 +122,7 @@ void getKeyboardState(bool *isKeyDown)
 
 extern mr_t mr;
 
-static uint8_t displayTextbuffer[2 * 36 * 50];
+static uint8_t displayTextbuffer[86 * 62];
 
 static const uint8_t displayInitSequence[] = {
     MR_SEND_COMMAND(MR_ST7789_VCOMS),
@@ -166,7 +164,7 @@ static const uint8_t displayInitSequence[] = {
     MR_SEND_DATA(0x22),
     MR_SEND_DATA(0x1f),
 
-#if defined(GC01_DEV)
+#if defined(GC01_DISPLAY_SPI)
     MR_SEND_COMMAND(MR_ST7789_INVON), // Inverse for IPS displays
 #endif
 
@@ -185,7 +183,7 @@ static void onDisplaySetReset(bool value)
                 !value);
 }
 
-#if defined(GC01_DEV)
+#if defined(GC01_DISPLAY_SPI)
 
 static void onDisplaySetCommand(bool value)
 {
@@ -232,7 +230,7 @@ static void onDisplaySend(uint16_t value)
 
 void initDisplayController(void)
 {
-#if defined(GC01_DEV)
+#if defined(GC01_DISPLAY_SPI)
 
     // GPIO
     gpio_set(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN);
@@ -311,7 +309,7 @@ void initDisplayController(void)
 #endif
 
     // mcu-renderer
-#if defined(GC01_DEV)
+#if defined(GC01_DISPLAY_SPI)
     mr_st7789_init(&mr,
                    240,
                    320,
