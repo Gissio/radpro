@@ -122,7 +122,7 @@ void getKeyboardState(bool *isKeyDown)
 
 extern mr_t mr;
 
-static uint8_t displayTextbuffer[86 * 62];
+static uint8_t displayTextbuffer[86 * 86];
 
 static const uint8_t displayInitSequence[] = {
     MR_SEND_COMMAND(MR_ST7789_VCOMS),

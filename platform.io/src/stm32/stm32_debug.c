@@ -109,11 +109,10 @@ void onHardFault(uint32_t *args)
 
     setPower(false);
 
-    while (true)
-        sleep(0);
+    while (true);
 }
 
-void HardFault_Handler(void)
+void aHardFault_Handler(void)
 {
     __asm volatile(
         " movs r0, #4           \n"

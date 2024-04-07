@@ -82,7 +82,7 @@ float __aeabi_fdiv(float x, float y)
 
 float __aeabi_i2f(int x)
 {
-    return qfp_float2int(x);
+    return qfp_int2float(x);
 }
 
 float __aeabi_ui2f(unsigned int x)
@@ -132,19 +132,9 @@ int __aeabi_fcmpun(float x, float y)
     return (qfp_fcmp(x, y) != 0);
 }
 
-float expf(float x)
-{
-    return qfp_fexp(x);
-}
-
 float logf(float x)
 {
     return qfp_fln(x);
-}
-
-float exp2f(float x)
-{
-    return qfp_fexp(0.693147180559945F * x);
 }
 
 float log2f(float x)
@@ -155,6 +145,21 @@ float log2f(float x)
 float log10f(float x)
 {
     return 0.434294481903251F * qfp_fln(x);
+}
+
+float expf(float x)
+{
+    return qfp_fexp(x);
+}
+
+float exp2f(float x)
+{
+    return qfp_fexp(0.693147180559945F * x);
+}
+
+float exp10f(float x)
+{
+    return qfp_fexp(2.302585092994045F * x);
 }
 
 float powf(float x, float y)
