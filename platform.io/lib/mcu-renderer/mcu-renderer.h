@@ -27,7 +27,7 @@ typedef struct mr_t_ mr_t;
 
 // Color
 
-typedef uint16_t mr_color;
+typedef uint16_t mr_color_t;
 
 #define COLOR_BLEND_TABLE_SIZE ((1 << 5) + 1)
 
@@ -116,10 +116,10 @@ void mr_draw_string_textbuffer(mr_t *mr,
 
 void mr_draw_image_framebuffer_monochrome_vertical(mr_t *mr,
                                                    const mr_rectangle_t *rectangle,
-                                                   const mr_color *image);
+                                                   const mr_color_t *image);
 void mr_draw_image_framebuffer_color(mr_t *mr,
                                      const mr_rectangle_t *rectangle,
-                                     const mr_color *image);
+                                     const mr_color_t *image);
 
 // I/O
 
@@ -159,7 +159,7 @@ typedef void (*mr_draw_rectangle_callback_t)(mr_t *mr,
                                              const mr_rectangle_t *rectangle);
 typedef void (*mr_draw_image_callback_t)(mr_t *mr,
                                          const mr_rectangle_t *rectangle,
-                                         const mr_color *image);
+                                         const mr_color_t *image);
 typedef void (*mr_draw_string_callback_t)(mr_t *mr,
                                           const uint8_t *str,
                                           const mr_rectangle_t *rectangle,
@@ -199,10 +199,10 @@ struct mr_t_
     uint32_t buffer_size;
     uint32_t buffer_pitch;
 
-    mr_color fill_color;
+    mr_color_t fill_color;
 
-    mr_color text_color;
-    mr_color blend_table[COLOR_BLEND_TABLE_SIZE];
+    mr_color_t text_color;
+    mr_color_t blend_table[COLOR_BLEND_TABLE_SIZE];
     const uint8_t *font;
     mr_glyph_t glyph;
 };
@@ -251,7 +251,7 @@ void mr_refresh_display(mr_t *mr);
  * @param color The fill color.
  */
 void mr_set_fill_color(mr_t *mr,
-                       mr_color color);
+                       mr_color_t color);
 
 /**
  * Draws a filled rectangle.
@@ -271,7 +271,7 @@ void mr_draw_rectangle(mr_t *mr,
  */
 void mr_draw_image(mr_t *mr,
                    const mr_rectangle_t *rectangle,
-                   const mr_color *image);
+                   const mr_color_t *image);
 
 /**
  * Sets the font.
@@ -289,7 +289,7 @@ void mr_set_font(mr_t *mr,
  * @param font The text color.
  */
 void mr_set_text_color(mr_t *mr,
-                       mr_color color);
+                       mr_color_t color);
 
 /**
  * Draws a C-string.

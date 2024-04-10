@@ -48,7 +48,7 @@ void mr_st7789_draw_rectangle(mr_t *mr,
                               const mr_rectangle_t *rectangle);
 void mr_st7789_draw_image(mr_t *mr,
                           const mr_rectangle_t *rectangle,
-                          const mr_color *image);
+                          const mr_color_t *image);
 void mr_st7789_draw_textbuffer(mr_t *mr,
                                uint8_t *buffer,
                                uint32_t buffer_pitch,
@@ -157,7 +157,7 @@ void mr_st7789_draw_rectangle(mr_t *mr,
 
 void mr_st7789_draw_image(mr_t *mr,
                           const mr_rectangle_t *rectangle,
-                          const mr_color *image)
+                          const mr_color_t *image)
 {
     mr_st7789_set_rectangle(mr, rectangle);
 

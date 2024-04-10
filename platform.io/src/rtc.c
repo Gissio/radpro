@@ -7,8 +7,6 @@
  * License: MIT
  */
 
-#include <string.h>
-
 #include "cstring.h"
 #include "menu.h"
 #include "rtc.h"
@@ -162,7 +160,7 @@ static const char *onRTCSubMenuGetOption(const Menu *menu,
 
     if (index < maxIndex)
     {
-        strcpy(menuOption, "");
+        strclr(menuOption);
         strcatUInt32(menuOption, rtcMenuOptionSetting->offset + index, 0);
 
         return menuOption;

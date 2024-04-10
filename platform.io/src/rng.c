@@ -7,8 +7,7 @@
  * License: MIT
  */
 
-#include <string.h>
-
+#include "cstring.h"
 #include "display.h"
 #include "menu.h"
 #include "rng.h"
@@ -207,7 +206,7 @@ static void initFastDiceRoller(RNGMode mode)
     rng.fdrV = 1;
     rng.fdrC = 0;
 
-    strcpy(rng.text, "");
+    strclr(rng.text);
     rng.activityIndicator = 1;
 }
 

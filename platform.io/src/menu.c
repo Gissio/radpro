@@ -9,7 +9,6 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#include <string.h>
 
 #include "display.h"
 #include "menu.h"

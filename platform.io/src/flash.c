@@ -7,8 +7,7 @@
  * License: MIT
  */
 
-#include <string.h>
-
+#include "cstring.h"
 #include "flash.h"
 
 bool isFlashPageFull(FlashIterator *iterator)

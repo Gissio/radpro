@@ -68,7 +68,7 @@ void mr_sdl_init(mr_t *mr,
     mr->display_width = width;
     mr->display_height = height;
 
-    mr->buffer = calloc(sizeof(mr_color) * width * height, 1);
+    mr->buffer = calloc(sizeof(mr_color_t) * width * height, 1);
 
     display->display_type = display_type;
 
@@ -170,7 +170,7 @@ static SDL_Color mr_sdl_blend_colors(SDL_Color foreground,
 }
 
 static SDL_Color mr_sdl_get_color(mr_sdl_display_t *display,
-                                  mr_color color)
+                                  mr_color_t color)
 {
     if (display->display_type == MR_SDL_DISPLAY_TYPE_COLOR)
     {
@@ -202,7 +202,7 @@ static void mr_sdl_refresh_display(mr_t *mr)
 {
     mr_sdl_display_t *display = (mr_sdl_display_t *)mr->display;
 
-    mr_color *framebuffer = (mr_color *)mr->buffer;
+    mr_color_t *framebuffer = (mr_color_t *)mr->buffer;
     SDL_Color *dest = display->sdl_buffer;
 
     if (display->enabled)

@@ -8,7 +8,6 @@
  */
 
 #include <stdbool.h>
-#include <string.h>
 
 #include <stdio.h>
 
@@ -65,21 +64,21 @@ static void sendCommOk(void)
 static void sendCommOkWithString(const char *value)
 {
     sendCommOk();
-    strcat(comm.buffer, " ");
+    strcatChar(comm.buffer, ' ');
     strcat(comm.buffer, value);
 }
 
 static void sendCommOkWithUInt32(uint32_t value)
 {
     sendCommOk();
-    strcat(comm.buffer, " ");
+    strcatChar(comm.buffer, ' ');
     strcatUInt32(comm.buffer, value, 0);
 }
 
 static void sendCommOkWithFloat(float value, uint32_t fractionalDecimals)
 {
     sendCommOk();
-    strcat(comm.buffer, " ");
+    strcatChar(comm.buffer, ' ');
     strcatFloat(comm.buffer, value, fractionalDecimals);
 }
 
@@ -91,7 +90,7 @@ static void sendCommError(void)
 static void strcatDatalogEntry(char *buffer, const Dose *entry)
 {
     strcatUInt32(buffer, entry->time, 0);
-    strcat(buffer, ",");
+    strcatChar(comm.buffer, ',');
     strcatUInt32(buffer, entry->pulseCount, 0);
 }
 
@@ -118,7 +117,7 @@ void dispatchCommEvents(void)
         if (matchCommCommand("GET deviceId"))
         {
             sendCommOkWithString(commId);
-            strcat(comm.buffer, ";");
+            strcatChar(comm.buffer, ';');
             strcatUInt32Hex(comm.buffer, getDeviceId());
         }
         else if (matchCommCommand("GET deviceBatteryVoltage"))
@@ -186,7 +185,7 @@ void dispatchCommEvents(void)
                     break;
 
                 if (i == 0)
-                    strcat(comm.buffer, " ");
+                    strcatChar(comm.buffer, ' ');
 
                 strcatUInt8Hex(comm.buffer, randomData);
             }
@@ -202,7 +201,7 @@ void dispatchCommEvents(void)
         else
             sendCommError();
 
-        strcat(comm.buffer, "\n");
+        strcatChar(comm.buffer, '\n');
 
         transmitComm();
     }
@@ -210,7 +209,7 @@ void dispatchCommEvents(void)
     {
         if (comm.sendingDatalog)
         {
-            strcpy(comm.buffer, "");
+            strclr(comm.buffer);
 
             uint32_t i = 0;
             while (i < 2)
@@ -219,7 +218,7 @@ void dispatchCommEvents(void)
 
                 if (!getDatalogDownloadEntry(&dose))
                 {
-                    strcat(comm.buffer, "\n");
+                    strcatChar(comm.buffer, '\n');
 
                     comm.sendingDatalog = false;
 
@@ -228,7 +227,7 @@ void dispatchCommEvents(void)
 
                 if (dose.time >= comm.datalogTimeLimit)
                 {
-                    strcat(comm.buffer, ";");
+                    strcatChar(comm.buffer, ';');
                     strcatDatalogEntry(comm.buffer, &dose);
 
                     i++;
@@ -255,38 +254,36 @@ void dispatchCommEvents(void)
 
 #if defined(DATA_MODE)
 
-bool dataMode;
-
-bool isCommMode(void)
+void enterDataMode(void)
 {
-    return dataMode;
+
 }
 
-static void onCommModeEvent(const View *view, Event event)
+void leaveDataMode(void)
+{
+
+}
+
+bool isDataMode(void)
+{
+    return false;
+}
+
+static void onDataModeEvent(const View *view, Event event)
 {
     switch (event)
     {
     case EVENT_KEY_BACK:
-        if (dataMode)
-        {
-            freeComm();
-
-            dataMode = false;
-        }
+        leaveDataMode();
 
         onSettingsSubMenuBack(NULL);
 
         break;
 
     case EVENT_DRAW:
-        if (!dataMode)
-        {
-            dataMode = true;
+        enterDataMode();
 
-            initComm();
-        }
-
-        drawCommMode();
+        drawDataMode();
 
         break;
 
@@ -296,7 +293,7 @@ static void onCommModeEvent(const View *view, Event event)
 }
 
 const View dataModeView = {
-    onCommModeEvent,
+    onDataModeEvent,
     NULL,
 };
 

@@ -157,11 +157,6 @@ float exp2f(float x)
     return qfp_fexp(0.693147180559945F * x);
 }
 
-float exp10f(float x)
-{
-    return qfp_fexp(2.302585092994045F * x);
-}
-
 float powf(float x, float y)
 {
     return qfp_fexp(y * qfp_fln(x));

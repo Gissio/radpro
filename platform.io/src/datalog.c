@@ -7,9 +7,8 @@
  * License: MIT
  */
 
-#include <string.h>
-
 #include "cmath.h"
+#include "cstring.h"
 #include "datalog.h"
 #include "flash.h"
 #include "measurements.h"
@@ -297,7 +296,7 @@ static bool decodeDatalogEntry(DatalogState *state)
             state->dose.pulseCount +=
                 decodeDatalogValue(&state->iterator, 4, 8);
         }
-        else if (symbol <= ((0xf1 - 1) + DATALOGGING_NUM))
+        else if (symbol < ((0xf1 - 1) + DATALOGGING_NUM))
         {
             // Sample interval + absolute timestamp and pulse count value
             state->timeInterval = datalogTimeIntervals[symbol - 0xf1 + 1];

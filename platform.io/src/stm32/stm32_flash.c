@@ -9,9 +9,8 @@
 
 #if defined(STM32)
 
-#include <string.h>
-
 #include "../flash.h"
+#include "../cstring.h"
 
 #include "device.h"
 

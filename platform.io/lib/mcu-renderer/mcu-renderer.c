@@ -378,7 +378,7 @@ void mr_draw_rectangle_framebuffer_color(mr_t *mr,
              position.x++)
         {
             mr_point_t buffer_position = mr_rotate_point(mr, &position);
-            mr_color *buffer = (mr_color *)mr->buffer +
+            mr_color_t *buffer = (mr_color_t *)mr->buffer +
                                buffer_position.y * mr->display_width +
                                buffer_position.x;
             *buffer = mr->fill_color;
@@ -390,7 +390,7 @@ void mr_draw_rectangle_framebuffer_color(mr_t *mr,
 
 void mr_draw_image_framebuffer_monochrome_vertical(mr_t *mr,
                                                    const mr_rectangle_t *rectangle,
-                                                   const mr_color *image)
+                                                   const mr_color_t *image)
 {
     mr_point_t position;
 
@@ -418,7 +418,7 @@ void mr_draw_image_framebuffer_monochrome_vertical(mr_t *mr,
 
 void mr_draw_image_framebuffer_color(mr_t *mr,
                                      const mr_rectangle_t *rectangle,
-                                     const mr_color *image)
+                                     const mr_color_t *image)
 {
     mr_point_t position;
 
@@ -431,7 +431,7 @@ void mr_draw_image_framebuffer_color(mr_t *mr,
              position.x++)
         {
             mr_point_t buffer_position = mr_rotate_point(mr, &position);
-            mr_color *buffer = (mr_color *)mr->buffer +
+            mr_color_t *buffer = (mr_color_t *)mr->buffer +
                                buffer_position.y * mr->display_width +
                                buffer_position.x;
             *buffer = *image++;
@@ -441,7 +441,7 @@ void mr_draw_image_framebuffer_color(mr_t *mr,
 
 // Text rendering
 
-static inline mr_color mr_fast_blend(uint32_t foreground_color,
+static inline mr_color_t mr_fast_blend(uint32_t foreground_color,
                                      uint32_t background_color,
                                      uint8_t alpha)
 {
@@ -456,7 +456,7 @@ static inline mr_color mr_fast_blend(uint32_t foreground_color,
                        background_color) &
                       0b00000111111000001111100000011111;
 
-    return (mr_color)((result >> 16) | result);
+    return (mr_color_t)((result >> 16) | result);
 }
 
 static void mr_update_blend_table(mr_t *mr)
@@ -668,14 +668,14 @@ mr_draw_glyph_template(mr_draw_glyph_framebuffer_monochrome_vertical_prototype,
 #define mr_draw_glyph_framebuffer_color_loop           \
     uint8_t alpha = mr_get_alpha(pixel_bitnum, value); \
                                                        \
-    mr_color color = mr->blend_table[alpha];
+    mr_color_t color = mr->blend_table[alpha];
 
 #define mr_draw_glyph_framebuffer_color_draw                         \
     if (value &&                                                     \
         mr_is_point_in_rect(&position, rectangle))                   \
     {                                                                \
         mr_point_t buffer_position = mr_rotate_point(mr, &position); \
-        mr_color *buffer = (mr_color *)mr->buffer +                  \
+        mr_color_t *buffer = (mr_color_t *)mr->buffer +                  \
                            buffer_position.y * buffer_pitch +        \
                            buffer_position.x;                        \
                                                                      \
@@ -1060,7 +1060,7 @@ void mr_refresh_display(mr_t *mr)
 }
 
 void mr_set_fill_color(mr_t *mr,
-                       mr_color color)
+                       mr_color_t color)
 {
     mr->fill_color = color;
 }
@@ -1078,7 +1078,7 @@ void mr_set_font(mr_t *mr,
 }
 
 void mr_set_text_color(mr_t *mr,
-                       mr_color color)
+                       mr_color_t color)
 {
     mr->text_color = color;
 }
@@ -1174,7 +1174,7 @@ int16_t mr_get_line_height(mr_t *mr)
 
 void mr_draw_image(mr_t *mr,
                    const mr_rectangle_t *rectangle,
-                   const mr_color *image)
+                   const mr_color_t *image)
 {
 #if defined(MCURENDERER_IMAGE_SUPPORT)
 

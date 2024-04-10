@@ -39,6 +39,17 @@ extern const View displayFlashesMenuView;
 
 #endif
 
+#if defined(DISPLAY_128X64)
+#define HISTORY_BUFFER_SIZE 120
+#elif defined(DISPLAY_320X240)
+#define HISTORY_BUFFER_SIZE 300
+#elif defined(DISPLAY_240X320)
+#define HISTORY_BUFFER_SIZE 200
+#endif
+
+#define HISTORY_VALUE_MIN 0.02F
+#define HISTORY_DECADE 40
+
 typedef enum
 {
     MEASUREMENTSTYLE_NORMAL,
@@ -75,15 +86,13 @@ void drawMeasurementInfo(const char *infoKeyString,
                          const char *stateString,
                          MeasurementStyle style);
 void drawMeasurementBar(float value,
-                        int32_t exponent,
+                        int32_t minExponent,
                         float alertZone1Value,
                         float alertZone2Value);
-void drawHistory(const char *title,
-                 const char *topLegendString,
-                 const char *bottomLegendString,
+void drawHistory(float scale,
+                 const char *unitString,
+                 uint32_t timeTickNum,
                  const uint8_t *data,
-                 uint32_t xTickNum,
-                 uint32_t yTickNum,
                  uint8_t alertZone1Value,
                  uint8_t alertZone2Value);
 void drawRNG(const char *title,
@@ -93,7 +102,7 @@ void drawStatistics(void);
 void drawGame(const uint8_t board[8][8],
               const char time[2][16],
               const char history[3][2][6]);
-void drawCommMode();
+void drawDataMode(void);
 void drawTestMode(const char lines[8][32]);
 
 #endif

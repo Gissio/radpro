@@ -9,12 +9,12 @@
 
 #include <limits.h>
 #include <stdbool.h>
-#include <string.h>
 #if defined(SIMULATOR)
 #include <time.h>
 #endif
 
 #include "comm.h"
+#include "cstring.h"
 #include "datalog.h"
 #include "display.h"
 #include "flash.h"
@@ -52,8 +52,6 @@ void initSettings(void)
     settings.pulseClicks = PULSE_CLICKS_QUIET;
 #if defined(DISPLAY_MONOCHROME)
     settings.displayContrast = DISPLAY_CONTRAST_DEFAULT;
-#elif defined(DISPLAY_COLOR)
-    settings.displayTheme = DISPLAY_THEME_DUSK;
 #endif
 #if defined(SIMULATOR)
     settings.displayBrightness = DISPLAY_BRIGHTNESS_VERYHIGH;

@@ -17,11 +17,6 @@
 
 #include <math.h>
 
-inline float exp10f(float x)
-{
-    return powf(10.0F, x);
-}
-
 #else
 
 float logf(float x);
@@ -29,7 +24,6 @@ float log2f(float x);
 float log10f(float x);
 float expf(float x);
 float exp2f(float x);
-float exp10f(float x);
 float powf(float x, float y);
 float sqrtf(float x);
 

@@ -7,8 +7,6 @@
  * License: MIT
  */
 
-#include <string.h>
-
 #include "adc.h"
 #include "buzzer.h"
 #include "cstring.h"

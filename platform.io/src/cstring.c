@@ -8,11 +8,21 @@
  */
 
 #include <float.h>
-#include <string.h>
 
+#include "cmath.h"
 #include "cstring.h"
 
-void strcatUInt32(char *str, uint32_t value, uint32_t minLength)
+void strcatChar(char *str,
+                char c)
+{
+    str += strlen(str);
+    str[0] = c;
+    str[1] = '\0';
+}
+
+void strcatUInt32(char *str,
+                  uint32_t value,
+                  uint32_t minLength)
 {
     str += strlen(str);
 
@@ -36,7 +46,8 @@ void strcatUInt32(char *str, uint32_t value, uint32_t minLength)
     str[minLength] = '\0';
 }
 
-bool parseUInt32(char *str, uint32_t *value)
+bool parseUInt32(char *str,
+                 uint32_t *value)
 {
     uint32_t shiftRegister = 0;
 
@@ -60,7 +71,8 @@ bool parseUInt32(char *str, uint32_t *value)
     }
 }
 
-void strcatTime(char *str, uint32_t time)
+void strcatTime(char *str,
+                uint32_t time)
 {
     uint32_t seconds = time % 60;
     uint32_t minutes = (time / 60) % 60;
@@ -69,11 +81,11 @@ void strcatTime(char *str, uint32_t time)
     if (hours > 0)
     {
         strcatUInt32(str, hours, 0);
-        strcat(str, ":");
+        strcatChar(str, ':');
     }
 
     strcatUInt32(str, minutes, 2);
-    strcat(str, ":");
+    strcatChar(str, ':');
     strcatUInt32(str, seconds, 2);
 }
 
@@ -87,13 +99,15 @@ static uint32_t getDecimalPower(uint32_t exponent)
     return value;
 }
 
-void strcatFloat(char *str, float value, uint32_t fractionalDecimals)
+void strcatFloat(char *str,
+                 float value,
+                 uint32_t fractionalDecimals)
 {
     if (value < 0)
     {
         value = -value;
 
-        strcat(str, "-");
+        strcatChar(str, '-');
     }
 
     float decimalPower = (float)getDecimalPower(fractionalDecimals);
@@ -106,86 +120,94 @@ void strcatFloat(char *str, float value, uint32_t fractionalDecimals)
     strcatUInt32(str, valueInt, 0);
     if (fractionalDecimals)
     {
-        strcat(str, ".");
+        strcatChar(str, '.');
         strcatUInt32(str, valueFrac, fractionalDecimals);
     }
 }
 
-typedef struct
+const char metricPrefixes[] = "n\xb5m\0kMG";
+
+static void strcatMetricPrefix(char *str,
+                               int32_t index)
 {
-    float decimalPower;
-    float maxValue;
-    char prefix[4];
-} MetricPower;
-
-const MetricPower metricPowers[] = {
-    {1E-6F, 999.95E-6F, "\xb5"},
-    {1E-3F, 999.95E-3F, "m"},
-    {1E0F, 999.95E0F, ""},
-    {1E3F, 999.95E3F, "k"},
-    {1E6F, 999.95E6F, "M"},
-    {1E9F, 999.95E9F, "G"},
-    {FLT_MAX, FLT_MAX, ""},
-};
-
-#define METRIC_POWERS_NUM (sizeof(metricPowers) / sizeof(MetricPower))
-
-void strcatFloatWithMetricPrefix(char *str, float value, uint32_t minMetricPower)
-{
-    float decimalPower = 0;
-    const char *prefix = NULL;
-    for (uint32_t i = minMetricPower; i < METRIC_POWERS_NUM; i++)
-    {
-        if (value < metricPowers[i].maxValue)
-        {
-            decimalPower = metricPowers[i].decimalPower;
-            prefix = metricPowers[i].prefix;
-
-            break;
-        }
-    }
-
-    value /= decimalPower;
-
-    uint32_t fractionalDecimals;
-    if (value >= 99.995F)
-        fractionalDecimals = 1;
-    else if (value >= 9.9995F)
-        fractionalDecimals = 2;
+    if ((index < -3) || (index > 3))
+        strcatChar(str, '?');
     else
-        fractionalDecimals = 3;
-
-    strcatFloat(str, value, fractionalDecimals);
-    strcat(str, " ");
-    strcat(str, prefix);
+        strcatChar(str, metricPrefixes[index + 3]);
 }
 
-void strcatDecimalPowerWithMetricPrefix(char *str, int32_t exponent)
+void strcatFloatAsMetricValueAndPrefix(char *str,
+                                       char *metricPrefix,
+                                       float value,
+                                       int32_t minMetricPrefixIndex)
 {
-    uint32_t metricPowerIndex;
-    if (exponent < -6)
+    float decimalPower = (value == 0) ? -38 : log10f(value);
+    int32_t exponent = decimalPower - log10f(0.999505F) + 39.0F;
+
+    int32_t metricPrefixIndex = (exponent / 3) - (39 / 3);
+    if (metricPrefixIndex < minMetricPrefixIndex)
+        metricPrefixIndex = minMetricPrefixIndex;
+    int32_t metricPower = 3 * metricPrefixIndex;
+
+    int32_t fractionalDecimals = 3 - ((exponent - 39) - metricPower);
+    if (fractionalDecimals > 3)
+        fractionalDecimals = 3;
+
+    float metricValue = powf(10.0F, decimalPower - metricPower);
+
+    if (value == 0.0F)
+        strcat(str, "\x7f.\x7f\x7f\x7f");
+    else
+        strcatFloat(str, metricValue, fractionalDecimals);
+    strcatMetricPrefix(metricPrefix, metricPrefixIndex);
+}
+
+void strcatFloatAsMetricValueWithPrefix(char *str,
+                                        float value,
+                                        int32_t minMetricPrefixIndex)
+{
+    char metricPrefix[2];
+    strclr(metricPrefix);
+
+    strcatFloatAsMetricValueAndPrefix(str,
+                                      metricPrefix,
+                                      value,
+                                      minMetricPrefixIndex);
+
+    strcatChar(str, ' ');
+    strcat(str, metricPrefix);
+}
+
+void strcatDecimalPowerWithMetricPrefix(char *str,
+                                        int32_t exponent,
+                                        int32_t minMetricPrefixIndex)
+{
+    exponent += 39;
+
+    int32_t metricPrefixIndex = (exponent / 3) - (39 / 3);
+
+    if (metricPrefixIndex < minMetricPrefixIndex)
     {
-        metricPowerIndex = 0;
+        int32_t fractionalDecimals = (3 * minMetricPrefixIndex - (exponent - 39) - 1);
+
         strcat(str, "0.");
-        for (int32_t i = 0; i < (-exponent - 7); i++)
-            strcat(str, "0");
-        strcat(str, "1");
+        for (int32_t i = 0; i < fractionalDecimals; i++)
+            strcatChar(str, '0');
+        strcatChar(str, '1');
+
+        metricPrefixIndex = minMetricPrefixIndex;
     }
     else
     {
-        uint32_t shiftedExponent = exponent + 6;
-        metricPowerIndex = shiftedExponent / 3;
-        if (metricPowerIndex >= METRIC_POWERS_NUM)
-            metricPowerIndex = METRIC_POWERS_NUM - 1;
-        int32_t decimals = shiftedExponent - metricPowerIndex * 3;
+        int32_t fractionalDecimals = ((exponent - 39) - 3 * metricPrefixIndex);
 
-        strcat(str, "1");
-        for (int32_t i = 0; i < decimals; i++)
-            strcat(str, "0");
+        strcatChar(str, '1');
+        for (int32_t i = 0; i < fractionalDecimals; i++)
+            strcatChar(str, '0');
     }
 
-    strcat(str, " ");
-    strcat(str, metricPowers[metricPowerIndex].prefix);
+    strcatChar(str, ' ');
+    strcatMetricPrefix(str, metricPrefixIndex);
 }
 
 static char getHexDigit(uint32_t value)
@@ -205,7 +227,8 @@ static int32_t parseHexDigit(char c)
         return -1;
 }
 
-void strcatUInt8Hex(char *str, uint8_t value)
+void strcatUInt8Hex(char *str,
+                    uint8_t value)
 {
     str += strlen(str);
 
@@ -215,19 +238,23 @@ void strcatUInt8Hex(char *str, uint8_t value)
     *str++ = '\0';
 }
 
-void strcatUInt16Hex(char *str, uint16_t value)
+void strcatUInt16Hex(char *str,
+                     uint16_t value)
 {
     strcatUInt8Hex(str, value >> 8);
     strcatUInt8Hex(str, value & 0xff);
 }
 
-void strcatUInt32Hex(char *str, uint32_t value)
+void strcatUInt32Hex(char *str,
+                     uint32_t value)
 {
     strcatUInt16Hex(str, value >> 16);
     strcatUInt16Hex(str, value & 0xffff);
 }
 
-void strcatDataHex(char *str, uint8_t *data, uint32_t n)
+void strcatDataHex(char *str,
+                   uint8_t *data,
+                   uint32_t n)
 {
     str += strlen(str);
 
@@ -241,7 +268,8 @@ void strcatDataHex(char *str, uint8_t *data, uint32_t n)
     *str++ = '\0';
 }
 
-bool parseHexString(char *str, char *dest)
+bool parseHexString(char *str,
+                    char *dest)
 {
     while (true)
     {

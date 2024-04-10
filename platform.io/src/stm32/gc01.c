@@ -65,13 +65,15 @@ void initSystem(void)
 
     // Disable JTAG
     rcc_enable_afio();
+#if !defined(GC01_USART)
     modify_bits(AFIO->MAPR,
                 AFIO_MAPR_SWJ_CFG_Msk,
-                AFIO_MAPR_SWJ_CFG_JTAGDISABLE
-#if defined(GC01_USART)
-                    | AFIO_MAPR_USART1_REMAP
+                AFIO_MAPR_SWJ_CFG_JTAGDISABLE);
+#else
+    modify_bits(AFIO->MAPR,
+                AFIO_MAPR_SWJ_CFG_Msk,
+                AFIO_MAPR_SWJ_CFG_JTAGDISABLE | AFIO_MAPR_USART1_REMAP);
 #endif
-    );
 
     // Enable RCC GPIOA, GPIOB, GPIOC
     set_bits(RCC->APB2ENR,

@@ -7,8 +7,6 @@
  * License: MIT
  */
 
-#include <string.h>
-
 #include "buzzer.h"
 #include "cmath.h"
 #include "cstring.h"
@@ -183,7 +181,7 @@ static const char *onTubeConversionFactorMenuGetOption(const Menu *menu,
     }
     else if (index < (TUBE_CONVERSIONFACTOR_NUM + VALUE_CONVERSIONFACTOR_NUM))
     {
-        strcpy(menuOption, "");
+        strclr(menuOption);
         strcatFloat(menuOption, getTubeConversionFactorForIndex(index), 1);
         strcat(menuOption, " cpm/\xb5Sv/h");
     }
@@ -242,7 +240,7 @@ static const char *onTubeDeadTimeCompensationMenuGetOption(const Menu *menu,
         return "Off";
     else if (index < DEADTIME_COMPENSATION_NUM)
     {
-        strcpy(menuOption, "");
+        strclr(menuOption);
         strcatFloat(menuOption, 1000000 * getTubeDeadTimeCompensationFromIndex(index), 1);
         strcat(menuOption, " \xb5s");
 
@@ -303,7 +301,7 @@ static const char *onTubeBackgroundCompensationMenuGetOption(const Menu *menu,
         return "Off";
     else if (index < BACKGROUND_COMPENSATION_NUM)
     {
-        strcpy(menuOption, "");
+        strclr(menuOption);
         strcatFloat(menuOption, 60.0F * getTubeBackgroundCompensationFromIndex(index), 0);
         strcat(menuOption, " cpm");
 
@@ -607,7 +605,7 @@ static const char *onTubeHVDutyCycleMenuGetOption(const Menu *menu,
 
     if (index < TUBE_HVDUTYCYCLE_NUM)
     {
-        strcpy(menuOption, " ");
+        strclr(menuOption);
         strcatFloat(menuOption, 100 * getTubeHVCustomProfileDutyCycle(index), 2);
         strcat(menuOption, " %");
 

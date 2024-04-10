@@ -8,7 +8,6 @@
  */
 
 #include <limits.h>
-#include <string.h>
 
 #include "cmath.h"
 #include "cstring.h"
@@ -29,19 +28,11 @@
 #define AVERAGING_PERIOD_TIME_CONSTANT 20.0F
 #define AVERAGING_PERIOD_TIME_MIN 5.0F
 #define AVERAGING_PERIOD_TIME_MAX 300.0F
-#define AVERAGING_TRANSITION_USVH_MIN 0.3F
-#define AVERAGING_TRANSITION_USVH_MAX 1.0F
+#define AVERAGING_TRANSITION_SVH_MIN 0.3E-6F
+#define AVERAGING_TRANSITION_SVH_MAX 1.0E-6F
 
-#if defined(DISPLAY_128X64)
-#define HISTORY_BUFFER_SIZE 120
-#elif defined(DISPLAY_320X240)
-#define HISTORY_BUFFER_SIZE 300
-#elif defined(DISPLAY_240X320)
-#define HISTORY_BUFFER_SIZE 200
-#endif
-
-#define HISTORY_CPS_MIN 0.02F
-#define HISTORY_VALUE_DECADE 40
+#define ALERTZONE1_USVH 1.0E-6F
+#define ALERTZONE2_USVH 1.0E-5F
 
 enum
 {
@@ -79,7 +70,7 @@ typedef struct
 {
     char *const name;
     uint16_t samplesPerDataPoint;
-    uint8_t xTickNum;
+    uint8_t timeTickNum;
 } History;
 
 static const History histories[] = {
@@ -213,7 +204,6 @@ typedef struct
 {
     char *const name;
     float scale;
-    int8_t minMetricPower;
 } Unit;
 
 typedef struct
@@ -223,15 +213,24 @@ typedef struct
 } Units;
 
 static Units units[] = {
-    {{"Sv/h", (60 * 1E-6F), 0},
-     {"Sv", (60 * 1E-6F / 3600), 0}},
-    {{"rem/h", (60 * 1E-4F), 0},
-     {"rem", (60 * 1E-4F / 3600), 0}},
-    {{"cpm", 60, 2},
-     {"counts", 1, 2}},
-    {{"cps", 1, 2},
-     {"counts", 1, 2}},
+    {{"Sv/h", (60 * 1E-6F)},
+     {"Sv", (60 * 1E-6F / 3600)}},
+    {{"rem/h", (60 * 1E-4F)},
+     {"rem", (60 * 1E-4F / 3600)}},
+    {{
+         "cpm",
+         60,
+     },
+     {"counts", 1}},
+    {{"cps", 1},
+     {"counts", 1}},
 };
+
+static const int8_t unitsMinMetricPrefixIndex[] = {
+    -2, -2, 0, 0};
+
+static const int8_t unitsMeasurementBarMinExponent[] = {
+    -8, -6, 0, -2};
 
 void updateMeasurementUnits(void)
 {
@@ -251,32 +250,34 @@ static float getDeadTimeCompensationFactor(float value)
     {
         float denominator = 1 - value * getTubeDeadTimeCompensation();
 
-        if (denominator > 0.1F)
-            return 1.0F / denominator;
-        else
-            return 10.0F;
+        if (denominator < 0.1F)
+            denominator = 0.1F;
+
+        return 1.0F / denominator;
     }
 }
 
 static uint32_t getInstantaneousAveragingPeriod(float value)
 {
-    float uSvHConstant = units[UNITS_SIEVERTS].rate.scale * 1E6F;
+    float scale = units[UNITS_SIEVERTS].rate.scale;
 
-    float uSvH = value * uSvHConstant;
+    float svH = scale * value;
     float averagingPeriod;
 
-    if ((uSvH > AVERAGING_TRANSITION_USVH_MIN) &&
-        (uSvH < AVERAGING_TRANSITION_USVH_MAX))
+    if ((svH > AVERAGING_TRANSITION_SVH_MIN) &&
+        (svH < AVERAGING_TRANSITION_SVH_MAX))
     {
-        float averagingPeriodExponent =
+        float transitionExponent =
             log10f((AVERAGING_PERIOD_TIME_CONSTANT /
-                    AVERAGING_TRANSITION_USVH_MIN /
+                    AVERAGING_TRANSITION_SVH_MIN /
                     AVERAGING_PERIOD_TIME_MIN) *
-                   uSvHConstant) /
-            log10f(AVERAGING_TRANSITION_USVH_MIN);
+                   scale) /
+            log10f(AVERAGING_TRANSITION_SVH_MIN /
+                   AVERAGING_TRANSITION_SVH_MAX);
 
         averagingPeriod = (AVERAGING_PERIOD_TIME_MIN *
-                           powf(uSvH, averagingPeriodExponent));
+                           powf(svH / AVERAGING_TRANSITION_SVH_MAX,
+                                transitionExponent));
     }
     else
     {
@@ -287,7 +288,7 @@ static uint32_t getInstantaneousAveragingPeriod(float value)
         else
             averagingPeriod = AVERAGING_PERIOD_TIME_CONSTANT / value;
 
-        if ((uSvH > AVERAGING_TRANSITION_USVH_MAX) &&
+        if ((svH > AVERAGING_TRANSITION_SVH_MAX) &&
             (averagingPeriod > AVERAGING_PERIOD_TIME_MIN))
             averagingPeriod = AVERAGING_PERIOD_TIME_MIN;
     }
@@ -356,8 +357,8 @@ void onMeasurementPeriod(void)
 
 uint8_t getHistoryValue(float value)
 {
-    int32_t historyValue = (int32_t)(HISTORY_VALUE_DECADE *
-                                     log10f(value / HISTORY_CPS_MIN));
+    int32_t historyValue = (int32_t)(HISTORY_DECADE *
+                                     log10f(value / HISTORY_VALUE_MIN));
     if (historyValue < 0)
         historyValue = 0;
     else if (historyValue > UCHAR_MAX)
@@ -582,21 +583,17 @@ void updateMeasurements(void)
 
 // View
 
-static void buildValueString(char *str,
-                             char **unitString,
+static void buildValueString(char *valueString,
+                             char *unitString,
                              float value,
-                             const Unit *unit)
+                             const Unit *unit,
+                             int32_t minMetricPrefixIndex)
 {
-    strcpy(str, "");
-    strcatFloatWithMetricPrefix(str,
-                                value * unit->scale,
-                                unit->minMetricPower);
-    strcat(str, unit->name);
-    if (value == 0.0F)
-        strcpy(str, "\x7f.\x7f\x7f\x7f");
-    str[5] = '\0';
-
-    *unitString = &str[6];
+    strcatFloatAsMetricValueAndPrefix(valueString,
+                                      unitString,
+                                      value * unit->scale,
+                                      minMetricPrefixIndex);
+    strcat(unitString, unit->name);
 }
 
 void setMeasurementView(int32_t index)
@@ -719,15 +716,18 @@ static void onInstantaneousRateViewEvent(const View *view,
 
     case EVENT_DRAW:
     {
-        char valueString[32];
-        char *unitString;
+        char valueString[16];
+        char unitString[8];
         char *stateString;
         MeasurementStyle style;
 
+        strclr(valueString);
+        strclr(unitString);
         buildValueString(valueString,
-                         &unitString,
+                         unitString,
                          measurements.instantaneous.rate.value,
-                         &units[settings.units].rate);
+                         &units[settings.units].rate,
+                         unitsMinMetricPrefixIndex[settings.units]);
 
         if (isInstantaneousRateAlarm())
         {
@@ -758,51 +758,23 @@ static void onInstantaneousRateViewEvent(const View *view,
         {
         case INSTANTANEOUS_TAB_BAR:
         {
-            float scaleFactor;
-            int32_t exponent;
+            float scale = units[settings.units].rate.scale;
+            float alertZoneScale = scale / units[UNITS_SIEVERTS].rate.scale;
 
-            switch (settings.units)
-            {
-            case UNITS_SIEVERTS:
-                scaleFactor = units[UNITS_SIEVERTS].rate.scale;
-                exponent = -8;
-
-                break;
-
-            case UNITS_REM:
-                scaleFactor = units[UNITS_REM].rate.scale;
-                exponent = -6;
-
-                break;
-
-            case UNITS_CPM:
-                scaleFactor = 60.0F;
-                exponent = 0;
-
-                break;
-
-            case UNITS_CPS:
-                scaleFactor = 1.0F;
-                exponent = -2;
-
-                break;
-            }
-
-            drawMeasurementBar(measurements.instantaneous.rate.value * scaleFactor,
-                               exponent,
-                               1.0E-6F / units[UNITS_SIEVERTS].rate.scale * scaleFactor,
-                               1.0E-5F / units[UNITS_SIEVERTS].rate.scale * scaleFactor);
+            drawMeasurementBar(measurements.instantaneous.rate.value * scale,
+                               unitsMeasurementBarMinExponent[settings.units],
+                               ALERTZONE1_USVH * alertZoneScale,
+                               ALERTZONE2_USVH * alertZoneScale);
 
             break;
         }
 
         case INSTANTANEOUS_TAB_TIME:
-
             if (measurements.instantaneous.rate.time == 0)
-                strcpy(valueString, "");
+                strclr(valueString);
             else
             {
-                strcpy(valueString, "");
+                strclr(valueString);
                 strcatTime(valueString,
                            measurements.instantaneous.rate.time);
             }
@@ -817,21 +789,17 @@ static void onInstantaneousRateViewEvent(const View *view,
 
         case INSTANTANEOUS_TAB_MAX:
         {
-            char unitString[16];
-
-            strcpy(valueString, "");
-            strcpy(unitString, "");
+            strclr(valueString);
+            strclr(unitString);
 
             if (measurements.instantaneous.maxValue > 0)
             {
-                char *unit;
-                buildValueString(valueString,
-                                 &unit,
-                                 measurements.instantaneous.maxValue,
-                                 &units[settings.units].rate);
-
                 strcpy(unitString, " ");
-                strcat(unitString, unit);
+                buildValueString(valueString,
+                                 unitString,
+                                 measurements.instantaneous.maxValue,
+                                 &units[settings.units].rate,
+                                 unitsMinMetricPrefixIndex[settings.units]);
             }
 
             drawMeasurementInfo("Max",
@@ -883,19 +851,22 @@ static void onAverageRateViewEvent(const View *view,
     case EVENT_DRAW:
     {
         char timeString[16];
-        char valueString[32];
-        char *unitString;
+        char valueString[16];
+        char unitString[8];
         char *stateString;
         MeasurementStyle style;
 
-        strcpy(timeString, "");
+        strclr(timeString);
         strcatTime(timeString,
                    measurements.average.timerRate.time);
 
+        strclr(valueString);
+        strclr(unitString);
         buildValueString(valueString,
-                         &unitString,
+                         unitString,
                          measurements.average.timerRate.value,
-                         &units[settings.units].rate);
+                         &units[settings.units].rate,
+                         unitsMinMetricPrefixIndex[settings.units]);
 
         if (measurements.average.timerExpired)
         {
@@ -1017,12 +988,12 @@ static void onDoseViewEvent(const View *view,
     case EVENT_DRAW:
     {
         char timeString[16];
-        char valueString[32];
-        char *unitString;
+        char valueString[16];
+        char unitString[8];
         char *stateString;
         MeasurementStyle style;
 
-        strcpy(timeString, "");
+        strclr(timeString);
         strcatTime(timeString,
                    measurements.cumulative.dose.time);
 
@@ -1030,10 +1001,13 @@ static void onDoseViewEvent(const View *view,
         doseValue -= getTubeBackgroundCompensation() *
                      measurements.cumulative.updateTime;
 
+        strclr(valueString);
+        strclr(unitString);
         buildValueString(valueString,
-                         &unitString,
+                         unitString,
                          doseValue,
-                         &units[settings.units].dose);
+                         &units[settings.units].dose,
+                         unitsMinMetricPrefixIndex[settings.units]);
 
         if (measurements.cumulative.dose.pulseCount == UINT32_MAX)
         {
@@ -1144,82 +1118,25 @@ static void onHistoryViewEvent(const View *view, Event event)
     {
         HistoryState *historyState =
             &measurements.history.states[measurements.history.tabIndex];
-
-        uint32_t valueMax = 0;
-        uint32_t valueMin = UCHAR_MAX;
-        for (uint32_t i = 0; i < HISTORY_BUFFER_SIZE; i++)
-        {
-            uint32_t value = historyState->buffer[i];
-
-            if (!value)
-                continue;
-
-            if (value > valueMax)
-                valueMax = value;
-
-            if (value < valueMin)
-                valueMin = value;
-        }
-
-        char bottomLegendString[16] = "";
-        char topLegendString[16] = "";
-        int32_t exponentValueMin = 0;
-        uint32_t yTickNum = 1;
-
-        if (valueMax > 0)
-        {
-            Unit *rateUnit = &units[settings.units].rate;
-
-            uint32_t cpsToRateUnit =
-                (uint32_t)(HISTORY_VALUE_DECADE *
-                           (16 + log10f(rateUnit->scale * HISTORY_CPS_MIN)));
-
-            int32_t exponentMax =
-                (int32_t)((cpsToRateUnit + valueMax) /
-                              HISTORY_VALUE_DECADE -
-                          16 + 1);
-            int32_t exponentMin =
-                (int32_t)((cpsToRateUnit + valueMin) /
-                              HISTORY_VALUE_DECADE -
-                          16);
-
-            exponentValueMin = (int32_t)((exponentMin + 16) * HISTORY_VALUE_DECADE -
-                                         cpsToRateUnit);
-            yTickNum = exponentMax - exponentMin;
-
-            strcatDecimalPowerWithMetricPrefix(topLegendString, exponentMax);
-            strcat(topLegendString, rateUnit->name);
-
-            strcatDecimalPowerWithMetricPrefix(bottomLegendString, exponentMin);
-            strcat(bottomLegendString, rateUnit->name);
-        }
+        Unit *rateUnit = &units[settings.units].rate;
 
         uint8_t data[HISTORY_BUFFER_SIZE];
-        uint32_t valueRange = HISTORY_VALUE_DECADE * yTickNum;
-
-        for (uint32_t dataIndex = 0;
-             dataIndex < HISTORY_BUFFER_SIZE;
-             dataIndex++)
+        for (uint32_t i = 0; i < HISTORY_BUFFER_SIZE; i++)
         {
-            uint32_t value = historyState->buffer[(dataIndex +
-                                                   historyState->bufferIndex) %
-                                                  HISTORY_BUFFER_SIZE];
-            data[dataIndex] = value
-                                  ? 255 * (value - exponentValueMin) / valueRange
-                                  : 0;
+            uint32_t dataIndex = historyState->bufferIndex + i;
+            if (dataIndex >= HISTORY_BUFFER_SIZE)
+                dataIndex -= HISTORY_BUFFER_SIZE;
+
+            data[i] = historyState->buffer[dataIndex];
         }
 
-        uint8_t alertZone1Value = 0;
-        uint8_t alertZone2Value = 0;
-
-        drawHistory(histories[measurements.history.tabIndex].name,
-                    topLegendString,
-                    bottomLegendString,
+        drawTitleBar(histories[measurements.history.tabIndex].name);
+        drawHistory(rateUnit->scale,
+                    rateUnit->name,
+                    histories[measurements.history.tabIndex].timeTickNum,
                     data,
-                    histories[measurements.history.tabIndex].xTickNum,
-                    yTickNum,
-                    alertZone1Value,
-                    alertZone2Value);
+                    getHistoryValue(ALERTZONE1_USVH / units[UNITS_SIEVERTS].rate.scale),
+                    getHistoryValue(ALERTZONE2_USVH / units[UNITS_SIEVERTS].rate.scale));
 
         break;
     }
@@ -1329,10 +1246,10 @@ static char *buildRateAlarmMenuOption(uint32_t index)
     float value = rateAlarmsSvH[index] /
                   units[UNITS_SIEVERTS].rate.scale;
 
-    strcpy(menuOption, "");
-    strcatFloatWithMetricPrefix(menuOption,
-                                rateUnit->scale * value,
-                                rateUnit->minMetricPower);
+    strclr(menuOption);
+    strcatFloatAsMetricValueWithPrefix(menuOption,
+                                       rateUnit->scale * value,
+                                       unitsMinMetricPrefixIndex[settings.units]);
     strcat(menuOption, rateUnit->name);
 
     return menuOption;
@@ -1388,10 +1305,10 @@ static const char *onDoseAlarmMenuGetOption(const Menu *menu,
         float value = doseAlarmsSv[index] /
                       units[UNITS_SIEVERTS].dose.scale;
 
-        strcpy(menuOption, "");
-        strcatFloatWithMetricPrefix(menuOption,
-                                    doseUnit->scale * value,
-                                    doseUnit->minMetricPower);
+        strclr(menuOption);
+        strcatFloatAsMetricValueWithPrefix(menuOption,
+                                           doseUnit->scale * value,
+                                           unitsMinMetricPrefixIndex[settings.units]);
         strcat(menuOption, doseUnit->name);
 
         return menuOption;

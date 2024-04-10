@@ -66,6 +66,10 @@ void transmitComm(void);
 void dispatchCommEvents(void);
 void updateCommController(void);
 
-bool isCommMode(void);
+#if defined(DATA_MODE)
+void enterDataMode(void);
+void leaveDataMode(void);
+bool isDataMode(void);
+#endif
 
 #endif

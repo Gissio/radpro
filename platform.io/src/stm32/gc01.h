@@ -17,16 +17,12 @@
 #define LSE_FREQUENCY 32768
 #define LSI_FREQUENCY 40000
 
-#if defined(CH32)
-#define FLASH_SIZE 0x10000
-#elif defined(APM32)
-#define FLASH_SIZE 0x20000
-#endif
 #define FIRMWARE_BASE 0x08004000
 #if defined(CH32)
 #define FLASH_SIZE 0x10000
 #define FIRMWARE_SIZE 0xa800
 #elif defined(APM32)
+#define FLASH_SIZE 0x20000
 #define FIRMWARE_SIZE 0xc000
 #endif
 

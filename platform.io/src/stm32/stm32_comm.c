@@ -9,8 +9,6 @@
 
 #if defined(STM32)
 
-#include <string.h>
-
 #include "device.h"
 
 #include "../comm.h"

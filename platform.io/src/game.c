@@ -9,7 +9,6 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <string.h>
 
 #include <mcu-max.h>
 
@@ -308,7 +307,7 @@ static void selectNextMoveTo(int32_t direction)
 static void formatGameMove(char *buffer, mcumax_move move)
 {
     if (move.from == MCUMAX_SQUARE_INVALID)
-        strcpy(buffer, "");
+        strclr(buffer);
     else
     {
         buffer[0] = 'a' + (move.from & 0x7);
@@ -400,10 +399,10 @@ static void onGameViewEvent(const View *view, Event event)
         // Time
         char time[2][16];
 
-        strcpy(time[0], "");
+        strclr(time[0]);
         strcatTime(time[0], game.playerTime[!game.playerIndex]);
 
-        strcpy(time[1], "");
+        strclr(time[1]);
         strcatTime(time[1], game.playerTime[game.playerIndex]);
 
         // Moves

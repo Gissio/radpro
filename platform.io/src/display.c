@@ -7,7 +7,7 @@
  * License: MIT
  */
 
-#include <string.h>
+#include <limits.h>
 
 #include <mcu-renderer.h>
 
@@ -149,16 +149,16 @@
 #define MEASUREMENT_BAR_LABEL_HEIGHT (FONT_SMALL_LINE_HEIGHT + 2)
 #define MEASUREMENT_BAR_TICKS_HEIGHT 2
 #define MEASUREMENT_BAR_TICKS_UPPER_HEIGHT 1
-#define MEASUREMENT_BAR_TOPMARGIN_HEIGHT 0
+#define MEASUREMENT_BAR_TICKS_LOWERMARGIN_HEIGHT 0
 #define MEASUREMENT_BAR_FRAME_HEIGHT 9
 #define MEASUREMENT_BAR_FRAME_RIGHT MEASUREMENT_BAR_RIGHT
 
 #define HISTORY_WIDTH 122
 #define HISTORY_HEIGHT 42
-#define HISTORY_TOP_VALUE_OFFSET_X (HISTORY_WIDTH - 1)
-#define HISTORY_TOP_VALUE_OFFSET_Y (HISTORY_Y - CONTENT_Y - FONT_SMALL_LINE_HEIGHT + 1)
-#define HISTORY_BOTTOM_VALUE_OFFSET_X (HISTORY_WIDTH - 1)
-#define HISTORY_BOTTOM_VALUE_OFFSET_Y 0
+#define HISTORY_TOP_LABEL_OFFSET_X (HISTORY_WIDTH - 1)
+#define HISTORY_TOP_LABEL_OFFSET_Y (HISTORY_Y - CONTENT_Y - FONT_SMALL_LINE_HEIGHT + 1)
+#define HISTORY_BOTTOM_LABEL_OFFSET_X (HISTORY_WIDTH - 1)
+#define HISTORY_BOTTOM_LABEL_OFFSET_Y 0
 
 #define GAME_BOARD_X 0
 #define GAME_BOARD_Y 0
@@ -197,16 +197,16 @@
 #define MEASUREMENT_BAR_LABEL_HEIGHT FONT_SMALL_LINE_HEIGHT
 #define MEASUREMENT_BAR_TICKS_HEIGHT 8
 #define MEASUREMENT_BAR_TICKS_UPPER_HEIGHT 4
-#define MEASUREMENT_BAR_TOPMARGIN_HEIGHT 4
+#define MEASUREMENT_BAR_TICKS_LOWERMARGIN_HEIGHT 4
 #define MEASUREMENT_BAR_FRAME_HEIGHT 20
 #define MEASUREMENT_BAR_FRAME_RIGHT MEASUREMENT_BAR_RIGHT
 
 #define HISTORY_WIDTH 302
 #define HISTORY_HEIGHT 130
-#define HISTORY_TOP_VALUE_OFFSET_X (HISTORY_WIDTH - 5)
-#define HISTORY_TOP_VALUE_OFFSET_Y (HISTORY_Y - CONTENT_Y - FONT_SMALL_LINE_HEIGHT - 2)
-#define HISTORY_BOTTOM_VALUE_OFFSET_X (HISTORY_WIDTH - 5)
-#define HISTORY_BOTTOM_VALUE_OFFSET_Y 2
+#define HISTORY_TOP_LABEL_OFFSET_X (HISTORY_WIDTH - 5)
+#define HISTORY_TOP_LABEL_OFFSET_Y (HISTORY_Y - CONTENT_Y - FONT_SMALL_LINE_HEIGHT - 2)
+#define HISTORY_BOTTOM_LABEL_OFFSET_X (HISTORY_WIDTH - 5)
+#define HISTORY_BOTTOM_LABEL_OFFSET_Y 2
 
 #define GAME_BOARD_X 0
 #define GAME_BOARD_Y TITLEBAR_BOTTOM
@@ -245,16 +245,16 @@
 #define MEASUREMENT_BAR_LABEL_HEIGHT (MEASUREMENT_INFO_KEY_HEIGHT - FONT_SMALL_LINE_HEIGHT / 2)
 #define MEASUREMENT_BAR_TICKS_HEIGHT 8
 #define MEASUREMENT_BAR_TICKS_UPPER_HEIGHT 4
-#define MEASUREMENT_BAR_TOPMARGIN_HEIGHT 4
+#define MEASUREMENT_BAR_TICKS_LOWERMARGIN_HEIGHT 4
 #define MEASUREMENT_BAR_FRAME_HEIGHT 20
 #define MEASUREMENT_BAR_FRAME_RIGHT (MEASUREMENT_BAR_RIGHT - MEASUREMENT_PADDING)
 
 #define HISTORY_WIDTH 202
 #define HISTORY_HEIGHT 130
-#define HISTORY_TOP_VALUE_OFFSET_X (HISTORY_WIDTH - 5)
-#define HISTORY_TOP_VALUE_OFFSET_Y (HISTORY_Y - CONTENT_Y - FONT_SMALL_LINE_HEIGHT - 2)
-#define HISTORY_BOTTOM_VALUE_OFFSET_X (HISTORY_WIDTH - 5)
-#define HISTORY_BOTTOM_VALUE_OFFSET_Y 2
+#define HISTORY_TOP_LABEL_OFFSET_X (HISTORY_WIDTH - 5)
+#define HISTORY_TOP_LABEL_OFFSET_Y (HISTORY_Y - CONTENT_Y - FONT_SMALL_LINE_HEIGHT - 2)
+#define HISTORY_BOTTOM_LABEL_OFFSET_X (HISTORY_WIDTH - 5)
+#define HISTORY_BOTTOM_LABEL_OFFSET_Y 2
 
 #define GAME_BOARD_X ((CONTENT_WIDTH - GAME_BOARD_WIDTH) / 2)
 #define GAME_BOARD_Y (TITLEBAR_BOTTOM + FONT_SMALL_LINE_HEIGHT)
@@ -330,11 +330,8 @@
 #define MEASUREMENT_BAR_TICKS_Y (MEASUREMENT_BAR_LABEL_Y + MEASUREMENT_BAR_LABEL_HEIGHT)
 #define MEASUREMENT_BAR_TICKS_WIDTH (MEASUREMENT_BAR_FRAME_RIGHT - MEASUREMENT_BAR_TICKS_X - 2)
 #define MEASUREMENT_BAR_TICKS_LOWER_HEIGHT (MEASUREMENT_BAR_TICKS_HEIGHT - MEASUREMENT_BAR_TICKS_UPPER_HEIGHT)
-#define MEASUREMENT_BAR_TOPMARGIN_X CONTENT_X
-#define MEASUREMENT_BAR_TOPMARGIN_Y (MEASUREMENT_BAR_TICKS_Y + MEASUREMENT_BAR_TICKS_HEIGHT)
-#define MEASUREMENT_BAR_TOPMARGIN_WIDTH MEASUREMENT_BAR_WIDTH
 #define MEASUREMENT_BAR_FRAME_X (CONTENT_X + MEASUREMENT_PADDING)
-#define MEASUREMENT_BAR_FRAME_Y (MEASUREMENT_BAR_TOPMARGIN_Y + MEASUREMENT_BAR_TOPMARGIN_HEIGHT)
+#define MEASUREMENT_BAR_FRAME_Y (MEASUREMENT_BAR_OUTERMARGIN_Y + MEASUREMENT_BAR_TICKS_LOWERMARGIN_HEIGHT)
 #define MEASUREMENT_BAR_FRAME_WIDTH (MEASUREMENT_BAR_FRAME_RIGHT - MEASUREMENT_BAR_FRAME_X)
 #define MEASUREMENT_BAR_FRAME_BOTTOM (MEASUREMENT_BAR_FRAME_Y + MEASUREMENT_BAR_FRAME_HEIGHT)
 #define MEASUREMENT_BAR_INNERFRAME_X (MEASUREMENT_BAR_FRAME_X + 1)
@@ -345,37 +342,35 @@
 #define MEASUREMENT_BAR_INSTRUMENT_Y (MEASUREMENT_BAR_INNERFRAME_Y + 1)
 #define MEASUREMENT_BAR_INSTRUMENT_WIDTH (MEASUREMENT_BAR_INNERFRAME_WIDTH - 2)
 #define MEASUREMENT_BAR_INSTRUMENT_HEIGHT (MEASUREMENT_BAR_INNERFRAME_HEIGHT - 2)
-#define MEASUREMENT_BAR_LEFTMARGIN_X CONTENT_X
-#define MEASUREMENT_BAR_LEFTMARGIN_Y MEASUREMENT_BAR_FRAME_Y
-#define MEASUREMENT_BAR_LEFTMARGIN_WIDTH MEASUREMENT_PADDING
-#define MEASUREMENT_BAR_LEFTMARGIN_HEIGHT MEASUREMENT_BAR_FRAME_HEIGHT
-#define MEASUREMENT_BAR_RIGHTMARGIN_X MEASUREMENT_BAR_FRAME_RIGHT
-#define MEASUREMENT_BAR_RIGHTMARGIN_Y MEASUREMENT_BAR_FRAME_Y
-#define MEASUREMENT_BAR_RIGHTMARGIN_WIDTH (MEASUREMENT_BAR_RIGHT - MEASUREMENT_BAR_FRAME_RIGHT)
-#define MEASUREMENT_BAR_RIGHTMARGIN_HEIGHT MEASUREMENT_BAR_FRAME_HEIGHT
-#define MEASUREMENT_BAR_BOTTOMMARGIN_X CONTENT_X
-#define MEASUREMENT_BAR_BOTTOMMARGIN_Y MEASUREMENT_BAR_FRAME_BOTTOM
-#define MEASUREMENT_BAR_BOTTOMMARGIN_WIDTH MEASUREMENT_BAR_WIDTH
-#define MEASUREMENT_BAR_BOTTOMMARGIN_HEIGHT (CONTENT_BOTTOM - MEASUREMENT_BAR_FRAME_BOTTOM)
+#define MEASUREMENT_BAR_OUTERMARGIN_X CONTENT_X
+#define MEASUREMENT_BAR_OUTERMARGIN_Y (MEASUREMENT_BAR_TICKS_Y + MEASUREMENT_BAR_TICKS_HEIGHT)
+#define MEASUREMENT_BAR_OUTERMARGIN_WIDTH (MEASUREMENT_BAR_RIGHT - MEASUREMENT_BAR_OUTERMARGIN_X)
+#define MEASUREMENT_BAR_OUTERMARGIN_HEIGHT (CONTENT_BOTTOM - MEASUREMENT_BAR_OUTERMARGIN_Y)
+#define MEASUREMENT_BAR_INNERMARGIN_X (CONTENT_X + MEASUREMENT_PADDING)
+#define MEASUREMENT_BAR_INNERMARGIN_Y MEASUREMENT_BAR_FRAME_Y
+#define MEASUREMENT_BAR_INNERMARGIN_WIDTH MEASUREMENT_BAR_FRAME_WIDTH
+#define MEASUREMENT_BAR_INNERMARGIN_HEIGHT MEASUREMENT_BAR_FRAME_HEIGHT
 
 #define HISTORY_X ((CONTENT_WIDTH - HISTORY_WIDTH) / 2)
 #define HISTORY_Y (CONTENT_Y + (CONTENT_HEIGHT - HISTORY_HEIGHT) / 2)
+#define HISTORY_DATA_X (HISTORY_X + 1)
+#define HISTORY_DATA_Y (HISTORY_Y + 1)
 #define HISTORY_DATA_WIDTH (HISTORY_WIDTH - 2)
 #define HISTORY_DATA_HEIGHT (HISTORY_HEIGHT - 2)
-#define HISTORY_TOP_VALUE_X HISTORY_X
-#define HISTORY_TOP_VALUE_Y CONTENT_Y
-#define HISTORY_TOP_VALUE_WIDTH HISTORY_WIDTH
-#define HISTORY_TOP_VALUE_HEIGHT (HISTORY_Y - HISTORY_TOP_VALUE_Y)
-#define HISTORY_BOTTOM_VALUE_X HISTORY_X
-#define HISTORY_BOTTOM_VALUE_Y (HISTORY_Y + HISTORY_HEIGHT)
-#define HISTORY_BOTTOM_VALUE_WIDTH HISTORY_WIDTH
-#define HISTORY_BOTTOM_VALUE_HEIGHT (CONTENT_BOTTOM - HISTORY_BOTTOM_VALUE_Y)
+#define HISTORY_TOP_LABEL_X HISTORY_X
+#define HISTORY_TOP_LABEL_Y CONTENT_Y
+#define HISTORY_TOP_LABEL_WIDTH HISTORY_WIDTH
+#define HISTORY_TOP_LABEL_HEIGHT (HISTORY_Y - HISTORY_TOP_LABEL_Y)
+#define HISTORY_BOTTOM_LABEL_X HISTORY_X
+#define HISTORY_BOTTOM_LABEL_Y (HISTORY_Y + HISTORY_HEIGHT)
+#define HISTORY_BOTTOM_LABEL_WIDTH HISTORY_WIDTH
+#define HISTORY_BOTTOM_LABEL_HEIGHT (CONTENT_BOTTOM - HISTORY_BOTTOM_LABEL_Y)
 #define HISTORY_SPACE_LEFT_X 0
-#define HISTORY_SPACE_LEFT_Y HISTORY_TOP_VALUE_Y
+#define HISTORY_SPACE_LEFT_Y HISTORY_TOP_LABEL_Y
 #define HISTORY_SPACE_LEFT_WIDTH HISTORY_X
-#define HISTORY_SPACE_LEFT_HEIGHT (CONTENT_BOTTOM - HISTORY_TOP_VALUE_Y)
+#define HISTORY_SPACE_LEFT_HEIGHT (CONTENT_BOTTOM - HISTORY_TOP_LABEL_Y)
 #define HISTORY_SPACE_RIGHT_X (HISTORY_X + HISTORY_WIDTH)
-#define HISTORY_SPACE_RIGHT_Y HISTORY_TOP_VALUE_Y
+#define HISTORY_SPACE_RIGHT_Y HISTORY_TOP_LABEL_Y
 #define HISTORY_SPACE_RIGHT_WIDTH (CONTENT_WIDTH - HISTORY_SPACE_RIGHT_X)
 #define HISTORY_SPACE_RIGHT_HEIGHT HISTORY_SPACE_LEFT_HEIGHT
 
@@ -482,28 +477,38 @@ typedef enum
 {
     COLOR_ELEMENT_ACTIVE,
     COLOR_ELEMENT_NEUTRAL,
+
     COLOR_CONTAINER_BACKGROUND,
     COLOR_CONTAINER_GLOBAL,
-    COLOR_INSTRUMENT_FRAME_TERTIARY,
-    COLOR_INSTRUMENT_FRAME_PRIMARY,
+
     COLOR_INSTRUMENT_ENHANCED_PRIMARY,
     COLOR_INSTRUMENT_ENHANCED_TERTIARY_OVER_PRIMARY,
     COLOR_INSTRUMENT_ENHANCED_TERTIARY_OVER_TERTIARY,
-    COLOR_INSTRUMENT_FRAME_PRIMARY_ALERTZONE1,
+    COLOR_INSTRUMENT_FRAME_PRIMARY,
+    COLOR_INSTRUMENT_FRAME_TERTIARY,
+
     COLOR_INSTRUMENT_ENHANCED_PRIMARY_ALERTZONE1,
     COLOR_INSTRUMENT_ENHANCED_TERTIARY_OVER_PRIMARY_ALERTZONE1,
     COLOR_INSTRUMENT_ENHANCED_TERTIARY_OVER_TERTIARY_ALERTZONE1,
-    COLOR_INSTRUMENT_FRAME_PRIMARY_ALERTZONE2,
+    COLOR_INSTRUMENT_FRAME_PRIMARY_ALERTZONE1,
+    COLOR_INSTRUMENT_FRAME_TERTIARY_ALERTZONE1,
+
     COLOR_INSTRUMENT_ENHANCED_PRIMARY_ALERTZONE2,
     COLOR_INSTRUMENT_ENHANCED_TERTIARY_OVER_PRIMARY_ALERTZONE2,
     COLOR_INSTRUMENT_ENHANCED_TERTIARY_OVER_TERTIARY_ALERTZONE2,
+    COLOR_INSTRUMENT_FRAME_PRIMARY_ALERTZONE2,
+    COLOR_INSTRUMENT_FRAME_TERTIARY_ALERTZONE2,
+
     COLOR_INSTRUMENT_TICKMARK_PRIMARY,
     COLOR_INSTRUMENT_TICKMARK_SECONDARY,
+
     COLOR_ALARM,
+
     COLOR_NORMAL_ENABLED_BACKGROUND,
     COLOR_FLAT_CHECKED_BACKGROUND,
     COLOR_ON_FLAT_ACTIVE,
     COLOR_ON_FLAT_NEUTRAL,
+
     COLOR_SELECTED_ENABLED_BACKGROUND,
     COLOR_GAME_SQUARE_BLACK,
     COLOR_GAME_SQUARE_WHITE,
@@ -511,14 +516,14 @@ typedef enum
     COLOR_GAME_PIECE_WHITE,
 } Color;
 
-#define COLOR_INSTRUMENT_OFFSET 4
+#define COLOR_INSTRUMENT_OFFSET 5
 
 #if defined(DISPLAY_COLOR)
 
 // Online color blender: https://pinetools.com/blend-colors
 // Online RGB565 color picker: https://rgbcolorpicker.com/565
 
-static const mr_color displayColors[][3] = {
+static const mr_color_t displayColors[][3] = {
     // Element active
     {mr_get_color(0x1a1a1a),
      mr_get_color(0xffffff),
@@ -539,16 +544,6 @@ static const mr_color displayColors[][3] = {
      mr_get_color(0x363736), // 0x363636
      mr_get_color(0x000000)},
 
-    // Instrument frame tertiary
-    {mr_get_color(0xd6d6d6),
-     mr_get_color(0x141414),
-     mr_get_color(0x292900)},
-
-    // Instrument frame primary
-    {mr_get_color(0xffffff),
-     mr_get_color(0x404040),
-     mr_get_color(0x030300)},
-
     // Instrument enhanced primary
     {mr_get_color(0x166ce4),
      mr_get_color(0x28a0ff),
@@ -564,19 +559,24 @@ static const mr_color displayColors[][3] = {
      mr_get_color(0x183043),
      mr_get_color(0x243007)},
 
-    // Instrument frame primary alert zone 1
-    {mr_get_color(0xe6e6e6),
-     mr_get_color(0x3a3a3a),
+    // Instrument frame primary
+    {mr_get_color(0xffffff),
+     mr_get_color(0x404040),
      mr_get_color(0x030300)},
 
+    // Instrument frame tertiary
+    {mr_get_color(0xd6d6d6),
+     mr_get_color(0x141214), // 0x141414
+     mr_get_color(0x292900)},
+
     // Instrument enhanced primary alert zone 1
-    {mr_get_color(0x1665bc),
+    {mr_get_color(0x1461ce),
      mr_get_color(0x2490e6),
      mr_get_color(0x0e4520)},
 
     // Instrument enhanced tertiary (on instrument frame primary) alert zone 1
     {mr_get_color(0xa8bedf),
-     mr_get_color(0x354b5c),
+     mr_get_color(0x354a5c), // 0x354b5c
      mr_get_color(0x050f06)},
 
     // Instrument enhanced tertiary (on instrument frame tertiary) alert zone 1
@@ -584,25 +584,40 @@ static const mr_color displayColors[][3] = {
      mr_get_color(0x162b3c),
      mr_get_color(0x202b06)},
 
-    // Instrument frame primary alert zone 2
-    {mr_get_color(0xcfcfcf),
-     mr_get_color(0x343234), // 0x333333
+    // Instrument frame primary alert zone 1
+    {mr_get_color(0xe6e6e6),
+     mr_get_color(0x3a3a3a),
      mr_get_color(0x030300)},
 
+    // Instrument frame tertiary alert zone 1
+    {mr_get_color(0xc1c0c1), // 0xc1c1c1
+     mr_get_color(0x121212),
+     mr_get_color(0x252500)},
+
     // Instrument enhanced primary alert zone 2
-    {mr_get_color(0x145baa),
+    {mr_get_color(0x1257ba),
      mr_get_color(0x2082cf),
      mr_get_color(0x0d3e1d)},
 
     // Instrument enhanced tertiary (on instrument frame primary) alert zone 2
     {mr_get_color(0x98abc9),
-     mr_get_color(0x304453),
+     mr_get_color(0x304253), // 0x304453
      mr_get_color(0x050e05)},
 
     // Instrument enhanced tertiary (on instrument frame tertiary) alert zone 2
     {mr_get_color(0x8094b2),
      mr_get_color(0x142736),
      mr_get_color(0x1d2705)},
+
+    // Instrument frame primary alert zone 2
+    {mr_get_color(0xcfcfcf),
+     mr_get_color(0x343234), // 0x343434
+     mr_get_color(0x030300)},
+
+    // Instrument frame tertiary alert zone 2
+    {mr_get_color(0xaeaeae),
+     mr_get_color(0x101010),
+     mr_get_color(0x212100)},
 
     // Instrument tickmark primary
     {mr_get_color(0x333333),
@@ -743,11 +758,10 @@ void refreshDisplay(void)
 #endif
 }
 
-static void setFillColor(Color color)
+static inline mr_color_t getFillColor(Color color)
 {
 #if defined(DISPLAY_MONOCHROME)
-    mr_color mr_fill_color;
-    mr_color mr_text_color;
+    mr_color_t mr_fill_color;
 
     if ((color == COLOR_INSTRUMENT_ENHANCED_PRIMARY) ||
         (color == COLOR_INSTRUMENT_ENHANCED_TERTIARY_OVER_PRIMARY) ||
@@ -756,27 +770,31 @@ static void setFillColor(Color color)
         (color == COLOR_INSTRUMENT_TICKMARK_SECONDARY) ||
         (color == COLOR_FLAT_CHECKED_BACKGROUND) ||
         (color == COLOR_GAME_SQUARE_BLACK))
-    {
-        mr_text_color = 0x0000;
-        mr_fill_color = 0xffff;
-    }
+        return 0xffff;
     else
-    {
-        mr_text_color = 0xffff;
-        mr_fill_color = 0x0000;
-    }
-
-    mr_set_fill_color(&mr, mr_fill_color);
-    mr_set_text_color(&mr, mr_text_color);
+        return 0x0000;
 #elif defined(DISPLAY_COLOR)
-    mr_set_fill_color(&mr, displayColors[color][settings.displayTheme]);
+    return displayColors[color][settings.displayTheme];
+#endif
+}
+
+static void setFillColor(Color color)
+{
+#if defined(DISPLAY_MONOCHROME)
+    mr_color_t fillColor = getFillColor(color);
+    mr_color_t textColor = fillColor ? 0x0000 : 0xffff;
+
+    mr_set_fill_color(&mr, fillColor);
+    mr_set_text_color(&mr, textColor);
+#elif defined(DISPLAY_COLOR)
+    mr_set_fill_color(&mr, getFillColor(color));
 #endif
 }
 
 static void setTextColor(Color color)
 {
 #if defined(DISPLAY_COLOR)
-    mr_set_text_color(&mr, displayColors[color][settings.displayTheme]);
+    mr_set_text_color(&mr, getFillColor(color));
 #endif
 }
 
@@ -786,34 +804,69 @@ static void drawRectangle(const mr_rectangle_t *rectangle)
                       rectangle);
 }
 
-static void drawFrame(const mr_rectangle_t *rectangle)
+static void drawMargin(const mr_rectangle_t *outerMargin,
+                       const mr_rectangle_t *innerMargin)
 {
     mr_rectangle_t r;
 
-    r.x = rectangle->x;
-    r.y = rectangle->y;
-    r.width = rectangle->width;
-    r.height = 1;
+    mr_point_t outerRectangleEnd = {
+        outerMargin->x + outerMargin->width,
+        outerMargin->y + outerMargin->height};
+
+    mr_point_t innerRectangleEnd = {
+        innerMargin->x + innerMargin->width,
+        innerMargin->y + innerMargin->height};
+
+    // Top
+    r.x = outerMargin->x;
+    r.y = outerMargin->y;
+    r.width = outerMargin->width;
+    r.height = innerMargin->y - outerMargin->y;
 
     mr_draw_rectangle(&mr,
                       &r);
 
-    r.y += rectangle->height - 1;
+    // Bottom
+    r.y = innerRectangleEnd.y;
+    r.height = outerRectangleEnd.y - innerRectangleEnd.y;
 
     mr_draw_rectangle(&mr,
                       &r);
 
-    r.y = rectangle->y + 1;
-    r.width = 1;
-    r.height = rectangle->height - 2;
+    // Left
+    r.y = innerMargin->y;
+    r.width = innerMargin->x - outerMargin->x;
+    r.height = innerMargin->height;
 
     mr_draw_rectangle(&mr,
                       &r);
 
-    r.x += rectangle->width - 1;
+    // Right
+    r.x = innerRectangleEnd.x;
+    r.width = outerRectangleEnd.y - innerRectangleEnd.y;
 
     mr_draw_rectangle(&mr,
                       &r);
+}
+
+static void drawFrame(const mr_rectangle_t *rectangle)
+{
+    mr_rectangle_t innerMargin = {
+        rectangle->x + 1,
+        rectangle->y + 1,
+        rectangle->width - 2,
+        rectangle->height - 2};
+
+    drawMargin(rectangle,
+               &innerMargin);
+}
+
+static void drawImage(const mr_rectangle_t *rectangle,
+                      mr_color_t *imageBuffer)
+{
+    mr_draw_image(&mr,
+                  rectangle,
+                  imageBuffer);
 }
 
 static void setFont(const uint8_t *font)
@@ -826,6 +879,7 @@ static int16_t getTextWidth(const char *str)
     return mr_get_text_width(&mr, str);
 }
 
+#if defined(DISPLAY_MONOCHROME)
 static void drawGrayedRectangle(const mr_rectangle_t *rectangle)
 {
     mr_rectangle_t r;
@@ -849,6 +903,7 @@ static void drawGrayedRectangle(const mr_rectangle_t *rectangle)
         }
     }
 }
+#endif
 
 static void drawText(const char *str,
                      const mr_rectangle_t *rectangle,
@@ -913,11 +968,11 @@ void drawTitleBar(const char *title)
     RTCDateTime dateTime;
     getDeviceDateTime(&dateTime);
 
-    strcpy(buffer, "");
+    strclr(buffer);
     if (dateTime.year >= RTC_YEAR_MIN)
     {
         strcatUInt32(buffer, dateTime.hour, 2);
-        strcat(buffer, ":");
+        strcatChar(buffer, ':');
         strcatUInt32(buffer, dateTime.minute, 2);
     }
 
@@ -933,7 +988,7 @@ void drawTitleBar(const char *title)
     // Battery
     int8_t batteryLevel = getDeviceBatteryLevel();
 
-    strcpy(buffer, "");
+    strclr(buffer);
     buffer[0] = (batteryLevel == BATTERY_LEVEL_CHARGING)
                     ? '6'
                     : '0' + batteryLevel;
@@ -1111,6 +1166,7 @@ void drawMenu(const Menu *menu)
         // Text
         rectangle.width = rectangle.x;
         rectangle.x = 0;
+
         setTextColor(COLOR_ON_FLAT_ACTIVE);
         drawText(menuItem,
                  &rectangle,
@@ -1225,8 +1281,8 @@ void drawMeasurementValue(const char *valueString,
     }
     else
     {
-        strcpy(confidenceString, "");
-        strcpy(confidenceUnit, "");
+        strclr(confidenceString);
+        strclr(confidenceUnit);
     }
 
     setFont(FONT_SMALL);
@@ -1332,14 +1388,14 @@ static uint32_t getMeasurementBarInstrumentValue(float value,
 }
 
 void drawMeasurementBar(float value,
-                        int32_t exponent,
+                        int32_t minExponent,
                         float alertZone1Value,
                         float alertZone2Value)
 {
     mr_rectangle_t rectangle;
-    mr_color color;
+    mr_color_t color;
 
-    float minValue = powf(10.0F, exponent);
+    float minValue = powf(10.0F, minExponent);
     uint32_t instrumentValue =
         getMeasurementBarInstrumentValue(value, minValue);
     uint32_t instrumentAlertZone1Value =
@@ -1347,16 +1403,16 @@ void drawMeasurementBar(float value,
     uint32_t instrumentAlertZone2Value =
         getMeasurementBarInstrumentValue(alertZone2Value, minValue);
 
-    // Ticks
+    // Labels & ticks
     uint32_t xTick = 0;
     uint32_t xLabel = 0;
-    uint32_t xLabelCenter;
+    uint32_t xLabelCenter = 0;
     bool wasLargeTick = false;
     for (uint32_t i = 0; i < (2 * (MEASUREMENT_BAR_DECADES + 1) + 1); i++)
     {
         bool isTick = i & 0b1;
         uint32_t index = i >> 1;
-        uint32_t exponentIndex = exponent + index;
+        uint32_t exponentIndex = minExponent + index;
         uint32_t metricPowerIndex = (30 + exponentIndex) % 3;
         bool isLargeTick = isTick && (metricPowerIndex == 0);
 
@@ -1370,8 +1426,8 @@ void drawMeasurementBar(float value,
         if (wasLargeTick)
         {
             char buffer[8];
-            strcpy(buffer, "");
-            strcatDecimalPowerWithMetricPrefix(buffer, exponentIndex - 1);
+            strclr(buffer);
+            strcatDecimalPowerWithMetricPrefix(buffer, exponentIndex - 1, -3);
 
             uint32_t width = (i < (2 * (MEASUREMENT_BAR_DECADES - 1)))
                                  ? xTickNext - xLabel
@@ -1406,11 +1462,13 @@ void drawMeasurementBar(float value,
         color = isLargeTick
                     ? COLOR_INSTRUMENT_TICKMARK_PRIMARY
                     : COLOR_CONTAINER_BACKGROUND;
+
         rectangle = (mr_rectangle_t){
             xTick,
             MEASUREMENT_BAR_TICKS_Y,
             tickWidth,
             MEASUREMENT_BAR_TICKS_UPPER_HEIGHT};
+
         setFillColor(color);
         drawRectangle(&rectangle);
 
@@ -1419,8 +1477,10 @@ void drawMeasurementBar(float value,
                 : isTick
                     ? COLOR_INSTRUMENT_TICKMARK_SECONDARY
                     : COLOR_CONTAINER_BACKGROUND;
+
         rectangle.y += MEASUREMENT_BAR_TICKS_UPPER_HEIGHT;
         rectangle.height = MEASUREMENT_BAR_TICKS_LOWER_HEIGHT;
+
         setFillColor(color);
         drawRectangle(&rectangle);
 
@@ -1433,6 +1493,7 @@ void drawMeasurementBar(float value,
         MEASUREMENT_BAR_FRAME_Y,
         MEASUREMENT_BAR_FRAME_WIDTH,
         MEASUREMENT_BAR_FRAME_HEIGHT};
+
     setFillColor(COLOR_INSTRUMENT_FRAME_TERTIARY);
     drawFrame(&barFrameRectangle);
 
@@ -1442,12 +1503,14 @@ void drawMeasurementBar(float value,
         MEASUREMENT_BAR_INNERFRAME_Y,
         1,
         MEASUREMENT_BAR_INNERFRAME_HEIGHT};
+
     setFillColor(COLOR_INSTRUMENT_FRAME_PRIMARY);
-    drawFrame(&rectangle);
+    drawRectangle(&rectangle);
 
     rectangle.x = MEASUREMENT_BAR_INNERFRAME_X + MEASUREMENT_BAR_INNERFRAME_WIDTH - 1;
+
     setFillColor(COLOR_INSTRUMENT_FRAME_PRIMARY + 2 * COLOR_INSTRUMENT_OFFSET);
-    drawFrame(&rectangle);
+    drawRectangle(&rectangle);
 
     // Bar
     uint32_t xBar = 0;
@@ -1459,132 +1522,174 @@ void drawMeasurementBar(float value,
         else
             xBarNext = MEASUREMENT_BAR_INSTRUMENT_WIDTH;
 
-        uint32_t colorInstrumentOffset;
+        // Color
+        uint32_t alertZoneColor;
 #if defined(DISPLAY_MONOCHROME)
-        colorInstrumentOffset = 0;
+        alertZoneColor = 0;
 #else
         if (xBar < instrumentAlertZone1Value)
         {
             if (xBarNext > instrumentAlertZone1Value)
                 xBarNext = instrumentAlertZone1Value;
 
-            colorInstrumentOffset = 0;
+            alertZoneColor = 0;
         }
         else if (xBar < instrumentAlertZone2Value)
         {
             if (xBarNext > instrumentAlertZone2Value)
                 xBarNext = instrumentAlertZone2Value;
 
-            colorInstrumentOffset = COLOR_INSTRUMENT_OFFSET;
+            alertZoneColor = COLOR_INSTRUMENT_OFFSET;
         }
         else
-            colorInstrumentOffset = 2 * COLOR_INSTRUMENT_OFFSET;
+            alertZoneColor = 2 * COLOR_INSTRUMENT_OFFSET;
 #endif
 
+        // Draw
         rectangle = (mr_rectangle_t){
             MEASUREMENT_BAR_INSTRUMENT_X + xBar,
             MEASUREMENT_BAR_INSTRUMENT_Y,
             xBarNext - xBar,
             MEASUREMENT_BAR_INSTRUMENT_HEIGHT,
         };
-        setFillColor(((xBar < instrumentValue)
-                          ? COLOR_INSTRUMENT_ENHANCED_PRIMARY
-                          : COLOR_INSTRUMENT_FRAME_PRIMARY) +
-                     colorInstrumentOffset);
+
+        setFillColor(alertZoneColor + ((xBar < instrumentValue)
+                                           ? COLOR_INSTRUMENT_ENHANCED_PRIMARY
+                                           : COLOR_INSTRUMENT_FRAME_PRIMARY));
         drawRectangle(&rectangle);
 
         rectangle.y = MEASUREMENT_BAR_INNERFRAME_Y;
         rectangle.height = 1;
-        setFillColor(COLOR_INSTRUMENT_FRAME_PRIMARY +
-                     colorInstrumentOffset);
+
+        setFillColor(alertZoneColor + COLOR_INSTRUMENT_FRAME_PRIMARY);
         drawRectangle(&rectangle);
 
         rectangle.y = MEASUREMENT_BAR_INNERFRAME_Y +
                       MEASUREMENT_BAR_INNERFRAME_HEIGHT - 1;
+
         drawRectangle(&rectangle);
 
         xBar = xBarNext;
     }
 
     // Margin
+    const mr_rectangle_t barOuterMargin = {
+        MEASUREMENT_BAR_OUTERMARGIN_X,
+        MEASUREMENT_BAR_OUTERMARGIN_Y,
+        MEASUREMENT_BAR_OUTERMARGIN_WIDTH,
+        MEASUREMENT_BAR_OUTERMARGIN_HEIGHT};
+
+    const mr_rectangle_t barInnerMargin = {
+        MEASUREMENT_BAR_INNERMARGIN_X,
+        MEASUREMENT_BAR_INNERMARGIN_Y,
+        MEASUREMENT_BAR_INNERMARGIN_WIDTH,
+        MEASUREMENT_BAR_INNERMARGIN_HEIGHT};
+
     setFillColor(COLOR_CONTAINER_BACKGROUND);
-
-#if MEASUREMENT_BAR_TOPMARGIN_HEIGHT > 0
-    const mr_rectangle_t barTopMarginRectangle = {
-        MEASUREMENT_BAR_TOPMARGIN_X,
-        MEASUREMENT_BAR_TOPMARGIN_Y,
-        MEASUREMENT_BAR_TOPMARGIN_WIDTH,
-        MEASUREMENT_BAR_TOPMARGIN_HEIGHT};
-    drawRectangle(&barTopMarginRectangle);
-#endif
-
-    const mr_rectangle_t barLeftMarginRectangle = {
-        MEASUREMENT_BAR_LEFTMARGIN_X,
-        MEASUREMENT_BAR_LEFTMARGIN_Y,
-        MEASUREMENT_BAR_LEFTMARGIN_WIDTH,
-        MEASUREMENT_BAR_LEFTMARGIN_HEIGHT};
-    drawRectangle(&barLeftMarginRectangle);
-
-#if MEASUREMENT_BAR_RIGHTMARGIN_HEIGHT > 0
-    const mr_rectangle_t barRightMarginRectangle = {
-        MEASUREMENT_BAR_RIGHTMARGIN_X,
-        MEASUREMENT_BAR_RIGHTMARGIN_Y,
-        MEASUREMENT_BAR_RIGHTMARGIN_WIDTH,
-        MEASUREMENT_BAR_RIGHTMARGIN_HEIGHT};
-    drawRectangle(&barRightMarginRectangle);
-#endif
-
-#if MEASUREMENT_BAR_BOTTOMMARGIN_HEIGHT > 0
-    const mr_rectangle_t barBottomMarginRectangle = {
-        MEASUREMENT_BAR_BOTTOMMARGIN_X,
-        MEASUREMENT_BAR_BOTTOMMARGIN_Y,
-        MEASUREMENT_BAR_BOTTOMMARGIN_WIDTH,
-        MEASUREMENT_BAR_BOTTOMMARGIN_HEIGHT};
-    drawRectangle(&barBottomMarginRectangle);
-#endif
+    drawMargin(&barOuterMargin,
+               &barInnerMargin);
 }
 
-void drawHistory(const char *title,
-                 const char *topValueString,
-                 const char *bottomValueString,
+static int16_t getHistoryY(uint8_t value,
+                           uint32_t dataExponentMinValue,
+                           uint32_t dataScale)
+{
+    return value
+               ? ((value - dataExponentMinValue) * dataScale) >> 8
+               : 0;
+}
+
+void drawHistory(float scale,
+                 const char *unitString,
+                 uint32_t timeTickNum,
                  const uint8_t *data,
-                 uint32_t xTickNum,
-                 uint32_t yTickNum,
                  uint8_t alertZone1Value,
                  uint8_t alertZone2Value)
 {
-    drawTitleBar(title);
+    // Analysis
+    uint32_t dataMax = 0;
+    uint32_t dataMin = UCHAR_MAX;
+    for (uint32_t i = 0; i < HISTORY_BUFFER_SIZE; i++)
+    {
+        uint32_t value = data[i];
 
-    // Legends
-    const mr_rectangle_t topValueRectangle = {
-        HISTORY_TOP_VALUE_X,
-        HISTORY_TOP_VALUE_Y,
-        HISTORY_TOP_VALUE_WIDTH,
-        HISTORY_TOP_VALUE_HEIGHT};
+        if (value)
+        {
+            if (value > dataMax)
+                dataMax = value;
 
-    const mr_point_t topValueOffset = {
-        HISTORY_TOP_VALUE_OFFSET_X,
-        HISTORY_TOP_VALUE_OFFSET_Y};
+            if (value < dataMin)
+                dataMin = value;
+        }
+    }
+
+    char topLabelString[16];
+    char bottomLabelString[16];
+    int32_t dataExponentMinValue = 0;
+    uint32_t dataTickNum = 1;
+
+    strclr(topLabelString);
+    strclr(bottomLabelString);
+
+    if (dataMax > 0)
+    {
+        uint32_t cpsToRateUnit =
+            (uint32_t)(HISTORY_DECADE *
+                       (16 + log10f(scale * HISTORY_VALUE_MIN))) +
+            1;
+
+        int32_t exponentMax =
+            (int32_t)((cpsToRateUnit + dataMax) /
+                          HISTORY_DECADE -
+                      16 + 1);
+        int32_t exponentMin =
+            (int32_t)((cpsToRateUnit + dataMin) /
+                          HISTORY_DECADE -
+                      16);
+
+        dataExponentMinValue = (int32_t)((exponentMin + 16) * HISTORY_DECADE -
+                                         cpsToRateUnit);
+        dataTickNum = exponentMax - exponentMin;
+
+        strcatDecimalPowerWithMetricPrefix(topLabelString, exponentMax, -2);
+        strcat(topLabelString, unitString);
+
+        strcatDecimalPowerWithMetricPrefix(bottomLabelString, exponentMin, -2);
+        strcat(bottomLabelString, unitString);
+    }
+
+    uint32_t dataRange = HISTORY_DECADE * dataTickNum;
+
+    // Labels
+    const mr_rectangle_t topLabelRectangle = {
+        HISTORY_TOP_LABEL_X,
+        HISTORY_TOP_LABEL_Y,
+        HISTORY_TOP_LABEL_WIDTH,
+        HISTORY_TOP_LABEL_HEIGHT};
+
+    const mr_point_t topLabelOffset = {
+        HISTORY_TOP_LABEL_OFFSET_X,
+        HISTORY_TOP_LABEL_OFFSET_Y};
 
     setFont(FONT_SMALL);
     setTextColor(COLOR_ELEMENT_ACTIVE);
-    drawRightAlignedText(topValueString,
-                         &topValueRectangle,
-                         &topValueOffset);
+    drawRightAlignedText(topLabelString,
+                         &topLabelRectangle,
+                         &topLabelOffset);
 
-    const mr_rectangle_t bottomValueRectangle = {
-        HISTORY_BOTTOM_VALUE_X,
-        HISTORY_BOTTOM_VALUE_Y,
-        HISTORY_BOTTOM_VALUE_WIDTH,
-        HISTORY_BOTTOM_VALUE_HEIGHT};
+    const mr_rectangle_t bottomLabelRectangle = {
+        HISTORY_BOTTOM_LABEL_X,
+        HISTORY_BOTTOM_LABEL_Y,
+        HISTORY_BOTTOM_LABEL_WIDTH,
+        HISTORY_BOTTOM_LABEL_HEIGHT};
 
-    const mr_point_t bottomValueOffset = {
-        HISTORY_BOTTOM_VALUE_OFFSET_X,
-        HISTORY_BOTTOM_VALUE_OFFSET_Y};
+    const mr_point_t bottomLabelOffset = {
+        HISTORY_BOTTOM_LABEL_OFFSET_X,
+        HISTORY_BOTTOM_LABEL_OFFSET_Y};
 
-    drawRightAlignedText(bottomValueString,
-                         &bottomValueRectangle,
-                         &bottomValueOffset);
+    drawRightAlignedText(bottomLabelString,
+                         &bottomLabelRectangle,
+                         &bottomLabelOffset);
 
     // Space and frame
     const mr_rectangle_t leftSpaceRectangle = {
@@ -1612,72 +1717,79 @@ void drawHistory(const char *title,
     setFillColor(COLOR_INSTRUMENT_FRAME_TERTIARY);
     drawFrame(&frameRectangle);
 
-    // Build y-tick table
-    uint8_t yTickTable[32];
-    uint32_t yTickTableIndex = 0;
+    // Value tick table
+    uint8_t valueTickTable[32];
+    uint32_t valueTickTableIndex = 0;
 
     for (uint32_t yTickIndex = 1;
-         yTickIndex <= yTickNum;
+         yTickIndex <= timeTickNum;
          yTickIndex++)
     {
-        int16_t yTickNext = yTickIndex * HISTORY_DATA_HEIGHT / yTickNum;
+        int16_t yTickNext = yTickIndex * HISTORY_DATA_HEIGHT / dataTickNum;
 
-        yTickTable[yTickTableIndex++] = yTickNext;
-        yTickTable[yTickTableIndex++] = yTickNext + 1;
+        valueTickTable[valueTickTableIndex++] = yTickNext;
+        valueTickTable[valueTickTableIndex++] = yTickNext + 1;
     }
 
     // History
-    int16_t xTickIndex = 1;
-    int16_t xTickNext = HISTORY_DATA_WIDTH / xTickNum;
+    uint32_t dataScale = 257 * HISTORY_DATA_HEIGHT / dataRange;
 
-    int16_t yDataLast = HISTORY_DATA_HEIGHT;
+    int16_t timeTickIndex = 1;
+    int16_t timeTickNext = HISTORY_DATA_WIDTH / timeTickNum;
+
+    int16_t yDataLast = 0;
+    int16_t yAlertZone1 = getHistoryY(alertZone1Value,
+                                      dataExponentMinValue,
+                                      dataScale);
+    int16_t yAlertZone2 = getHistoryY(alertZone2Value,
+                                      dataExponentMinValue,
+                                      dataScale);
 
     for (int16_t x = 0; x < HISTORY_DATA_WIDTH; x++)
     {
-        // x tick
-        bool xTickDraw = false;
-        if (x == xTickNext)
+        // Time tick
+        bool timeTickDraw = false;
+        if (x == timeTickNext)
         {
-            xTickIndex++;
-            xTickNext = xTickIndex * HISTORY_DATA_WIDTH / xTickNum;
-            xTickDraw = true;
+            timeTickIndex++;
+            timeTickNext = timeTickIndex * HISTORY_DATA_WIDTH / timeTickNum;
+            timeTickDraw = true;
         }
 
-        // y tick
-        yTickTableIndex = 0;
+        // Value tick
+        valueTickTableIndex = 0;
 
         // Data
-        int16_t yData = 1 + ((HISTORY_DATA_HEIGHT * (255 - data[x])) >> 8);
-        int16_t yDataTop;
+        int16_t yData = getHistoryY(data[x],
+                                    dataExponentMinValue,
+                                    dataScale);
         int16_t yDataBottom;
+        int16_t yDataTop;
         if (yData < yDataLast)
         {
-            yDataTop = yData;
-            yDataBottom = yDataLast;
+            yDataBottom = yData;
+            yDataTop = yDataLast;
         }
         else
         {
-            yDataTop = yDataLast;
-            yDataBottom = yData;
+            yDataBottom = yDataLast;
+            yDataTop = yData;
         }
-
-        if (yDataBottom < HISTORY_DATA_HEIGHT)
-            yDataBottom++;
+        yDataBottom--;
         yDataLast = yData;
 
-        // Drawing
-        mr_rectangle_t rectangle;
-        rectangle.x = HISTORY_X + 1 + x;
-        rectangle.width = 1;
+        // Render
+        mr_color_t imageBuffer[HISTORY_DATA_HEIGHT];
 
         int16_t y = 0;
         while (y < HISTORY_DATA_HEIGHT)
         {
-            mr_color color = COLOR_INSTRUMENT_FRAME_PRIMARY;
+            mr_color_t color = COLOR_INSTRUMENT_FRAME_PRIMARY;
+            int16_t yNext = 0;
 
-            // x and y tick
+            // Render time and value ticks
             int16_t yTickNext;
-            if (xTickDraw)
+            if (timeTickDraw)
             {
                 yTickNext = HISTORY_DATA_HEIGHT;
 
@@ -1685,50 +1797,75 @@ void drawHistory(const char *title,
             }
             else
             {
-                yTickNext = yTickTable[yTickTableIndex];
+                yTickNext = valueTickTable[valueTickTableIndex];
 
-                if (yTickTableIndex & 0b1)
+                if (valueTickTableIndex & 0b1)
                     color = COLOR_INSTRUMENT_FRAME_TERTIARY;
 
                 if (y == yTickNext)
-                    yTickTableIndex++;
+                    valueTickTableIndex++;
             }
+            yNext = yTickNext;
 
+            // Render data
             int16_t yDataNext;
-            if ((x == 0) ||
-                (x == HISTORY_DATA_WIDTH) ||
-                (y == HISTORY_DATA_HEIGHT))
-                yDataNext = HISTORY_DATA_HEIGHT;
-            else if (y < yDataTop)
-                yDataNext = yDataTop;
-            else if (y < yDataBottom)
+            if (y < yDataBottom)
             {
                 yDataNext = yDataBottom;
-
-                color = COLOR_INSTRUMENT_ENHANCED_PRIMARY;
-            }
-            else
-            {
-                yDataNext = HISTORY_DATA_HEIGHT;
 
                 if (color == COLOR_INSTRUMENT_FRAME_PRIMARY)
                     color = COLOR_INSTRUMENT_ENHANCED_TERTIARY_OVER_PRIMARY;
                 else
                     color = COLOR_INSTRUMENT_ENHANCED_TERTIARY_OVER_TERTIARY;
             }
+            else if (y < yDataTop)
+            {
+                yDataNext = yDataTop;
 
-            int16_t yNext = yTickNext < yDataNext
-                                ? yTickNext
-                                : yDataNext;
+                color = COLOR_INSTRUMENT_ENHANCED_PRIMARY;
+            }
+            else
+                yDataNext = HISTORY_DATA_HEIGHT;
+            if (yDataNext < yNext)
+                yNext = yDataNext;
 
-            rectangle.y = HISTORY_Y + 1 + y;
-            rectangle.height = yNext - y;
+#if !defined(DISPLAY_MONOCHROME)
+            // Render alert zones
+            int16_t yAlertZoneNext;
+            if (y < yAlertZone1)
+                yAlertZoneNext = yAlertZone1;
+            else if (y < yAlertZone2)
+            {
+                yAlertZoneNext = yAlertZone2;
 
-            setFillColor(color);
-            drawRectangle(&rectangle);
+                color += COLOR_INSTRUMENT_OFFSET;
+            }
+            else
+            {
+                yAlertZoneNext = HISTORY_DATA_HEIGHT;
 
-            y += rectangle.height;
+                color += 2 * COLOR_INSTRUMENT_OFFSET;
+            }
+            if (yAlertZoneNext < yNext)
+                yNext = yAlertZoneNext;
+#endif
+            // Render to imagebuffer
+            mr_color_t fillColor = getFillColor(color);
+            for (int i = y; i < yNext; i++)
+                imageBuffer[(HISTORY_DATA_HEIGHT - 1) - i] = fillColor;
+
+            y = yNext;
         }
+
+        // Draw
+        mr_rectangle_t historyImageRectangle = {
+            HISTORY_DATA_X + x,
+            HISTORY_DATA_Y,
+            1,
+            HISTORY_DATA_HEIGHT};
+
+        drawImage(&historyImageRectangle,
+                  imageBuffer);
     }
 }
 
@@ -1790,9 +1927,9 @@ void drawStatistics(void)
 
     for (uint32_t i = 0; i < STATISTICS_ENTRY_NUM; i++)
     {
-        strcpy(key, "");
-        strcpy(valueString, "");
-        strcpy(unitString, "");
+        strclr(key);
+        strclr(valueString);
+        strclr(unitString);
 
         switch (i)
         {
@@ -1834,7 +1971,7 @@ void drawStatistics(void)
                 strcpy(valueString, "-");
             else
             {
-                strcat(valueString, "< ");
+                strcpy(valueString, "< ");
                 strcatFloat(valueString, 1000000 * deadTime, 1);
                 strcpy(unitString, " \xb5"
                                    "s");
@@ -2089,7 +2226,7 @@ void drawGame(const uint8_t board[8][8],
 
 // Comm mode
 
-void drawCommMode(void)
+void drawDataMode(void)
 {
     drawTitleBar("Data mode");
 
