@@ -40,7 +40,7 @@ WARNING: Rad Pro is incompatible with devices with a CACHIP microprocessors. Fol
 
 Now, follow these steps:
 
-* Optional: Solder the 4-pin header to the XS1 pads of the board.
+* Optional: Solder the 4-pin header to the JP1 pads of the board.
 * If you use Windows, install the [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html).
 * Connect the ST-Link V2 device to SWD. The pins, from left to right, are:
   * +3.3V
