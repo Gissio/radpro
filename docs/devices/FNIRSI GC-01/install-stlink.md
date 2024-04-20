@@ -2,9 +2,9 @@
 
 These instructions let you install Rad Pro on FNIRSI GC-01 devices with a CH32F103R8T6 (WCH) or APM32F103RBT6 (Geehy) microprocessor if you:
 
-* Cannot access the FNIRSI GC-01 bootloader with the [main installation instructions](install.md).
-* Want to install Rad Pro from macOS or Linux.
-* Your FNIRSI GC-01 became irresponsive and you need to recover your device.
+* cannot access the USB drive as describes in the [main installation instructions](install.md).
+* want to install Rad Pro from macOS or Linux.
+* your FNIRSI GC-01 became irresponsive and you need to recover your device.
 
 WARNING: Rad Pro is incompatible with CACHIP microprocessors. Following these instructions on such devices WILL BREAK YOUR DEVICE.
 
