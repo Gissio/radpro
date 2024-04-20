@@ -6,7 +6,7 @@ These instructions let you install Rad Pro on FNIRSI GC-01 devices with a CH32F1
 * want to install Rad Pro from macOS or Linux.
 * your FNIRSI GC-01 became irresponsive and you need to recover your device.
 
-WARNING: Rad Pro is incompatible with devices with a CACHIP microprocessors. Following these instructions WILL BREAK YOUR DEVICE.
+WARNING: Rad Pro is incompatible with devices with a CACHIP microprocessors. Following these instructions with such devices WILL BREAK YOUR DEVICE.
 
 ## Supplies
 
@@ -32,7 +32,7 @@ Follow these steps to start installing Rad Pro:
 
 The board should look like in the photo above. If it does not, you may have a different hardware revision. In this case, Rad Pro may not function properly.
 
-WARNING: Rad Pro is incompatible with devices with a CACHIP microprocessors. Following these instructions WILL BREAK YOUR DEVICE.
+WARNING: Rad Pro is incompatible with devices with a CACHIP microprocessors. Following these instructions with such devices WILL BREAK YOUR DEVICE.
 
 ## Step 2: Connect the programmer
 
