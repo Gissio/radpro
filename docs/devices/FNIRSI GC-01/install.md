@@ -8,7 +8,7 @@ Follow these steps to start installing Rad Pro on your FNIRSI GC-01:
 
 * Turn off the device.
 * Remove the screws holding the back panel and open the device.
-* Take note of the MCU (microprocessor) installed in your device: CH32F103R8T6 (WCH) or APM32F103RBT6 (Geehy). The picture above should help you identify the MCU. Important: Rad Pro does not work on devices with a CACHIP microprocessor.
+* Take note of the MCU (microprocessor) installed in your device: CH32F103R8T6 (WCH) or APM32F103RBT6 (Geehy). The picture above should help you identify the MCU. WARNING: Rad Pro does not work on devices with a CACHIP microprocessor.
 * Also, take note of the type of Geiger tube: the markings on the glass should be either J321 (as in the picture above), J305 or J614. If you have an unmarked tube measuring 55 or 65 mm long, you probably have a J614 or J613 tube, respectively.
 * Close the device.
 
@@ -18,7 +18,7 @@ Download the `radpro-fnirsi-gc01-[mcu]-x.y.z.bin` firmware file from the [Rad Pr
 
 Next:
 
-* **IMPORTANT**: Make sure you perform the following instructions from a Windows computer. Installation from macOS or Linux may fail.
+* Connect the device to a Windows computer using the USB cable. **WARNING**: installation from macOS or Linux may fail.
 * Power on the device. A USB drive should become available.
 * Drag the firmware file onto the USB drive. The device should restart with Rad Pro installed.
 
@@ -30,7 +30,7 @@ If you are unable to install Rad Pro on your device, or your device becomes unre
 
 ## Step 3: Configure your device
 
-Go to Rad Pro's settings, select "Geiger tube", select "Conversion factor", and select the option that matches the Geiger-Müller tube installed in your device.
+Go to Rad Pro's settings, select "Geiger tube", "Conversion factor", and select the option that matches the Geiger-Müller tube installed in your device.
 
 Within the "Geiger tube" settings, select "HV Profile" and choose an appropriate HV profile: "Energy-saving" is best for measuring background levels of radiation; "Factory default" is the profile from the original firmware and consumes considerably more power.
 
