@@ -61,4 +61,4 @@ Now, download the latest `radpro-flashtool` from the [Rad Pro releases](https://
 
 After successfully flashing the firmware, reconnect the battery connector and close the device.
 
-Now, continue from [step 3 of the main installation instructions](install.md#step-3-configure-your-device).
+Now, proceed to [step 3 of the main installation instructions](install.md#step-3-configure-your-device).
