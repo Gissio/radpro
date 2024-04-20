@@ -18,7 +18,7 @@ Download the `radpro-fnirsi-gc01-[mcu]-x.y.z.bin` firmware file from the [Rad Pr
 
 Next:
 
-* Connect the device to a Windows computer using the USB cable. **WARNING**: installation from macOS or Linux may fail.
+* Connect the device to a Windows computer using the USB cable. **WARNING:** installation from macOS or Linux may fail.
 * Power on the device. A USB drive should become available.
 * Drag the firmware file onto the USB drive. The device should restart with Rad Pro installed.
 
