@@ -142,14 +142,14 @@ void strcatFloatAsMetricValueAndPrefix(char *str,
                                        int32_t minMetricPrefixIndex)
 {
     float decimalPower = (value == 0) ? -38 : log10f(value);
-    int32_t exponent = decimalPower - log10f(0.999505F) + 39.0F;
+    uint32_t shiftedExponent = decimalPower - log10f(0.999505F) + 39.0F;
 
-    int32_t metricPrefixIndex = (exponent / 3) - (39 / 3);
+    int32_t metricPrefixIndex = (shiftedExponent / 3) - (39 / 3);
     if (metricPrefixIndex < minMetricPrefixIndex)
         metricPrefixIndex = minMetricPrefixIndex;
     int32_t metricPower = 3 * metricPrefixIndex;
 
-    int32_t fractionalDecimals = 3 - ((exponent - 39) - metricPower);
+    int32_t fractionalDecimals = 3 - ((shiftedExponent - 39) - metricPower);
     if (fractionalDecimals > 3)
         fractionalDecimals = 3;
 
@@ -182,13 +182,12 @@ void strcatDecimalPowerWithMetricPrefix(char *str,
                                         int32_t exponent,
                                         int32_t minMetricPrefixIndex)
 {
-    exponent += 39;
-
-    int32_t metricPrefixIndex = (exponent / 3) - (39 / 3);
+    uint32_t shiftedExponent = exponent + 39;
+    int32_t metricPrefixIndex = (shiftedExponent / 3) - (39 / 3);
 
     if (metricPrefixIndex < minMetricPrefixIndex)
     {
-        int32_t fractionalDecimals = (3 * minMetricPrefixIndex - (exponent - 39) - 1);
+        int32_t fractionalDecimals = (3 * minMetricPrefixIndex - exponent - 1);
 
         strcat(str, "0.");
         for (int32_t i = 0; i < fractionalDecimals; i++)
@@ -199,7 +198,7 @@ void strcatDecimalPowerWithMetricPrefix(char *str,
     }
     else
     {
-        int32_t fractionalDecimals = ((exponent - 39) - 3 * metricPrefixIndex);
+        int32_t fractionalDecimals = (exponent - 3 * metricPrefixIndex);
 
         strcatChar(str, '1');
         for (int32_t i = 0; i < fractionalDecimals; i++)

@@ -20,9 +20,14 @@
 
 #if defined(USART_INTERFACE)
 
-void initComm(void)
+bool commStarted;
+
+void startComm(void)
 {
-    // GPIO
+    if (commStarted)
+        return;
+
+        // GPIO
 #if defined(STM32F0) || defined(STM32G0)
     gpio_setup_af(USART_RX_PORT,
                   USART_RX_PIN,
@@ -52,10 +57,15 @@ void initComm(void)
 
     NVIC_SetPriority(USART_IRQ, 0x80);
     NVIC_EnableIRQ(USART_IRQ);
+
+    commStarted = true;
 }
 
-void freeComm(void)
+void stopComm(void)
 {
+    if (!commStarted)
+        return;
+
     // USART
     NVIC_DisableIRQ(USART_IRQ);
 
@@ -78,6 +88,8 @@ void freeComm(void)
                USART_TX_PIN,
                GPIO_MODE_INPUT_ANALOG);
 #endif
+
+    commStarted = false;
 }
 
 void transmitComm(void)
@@ -116,7 +128,17 @@ void USART_IRQ_HANDLER(void)
     }
 
     if (usart_is_overrun(USART_INTERFACE))
+    {
         usart_clear_overrun(USART_INTERFACE);
+
+        if (comm.enabled &&
+            (comm.state == COMM_RX))
+        {
+            // Invalidate command
+            comm.buffer[0] = ' ';
+            comm.bufferIndex = 1;
+        }
+    }
 
     if (usart_is_send_ready(USART_INTERFACE) &&
         (comm.state == COMM_TX))
@@ -167,6 +189,8 @@ void updateCommController(void)
 #define USB_EP0_PACKETSIZE_MAX 0x08
 #define USB_DATA_PACKETSIZE_MAX 0x40
 #define USB_CONTROL_PACKETSIZE_MAX 0x08
+
+bool commStarted;
 
 // Declaration of the report descriptor
 
@@ -504,8 +528,11 @@ void USB_IRQ_HANDLER(void)
     usbd_poll(&usbdDevice);
 }
 
-void initComm(void)
+void startComm(void)
 {
+    if (commStarted)
+        return;
+
     // Force USB device reenumeration
     gpio_setup(USB_DP_PORT,
                USB_DP_PIN,
@@ -527,14 +554,26 @@ void initComm(void)
 
     usbd_enable(&usbdDevice, true);
     usbd_connect(&usbdDevice, true);
+
+    commStarted = true;
 }
 
-void freeComm(void)
+void stopComm(void)
 {
+    if (!commStarted)
+        return;
+
     NVIC_DisableIRQ(USB_IRQ);
 
     usbd_connect(&usbdDevice, false);
     usbd_enable(&usbdDevice, false);
+
+    commStarted = false;
+}
+
+bool isCommStarted(void)
+{
+    return commStarted;
 }
 
 void updateCommController(void)
@@ -543,11 +582,11 @@ void updateCommController(void)
 
 #else
 
-void initComm(void)
+void startComm(void)
 {
 }
 
-void freeComm(void)
+void stopComm(void)
 {
 }
 

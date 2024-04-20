@@ -21,7 +21,6 @@ typedef enum
 } KeyboardMode;
 
 #if defined(KEYBOARD_5KEYS)
-
 typedef enum
 {
     KEY_LEFT,
@@ -33,9 +32,7 @@ typedef enum
     KEY_NUM,
     KEY_NONE = KEY_NUM,
 } Key;
-
 #elif defined(KEYBOARD_3KEYS)
-
 typedef enum
 {
     KEY_LEFT,
@@ -45,9 +42,7 @@ typedef enum
     KEY_NUM,
     KEY_NONE = KEY_NUM,
 } Key;
-
 #elif defined(KEYBOARD_2KEYS)
-
 typedef enum
 {
     KEY_LEFT,
@@ -56,7 +51,6 @@ typedef enum
     KEY_NUM,
     KEY_NONE = KEY_NUM,
 } Key;
-
 #endif
 
 void initKeyboard(void);

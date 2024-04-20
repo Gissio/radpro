@@ -126,16 +126,53 @@
  * @param send_callback A user-provided send 8-bit data callback.
  * @param send_callback A user-provided send 16-bit data callback.
  */
-void mr_ili9341_init(mr_t *mr,
-                     int16_t width,
-                     int16_t height,
-                     mr_display_rotation_t rotation,
-                     uint8_t *textbuffer,
-                     uint32_t textbuffer_size,
-                     mr_sleep_callback_t sleep_callback,
-                     mr_set_reset_callback_t set_reset_callback,
-                     mr_set_command_callback_t set_command_callback,
-                     mr_send_callback_t send_callback,
-                     mr_send_callback_t send16_callback);
+static inline void mr_ili9341_init(mr_t *mr,
+                                   int16_t width,
+                                   int16_t height,
+                                   mr_display_rotation_t rotation,
+                                   uint8_t *textbuffer,
+                                   uint32_t textbuffer_size,
+                                   mr_sleep_callback_t sleep_callback,
+                                   mr_set_reset_callback_t set_reset_callback,
+                                   mr_set_command_callback_t set_command_callback,
+                                   mr_send_callback_t send_callback,
+                                   mr_send_callback_t send16_callback)
+{
+    mr_st7789_init(mr,
+                   width,
+                   height,
+                   rotation,
+                   textbuffer,
+                   textbuffer_size,
+                   sleep_callback,
+                   set_reset_callback,
+                   set_command_callback,
+                   send_callback,
+                   send16_callback);
+}
+
+/**
+ * Enables/disables the ILI9341 display.
+ *
+ * @param mr The mcu-renderer instance.
+ * @param value Display enable.
+ */
+static inline void mr_ili9341_set_display(mr_t *mr,
+                                          bool value)
+{
+    mr_st7789_set_display(mr, value);
+}
+
+/**
+ * Enables/disables ILI9341 sleep mode. Takes 120 ms to finish.
+ *
+ * @param mr The mcu-renderer instance.
+ * @param value Display enable.
+ */
+static inline void mr_ili9341_set_sleep(mr_t *mr,
+                                        bool value)
+{
+    mr_st7789_set_sleep(mr, value);
+}
 
 #endif

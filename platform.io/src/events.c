@@ -32,6 +32,7 @@
 #define PULSE_VIBRATION_WEAK_TICKS ((uint32_t)(0.001 * SYSTICK_FREQUENCY))
 #define PULSE_VIBRATION_STRONG_TICKS ((uint32_t)(0.015 * SYSTICK_FREQUENCY))
 #define ALARM_TICKS ((uint32_t)(0.100 * SYSTICK_FREQUENCY))
+#define ALARM_FLASH_TICKS ((uint32_t)(0.200 * SYSTICK_FREQUENCY))
 
 typedef enum
 {
@@ -44,7 +45,7 @@ volatile uint32_t eventsCurrentTick;
 
 static struct
 {
-    bool pulsesEnabled;
+    bool pulsesThresholdExceeded;
 
     bool lastPulseTimeCountInitialized;
     uint32_t lastPulseTimeCount;
@@ -89,11 +90,13 @@ static uint32_t pulseClickTicks[] = {
     PULSE_CLICK_LOUD_TICKS,
 };
 
+#if defined(VIBRATOR)
 static uint32_t pulseVibrationTicks[] = {
     0,
     PULSE_VIBRATION_WEAK_TICKS,
     PULSE_VIBRATION_STRONG_TICKS,
 };
+#endif
 
 void initEvents(void)
 {
@@ -202,26 +205,18 @@ void onTick(void)
 
     // Display
     if (updateTimer(&events.displayTimer) == TIMER_ELAPSED)
-    {
-#if defined(DISPLAY_MONOCHROME)
-        setDisplayBacklight(false);
-#endif
-    }
+        setDisplayBacklightOn(false);
 
-    // Pulse LED
 #if defined(PULSE_LED)
+    // Pulse LED
     if (updateTimer(&events.pulseLEDTimer) == TIMER_ELAPSED)
-    {
         setPulseLED(false);
-    }
 #endif
 
-    // Vibrator
 #if defined(VIBRATOR)
+    // Vibrator
     if (updateTimer(&events.vibratorTimer) == TIMER_ELAPSED)
-    {
         setVibrator(false);
-    }
 #endif
 }
 
@@ -262,10 +257,12 @@ void dispatchEvents(void)
 {
     sleep(0);
 
-    uint32_t oneSecondUpdate = events.measurementPeriodUpdate;
-    if (events.lastMeasurementPeriodUpdate != oneSecondUpdate)
+    dispatchCommEvents();
+
+    uint32_t periodUpdate = events.measurementPeriodUpdate;
+    if (events.lastMeasurementPeriodUpdate != periodUpdate)
     {
-        events.lastMeasurementPeriodUpdate = oneSecondUpdate;
+        events.lastMeasurementPeriodUpdate = periodUpdate;
 
         updateMeasurements();
         updateDatalog();
@@ -275,7 +272,6 @@ void dispatchEvents(void)
     }
 
     dispatchViewEvents();
-    dispatchCommEvents();
 }
 
 // Dead time
@@ -302,10 +298,8 @@ static void setDisplayTimer(int32_t value)
         ((value > events.displayTimer) &&
          (events.displayTimer != -1)))
     {
-#if defined(DISPLAY_MONOCHROME)
         if (value != 1)
-            setDisplayBacklight(true);
-#endif
+            setDisplayBacklightOn(true);
 
         events.displayTimer = value;
     }
@@ -349,30 +343,30 @@ bool isDisplayTimerActive(void)
     return events.displayTimer != 0;
 }
 
-void setPulsesEnabled(bool value)
+void setPulsesThresholdExceeded(bool value)
 {
-    events.pulsesEnabled = value;
+    events.pulsesThresholdExceeded = value;
+}
+
+bool isPulsesThresholdExceeded(void)
+{
+    return events.pulsesThresholdExceeded;
 }
 
 void triggerPulse(void)
 {
-    if (!events.pulsesEnabled)
+    if (!events.pulsesThresholdExceeded)
         return;
 
     if (settings.pulseClicks)
         setBuzzerTimer(pulseClickTicks[settings.pulseClicks] + 1,
-                    events.buzzerTimer + 1);
-
+                       events.buzzerTimer + 1);
 #if defined(PULSE_LED)
     if (settings.pulseLED)
         setPulseLEDTimer(PULSE_LED_TICKS);
 #endif
-
-        // #if defined(DISPLAY_MONOCHROME)
-        //     if (settings.displaySleep == DISPLAY_SLEEP_PULSE_FLASHES)
-        //         setDisplayTimer(PULSE_FLASHES_TICKS);
-        // #endif
-
+    if (settings.pulseFlashes)
+        setDisplayTimer(PULSE_FLASH_TICKS);
 #if defined(VIBRATOR)
     if (settings.pulseVibrations)
         setVibratorTimer(pulseVibrationTicks[settings.pulseVibrations]);
@@ -387,7 +381,7 @@ void triggerAlarm(void)
     setPulseLEDTimer(ALARM_TICKS);
 #endif
     setBuzzerTimer(ALARM_TICKS, 1);
-    setDisplayTimer(ALARM_TICKS);
+    setDisplayTimer(ALARM_FLASH_TICKS);
 #if defined(VIBRATOR)
     setVibratorTimer(ALARM_TICKS);
 #endif

@@ -25,15 +25,12 @@
 void initSystem(void)
 {
 #if defined(STM32F0)
-
     // Enable GPIOA, GPIOB, GPIOF
     set_bits(RCC->AHBENR,
              RCC_AHBENR_GPIOAEN |
                  RCC_AHBENR_GPIOBEN |
                  RCC_AHBENR_GPIOFEN);
-
 #elif defined(STM32F1)
-
     // Disable JTAG, TIM3 partial remap
     rcc_enable_afio();
     modify_bits(AFIO->MAPR,
@@ -44,7 +41,6 @@ void initSystem(void)
     set_bits(RCC->APB2ENR,
              RCC_APB2ENR_IOPAEN |
                  RCC_APB2ENR_IOPBEN);
-
 #endif
 }
 
@@ -110,6 +106,8 @@ void getKeyboardState(bool *isKeyDown)
 
 extern mr_t mr;
 
+bool displayOn;
+
 static uint8_t displayFramebuffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8];
 
 static const uint8_t displayInitSequence[] = {
@@ -152,6 +150,36 @@ static void onDisplaySend(uint16_t value)
     DISPLAY_E_PORT->BRR = get_bitvalue(DISPLAY_E_PIN);
 }
 
+static GPIO_TypeDef *const displayPortSetup[] = {
+    DISPLAY_RSTB_PORT,
+    DISPLAY_A0_PORT,
+    DISPLAY_RW_PORT,
+    DISPLAY_E_PORT,
+    DISPLAY_D0_PORT,
+    DISPLAY_D1_PORT,
+    DISPLAY_D2_PORT,
+    DISPLAY_D3_PORT,
+    DISPLAY_D4_PORT,
+    DISPLAY_D5_PORT,
+    DISPLAY_D6_PORT,
+    DISPLAY_D7_PORT,
+};
+
+static const uint8_t displayPinSetup[] = {
+    DISPLAY_RSTB_PIN,
+    DISPLAY_A0_PIN,
+    DISPLAY_RW_PIN,
+    DISPLAY_E_PIN,
+    DISPLAY_D0_PIN,
+    DISPLAY_D1_PIN,
+    DISPLAY_D2_PIN,
+    DISPLAY_D3_PIN,
+    DISPLAY_D4_PIN,
+    DISPLAY_D5_PIN,
+    DISPLAY_D6_PIN,
+    DISPLAY_D7_PIN,
+};
+
 void initDisplayController(void)
 {
     // GPIO
@@ -159,105 +187,20 @@ void initDisplayController(void)
     gpio_clear(DISPLAY_RW_PORT, DISPLAY_RW_PIN);
     gpio_clear(DISPLAY_E_PORT, DISPLAY_E_PIN);
 
+    for (int i = 0; i < sizeof(displayPinSetup); i++)
+    {
 #if defined(STM32F0)
-    gpio_setup_output(DISPLAY_RSTB_PORT,
-                      DISPLAY_RSTB_PIN,
-                      GPIO_OUTPUTTYPE_PUSHPULL,
-                      GPIO_OUTPUTSPEED_50MHZ,
-                      GPIO_PULL_FLOATING);
-    gpio_setup_output(DISPLAY_A0_PORT,
-                      DISPLAY_A0_PIN,
-                      GPIO_OUTPUTTYPE_PUSHPULL,
-                      GPIO_OUTPUTSPEED_50MHZ,
-                      GPIO_PULL_FLOATING);
-    gpio_setup_output(DISPLAY_RW_PORT,
-                      DISPLAY_RW_PIN,
-                      GPIO_OUTPUTTYPE_PUSHPULL,
-                      GPIO_OUTPUTSPEED_50MHZ,
-                      GPIO_PULL_FLOATING);
-    gpio_setup_output(DISPLAY_E_PORT,
-                      DISPLAY_E_PIN,
-                      GPIO_OUTPUTTYPE_PUSHPULL,
-                      GPIO_OUTPUTSPEED_50MHZ,
-                      GPIO_PULL_FLOATING);
-    gpio_setup_output(DISPLAY_D0_PORT,
-                      DISPLAY_D0_PIN,
-                      GPIO_OUTPUTTYPE_PUSHPULL,
-                      GPIO_OUTPUTSPEED_50MHZ,
-                      GPIO_PULL_FLOATING);
-    gpio_setup_output(DISPLAY_D1_PORT,
-                      DISPLAY_D1_PIN,
-                      GPIO_OUTPUTTYPE_PUSHPULL,
-                      GPIO_OUTPUTSPEED_50MHZ,
-                      GPIO_PULL_FLOATING);
-    gpio_setup_output(DISPLAY_D2_PORT,
-                      DISPLAY_D2_PIN,
-                      GPIO_OUTPUTTYPE_PUSHPULL,
-                      GPIO_OUTPUTSPEED_50MHZ,
-                      GPIO_PULL_FLOATING);
-    gpio_setup_output(DISPLAY_D3_PORT,
-                      DISPLAY_D3_PIN,
-                      GPIO_OUTPUTTYPE_PUSHPULL,
-                      GPIO_OUTPUTSPEED_50MHZ,
-                      GPIO_PULL_FLOATING);
-    gpio_setup_output(DISPLAY_D4_PORT,
-                      DISPLAY_D4_PIN,
-                      GPIO_OUTPUTTYPE_PUSHPULL,
-                      GPIO_OUTPUTSPEED_50MHZ,
-                      GPIO_PULL_FLOATING);
-    gpio_setup_output(DISPLAY_D5_PORT,
-                      DISPLAY_D5_PIN,
-                      GPIO_OUTPUTTYPE_PUSHPULL,
-                      GPIO_OUTPUTSPEED_50MHZ,
-                      GPIO_PULL_FLOATING);
-    gpio_setup_output(DISPLAY_D6_PORT,
-                      DISPLAY_D6_PIN,
-                      GPIO_OUTPUTTYPE_PUSHPULL,
-                      GPIO_OUTPUTSPEED_50MHZ,
-                      GPIO_PULL_FLOATING);
-    gpio_setup_output(DISPLAY_D7_PORT,
-                      DISPLAY_D7_PIN,
-                      GPIO_OUTPUTTYPE_PUSHPULL,
-                      GPIO_OUTPUTSPEED_50MHZ,
-                      GPIO_PULL_FLOATING);
+        gpio_setup_output(displayPortSetup[i],
+                          displayPinSetup[i],
+                          GPIO_OUTPUTTYPE_PUSHPULL,
+                          GPIO_OUTPUTSPEED_50MHZ,
+                          GPIO_PULL_FLOATING);
 #elif defined(STM32F1)
-    gpio_setup(DISPLAY_RSTB_PORT,
-               DISPLAY_RSTB_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_A0_PORT,
-               DISPLAY_A0_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_RW_PORT,
-               DISPLAY_RW_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_E_PORT,
-               DISPLAY_E_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_D0_PORT,
-               DISPLAY_D0_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_D1_PORT,
-               DISPLAY_D1_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_D2_PORT,
-               DISPLAY_D2_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_D3_PORT,
-               DISPLAY_D3_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_D4_PORT,
-               DISPLAY_D4_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_D5_PORT,
-               DISPLAY_D5_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_D6_PORT,
-               DISPLAY_D6_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_D7_PORT,
-               DISPLAY_D7_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+        gpio_setup(displayPortSetup[i],
+                   displayPinSetup[i],
+                   GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
 #endif
+    }
 
     // mcu-renderer
     mr_st7565_init(&mr,
@@ -276,12 +219,29 @@ void initDisplayController(void)
     updateDisplayContrast();
 }
 
+void setDisplayOn(bool value)
+{
+    displayOn = value;
+
+    mr_st7565_set_display(&mr, value);
+}
+
+bool isDisplayOn(void)
+{
+    return displayOn;
+}
+
 void updateDisplayContrast(void)
 {
     mr_send_command(&mr,
                     MR_ST7565_ELECTRONIC_VOLUME);
     mr_send_command(&mr,
                     20 + (settings.displayContrast << 2));
+}
+
+void refreshDisplay(void)
+{
+    mr_st7565_refresh_display(&mr);
 }
 
 #endif

@@ -133,4 +133,22 @@ void mr_st7789_init(mr_t *mr,
                     mr_send_callback_t send_callback,
                     mr_send_callback_t send16_callback);
 
+/**
+ * Enables/disables the ST7789 display.
+ *
+ * @param mr The mcu-renderer instance.
+ * @param value Display enable.
+ */
+void mr_st7789_set_display(mr_t *mr,
+                           bool value);
+
+/**
+ * Enables/disables ST7789 sleep mode. Takes 120 ms to finish.
+ *
+ * @param mr The mcu-renderer instance.
+ * @param value Display enable.
+ */
+void mr_st7789_set_sleep(mr_t *mr,
+                           bool value);
+
 #endif

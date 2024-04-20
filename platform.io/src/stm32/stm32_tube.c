@@ -21,6 +21,9 @@
 #define TUBE_HV_LOW_DUTYCYCLE_MULTIPLIER ((uint32_t)(TUBE_HVDUTYCYCLE_VALUE_STEP * \
                                                      TUBE_HV_LOW_FREQUENCY_PERIOD))
 
+#define TUBE_HV_SYNC_MARGIN_PRE ((uint32_t)(0.000002F * TIM_FREQUENCY))
+#define TUBE_HV_SYNC_MARGIN_POST ((uint32_t)(0.000006F * TIM_FREQUENCY))
+
 #define TUBE_PULSE_QUEUE_SIZE 64
 #define TUBE_PULSE_QUEUE_MASK (TUBE_PULSE_QUEUE_SIZE - 1)
 
@@ -31,6 +34,9 @@ static struct
     volatile uint32_t pulseQueueHead;
     volatile uint32_t pulseQueueTail;
     volatile uint32_t pulseQueue[TUBE_PULSE_QUEUE_SIZE];
+
+    uint32_t hvPeriod;
+    uint32_t hvOnTime;
 } tube;
 
 void initTubeController(void)
@@ -107,16 +113,17 @@ void setTubeHV(bool value)
 
 void updateTubeHV(void)
 {
-    uint32_t period = TIM_FREQUENCY / getTubeHVFrequency();
+    tube.hvPeriod = TIM_FREQUENCY / getTubeHVFrequency();
+    tube.hvOnTime = tube.enabled
+                        ? tube.hvPeriod * getTubeHVDutyCycle()
+                        : 0;
 
     tim_set_period(TUBE_HV_TIMER,
-                   period);
+                   tube.hvPeriod);
 
     tim_set_ontime(TUBE_HV_TIMER,
                    TUBE_HV_TIMER_CHANNEL,
-                   tube.enabled
-                       ? period * getTubeHVDutyCycle()
-                       : 0);
+                   tube.hvOnTime);
 }
 
 void TUBE_DET_IRQ_HANDLER(void)
@@ -142,6 +149,40 @@ void TUBE_DET_IRQ_HANDLER(void)
     tube.pulseQueueHead = (tube.pulseQueueHead + 1) & TUBE_PULSE_QUEUE_MASK;
 }
 
+void syncTubeHV(void)
+{
+    uint32_t time1 = tube.hvOnTime - TUBE_HV_SYNC_MARGIN_PRE;
+    uint32_t time2 = tube.hvOnTime + TUBE_HV_SYNC_MARGIN_POST;
+    uint32_t time3 = tube.hvPeriod - TUBE_HV_SYNC_MARGIN_PRE;
+
+    while (true)
+    {
+        uint32_t count = TUBE_HV_TIMER->CNT;
+
+        // +++ TEST 1
+        // if ((count > TUBE_HV_SYNC_MARGIN_POST) &&
+        //     (count < time3))
+        //     break;
+        // +++ TEST 1
+
+        // +++ TEST 2
+        // if (count < time1)
+        //     break;
+        // if (count > time2)
+        //     break;
+        // +++ TEST 2
+
+        // +++ TEST 3
+        if ((count > TUBE_HV_SYNC_MARGIN_POST) &&
+            (count < time1))
+            break;
+        if ((count > time2) &&
+            (count < time3))
+            break;
+        // +++ TEST 3
+    }
+}
+
 bool getTubePulse(uint32_t *pulseTime)
 {
     if (tube.pulseQueueHead == tube.pulseQueueTail)
@@ -151,6 +192,12 @@ bool getTubePulse(uint32_t *pulseTime)
     tube.pulseQueueTail = (tube.pulseQueueTail + 1) & TUBE_PULSE_QUEUE_MASK;
 
     return true;
+}
+
+bool getTubeDet(void)
+{
+    return !gpio_get(TUBE_DET_PORT,
+                     TUBE_DET_PIN);
 }
 
 #endif

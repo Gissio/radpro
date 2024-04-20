@@ -6,8 +6,13 @@
  * License: MIT
  */
 
+#ifndef _STM32_EXT_H_
+#define _STM32_EXT_H_
+
 #include <stdbool.h>
 #include <stdint.h>
+
+#include "stm32.h"
 
 // RCC
 
@@ -1275,7 +1280,7 @@ __STATIC_INLINE bool usart_is_receive_interrupt_enabled(USART_TypeDef *base)
     return get_bits(base->CR1,
                     USART_CR1_RXNEIE);
 #elif defined(STM32G0)
-    return set_bits(base->CR1,
+    return get_bits(base->CR1,
                     USART_CR1_RXNEIE_RXFNEIE);
 #endif
 }
@@ -1308,7 +1313,7 @@ __STATIC_INLINE bool usart_is_transmit_interrupt_enabled(USART_TypeDef *base)
     return get_bits(base->CR1,
                     USART_CR1_TXEIE);
 #elif defined(STM32G0)
-    return set_bits(base->CR1,
+    return get_bits(base->CR1,
                     USART_CR1_TXEIE_TXFNFIE);
 #endif
 }
@@ -1421,3 +1426,5 @@ __STATIC_INLINE void spi_send(SPI_TypeDef *base,
 #define UID0 (((__I uint32_t *)UID_BASE)[0])
 #define UID1 (((__I uint32_t *)UID_BASE)[1])
 #define UID2 (((__I uint32_t *)UID_BASE)[2])
+
+#endif

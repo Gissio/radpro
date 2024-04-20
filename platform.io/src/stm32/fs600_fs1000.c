@@ -92,6 +92,8 @@ void getKeyboardState(bool *isKeyDown)
 
 extern mr_t mr;
 
+bool displayOn;
+
 static uint8_t displayFramebuffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8];
 
 static const uint8_t displayInitSequence[] = {
@@ -225,12 +227,29 @@ void initDisplayController(void)
     updateDisplayContrast();
 }
 
+void setDisplayOn(bool value)
+{
+    displayOn = value;
+
+    mr_st7565_set_display(&mr, value);
+}
+
+bool isDisplayOn(void)
+{
+    return displayOn;
+}
+
 void updateDisplayContrast(void)
 {
     mr_send_command(&mr,
                     MR_ST7565_ELECTRONIC_VOLUME);
     mr_send_command(&mr,
                     20 + (settings.displayContrast << 2));
+}
+
+void refreshDisplay(void)
+{
+    mr_st7565_refresh_display(&mr);
 }
 
 #endif

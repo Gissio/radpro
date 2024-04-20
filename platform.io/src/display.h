@@ -20,23 +20,17 @@ extern const View displayMenuView;
 extern const View displayFlashesMenuView;
 
 #if defined(DISPLAY_128X64)
-
 #define DISPLAY_WIDTH 128
 #define DISPLAY_HEIGHT 64
 #define DISPLAY_UPSCALE 3
-
 #elif defined(DISPLAY_320X240)
-
 #define DISPLAY_WIDTH 320
 #define DISPLAY_HEIGHT 240
 #define DISPLAY_UPSCALE 1
-
 #elif defined(DISPLAY_240X320)
-
 #define DISPLAY_WIDTH 240
 #define DISPLAY_HEIGHT 320
 #define DISPLAY_UPSCALE 1
-
 #endif
 
 #if defined(DISPLAY_128X64)
@@ -67,8 +61,11 @@ void initDisplayBacklight(void);
 
 void setDisplayOn(bool value);
 bool isDisplayOn(void);
+void setDisplaySleep(bool value);
+bool isDisplaySleep(void);
+void setDisplayBacklightOn(bool value);
+bool isDisplayBacklightOn(void);
 void updateDisplayContrast(void);
-void setDisplayBacklight(bool value);
 void refreshDisplay(void);
 
 void drawTitleBar(const char *title);

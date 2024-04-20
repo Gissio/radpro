@@ -51,36 +51,36 @@
 
 #elif defined(DISPLAY_320X240) || defined(DISPLAY_240X320)
 
-#if defined(DISPLAY_FONT_3BPP)
+#if defined(DISPLAY_FONT_2BPP)
 
-#include "fonts/font_robotoR12_3.h"
-#define FONT_SMALL font_robotoR12_3
-#define FONT_SMALL_CAP_HEIGHT FONT_ROBOTOR12_3_CAP_HEIGHT
-#define FONT_SMALL_LINE_HEIGHT FONT_ROBOTOR12_3_LINE_HEIGHT
+#include "fonts/font_robotoR12_2.h"
+#define FONT_SMALL font_robotoR12_2
+#define FONT_SMALL_CAP_HEIGHT FONT_ROBOTOR12_2_CAP_HEIGHT
+#define FONT_SMALL_LINE_HEIGHT FONT_ROBOTOR12_2_LINE_HEIGHT
 
-#include "fonts/font_robotoR18_3.h"
-#define FONT_MEDIUM font_robotoR18_3
-#define FONT_MEDIUM_CAP_HEIGHT FONT_ROBOTOR18_3_CAP_HEIGHT
-#define FONT_MEDIUM_LINE_HEIGHT FONT_ROBOTOR18_3_LINE_HEIGHT
+#include "fonts/font_robotoR18_2.h"
+#define FONT_MEDIUM font_robotoR18_2
+#define FONT_MEDIUM_CAP_HEIGHT FONT_ROBOTOR18_2_CAP_HEIGHT
+#define FONT_MEDIUM_LINE_HEIGHT FONT_ROBOTOR18_2_LINE_HEIGHT
 
 #if defined(DISPLAY_320X240)
-#include "fonts/font_robotoR86_3_digits.h"
-#define FONT_LARGE font_robotoR86_3_digits
-#define FONT_LARGE_CAP_HEIGHT FONT_ROBOTOR86_3_DIGITS_CAP_HEIGHT
-#define FONT_LARGE_LINE_HEIGHT FONT_ROBOTOR86_3_DIGITS_LINE_HEIGHT
+#include "fonts/font_robotoR86_2_digits.h"
+#define FONT_LARGE font_robotoR86_2_digits
+#define FONT_LARGE_CAP_HEIGHT FONT_ROBOTOR86_2_DIGITS_CAP_HEIGHT
+#define FONT_LARGE_LINE_HEIGHT FONT_ROBOTOR86_2_DIGITS_LINE_HEIGHT
 #else
-#include "fonts/font_robotoR63_3_digits.h"
-#define FONT_LARGE font_robotoR63_3_digits
-#define FONT_LARGE_CAP_HEIGHT FONT_ROBOTOR63_3_DIGITS_CAP_HEIGHT
-#define FONT_LARGE_LINE_HEIGHT FONT_ROBOTOR63_3_DIGITS_LINE_HEIGHT
+#include "fonts/font_robotoR63_2_digits.h"
+#define FONT_LARGE font_robotoR63_2_digits
+#define FONT_LARGE_CAP_HEIGHT FONT_ROBOTOR63_2_DIGITS_CAP_HEIGHT
+#define FONT_LARGE_LINE_HEIGHT FONT_ROBOTOR63_2_DIGITS_LINE_HEIGHT
 #endif
 
-#include "fonts/font_symbols30_3.h"
-#define FONT_SYMBOLS font_symbols30_3
-#define FONT_SYMBOLS_LINE_HEIGHT FONT_SYMBOLS30_3_LINE_HEIGHT
+#include "fonts/font_symbols30_2.h"
+#define FONT_SYMBOLS font_symbols30_2
+#define FONT_SYMBOLS_LINE_HEIGHT FONT_SYMBOLS30_2_LINE_HEIGHT
 
-#include "fonts/font_chess25_3.h"
-#define FONT_GAME font_chess25_3
+#include "fonts/font_chess25_2.h"
+#define FONT_GAME font_chess25_2
 
 #else
 
@@ -95,15 +95,15 @@
 #define FONT_MEDIUM_LINE_HEIGHT FONT_ROBOTOR18_4_LINE_HEIGHT
 
 #if defined(DISPLAY_320X240)
-#include "fonts/font_robotoR86_3_digits.h"
-#define FONT_LARGE font_robotoR86_3_digits
-#define FONT_LARGE_CAP_HEIGHT FONT_ROBOTOR86_3_DIGITS_CAP_HEIGHT
-#define FONT_LARGE_LINE_HEIGHT FONT_ROBOTOR86_3_DIGITS_LINE_HEIGHT
+#include "fonts/font_robotoR86_4_digits.h"
+#define FONT_LARGE font_robotoR86_4_digits
+#define FONT_LARGE_CAP_HEIGHT FONT_ROBOTOR86_4_DIGITS_CAP_HEIGHT
+#define FONT_LARGE_LINE_HEIGHT FONT_ROBOTOR86_4_DIGITS_LINE_HEIGHT
 #else
-#include "fonts/font_robotoR63_3_digits.h"
-#define FONT_LARGE font_robotoR63_3_digits
-#define FONT_LARGE_CAP_HEIGHT FONT_ROBOTOR63_3_DIGITS_CAP_HEIGHT
-#define FONT_LARGE_LINE_HEIGHT FONT_ROBOTOR63_3_DIGITS_LINE_HEIGHT
+#include "fonts/font_robotoR63_4_digits.h"
+#define FONT_LARGE font_robotoR63_4_digits
+#define FONT_LARGE_CAP_HEIGHT FONT_ROBOTOR63_4_DIGITS_CAP_HEIGHT
+#define FONT_LARGE_LINE_HEIGHT FONT_ROBOTOR63_4_DIGITS_LINE_HEIGHT
 #endif
 
 #include "fonts/font_symbols30_4.h"
@@ -706,8 +706,6 @@ const uint32_t menuLineNum = MENU_LINE_NUM;
 
 mr_t mr;
 
-bool displayOn;
-
 // Functions
 
 void initDisplay(void)
@@ -739,30 +737,9 @@ void initDisplay(void)
 
 // Drawing functions
 
-void setDisplayOn(bool value)
-{
-    displayOn = value;
-
-    mr_set_display(&mr, value);
-}
-
-bool isDisplayOn(void)
-{
-    return displayOn;
-}
-
-void refreshDisplay(void)
-{
-#if !defined(SIMULATOR)
-    mr_refresh_display(&mr);
-#endif
-}
-
 static inline mr_color_t getFillColor(Color color)
 {
 #if defined(DISPLAY_MONOCHROME)
-    mr_color_t mr_fill_color;
-
     if ((color == COLOR_INSTRUMENT_ENHANCED_PRIMARY) ||
         (color == COLOR_INSTRUMENT_ENHANCED_TERTIARY_OVER_PRIMARY) ||
         (color == COLOR_INSTRUMENT_FRAME_TERTIARY) ||
@@ -1398,10 +1375,12 @@ void drawMeasurementBar(float value,
     float minValue = powf(10.0F, minExponent);
     uint32_t instrumentValue =
         getMeasurementBarInstrumentValue(value, minValue);
+#if defined(DISPLAY_COLOR)
     uint32_t instrumentAlertZone1Value =
         getMeasurementBarInstrumentValue(alertZone1Value, minValue);
     uint32_t instrumentAlertZone2Value =
         getMeasurementBarInstrumentValue(alertZone2Value, minValue);
+#endif
 
     // Labels & ticks
     uint32_t xTick = 0;
@@ -1526,7 +1505,7 @@ void drawMeasurementBar(float value,
         uint32_t alertZoneColor;
 #if defined(DISPLAY_MONOCHROME)
         alertZoneColor = 0;
-#else
+#elif defined(DISPLAY_COLOR)
         if (xBar < instrumentAlertZone1Value)
         {
             if (xBarNext > instrumentAlertZone1Value)
@@ -1737,13 +1716,15 @@ void drawHistory(float scale,
     int16_t timeTickIndex = 1;
     int16_t timeTickNext = HISTORY_DATA_WIDTH / timeTickNum;
 
-    int16_t yDataLast = 0;
+    int16_t yDataLast;
+#if defined(DISPLAY_COLOR)
     int16_t yAlertZone1 = getHistoryY(alertZone1Value,
                                       dataExponentMinValue,
                                       dataScale);
     int16_t yAlertZone2 = getHistoryY(alertZone2Value,
                                       dataExponentMinValue,
                                       dataScale);
+#endif
 
     for (int16_t x = 0; x < HISTORY_DATA_WIDTH; x++)
     {
@@ -1763,6 +1744,10 @@ void drawHistory(float scale,
         int16_t yData = getHistoryY(data[x],
                                     dataExponentMinValue,
                                     dataScale);
+
+        if (x == 0)
+            yDataLast = yData;
+
         int16_t yDataBottom;
         int16_t yDataTop;
         if (yData < yDataLast)
@@ -2242,7 +2227,7 @@ void drawDataMode(void)
 
     setFont(FONT_SMALL);
     setTextColor(COLOR_ELEMENT_NEUTRAL);
-    drawCenteredText("USB connection enabled.",
+    drawCenteredText("Data connection enabled.",
                      &dataModeRectangle,
                      &dataModeOffset);
 }
@@ -2413,7 +2398,7 @@ static void onDisplayBrightnessMenuSelect(const Menu *menu)
 {
     settings.displayBrightness = menu->state->selectedIndex;
 
-    setDisplayBacklight(true);
+    setDisplayBacklightOn(true);
 }
 
 static MenuState displayBrightnessMenuState;

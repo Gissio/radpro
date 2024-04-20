@@ -17,18 +17,6 @@
 #include "tube.h"
 #include "vibrator.h"
 
-#define VALUE_CONVERSIONFACTOR_MIN 25.0F
-#define VALUE_CONVERSIONFACTOR_MAX 400.01F
-#define VALUE_CONVERSIONFACTOR_LOG_MAX_MIN 4.0F
-#define VALUE_CONVERSIONFACTOR_NUM 64
-
-#define DEADTIME_COMPENSATION_MIN 0.000040F
-#define DEADTIME_COMPENSATION_MAX 0.000640F
-#define DEADTIME_COMPENSATION_LOG_MAX_MIN 4.0F
-#define DEADTIME_COMPENSATION_NUM 64
-
-#define BACKGROUND_COMPENSATION_NUM 16
-
 static const Menu tubeConversionFactorMenu;
 static const Menu tubeDeadTimeCompensationMenu;
 static const Menu tubeBackgroundCompensationMenu;
@@ -52,13 +40,13 @@ void initTube(void)
 
     selectMenuItem(&tubeConversionFactorMenu,
                    settings.tubeConversionFactor,
-                   TUBE_CONVERSIONFACTOR_NUM + VALUE_CONVERSIONFACTOR_NUM);
+                   TUBE_CONVERSIONFACTOR_NUM);
     selectMenuItem(&tubeDeadTimeCompensationMenu,
                    settings.tubeDeadTimeCompensation,
-                   DEADTIME_COMPENSATION_NUM);
+                   TUBE_DEADTIMECOMPENSATION_NUM);
     selectMenuItem(&tubeBackgroundCompensationMenu,
                    settings.tubeBackgroundCompensation,
-                   BACKGROUND_COMPENSATION_NUM);
+                   TUBE_BACKGROUNDCOMPENSATION_NUM);
     selectMenuItem(&tubeHVProfileMenu,
                    settings.tubeHVProfile,
                    TUBE_HVPROFILE_NUM);
@@ -106,7 +94,7 @@ static void onTubeMenuSelect(const Menu *menu)
     setView(tubeMenuOptionViews[menu->state->selectedIndex]);
 }
 
-static void onTubeSubMenuBack(const Menu *menu)
+void onTubeSubMenuBack(const Menu *menu)
 {
     setView(&tubeMenuView);
 }
@@ -128,7 +116,7 @@ const View tubeMenuView = {
 
 // Custom conversion factor menu
 
-static const float tubeConversionFactorMenuValues[] = {
+static const float tubeConversionFactorMenuPresets[] = {
     153.8F,
     153.8F,
     68.4F,
@@ -148,15 +136,13 @@ static const char *const tubeConversionFactorMenuOptions[] = {
 
 static float getTubeConversionFactorForIndex(uint32_t index)
 {
-    if (index < TUBE_CONVERSIONFACTOR_NUM)
-        return tubeConversionFactorMenuValues[index];
+    if (index < TUBE_CONVERSIONFACTOR_PRESETS_NUM)
+        return tubeConversionFactorMenuPresets[index];
 
-    index -= TUBE_CONVERSIONFACTOR_NUM;
-
-    return VALUE_CONVERSIONFACTOR_MIN *
-           exp2f(index *
-                 (VALUE_CONVERSIONFACTOR_LOG_MAX_MIN /
-                  (VALUE_CONVERSIONFACTOR_NUM - 1)));
+    return TUBE_CONVERSIONFACTOR_VALUE_MIN *
+           exp2f((index - TUBE_CONVERSIONFACTOR_PRESETS_NUM) *
+                 (TUBE_CONVERSIONFACTOR_VALUE_LOG_MAX_MIN /
+                  (TUBE_CONVERSIONFACTOR_VALUE_NUM - 1)));
 }
 
 float getTubeConversionFactor(void)
@@ -170,7 +156,7 @@ static const char *onTubeConversionFactorMenuGetOption(const Menu *menu,
 {
     *menuStyle = (index == settings.tubeConversionFactor);
 
-    if (index < TUBE_CONVERSIONFACTOR_NUM)
+    if (index < TUBE_CONVERSIONFACTOR_PRESETS_NUM)
     {
         strcpy(menuOption, tubeConversionFactorMenuOptions[index]);
 
@@ -179,7 +165,7 @@ static const char *onTubeConversionFactorMenuGetOption(const Menu *menu,
 
         return menuOption;
     }
-    else if (index < (TUBE_CONVERSIONFACTOR_NUM + VALUE_CONVERSIONFACTOR_NUM))
+    else if (index < TUBE_CONVERSIONFACTOR_NUM)
     {
         strclr(menuOption);
         strcatFloat(menuOption, getTubeConversionFactorForIndex(index), 1);
@@ -220,9 +206,9 @@ static float getTubeDeadTimeCompensationFromIndex(uint32_t index)
     if (index == 0)
         return 0;
 
-    return DEADTIME_COMPENSATION_MIN * exp2f((index - 1) *
-                                             (DEADTIME_COMPENSATION_LOG_MAX_MIN /
-                                              (DEADTIME_COMPENSATION_NUM - 2)));
+    return TUBE_DEADTIMECOMPENSATION_MIN * exp2f((index - 1) *
+                                                 (TUBE_DEADTIMECOMPENSATION_LOG_MAX_MIN /
+                                                  (TUBE_DEADTIMECOMPENSATION_NUM - 2)));
 }
 
 float getTubeDeadTimeCompensation(void)
@@ -238,7 +224,7 @@ static const char *onTubeDeadTimeCompensationMenuGetOption(const Menu *menu,
 
     if (index == 0)
         return "Off";
-    else if (index < DEADTIME_COMPENSATION_NUM)
+    else if (index < TUBE_DEADTIMECOMPENSATION_NUM)
     {
         strclr(menuOption);
         strcatFloat(menuOption, 1000000 * getTubeDeadTimeCompensationFromIndex(index), 1);
@@ -254,7 +240,7 @@ static void onTubeDeadTimeCompensationMenuSelect(const Menu *menu)
 {
     settings.tubeDeadTimeCompensation = menu->state->selectedIndex;
 
-    updateMeasurementUnits();
+    updateCompensations();
 }
 
 static MenuState tubeDeadTimeCompensationMenuState;
@@ -283,7 +269,7 @@ static float getTubeBackgroundCompensationFromIndex(uint32_t index)
     if (index == 0)
         return 0;
 
-    return index / 60.0F;
+    return 1E-9F * index / units[UNITS_SIEVERTS].rate.scale;
 }
 
 float getTubeBackgroundCompensation(void)
@@ -299,11 +285,16 @@ static const char *onTubeBackgroundCompensationMenuGetOption(const Menu *menu,
 
     if (index == 0)
         return "Off";
-    else if (index < BACKGROUND_COMPENSATION_NUM)
+    else if (index < TUBE_BACKGROUNDCOMPENSATION_NUM)
     {
+        Unit *rateUnit = &units[settings.units].rate;
+
         strclr(menuOption);
-        strcatFloat(menuOption, 60.0F * getTubeBackgroundCompensationFromIndex(index), 0);
-        strcat(menuOption, " cpm");
+        strcatFloatAsMetricValueWithPrefix(menuOption,
+                                           rateUnit->scale *
+                                               getTubeBackgroundCompensationFromIndex(index),
+                                           unitsMinMetricPrefixIndex[settings.units]);
+        strcat(menuOption, rateUnit->name);
 
         return menuOption;
     }
@@ -314,6 +305,8 @@ static const char *onTubeBackgroundCompensationMenuGetOption(const Menu *menu,
 static void onTubeBackgroundCompensationMenuSelect(const Menu *menu)
 {
     settings.tubeBackgroundCompensation = menu->state->selectedIndex;
+
+    updateCompensations();
 }
 
 static MenuState tubeBackgroundCompensationMenuState;

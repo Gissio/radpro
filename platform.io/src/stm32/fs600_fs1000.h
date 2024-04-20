@@ -7,7 +7,7 @@
  * License: MIT
  */
 
-#include "stm32.h"
+#include "stm32-ext.h"
 
 #define SYSCLK_FREQUENCY 8000000
 #define AHB_FREQUENCY SYSCLK_FREQUENCY

@@ -74,4 +74,20 @@ void mr_st7565_init(mr_t *mr,
                     mr_set_command_callback_t set_command_callback,
                     mr_send_callback_t send_callback);
 
+/**
+ * Enables/disables the ST7565 display.
+ *
+ * @param mr The mcu-renderer instance.
+ * @param value Display enable.
+ */
+void mr_st7565_set_display(mr_t *mr,
+                           bool value);
+
+/**
+ * Refreshes the ST7565 display.
+ *
+ * @param mr The mcu-renderer instance.
+ */
+void mr_st7565_refresh_display(mr_t *mr);
+
 #endif

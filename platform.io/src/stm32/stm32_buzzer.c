@@ -63,14 +63,12 @@ void initBuzzerController(void)
 void setBuzzer(bool value)
 {
 #if !defined(BUZZ_TIMER)
-
     gpio_modify(BUZZ_PORT,
                 BUZZ_PIN,
 #if defined(BUZZ_ACTIVE_LOW)
                 !
 #endif
                 value);
-
 #if defined(BUZZ2_PORT)
     gpio_modify(BUZZ2_PORT,
                 BUZZ2_PIN,
@@ -79,15 +77,12 @@ void setBuzzer(bool value)
 #endif
                 value);
 #endif
-
 #else
-
     tim_set_ontime(BUZZ_TIMER,
                    BUZZ_TIMER_CHANNEL,
                    value
                        ? BUZZ_TIMER_PERIOD / 2
                        : 0);
-
 #endif
 }
 

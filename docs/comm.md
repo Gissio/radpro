@@ -95,7 +95,7 @@ Example:
 * Request: `GET tubePulseCount\n`
 * Response: `OK [value]\n`
 
-Returns the tube's life pulse count, provided in decimal format. After (2^32 - 1), the value overflows to 0.
+Returns the tube's life pulse count, provided in decimal format. After (2^32 - 1), the value overflows to 0. The value is updated continuously.
 
 Example:
 
@@ -119,7 +119,7 @@ Example:
 * Request: `GET tubeRate\n`
 * Response: `OK [value]\n`
 
-Returns the tube's instantaneous rate measured in counts per minute (cpm), provided in decimal format with three decimal places.
+Returns the tube's instantaneous rate measured in counts per minute (cpm), provided in decimal format with three decimal places. The value is updated once per second.
 
 Example:
 
@@ -169,12 +169,12 @@ Example:
 * Request: `GET tubeBackgroundCompensation\n`
 * Response: `OK [value]\n`
 
-Returns the tube's background compensation in cpm, provided in decimal format with one decimal place. Returns `0.0` if background compensation is turned off.
+Returns the tube's background compensation in cpm, provided in decimal format with three decimal places. Returns `0.0` if background compensation is turned off.
 
 Example:
 
     GET tubeBackgroundCompensation
-    OK 2.0
+    OK 1.230
 
 ### Get tube PWM frequency
 

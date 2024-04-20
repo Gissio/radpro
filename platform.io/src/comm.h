@@ -59,17 +59,15 @@ extern const View dataModeView;
 
 void initComm(void);
 
+void startComm(void);
+void stopComm(void);
+bool isCommStarted(void);
+
 void setCommEnabled(bool value);
 
 void transmitComm(void);
 
 void dispatchCommEvents(void);
 void updateCommController(void);
-
-#if defined(DATA_MODE)
-void enterDataMode(void);
-void leaveDataMode(void);
-bool isDataMode(void);
-#endif
 
 #endif

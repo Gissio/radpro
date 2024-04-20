@@ -18,6 +18,7 @@ typedef enum
     EVENT_KEY_DOWN,
     EVENT_KEY_RESET,
     EVENT_KEY_POWER,
+    EVENT_KEY_BACKLIGHT,
 
     EVENT_DRAW,
 

@@ -154,7 +154,6 @@ void mr_send_sequence(mr_t *mr,
 
 // Common
 
-typedef void (*mr_set_display_callback_t)(mr_t *mr, bool value);
 typedef void (*mr_draw_rectangle_callback_t)(mr_t *mr,
                                              const mr_rectangle_t *rectangle);
 typedef void (*mr_draw_image_callback_t)(mr_t *mr,
@@ -171,11 +170,9 @@ typedef void (*mr_draw_textbuffer_callback_t)(mr_t *mr,
                                               uint8_t *buffer,
                                               uint32_t buffer_pitch,
                                               mr_rectangle_t *rectangle);
-typedef void (*mr_refresh_display_callback_t)(mr_t *mr);
 
 struct mr_t_
 {
-    mr_set_display_callback_t set_display_callback;
     mr_draw_rectangle_callback_t draw_rectangle_callback;
 #if defined(MCURENDERER_IMAGE_SUPPORT)
     mr_draw_image_callback_t draw_image_callback;
@@ -183,7 +180,6 @@ struct mr_t_
     mr_draw_string_callback_t draw_string_callback;
     mr_draw_glyph_callback_t draw_glyph_callback;
     mr_draw_textbuffer_callback_t draw_textbuffer_callback;
-    mr_refresh_display_callback_t refresh_display_callback;
     mr_sleep_callback_t sleep_callback;
     mr_set_reset_callback_t set_reset_callback;
     mr_set_command_callback_t set_command_callback;
@@ -209,40 +205,25 @@ struct mr_t_
 
 void mr_init(mr_t *mr);
 
-inline void mr_set_command(mr_t *mr, bool value)
+inline void mr_set_command(mr_t *mr,
+                           bool value)
 {
     mr->set_command_callback(value);
 }
 
-inline void mr_send(mr_t *mr, uint8_t value)
+inline void mr_send(mr_t *mr,
+                    uint8_t value)
 {
     mr->send_callback(value);
 }
 
-inline void mr_send16(mr_t *mr, uint16_t value)
+inline void mr_send16(mr_t *mr,
+                      uint16_t value)
 {
     mr->send16_callback(value);
 }
 
 // API functions
-
-/**
- * Enables/disables the display.
- *
- * @param mr The mcu-renderer instance.
- * @param value Display enable.
- */
-void mr_set_display(mr_t *mr,
-                    bool value);
-
-/**
- * Refreshes the display.
- *
- * Required for displays that use a framebuffer.
- *
- * @param mr The mcu-renderer instance.
- */
-void mr_refresh_display(mr_t *mr);
 
 /**
  * Sets the fill color.

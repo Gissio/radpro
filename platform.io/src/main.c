@@ -37,9 +37,7 @@ int main(void)
     initFlash();
     initSettings();
     initPower();
-#if !defined(DATA_MODE)
     initComm();
-#endif
     initADC();
     initTube();
     initKeyboard();
@@ -79,8 +77,8 @@ int main(void)
             drawNotification("WARNING",
                              "Firmware checksum failure.");
             refreshDisplay();
+            triggerDisplay();
             setDisplayOn(true);
-            setDisplayBacklight(true);
 
             playSystemAlert();
 
@@ -91,8 +89,8 @@ int main(void)
         drawNotification(FIRMWARE_NAME,
                          FIRMWARE_VERSION);
         refreshDisplay();
+        triggerDisplay();
         setDisplayOn(true);
-        setDisplayBacklight(true);
         uint32_t splashStartTime = getTick();
         initRTC();
         uint32_t splashTime = getTick() - splashStartTime;
@@ -132,7 +130,7 @@ int main(void)
         disableMeasurements();
         setTubeHV(false);
 
-        setDisplayBacklight(false);
+        setDisplayBacklightOn(false);
         setDisplayOn(false);
 
         // Power off

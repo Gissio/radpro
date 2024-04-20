@@ -7,7 +7,7 @@
  * License: MIT
  */
 
-#include "stm32.h"
+#include "stm32-ext.h"
 
 #define SYSCLK_FREQUENCY 72000000
 #define AHB_FREQUENCY SYSCLK_FREQUENCY
@@ -41,10 +41,7 @@
 #define TUBE_HV_TIMER TIM2
 #define TUBE_HV_TIMER_CHANNEL TIM_CH4
 #define TUBE_DET_PORT GPIOC
-// +++ TEST
-// #define TUBE_DET_PIN 10
-#define TUBE_DET_PIN 13
-// +++ TEST
+#define TUBE_DET_PIN 10
 #define TUBE_DET_PULLUP
 #define TUBE_DET_IRQ EXTI15_10_IRQn
 #define TUBE_DET_IRQ_HANDLER EXTI15_10_IRQHandler

@@ -21,16 +21,23 @@ static const uint8_t mr_st7789_init_sequence[] = {
 };
 
 static const uint8_t mr_st7789_display_on_sequence[] = {
-    MR_SEND_COMMAND(MR_ST7789_SLPOUT), // Sleep out
-    MR_SLEEP(5),
     MR_SEND_COMMAND(MR_ST7789_DISPON), // Display on
-    MR_SLEEP(115),
     MR_END(),
 };
 
 static const uint8_t mr_st7789_display_off_sequence[] = {
     MR_SEND_COMMAND(MR_ST7789_DISPOFF), // Display off
-    MR_SEND_COMMAND(MR_ST7789_SLPIN),   // Sleep in
+    MR_END(),
+};
+
+static const uint8_t mr_st7789_sleep_on_sequence[] = {
+    MR_SEND_COMMAND(MR_ST7789_SLPIN), // Sleep in
+    MR_SLEEP(120),
+    MR_END(),
+};
+
+static const uint8_t mr_st7789_sleep_off_sequence[] = {
+    MR_SEND_COMMAND(MR_ST7789_SLPOUT), // Sleep out
     MR_SLEEP(120),
     MR_END(),
 };
@@ -42,17 +49,15 @@ static const uint8_t mr_st7789_madctl[] = {
     MR_ST7789_MADCTL_MV | MR_ST7789_MADCTL_MY,
 };
 
-void mr_st7789_set_display(mr_t *mr,
-                           bool value);
-void mr_st7789_draw_rectangle(mr_t *mr,
-                              const mr_rectangle_t *rectangle);
-void mr_st7789_draw_image(mr_t *mr,
-                          const mr_rectangle_t *rectangle,
-                          const mr_color_t *image);
-void mr_st7789_draw_textbuffer(mr_t *mr,
-                               uint8_t *buffer,
-                               uint32_t buffer_pitch,
-                               mr_rectangle_t *rectangle);
+static void mr_st7789_draw_rectangle(mr_t *mr,
+                                     const mr_rectangle_t *rectangle);
+static void mr_st7789_draw_image(mr_t *mr,
+                                 const mr_rectangle_t *rectangle,
+                                 const mr_color_t *image);
+static void mr_st7789_draw_textbuffer(mr_t *mr,
+                                      uint8_t *buffer,
+                                      uint32_t buffer_pitch,
+                                      mr_rectangle_t *rectangle);
 
 void mr_st7789_init(mr_t *mr,
                     int16_t width,
@@ -75,7 +80,6 @@ void mr_st7789_init(mr_t *mr,
     mr->buffer = textbuffer;
     mr->buffer_size = textbuffer_size;
 
-    mr->set_display_callback = mr_st7789_set_display;
     mr->draw_rectangle_callback = mr_st7789_draw_rectangle;
     mr->draw_string_callback = mr_draw_string_textbuffer;
     mr->draw_textbuffer_callback = mr_st7789_draw_textbuffer;
@@ -98,12 +102,22 @@ void mr_st7789_init(mr_t *mr,
     mr_send_data(mr, mr_st7789_madctl[rotation]);
 }
 
-void mr_st7789_set_display(mr_t *mr, bool value)
+void mr_st7789_set_display(mr_t *mr,
+                           bool value)
 {
     mr_send_sequence(mr,
                      value
                          ? mr_st7789_display_on_sequence
                          : mr_st7789_display_off_sequence);
+}
+
+void mr_st7789_set_sleep(mr_t *mr,
+                         bool value)
+{
+    mr_send_sequence(mr,
+                     value
+                         ? mr_st7789_sleep_on_sequence
+                         : mr_st7789_sleep_off_sequence);
 }
 
 static void mr_st7789_send_short(mr_t *mr,
@@ -143,8 +157,8 @@ static void mr_st7789_set_rectangle(mr_t *mr,
     mr_set_command(mr, false);
 }
 
-void mr_st7789_draw_rectangle(mr_t *mr,
-                              const mr_rectangle_t *rectangle)
+static void mr_st7789_draw_rectangle(mr_t *mr,
+                                     const mr_rectangle_t *rectangle)
 {
     mr_st7789_set_rectangle(mr, rectangle);
 
@@ -155,9 +169,9 @@ void mr_st7789_draw_rectangle(mr_t *mr,
         mr_send16(mr, mr->fill_color);
 }
 
-void mr_st7789_draw_image(mr_t *mr,
-                          const mr_rectangle_t *rectangle,
-                          const mr_color_t *image)
+static void mr_st7789_draw_image(mr_t *mr,
+                                 const mr_rectangle_t *rectangle,
+                                 const mr_color_t *image)
 {
     mr_st7789_set_rectangle(mr, rectangle);
 
@@ -168,10 +182,10 @@ void mr_st7789_draw_image(mr_t *mr,
         mr_send16(mr, *image++);
 }
 
-void mr_st7789_draw_textbuffer(mr_t *mr,
-                               uint8_t *buffer,
-                               uint32_t buffer_pitch,
-                               mr_rectangle_t *rectangle)
+static void mr_st7789_draw_textbuffer(mr_t *mr,
+                                      uint8_t *buffer,
+                                      uint32_t buffer_pitch,
+                                      mr_rectangle_t *rectangle)
 {
     mr_st7789_set_rectangle(mr, rectangle);
 

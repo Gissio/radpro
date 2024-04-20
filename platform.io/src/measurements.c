@@ -20,11 +20,6 @@
 #include "system.h"
 #include "tube.h"
 
-#define TUBE_FAULT_TIMEOUT 300
-
-#define MEASUREMENT_QUEUE_SIZE 32
-#define MEASUREMENT_QUEUE_MASK (MEASUREMENT_QUEUE_SIZE - 1)
-
 #define AVERAGING_PERIOD_TIME_CONSTANT 20.0F
 #define AVERAGING_PERIOD_TIME_MIN 5.0F
 #define AVERAGING_PERIOD_TIME_MAX 300.0F
@@ -33,6 +28,14 @@
 
 #define ALERTZONE1_USVH 1.0E-6F
 #define ALERTZONE2_USVH 1.0E-5F
+
+#define TUBE_FAULT_TIMEOUT 300
+
+#define REMAINING_PULSE_COUNT_LOWER_LIMIT 10
+
+#define INSTANTANEOUS_RATE_QUEUE_SIZE 32
+#define INSTANTANEOUS_RATE_QUEUE_MASK (INSTANTANEOUS_RATE_QUEUE_SIZE - 1)
+#define INSTANTANEOUS_RATE_MAX_PULSE_COUNT 10
 
 enum
 {
@@ -85,22 +88,27 @@ static struct
 {
     struct
     {
+        Dose dose;
+    } tube;
+
+    struct
+    {
         Measurement measurement;
 
         uint32_t snapshotTick;
         Measurement snapshotMeasurement;
 
-        float pulseCountFraction;
+        float remainingPulseCount;
 
-        uint32_t faultPulseTime;
-        uint32_t faultLastPulseTime;
-    } tick;
+        uint32_t faultTimer;
+        bool faultShortedTube;
+    } period;
 
     struct
     {
         uint32_t queueHead;
         uint32_t queueTail;
-        Measurement queue[MEASUREMENT_QUEUE_SIZE];
+        Measurement queue[INSTANTANEOUS_RATE_QUEUE_SIZE];
 
         Rate rate;
         float maxValue;
@@ -122,14 +130,7 @@ static struct
     struct
     {
         Dose dose;
-
-        uint32_t updateTime;
     } cumulative;
-
-    struct
-    {
-        Dose dose;
-    } tube;
 
     struct
     {
@@ -162,7 +163,7 @@ static const Menu rateAlarmMenu;
 static const Menu doseAlarmMenu;
 static const Menu averageTimerMenu;
 
-static void updatePulseEnabled(void);
+static void updatePulsesThresholdExceeded(void);
 
 static bool isTubeFaultAlarm(void);
 static bool isInstantaneousRateAlarm(void);
@@ -195,38 +196,22 @@ void initMeasurements(void)
                    DOSEALARM_NUM);
 
     updateMeasurementUnits();
-    updatePulseEnabled();
 }
 
 // Events
 
-typedef struct
-{
-    char *const name;
-    float scale;
-} Unit;
-
-typedef struct
-{
-    Unit rate;
-    Unit dose;
-} Units;
-
-static Units units[] = {
+Units units[] = {
     {{"Sv/h", (60 * 1E-6F)},
      {"Sv", (60 * 1E-6F / 3600)}},
     {{"rem/h", (60 * 1E-4F)},
      {"rem", (60 * 1E-4F / 3600)}},
-    {{
-         "cpm",
-         60,
-     },
+    {{"cpm", 60},
      {"counts", 1}},
     {{"cps", 1},
      {"counts", 1}},
 };
 
-static const int8_t unitsMinMetricPrefixIndex[] = {
+const int8_t unitsMinMetricPrefixIndex[] = {
     -2, -2, 0, 0};
 
 static const int8_t unitsMeasurementBarMinExponent[] = {
@@ -240,6 +225,12 @@ void updateMeasurementUnits(void)
     units[UNITS_SIEVERTS].dose.scale = (60 * 1E-6F / 3600) / conversionFactor;
     units[UNITS_REM].rate.scale = (60 * 1E-4F) / conversionFactor;
     units[UNITS_REM].dose.scale = (60 * 1E-4F / 3600) / conversionFactor;
+}
+
+void updateCompensations(void)
+{
+    if (measurements.period.remainingPulseCount < 0)
+        measurements.period.remainingPulseCount = 0;
 }
 
 static float getDeadTimeCompensationFactor(float value)
@@ -339,10 +330,12 @@ void onMeasurementTick(uint32_t pulseCount)
 {
     if (pulseCount)
     {
-        if (!measurements.tick.measurement.pulseCount)
-            measurements.tick.measurement.firstPulseTick = getTick();
-        measurements.tick.measurement.lastPulseTick = getTick();
-        measurements.tick.measurement.pulseCount += pulseCount;
+        measurements.tube.dose.pulseCount += pulseCount;
+
+        if (!measurements.period.measurement.pulseCount)
+            measurements.period.measurement.firstPulseTick = getTick();
+        measurements.period.measurement.lastPulseTick = getTick();
+        measurements.period.measurement.pulseCount += pulseCount;
 
         triggerPulse();
     }
@@ -350,9 +343,9 @@ void onMeasurementTick(uint32_t pulseCount)
 
 void onMeasurementPeriod(void)
 {
-    measurements.tick.snapshotTick = getTick();
-    measurements.tick.snapshotMeasurement = measurements.tick.measurement;
-    measurements.tick.measurement.pulseCount = 0;
+    measurements.period.snapshotTick = getTick();
+    measurements.period.snapshotMeasurement = measurements.period.measurement;
+    measurements.period.measurement.pulseCount = 0;
 }
 
 uint8_t getHistoryValue(float value)
@@ -369,25 +362,52 @@ uint8_t getHistoryValue(float value)
 
 void updateMeasurements(void)
 {
-    // Dead-time compensation
+    // Tube life
+    measurements.tube.dose.time++;
+
+    // Fault detection
+    if (measurements.period.snapshotMeasurement.pulseCount)
+        measurements.period.faultTimer = 0;
+    else
+        measurements.period.faultTimer++;
+
+    bool isShortedTube =
+        (!measurements.period.snapshotMeasurement.pulseCount &&
+         getTubeDet());
+    if (measurements.period.faultShortedTube &&
+        isShortedTube)
+        measurements.period.faultTimer = TUBE_FAULT_TIMEOUT;
+    measurements.period.faultShortedTube = isShortedTube;
+
+    // Compensations
     Measurement compensatedMeasurement;
 
     compensatedMeasurement.firstPulseTick =
-        measurements.tick.snapshotMeasurement.firstPulseTick;
+        measurements.period.snapshotMeasurement.firstPulseTick;
     compensatedMeasurement.lastPulseTick =
-        measurements.tick.snapshotMeasurement.lastPulseTick;
+        measurements.period.snapshotMeasurement.lastPulseTick;
 
-    measurements.tick.pulseCountFraction +=
-        measurements.tick.snapshotMeasurement.pulseCount *
+    measurements.period.remainingPulseCount +=
+        measurements.period.snapshotMeasurement.pulseCount *
         getDeadTimeCompensationFactor(measurements.instantaneous.rate.value);
-    compensatedMeasurement.pulseCount =
-        (uint32_t)measurements.tick.pulseCountFraction;
-    measurements.tick.pulseCountFraction -= compensatedMeasurement.pulseCount;
+    float tubeBackgroundCompensation = getTubeBackgroundCompensation();
+    measurements.period.remainingPulseCount -= tubeBackgroundCompensation;
 
-    // Pulse activity
-    measurements.tick.faultPulseTime++;
-    if (compensatedMeasurement.pulseCount)
-        measurements.tick.faultLastPulseTime = measurements.tick.faultPulseTime;
+    if (measurements.period.remainingPulseCount >= 1)
+    {
+        compensatedMeasurement.pulseCount =
+            (uint32_t)measurements.period.remainingPulseCount;
+        measurements.period.remainingPulseCount -= compensatedMeasurement.pulseCount;
+    }
+    else
+    {
+        compensatedMeasurement.pulseCount = 0;
+
+        if (measurements.period.remainingPulseCount <
+            -REMAINING_PULSE_COUNT_LOWER_LIMIT)
+            measurements.period.remainingPulseCount =
+                -REMAINING_PULSE_COUNT_LOWER_LIMIT;
+    }
 
     // Instantaneous rate
     if (compensatedMeasurement.pulseCount)
@@ -396,13 +416,13 @@ void updateMeasurements(void)
         measurements.instantaneous.queue[measurements.instantaneous.queueTail] =
             compensatedMeasurement;
         measurements.instantaneous.queueTail =
-            (measurements.instantaneous.queueTail + 1) & MEASUREMENT_QUEUE_MASK;
+            (measurements.instantaneous.queueTail + 1) & INSTANTANEOUS_RATE_QUEUE_MASK;
 
         if (measurements.instantaneous.queueTail ==
             measurements.instantaneous.queueHead)
         {
             measurements.instantaneous.queueHead =
-                (measurements.instantaneous.queueTail + 1) & MEASUREMENT_QUEUE_MASK;
+                (measurements.instantaneous.queueTail + 1) & INSTANTANEOUS_RATE_QUEUE_MASK;
         }
     }
 
@@ -418,22 +438,22 @@ void updateMeasurements(void)
 
     uint32_t queueSize = (measurements.instantaneous.queueTail -
                           measurements.instantaneous.queueHead) &
-                         MEASUREMENT_QUEUE_MASK;
+                         INSTANTANEOUS_RATE_QUEUE_MASK;
     for (uint32_t i = 0; i < queueSize; i++)
     {
         uint32_t queueIndex =
-            (measurements.instantaneous.queueTail - 1 - i) & MEASUREMENT_QUEUE_MASK;
+            (measurements.instantaneous.queueTail - 1 - i) & INSTANTANEOUS_RATE_QUEUE_MASK;
 
         uint32_t timePeriod =
             1 +
-            (measurements.tick.snapshotTick -
+            (measurements.period.snapshotTick -
              measurements.instantaneous.queue[queueIndex].firstPulseTick) /
                 SYSTICK_FREQUENCY;
 
         if (timePeriod > averagingPeriod)
         {
             measurements.instantaneous.queueHead =
-                (queueIndex + 1) & MEASUREMENT_QUEUE_MASK;
+                (queueIndex + 1) & INSTANTANEOUS_RATE_QUEUE_MASK;
 
             break;
         }
@@ -453,17 +473,14 @@ void updateMeasurements(void)
                       instantaneousMeasurement.firstPulseTick,
                   &measurements.instantaneous.rate);
 
-    measurements.instantaneous.rate.value -= getTubeBackgroundCompensation();
-    if (measurements.instantaneous.rate.value < 0)
-        measurements.instantaneous.rate.value = 0.0F;
-
-    if ((instantaneousMeasurement.pulseCount > 10) &&
+    if ((instantaneousMeasurement.pulseCount >
+         INSTANTANEOUS_RATE_MAX_PULSE_COUNT) &&
         (measurements.instantaneous.rate.value >
          measurements.instantaneous.maxValue))
         measurements.instantaneous.maxValue =
             measurements.instantaneous.rate.value;
 
-    updatePulseEnabled();
+    updatePulsesThresholdExceeded();
 
     // Average rate
     if ((measurements.average.rate.time < UINT32_MAX) &&
@@ -485,10 +502,6 @@ void updateMeasurements(void)
                           measurements.average.lastPulseTick -
                               measurements.average.firstPulseTick,
                           &measurements.average.rate);
-
-            measurements.average.rate.value -= getTubeBackgroundCompensation();
-            if (measurements.average.rate.value < 0)
-                measurements.average.rate.value = 0.0F;
         }
 
         if ((measurements.average.rate.time < UINT32_MAX) &&
@@ -523,23 +536,7 @@ void updateMeasurements(void)
         (measurements.cumulative.dose.pulseCount < UINT32_MAX))
     {
         addClamped(&measurements.cumulative.dose.time, 1);
-
-        if (compensatedMeasurement.pulseCount)
-        {
-            addClamped(&measurements.cumulative.dose.pulseCount,
-                       compensatedMeasurement.pulseCount);
-
-            measurements.cumulative.updateTime =
-                measurements.cumulative.dose.time;
-        }
-    }
-
-    // Tube life
-    if ((measurements.tube.dose.time < UINT32_MAX) &&
-        (measurements.tube.dose.pulseCount < UINT32_MAX))
-    {
-        addClamped(&measurements.tube.dose.time, 1);
-        addClamped(&measurements.tube.dose.pulseCount,
+        addClamped(&measurements.cumulative.dose.pulseCount,
                    compensatedMeasurement.pulseCount);
     }
 
@@ -654,12 +651,12 @@ static const float rateAlarmsSvH[] = {
     100E-6F,
 };
 
-static void updatePulseEnabled(void)
+static void updatePulsesThresholdExceeded(void)
 {
     float svH = units[UNITS_SIEVERTS].rate.scale *
                 measurements.instantaneous.rate.value;
 
-    setPulsesEnabled(svH >= rateAlarmsSvH[settings.pulseThreshold]);
+    setPulsesThresholdExceeded(svH >= rateAlarmsSvH[settings.pulseThreshold]);
 }
 
 static void resetInstantaneousRate(void)
@@ -676,8 +673,7 @@ float getInstantaneousRate(void)
 
 static bool isTubeFaultAlarm(void)
 {
-    return (measurements.tick.faultPulseTime - measurements.tick.faultLastPulseTime) >=
-           TUBE_FAULT_TIMEOUT;
+    return (measurements.period.faultTimer >= TUBE_FAULT_TIMEOUT);
 }
 
 static bool isInstantaneousRateAlarm(void)
@@ -934,7 +930,6 @@ static const float doseAlarmsSv[] = {
 void setDoseTime(uint32_t value)
 {
     measurements.cumulative.dose.time = value;
-    measurements.cumulative.updateTime = value;
 }
 
 uint32_t getDoseTime(void)
@@ -945,8 +940,6 @@ uint32_t getDoseTime(void)
 void setDosePulseCount(uint32_t value)
 {
     measurements.cumulative.dose.pulseCount = value;
-    measurements.cumulative.updateTime =
-        measurements.cumulative.dose.time;
 }
 
 uint32_t getDosePulseCount(void)
@@ -997,15 +990,11 @@ static void onDoseViewEvent(const View *view,
         strcatTime(timeString,
                    measurements.cumulative.dose.time);
 
-        float doseValue = measurements.cumulative.dose.pulseCount;
-        doseValue -= getTubeBackgroundCompensation() *
-                     measurements.cumulative.updateTime;
-
         strclr(valueString);
         strclr(unitString);
         buildValueString(valueString,
                          unitString,
-                         doseValue,
+                         measurements.cumulative.dose.pulseCount,
                          &units[settings.units].dose,
                          unitsMinMetricPrefixIndex[settings.units]);
 

@@ -35,10 +35,6 @@ static const uint8_t mr_st7565_display_off_sequence[] = {
     MR_END(),
 };
 
-static void mr_st7565_set_display(mr_t *mr,
-                                  bool value);
-static void mr_st7565_refresh_display(mr_t *mr);
-
 void mr_st7565_init(mr_t *mr,
                     int16_t width,
                     int16_t height,
@@ -57,13 +53,11 @@ void mr_st7565_init(mr_t *mr,
 
     mr->buffer = framebuffer;
 
-    mr->set_display_callback = mr_st7565_set_display;
     mr->draw_rectangle_callback = mr_draw_rectangle_framebuffer_monochrome_vertical;
     mr->draw_string_callback = mr_draw_string_framebuffer_monochrome_vertical;
 #if defined(MCURENDERER_IMAGE_SUPPORT)
     mr->draw_image_callback = mr_draw_image_framebuffer_monochrome_vertical;
 #endif
-    mr->refresh_display_callback = mr_st7565_refresh_display;
     mr->sleep_callback = sleep_callback;
     mr->set_reset_callback = set_reset_callback;
     mr->set_command_callback = set_command_callback;
@@ -72,7 +66,8 @@ void mr_st7565_init(mr_t *mr,
     mr_send_sequence(mr, mr_st7565_init_sequence);
 }
 
-static void mr_st7565_set_display(mr_t *mr, bool value)
+void mr_st7565_set_display(mr_t *mr,
+                           bool value)
 {
     mr_send_sequence(mr,
                      value
@@ -80,7 +75,7 @@ static void mr_st7565_set_display(mr_t *mr, bool value)
                          : mr_st7565_display_off_sequence);
 }
 
-static void mr_st7565_refresh_display(mr_t *mr)
+void mr_st7565_refresh_display(mr_t *mr)
 {
     for (int16_t pageIndex = 0;
          pageIndex < (mr->display_height / 8);

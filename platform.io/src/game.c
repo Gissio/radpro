@@ -22,13 +22,9 @@
 #define GAME_MENU_OPTIONS_NUM 3
 
 #if defined(STM32F0)
-
 #define GAME_DEPTH_MAX 16
-
 #else
-
 #define GAME_DEPTH_MAX 32
-
 #endif
 
 #define GAME_HISTORY_MOVE_NUM (GAME_HISTORY_TURN_NUM * 2)

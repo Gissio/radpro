@@ -16,6 +16,21 @@
 #include "settings.h"
 #include "view.h"
 
+typedef struct
+{
+    char *const name;
+    float scale;
+} Unit;
+
+typedef struct
+{
+    Unit rate;
+    Unit dose;
+} Units;
+
+extern Units units[];
+extern const int8_t unitsMinMetricPrefixIndex[];
+
 extern const View instantaneousRateView;
 extern const View averageRateView;
 extern const View doseView;
@@ -30,6 +45,7 @@ extern const View pulsesThresholdMenuView;
 void initMeasurements(void);
 
 void updateMeasurementUnits(void);
+void updateCompensations(void);
 
 void onMeasurementTick(uint32_t pulseCount);
 void onMeasurementPeriod(void);

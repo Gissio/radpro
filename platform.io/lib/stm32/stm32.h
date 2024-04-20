@@ -73,6 +73,4 @@
 #error "STM32 family not defined"
 #endif
 
-#include "stm32-ext.h"
-
 #endif

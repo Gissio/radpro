@@ -24,6 +24,13 @@
 
 Comm comm;
 
+void initComm(void)
+{
+#if !defined(DATA_MODE)
+    startComm();
+#endif
+}
+
 void setCommEnabled(bool value)
 {
     comm.enabled = value;
@@ -155,7 +162,7 @@ void dispatchCommEvents(void)
         else if (matchCommCommand("GET tubeDeadTimeCompensation"))
             sendCommOkWithFloat(getTubeDeadTimeCompensation(), 7);
         else if (matchCommCommand("GET tubeBackgroundCompensation"))
-            sendCommOkWithFloat(60.0F * getTubeBackgroundCompensation(), 1);
+            sendCommOkWithFloat(60.0F * getTubeBackgroundCompensation(), 3);
         else if (matchCommCommand("GET tubeHVFrequency"))
             sendCommOkWithFloat(getTubeHVFrequency(), 2);
         else if (matchCommCommand("GET tubeHVDutyCycle"))
@@ -239,10 +246,8 @@ void dispatchCommEvents(void)
         else
         {
 #if defined(START_BOOTLOADER_SUPPORT)
-
             if (comm.startBootloader)
                 startBootloader();
-
 #endif
 
             comm.state = COMM_RX;
@@ -254,34 +259,19 @@ void dispatchCommEvents(void)
 
 #if defined(DATA_MODE)
 
-void enterDataMode(void)
-{
-
-}
-
-void leaveDataMode(void)
-{
-
-}
-
-bool isDataMode(void)
-{
-    return false;
-}
-
 static void onDataModeEvent(const View *view, Event event)
 {
     switch (event)
     {
     case EVENT_KEY_BACK:
-        leaveDataMode();
+        stopComm();
 
         onSettingsSubMenuBack(NULL);
 
         break;
 
     case EVENT_DRAW:
-        enterDataMode();
+        startComm();
 
         drawDataMode();
 

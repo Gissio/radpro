@@ -111,4 +111,9 @@ bool getTubePulse(uint32_t *pulseTime)
     return true;
 }
 
+bool getTubeDet(void)
+{
+    return false;
+}
+
 #endif

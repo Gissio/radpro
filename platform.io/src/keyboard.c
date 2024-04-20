@@ -14,17 +14,12 @@
 #include "keyboard.h"
 
 #if defined(KEYBOARD_5KEYS)
-
 #define KEY_REPEAT_START ((uint32_t)(0.5 * SYSTICK_FREQUENCY / KEY_TICKS))
 #define KEY_REPEAT_PERIOD ((uint32_t)(0.05 * SYSTICK_FREQUENCY / KEY_TICKS))
-
 #define KEY_PRESSED_LONG ((uint32_t)(1.0 * SYSTICK_FREQUENCY / KEY_TICKS))
-
 #elif defined(KEYBOARD_2KEYS)
-
 #define KEY_PRESSED_LONG ((uint32_t)(0.25 * SYSTICK_FREQUENCY / KEY_TICKS))
 #define KEY_PRESSED_EXTENDED ((uint32_t)(1.25 * SYSTICK_FREQUENCY / KEY_TICKS))
-
 #endif
 
 #define EVENT_QUEUE_SIZE 16
@@ -40,9 +35,7 @@ static struct
     uint32_t pressedTicks;
 
 #if defined(KEYBOARD_5KEYS)
-
     KeyboardMode mode;
-
 #endif
 
     volatile uint32_t eventQueueHead;
@@ -60,10 +53,8 @@ void initKeyboard(void)
     keyboard.isInitialized = true;
 
 #if defined(START_BOOTLOADER_SUPPORT)
-
     if (keyboard.wasKeyDown[KEY_LEFT])
         startBootloader();
-
 #endif
 }
 
@@ -85,12 +76,11 @@ void onKeyboardTick(void)
             isKeyDown[i])
         {
 #if defined(KEYBOARD_5KEYS)
-
-            if (!(((keyboard.mode == KEYBOARD_MODE_MEASUREMENT) &&
-                   (i == KEY_LEFT)) ||
-                  (i == KEY_SELECT)))
+            if (i == KEY_SELECT)
+                event = EVENT_KEY_BACKLIGHT;
+            else if ((keyboard.mode != KEYBOARD_MODE_MEASUREMENT) ||
+                     (i != KEY_LEFT))
                 event = i;
-
 #endif
 
             keyboard.pressedKey = i;
@@ -103,7 +93,6 @@ void onKeyboardTick(void)
             (i == keyboard.pressedKey))
         {
 #if defined(KEYBOARD_5KEYS)
-
             if (keyboard.pressedTicks < KEY_PRESSED_LONG)
             {
                 if ((keyboard.mode == KEYBOARD_MODE_MEASUREMENT) &&
@@ -114,16 +103,13 @@ void onKeyboardTick(void)
                                 ? EVENT_KEY_BACK
                                 : EVENT_KEY_SELECT;
             }
-
 #elif defined(KEYBOARD_2KEYS)
-
             if (keyboard.pressedTicks < KEY_PRESSED_LONG)
             {
                 event = (i == KEY_LEFT)
                             ? EVENT_KEY_UP
                             : EVENT_KEY_DOWN;
             }
-
 #endif
 
             keyboard.pressedKey = KEY_NONE;
@@ -138,7 +124,6 @@ void onKeyboardTick(void)
         addClamped(&keyboard.pressedTicks, 1);
 
 #if defined(KEYBOARD_5KEYS)
-
         if (keyboard.pressedTicks >= KEY_REPEAT_START)
         {
             uint32_t repeatTicks =
@@ -170,9 +155,7 @@ void onKeyboardTick(void)
                 break;
             }
         }
-
 #elif defined(KEYBOARD_2KEYS)
-
         if (keyboard.pressedTicks == KEY_PRESSED_LONG)
         {
             if (isKeyDown[KEY_LEFT])
@@ -190,7 +173,6 @@ void onKeyboardTick(void)
             if (isKeyDown[KEY_SELECT])
                 event = EVENT_KEY_POWER;
         }
-
 #endif
     }
 
@@ -205,11 +187,9 @@ void onKeyboardTick(void)
 void setKeyboardMode(KeyboardMode mode)
 {
 #if defined(KEYBOARD_5KEYS)
-
     keyboard.pressedKey = KEY_NONE;
 
     keyboard.mode = mode;
-
 #endif
 }
 

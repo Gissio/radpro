@@ -1048,17 +1048,6 @@ void mr_init(mr_t *mr)
 
 // API functions
 
-void mr_set_display(mr_t *mr, bool value)
-{
-    mr->set_display_callback(mr, value);
-}
-
-void mr_refresh_display(mr_t *mr)
-{
-    if (mr->refresh_display_callback)
-        mr->refresh_display_callback(mr);
-}
-
 void mr_set_fill_color(mr_t *mr,
                        mr_color_t color)
 {

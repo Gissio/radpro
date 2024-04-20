@@ -17,6 +17,7 @@
 #include "../keyboard.h"
 #include "../settings.h"
 #include "../system.h"
+#include "../tube.h"
 
 #include "device.h"
 
@@ -113,6 +114,8 @@ void initKeyboardController(void)
 
 void getKeyboardState(bool *isKeyDown)
 {
+    syncTubeHV();
+
     isKeyDown[KEY_LEFT] = !gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN);
     isKeyDown[KEY_RIGHT] = !gpio_get(KEY_RIGHT_PORT, KEY_RIGHT_PIN);
     isKeyDown[KEY_UP] = !gpio_get(KEY_UP_PORT, KEY_UP_PIN);
@@ -123,6 +126,8 @@ void getKeyboardState(bool *isKeyDown)
 // Display
 
 extern mr_t mr;
+
+bool displayOn;
 
 static uint8_t displayTextbuffer[86 * 86];
 
@@ -233,7 +238,6 @@ static void onDisplaySend(uint16_t value)
 void initDisplayController(void)
 {
 #if defined(GC01_DISPLAY_SPI)
-
     // GPIO
     gpio_set(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN);
     gpio_set(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN);
@@ -264,9 +268,7 @@ void initDisplayController(void)
                 SPI_CR1_SSM;
     set_bits(SPI1->CR1,
              SPI_CR1_SPE);
-
 #else
-
     // GPIO
     gpio_set(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN);
     gpio_clear(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN);
@@ -307,7 +309,6 @@ void initDisplayController(void)
         (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 20) |
         (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 24) |
         (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 28);
-
 #endif
 
     // mcu-renderer
@@ -339,6 +340,23 @@ void initDisplayController(void)
 
     mr_send_sequence(&mr,
                      displayInitSequence);
+}
+
+void setDisplayOn(bool value)
+{
+    displayOn = value;
+
+    mr_st7789_set_display(&mr, value);
+    mr_st7789_set_sleep(&mr, !value);
+}
+
+bool isDisplayOn(void)
+{
+    return displayOn;
+}
+
+void refreshDisplay(void)
+{
 }
 
 #endif

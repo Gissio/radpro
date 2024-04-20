@@ -88,8 +88,6 @@ void runTestMode(void)
 {
     sleep(500);
 
-    setDisplayOn(true);
-
     while (true)
     {
         char lines[8][32];
@@ -120,5 +118,8 @@ void runTestMode(void)
 
         drawTestMode(lines);
         refreshDisplay();
+
+        setDisplayOn(true);
+        setDisplayBacklightOn(true);
     }
 }

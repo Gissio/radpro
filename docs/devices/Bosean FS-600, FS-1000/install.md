@@ -1,14 +1,13 @@
-# Installing on the Bosean FS-600/FS-1000
+# Installing Rad Pro on the Bosean FS-600/FS-1000
 
 ## Supplies
 
 To install Rad Pro on your Bosean FS-600 or FS-1000 Geiger counter, you will need the following tools and components:
 
 * An [ST-Link V2 USB dongle (or clone)](https://www.amazon.com/s?k=st-link+v2)
-* A soldering iron and solder
 * A 4-pin header
 * A Philips screwdriver
-* The [stlink](https://github.com/stlink-org/stlink/releases) software (download the latest release for your operating system)
+* Optional: A soldering iron and solder
 * If you use Windows, the [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html).
 
 ## Step 1: Open the device
@@ -17,6 +16,7 @@ To install Rad Pro on your Bosean FS-600 or FS-1000 Geiger counter, you will nee
 
 Follow these steps to start installing Rad Pro:
 
+* Turn off the device.
 * Remove the battery cover and batteries.
 * Remove the screws holding the back case.
 * Disconnect the battery connected to BAT1.
@@ -33,7 +33,7 @@ If your board looks different and Rad Pro does not work, create an issue on http
 
 Now, follow these steps:
 
-* Solder the 4-pin header to SWD on the board.
+* Optional: Solder the 4-pin header to the XS1 pads of the board.
 * If you use Windows, install the [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html).
 * Connect the ST-Link V2 device to SWD. The pins, from left to right, are:
   * +3.3V
@@ -43,46 +43,28 @@ Now, follow these steps:
 
 Make sure the electrical connections are correct. You may break your device if the connections are not correct.
 
-## Step 3: Back up the original firmware
+## Step 3: Flash the firmware
 
-![Terminal back-up](img/fs600-backup.png)
+Now, download the latest `radpro-flashtool` from the [Rad Pro releases](https://github.com/Gissio/radpro/releases).
 
-Before installing for the first time, back up the original firmware. If you skip this step, you won't be able to restore your device if something goes wrong, so it is important you do it right.
+* To install from Windows, start the `install-bosean-[device].bat` script.
+* To install from macOS or Linux, start the `install-bosean-[device].sh` script.
 
-To create a backup, open a terminal and go to the bin folder within the stlink folder.
+`[device]` is your device type: `fs600` or `fs1000`.
 
-Then, copy+paste the following command and verify that the resulting file, `backup.bin`, has a size of 131072 bytes:
+The installation will automatically create a backup of the original firmware in the `backup` folder, so you can recover your device if something goes wrong.
 
-    st-flash read backup.bin 0x08000000 0x20000
+After successfully flashing the firmware, reconnect the battery connector to BAT1 and close the device.
 
-## Step 4: Flash the firmware
+To enable USB data communications under Windows, install the [CH340 driver](https://www.catalog.update.microsoft.com/Search.aspx?q=USB%5CVID_1A86%26PID_7523).
 
-![Terminal flash step 1](img/fs600-flash1.png)
+## Step 4: Configure your device
 
-![Terminal flash step 2](img/fs600-flash2.png)
-
-Now, download the latest firmware from the [Rad Pro releases](https://github.com/Gissio/radpro/releases):
-
-* If your device is an FS-600, download ``radpro-bosean-fs600-x.y.z-install.bin`` when installing for the first time or `radpro-bosean-fs600-x.y.z-update.bin` when updating.
-* If your device is an FS-1000, download `radpro-bosean-fs1000-x.y.z-install.bin` when installing for the first time or `radpro-bosean-fs1000-x.y.z-update.bin` when updating.
-
-Next, run this command in the terminal:
-
-    st-flash write [firmware-filename] 0x08000000
-
-## Step 5: Finish up
-
-* Reconnect the battery connector to BAT1.
-* Close the device.
-* To enable USB data logging under Windows, install the [CH340 driver](https://www.catalog.update.microsoft.com/Search.aspx?q=USB%5CVID_1A86%26PID_7523).
-
-## Step 6: Configure your device
-
-Start your device and go to Rad Pro's settings, select "Geiger tube", select "HV Profile" and choose an appropriate HV profile: "Energy-saving" is ideal for measuring background levels of radiation, while "Accuracy" consumes more power but allows measuring higher radiation levels; "Factory default" is the profile from the original firmware and consumes considerably more power.
+Start your device and go to Rad Pro's settings, select "Geiger tube", select "HV Profile" and choose an appropriate HV profile: "Energy-saving" is best for measuring background levels of radiation, while "Accuracy" consumes more power but allows measurement of higher radiation levels; "Factory default" is the profile from the original firmware and consumes considerably more power.
 
 Last, read the [user's manual](../../users.md) for learning how to use Rad Pro.
 
-## Step 7: Getting involved
+## Step 5: Getting involved
 
 If you like Rad Pro, consider watching the project to get notified when new releases are out. Also, show your support by starring the project on GitHub.
 
@@ -109,7 +91,7 @@ On the FS-1000, the keys are mapped as follows:
 
 Not all devices support the pulse LED.
 
-On the FS-600 and FS-1000, Rad Pro can store up to 91080 data points. At normal radiation levels, this allows for 63 days of data at 1-minute intervals, 158 days at 5-minute intervals, 316 days at 10-minute intervals, 948 days at 30-minute intervals, and 1897 days at 60-minute intervals.
+On the FS-600 and FS-1000, Rad Pro can store up to 91080 data points. At normal radiation levels (20 cpm), this allows for 1897 days of data at 60-minute intervals, 948 days at 30-minute intervals, 316 days at 10-minute intervals, 158 days at 5-minute intervals, 63 days at 1-minute intervals, 31 days at 30-second intervals and 10 days at 10-second intervals.
 
 The FS-600 and FS-1000 include two Zener diodes that limit the maximum voltage to 440 V (nominal).
 

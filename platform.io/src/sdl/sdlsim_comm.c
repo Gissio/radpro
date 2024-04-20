@@ -25,8 +25,11 @@ static struct
     ser_t *sercomm;
 } commController;
 
-void initComm(void)
+void startComm(void)
 {
+    if (commController.sercomm)
+        return;
+
     commController.sercomm = ser_create();
     if (commController.sercomm == NULL)
     {
@@ -56,7 +59,7 @@ void initComm(void)
     }
 }
 
-void freeComm(void)
+void stopComm(void)
 {
     ser_close(commController.sercomm);
     ser_destroy(commController.sercomm);

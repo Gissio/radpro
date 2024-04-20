@@ -11,7 +11,7 @@
 * Configurable pulse indication, optionally limited by a radiation level threshold: pulse clicks (off, quiet, loud), pulse LED (on supported devices), display flashes (on backlight timeout) and haptic pulses (on supported devices).
 * Dead-time measurement.
 * Customizable Geiger-Müller tube settings: conversion factor, dead-time compensation, background compensation, high voltage generator PWM frequency and duty cycle (for tube voltage control).
-* Configurable high voltage profiles.
+* Preconfigured high voltage profiles.
 * Tube fault alarm.
 * Statistics for tracking device usage and state.
 * User interface with the [OpenBridge 4.0](https://www.openbridge.no/) design system and anti-aliased text rendering on color screens.
@@ -76,15 +76,15 @@ You can also set a custom conversion factor by going to the settings, selecting 
 
 Rad Pro lets you log cumulative dose count, from which both rate and dose can be derived.
 
-To start logging, simply select a data logging interval in the settings. Data is automatically logged in the background. When memory gets full, old data is overwritten.
+To start logging, simply select a data logging interval in the settings. Data is automatically logged in the background. When memory gets full, old data is overwritten. In order to avoid flash memory wear, data cannot be erased.
 
-To live log data on a computer or download the datalogs, use the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software. "CPM" data is Rad Pro's instantaneous counts per minute value, averaged through Rad Pro's adaptive averaging algorithm. "CPS" data is the low-level counts per second value. "CPS" data should conform to a Poisson distribution, "CPM" not.
+To live log data on a computer or download the datalogs, use the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software. "CPM" data is Rad Pro's instantaneous counts per minute value, averaged through Rad Pro's adaptive averaging algorithm. "CPS" data is the low-level counts per second value. "CPS" data should conform to a Poisson distribution, "CPM" not, as it is derived from an adaptive averaging window.
 
 ## Dead time and dead-time compensation
 
 [Dead time](https://en.wikipedia.org/wiki/Geiger%E2%80%93M%C3%BCller_tube#Quenching_and_dead_time) is the period of time during which the Geiger-Müller tube is unable to detect another radiation event immediately after detecting one. This occurs because the tube becomes saturated after each radiation event, typically for a time of 50-200 µs. Consequently, measurements of high levels of radiation will be inaccurate as the tube fails to register the counts during this dead-time period.
 
-Rad Pro lets you compensate these missed counts by applying dead-time compensation.
+Rad Pro lets you add these missed counts by applying dead-time compensation.
 
 To use dead-time compensation you need to measure the dead time first. To do so, go to the settings, select "Statistics" and monitor the "Dead time" value until it stabilizes. This process can take several hours under normal levels of radiation.
 
@@ -94,15 +94,15 @@ $$n = \frac{m}{1 - m \tau}$$
 
 where $m$ is the rate in counts per seconds, and $\tau$ is the tube's dead time in seconds. To prevent overflow, the compensation factor is limited to a maximum value of 10.
 
-Dead-time compensation is applied at the beginning of the processing chain. Consequently the instantaneous rate, average rate, cumulative dose, history, tube life pulse count and datalog all undergo dead-time compensation.
+Dead-time compensation is applied to instantaneous rate, average rate, cumulative dose and history. It is not applied to tube life pulse count nor datalogging.
 
 ## Background compensation
 
 Geiger-Müller tubes, being composed of matter, inherently contain atoms prone to radioactive decay. Consequently, the tubes themselves emit radiation. This intrinsic radiation will depend on factors such as tube type, size, and production batch.
 
-Rad Pro lets you compensate these extra counts by applying background compensation.
+Rad Pro lets you remove these extra counts by applying background compensation.
 
-Background compensation is applied at the end of the processing chain on instantaneous rate, average rate, cumulative dose and history. It is not applied to the tube life pulse count nor to the datalog.
+Background compensation is applied to instantaneous rate, average rate, cumulative dose and history. It is not applied to tube life pulse count nor datalogging.
 
 ## HV profiles
 
@@ -110,7 +110,7 @@ HV profiles let you control the high voltage supplied to the Geiger-Müller tube
 
 You can also define your own HV profile. Be careful, as wrong profile settings MAY RESULT IN DAMAGE to both the tube from overvoltage and the switching transistor from overcurrent.
 
-Setting up a custom HV profile requires measuring the high voltage at the tube. To accomplish this, connect a 1 GΩ resistor in series with a high-quality multimeter (with a 10 MΩ input impedance). Ensure the resistor is clean to prevent spurious currents. Set the multimeter to the 20 V range. The high voltage approximately corresponds to the multimeter reading multiplied by a factor of (1000 MΩ + 10 MΩ) / 10 MΩ = 101. Caution: high voltage CAN BE LETHAL.
+Setting up a custom HV profile requires measuring the high voltage at the tube. To accomplish this, connect a 1 GΩ resistor in series to the positive terminal of a high-quality multimeter (with a 10 MΩ input impedance). Ensure the resistor is clean to prevent spurious currents. Set the multimeter to the 20 V range. Connect the negative terminal of the multimeter to ground, and the free end of the resistor to the tube's anode. The high voltage corresponds approximately to the multimeter reading multiplied by a factor of (1000 MΩ + 10 MΩ) / 10 MΩ = 101. Caution: high voltage CAN BE LETHAL.
 
 An HV profile consists of a [PWM](https://en.wikipedia.org/wiki/Pulse-width_modulation) frequency and duty cycle. Typically, higher frequency values produce lower voltage ripple (voltage variations in time) but consume more power. Conversely, lower frequency values require less power, but may sacrifice measurement accuracy.
 
@@ -118,9 +118,11 @@ An HV profile consists of a [PWM](https://en.wikipedia.org/wiki/Pulse-width_modu
 
 When no pulses are generated within a five-minute interval, Rad Pro produces a fault alarm. This can occur due to:
 
-* A malfunctioning of the HV source or Geiger-Müller tube.
-* HV source overvoltage.
-* Extremely high levels of radiation.
+* A malfunctioning of the HV generator or Geiger-Müller tube.
+* HV generator overvoltage.
+* Very high levels of radiation.
+
+Rad Pro also produces a fault alarm when the Geiger tube becomes saturated or shorted.
 
 ## Random generator
 
@@ -134,32 +136,38 @@ For faster bit generation, use a radioactive source.
 
 ## radpro-tool
 
-`radpro-tool` gives you low-level access to your device from a computer, allowing you to log live data, download datalogs, submit live data to radiation monitoring websites, get device information and sync the device's clock.
+`radpro-tool` gives you low-level access to your device from a computer, allowing you to live log data, download datalogs, submit live data to radiation monitoring websites, get device information and sync the device's clock.
 
-To use `radpro-tool`, install [Python](https://www.python.org), [PIP](https://pip.pypa.io/en/stable/), and the necessary requirements by running the following command in a terminal:
+To use `radpro-tool`, install [Python](https://www.python.org), [PIP](https://pip.pypa.io/en/stable/). You must also install the necessary requirements by running the following command in a terminal:
 
     pip install -r tools/requirements.txt
 
 To get help about `radpro-tool`, run the following command in a terminal:
 
-    python radpro-tool.py --help
+    python tools/radpro-tool.py --help
 
 To sync the clock of a Rad Pro device connected on COM13:
 
-    python radpro-tool.py --port COM13
+    python tools/radpro-tool.py --port COM13
 
 To live log data to the file `live.csv` every 60 seconds:
 
-    python radpro-tool.py --port COM13 --live-datalog live.csv --live-datalog-period 60
+    python tools/radpro-tool.py --port COM13 --live-datalog live.csv --live-datalog-period 60
 
 To download the datalog to the file `datalog.csv`:
 
-    python radpro-tool.py --port COM13 --download-datalog datalog.csv
+    python tools/radpro-tool.py --port COM13 --download-datalog datalog.csv
 
 To live submit the level of radiation to the https://gmcmap.com website:
 
-    python radpro-tool.py --port COM13 --submit-gmcmap [USER_ACCOUNT_ID] [GEIGER_COUNTER_ID]
+    python tools/radpro-tool.py --port COM13 --submit-gmcmap [USER_ACCOUNT_ID] [GEIGER_COUNTER_ID]
 
 ## Data communications
 
 To communicate with Rad Pro through a serial port or SWD (through an ST-LINK dongle), read the [communications protocol description](comm.md).
+
+## FAQ
+
+**Q: My device is missing counts. What could be wrong?**
+
+**A:** Most likely you enabled background compensation. Background compensation works by removing counts.

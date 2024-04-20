@@ -31,7 +31,9 @@ float getTubeHVDutyCycle(void);
 void setTubeHV(bool value);
 bool getTubeHV(void);
 void updateTubeHV(void);
+void syncTubeHV(void);
 bool getTubePulse(uint32_t *pulseTime);
+bool getTubeDet(void);
 
 void onPulsesSubMenuBack(const Menu *menu);
 

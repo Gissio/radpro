@@ -41,10 +41,6 @@ static SDL_Color mr_sdl_monochrome_palette[][2] = {
     },
 };
 
-static void mr_sdl_set_display(mr_t *mr,
-                               bool value);
-static void mr_sdl_refresh_display(mr_t *mr);
-
 void mr_sdl_init(mr_t *mr,
                  uint32_t width,
                  uint32_t height,
@@ -54,13 +50,11 @@ void mr_sdl_init(mr_t *mr,
 {
     mr_init(mr);
 
-    mr->set_display_callback = mr_sdl_set_display;
     mr->draw_rectangle_callback = mr_draw_rectangle_framebuffer_color;
     mr->draw_string_callback = mr_draw_string_framebuffer_color;
 #if defined(MCURENDERER_IMAGE_SUPPORT)
     mr->draw_image_callback = mr_draw_image_framebuffer_color;
 #endif
-    mr->refresh_display_callback = mr_sdl_refresh_display;
 
     mr_sdl_display_t *display = calloc(sizeof(mr_sdl_display_t), 1);
     mr->display = display;
@@ -71,8 +65,6 @@ void mr_sdl_init(mr_t *mr,
     mr->buffer = calloc(sizeof(mr_color_t) * width * height, 1);
 
     display->display_type = display_type;
-
-    display->backlight = 255;
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0)
     {
@@ -142,8 +134,15 @@ void mr_sdl_free(mr_t *mr)
     free(mr->buffer);
 }
 
-static void mr_sdl_set_display(mr_t *mr,
-                               bool value)
+void mr_sdl_set_title(mr_t *mr,
+                      const char *title)
+{
+    mr_sdl_display_t *display = (mr_sdl_display_t *)mr->display;
+    SDL_SetWindowTitle(display->sdl_window, title);
+}
+
+void mr_sdl_set_display(mr_t *mr,
+                        bool value)
 {
     mr_sdl_display_t *display = (mr_sdl_display_t *)mr->display;
 
@@ -198,7 +197,7 @@ static SDL_Color mr_sdl_get_color(mr_sdl_display_t *display,
     }
 }
 
-static void mr_sdl_refresh_display(mr_t *mr)
+void mr_sdl_refresh_display(mr_t *mr)
 {
     mr_sdl_display_t *display = (mr_sdl_display_t *)mr->display;
 

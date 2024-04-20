@@ -21,7 +21,7 @@ static struct
 
     bool drawUpdate;
 
-    bool displayEnabled;
+    uint32_t displayTimer;
 } view;
 
 void dispatchViewEvents(void)
@@ -39,7 +39,6 @@ void dispatchViewEvents(void)
 
 #if defined(DISPLAY_MONOCHROME)
         if ((settings.displaySleep == DISPLAY_SLEEP_ALWAYS_OFF) ||
-            //  (settings.displaySleep == DISPLAY_SLEEP_PULSE_FLASHES)) ||
             displayTimerActive)
 #elif defined(DISPLAY_COLOR)
         if (displayTimerActive)
@@ -58,20 +57,27 @@ void dispatchViewEvents(void)
             triggerDisplay();
     }
 
-    // Draw events
 #if defined(DISPLAY_COLOR)
-    if (!displayTimerActive)
+    // Pre-draw operations
+    if (isDisplayBacklightOn())
     {
-        if (isDisplayOn())
+        if (!isDisplayOn())
+            view.drawUpdate = true;
+    }
+    else
+    {
+        if (!settings.pulseFlashes ||
+            !isPulsesThresholdExceeded())
         {
-            setDisplayBacklight(false);
-            setDisplayOn(false);
-        }
+            view.drawUpdate = false;
 
-        view.drawUpdate = false;
+            if (isDisplayOn())
+                setDisplayOn(false);
+        }
     }
 #endif
 
+    // Draw
     if (view.drawUpdate)
     {
         view.drawUpdate = false;
@@ -81,11 +87,11 @@ void dispatchViewEvents(void)
     }
 
 #if defined(DISPLAY_COLOR)
-    if (!isDisplayOn() &&
-        displayTimerActive)
+    // Post-draw operations
+    if (isDisplayBacklightOn())
     {
-        setDisplayBacklight(true);
-        setDisplayOn(true);
+        if (!isDisplayOn())
+            setDisplayOn(true);
     }
 #endif
 }

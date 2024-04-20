@@ -55,8 +55,8 @@ void sleep(uint32_t value)
     while ((eventsCurrentTick - startTick) < value)
     {
 #if defined(DATA_MODE) && defined(USB_INTERFACE)
-        // CH32F103 does not wake USB on IRQ
-        if (!isDataMode())
+        // CH32F103R8T6 does not wake USB on IRQ
+        if (!isCommStarted())
             __asm volatile("wfi");
 #else
         __asm volatile("wfi");
