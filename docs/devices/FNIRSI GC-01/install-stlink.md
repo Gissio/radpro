@@ -6,7 +6,7 @@ These instructions let you install Rad Pro on FNIRSI GC-01 devices with a CH32F1
 * want to install Rad Pro from macOS or Linux.
 * your FNIRSI GC-01 became irresponsive and you need to recover your device.
 
-WARNING: Rad Pro is incompatible with CACHIP microprocessors. Following these instructions on such devices WILL BREAK YOUR DEVICE.
+WARNING: Rad Pro is incompatible with devices with a CACHIP microprocessors. Following these instructions WILL BREAK YOUR DEVICE.
 
 ## Supplies
 
@@ -31,6 +31,8 @@ Follow these steps to start installing Rad Pro:
 * Also, take note of the type of Geiger tube: the markings on the glass should be either J321 (as in the picture above), J305 or J614. If you have an unmarked tube measuring 55 or 65 mm long, you probably have a J614 or J613 tube, respectively.
 
 The board should look like in the photo above. If it does not, you may have a different hardware revision. In this case, Rad Pro may not function properly.
+
+WARNING: Rad Pro is incompatible with devices with a CACHIP microprocessors. Following these instructions WILL BREAK YOUR DEVICE.
 
 ## Step 2: Connect the programmer
 
