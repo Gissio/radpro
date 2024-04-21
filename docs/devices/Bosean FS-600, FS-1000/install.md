@@ -52,9 +52,7 @@ Now, download the latest `radpro-flashtool` from the [Rad Pro releases](https://
 
 `[device]` is your device type: `fs600` or `fs1000`.
 
-The installation will automatically create a backup of the original firmware in the `backup` folder, so you can recover your device if something goes wrong.
-
-After successfully flashing the firmware, reconnect the battery connector to BAT1 and close the device.
+The installation will automatically create a backup of the original firmware in the `backup` folder, so you can recover your device if something goes wrong. Make sure you keep the backups safe, so you can always return to the original firmware. To flash a backup, open a terminal and start the `install-bosean-[device]` script with the backup file as argument.
 
 To enable USB data communications under Windows, install the [CH340 driver](https://www.catalog.update.microsoft.com/Search.aspx?q=USB%5CVID_1A86%26PID_7523).
 

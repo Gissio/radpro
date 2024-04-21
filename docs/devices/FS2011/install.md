@@ -51,7 +51,7 @@ Now, download the latest `radpro-flashtool` from the [Rad Pro releases](https://
 
 `[mcu]` is the type of microprocessor of your board: `stm32f051c8`, `gd32f150c8` or `gd32f103c8`.
 
-The installation will automatically create a backup of the original firmware in the `backup` folder, so you can recover your device if something goes wrong.
+The installation will automatically create a backup of the original firmware in the `backup` folder, so you can recover your device if something goes wrong. Make sure you keep the backups safe, so you can always return to the original firmware. To flash a backup, open a terminal and start the `install-fs2011-[mcu]` script with the backup file as argument.
 
 After successfully flashing the firmware, close the device.
 
