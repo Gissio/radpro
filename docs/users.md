@@ -8,13 +8,14 @@
 * Configurable average timer for performing surveys.
 * Live and offline data logging with data compression.
 * Compatibility with the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software.
-* Configurable pulse indication, optionally limited by a radiation level threshold: pulse clicks (off, quiet, loud), pulse LED (on supported devices), display flashes (on backlight timeout) and haptic pulses (on supported devices).
+* Configurable pulse indication, optionally limited by a radiation level threshold: pulse clicks (off, quiet, loud), pulse LED (on supported devices), display flashes (on backlight sleep) and haptic pulses (on supported devices).
 * Dead-time measurement.
 * Customizable Geiger-Müller tube settings: conversion factor, dead-time compensation, background compensation, high voltage generator PWM frequency and duty cycle (for tube voltage control).
 * Preconfigured high voltage profiles.
 * Tube fault alarm.
 * Statistics for tracking device usage and state.
-* User interface with the [OpenBridge 4.0](https://www.openbridge.no/) design system and anti-aliased text rendering on color screens.
+* User interface based on the [OpenBridge 4.0](https://www.openbridge.no/) design system.
+* Anti-aliased text rendering on color screens.
 * `radpro-tool` for low-level access to the device from a computer.
 * Power-on self-test and safety watchdog.
 * Game: nuclear chess.
@@ -29,7 +30,7 @@ Rad Pro supports the following measurement modes:
 
 The instantaneous rate is estimated by dividing the number of pulses within a time window, minus one, by the time between the first and last pulse within that window.
 
-The view can be switched between an instantaneous rate bar view, a time view that shows the length of the time window used for calculating the instantaneous rate, and an instantaneous rate max view.
+The view can be switched between an instantaneous rate bar view (with 1 µSv/h and 10 µSv/h alert zones), a time view that shows the length of the time window used for calculating the instantaneous rate, and an instantaneous rate max view.
 
 The [confidence interval](https://en.wikipedia.org/wiki/Confidence_interval) estimates the range of values that contain the true, actual instantaneous rate with a 95 % probability, assuming a constant level of radiation.
 
@@ -45,7 +46,7 @@ The average time is the length of the time window used for calculating the avera
 
 The confidence interval assumes a constant level of radiation over the averaging period.
 
-Averaging can be continuous or limited by the average timer, which may be triggered by a predefined timeout or upon reaching a certain confidence level. Upon timer expiration, the device will flash and emit a beep, signaling the completion of the measurement.
+Averaging can be indefinite, or limited by an average timer, which expires after reaching a configurable time or confidence level. Upon timer expiration, the device will flash and emit a beep, signaling the completion of the measurement.
 
 An example: suppose you averaged background radiation for 1 minute, resulting in a measurement of 0.210 µSv/h with a confidence interval of ±36 %. This means that the actual level of radiation has a 95 % probability of falling within the interval [0.134 µSv/h, 0.286 µSv/h] (36 % below and above the measured value). Suppose you consider this confidence interval too high, so you repeat the measurement with a 30-minute time window. Your new measurement is 0.154 µSv/h with a confidence interval of ±7.7 %, which you now consider much more acceptable.
 
@@ -56,6 +57,8 @@ The dose is calculated from the number of pulses in the time window.
 ### History
 
 The history is calculated from the instantaneous rate, sampled once per second.
+
+The plot displays 1 µSv/h and 10 µSv/h alert zones.
 
 ## Conversion factor
 
@@ -76,9 +79,9 @@ You can also set a custom conversion factor by going to the settings, selecting 
 
 Rad Pro lets you log cumulative dose count, from which both rate and dose can be derived.
 
-To start logging, simply select a data logging interval in the settings. Data is automatically logged in the background. When memory gets full, old data is overwritten. In order to avoid flash memory wear, data cannot be erased.
+To start logging, simply select a data logging interval in the settings. Data is automatically logged in the background. When memory gets full, old data is overwritten. In order to avoid flash memory wear, data cannot be manually erased.
 
-To live log data on a computer or download the datalogs, use the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software. "CPM" data is Rad Pro's instantaneous counts per minute value, averaged through Rad Pro's adaptive averaging algorithm. "CPS" data is the low-level counts per second value. "CPS" data should conform to a Poisson distribution, "CPM" not, as it is derived from an adaptive averaging window.
+To live log data on a computer or download the datalogs, use the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software. "CPM" data is the value displayed by Rad Pro's instantaneous rate. "CPS" data is the low-level counts per second value. "CPS" data should conform to a Poisson distribution; "CPM" not, as it is derived from an adaptive averaging window.
 
 ## Dead time and dead-time compensation
 
@@ -108,25 +111,19 @@ Background compensation is applied to instantaneous rate, average rate, cumulati
 
 HV profiles let you control the high voltage supplied to the Geiger-Müller tube. Rad Pro includes several pre-configured profiles that let you balance power consumption and accuracy.
 
-You can also define your own HV profile. Be careful, as wrong profile settings MAY RESULT IN DAMAGE to both the tube from overvoltage and the switching transistor from overcurrent.
+You can also define your own HV profile. **WARNING:** wrong profile settings may damage both the tube from overvoltage and the switching transistor from overcurrent.
 
-Setting up a custom HV profile requires measuring the high voltage at the tube. To accomplish this, connect a 1 GΩ resistor in series to the positive terminal of a high-quality multimeter (with a 10 MΩ input impedance). Ensure the resistor is clean to prevent spurious currents. Set the multimeter to the 20 V range. Connect the negative terminal of the multimeter to ground, and the free end of the resistor to the tube's anode. The high voltage corresponds approximately to the multimeter reading multiplied by a factor of (1000 MΩ + 10 MΩ) / 10 MΩ = 101. Caution: high voltage CAN BE LETHAL.
+Setting up a custom HV profile requires measuring the high voltage at the tube. To accomplish this, connect a 1 GΩ resistor in series to the positive terminal of a high-quality multimeter (with a 10 MΩ input impedance). Ensure the resistor is clean to prevent spurious currents. Set the multimeter to the 20 V range. Connect the negative terminal of the multimeter to ground, and the free end of the resistor to the tube's anode. The high voltage corresponds approximately to the multimeter reading multiplied by a factor of (1000 MΩ + 10 MΩ) / 10 MΩ = 101. **WARNING:** high voltage can be lethal.
 
 An HV profile consists of a [PWM](https://en.wikipedia.org/wiki/Pulse-width_modulation) frequency and duty cycle. Typically, higher frequency values produce lower voltage ripple (voltage variations in time) but consume more power. Conversely, lower frequency values require less power, but may sacrifice measurement accuracy.
 
 ## Tube fault alarm
 
-When no pulses are generated within a five-minute interval, Rad Pro produces a fault alarm. This can occur due to:
-
-* A malfunctioning of the HV generator or Geiger-Müller tube.
-* HV generator overvoltage.
-* Very high levels of radiation.
-
-Rad Pro also produces a fault alarm when the Geiger tube becomes saturated or shorted.
+When no pulses are generated within a five-minute interval, Rad Pro produces a fault alarm. This can occur due to a malfunctioning of the high-voltage generator or the Geiger-Müller tube. Rad Pro also produces a fault alarm when the Geiger tube becomes saturated due to high levels of radiation, or shorted.
 
 ## Random generator
 
-The [random generator](https://en.wikipedia.org/wiki/Hardware_random_number_generator) produces 16 symbols per run. If additional symbols are needed, simply return to the menu and initiate a new run.
+The [random generator](https://en.wikipedia.org/wiki/Hardware_random_number_generator) produces 16 symbols per run. If additional symbols are required, simply return to the menu and initiate a new run.
 
 The generator produces random bits by comparing the time interval between two successive pulses. To avoid bias, every second bit is flipped. The generator stores random data in a 128-bit buffer.
 

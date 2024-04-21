@@ -18,10 +18,7 @@ Follow these steps to start installing Rad Pro:
 
 * Turn off the device.
 * Remove the battery cover and batteries.
-* Remove the screws holding the back case.
-* Disconnect the battery connected to BAT1.
-* Remove the screws holding the electronics board to the front case.
-* Remove the electronics board.
+* Remove the screws holding the back case and open the device.
 
 The board should look like in the photo above. If it does not, you may have a different hardware revision. In this case, Rad Pro may not function properly.
 
@@ -50,9 +47,9 @@ Now, download the latest `radpro-flashtool` from the [Rad Pro releases](https://
 * To install from Windows, start the `install-bosean-[device].bat` script.
 * To install from macOS or Linux, start the `install-bosean-[device].sh` script.
 
-`[device]` is your device type: `fs600` or `fs1000`.
+`[device]` is the type of your device: `fs600` or `fs1000`.
 
-The installation will automatically create a backup of the original firmware in the `backup` folder, so you can recover your device if something goes wrong. Make sure you keep the backups safe, so you can always return to the original firmware. To flash a backup, open a terminal and start the `install-bosean-[device]` script with the backup file as argument.
+The installation will automatically create a backup of the original firmware in the `backup` folder, so you can recover your device if something goes wrong. Make sure you keep the backups safe, so you can always return to the original firmware. To flash a backup, open a terminal and start the `install-bosean-[device]` script with the path to the backup file as argument.
 
 To enable USB data communications under Windows, install the [CH340 driver](https://www.catalog.update.microsoft.com/Search.aspx?q=USB%5CVID_1A86%26PID_7523).
 

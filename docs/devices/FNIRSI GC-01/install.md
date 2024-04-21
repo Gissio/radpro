@@ -7,9 +7,9 @@
 Follow these steps to start installing Rad Pro on your FNIRSI GC-01:
 
 * Turn off the device.
-* Remove the screws holding the back panel and open the device.
+* Remove the screws holding the back case and open the device.
 * Take note of the MCU (microprocessor) installed in your device: CH32F103R8T6 (WCH) or APM32F103RBT6 (Geehy). The picture above should help you identify the MCU. WARNING: Rad Pro does not work on devices with a CACHIP microprocessor.
-* Also, take note of the type of Geiger tube: the markings on the glass should be either J321 (as in the picture above), J305 or J614. If you have an unmarked tube measuring 55 or 65 mm long, you probably have a J614 or J613 tube, respectively.
+* Also, take note of the type of Geiger tube: the markings on the glass should be either J321 (as in the picture above), J305, M4011 or J614. If you have an unmarked tube measuring 55 or 65 mm long, you probably have a J614 or J613 tube, respectively.
 * Close the device.
 
 ## Step 2: Flash the firmware
