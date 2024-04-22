@@ -83,6 +83,8 @@ To start logging, simply select a data logging interval in the settings. Data is
 
 To live log data on a computer or download the datalogs, use the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software. "CPM" data is the value displayed by Rad Pro's instantaneous rate. "CPS" data is the low-level counts per second value. "CPS" data should conform to a Poisson distribution; "CPM" not, as it is derived from an adaptive averaging window.
 
+During datalog download, no entries are written to the datalog.
+
 ## Dead time and dead-time compensation
 
 [Dead time](https://en.wikipedia.org/wiki/Geiger%E2%80%93M%C3%BCller_tube#Quenching_and_dead_time) is the period of time during which the Geiger-Müller tube is unable to detect another radiation event immediately after detecting one. This occurs because the tube becomes saturated after each radiation event, typically for a time of 50-200 µs. Consequently, measurements of high levels of radiation will be inaccurate as the tube fails to register the counts during this dead-time period.
