@@ -59,6 +59,8 @@ Now, download the latest `radpro-flashtool` from the [Rad Pro releases](https://
 
 `[mcu]` is the type of microprocessor of your board: `ch32f103r8t6` or `apm32f103rbt6`.
 
+To flash the original firmware, open a terminal and start the previous script with the `firmware/fnirsi-gc01-ch32f103r8t6-v1.5.bin` argument (on CH32F103R8T6 microprocessors) or `firmware/fnirsi-gc01-apm32f103rbt6-v1.6.bin` argument (on APM32F103RBT6 microprocessors).
+
 After successfully flashing the firmware, reconnect the battery connector and close the device.
 
 Now, proceed to [step 3 of the main installation instructions](install.md#step-3-configure-your-device).
