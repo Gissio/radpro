@@ -83,7 +83,7 @@ To start logging, simply select a data logging interval in the settings. Data is
 
 To live log data on a computer or download the datalogs, use the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software. "CPM" data is the value displayed by Rad Pro's instantaneous rate. "CPS" data is the low-level counts per second value. "CPS" data should conform to a Poisson distribution; "CPM" not, as it is derived from an adaptive averaging window.
 
-During datalog download, no entries are written to the datalog.
+During datalog download, data is not logged.
 
 ## Dead time and dead-time compensation
 
