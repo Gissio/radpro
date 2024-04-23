@@ -12,7 +12,7 @@ These instructions let you install Rad Pro on an FNIRSI GC-01 with a CH32F103R8T
 
 To install Rad Pro on your FNIRSI GC-01 Geiger counter with an ST-LINK USB dongle, you will need the following tools and components:
 
-* An [ST-LING V2 USB dongle (or clone)](https://www.amazon.com/s?k=st-link+v2)
+* An [ST-LINK V2 USB dongle (or clone)](https://www.amazon.com/s?k=st-link+v2)
 * A 4-pin header
 * A Philips screwdriver
 * Optional: A soldering iron and solder
@@ -28,7 +28,7 @@ Follow these steps to start installing Rad Pro:
 * Remove the screws holding the back case and open the device.
 * Disconnect the large battery.
 * Take note of the MCU (microprocessor) installed in your device: CH32F103R8T6 (WCH) or APM32F103RBT6 (Geehy). The picture above should help you identify the MCU.
-* Also, take note of the type of Geiger tube: the markings on the glass should be either J321 (as in the picture above), J305 or J614. If you have an unmarked tube measuring 55 or 65 mm long, you probably have a J614 or J613 tube, respectively.
+* Also, take note of the type of Geiger tube: the markings on the glass should be either J321 (as in the picture above), J305, M4011 or J614. If you have an unmarked tube measuring 55 or 65 mm long, you probably have a J614 or J613 tube, respectively.
 
 The board should look like in the photo above. If it does not, you may have a different hardware revision. In this case, Rad Pro may not function properly.
 
@@ -42,7 +42,7 @@ Now, follow these steps:
 
 * Optional: Solder the 4-pin header to the JP1 pads of the board.
 * If you use Windows, install the [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html).
-* Connect the ST-Link V2 device to SWD. The pins, from left to right, are:
+* Connect the ST-LINK V2 device to the JP1 pads. The pins, from left to right, are:
   * +3.3V
   * SWDIO
   * SWCLK
@@ -59,7 +59,7 @@ Now, download the latest `radpro-flashtool` from the [Rad Pro releases](https://
 
 `[mcu]` is the type of microprocessor of your board: `ch32f103r8t6` or `apm32f103rbt6`.
 
-To flash the original firmware, open a terminal and start the previous script with the `firmware/fnirsi-gc01-ch32f103r8t6-v1.5.bin` argument (on CH32F103R8T6 microprocessors) or `firmware/fnirsi-gc01-apm32f103rbt6-v1.6.bin` argument (on APM32F103RBT6 microprocessors).
+To flash the original firmware, open a terminal and start the script with the `firmware/fnirsi-gc01-ch32f103r8t6-v1.5.bin` argument if your device has a CH32F103R8T6, or `firmware/fnirsi-gc01-apm32f103rbt6-v1.6.bin` argument if it has an APM32F103RBT6.
 
 After successfully flashing the firmware, reconnect the battery connector and close the device.
 

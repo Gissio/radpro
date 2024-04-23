@@ -8,17 +8,19 @@ Follow these steps to start installing Rad Pro on your FNIRSI GC-01:
 
 * Turn off the device.
 * Remove the screws holding the back case and open the device.
-* Take note of the MCU (microprocessor) installed in your device: CH32F103R8T6 (WCH) or APM32F103RBT6 (Geehy). The picture above should help you identify the MCU. WARNING: Rad Pro does not work on devices with a CACHIP microprocessor.
+* Take note of the MCU (microprocessor) installed in your device: CH32F103R8T6 (WCH) or APM32F103RBT6 (Geehy). The picture above should help you identify the MCU. **WARNING:** Rad Pro does not work on devices with a CACHIP microprocessor.
 * Also, take note of the type of Geiger tube: the markings on the glass should be either J321 (as in the picture above), J305, M4011 or J614. If you have an unmarked tube measuring 55 or 65 mm long, you probably have a J614 or J613 tube, respectively.
 * Close the device.
 
 ## Step 2: Flash the firmware
 
-Download the `radpro-fnirsi-gc01-[mcu]-x.y.z.bin` firmware file from the [Rad Pro releases](https://github.com/Gissio/radpro/releases). `[mcu]` is the type of microprocessor of your device: `CH32F103R8T6` or `APM32F103RBT6`.
+Download the `radpro-fnirsi-gc01-[mcu]-x.y.z.bin` firmware file from the [Rad Pro releases](https://github.com/Gissio/radpro/releases).
+
+`[mcu]` is the type of microprocessor of your device: `ch32f103r8t6` or `apm32f103rbt6`.
 
 Next:
 
-* Connect the device to a Windows computer using the USB cable. **WARNING:** installation from macOS or Linux may fail.
+* Connect the device to a USB 2.0 port of a Windows computer using the USB cable. **WARNING:** Installation from macOS or Linux may fail. **WARNING:** Installation from a USB 3.0 port may fail.
 * Power on the device. A USB drive should become available.
 * Drag the firmware file onto the USB drive. The device should restart with Rad Pro installed.
 
@@ -46,7 +48,7 @@ The keys are mapped as follows:
 
   * Power on/off: long press of the ok/power key.
   * Go up/down: the up and down keys.
-  * Toggle measurement view: the ok/power or left/back key.
+  * Switch measurement view: the ok/power or left/back key.
   * Reset measurement: long press of the left/back key.
   * Enter settings: the right/settings key.
   * Select option: the ok/power or right/settings key.

@@ -4,7 +4,7 @@
 
 To install Rad Pro on your Bosean FS-600 or FS-1000 Geiger counter, you will need the following tools and components:
 
-* An [ST-Link V2 USB dongle (or clone)](https://www.amazon.com/s?k=st-link+v2)
+* An [ST-LINK V2 USB dongle (or clone)](https://www.amazon.com/s?k=st-link+v2)
 * A 4-pin header
 * A Philips screwdriver
 * Optional: A soldering iron and solder
@@ -30,9 +30,9 @@ If your board looks different and Rad Pro does not work, create an issue on http
 
 Now, follow these steps:
 
-* Optional: Solder the 4-pin header to the XS1 pads of the board.
+* Optional: Solder the 4-pin header to the SWD pads of the board.
 * If you use Windows, install the [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html).
-* Connect the ST-Link V2 device to SWD. The pins, from left to right, are:
+* Connect the ST-LINK V2 device to the SWD pads. The pins, from left to right, are:
   * +3.3V
   * SWDIO
   * SWCLK
@@ -69,7 +69,7 @@ On the FS-600, the keys are mapped as follows:
 
   * Power on/off: long press of the ok/power key.
   * Go up/down: the up and down keys.
-  * Toggle mesurement view: the ok/power or left/back key.
+  * Switch mesurement view: the ok/power or left/back key.
   * Reset measurement: long press of the left/back key.
   * Enter settings: the right/settings key.
   * Select option: the ok/power or right/settings key.
@@ -81,7 +81,7 @@ On the FS-1000, the keys are mapped as follows:
   * Go up: the mode key.
   * Go down: the set/power key.
   * Enter settings/select option: long press of the set/power key.
-  * Toggle measurement view/go back: long press of the mode key.
+  * Switch measurement view/go back: long press of the mode key.
   * Reset measurement: long press of both the mode and set/power keys.
 
 Not all devices support the pulse LED.

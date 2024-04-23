@@ -4,7 +4,7 @@
 
 To install Rad Pro on your FS2011 or YT-203B Geiger counter, you will need the following tools and components:
 
-* An [ST-Link V2 USB dongle (or clone)](https://www.amazon.com/s?k=st-link+v2)
+* An [ST-LINK V2 USB dongle (or clone)](https://www.amazon.com/s?k=st-link+v2)
 * A 4-pin header
 * A Philips screwdriver
 * Optional: A soldering iron and solder
@@ -88,7 +88,7 @@ The keys are mapped as follows:
 
   * Power on/off: long press of the power key.
   * Go up/down: the up and down keys.
-  * Toggle measurement view: the play/pause or power key.
+  * Switch measurement view: the play/pause or power key.
   * Reset measurement: long press of the play/pause key.
   * Enter settings: the menu/ok key.
   * Select option: the menu/ok or power key.

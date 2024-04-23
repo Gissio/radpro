@@ -36,7 +36,7 @@ The [confidence interval](https://en.wikipedia.org/wiki/Confidence_interval) est
 
 The time window is adaptively adjusted, aiming for a confidence interval below ±50 %. On radiation levels above 1 µSv/h, the time window is limited to 5 seconds to ensure a fast response.
 
-An example: suppose you measure an instantaneous rate of 1.0 µSv/h with a confidence interval of ±40 %. This means that the true, actual level of radiation has a 95 % probability of falling within the interval [0.6 µSv/h, 1.4 µSv/h] (40 % below and above the measured value). This also means that there is a 5 % chance that the true level of radiation is outside this interval. As the confidence interval becomes smaller, the certainty of your measurement increases.
+An example: suppose you measure an instantaneous rate of 1.000 µSv/h with a confidence interval of ±40 %. This means that the true, actual level of radiation has a 95 % probability of falling within the interval [0.600 µSv/h, 1.400 µSv/h] (40 % below and above the measured value). This also means that there is a 5 % chance that the true level of radiation is outside this interval. As the confidence interval becomes smaller, the certainty of your measurement increases.
 
 ### Average rate
 
@@ -48,7 +48,7 @@ The confidence interval assumes a constant level of radiation over the averaging
 
 Averaging can be indefinite, or limited by an average timer, which expires after reaching a configurable time or confidence level. Upon timer expiration, the device will flash and emit a beep, signaling the completion of the measurement.
 
-An example: suppose you averaged background radiation for 1 minute, resulting in a measurement of 0.210 µSv/h with a confidence interval of ±36 %. This means that the actual level of radiation has a 95 % probability of falling within the interval [0.134 µSv/h, 0.286 µSv/h] (36 % below and above the measured value). Suppose you consider this confidence interval too high, so you repeat the measurement with a 30-minute time window. Your new measurement is 0.154 µSv/h with a confidence interval of ±7.7 %, which you now consider much more acceptable.
+An example: suppose you averaged background radiation for 1 minute, resulting in a measurement of 0.210 µSv/h with a confidence interval of ±36 %. This means that the actual level of radiation has a 95 % probability of falling within the interval [0.134 µSv/h, 0.286 µSv/h] (36 % below and above the measured value). Suppose you consider this confidence interval too high, so you repeat the measurement with a 30-minute time window. Your new measurement is 0.154 µSv/h with a confidence interval of ±7.7 %, which you might consider now much more acceptable.
 
 ### Dose
 
@@ -113,9 +113,9 @@ Background compensation is applied to instantaneous rate, average rate, cumulati
 
 HV profiles let you control the high voltage supplied to the Geiger-Müller tube. Rad Pro includes several pre-configured profiles that let you balance power consumption and accuracy.
 
-You can also define your own HV profile. **WARNING:** wrong profile settings may damage both the tube from overvoltage and the switching transistor from overcurrent.
+You can also define your own HV profile. **WARNING:** Wrong profile settings may damage the tube from overvoltage as well as the switching transistor from overcurrent.
 
-Setting up a custom HV profile requires measuring the high voltage at the tube. To accomplish this, connect a 1 GΩ resistor in series to the positive terminal of a high-quality multimeter (with a 10 MΩ input impedance). Ensure the resistor is clean to prevent spurious currents. Set the multimeter to the 20 V range. Connect the negative terminal of the multimeter to ground, and the free end of the resistor to the tube's anode. The high voltage corresponds approximately to the multimeter reading multiplied by a factor of (1000 MΩ + 10 MΩ) / 10 MΩ = 101. **WARNING:** high voltage can be lethal.
+Setting up a custom HV profile requires measuring the high voltage at the tube. To accomplish this, connect a 1 GΩ resistor in series to the positive terminal of a high-quality multimeter (with a 10 MΩ input impedance). Ensure the resistor is clean to prevent spurious currents. Set the multimeter to the 20 V range. Connect the negative terminal of the multimeter to ground, and the free end of the resistor to the tube's anode. The high voltage corresponds approximately to the multimeter reading multiplied by a factor of (1000 MΩ + 10 MΩ) / 10 MΩ = 101. **WARNING:** High voltage can be lethal.
 
 An HV profile consists of a [PWM](https://en.wikipedia.org/wiki/Pulse-width_modulation) frequency and duty cycle. Typically, higher frequency values produce lower voltage ripple (voltage variations in time) but consume more power. Conversely, lower frequency values require less power, but may sacrifice measurement accuracy.
 
@@ -145,7 +145,7 @@ To get help about `radpro-tool`, run the following command in a terminal:
 
     python tools/radpro-tool.py --help
 
-To sync the clock of a Rad Pro device connected on COM13:
+To sync the clock of a Rad Pro device connected to COM13:
 
     python tools/radpro-tool.py --port COM13
 
@@ -170,3 +170,7 @@ To communicate with Rad Pro through a serial port or SWD (through an ST-LINK don
 **Q: My device is missing counts. What could be wrong?**
 
 **A:** Most likely you enabled background compensation. Background compensation works by removing counts.
+
+**Q: I enabled clicks but aren't hearing any clicks. What could be wrong?**
+
+**A:** Most likely you enabled pulses thresholding. Pulses thresholding enables pulse indication only above a certain threshold level of radiation.
