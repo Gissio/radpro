@@ -36,6 +36,8 @@ static struct
     uint8_t buffer[DATALOG_BUFFER_SIZE];
 
     uint8_t lock;
+
+    uint32_t lastTimeFast;
 } datalog;
 
 static const uint16_t datalogTimeIntervals[] = {
@@ -77,6 +79,8 @@ void initDatalog(void)
 
     while (decodeDatalogEntry(&datalog.writeState))
         ;
+
+    datalog.lastTimeFast = getDeviceTimeFast();
 }
 
 static void encodeDatalogValue(int32_t value,
@@ -142,6 +146,11 @@ static void writeDatalogEntry(bool isUpdate)
         return;
 
     // Update?
+    uint32_t timeFast = getDeviceTimeFast();
+    if (timeFast == datalog.lastTimeFast)
+        return;
+    datalog.lastTimeFast = timeFast;
+
     Dose dose;
     dose.time = getDeviceTime();
     dose.pulseCount = getTubePulseCount();
@@ -158,7 +167,7 @@ static void writeDatalogEntry(bool isUpdate)
 
     bool absoluteEntry = false;
 
-    if (!isUpdate || (timeInterval > (sampleInterval + 1)))
+    if (!isUpdate || (timeInterval > sampleInterval))
     {
         datalog.writeState.dose.time = dose.time;
         datalog.writeState.dose.pulseCount = dose.pulseCount;

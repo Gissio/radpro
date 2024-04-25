@@ -63,6 +63,7 @@ Data logging can store up to 5060 data points. At normal radiation levels (20 cp
 The HV profile settings are:
 
 * Factory default: 9.207 kHz frequency and 75 % duty cycle.
+* Accuracy: 5 kHz frequency and 2 % duty cycle.
 * Energy-saving: 5 kHz frequency and 1.5 % duty cycle.
 
 ### FNIRSI GC-01 with a APM32F103R8 (Geehy) processor
@@ -74,4 +75,5 @@ Data logging can store up to 63756 data points. At normal radiation levels (20 c
 The HV profile settings are:
 
 * Factory default: 47.058 kHz frequency and 50 % duty cycle.
+* Accuracy: 5 kHz frequency and 2 % duty cycle.
 * Energy-saving: 5 kHz frequency and 1.5 % duty cycle.

@@ -71,10 +71,6 @@ uint32_t getDeviceTime(void)
 {
     RTCDateTime dateTime;
 
-    // Wait if RTC is about to roll over
-    while (!rtc_is_read_safe())
-        sleep(1);
-
     uint32_t tr;
     uint32_t dr;
     rtc_get_date_time(&dr, &tr);
@@ -89,6 +85,11 @@ uint32_t getDeviceTime(void)
     return getTimeFromDateTime(&dateTime);
 }
 
+uint32_t getDeviceTimeFast(void)
+{
+    return RTC->TR ^ RTC->DR;
+}
+
 #elif defined(STM32F1)
 
 void setDeviceTime(uint32_t value)
@@ -101,9 +102,11 @@ void setDeviceTime(uint32_t value)
 
 uint32_t getDeviceTime(void)
 {
-    while (!rtc_is_read_safe())
-        sleep(1);
+    return getDeviceTimeFast();
+}
 
+uint32_t getDeviceTimeFast(void)
+{
     return rtc_get_count();
 }
 

@@ -42,8 +42,25 @@ enum
     INSTANTANEOUS_TAB_BAR,
     INSTANTANEOUS_TAB_TIME,
     INSTANTANEOUS_TAB_MAX,
+    INSTANTANEOUS_TAB_RATE,
 
     INSTANTANEOUS_TAB_NUM,
+};
+
+enum
+{
+    AVERAGE_TAB_TIME,
+    AVERAGE_TAB_RATE,
+
+    AVERAGE_TAB_NUM,
+};
+
+enum
+{
+    CUMULATIVE_TAB_TIME,
+    CUMULATIVE_TAB_DOSE,
+
+    CUMULATIVE_TAB_NUM,
 };
 
 typedef struct
@@ -64,6 +81,8 @@ typedef struct
 {
     float averageSum;
     uint32_t averageCount;
+
+    uint16_t sampleIndex;
 
     uint16_t bufferIndex;
     uint8_t buffer[HISTORY_BUFFER_SIZE];
@@ -127,17 +146,20 @@ static struct
         Rate timerRate;
     } average;
 
+    uint32_t averageTabIndex;
+
     struct
     {
         Dose dose;
     } cumulative;
+
+    uint32_t cumulativeTabIndex;
 
     struct
     {
         HistoryState states[HISTORY_NUM];
 
         uint32_t tabIndex;
-        uint32_t sampleIndex;
     } history;
 
     int32_t viewIndex;
@@ -174,7 +196,7 @@ static bool isDoseAlarm(void);
 const View *const measurementViews[] = {
     &instantaneousRateView,
     &averageRateView,
-    &doseView,
+    &cumulativeDoseView,
     &historyView,
 };
 
@@ -541,21 +563,20 @@ void updateMeasurements(void)
     }
 
     // History
-    measurements.history.sampleIndex++;
-    if (measurements.history.sampleIndex >
-        histories[HISTORY_NUM - 1].samplesPerDataPoint)
-        measurements.history.sampleIndex = 0;
-
     for (uint32_t i = 0; i < HISTORY_NUM; i++)
     {
         const History *history = &histories[i];
         HistoryState *historyState = &measurements.history.states[i];
 
+        historyState->sampleIndex++;
+        if (historyState->sampleIndex >=
+            history->samplesPerDataPoint)
+            historyState->sampleIndex = 0;
+
         historyState->averageSum += measurements.instantaneous.rate.value;
         historyState->averageCount++;
 
-        if ((measurements.history.sampleIndex %
-             history->samplesPerDataPoint) == 0)
+        if (historyState->sampleIndex == 0)
         {
             float averageRate = historyState->averageSum /
                                 historyState->averageCount;
@@ -715,10 +736,12 @@ static void onInstantaneousRateViewEvent(const View *view,
         char valueString[16];
         char unitString[8];
         char *stateString;
+        char *keyString = NULL;
         MeasurementStyle style;
 
         strclr(valueString);
         strclr(unitString);
+
         buildValueString(valueString,
                          unitString,
                          measurements.instantaneous.rate.value,
@@ -750,6 +773,9 @@ static void onInstantaneousRateViewEvent(const View *view,
                              measurements.instantaneous.rate.confidence,
                              style);
 
+        strclr(valueString);
+        strcpy(unitString, " ");
+
         switch (measurements.instantaneousTabIndex)
         {
         case INSTANTANEOUS_TAB_BAR:
@@ -766,31 +792,18 @@ static void onInstantaneousRateViewEvent(const View *view,
         }
 
         case INSTANTANEOUS_TAB_TIME:
-            if (measurements.instantaneous.rate.time == 0)
-                strclr(valueString);
-            else
-            {
-                strclr(valueString);
+            if (measurements.instantaneous.rate.time > 0)
                 strcatTime(valueString,
                            measurements.instantaneous.rate.time);
-            }
 
-            drawMeasurementInfo("Time",
-                                valueString,
-                                "",
-                                stateString,
-                                style);
+            keyString = "Time";
 
             break;
 
         case INSTANTANEOUS_TAB_MAX:
         {
-            strclr(valueString);
-            strclr(unitString);
-
             if (measurements.instantaneous.maxValue > 0)
             {
-                strcpy(unitString, " ");
                 buildValueString(valueString,
                                  unitString,
                                  measurements.instantaneous.maxValue,
@@ -798,17 +811,37 @@ static void onInstantaneousRateViewEvent(const View *view,
                                  unitsMinMetricPrefixIndex[settings.units]);
             }
 
-            drawMeasurementInfo("Max",
+            keyString = "Max";
+
+            break;
+        }
+
+        case INSTANTANEOUS_TAB_RATE:
+            if (measurements.instantaneous.rate.value > 0)
+            {
+                uint32_t unitsIndex = (settings.units != UNITS_CPM)
+                                          ? UNITS_CPM
+                                          : UNITS_SIEVERTS;
+
+                buildValueString(valueString,
+                                 unitString,
+                                 measurements.instantaneous.rate.value,
+                                 &units[unitsIndex].rate,
+                                 unitsMinMetricPrefixIndex[unitsIndex]);
+            }
+
+            keyString = "Rate";
+
+            break;
+        }
+
+        if (measurements.instantaneousTabIndex !=
+            INSTANTANEOUS_TAB_BAR)
+            drawMeasurementInfo(keyString,
                                 valueString,
                                 unitString,
                                 stateString,
                                 style);
-
-            break;
-        }
-        }
-
-        break;
     }
 
     default:
@@ -837,6 +870,16 @@ static void onAverageRateViewEvent(const View *view,
 
     switch (event)
     {
+    case EVENT_KEY_BACK:
+        measurements.averageTabIndex++;
+
+        if (measurements.averageTabIndex >= AVERAGE_TAB_NUM)
+            measurements.averageTabIndex = 0;
+
+        updateView();
+
+        break;
+
     case EVENT_KEY_RESET:
         resetAverageRate();
 
@@ -846,18 +889,15 @@ static void onAverageRateViewEvent(const View *view,
 
     case EVENT_DRAW:
     {
-        char timeString[16];
         char valueString[16];
         char unitString[8];
         char *stateString;
+        char *keyString = NULL;
         MeasurementStyle style;
-
-        strclr(timeString);
-        strcatTime(timeString,
-                   measurements.average.timerRate.time);
 
         strclr(valueString);
         strclr(unitString);
+
         buildValueString(valueString,
                          unitString,
                          measurements.average.timerRate.value,
@@ -894,9 +934,42 @@ static void onAverageRateViewEvent(const View *view,
                              unitString,
                              measurements.average.timerRate.confidence,
                              style);
-        drawMeasurementInfo("Time",
-                            timeString,
-                            "",
+
+        strclr(valueString);
+        strcpy(unitString, " ");
+
+        switch (measurements.averageTabIndex)
+        {
+        case AVERAGE_TAB_TIME:
+            strcatTime(valueString,
+                       measurements.average.timerRate.time);
+
+            keyString = "Time";
+
+            break;
+
+        case AVERAGE_TAB_RATE:
+            if (measurements.average.rate.value > 0)
+            {
+                uint32_t unitsIndex = (settings.units != UNITS_CPM)
+                                          ? UNITS_CPM
+                                          : UNITS_SIEVERTS;
+
+                buildValueString(valueString,
+                                 unitString,
+                                 measurements.average.rate.value,
+                                 &units[unitsIndex].rate,
+                                 unitsMinMetricPrefixIndex[unitsIndex]);
+            }
+
+            keyString = "Rate";
+
+            break;
+        }
+
+        drawMeasurementInfo(keyString,
+                            valueString,
+                            unitString,
                             stateString,
                             style);
 
@@ -964,13 +1037,23 @@ static bool isDoseAlarm(void)
     return doseSv >= doseAlarmsSv[settings.doseAlarm];
 }
 
-static void onDoseViewEvent(const View *view,
-                            Event event)
+static void onCumulativeDoseViewEvent(const View *view,
+                                      Event event)
 {
     onMeasurementEvent(view, event);
 
     switch (event)
     {
+    case EVENT_KEY_BACK:
+        measurements.cumulativeTabIndex++;
+
+        if (measurements.cumulativeTabIndex >= CUMULATIVE_TAB_NUM)
+            measurements.cumulativeTabIndex = 0;
+
+        updateView();
+
+        break;
+
     case EVENT_KEY_RESET:
         resetDose();
 
@@ -980,18 +1063,15 @@ static void onDoseViewEvent(const View *view,
 
     case EVENT_DRAW:
     {
-        char timeString[16];
         char valueString[16];
         char unitString[8];
         char *stateString;
+        char *keyString = NULL;
         MeasurementStyle style;
-
-        strclr(timeString);
-        strcatTime(timeString,
-                   measurements.cumulative.dose.time);
 
         strclr(valueString);
         strclr(unitString);
+
         buildValueString(valueString,
                          unitString,
                          measurements.cumulative.dose.pulseCount,
@@ -1023,14 +1103,47 @@ static void onDoseViewEvent(const View *view,
             style = MEASUREMENTSTYLE_NORMAL;
         }
 
-        drawTitleBar("Dose");
+        drawTitleBar("Cumulative");
         drawMeasurementValue(valueString,
                              unitString,
                              0,
                              style);
-        drawMeasurementInfo("Time",
-                            timeString,
-                            "",
+
+        strclr(valueString);
+        strcpy(unitString, " ");
+
+        switch (measurements.cumulativeTabIndex)
+        {
+        case CUMULATIVE_TAB_TIME:
+            strcatTime(valueString,
+                       measurements.cumulative.dose.time);
+
+            keyString = "Time";
+
+            break;
+
+        case CUMULATIVE_TAB_DOSE:
+            if (measurements.cumulative.dose.pulseCount > 0)
+            {
+                uint32_t unitsIndex = (settings.units != UNITS_CPM)
+                                          ? UNITS_CPM
+                                          : UNITS_SIEVERTS;
+
+                buildValueString(valueString,
+                                 unitString,
+                                 measurements.cumulative.dose.pulseCount,
+                                 &units[unitsIndex].dose,
+                                 unitsMinMetricPrefixIndex[unitsIndex]);
+            }
+
+            keyString = "Dose";
+
+            break;
+        }
+
+        drawMeasurementInfo(keyString,
+                            valueString,
+                            unitString,
                             stateString,
                             style);
 
@@ -1042,8 +1155,8 @@ static void onDoseViewEvent(const View *view,
     }
 }
 
-const View doseView = {
-    onDoseViewEvent,
+const View cumulativeDoseView = {
+    onCumulativeDoseViewEvent,
     NULL,
 };
 
@@ -1076,8 +1189,6 @@ static void resetHistory(void)
     memset(&measurements.history.states,
            0,
            sizeof(measurements.history.states));
-
-    measurements.history.sampleIndex = 0;
 }
 
 static void onHistoryViewEvent(const View *view, Event event)

@@ -22,7 +22,7 @@
                                                      TUBE_HV_LOW_FREQUENCY_PERIOD))
 
 #define TUBE_HV_SYNC_MARGIN_PRE ((uint32_t)(0.000002F * TIM_FREQUENCY))
-#define TUBE_HV_SYNC_MARGIN_POST ((uint32_t)(0.000006F * TIM_FREQUENCY))
+#define TUBE_HV_SYNC_MARGIN_POST ((uint32_t)(0.000004F * TIM_FREQUENCY))
 
 #define TUBE_PULSE_QUEUE_SIZE 64
 #define TUBE_PULSE_QUEUE_MASK (TUBE_PULSE_QUEUE_SIZE - 1)
@@ -149,6 +149,7 @@ void TUBE_DET_IRQ_HANDLER(void)
     tube.pulseQueueHead = (tube.pulseQueueHead + 1) & TUBE_PULSE_QUEUE_MASK;
 }
 
+// +++ TEST
 void syncTubeHV(void)
 {
     uint32_t time1 = tube.hvOnTime - TUBE_HV_SYNC_MARGIN_PRE;
@@ -182,6 +183,7 @@ void syncTubeHV(void)
         // +++ TEST 3
     }
 }
+// +++ TEST
 
 bool getTubePulse(uint32_t *pulseTime)
 {

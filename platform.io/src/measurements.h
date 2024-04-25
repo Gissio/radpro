@@ -33,7 +33,7 @@ extern const int8_t unitsMinMetricPrefixIndex[];
 
 extern const View instantaneousRateView;
 extern const View averageRateView;
-extern const View doseView;
+extern const View cumulativeDoseView;
 extern const View historyView;
 
 extern const View unitsMenuView;

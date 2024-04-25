@@ -96,9 +96,11 @@ void initKeyboardController(void)
 void getKeyboardState(bool *isKeyDown)
 {
     isKeyDown[KEY_LEFT] = !gpio_get(KEY_PLAYPAUSE_PORT, KEY_PLAYPAUSE_PIN);
+#if defined(KEYBOARD_5KEYS)
     isKeyDown[KEY_RIGHT] = !gpio_get(KEY_MENUOK_PORT, KEY_MENUOK_PIN);
     isKeyDown[KEY_UP] = !gpio_get(KEY_UP_PORT, KEY_UP_PIN);
     isKeyDown[KEY_DOWN] = !gpio_get(KEY_DOWN_PORT, KEY_DOWN_PIN);
+#endif
     isKeyDown[KEY_SELECT] = !gpio_get(KEY_POWER_PORT, KEY_POWER_PIN);
 }
 

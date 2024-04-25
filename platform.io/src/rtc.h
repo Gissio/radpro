@@ -44,4 +44,6 @@ void getDeviceDateTime(RTCDateTime *dateTime);
 void setDeviceTime(uint32_t value);
 uint32_t getDeviceTime(void);
 
+uint32_t getDeviceTimeFast(void);
+
 #endif

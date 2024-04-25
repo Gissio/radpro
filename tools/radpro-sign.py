@@ -50,7 +50,7 @@ def store_word(buffer, address, value):
     buffer[address:address+4] = bytearray(struct.pack('<L', value))
 
 
-def sign_firmware(env_name, container_size, flash_size, bootloader_path):
+def sign_firmware(env_name, container_offset, container_size, flash_size):
     """ Sign firmware
     """
 
@@ -58,15 +58,6 @@ def sign_firmware(env_name, container_size, flash_size, bootloader_path):
     system_h_file = tools_path + '/../platform.io/src/system.h'
     bin_file = tools_path + '/../platform.io/.pio/build/' + env_name + '/' + 'firmware.bin'
     elf_file = tools_path + '/../platform.io/.pio/build/' + env_name + '/' + 'firmware.elf'
-
-    # Read bootloader
-    if bootloader_path != None:
-        bootloader_path = tools_path + '/' + bootloader_path
-        bootloader = open(bootloader_path, 'rb').read()
-    else:
-        bootloader = b''
-
-    container_offset = len(bootloader)
 
     # Read compiled firmware
     if not os.path.exists(elf_file):
@@ -102,7 +93,7 @@ def sign_firmware(env_name, container_size, flash_size, bootloader_path):
     # Write signed binary
     build_prefix = 'radpro-' + env_name + '-' + version
 
-    if bootloader_path != None:
+    if container_offset != 0:
         output_path = build_prefix + '.bin'
         with open(output_path, 'wb') as f:
             f.write(flash)
@@ -110,16 +101,15 @@ def sign_firmware(env_name, container_size, flash_size, bootloader_path):
 
     output_path = build_prefix + '-image.bin'
     with open(output_path, 'wb') as f:
-        f.write(bootloader)
         f.write(flash[0:container_size])
         print('Signed ' + output_path)
 
 
 # Variables
-sign_firmware('fs2011-stm32f051c8', 0x9000, 0x10000, None)
-sign_firmware('fs2011-gd32f150c8', 0x9000, 0x10000, None)
-sign_firmware('fs2011-gd32f103c8', 0x9000, 0x10000, None)
-sign_firmware('bosean-fs600', 0x9000, 0x20000, None)
-sign_firmware('bosean-fs1000', 0x9000, 0x20000, None)
-sign_firmware('fnirsi-gc01-ch32f103r8', 0xa800, 0x10000, '../docs/devices/FNIRSI GC-01/firmware/fnirsi-gc01-bootloader.bin')
-sign_firmware('fnirsi-gc01-apm32f103rb', 0xc000, 0x20000, '../docs/devices/FNIRSI GC-01/firmware/fnirsi-gc01-bootloader.bin')
+sign_firmware('fs2011-stm32f051c8', 0x0, 0x9000, 0x10000)
+sign_firmware('fs2011-gd32f150c8', 0x0, 0x9000, 0x10000)
+sign_firmware('fs2011-gd32f103c8', 0x0, 0x9000, 0x10000,)
+sign_firmware('bosean-fs600', 0x0, 0x9000, 0x20000)
+sign_firmware('bosean-fs1000', 0x0, 0x9000, 0x20000)
+sign_firmware('fnirsi-gc01-ch32f103r8', 0x4000, 0xa800, 0x10000)
+sign_firmware('fnirsi-gc01-apm32f103rb', 0x4000, 0xc000, 0x20000)

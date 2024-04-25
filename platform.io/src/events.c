@@ -29,8 +29,8 @@
 #define PULSE_CLICK_LOUD_TICKS ((uint32_t)(0.015 * SYSTICK_FREQUENCY))
 #define PULSE_LED_TICKS ((uint32_t)(0.050 * SYSTICK_FREQUENCY))
 #define PULSE_FLASH_TICKS ((uint32_t)(0.050 * SYSTICK_FREQUENCY))
-#define PULSE_VIBRATION_WEAK_TICKS ((uint32_t)(0.001 * SYSTICK_FREQUENCY))
-#define PULSE_VIBRATION_STRONG_TICKS ((uint32_t)(0.015 * SYSTICK_FREQUENCY))
+#define PULSE_VIBRATION_WEAK_TICKS ((uint32_t)(0.020 * SYSTICK_FREQUENCY))
+#define PULSE_VIBRATION_STRONG_TICKS ((uint32_t)(0.050 * SYSTICK_FREQUENCY))
 #define ALARM_TICKS ((uint32_t)(0.100 * SYSTICK_FREQUENCY))
 #define ALARM_FLASH_TICKS ((uint32_t)(0.200 * SYSTICK_FREQUENCY))
 
@@ -258,6 +258,7 @@ void dispatchEvents(void)
     sleep(0);
 
     dispatchCommEvents();
+    updateDatalog();
 
     uint32_t periodUpdate = events.measurementPeriodUpdate;
     if (events.lastMeasurementPeriodUpdate != periodUpdate)
@@ -265,7 +266,6 @@ void dispatchEvents(void)
         events.lastMeasurementPeriodUpdate = periodUpdate;
 
         updateMeasurements();
-        updateDatalog();
         updateADC();
         updateGame();
         updateView();

@@ -1187,11 +1187,6 @@ __STATIC_INLINE void rtc_set_date_time(uint32_t dr,
     RTC->DR = dr;
 }
 
-__STATIC_INLINE bool rtc_is_read_safe(void)
-{
-    return (RTC->SSR < (255 * 990 / 1000));
-}
-
 #elif defined(STM32F1)
 
 __STATIC_INLINE void rtc_set_prescaler_factor(uint32_t value)
@@ -1204,22 +1199,26 @@ __STATIC_INLINE void rtc_set_prescaler_factor(uint32_t value)
 
 __STATIC_INLINE uint32_t rtc_get_count(void)
 {
-    return (RTC->CNTH << 16) | RTC->CNTL;
+    uint32_t countHigh1 = RTC->CNTH;
+    uint32_t count = RTC->CNTL;
+    uint32_t countHigh2 = RTC->CNTH;
+
+    if (countHigh1 == countHigh2)
+        return count | (countHigh1 << 16);
+    else
+    {
+        if (count & 0x8000)
+            return count | (countHigh1 << 16);
+        else
+            return count | (countHigh2 << 16);
+    }
 }
 
 __STATIC_INLINE void rtc_set_count(uint32_t value)
 {
+    RTC->CNTL = 0;
     RTC->CNTH = (value >> 16) & 0xffff;
     RTC->CNTL = value & 0xffff;
-}
-
-__STATIC_INLINE bool rtc_is_read_safe(void)
-{
-    return (RTC->DIVL < (32767 * 990 / 1000));
-}
-
-__STATIC_INLINE void rtc_sync(void)
-{
 }
 
 #endif
