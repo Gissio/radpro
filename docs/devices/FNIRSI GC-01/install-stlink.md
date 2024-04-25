@@ -42,7 +42,7 @@ Now, follow these steps:
 
 * Optional: Solder the 4-pin header to the JP1 pads of the board.
 * If you use Windows, install the [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html).
-* Connect the ST-LINK V2 device to the JP1 pads. The pins, from left to right, are:
+* Connect the ST-LINK V2 device to the JP1 pads. If the JP1 pads are labeled, follow their labels. If they are unlabeled, the pins are, from left to right:
   * +3.3V
   * SWDIO
   * SWCLK
@@ -60,6 +60,8 @@ Now, download the latest `radpro-flashtool` from the [Rad Pro releases](https://
 `[mcu]` is the type of microprocessor of your board: `ch32f103r8t6` or `apm32f103rbt6`.
 
 To flash the original firmware, open a terminal and start the script with the `firmware/fnirsi-gc01-ch32f103r8t6-v1.5.bin` argument if your device has a CH32F103R8T6, or `firmware/fnirsi-gc01-apm32f103rbt6-v1.6.bin` argument if it has an APM32F103RBT6.
+
+If flashing does not work, try powering your GC-01 from USB.
 
 After successfully flashing the firmware, reconnect the battery connector and close the device.
 
