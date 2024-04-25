@@ -94,12 +94,12 @@ def sign_firmware(env_name, container_offset, container_size, flash_size):
     build_prefix = 'radpro-' + env_name + '-' + version
 
     if container_offset != 0:
-        output_path = build_prefix + '.bin'
+        output_path = build_prefix + '-install.bin'
         with open(output_path, 'wb') as f:
             f.write(flash)
             print('Signed ' + output_path)
 
-    output_path = build_prefix + '-image.bin'
+    output_path = build_prefix + '.bin'
     with open(output_path, 'wb') as f:
         f.write(flash[0:container_size])
         print('Signed ' + output_path)

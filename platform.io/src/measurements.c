@@ -734,7 +734,7 @@ static void onInstantaneousRateViewEvent(const View *view,
     case EVENT_DRAW:
     {
         char valueString[16];
-        char unitString[8];
+        char unitString[16];
         char *stateString;
         char *keyString = NULL;
         MeasurementStyle style;
@@ -890,7 +890,7 @@ static void onAverageRateViewEvent(const View *view,
     case EVENT_DRAW:
     {
         char valueString[16];
-        char unitString[8];
+        char unitString[16];
         char *stateString;
         char *keyString = NULL;
         MeasurementStyle style;
@@ -1064,7 +1064,7 @@ static void onCumulativeDoseViewEvent(const View *view,
     case EVENT_DRAW:
     {
         char valueString[16];
-        char unitString[8];
+        char unitString[16];
         char *stateString;
         char *keyString = NULL;
         MeasurementStyle style;
