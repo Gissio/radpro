@@ -26,7 +26,7 @@ Next:
 
 Some devices require that you keep the power button pressed from power on until the firmware is copied to the USB drive and the device restarts. Some other devices require that you press the right/settings key while pressing the power key for the USB drive to become available.
 
-If something goes wrong, press the reset switch next to the USB connector and repeat the previous procedure. You can recover your device with the [original firmware](firmware).
+If something goes wrong, press the reset switch next to the USB connector of your device and repeat the previous procedure. You can recover your device with the [original firmware](firmware).
 
 If you are unable to install Rad Pro on your device, or your device becomes unresponsive, follow the [FNIRSI GC-01 alternative installation instructions](install-stlink.md).
 
@@ -35,6 +35,8 @@ If you are unable to install Rad Pro on your device, or your device becomes unre
 Go to Rad Pro's settings, select "Geiger tube", "Conversion factor", and select the option that matches the Geiger-Müller tube installed in your device.
 
 Within the "Geiger tube" settings, select "HV Profile" and choose an appropriate HV profile: "Energy-saving" is best for measuring background levels of radiation; "Factory default" is the profile from the original firmware and consumes considerably more power.
+
+If your device produces spontaneous key presses by itself, select the "Energy-saving" HV profile to fix this problem.
 
 Last, read the [user's manual](../../users.md) for learning how to use Rad Pro.
 
@@ -62,8 +64,8 @@ Data logging can store up to 5060 data points. At normal radiation levels (20 cp
 
 The HV profile settings are:
 
-* Factory default: 9.207 kHz frequency and 75 % duty cycle.
-* Energy-saving: 5 kHz frequency and 1.5 % duty cycle.
+* Factory default: 9.207 kHz frequency and 75% duty cycle.
+* Energy-saving: 5 kHz frequency and 1.5% duty cycle.
 
 ### FNIRSI GC-01 with a APM32F103R8 (Geehy) processor
 
@@ -73,5 +75,5 @@ Data logging can store up to 63756 data points. At normal radiation levels (20 c
 
 The HV profile settings are:
 
-* Factory default: 47.058 kHz frequency and 50 % duty cycle.
-* Energy-saving: 5 kHz frequency and 1.5 % duty cycle.
+* Factory default: 47.058 kHz frequency and 50% duty cycle.
+* Energy-saving: 5 kHz frequency and 1.5% duty cycle.

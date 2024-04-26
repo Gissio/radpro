@@ -44,12 +44,12 @@ Make sure the electrical connections are correct. You may break your device if t
 
 Now, download the latest `radpro-flashtool` from the [Rad Pro releases](https://github.com/Gissio/radpro/releases).
 
-* Tp install from Windows, start the `install-fs2011-[mcu].bat` script.
-* To install from macOS or Linux, start the `install-fs2011-[mcu].sh` script.
+* Tp install from Windows, start the `flash-fs2011-[mcu].bat` script.
+* To install from macOS or Linux, start the `flash-fs2011-[mcu].sh` script.
 
 `[mcu]` is the type of microprocessor on your board: `stm32f051c8`, `gd32f150c8` or `gd32f103c8`.
 
-The installation will automatically create a backup of the original firmware in the `backup` folder, so you can recover your device if something goes wrong. Make sure you keep the backups safe, so you can always return to the original firmware. To flash a backup, open a terminal and start the `install-fs2011-[mcu]` script with the path to the backup file as argument.
+The installation will automatically create a backup of the original firmware in the `backup` folder, so you can recover your device if something goes wrong. Make sure you keep the backups safe, so you can always return to the original firmware. To flash a backup, open a terminal and start the `flash-fs2011-[mcu]` script with the path to the backup file as argument.
 
 After successfully flashing the firmware, close the device.
 
@@ -100,6 +100,6 @@ The FS2011 includes two Zener diodes that limit the maximum voltage to 440 V (no
 
 The FS2011 HV profile settings are:
 
-* Factory default: 40 kHz frequency and 50 % duty cycle.
-* Accuracy: 2.5 kHz frequency and 6.5 % duty cycle.
-* Energy-saving: 2.5 kHz frequency and 3.0 % duty cycle.
+* Factory default: 40 kHz frequency and 50% duty cycle.
+* Accuracy: 2.5 kHz frequency and 6.5% duty cycle.
+* Energy-saving: 2.5 kHz frequency and 3.0% duty cycle.

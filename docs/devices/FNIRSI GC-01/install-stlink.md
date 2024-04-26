@@ -54,10 +54,10 @@ Make sure the electrical connections are correct. You may break your device if t
 
 Now, download the latest `radpro-flashtool` from the [Rad Pro releases](https://github.com/Gissio/radpro/releases).
 
-* To install from Windows, start the `install-fnirsi-gc01-[mcu].bat` script.
-* To install from macOS or Linux, start the `install-fnirsi-gc01-[mcu].sh` script.
+* To install from Windows, start the `flash-fnirsi-gc01-[mcu].bat` script.
+* To install from macOS or Linux, start the `flash-fnirsi-gc01-[mcu].sh` script.
 
-`[mcu]` is the type of microprocessor of your board: `ch32f103r8t6` or `apm32f103rbt6`.
+`[mcu]` is the type of microprocessor of your board: `ch32f103r8t6` or `apm32f103rbt6`. **NOTE:** Flashing the CH32F103R8T6 can take a couple of minutes.
 
 To flash the original firmware, open a terminal and start the script with the `firmware/fnirsi-gc01-ch32f103r8t6-v1.5.bin` argument if your device has a CH32F103R8T6, or `firmware/fnirsi-gc01-apm32f103rbt6-v1.6.bin` argument if it has an APM32F103RBT6.
 

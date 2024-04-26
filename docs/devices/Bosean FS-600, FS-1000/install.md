@@ -44,12 +44,12 @@ Make sure the electrical connections are correct. You may break your device if t
 
 Now, download the latest `radpro-flashtool` from the [Rad Pro releases](https://github.com/Gissio/radpro/releases).
 
-* To install from Windows, start the `install-bosean-[device].bat` script.
-* To install from macOS or Linux, start the `install-bosean-[device].sh` script.
+* To install from Windows, start the `flash-bosean-[device].bat` script.
+* To install from macOS or Linux, start the `flash-bosean-[device].sh` script.
 
 `[device]` is the type of your device: `fs600` or `fs1000`.
 
-The installation will automatically create a backup of the original firmware in the `backup` folder, so you can recover your device if something goes wrong. Make sure you keep the backups safe, so you can always return to the original firmware. To flash a backup, open a terminal and start the `install-bosean-[device]` script with the path to the backup file as argument.
+The installation will automatically create a backup of the original firmware in the `backup` folder, so you can recover your device if something goes wrong. Make sure you keep the backups safe, so you can always return to the original firmware. To flash a backup, open a terminal and start the `flash-bosean-[device]` script with the path to the backup file as argument.
 
 To enable USB data communications under Windows, install the [CH340 driver](https://www.catalog.update.microsoft.com/Search.aspx?q=USB%5CVID_1A86%26PID_7523).
 
@@ -92,6 +92,6 @@ The FS-600 and FS-1000 include two Zener diodes that limit the maximum voltage t
 
 The FS-600 and FS-1000 HV profile settings are:
 
-* Factory default: 40 kHz frequency and 50 % duty cycle.
-* Accuracy: 2.5 kHz frequency and 6.5 % duty cycle.
-* Energy-saving: 2.5 kHz frequency and 3.0 % duty cycle.
+* Factory default: 40 kHz frequency and 50% duty cycle.
+* Accuracy: 2.5 kHz frequency and 6.5% duty cycle.
+* Energy-saving: 2.5 kHz frequency and 3.0% duty cycle.

@@ -4,8 +4,8 @@
 
 * Large display, ideal for field application such as mineralogy.
 * Multiple measurement units: Sievert, rem, cpm (counts per minute), cps (counts per second).
-* Adaptive averaging window, aiming for a confidence interval below ±50 %.
-* Configurable average timer for performing surveys.
+* Adaptive averaging window, aiming for a confidence interval below ±50%.
+* Configurable averaging for performing surveys.
 * Live and offline data logging with data compression.
 * Compatibility with the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software.
 * Configurable pulse indication, optionally limited by a radiation level threshold: pulse clicks (off, quiet, loud), pulse LED (on supported devices), display flashes (on backlight sleep) and haptic pulses (on supported devices).
@@ -32,11 +32,11 @@ The instantaneous rate is estimated by dividing the number of pulses within a ti
 
 The view can be switched between an instantaneous rate bar view (with 1 µSv/h and 10 µSv/h alert zones), a time view that shows the length of the time window used for calculating the instantaneous rate, and an instantaneous rate max view.
 
-The [confidence interval](https://en.wikipedia.org/wiki/Confidence_interval) estimates the range of values that contain the true, actual instantaneous rate with a 95 % probability, assuming a constant level of radiation.
+The [confidence interval](https://en.wikipedia.org/wiki/Confidence_interval) estimates the range of values that contain the true, actual instantaneous rate with a 95% probability, assuming a constant level of radiation.
 
-The time window is adaptively adjusted, aiming for a confidence interval below ±50 %. On radiation levels above 1 µSv/h, the time window is limited to 5 seconds to ensure a fast response.
+The time window is adaptively adjusted, aiming for a confidence interval below ±50%. On radiation levels above 1 µSv/h, the time window is limited to 5 seconds to ensure a fast response.
 
-An example: suppose you measure an instantaneous rate of 1.000 µSv/h with a confidence interval of ±40 %. This means that the true, actual level of radiation has a 95 % probability of falling within the interval [0.600 µSv/h, 1.400 µSv/h] (40 % below and above the measured value). This also means that there is a 5 % chance that the true level of radiation is outside this interval. As the confidence interval becomes smaller, the certainty of your measurement increases.
+An example: suppose you measure an instantaneous rate of 1.000 µSv/h with a confidence interval of ±40%. This means that the true, actual level of radiation has a 95% probability of falling within the interval [0.600 µSv/h, 1.400 µSv/h] (40% below and above the measured value). This also means that there is a 5% chance that the true level of radiation is outside this interval. As the confidence interval becomes smaller, the certainty of your measurement increases.
 
 ### Average rate
 
@@ -46,9 +46,9 @@ The average time is the length of the time window used for calculating the avera
 
 The confidence interval assumes a constant level of radiation over the averaging period.
 
-Averaging can be indefinite, or limited by an average timer, which expires after reaching a configurable time or confidence level. Upon timer expiration, the device will flash and emit a beep, signaling the completion of the measurement.
+Averaging can be indefinite, or limited by a configurable time or confidence level. Upon expiration, the device will flash and emit a beep, signaling the completion of the measurement.
 
-An example: suppose you averaged background radiation for 1 minute, resulting in a measurement of 0.210 µSv/h with a confidence interval of ±36 %. This means that the actual level of radiation has a 95 % probability of falling within the interval [0.134 µSv/h, 0.286 µSv/h] (36 % below and above the measured value). Suppose you consider this confidence interval too high, so you repeat the measurement with a 30-minute time window. Your new measurement is 0.154 µSv/h with a confidence interval of ±7.7 %, which you might consider now much more acceptable.
+An example: suppose you averaged background radiation for 1 minute, resulting in a measurement of 0.210 µSv/h with a confidence interval of ±36%. This means that the actual level of radiation has a 95% probability of falling within the interval [0.134 µSv/h, 0.286 µSv/h] (36% below and above the measured value). Suppose you consider this confidence interval too high, so you repeat the measurement with a 30-minute time window. Your new measurement is 0.154 µSv/h with a confidence interval of ±7.7%, which you might consider now much more acceptable.
 
 ### Cumulative dose
 
