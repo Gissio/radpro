@@ -12,21 +12,19 @@
 #include <math.h>
 #include <stdlib.h>
 
-#include <SDL.h>
-
 #include "../events.h"
 #include "../settings.h"
 #include "../tube.h"
 
 #if !defined(M_PI)
-
 #define M_PI 3.14159265F
-
 #endif
 
-#define SIM_USVH 0.15F
 #define SIM_CONVERSION_FACTOR 153.8F
+#define SIM_USVH 0.15F
 #define SIM_CPS (SIM_USVH * SIM_CONVERSION_FACTOR / 60.0F)
+
+float tubeCPS;
 
 static struct
 {
@@ -39,6 +37,8 @@ static struct
 void initTubeController(void)
 {
     srand(time(NULL));
+
+    tubeCPS = SIM_CPS;
 }
 
 void setTubeHV(bool value)
@@ -70,25 +70,6 @@ static uint32_t getPoisson(double lambda)
     return n - 1;
 }
 
-uint32_t simPulses(void)
-{
-    const Uint8 *state = SDL_GetKeyboardState(NULL);
-
-    double cps = SIM_CPS;
-    if (state[SDL_SCANCODE_5])
-        cps *= 100000;
-    else if (state[SDL_SCANCODE_4])
-        cps *= 10000;
-    else if (state[SDL_SCANCODE_3])
-        cps *= 1000;
-    else if (state[SDL_SCANCODE_2])
-        cps *= 100;
-    else if (state[SDL_SCANCODE_1])
-        cps *= 10;
-
-    return getPoisson(cps / SYSTICK_FREQUENCY);
-}
-
 bool getTubePulse(uint32_t *pulseTime)
 {
     if (tube.pulseIndex == tube.pulseCount)
@@ -96,7 +77,7 @@ bool getTubePulse(uint32_t *pulseTime)
         tube.pulseTime += 8000;
 
         tube.pulseIndex = 0;
-        tube.pulseCount = simPulses();
+        tube.pulseCount = getPoisson(tubeCPS / SYSTICK_FREQUENCY);
 
         return false;
     }

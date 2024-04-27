@@ -40,7 +40,7 @@
 enum
 {
     INSTANTANEOUS_TAB_BAR,
-    INSTANTANEOUS_TAB_TIME,
+    INSTANTANEOUS_TAB_AVERAGINGPERIOD,
     INSTANTANEOUS_TAB_MAX,
     INSTANTANEOUS_TAB_RATE,
 
@@ -131,6 +131,7 @@ static struct
 
         Rate rate;
         float maxValue;
+        float averagingPeriod;
     } instantaneous;
 
     uint32_t instantaneousTabIndex;
@@ -165,7 +166,7 @@ static struct
     int32_t viewIndex;
 } measurements;
 
-static const int32_t averageTimerTimes[] = {
+static const int32_t averagingTimes[] = {
     30 * 24 * 60 * 60, // Off (actually 30 days)
     5 * 60,            // 5 minutes
     10 * 60,           // 10 minutes
@@ -173,17 +174,17 @@ static const int32_t averageTimerTimes[] = {
     60 * 60,           // 60 minutes
 };
 
-static const float averageTimerConfidences[] = {
-    0.405F,  // ±40 % confidence
-    0.205F,  // ±20 % confidence
-    0.105F,  // ±10 % confidence
-    0.0505F, // ±5 % confidence
+static const float averagingConfidences[] = {
+    0.405F,  // ±40% confidence
+    0.205F,  // ±20% confidence
+    0.105F,  // ±10% confidence
+    0.0505F, // ±5% confidence
 };
 
 static const Menu unitsMenu;
 static const Menu rateAlarmMenu;
 static const Menu doseAlarmMenu;
-static const Menu averageTimerMenu;
+static const Menu averagingMenu;
 
 static void updatePulsesThresholdExceeded(void);
 
@@ -207,9 +208,9 @@ void initMeasurements(void)
     selectMenuItem(&unitsMenu,
                    settings.units,
                    UNITS_NUM);
-    selectMenuItem(&averageTimerMenu,
-                   settings.averageTimer,
-                   AVERAGETIMER_NUM);
+    selectMenuItem(&averagingMenu,
+                   settings.averaging,
+                   AVERAGING_NUM);
     selectMenuItem(&rateAlarmMenu,
                    settings.rateAlarm,
                    RATEALARM_NUM);
@@ -270,39 +271,63 @@ static float getDeadTimeCompensationFactor(float value)
     }
 }
 
+uint8_t instantaneousAveragingPeriods[] = {
+    60, 30, 10};
+
 static uint32_t getInstantaneousAveragingPeriod(float value)
 {
-    float scale = units[UNITS_SIEVERTS].rate.scale;
+    if (settings.tubeInstantaneousAveraging >=
+        TUBE_INSTANTANEOUSAVERAGING_60SECONDS)
+        return instantaneousAveragingPeriods[settings.tubeInstantaneousAveraging -
+                                             TUBE_INSTANTANEOUSAVERAGING_60SECONDS];
 
-    float svH = scale * value;
     float averagingPeriod;
-
-    if ((svH > AVERAGING_TRANSITION_SVH_MIN) &&
-        (svH < AVERAGING_TRANSITION_SVH_MAX))
-    {
-        float transitionExponent =
-            log10f((AVERAGING_PERIOD_TIME_CONSTANT /
-                    AVERAGING_TRANSITION_SVH_MIN /
-                    AVERAGING_PERIOD_TIME_MIN) *
-                   scale) /
-            log10f(AVERAGING_TRANSITION_SVH_MIN /
-                   AVERAGING_TRANSITION_SVH_MAX);
-
-        averagingPeriod = (AVERAGING_PERIOD_TIME_MIN *
-                           powf(svH / AVERAGING_TRANSITION_SVH_MAX,
-                                transitionExponent));
-    }
+    if (value < (AVERAGING_PERIOD_TIME_CONSTANT / AVERAGING_PERIOD_TIME_MAX))
+        averagingPeriod = AVERAGING_PERIOD_TIME_MAX;
+    else if (value > AVERAGING_PERIOD_TIME_CONSTANT)
+        averagingPeriod = 1;
     else
-    {
-        if (value < (AVERAGING_PERIOD_TIME_CONSTANT / AVERAGING_PERIOD_TIME_MAX))
-            averagingPeriod = AVERAGING_PERIOD_TIME_MAX;
-        else if (value > AVERAGING_PERIOD_TIME_CONSTANT)
-            averagingPeriod = 1;
-        else
-            averagingPeriod = AVERAGING_PERIOD_TIME_CONSTANT / value;
+        averagingPeriod = AVERAGING_PERIOD_TIME_CONSTANT / value;
 
-        if ((svH > AVERAGING_TRANSITION_SVH_MAX) &&
-            (averagingPeriod > AVERAGING_PERIOD_TIME_MIN))
+    if (settings.tubeInstantaneousAveraging ==
+        TUBE_INSTANTANEOUSAVERAGING_ADAPTIVEFAST)
+    {
+        float scale = units[UNITS_SIEVERTS].rate.scale;
+
+        if (scale * (AVERAGING_PERIOD_TIME_CONSTANT /
+                     AVERAGING_TRANSITION_SVH_MAX) >
+            AVERAGING_PERIOD_TIME_MIN)
+        {
+            float svH = scale * value;
+
+            if (svH < AVERAGING_TRANSITION_SVH_MAX)
+            {
+                if (svH > AVERAGING_TRANSITION_SVH_MIN)
+                {
+                    float transitionExponent =
+                        log10f((AVERAGING_PERIOD_TIME_CONSTANT /
+                                AVERAGING_TRANSITION_SVH_MIN /
+                                AVERAGING_PERIOD_TIME_MIN) *
+                               scale) /
+                        log10f(AVERAGING_TRANSITION_SVH_MIN /
+                               AVERAGING_TRANSITION_SVH_MAX);
+
+                    averagingPeriod = (AVERAGING_PERIOD_TIME_MIN *
+                                       powf(svH / AVERAGING_TRANSITION_SVH_MAX,
+                                            transitionExponent));
+                }
+            }
+            else
+            {
+                if (averagingPeriod > AVERAGING_PERIOD_TIME_MIN)
+                    averagingPeriod = AVERAGING_PERIOD_TIME_MIN;
+            }
+        }
+    }
+    else if (settings.tubeInstantaneousAveraging ==
+             TUBE_INSTANTANEOUSAVERAGING_ADAPTIVEPRECISION)
+    {
+        if (averagingPeriod < AVERAGING_PERIOD_TIME_MIN)
             averagingPeriod = AVERAGING_PERIOD_TIME_MIN;
     }
 
@@ -319,7 +344,7 @@ static void calculateRate(uint32_t pulseCount, uint32_t ticks, Rate *rate)
         return;
     }
 
-    // Improves accuracy when radiation rate is high
+    // Improves precision when radiation rate is high
     if (pulseCount > ticks)
     {
         addClamped(&pulseCount, 1);
@@ -455,7 +480,7 @@ void updateMeasurements(void)
 
     measurements.instantaneous.rate.time = 0;
 
-    uint32_t averagingPeriod =
+    measurements.instantaneous.averagingPeriod =
         getInstantaneousAveragingPeriod(measurements.instantaneous.rate.value);
 
     uint32_t queueSize = (measurements.instantaneous.queueTail -
@@ -472,7 +497,7 @@ void updateMeasurements(void)
              measurements.instantaneous.queue[queueIndex].firstPulseTick) /
                 SYSTICK_FREQUENCY;
 
-        if (timePeriod > averagingPeriod)
+        if (timePeriod > measurements.instantaneous.averagingPeriod)
         {
             measurements.instantaneous.queueHead =
                 (queueIndex + 1) & INSTANTANEOUS_RATE_QUEUE_MASK;
@@ -532,12 +557,12 @@ void updateMeasurements(void)
 
         // Average timer
         bool timerExpired =
-            (settings.averageTimer < AVERAGETIMER_TIME_NUM)
+            (settings.averaging < AVERAGING_TIME_NUM)
                 ? (measurements.average.rate.time >=
-                   averageTimerTimes[settings.averageTimer])
+                   averagingTimes[settings.averaging])
                 : (measurements.average.rate.confidence != 0.0F) &&
                       (measurements.average.rate.confidence <
-                       averageTimerConfidences[settings.averageTimer - AVERAGETIMER_TIME_NUM]);
+                       averagingConfidences[settings.averaging - AVERAGING_TIME_NUM]);
 
         if (!timerExpired)
             measurements.average.timerRate = measurements.average.rate;
@@ -791,12 +816,12 @@ static void onInstantaneousRateViewEvent(const View *view,
             break;
         }
 
-        case INSTANTANEOUS_TAB_TIME:
+        case INSTANTANEOUS_TAB_AVERAGINGPERIOD:
             if (measurements.instantaneous.rate.time > 0)
                 strcatTime(valueString,
                            measurements.instantaneous.rate.time);
 
-            keyString = "Time";
+            keyString = "Period";
 
             break;
 
@@ -1290,52 +1315,52 @@ const View unitsMenuView = {
     &unitsMenu,
 };
 
-// Average timer menu
+// Averaging menu
 
-static const char *const averageTimerMenuOptions[] = {
-    "Off",
+static const char *const averagingMenuOptions[] = {
+    "Unlimited",
     "5 minutes",
     "10 minutes",
     "30 minutes",
     "60 minutes",
     "\xb1"
-    "40 % confidence",
+    "40% confidence",
     "\xb1"
-    "20 % confidence",
+    "20% confidence",
     "\xb1"
-    "10 % confidence",
+    "10% confidence",
     "\xb1"
-    "5 % confidence",
+    "5% confidence",
     NULL,
 };
 
-static const char *onAverageTimerMenuGetOption(const Menu *menu,
-                                               uint32_t index,
-                                               MenuStyle *menuStyle)
+static const char *onAveragingMenuGetOption(const Menu *menu,
+                                            uint32_t index,
+                                            MenuStyle *menuStyle)
 {
-    *menuStyle = (index == settings.averageTimer);
+    *menuStyle = (index == settings.averaging);
 
-    return averageTimerMenuOptions[index];
+    return averagingMenuOptions[index];
 }
 
-static void onAverageTimerMenuSelect(const Menu *menu)
+static void onAveragingMenuSelect(const Menu *menu)
 {
-    settings.averageTimer = menu->state->selectedIndex;
+    settings.averaging = menu->state->selectedIndex;
 }
 
-static MenuState averageTimerMenuState;
+static MenuState averagingMenuState;
 
-static const Menu averageTimerMenu = {
-    "Average timer",
-    &averageTimerMenuState,
-    onAverageTimerMenuGetOption,
-    onAverageTimerMenuSelect,
+static const Menu averagingMenu = {
+    "Averaging",
+    &averagingMenuState,
+    onAveragingMenuGetOption,
+    onAveragingMenuSelect,
     onSettingsSubMenuBack,
 };
 
-const View averageTimerMenuView = {
+const View averagingMenuView = {
     onMenuEvent,
-    &averageTimerMenu,
+    &averagingMenu,
 };
 
 // Rate alarm menu

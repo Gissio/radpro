@@ -37,7 +37,7 @@ extern const View cumulativeDoseView;
 extern const View historyView;
 
 extern const View unitsMenuView;
-extern const View averageTimerMenuView;
+extern const View averagingMenuView;
 extern const View rateAlarmMenuView;
 extern const View doseAlarmMenuView;
 extern const View pulsesThresholdMenuView;

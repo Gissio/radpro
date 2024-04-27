@@ -30,6 +30,8 @@ bool vibratorOn;
 static uint8_t displayBrightnessValues[] = {
     0x3f, 0x7f, 0xbf, 0xff};
 
+extern float tubeCPS;
+
 void initDisplayController(void)
 {
     // mcu-renderer
@@ -70,6 +72,8 @@ void refreshDisplay(void)
 {
 }
 
+void updateDisplayTitle(void);
+
 void updateDisplay(void)
 {
     mr_sdl_refresh_display(&mr);
@@ -77,21 +81,51 @@ void updateDisplay(void)
     SDL_Event event;
     if (SDL_PollEvent(&event))
     {
-        if (event.type == SDL_QUIT)
+        switch (event.type)
         {
+        case SDL_QUIT:
             writeDatalog();
             writeSettings();
 
             exit(0);
+
+            break;
+
+        case SDL_KEYDOWN:
+        {
+            float tubeCPSAdjustment = expf(logf(10) / 20);
+
+            if (event.key.keysym.mod & KMOD_LCTRL)
+                tubeCPS /= tubeCPSAdjustment;
+            else if (event.key.keysym.mod & KMOD_RCTRL)
+                tubeCPS *= tubeCPSAdjustment;
+
+            if (tubeCPS < 0.01F)
+                tubeCPS = 0.01F;
+            else if (tubeCPS > 100000.0F)
+                tubeCPS = 100000.0F;
+
+            updateDisplayTitle();
+
+            break;
+        }
         }
     }
 }
 
+// const Uint8 *state = SDL_GetKeyboardState(NULL);
+
+// if (state[SDL_SCANCODE_LCTRL])
+//     tubeCPS /= 1.001F;
+// else if (state[SDL_SCANCODE_RCTRL])
+//     tubeCPS *= 1.001F;
+
 void updateDisplayTitle(void)
 {
-    char buffer[32];
+    char buffer[256];
 
-    strcpy(buffer, FIRMWARE_NAME);
+    sprintf(buffer, "%s (%.2f cps)", FIRMWARE_NAME, tubeCPS);
+
     if (pulseLEDOn || vibratorOn)
         strcat(buffer, " ");
     if (pulseLEDOn)

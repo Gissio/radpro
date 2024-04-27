@@ -126,7 +126,7 @@ Example:
     GET tubeRate
     OK 142.857
 
-For improved accuracy, perform two `GET tubePulseCount` measurements over a time period and divide the pulse count difference by the time period (in minutes).
+For improved precision, perform two `GET tubePulseCount` measurements over a time period and divide the pulse count difference by the time period (in minutes).
 
 ### Get tube conversion factor
 

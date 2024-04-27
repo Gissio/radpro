@@ -15,6 +15,7 @@
 
 // STM32 8 MHz
 // #define SDL_EVENTS_CALLS_MAX 4
+
 // STM32 72 MHz
 #define SDL_EVENTS_CALLS_MAX (4 * 9)
 

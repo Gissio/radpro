@@ -517,6 +517,7 @@ static const char *onGameStrengthMenuGetOption(const Menu *menu,
     {
         strcpy(menuOption, "Level ");
         strcatUInt32(menuOption, index + 1, 0);
+
         return menuOption;
     }
     else

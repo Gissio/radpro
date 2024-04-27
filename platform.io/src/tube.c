@@ -24,6 +24,7 @@ static const Menu tubeHVProfileMenu;
 static const Menu tubeHVCustomProfileMenu;
 static const Menu tubeHVDutyCycleMenu;
 static const Menu tubeHVFrequencyMenu;
+static const Menu tubeInstantaneousAveragingMenu;
 
 static const View tubeConversionFactorMenuView;
 static const View tubeDeadTimeCompensationMenuView;
@@ -33,6 +34,7 @@ static const View tubeHVCustomProfileWarningView;
 static const View tubeHVCustomProfileMenuView;
 static const View tubeHVDutyCycleMenuView;
 static const View tubeHVrequencyMenuView;
+static const View tubeInstantaneousAveragingMenuView;
 
 void initTube(void)
 {
@@ -41,6 +43,9 @@ void initTube(void)
     selectMenuItem(&tubeConversionFactorMenu,
                    settings.tubeConversionFactor,
                    TUBE_CONVERSIONFACTOR_NUM);
+    selectMenuItem(&tubeInstantaneousAveragingMenu,
+                   settings.tubeInstantaneousAveraging,
+                   TUBE_INSTANTANEOUSAVERAGING_NUM);
     selectMenuItem(&tubeDeadTimeCompensationMenu,
                    settings.tubeDeadTimeCompensation,
                    TUBE_DEADTIMECOMPENSATION_NUM);
@@ -63,6 +68,11 @@ void initTube(void)
 static const char *const tubeMenuOptions[] = {
     "Conversion factor",
 #if !defined(DISPLAY_240X320)
+    "Instant. averaging",
+#else
+    "Inst. averaging.",
+#endif
+#if !defined(DISPLAY_240X320)
     "Dead-time comp.",
     "Background comp.",
 #else
@@ -75,6 +85,7 @@ static const char *const tubeMenuOptions[] = {
 
 static const View *tubeMenuOptionViews[] = {
     &tubeConversionFactorMenuView,
+    &tubeInstantaneousAveragingMenuView,
     &tubeDeadTimeCompensationMenuView,
     &tubeBackgroundCompensationMenuView,
     &tubeHVProfileMenuView,
@@ -197,6 +208,50 @@ static const Menu tubeConversionFactorMenu = {
 static const View tubeConversionFactorMenuView = {
     onMenuEvent,
     &tubeConversionFactorMenu,
+};
+
+// Instantaneous averaging men
+
+static const char *const tubeInstantaneousAveragingMenuOptions[] = {
+    "Adaptive fast",
+    "Adaptive precision",
+    "60 seconds",
+    "30 seconds",
+    "10 seconds",
+    NULL,
+};
+
+static const char *onTubeInstantaneousAveragingMenuGetOption(const Menu *menu,
+                                                  uint32_t index,
+                                                  MenuStyle *menuStyle)
+{
+    *menuStyle = (index == settings.tubeInstantaneousAveraging);
+
+    return tubeInstantaneousAveragingMenuOptions[index];
+}
+
+static void onTubeInstantaneousAveragingMenuSelect(const Menu *menu)
+{
+    settings.tubeInstantaneousAveraging = menu->state->selectedIndex;
+}
+
+static MenuState tubeInstantaneousAveragingMenuState;
+
+static const Menu tubeInstantaneousAveragingMenu = {
+#if !defined(DISPLAY_240X320)
+    "Instantaneous averaging",
+#else
+    "Inst. averaging",
+#endif
+    &tubeInstantaneousAveragingMenuState,
+    onTubeInstantaneousAveragingMenuGetOption,
+    onTubeInstantaneousAveragingMenuSelect,
+    onTubeSubMenuBack,
+};
+
+static const View tubeInstantaneousAveragingMenuView = {
+    onMenuEvent,
+    &tubeInstantaneousAveragingMenu,
 };
 
 // Tube dead-time compensation menu
@@ -524,14 +579,7 @@ static const char *onTubeHVFrequencyMenuGetOption(const Menu *menu,
 {
     *menuStyle = (index == settings.tubeHVFrequency);
 
-    if (index < TUBE_HVFREQUENCY_NUM)
-    {
-        strcpy(menuOption, tubeHVFrequencyMenuOptions[index]);
-
-        return menuOption;
-    }
-    else
-        return NULL;
+    return tubeHVFrequencyMenuOptions[index];
 }
 
 static void onTubeHVFrequencyMenuSelect(const Menu *menu)
@@ -600,7 +648,7 @@ static const char *onTubeHVDutyCycleMenuGetOption(const Menu *menu,
     {
         strclr(menuOption);
         strcatFloat(menuOption, 100 * getTubeHVCustomProfileDutyCycle(index), 2);
-        strcat(menuOption, " %");
+        strcat(menuOption, "%");
 
         return menuOption;
     }

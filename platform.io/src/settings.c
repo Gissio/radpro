@@ -161,7 +161,7 @@ void writeSettings(void)
 
 static const OptionView settingsMenuOptions[] = {
     {"Units", &unitsMenuView},
-    {"Average timer", &averageTimerMenuView},
+    {"Averaging", &averagingMenuView},
     {"Rate alarm", &rateAlarmMenuView},
     {"Dose alarm", &doseAlarmMenuView},
     {"Geiger tube", &tubeMenuView},

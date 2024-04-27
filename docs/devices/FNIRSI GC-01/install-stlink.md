@@ -4,7 +4,7 @@ These instructions let you install Rad Pro on an FNIRSI GC-01 with a CH32F103R8T
 
 * cannot access the USB drive as described in the [main installation instructions](install.md).
 * want to install Rad Pro from macOS or Linux.
-* your FNIRSI GC-01 became irresponsive and you need to recover your device.
+* your FNIRSI GC-01 became unresponsive and you need to recover your device.
 
 **WARNING:** Rad Pro is incompatible with the FNIRSI GC-01 with a CACHIP microprocessor. Installing Rad Pro on such a device WILL BREAK IT.
 
@@ -57,7 +57,7 @@ Now, download the latest `radpro-flashtool` from the [Rad Pro releases](https://
 * To install from Windows, start the `flash-fnirsi-gc01-[mcu].bat` script.
 * To install from macOS or Linux, start the `flash-fnirsi-gc01-[mcu].sh` script.
 
-`[mcu]` is the type of microprocessor of your board: `ch32f103r8t6` or `apm32f103rbt6`. **NOTE:** Flashing the CH32F103R8T6 can take a couple of minutes.
+`[mcu]` is the type of microprocessor of your board: `ch32f103r8t6` or `apm32f103rbt6`. **NOTE:** Flashing the CH32F103R8T6 takes a couple of minutes.
 
 To flash the original firmware, open a terminal and start the script with the `firmware/fnirsi-gc01-ch32f103r8t6-v1.5.bin` argument if your device has a CH32F103R8T6, or `firmware/fnirsi-gc01-apm32f103rbt6-v1.6.bin` argument if it has an APM32F103RBT6.
 
