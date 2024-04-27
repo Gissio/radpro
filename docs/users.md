@@ -185,4 +185,4 @@ To communicate with Rad Pro through a serial port or SWD (through an ST-LINK don
 
 **Q: I enabled clicks but aren't hearing any clicks. What's happening?**
 
-**A:** Most likely you enabled pulses thresholding, which enables pulse indication only above a certain threshold level of radiation.
+**A:** Most likely you enabled pulses thresholding, which enables pulse indication only above a certain radiation level threshold.
