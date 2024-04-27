@@ -32,11 +32,11 @@ If you are unable to install Rad Pro on your device, or your device becomes unre
 
 ## Step 3: Configure your device
 
-Go to Rad Pro's settings, select "Geiger tube", "Conversion factor", and select the option that matches the Geiger-Müller tube installed in your device.
+Go to Rad Pro's settings, select “Geiger tube”, “Conversion factor”, and select the option that matches the Geiger-Müller tube installed in your device.
 
-Within the "Geiger tube" settings, select "HV Profile" and choose an appropriate HV profile: "Energy-saving" is best for measuring background levels of radiation; "Factory default" is the profile from the original firmware and consumes considerably more power.
+Within the “Geiger tube” settings, select “HV Profile” and choose an appropriate HV profile: “Energy-saving” is best for measuring background levels of radiation; “Factory default” is the profile from the original firmware and consumes considerably more power.
 
-If your device produces spontaneous key presses by itself, select the "Energy-saving" HV profile to fix this problem.
+If your device produces spontaneous key presses by itself, select the “Energy-saving” HV profile to fix this problem.
 
 Last, read the [user's manual](../../users.md) for learning how to use Rad Pro.
 
@@ -58,7 +58,7 @@ The keys are mapped as follows:
 
 ### FNIRSI GC-01 with a CH32F103R8 (WCH) microprocessor
 
-On the FNIRSI GC-01 with a CH32F103R8 microprocessor, you must enter "Data mode" in the Settings to enable a USB data connection. The data connection is disabled when you leave "Data mode".
+On the FNIRSI GC-01 with a CH32F103R8 microprocessor, you must enter “Data mode” in the Settings to enable a USB data connection. The data connection is disabled when you leave “Data mode”.
 
 Data logging can store up to 5060 data points. At normal radiation levels (20 cpm), this allows for 105 days of data at 60-minute intervals, 52 days at 30-minute intervals, 17 days at 10-minute intervals, 8 days at 5-minute intervals, 3 days at 1-minute intervals, 1 day at 30-second intervals and 14 hours at 10-second intervals.
 

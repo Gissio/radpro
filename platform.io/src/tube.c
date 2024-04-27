@@ -70,7 +70,7 @@ static const char *const tubeMenuOptions[] = {
 #if !defined(DISPLAY_240X320)
     "Instant. averaging",
 #else
-    "Inst. averaging.",
+    "Inst. averaging",
 #endif
 #if !defined(DISPLAY_240X320)
     "Dead-time comp.",

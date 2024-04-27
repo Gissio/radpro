@@ -231,13 +231,13 @@
 #define MENU_CHECKED_WIDTH 21
 
 #define MEASUREMENT_PADDING 15
-#define MEASUREMENT_VALUE_HEIGHT 101
+#define MEASUREMENT_VALUE_HEIGHT 117
 #define MEASUREMENT_VALUE_OFFSET_X 10
-#define MEASUREMENT_VALUE_OFFSET_Y 6
+#define MEASUREMENT_VALUE_OFFSET_Y 24
 #define MEASUREMENT_UNIT_X CONTENT_X
 #define MEASUREMENT_CONFIDENCE_HEIGHT FONT_SMALL_LINE_HEIGHT
 #define MEASUREMENT_INFO_KEY_Y MEASUREMENT_CONFIDENCE_BOTTOM
-#define MEASUREMENT_INFO_KEY_HEIGHT 64
+#define MEASUREMENT_INFO_KEY_HEIGHT 55
 #define MEASUREMENT_INFO_KEY_OFFSET_Y (MEASUREMENT_INFO_KEY_HEIGHT - FONT_SMALL_LINE_HEIGHT)
 #define MEASUREMENT_INFO_VALUE_HEIGHT (CONTENT_BOTTOM - MEASUREMENT_INFO_VALUE_Y)
 #define MEASUREMENT_STATE_X (CONTENT_X + CONTENT_WIDTH / 2)
@@ -377,7 +377,7 @@
 #define RNG_DATA_X CONTENT_X
 #define RNG_DATA_Y CONTENT_Y
 #define RNG_DATA_WIDTH CONTENT_WIDTH
-#define RNG_DATA_HEIGHT ((CONTENT_HEIGHT - FONT_SMALL_LINE_HEIGHT) / 2 + FONT_SMALL_LINE_HEIGHT)
+#define RNG_DATA_HEIGHT ((CONTENT_HEIGHT + FONT_SMALL_LINE_HEIGHT) / 2)
 #define RNG_DATA_OFFSET_X CONTENT_PADDING
 #define RNG_DATA_OFFSET_Y (RNG_DATA_HEIGHT - FONT_SMALL_LINE_HEIGHT)
 #define RNG_STATE_X CONTENT_X
@@ -640,9 +640,9 @@ static const mr_color_t displayColors[][3] = {
      mr_get_color(0x000000)},
 
     // Flat checked background (on container global) [menu selected background]
-    {mr_get_color(0xe5e9ef),
-     mr_get_color(0x34404a),  // 0x41454b
-     mr_get_color(0x09101a)}, // Changed alpha to 18 %
+    {mr_get_color(0xd6dde9),  // Changed alpha to 20 %
+     mr_get_color(0x3a4d63),  // 0x394c6a, changed alpha to 50 %
+     mr_get_color(0x101c29)}, // 0x111e33, changed alpha to 35 %
 
     // On flat active (on container global) [menu selected foreground]
     {mr_get_color(0x1a1a1a),

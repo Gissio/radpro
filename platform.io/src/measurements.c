@@ -844,7 +844,8 @@ static void onInstantaneousRateViewEvent(const View *view,
         case INSTANTANEOUS_TAB_RATE:
             if (measurements.instantaneous.rate.value > 0)
             {
-                uint32_t unitsIndex = (settings.units != UNITS_CPM)
+                uint32_t unitsIndex = ((settings.units != UNITS_CPM) &&
+                                       (settings.units != UNITS_CPS))
                                           ? UNITS_CPM
                                           : UNITS_SIEVERTS;
 
@@ -976,7 +977,8 @@ static void onAverageRateViewEvent(const View *view,
         case AVERAGE_TAB_RATE:
             if (measurements.average.rate.value > 0)
             {
-                uint32_t unitsIndex = (settings.units != UNITS_CPM)
+                uint32_t unitsIndex = ((settings.units != UNITS_CPM) &&
+                                       (settings.units != UNITS_CPS))
                                           ? UNITS_CPM
                                           : UNITS_SIEVERTS;
 
@@ -1150,7 +1152,8 @@ static void onCumulativeDoseViewEvent(const View *view,
         case CUMULATIVE_TAB_DOSE:
             if (measurements.cumulative.dose.pulseCount > 0)
             {
-                uint32_t unitsIndex = (settings.units != UNITS_CPM)
+                uint32_t unitsIndex = ((settings.units != UNITS_CPM) &&
+                                       (settings.units != UNITS_CPS))
                                           ? UNITS_CPM
                                           : UNITS_SIEVERTS;
 
