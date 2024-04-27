@@ -2,7 +2,7 @@
 
 ## Features
 
-* Large display, ideal for field application such as mineralogy.
+* Large display, ideal for field application.
 * Multiple measurement units: Sievert, rem, cpm (counts per minute), cps (counts per second).
 * Multiple instantaneous rate averaging options: adaptive fast, adaptive precision, 60 seconds, 30 seconds and 10 seconds.
 * Configurable averaging for performing surveys.
