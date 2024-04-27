@@ -40,7 +40,7 @@
 enum
 {
     INSTANTANEOUS_TAB_BAR,
-    INSTANTANEOUS_TAB_AVERAGINGPERIOD,
+    INSTANTANEOUS_TAB_PERIOD,
     INSTANTANEOUS_TAB_MAX,
     INSTANTANEOUS_TAB_RATE,
 
@@ -816,7 +816,7 @@ static void onInstantaneousRateViewEvent(const View *view,
             break;
         }
 
-        case INSTANTANEOUS_TAB_AVERAGINGPERIOD:
+        case INSTANTANEOUS_TAB_PERIOD:
             if (measurements.instantaneous.rate.time > 0)
                 strcatTime(valueString,
                            measurements.instantaneous.rate.time);
