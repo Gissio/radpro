@@ -177,7 +177,7 @@ To communicate with Rad Pro through a serial port or SWD (through an ST-LINK don
 
 **Q: Why are the instantaneous rate measurements so noisy?**
 
-**A:** There are two conflicting objectives when measuring instantaneous rate: getting low-noise measurements, but, at the same time, a fast response. You can reduce the noise by choosing an instantaneous rate averaging option that increases the averaging time period, at the expense of a slower respose.
+**A:** There are two conflicting objectives when measuring instantaneous rate: getting low-noise measurements, but, at the same time, a fast response. You can reduce the noise by choosing an instantaneous rate averaging option that increases the averaging time period, at the expense of a slower resposse.
 
 **Q: My device is missing counts. What could be wrong?**
 
