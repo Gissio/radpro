@@ -14,7 +14,7 @@ Follow these steps to start installing Rad Pro on your FNIRSI GC-01:
 
 ## Step 2: Flash the firmware
 
-Download the `radpro-fnirsi-gc01-[mcu]-x.y.z.bin` firmware file from the [Rad Pro releases](https://github.com/Gissio/radpro/releases).
+Download the `radpro-fnirsi-gc01-[mcu]-x.y.z-install.bin` firmware file from the [Rad Pro releases](https://github.com/Gissio/radpro/releases).
 
 `[mcu]` is the type of microprocessor of your device: `ch32f103r8t6` or `apm32f103rbt6`.
 
