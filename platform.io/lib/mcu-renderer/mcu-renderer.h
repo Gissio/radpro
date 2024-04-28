@@ -205,20 +205,20 @@ struct mr_t_
 
 void mr_init(mr_t *mr);
 
-inline void mr_set_command(mr_t *mr,
-                           bool value)
+static inline void mr_set_command(mr_t *mr,
+                                  bool value)
 {
     mr->set_command_callback(value);
 }
 
-inline void mr_send(mr_t *mr,
-                    uint8_t value)
+static inline void mr_send(mr_t *mr,
+                           uint8_t value)
 {
     mr->send_callback(value);
 }
 
-inline void mr_send16(mr_t *mr,
-                      uint16_t value)
+static inline void mr_send16(mr_t *mr,
+                             uint16_t value)
 {
     mr->send16_callback(value);
 }

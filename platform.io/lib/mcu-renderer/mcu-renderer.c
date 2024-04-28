@@ -229,13 +229,13 @@ static inline mr_point_t mr_rotate_point(mr_t *mr,
 
 #endif
 
-inline int16_t mr_min(int16_t a,
+static inline int16_t mr_min(int16_t a,
                       int16_t b)
 {
     return (a < b) ? a : b;
 }
 
-inline int16_t mr_max(int16_t a,
+static inline int16_t mr_max(int16_t a,
                       int16_t b)
 {
     return (a > b) ? a : b;
