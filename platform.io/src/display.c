@@ -2378,10 +2378,10 @@ const View displayThemeMenuView = {
 // Display brightness level menu
 
 static const char *const displayBrightnessMenuOptions[] = {
+    "Very low",
     "Low",
     "Medium",
     "High",
-    "Very high",
     NULL,
 };
 

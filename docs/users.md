@@ -42,7 +42,7 @@ The average rate is estimated by dividing the number of pulses within the averag
 
 The view can be switched between a time view that displays the length of the averaging time period, and an average rate cpm (counts per minute) view.
 
-The confidence interval assumes a constant level of radiation over the averaging period.
+The confidence interval assumes a constant level of radiation over the averaging time period.
 
 Averaging can be indefinite, or limited by a configurable time or confidence level. When averaging finishes, the device will flash and emit a beep, signaling the completion of the measurement.
 
@@ -87,11 +87,11 @@ During datalog download, data is not logged.
 
 ## Instantaneous rate averaging
 
-Rad Pro comes with several options for determining the instantaneous rate averaging period:
+Rad Pro comes with several options for determining the instantaneous rate averaging time period:
 
 * “Adaptive fast” is the fastest option, capable of responding quickly to increased levels of radiation, at the expense of lower precision. It is best for users who need quick radiation alerts. It aims for a ±50% confidence interval; at increased levels of radiation, it limits the averaging period to a maximum of 5 seconds. You can check the “adaptive fast” response curves here: [instantaneousaveraging-adaptivefast.ipynb](../tests/instantaneousaveraging-adaptivefast.ipynb)
-* “Adaptive precision” tends to be a bit slower, but can achieve higher precision. It is best for users who deem precision more important than fast response. It aims for a ±50% confidence interval; at increased levels of radiation, it limits the averaging period to a minimum of 5 seconds. You can check the “adaptive precision” response curves here: [instantaneousaveraging-adaptiveprecision.ipynb](../tests/instantaneousaveraging-adaptiveprecision.ipynb)
-* “60 seconds”, “30 seconds” and “10 seconds” use fixed averaging periods. They can produce higher precision than the adaptive options, but have a much slower response.
+* “Adaptive precision” tends to be a bit slower, but can achieve higher precision. It is best for users who deem precision more important than fast response. It aims for a ±50% confidence interval; at increased levels of radiation, it limits the averaging time period to a minimum of 5 seconds. You can check the “adaptive precision” response curves here: [instantaneousaveraging-adaptiveprecision.ipynb](../tests/instantaneousaveraging-adaptiveprecision.ipynb)
+* “60 seconds”, “30 seconds” and “10 seconds” use fixed averaging time periods. They can produce higher precision than the adaptive options, but have a much slower response.
 
 ## Dead time and dead-time compensation
 

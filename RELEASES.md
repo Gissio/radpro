@@ -7,7 +7,7 @@
 * Improved haptic pulse strengths.
 * Improved FNIRSI GC-01 quiet pulse clicks.
 * Improved selected menu item contrast.
-* Improved datalogging precision.
+* Improved datalogging time precision.
 * Fixed History (24 h) bug.
 
 ## 2.0rc3 The "BIG" update
