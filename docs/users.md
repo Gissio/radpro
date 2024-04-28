@@ -4,13 +4,12 @@
 
 * Large display, ideal for field application.
 * Multiple measurement units: Sievert, rem, cpm (counts per minute), cps (counts per second).
-* Multiple instantaneous rate averaging options: adaptive fast, adaptive precision, 60 seconds, 30 seconds and 10 seconds.
 * Configurable averaging for performing surveys.
 * Live and offline data logging with data compression.
 * Compatibility with the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software.
 * Configurable pulse indication, optionally limited by a radiation level threshold: pulse clicks (off, quiet, loud), pulse LED (on supported devices), display flashes (on backlight sleep) and haptic pulses (on supported devices).
 * Dead-time measurement.
-* Customizable Geiger-Müller tube settings: conversion factor, instantaneous rate averaging, dead-time compensation, background compensation, high voltage generator PWM frequency and duty cycle (for tube voltage control).
+* Customizable Geiger-Müller tube settings: conversion factor, instantaneous rate averaging (adaptive fast, adaptive precision, 60 seconds, 30 seconds and 10 seconds), dead-time compensation, background compensation, high voltage generator PWM frequency and duty cycle (for tube voltage control).
 * Preconfigured high voltage profiles.
 * Tube fault alarm.
 * Statistics for tracking device usage and state.
