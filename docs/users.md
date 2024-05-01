@@ -2,7 +2,7 @@
 
 ## Features
 
-* Large display, ideal for field application.
+* Large numbers, ideal for field application.
 * Multiple measurement units: Sievert, rem, cpm (counts per minute), cps (counts per second).
 * Configurable averaging for performing surveys.
 * Live and offline data logging with data compression.
