@@ -12,6 +12,10 @@
 
 #include "mcu-renderer-st7789.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ILI9341 level 1 commands
 
 #define MR_ILI9341_NOP 0x00
@@ -174,5 +178,9 @@ static inline void mr_ili9341_set_sleep(mr_t *mr,
 {
     mr_st7789_set_sleep(mr, value);
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

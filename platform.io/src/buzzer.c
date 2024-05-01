@@ -39,8 +39,8 @@ void playSystemAlert(void)
 
 static const char *const pulseClicksMenuOptions[] = {
     "Off",
-    "Quiet",
-    "Loud",
+    "Clicks",
+    "Beeps",
     NULL,
 };
 

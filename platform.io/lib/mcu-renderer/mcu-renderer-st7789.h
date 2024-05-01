@@ -12,6 +12,10 @@
 
 #include "mcu-renderer.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ST7789 level 1 commands
 
 #define MR_ST7789_NOP 0x00
@@ -134,7 +138,7 @@ void mr_st7789_init(mr_t *mr,
                     mr_send_callback_t send16_callback);
 
 /**
- * Enables/disables the ST7789 display.
+ * Enables/disables the ST7789 display. Takes 120 ms to finish.
  *
  * @param mr The mcu-renderer instance.
  * @param value Display enable.
@@ -143,12 +147,16 @@ void mr_st7789_set_display(mr_t *mr,
                            bool value);
 
 /**
- * Enables/disables ST7789 sleep mode. Takes 120 ms to finish.
+ * Enables/disables ST7789 sleep mode.
  *
  * @param mr The mcu-renderer instance.
- * @param value Display enable.
+ * @param value Display sleep.
  */
 void mr_st7789_set_sleep(mr_t *mr,
                            bool value);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

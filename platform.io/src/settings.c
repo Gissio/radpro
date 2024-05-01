@@ -49,7 +49,7 @@ void initSettings(void)
 #if defined(PULSE_LED)
     settings.pulseLED = PULSE_LED_ON;
 #endif
-    settings.pulseClicks = PULSE_CLICKS_QUIET;
+    settings.pulseClicks = PULSE_CLICKS_CLICKS;
 #if defined(DISPLAY_MONOCHROME)
     settings.displayContrast = DISPLAY_CONTRAST_DEFAULT;
 #endif

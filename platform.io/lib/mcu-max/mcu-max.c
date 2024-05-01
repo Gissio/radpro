@@ -1,6 +1,6 @@
 /*
- * mcu-max 1.0.1
- * Chess engine for low-resource MCUs
+ * mcu-max
+ * Chess game engine for low-resource MCUs
  *
  * (C) 2022-2024 Gissio
  *

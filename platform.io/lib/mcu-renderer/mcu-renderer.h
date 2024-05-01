@@ -1,6 +1,6 @@
 /**
  * MCU renderer
- * Hardware-independent, low-resource graphics library for MCUs
+ * Core module
  *
  * (C) 2023-2024 Gissio
  *
@@ -12,6 +12,10 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 // Switches (defined as compiler define parameters)
 
@@ -205,20 +209,17 @@ struct mr_t_
 
 void mr_init(mr_t *mr);
 
-static inline void mr_set_command(mr_t *mr,
-                                  bool value)
+inline void mr_set_command(mr_t *mr, bool value)
 {
     mr->set_command_callback(value);
 }
 
-static inline void mr_send(mr_t *mr,
-                           uint8_t value)
+inline void mr_send(mr_t *mr, uint8_t value)
 {
     mr->send_callback(value);
 }
 
-static inline void mr_send16(mr_t *mr,
-                             uint16_t value)
+inline void mr_send16(mr_t *mr, uint16_t value)
 {
     mr->send16_callback(value);
 }
@@ -385,5 +386,9 @@ int16_t mr_get_descent(mr_t *mr);
  * @return The line height.
  */
 int16_t mr_get_line_height(mr_t *mr);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

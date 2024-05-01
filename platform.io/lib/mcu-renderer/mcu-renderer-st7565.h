@@ -12,6 +12,10 @@
 
 #include "mcu-renderer.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ST7565 commands
 
 #define MR_ST7565_COLUMN_LSB 0x00
@@ -89,5 +93,9 @@ void mr_st7565_set_display(mr_t *mr,
  * @param mr The mcu-renderer instance.
  */
 void mr_st7565_refresh_display(mr_t *mr);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

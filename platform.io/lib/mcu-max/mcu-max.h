@@ -1,6 +1,6 @@
 /*
- * mcu-max 1.0.1
- * Chess engine for low-resource MCUs
+ * mcu-max
+ * Chess game engine for low-resource MCUs
  *
  * (C) 2022-2024 Gissio
  *
@@ -13,10 +13,14 @@
 #if !defined(MCU_MAX_H)
 #define MCU_MAX_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stdint.h>
 
-#define MCUMAX_ID "mcu-max 1.0"
+#define MCUMAX_ID "mcu-max 1.0.5"
 #define MCUMAX_AUTHOR "Gissio"
 
 #define MCUMAX_SQUARE_INVALID 0x80
@@ -116,5 +120,9 @@ void mcumax_set_callback(mcumax_callback callback, void *userdata);
  * @brief Stops the current search. To be called from the user callback.
  */
 void mcumax_stop_search(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -1,6 +1,6 @@
 /**
- * Font: tiny5 Medium
- * Copyright: Copyright 2024 The tiny5 Project Authors (https://github.com/Gissio/font_tiny5)
+ * Font: Tiny5 Regular
+ * Copyright: Copyright 2024 The Tiny5 Project Authors (https://github.com/Gissio/font_tiny5)
  * Charcodes: 0x20-0x7e,0xb1,0xb5
  */
 

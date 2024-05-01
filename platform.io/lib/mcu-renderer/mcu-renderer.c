@@ -1,6 +1,6 @@
 /*
  * MCU renderer
- * Hardware-independent, low-resource graphics library for MCUs
+ * Core module
  *
  * (C) 2023-2024 Gissio
  *

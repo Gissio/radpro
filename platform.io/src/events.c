@@ -25,7 +25,7 @@
 #include "tube.h"
 #include "vibrator.h"
 
-#if !defined(GC01)
+#if !defined(SPEAKER)
 #define PULSE_CLICK_QUIET_TICKS ((uint32_t)(0.001 * SYSTICK_FREQUENCY))
 #else
 #define PULSE_CLICK_QUIET_TICKS ((uint32_t)(0.004 * SYSTICK_FREQUENCY))

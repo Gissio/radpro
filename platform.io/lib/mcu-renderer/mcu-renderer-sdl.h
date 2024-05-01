@@ -12,6 +12,10 @@
 
 #include "mcu-renderer.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 enum mr_sdl_display_type_t
 {
     MR_SDL_DISPLAY_TYPE_COLOR,
@@ -75,5 +79,9 @@ void mr_sdl_set_backlight(mr_t *mr,
  * @param mr The mcu-renderer instance.
  */
 void mr_sdl_refresh_display(mr_t *mr);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

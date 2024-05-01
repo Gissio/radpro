@@ -1,21 +1,21 @@
 #!/bin/sh
 
-./fontconv.exe -a 6 -s '0x20-0x7e,0xb1,0xb5' tiny5-Medium.bdf ../platform.io/src/fonts/font_tiny5_1.h
-./fontconv.exe -s '0x20,0x25,0x28-0x29,0x2b,0x2d-0x3a,0x41-0x5a,0x61-0x7a,0x80-0x81,0xb1,0xb5' radpro-robotoR8.bdf ../platform.io/src/fonts/font_robotoR8_1.h
-./fontconv.exe -s '0x2e,0x30-0x39,0x7f' radpro-robotoM33-digits.bdf ../platform.io/src/fonts/font_robotoM33_1_digits.h
+./fontconv.exe -a 6 -s '0x20-0x7e,0xb1,0xb5' tiny5-Regular.bdf ../platform.io/src/fonts/font_tiny5_1.h
+./fontconv.exe -s '0x20,0x25,0x28-0x29,0x2b,0x2d-0x3a,0x41-0x5a,0x61-0x7a,0x80-0x81,0xb1,0xb5' radpro-roboto-matrixR8.bdf ../platform.io/src/fonts/font_roboto_matrixR8_1.h
+./fontconv.exe -s '0x2e,0x30-0x39,0x7f' radpro-roboto-matrixM33-digits.bdf ../platform.io/src/fonts/font_roboto_matrixM33_1_digits.h
 ./fontconv.exe -s '0x30-0x38' radpro-symbols6.bdf ../platform.io/src/fonts/font_symbols6_1.h
 ./fontconv.exe -s '0x40-0x56' radpro-chess8.bdf ../platform.io/src/fonts/font_chess8_1.h
 
-./fontconv.exe -b 2 -p 17 -d 4 -c 12 -s '0x20-0x7e,0xb1,0xb5' radpro-Roboto-Medium.ttf ../platform.io/src/fonts/font_robotoR12_2.h
-./fontconv.exe -b 2 -p 25 -c 18 -s '0x20,0x25,0x28-0x29,0x2b,0x2d-0x3a,0x41-0x5a,0x61-0x7a,0x80-0x81,0xb1,0xb5' radpro-Roboto-Medium.ttf ../platform.io/src/fonts/font_robotoR18_2.h
-./fontconv.exe -b 2 -p 118 -c 86 -s '0x2e,0x30-0x39,0x7f' radpro-Roboto-Medium.ttf ../platform.io/src/fonts/font_robotoR86_2_digits.h
-./fontconv.exe -b 2 -p 86 -c 63 -s '0x2e,0x30-0x39,0x7f' radpro-Roboto-Medium.ttf ../platform.io/src/fonts/font_robotoR63_2_digits.h
+./fontconv.exe -b 2 -p 17 -c 12 -a 17 -s '0x20-0x7e,0xb1,0xb5' radpro-Roboto-Medium.ttf ../platform.io/src/fonts/font_robotoM12_2.h
+./fontconv.exe -b 2 -p 25 -c 18 -a 25 -s '0x20,0x25,0x28-0x29,0x2b,0x2d-0x3a,0x41-0x5a,0x61-0x7a,0x80-0x81,0xb1,0xb5' radpro-Roboto-Medium.ttf ../platform.io/src/fonts/font_robotoM18_2.h
+./fontconv.exe -b 2 -p 118 -c 86 -a 113 -s '0x2e,0x30-0x39,0x7f' radpro-Roboto-Medium.ttf ../platform.io/src/fonts/font_robotoM86_2_digits.h
+./fontconv.exe -b 2 -p 86 -c 63 -a 83 -s '0x2e,0x30-0x39,0x7f' radpro-Roboto-Medium.ttf ../platform.io/src/fonts/font_robotoM63_2_digits.h
 ./fontconv.exe -b 2 -p 30 -s '0x30-0x36' radpro-Material-Symbols.ttf ../platform.io/src/fonts/font_symbols30_2.h
 ./fontconv.exe -b 2 -p 25 -s '0x40-0x47' radpro-chess-FreeSerif.ttf ../platform.io/src/fonts/font_chess25_2.h
 
-./fontconv.exe -b 4 -p 17 -d 4 -c 12 -s '0x20-0x7e,0xb1,0xb5' radpro-Roboto-Medium.ttf ../platform.io/src/fonts/font_robotoR12_4.h
-./fontconv.exe -b 4 -p 25 -c 18 -s '0x20,0x25,0x28-0x29,0x2b,0x2d-0x3a,0x41-0x5a,0x61-0x7a,0x80-0x81,0xb1,0xb5' radpro-Roboto-Medium.ttf ../platform.io/src/fonts/font_robotoR18_4.h
-./fontconv.exe -b 4 -p 118 -c 86 -s '0x2e,0x30-0x39,0x7f' radpro-Roboto-Medium.ttf ../platform.io/src/fonts/font_robotoR86_4_digits.h
-./fontconv.exe -b 4 -p 86 -c 63 -s '0x2e,0x30-0x39,0x7f' radpro-Roboto-Medium.ttf ../platform.io/src/fonts/font_robotoR63_4_digits.h
+./fontconv.exe -b 4 -p 17 -c 12 -a 17 -s '0x20-0x7e,0xb1,0xb5' radpro-Roboto-Medium.ttf ../platform.io/src/fonts/font_robotoM12_4.h
+./fontconv.exe -b 4 -p 25 -c 18 -a 25 -s '0x20,0x25,0x28-0x29,0x2b,0x2d-0x3a,0x41-0x5a,0x61-0x7a,0x80-0x81,0xb1,0xb5' radpro-Roboto-Medium.ttf ../platform.io/src/fonts/font_robotoM18_4.h
+./fontconv.exe -b 4 -p 118 -c 86  -a 113 -s '0x2e,0x30-0x39,0x7f' radpro-Roboto-Medium.ttf ../platform.io/src/fonts/font_robotoM86_4_digits.h
+./fontconv.exe -b 4 -p 86 -c 63 -a 83 -s '0x2e,0x30-0x39,0x7f' radpro-Roboto-Medium.ttf ../platform.io/src/fonts/font_robotoM63_4_digits.h
 ./fontconv.exe -b 4 -p 30 -s '0x30-0x36' radpro-Material-Symbols.ttf ../platform.io/src/fonts/font_symbols30_4.h
 ./fontconv.exe -b 4 -p 25 -s '0x40-0x47' radpro-chess-FreeSerif.ttf ../platform.io/src/fonts/font_chess25_4.h

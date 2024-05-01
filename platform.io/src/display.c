@@ -29,18 +29,15 @@
 
 #include "fonts/font_tiny5_1.h"
 #define FONT_SMALL font_tiny5_1
-#define FONT_SMALL_CAP_HEIGHT FONT_TINY5_1_CAP_HEIGHT
 #define FONT_SMALL_LINE_HEIGHT FONT_TINY5_1_LINE_HEIGHT
 
-#include "fonts/font_robotoR8_1.h"
-#define FONT_MEDIUM font_robotoR8_1
-#define FONT_MEDIUM_CAP_HEIGHT FONT_ROBOTOR8_1_CAP_HEIGHT
-#define FONT_MEDIUM_LINE_HEIGHT FONT_ROBOTOR8_1_LINE_HEIGHT
+#include "fonts/font_roboto_matrixR8_1.h"
+#define FONT_MEDIUM font_roboto_matrixR8_1
+#define FONT_MEDIUM_LINE_HEIGHT FONT_ROBOTO_MATRIXR8_1_LINE_HEIGHT
 
-#include "fonts/font_robotoM33_1_digits.h"
-#define FONT_LARGE font_robotoM33_1_digits
-#define FONT_LARGE_CAP_HEIGHT FONT_ROBOTOM33_1_DIGITS_CAP_HEIGHT
-#define FONT_LARGE_LINE_HEIGHT FONT_ROBOTOM33_1_DIGITS_LINE_HEIGHT
+#include "fonts/font_roboto_matrixM33_1_digits.h"
+#define FONT_LARGE font_roboto_matrixM33_1_digits
+#define FONT_LARGE_LINE_HEIGHT FONT_ROBOTO_MATRIXM33_1_DIGITS_LINE_HEIGHT
 
 #include "fonts/font_symbols6_1.h"
 #define FONT_SYMBOLS font_symbols6_1
@@ -53,26 +50,22 @@
 
 #if defined(DISPLAY_FONT_2BPP)
 
-#include "fonts/font_robotoR12_2.h"
-#define FONT_SMALL font_robotoR12_2
-#define FONT_SMALL_CAP_HEIGHT FONT_ROBOTOR12_2_CAP_HEIGHT
-#define FONT_SMALL_LINE_HEIGHT FONT_ROBOTOR12_2_LINE_HEIGHT
+#include "fonts/font_robotoM12_2.h"
+#define FONT_SMALL font_robotoM12_2
+#define FONT_SMALL_LINE_HEIGHT FONT_ROBOTOM12_2_LINE_HEIGHT
 
-#include "fonts/font_robotoR18_2.h"
-#define FONT_MEDIUM font_robotoR18_2
-#define FONT_MEDIUM_CAP_HEIGHT FONT_ROBOTOR18_2_CAP_HEIGHT
-#define FONT_MEDIUM_LINE_HEIGHT FONT_ROBOTOR18_2_LINE_HEIGHT
+#include "fonts/font_robotoM18_2.h"
+#define FONT_MEDIUM font_robotoM18_2
+#define FONT_MEDIUM_LINE_HEIGHT FONT_ROBOTOM18_2_LINE_HEIGHT
 
 #if defined(DISPLAY_320X240)
-#include "fonts/font_robotoR86_2_digits.h"
-#define FONT_LARGE font_robotoR86_2_digits
-#define FONT_LARGE_CAP_HEIGHT FONT_ROBOTOR86_2_DIGITS_CAP_HEIGHT
-#define FONT_LARGE_LINE_HEIGHT FONT_ROBOTOR86_2_DIGITS_LINE_HEIGHT
+#include "fonts/font_robotoM86_2_digits.h"
+#define FONT_LARGE font_robotoM86_2_digits
+#define FONT_LARGE_LINE_HEIGHT FONT_ROBOTOM86_2_DIGITS_LINE_HEIGHT
 #else
-#include "fonts/font_robotoR63_2_digits.h"
-#define FONT_LARGE font_robotoR63_2_digits
-#define FONT_LARGE_CAP_HEIGHT FONT_ROBOTOR63_2_DIGITS_CAP_HEIGHT
-#define FONT_LARGE_LINE_HEIGHT FONT_ROBOTOR63_2_DIGITS_LINE_HEIGHT
+#include "fonts/font_robotoM63_2_digits.h"
+#define FONT_LARGE font_robotoM63_2_digits
+#define FONT_LARGE_LINE_HEIGHT FONT_ROBOTOM63_2_DIGITS_LINE_HEIGHT
 #endif
 
 #include "fonts/font_symbols30_2.h"
@@ -84,26 +77,22 @@
 
 #else
 
-#include "fonts/font_robotoR12_4.h"
-#define FONT_SMALL font_robotoR12_4
-#define FONT_SMALL_CAP_HEIGHT FONT_ROBOTOR12_4_CAP_HEIGHT
-#define FONT_SMALL_LINE_HEIGHT FONT_ROBOTOR12_4_LINE_HEIGHT
+#include "fonts/font_robotoM12_4.h"
+#define FONT_SMALL font_robotoM12_4
+#define FONT_SMALL_LINE_HEIGHT FONT_ROBOTOM12_4_LINE_HEIGHT
 
-#include "fonts/font_robotoR18_4.h"
-#define FONT_MEDIUM font_robotoR18_4
-#define FONT_MEDIUM_CAP_HEIGHT FONT_ROBOTOR18_4_CAP_HEIGHT
-#define FONT_MEDIUM_LINE_HEIGHT FONT_ROBOTOR18_4_LINE_HEIGHT
+#include "fonts/font_robotoM18_4.h"
+#define FONT_MEDIUM font_robotoM18_4
+#define FONT_MEDIUM_LINE_HEIGHT FONT_ROBOTOM18_4_LINE_HEIGHT
 
 #if defined(DISPLAY_320X240)
-#include "fonts/font_robotoR86_4_digits.h"
-#define FONT_LARGE font_robotoR86_4_digits
-#define FONT_LARGE_CAP_HEIGHT FONT_ROBOTOR86_4_DIGITS_CAP_HEIGHT
-#define FONT_LARGE_LINE_HEIGHT FONT_ROBOTOR86_4_DIGITS_LINE_HEIGHT
+#include "fonts/font_robotoM86_4_digits.h"
+#define FONT_LARGE font_robotoM86_4_digits
+#define FONT_LARGE_LINE_HEIGHT FONT_ROBOTOM86_4_DIGITS_LINE_HEIGHT
 #else
-#include "fonts/font_robotoR63_4_digits.h"
-#define FONT_LARGE font_robotoR63_4_digits
-#define FONT_LARGE_CAP_HEIGHT FONT_ROBOTOR63_4_DIGITS_CAP_HEIGHT
-#define FONT_LARGE_LINE_HEIGHT FONT_ROBOTOR63_4_DIGITS_LINE_HEIGHT
+#include "fonts/font_robotoM63_4_digits.h"
+#define FONT_LARGE font_robotoM63_4_digits
+#define FONT_LARGE_LINE_HEIGHT FONT_ROBOTOM63_4_DIGITS_LINE_HEIGHT
 #endif
 
 #include "fonts/font_symbols30_4.h"
@@ -1029,8 +1018,7 @@ void drawNotification(const char *title,
     const mr_point_t topOffset = {
         DISPLAY_WIDTH / 2,
         DISPLAY_HEIGHT / 2 -
-            FONT_MEDIUM_LINE_HEIGHT -
-            FONT_SMALL_LINE_HEIGHT / 2};
+            FONT_MEDIUM_LINE_HEIGHT};
 
     setFont(FONT_MEDIUM);
     setTextColor(COLOR_ELEMENT_ACTIVE);
@@ -1048,7 +1036,7 @@ void drawNotification(const char *title,
 
     const mr_point_t bottomOffset = {
         DISPLAY_WIDTH / 2,
-        FONT_SMALL_LINE_HEIGHT / 2};
+        FONT_MEDIUM_LINE_HEIGHT - FONT_SMALL_LINE_HEIGHT};
 
     setFont(FONT_SMALL);
     setTextColor(COLOR_ELEMENT_NEUTRAL);
