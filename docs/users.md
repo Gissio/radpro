@@ -29,7 +29,7 @@ Rad Pro supports the following measurement modes:
 
 The instantaneous rate is estimated by dividing the number of pulses within the instantenous rate averaging time period, minus one, by the time between the first and last pulse within that period.
 
-The view can be switched between an instantaneous rate bar view (logarithmic, with 1 µSv/h and 10 µSv/h alert zones), a period view that displays the length of the averaging time period, an instantaneous rate max view, and an instantaneous rate cpm (counts per minute) view.
+The secondary view can be switched between an instantaneous rate bar view (logarithmic, with 1 µSv/h and 10 µSv/h alert zones), a period view that displays the length of the averaging time period, an instantaneous rate max view, and an instantaneous rate cpm (counts per minute) view.
 
 The [confidence interval](https://en.wikipedia.org/wiki/Confidence_interval) estimates the range of values that contain the true, actual instantaneous rate with a 95% probability, assuming a constant level of radiation.
 
@@ -39,7 +39,7 @@ An example: suppose you measure an instantaneous rate of 1.000 µSv/h with a con
 
 The average rate is estimated by dividing the number of pulses within the averaging time period, minus one, by the time between the first and last pulse within that period.
 
-The view can be switched between a time view that displays the length of the averaging time period, and an average rate cpm (counts per minute) view.
+The secondary view can be switched between a time view that displays the length of the averaging time period, and an average rate cpm (counts per minute) view.
 
 The confidence interval assumes a constant level of radiation over the averaging time period.
 
@@ -51,7 +51,7 @@ An example: suppose you averaged background radiation for 1 minute, resulting in
 
 The cumulative dose is calculated from the number of pulses in the time period.
 
-The view can be switched between a time view that displays the length of the time period, and a counts view.
+The secondary view can be switched between a time view that displays the length of the time period, and a counts view.
 
 ### History
 
