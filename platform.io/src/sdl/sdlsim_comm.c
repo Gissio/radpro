@@ -67,6 +67,11 @@ void stopComm(void)
     commController.sercomm = NULL;
 }
 
+bool isCommStarted(void)
+{
+    return (commController.sercomm != NULL);
+}
+
 void transmitComm(void)
 {
     comm.state = COMM_TX;

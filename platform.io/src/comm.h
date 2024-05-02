@@ -55,7 +55,7 @@ typedef struct
 
 extern Comm comm;
 
-extern const View dataModeView;
+extern const View dataModeMenuView;
 
 void initComm(void);
 

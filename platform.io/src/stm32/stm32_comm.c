@@ -92,6 +92,11 @@ void stopComm(void)
     commStarted = false;
 }
 
+bool isCommStarted(void)
+{
+    return commStarted;
+}
+
 void transmitComm(void)
 {
     comm.state = COMM_TX;
@@ -588,6 +593,11 @@ void startComm(void)
 
 void stopComm(void)
 {
+}
+
+bool isCommStarted(void)
+{
+    return false;
 }
 
 void transmitComm(void)

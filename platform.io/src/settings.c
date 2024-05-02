@@ -180,7 +180,7 @@ static const OptionView settingsMenuOptions[] = {
     {"Game", &gameMenuView},
     {"Statistics", &statisticsView},
 #if defined(DATA_MODE)
-    {"Data mode", &dataModeView},
+    {"Data mode", &dataModeMenuView},
 #endif
     {NULL},
 };

@@ -24,10 +24,18 @@
 
 Comm comm;
 
+#if defined(DATA_MODE)
+static const Menu dataModeMenu;
+#endif
+
 void initComm(void)
 {
 #if !defined(DATA_MODE)
     startComm();
+#else
+    selectMenuItem(&dataModeMenu,
+                   0,
+                   2);
 #endif
 }
 
@@ -259,32 +267,42 @@ void dispatchCommEvents(void)
 
 #if defined(DATA_MODE)
 
-static void onDataModeEvent(const View *view, Event event)
+static const char *const dataModeMenuOptions[] = {
+    "Off",
+    "On",
+    NULL,
+};
+
+static const char *onDataModeMenuGetOption(const Menu *menu,
+                                           uint32_t index,
+                                           MenuStyle *menuStyle)
 {
-    switch (event)
-    {
-    case EVENT_KEY_BACK:
-        stopComm();
+    *menuStyle = (index == isCommStarted());
 
-        onSettingsSubMenuBack(NULL);
-
-        break;
-
-    case EVENT_DRAW:
-        startComm();
-
-        drawDataMode();
-
-        break;
-
-    default:
-        break;
-    }
+    return dataModeMenuOptions[index];
 }
 
-const View dataModeView = {
-    onDataModeEvent,
-    NULL,
+static void onDataModeMenuSelect(const Menu *menu)
+{
+    if (menu->state->selectedIndex)
+        startComm();
+    else
+        stopComm();
+}
+
+static MenuState dataModeMenuState;
+
+static const Menu dataModeMenu = {
+    "Data mode",
+    &dataModeMenuState,
+    onDataModeMenuGetOption,
+    onDataModeMenuSelect,
+    onSettingsSubMenuBack,
+};
+
+const View dataModeMenuView = {
+    onMenuEvent,
+    &dataModeMenu,
 };
 
 #endif

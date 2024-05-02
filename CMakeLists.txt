@@ -26,7 +26,7 @@ add_definitions(-D BATTERY_REMOVABLE)
 add_definitions(-D KEYBOARD_5KEYS)
 add_definitions(-D PULSE_LED)
 add_definitions(-D VIBRATOR)
-# add_definitions(-D DATA_MODE)
+add_definitions(-D DATA_MODE)
 add_definitions(-D MCURENDERER_SDL)
 add_definitions(-D _CRT_SECURE_NO_WARNINGS)
 
