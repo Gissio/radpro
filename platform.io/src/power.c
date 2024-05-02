@@ -117,7 +117,7 @@ static void onBatteryTypeMenuSelect(const Menu *menu)
 static MenuState batteryTypeMenuState;
 
 static const Menu batteryTypeMenu = {
-    "Battery type",
+    "Battery Type",
     &batteryTypeMenuState,
     onPulseClicksMenuGetOption,
     onBatteryTypeMenuSelect,

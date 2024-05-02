@@ -41,12 +41,12 @@ static const char *const rngModeMenuOptions[] = {
     "Full ASCII",
     "Hexadecimal",
     "Decimal",
-    "20-sided dice",
-    "12-sided dice",
-    "8-sided dice",
-    "6-sided dice",
-    "4-sided dice",
-    "Coin flip",
+    "20-Sided Dice",
+    "12-Sided Dice",
+    "8-Sided Dice",
+    "6-Sided Dice",
+    "4-Sided Dice",
+    "Coin Flip",
     NULL,
 };
 
@@ -296,9 +296,9 @@ static MenuState rngMenuState;
 
 static const Menu rngMenu = {
 #if !defined(DISPLAY_240X320)
-    "Random generator",
+    "Random Generator",
 #else
-    "Random gen.",
+    "Random Gen.",
 #endif
     &rngMenuState,
     onRNGMenuGetOption,

@@ -96,9 +96,9 @@ typedef struct
 } History;
 
 static const History histories[] = {
-    {"History (10 min)", 10 * 60 / HISTORY_BUFFER_SIZE, 10},
-    {"History (1 h)", 60 * 60 / HISTORY_BUFFER_SIZE, 6},
-    {"History (24 h)", 24 * 60 * 60 / HISTORY_BUFFER_SIZE, 8},
+    {"History (10M)", 10 * 60 / HISTORY_BUFFER_SIZE, 10},
+    {"History (1H)", 60 * 60 / HISTORY_BUFFER_SIZE, 6},
+    {"History (24H)", 24 * 60 * 60 / HISTORY_BUFFER_SIZE, 8},
 };
 
 #define HISTORY_NUM (sizeof(histories) / sizeof(History))
@@ -1322,18 +1322,18 @@ const View unitsMenuView = {
 
 static const char *const averagingMenuOptions[] = {
     "Unlimited",
-    "5 minutes",
-    "10 minutes",
-    "30 minutes",
-    "60 minutes",
+    "5 Minutes",
+    "10 Minutes",
+    "30 Minutes",
+    "60 Minutes",
     "\xb1"
-    "40% confidence",
+    "40% Confidence",
     "\xb1"
-    "20% confidence",
+    "20% Confidence",
     "\xb1"
-    "10% confidence",
+    "10% Confidence",
     "\xb1"
-    "5% confidence",
+    "5% Confidence",
     NULL,
 };
 
@@ -1405,7 +1405,7 @@ static void onRateAlarmMenuSelect(const Menu *menu)
 static MenuState rateAlarmMenuState;
 
 static const Menu rateAlarmMenu = {
-    "Rate alarm",
+    "Rate Alarm",
     &rateAlarmMenuState,
     onRateAlarmMenuGetOption,
     onRateAlarmMenuSelect,
@@ -1453,7 +1453,7 @@ static void onDoseAlarmMenuSelect(const Menu *menu)
 static MenuState doseAlarmMenuState;
 
 static const Menu doseAlarmMenu = {
-    "Dose alarm",
+    "Dose Alarm",
     &doseAlarmMenuState,
     onDoseAlarmMenuGetOption,
     onDoseAlarmMenuSelect,
@@ -1489,7 +1489,7 @@ static void onPulsesThresholdMenuSelect(const Menu *menu)
 static MenuState pulsesThresholdMenuState;
 
 static const Menu pulsesThresholdMenu = {
-    "Pulses threshold",
+    "Pulses Threshold",
     &pulsesThresholdMenuState,
     onPulsesThresholdMenuGetOption,
     onPulsesThresholdMenuSelect,

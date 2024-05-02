@@ -428,15 +428,15 @@ const View gameView = {
 static const View gameStrengthMenuView;
 
 static const char *const gameStartMenuOptions[] = {
-    "Play white",
-    "Play black",
+    "Play White",
+    "Play Black",
     "Strength",
     NULL,
 };
 
 static const char *const gameContinueMenuOptions[] = {
-    "Continue game",
-    "New game",
+    "Continue Game",
+    "New Game",
     "Strength",
     NULL,
 };

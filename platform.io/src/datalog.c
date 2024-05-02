@@ -53,13 +53,13 @@ static const uint16_t datalogTimeIntervals[] = {
 
 static const char *const datalogMenuOptions[] = {
     "Off",
-    "Every 60 minutes",
-    "Every 30 minutes",
-    "Every 10 minutes",
-    "Every 5 minutes",
-    "Every minute",
-    "Every 30 seconds",
-    "Every 10 seconds",
+    "Every 60 Minutes",
+    "Every 30 Minutes",
+    "Every 10 Minutes",
+    "Every 5 Minutes",
+    "Every Minute",
+    "Every 30 Seconds",
+    "Every 10 Seconds",
     NULL,
 };
 
@@ -383,7 +383,7 @@ static void onDatalogMenuSelect(const Menu *menu)
 static MenuState datalogMenuState;
 
 static const Menu datalogMenu = {
-    "Data logging",
+    "Data Logging",
     &datalogMenuState,
     onDatalogMenuGetOption,
     onDatalogMenuSelect,

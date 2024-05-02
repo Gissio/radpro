@@ -248,7 +248,7 @@ static void onRTCTimeZoneMenuSelect(const Menu *menu)
 }
 
 static const Menu rtcTimeZoneMenu = {
-    "Time zone",
+    "Time Zone",
     &rtcItemMenuState,
     onRTCTimeZoneMenuGetOption,
     onRTCTimeZoneMenuSelect,
@@ -338,7 +338,7 @@ static const View rtcMinuteMenuView = {
 // Date and type menu
 
 static const char *const rtcMenuOptions[] = {
-    "Time zone",
+    "Time Zone",
     "Year",
     "Month",
     "Day",
@@ -417,7 +417,7 @@ static void onRTCMenuSelect(const Menu *menu)
 }
 
 static const Menu rtcMenu = {
-    "Date and time",
+    "Date and Time",
     &rtcMenuState,
     onRTCMenuGetOption,
     onRTCMenuSelect,

@@ -293,7 +293,7 @@ static void onDataModeMenuSelect(const Menu *menu)
 static MenuState dataModeMenuState;
 
 static const Menu dataModeMenu = {
-    "Data mode",
+    "Data Mode",
     &dataModeMenuState,
     onDataModeMenuGetOption,
     onDataModeMenuSelect,

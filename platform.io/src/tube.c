@@ -66,20 +66,24 @@ void initTube(void)
 // Tube menu
 
 static const char *const tubeMenuOptions[] = {
-    "Conversion factor",
 #if !defined(DISPLAY_240X320)
-    "Instant. averaging",
+    "Conversion Factor",
 #else
-    "Inst. averaging",
+    "Conv. Factor",
 #endif
 #if !defined(DISPLAY_240X320)
-    "Dead-time comp.",
-    "Background comp.",
+    "Instant. Averaging",
 #else
-    "Dead-time com.",
-    "Background com.",
+    "Inst. Averaging",
 #endif
-    "HV profile",
+#if !defined(DISPLAY_240X320)
+    "Dead-Time Comp.",
+    "BG Compensation",
+#else
+    "Dead-Time Com.",
+    "BG Compensation",
+#endif
+    "HV Profile",
     NULL,
 };
 
@@ -113,7 +117,7 @@ void onTubeSubMenuBack(const Menu *menu)
 static MenuState tubeMenuState;
 
 static const Menu tubeMenu = {
-    "Geiger tube",
+    "Geiger Tube",
     &tubeMenuState,
     onTubeMenuGetOption,
     onTubeMenuSelect,
@@ -172,7 +176,7 @@ static const char *onTubeConversionFactorMenuGetOption(const Menu *menu,
         strcpy(menuOption, tubeConversionFactorMenuOptions[index]);
 
         if (index == TUBE_CONVERSIONFACTOR_DEFAULT)
-            strcat(menuOption, " (default)");
+            strcat(menuOption, " (Default)");
 
         return menuOption;
     }
@@ -198,7 +202,11 @@ static void onTubeConversionFactorMenuSelect(const Menu *menu)
 static MenuState tubeConversionFactorMenuState;
 
 static const Menu tubeConversionFactorMenu = {
-    "Conversion factor",
+#if !defined(DISPLAY_240X320)
+    "Conversion Factor",
+#else
+    "Conv. Factor",
+#endif
     &tubeConversionFactorMenuState,
     onTubeConversionFactorMenuGetOption,
     onTubeConversionFactorMenuSelect,
@@ -213,11 +221,11 @@ static const View tubeConversionFactorMenuView = {
 // Instantaneous averaging men
 
 static const char *const tubeInstantaneousAveragingMenuOptions[] = {
-    "Adaptive fast",
-    "Adaptive precision",
-    "60 seconds",
-    "30 seconds",
-    "10 seconds",
+    "Adaptive Fast",
+    "Adaptive Precision",
+    "60 Seconds",
+    "30 Seconds",
+    "10 Seconds",
     NULL,
 };
 
@@ -239,9 +247,9 @@ static MenuState tubeInstantaneousAveragingMenuState;
 
 static const Menu tubeInstantaneousAveragingMenu = {
 #if !defined(DISPLAY_240X320)
-    "Instantaneous averaging",
+    "Instantaneous Averaging",
 #else
-    "Inst. averaging",
+    "Inst. Averaging",
 #endif
     &tubeInstantaneousAveragingMenuState,
     onTubeInstantaneousAveragingMenuGetOption,
@@ -302,9 +310,9 @@ static MenuState tubeDeadTimeCompensationMenuState;
 
 static const Menu tubeDeadTimeCompensationMenu = {
 #if !defined(DISPLAY_240X320)
-    "Dead-time compensation",
+    "Dead-Time Compensation",
 #else
-    "Dead-time com.",
+    "Dead-Time Com.",
 #endif
     &tubeDeadTimeCompensationMenuState,
     onTubeDeadTimeCompensationMenuGetOption,
@@ -367,11 +375,7 @@ static void onTubeBackgroundCompensationMenuSelect(const Menu *menu)
 static MenuState tubeBackgroundCompensationMenuState;
 
 static const Menu tubeBackgroundCompensationMenu = {
-#if !defined(DISPLAY_240X320)
-    "Background compensation",
-#else
-    "Background com.",
-#endif
+    "BG Comp.",
     &tubeBackgroundCompensationMenuState,
     onTubeBackgroundCompensationMenuGetOption,
     onTubeBackgroundCompensationMenuSelect,
@@ -386,14 +390,14 @@ static const View tubeBackgroundCompensationMenuView = {
 // Tube HV profile menu
 
 static const char *const tubeHVProfileMenuOptions[] = {
-    "Factory default",
+    "Factory Default",
 #if defined(TUBE_HVPROFILE_ACCURACY_FREQUENCY)
     "Accuracy",
 #endif
 #if defined(TUBE_HVPROFILE_ENERGYSAVING_FREQUENCY)
-    "Energy-saving",
+    "Energy-Saving",
 #endif
-    "Custom profile",
+    "Custom Profile",
     NULL,
 };
 
@@ -424,7 +428,7 @@ static void onTubeHVProfileMenuSelect(const Menu *menu)
 static MenuState tubeHVProfileMenuState;
 
 static const Menu tubeHVProfileMenu = {
-    "HV profile",
+    "HV Profile",
     &tubeHVProfileMenuState,
     onTubeHVProfileMenuGetOption,
     onTubeHVProfileMenuSelect,
@@ -480,8 +484,8 @@ static const View tubeHVCustomProfileWarningView = {
 // Tube HV custom profile menu
 
 static const char *const tubeHVCustomProfileMenuOptions[] = {
-    "PWM frequency",
-    "PWM duty cycle",
+    "PWM Frequency",
+    "PWM Duty Cycle",
     NULL,
 };
 
@@ -512,7 +516,7 @@ static void onTubeHVCustomProfileMenuSelect(const Menu *menu)
 static MenuState tubeHVCustomProfileMenuState;
 
 static const Menu tubeHVCustomProfileMenu = {
-    "Custom profile",
+    "Custom Profile",
     &tubeHVCustomProfileMenuState,
     onTubeHVCustomProfileMenuGetOption,
     onTubeHVCustomProfileMenuSelect,
@@ -592,7 +596,7 @@ static void onTubeHVFrequencyMenuSelect(const Menu *menu)
 static MenuState tubeHVFrequencyMenuState;
 
 static const Menu tubeHVFrequencyMenu = {
-    "PWM frequency",
+    "PWM Frequency",
     &tubeHVFrequencyMenuState,
     onTubeHVFrequencyMenuGetOption,
     onTubeHVFrequencyMenuSelect,
@@ -666,7 +670,7 @@ static void onTubeHVDutyCycleMenuSelect(const Menu *menu)
 static MenuState tubeHVDutyCycleMenuState;
 
 static const Menu tubeHVDutyCycleMenu = {
-    "PWM duty cycle",
+    "PWM Duty Cycle",
     &tubeHVDutyCycleMenuState,
     onTubeHVDutyCycleMenuGetOption,
     onTubeHVDutyCycleMenuSelect,
@@ -694,15 +698,15 @@ enum
 };
 
 static const char *const pulsesMenuOptions[] = {
-    "Pulse clicks",
+    "Pulse Clicks",
 #if defined(PULSE_LED)
     "Pulse LED",
 #endif
-    "Display flashes",
+    "Display Flashes",
 #if defined(VIBRATOR)
-    "Haptic pulses",
+    "Haptic Pulses",
 #endif
-    "Pulses threshold",
+    "Pulses Threshold",
     NULL,
 };
 

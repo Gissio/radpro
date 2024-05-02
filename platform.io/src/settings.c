@@ -162,25 +162,25 @@ void writeSettings(void)
 static const OptionView settingsMenuOptions[] = {
     {"Units", &unitsMenuView},
     {"Averaging", &averagingMenuView},
-    {"Rate alarm", &rateAlarmMenuView},
-    {"Dose alarm", &doseAlarmMenuView},
-    {"Geiger tube", &tubeMenuView},
-    {"Data logging", &datalogMenuView},
+    {"Rate Alarm", &rateAlarmMenuView},
+    {"Dose Alarm", &doseAlarmMenuView},
+    {"Geiger Tube", &tubeMenuView},
+    {"Data Logging", &datalogMenuView},
     {"Pulses", &pulsesMenuView},
     {"Display", &displayMenuView},
-    {"Date and time", &dateAndTimeMenuView},
+    {"Date and Time", &dateAndTimeMenuView},
 #if defined(BATTERY_REMOVABLE)
-    {"Battery type", &batteryTypeMenuView},
+    {"Battery Type", &batteryTypeMenuView},
 #endif
 #if !defined(DISPLAY_240X320)
-    {"Random generator", &rngMenuView},
+    {"Random Generator", &rngMenuView},
 #else
-    {"Random gen.", &rngMenuView},
+    {"Random Gen.", &rngMenuView},
 #endif
     {"Game", &gameMenuView},
     {"Statistics", &statisticsView},
 #if defined(DATA_MODE)
-    {"Data mode", &dataModeMenuView},
+    {"Data Mode", &dataModeMenuView},
 #endif
     {NULL},
 };

@@ -1915,9 +1915,9 @@ void drawStatistics(void)
 
         case STATISTICS_ENTRY_TUBE_LIFE_TIME:
 #if !defined(DISPLAY_PORTRAIT)
-            strcpy(key, "Tube life time");
+            strcpy(key, "Tube Life Time:");
 #else
-            strcpy(key, "Life time");
+            strcpy(key, "Life Time:");
 #endif
             strcatTime(valueString, getTubeTime());
 
@@ -1925,9 +1925,9 @@ void drawStatistics(void)
 
         case STATISTICS_ENTRY_TUBE_LIFE_PULSES:
 #if !defined(DISPLAY_PORTRAIT)
-            strcpy(key, "Tube life pulses");
+            strcpy(key, "Tube Life Pulses:");
 #else
-            strcpy(key, "Life pulses");
+            strcpy(key, "Life Pulses:");
 #endif
             strcatUInt32(valueString, getTubePulseCount(), 0);
 
@@ -1935,9 +1935,9 @@ void drawStatistics(void)
 
         case STATISTICS_ENTRY_TUBE_DEAD_TIME:
 #if !defined(DISPLAY_PORTRAIT)
-            strcpy(key, "Tube dead time");
+            strcpy(key, "Tube Dead Time:");
 #else
-            strcpy(key, "Life pulses");
+            strcpy(key, "Dead Time:");
 #endif
             float deadTime = getTubeDeadTime();
             if (deadTime >= 1)
@@ -1961,9 +1961,9 @@ void drawStatistics(void)
 
         case STATISTICS_ENTRY_DEVICE_ID:
 #if !defined(DISPLAY_PORTRAIT)
-            strcpy(key, "Device ID");
+            strcpy(key, "Device ID:");
 #else
-            strcpy(key, "ID");
+            strcpy(key, "ID:");
 #endif
             strcatUInt32Hex(unitString, getDeviceId());
 
@@ -1971,9 +1971,9 @@ void drawStatistics(void)
 
         case STATISTICS_ENTRY_DEVICE_VOLTAGE:
 #if !defined(DISPLAY_PORTRAIT)
-            strcpy(key, "Device voltage");
+            strcpy(key, "Device Voltage:");
 #else
-            strcpy(key, "Voltage");
+            strcpy(key, "Voltage:");
 #endif
             strcatFloat(valueString, getDeviceBatteryVoltage(), 3);
             strcpy(unitString, " V");
@@ -2197,6 +2197,29 @@ void drawGame(const uint8_t board[8][8],
 #endif
 }
 
+// Comm mode
+
+void drawDataMode(void)
+{
+    drawTitleBar("Data Mode");
+
+    const mr_rectangle_t dataModeRectangle = {
+        DATA_MODE_X,
+        DATA_MODE_Y,
+        DATA_MODE_WIDTH,
+        DATA_MODE_HEIGHT};
+
+    const mr_point_t dataModeOffset = {
+        DATA_MODE_OFFSET_X,
+        DATA_MODE_OFFSET_Y};
+
+    setFont(FONT_SMALL);
+    setTextColor(COLOR_ELEMENT_NEUTRAL);
+    drawCenteredText("Data connection enabled.",
+                     &dataModeRectangle,
+                     &dataModeOffset);
+}
+
 // Display menu
 
 const View displayContrastMenuView;
@@ -2210,9 +2233,9 @@ static const OptionView displayMenuOptions[] = {
 #elif defined(DISPLAY_COLOR)
     {"Theme", &displayThemeMenuView},
 #endif
-    {"Brightness level", &displayBrightnessMenuView},
+    {"Brightness Level", &displayBrightnessMenuView},
 #if defined(DISPLAY_MONOCHROME)
-    {"Backlight", &displaySleepMenuView},
+    {"Backlight Timeout", &displaySleepMenuView},
 #elif defined(DISPLAY_COLOR)
     {"Sleep", &displaySleepMenuView},
 #endif
@@ -2343,7 +2366,7 @@ const View displayThemeMenuView = {
 // Display brightness level menu
 
 static const char *const displayBrightnessMenuOptions[] = {
-    "Very low",
+    "Very Low",
     "Low",
     "Medium",
     "High",
@@ -2369,7 +2392,7 @@ static void onDisplayBrightnessMenuSelect(const Menu *menu)
 static MenuState displayBrightnessMenuState;
 
 static const Menu displayBrightnessMenu = {
-    "Brightness level",
+    "Brightness Level",
     &displayBrightnessMenuState,
     onDisplayBrightnessMenuGetOption,
     onDisplayBrightnessMenuSelect,
@@ -2385,19 +2408,19 @@ const View displayBrightnessMenuView = {
 
 static const char *const displaySleepMenuOptions[] = {
 #if defined(DISPLAY_MONOCHROME)
-    "Off",
+    "Always Off",
 #endif
 #if !defined(DISPLAY_240X320)
-    "On for 10 seconds",
-    "On for 30 seconds",
+    "After 10 Seconds",
+    "After 30 Seconds",
 #else
-    "On for 10 sec.",
-    "On for 30 sec.",
+    "After 10 Sec.",
+    "After 30 Sec.",
 #endif
-    "On for 1 minute",
-    "On for 2 minutes",
-    "On for 5 minutes",
-    "Always on",
+    "After 1 Minute",
+    "After 2 Minutes",
+    "After 5 Minutes",
+    "Never",
     NULL,
 };
 
@@ -2421,7 +2444,7 @@ static MenuState displaySleepMenuState;
 
 static const Menu displaySleepMenu = {
 #if defined(DISPLAY_MONOCHROME)
-    "Backlight",
+    "Backlight Timeout",
 #elif defined(DISPLAY_COLOR)
     "Sleep",
 #endif
@@ -2461,7 +2484,7 @@ static void onDisplayFlashesMenuSelect(const Menu *menu)
 static MenuState displayFlashesMenuState;
 
 static const Menu displayFlashesMenu = {
-    "Display flashes",
+    "Display Flashes",
     &displayFlashesMenuState,
     onDisplayFlashesMenuGetOption,
     onDisplayFlashesMenuSelect,

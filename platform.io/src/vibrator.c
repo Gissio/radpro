@@ -51,7 +51,7 @@ static void onPulseVibrationsMenuSelect(const Menu *menu)
 static MenuState pulseVibrationsMenuState;
 
 static const Menu pulseVibrationsMenu = {
-    "Haptic pulses",
+    "Haptic Pulses",
     &pulseVibrationsMenuState,
     onPulseVibrationsMenuGetOption,
     onPulseVibrationsMenuSelect,
