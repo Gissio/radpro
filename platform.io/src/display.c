@@ -2197,29 +2197,6 @@ void drawGame(const uint8_t board[8][8],
 #endif
 }
 
-// Comm mode
-
-void drawDataMode(void)
-{
-    drawTitleBar("Data Mode");
-
-    const mr_rectangle_t dataModeRectangle = {
-        DATA_MODE_X,
-        DATA_MODE_Y,
-        DATA_MODE_WIDTH,
-        DATA_MODE_HEIGHT};
-
-    const mr_point_t dataModeOffset = {
-        DATA_MODE_OFFSET_X,
-        DATA_MODE_OFFSET_Y};
-
-    setFont(FONT_SMALL);
-    setTextColor(COLOR_ELEMENT_NEUTRAL);
-    drawCenteredText("Data connection enabled.",
-                     &dataModeRectangle,
-                     &dataModeOffset);
-}
-
 // Display menu
 
 const View displayContrastMenuView;
