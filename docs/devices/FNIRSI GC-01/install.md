@@ -58,7 +58,7 @@ The keys are mapped as follows:
 
 ### FNIRSI GC-01 with a CH32F103R8 (WCH) microprocessor
 
-On the FNIRSI GC-01 with a CH32F103R8 microprocessor, you must enter “Data mode” in the Settings to enable a USB data connection. The data connection is disabled when you leave “Data mode”.
+On the FNIRSI GC-01 with a CH32F103R8 microprocessor, you must enable “Data mode” in the Settings to establish a USB data connection. To save power, disable “Data mode” when you are finished.
 
 Data logging can store up to 5060 data points. At normal radiation levels (20 cpm), this allows for 105 days of data at 60-minute intervals, 52 days at 30-minute intervals, 17 days at 10-minute intervals, 8 days at 5-minute intervals, 3 days at 1-minute intervals, 1 day at 30-second intervals and 14 hours at 10-second intervals.
 
