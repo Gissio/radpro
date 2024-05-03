@@ -59,6 +59,7 @@ void initSettings(void)
     settings.displayBrightness = DISPLAY_BRIGHTNESS_HIGH;
 #endif
     settings.displaySleep = DISPLAY_SLEEP_30S;
+    settings.displayTimeFormat = DISPLAY_TIMEFORMAT_24H;
 #if defined(SIMULATOR)
     time_t unixTime = time(NULL);
     struct tm *localTM = gmtime(&unixTime);

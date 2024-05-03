@@ -14,6 +14,12 @@
 
 static const Menu rtcTimeZoneMenu;
 
+static const char *const displayTimeFormatMenuOptions[] = {
+    "12-Hour",
+    "24-Hour",
+    NULL,
+};
+
 void initRTC(void)
 {
     initRTCController();
@@ -215,11 +221,43 @@ static void onRTCSubMenuBack(const Menu *menu)
 
 static MenuState rtcItemMenuState;
 
+// Display Time Format Menu
+
+static void onDisplayTimeFormatSelect(const Menu *menu)
+{
+    settings.displayTimeFormat = menu->state->selectedIndex;
+
+    //updateView();
+}
+
+static const char *onDisplayTimeFormatMenuGetOption(const Menu *menu,
+                                            uint32_t index,
+                                            MenuStyle *menuStyle)
+{
+    *menuStyle = (index == settings.displayTimeFormat);
+
+    return displayTimeFormatMenuOptions[index];
+}
+
+static const Menu displayTimeFormatMenu = {
+    "Time Format",
+    &rtcItemMenuState,
+    onDisplayTimeFormatMenuGetOption,
+    onDisplayTimeFormatSelect,
+    onRTCSubMenuBack,
+};
+
+static const View displayTimeFormatView = {
+    onMenuEvent,
+    &displayTimeFormatMenu,
+};
+
+
 // Time zone menu
 
 static const char *onRTCTimeZoneMenuGetOption(const Menu *menu,
-                                              uint32_t index,
-                                              MenuStyle *menuStyle)
+                                            uint32_t index,
+                                            MenuStyle *menuStyle)
 {
     if (index >= RTC_TIMEZONE_NUM)
         return NULL;
@@ -344,6 +382,7 @@ static const char *const rtcMenuOptions[] = {
     "Day",
     "Hour",
     "Minute",
+    "Display Format",
     NULL,
 };
 
@@ -406,6 +445,13 @@ static void onRTCMenuSelect(const Menu *menu)
         view = &rtcMinuteMenuView;
         menuIndex = rtcCurrentDateTime.minute;
         optionsNum = 60;
+
+        break;
+
+    case 6:
+        view = &displayTimeFormatView;
+        menuIndex = settings.displayTimeFormat;
+        optionsNum = DISPLAY_TIMEFORMAT_NUM;
 
         break;
     }

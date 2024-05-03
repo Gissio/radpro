@@ -274,6 +274,14 @@ enum
 
 enum
 {
+    DISPLAY_TIMEFORMAT_12H,
+    DISPLAY_TIMEFORMAT_24H,
+
+    DISPLAY_TIMEFORMAT_NUM,
+};
+
+enum
+{
     RTC_TIMEZONE_M1200,
     RTC_TIMEZONE_M1100,
     RTC_TIMEZONE_M1000,
@@ -365,6 +373,7 @@ typedef struct
 #endif
     unsigned int displayBrightness : 2;
     unsigned int displaySleep : 3;
+    unsigned int displayTimeFormat : 1;
 
     unsigned int rtcTimeZone : 5;
 

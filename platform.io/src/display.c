@@ -115,7 +115,7 @@
 #define CONTENT_PADDING 3
 
 #define TITLEBAR_HEIGHT 8
-#define TITLEBAR_CLOCK_WIDTH 20
+#define TITLEBAR_CLOCK_WIDTH 30
 #define TITLEBAR_BATTERY_WIDTH 15
 #define TITLEBAR_BATTERY_OFFSET_Y 1
 
@@ -163,7 +163,7 @@
 #define CONTENT_PADDING 12
 
 #define TITLEBAR_HEIGHT 40
-#define TITLEBAR_CLOCK_WIDTH 53
+#define TITLEBAR_CLOCK_WIDTH 73
 #define TITLEBAR_BATTERY_WIDTH 41
 #define TITLEBAR_BATTERY_OFFSET_Y ((TITLEBAR_HEIGHT - 30) / 2)
 
@@ -211,7 +211,7 @@
 #define CONTENT_PADDING 12
 
 #define TITLEBAR_HEIGHT 40
-#define TITLEBAR_CLOCK_WIDTH 53
+#define TITLEBAR_CLOCK_WIDTH 73
 #define TITLEBAR_BATTERY_WIDTH 41
 #define TITLEBAR_BATTERY_OFFSET_Y ((TITLEBAR_HEIGHT - 30) / 2)
 
@@ -913,7 +913,7 @@ void drawTitleBar(const char *title)
 
     mr_rectangle_t rectangle;
     mr_point_t offset;
-    char buffer[6];
+    char buffer[8];
 
     rectangle.y = TITLEBAR_Y;
     rectangle.height = TITLEBAR_HEIGHT;
@@ -932,22 +932,44 @@ void drawTitleBar(const char *title)
 
     // Time
     RTCDateTime dateTime;
+    
+    
     getDeviceDateTime(&dateTime);
+
+    bool show12H = (settings.displayTimeFormat == DISPLAY_TIMEFORMAT_12H);
+    int8_t hour = dateTime.hour;
+
+    if(show12H) {
+        if(hour == 0) {
+            hour = 12;
+        } else if (hour > 12) {
+            hour -= 12;
+        }
+    }
 
     strclr(buffer);
     if (dateTime.year >= RTC_YEAR_MIN)
     {
-        strcatUInt32(buffer, dateTime.hour, 2);
+        strcatUInt32(buffer, hour, (show12H && (hour < 10)) ? 1 : 2);
         strcatChar(buffer, ':');
         strcatUInt32(buffer, dateTime.minute, 2);
+
+        if(show12H) {
+            if(dateTime.hour >= 12) {
+                strcatChar(buffer, 'P');
+            } else {
+                strcatChar(buffer, 'A');
+            }
+            strcatChar(buffer, 'M');
+        }
     }
 
     rectangle.x = TITLEBAR_CLOCK_X;
     rectangle.width = TITLEBAR_CLOCK_WIDTH;
-    offset.x = 0;
+    offset.x = TITLEBAR_CLOCK_WIDTH;
 
     setTextColor(COLOR_ELEMENT_NEUTRAL);
-    drawText(buffer,
+    drawRightAlignedText(buffer,
              &rectangle,
              &offset);
 
