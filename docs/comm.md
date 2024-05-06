@@ -188,6 +188,18 @@ Example:
     GET tubeHVFrequency
     OK 1250.00
 
+### Set tube PWM frequency
+
+* Request: `SET tubeHVFrequency [value]\n` 
+* Response: `OK\n`
+
+Enables the custom HV profile and sets its PWM frequency, provided in decimal format. Valid values are 1250, 2500, 5000, 10000, 20000, 40000.
+
+Example:
+
+    SET tubeHVFrequency 2500
+    OK
+
 ### Get tube PWM duty cycle
 
 * Request: `GET tubeHVDutyCycle\n` 
@@ -199,6 +211,18 @@ Example:
 
     GET tubeHVDutyCycle
     OK 0.0975
+
+### Set tube PWM duty cycle
+
+* Request: `SET tubeHVDutyCycle [value]\n` 
+* Response: `OK\n`
+
+Enables the custom HV profile and sets its PWM duty-cycle, provided in decimal format. Valid values are 0.0025 to 0.9, in 0.0025 steps.
+
+Example:
+
+    SET tubeHVDutyCycle 0.05
+    OK
 
 ### Get data log
 

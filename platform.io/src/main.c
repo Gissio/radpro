@@ -58,7 +58,9 @@ int main(void)
 #else
 
     initMeasurements();
+#if defined(GAME)
     initGame();
+#endif
     initDatalog();
 
 #if defined(KEYBOARD_WAIT_FOR_POWERON)
@@ -118,7 +120,9 @@ int main(void)
         {
             sleep(1);
 
+#if defined(GAME)
             dispatchGameEvents();
+#endif
             dispatchEvents();
         }
 

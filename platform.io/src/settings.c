@@ -177,7 +177,9 @@ static const OptionView settingsMenuOptions[] = {
 #else
     {"Random gen.", &rngMenuView},
 #endif
+#if defined(GAME)
     {"Game", &gameMenuView},
+#endif
     {"Statistics", &statisticsView},
 #if defined(DATA_MODE)
     {"Data mode", &dataModeMenuView},

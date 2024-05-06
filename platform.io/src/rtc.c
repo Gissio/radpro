@@ -125,27 +125,27 @@ static const char *onRTCSubMenuGetOption(const Menu *menu,
 {
     switch (rtcMenuState.selectedIndex)
     {
-    case 1:
+    case DATETIME_YEAR:
         *menuStyle = (index == (uint32_t)(rtcCurrentDateTime.year - RTC_YEAR_MIN));
 
         break;
 
-    case 2:
+    case DATETIME_MONTH:
         *menuStyle = (index == (uint32_t)(rtcCurrentDateTime.month - 1));
 
         break;
 
-    case 3:
+    case DATETIME_DAY:
         *menuStyle = (index == (uint32_t)(rtcCurrentDateTime.day - 1));
 
         break;
 
-    case 4:
+    case DATETIME_HOUR:
         *menuStyle = (index == rtcCurrentDateTime.hour);
 
         break;
 
-    case 5:
+    case DATETIME_MINUTE:
         *menuStyle = (index == rtcCurrentDateTime.minute);
 
         break;
@@ -177,27 +177,27 @@ static void onRTCSubMenuSelect(const Menu *menu)
 
     switch (rtcMenuState.selectedIndex)
     {
-    case 1:
+    case DATETIME_YEAR:
         dateTime.year = RTC_YEAR_MIN + menu->state->selectedIndex;
 
         break;
 
-    case 2:
+    case DATETIME_MONTH:
         dateTime.month = 1 + menu->state->selectedIndex;
 
         break;
 
-    case 3:
+    case DATETIME_DAY:
         dateTime.day = 1 + menu->state->selectedIndex;
 
         break;
 
-    case 4:
+    case DATETIME_HOUR:
         dateTime.hour = (uint8_t)menu->state->selectedIndex;
 
         break;
 
-    case 5:
+    case DATETIME_MINUTE:
         dateTime.minute = (uint8_t)menu->state->selectedIndex;
         dateTime.second = 0;
 
@@ -335,7 +335,53 @@ static const View rtcMinuteMenuView = {
     &rtcMinuteMenu,
 };
 
-// Date and type menu
+// Time format menu
+
+static const char *const averagingMenuOptions[] = {
+    "24-hour",
+    "12-hour",
+    NULL,
+};
+
+static const char *onRTCTimeFormatMenuGetOption(const Menu *menu,
+                                                uint32_t index,
+                                                MenuStyle *menuStyle)
+{
+    *menuStyle = (index == settings.rtcTimeFormat);
+
+    return averagingMenuOptions[index];
+}
+
+static void onRTCTimeFormatMenuSelect(const Menu *menu)
+{
+    settings.rtcTimeFormat = menu->state->selectedIndex;
+}
+
+static const Menu rtcTimeFormatMenu = {
+    "Time format",
+    &rtcItemMenuState,
+    onRTCTimeFormatMenuGetOption,
+    onRTCTimeFormatMenuSelect,
+    onRTCSubMenuBack,
+};
+
+static const View rtcTimeFormatMenuView = {
+    onMenuEvent,
+    &rtcTimeFormatMenu,
+};
+
+// Date and time menu
+
+enum
+{
+    DATETIME_ZONE,
+    DATETIME_YEAR,
+    DATETIME_MONTH,
+    DATETIME_DAY,
+    DATETIME_HOUR,
+    DATETIME_MINUTE,
+    DATETIME_FORMAT,
+};
 
 static const char *const rtcMenuOptions[] = {
     "Time zone",
@@ -344,6 +390,7 @@ static const char *const rtcMenuOptions[] = {
     "Day",
     "Hour",
     "Minute",
+    "Time format",
     NULL,
 };
 
@@ -367,45 +414,52 @@ static void onRTCMenuSelect(const Menu *menu)
 
     switch (rtcMenuState.selectedIndex)
     {
-    case 0:
+    case DATETIME_ZONE:
         view = &rtcTimeZoneMenuView;
         menuIndex = settings.rtcTimeZone;
         optionsNum = RTC_TIMEZONE_NUM;
 
         break;
 
-    case 1:
+    case DATETIME_YEAR:
         view = &rtcYearMenuView;
         menuIndex = rtcCurrentDateTime.year - RTC_YEAR_MIN;
         optionsNum = RTC_YEAR_NUM;
 
         break;
 
-    case 2:
+    case DATETIME_MONTH:
         view = &rtcMonthMenuView;
         menuIndex = rtcCurrentDateTime.month - 1;
         optionsNum = 12;
 
         break;
 
-    case 3:
+    case DATETIME_DAY:
         view = &rtcDayMenuView;
         menuIndex = rtcCurrentDateTime.day - 1;
         optionsNum = getDaysInMonth(rtcCurrentDateTime.year, rtcCurrentDateTime.month);
 
         break;
 
-    case 4:
+    case DATETIME_HOUR:
         view = &rtcHourMenuView;
         menuIndex = rtcCurrentDateTime.hour;
         optionsNum = 24;
 
         break;
 
-    case 5:
+    case DATETIME_MINUTE:
         view = &rtcMinuteMenuView;
         menuIndex = rtcCurrentDateTime.minute;
         optionsNum = 60;
+
+        break;
+
+    case DATETIME_FORMAT:
+        view = &rtcTimeFormatMenuView;
+        menuIndex = settings.rtcTimeFormat;
+        optionsNum = RTC_TIMEFORMAT_NUM;
 
         break;
     }

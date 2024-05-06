@@ -67,7 +67,7 @@ void dispatchViewEvents(void)
     else
     {
         if (!settings.pulseFlashes ||
-            !isPulsesThresholdExceeded())
+            isPulseThresholding())
         {
             view.drawUpdate = false;
 

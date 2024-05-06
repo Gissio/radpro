@@ -19,10 +19,10 @@
 * Background compensation.
 * Display flashes on the FNIRSI GC-01 (after display sleep).
 * Haptic pulses on the FNIRSI GC-01 (off, weak or strong).
-* Pulses threshold (disables pulse indication if instantaneous rate is below a certain value).
+* Pulse thresholding (disables pulse indication if instantaneous rate is below a certain value).
 * Fault alarm on HV/tube failure (lack of pulses) or tube saturation (tube shorted).
 * Added 30 second and 10 second datalog interval options.
-* Added 10 second display timeout option.
+* Added 10 second display sleep option.
 * Added `radpro-flashtool`.
 * Removed hold option.
 

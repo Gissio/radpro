@@ -69,13 +69,10 @@ static const char *const tubeMenuOptions[] = {
     "Conversion factor",
 #if !defined(DISPLAY_240X320)
     "Instant. averaging",
-#else
-    "Inst. averaging",
-#endif
-#if !defined(DISPLAY_240X320)
     "Dead-time comp.",
     "Background comp.",
 #else
+    "Inst. averaging",
     "Dead-time com.",
     "Background com.",
 #endif
@@ -222,8 +219,8 @@ static const char *const tubeInstantaneousAveragingMenuOptions[] = {
 };
 
 static const char *onTubeInstantaneousAveragingMenuGetOption(const Menu *menu,
-                                                  uint32_t index,
-                                                  MenuStyle *menuStyle)
+                                                             uint32_t index,
+                                                             MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.tubeInstantaneousAveraging);
 
@@ -573,6 +570,20 @@ float getTubeHVFrequency(void)
     }
 }
 
+void setTubeHVFrequency(float value)
+{
+    uint32_t tubeHVFrequency = log2f(value / 1250);
+    if (tubeHVFrequency < 0)
+        tubeHVFrequency = 0;
+    else if (tubeHVFrequency >= TUBE_HVFREQUENCY_NUM)
+        tubeHVFrequency = TUBE_HVFREQUENCY_NUM - 1;
+
+    settings.tubeHVProfile = TUBE_HVPROFILE_CUSTOM;
+    settings.tubeHVFrequency = tubeHVFrequency;
+
+    updateTubeHV();
+}
+
 static const char *onTubeHVFrequencyMenuGetOption(const Menu *menu,
                                                   uint32_t index,
                                                   MenuStyle *menuStyle)
@@ -638,6 +649,21 @@ float getTubeHVDutyCycle(void)
     }
 }
 
+void setTubeHVDutyCycle(float value)
+{
+    uint32_t tubeHVDutyCycle = (value - TUBE_HVDUTYCYCLE_MIN / 2) /
+                               TUBE_HVDUTYCYCLE_STEP;
+    if (tubeHVDutyCycle < 0)
+        tubeHVDutyCycle = 0;
+    else if (tubeHVDutyCycle >= TUBE_HVDUTYCYCLE_NUM)
+        tubeHVDutyCycle = TUBE_HVDUTYCYCLE_NUM - 1;
+
+    settings.tubeHVProfile = TUBE_HVPROFILE_CUSTOM;
+    settings.tubeHVDutyCycle = tubeHVDutyCycle;
+
+    updateTubeHV();
+}
+
 static const char *onTubeHVDutyCycleMenuGetOption(const Menu *menu,
                                                   uint32_t index,
                                                   MenuStyle *menuStyle)
@@ -690,7 +716,7 @@ enum
 #if defined(VIBRATOR)
     PULSES_MENU_OPTIONS_HAPTIC_PULSES,
 #endif
-    PULSES_MENU_OPTIONS_PULSES_THRESHOLD,
+    PULSES_MENU_OPTIONS_PULSE_THRESHOLDING,
 };
 
 static const char *const pulsesMenuOptions[] = {
@@ -702,7 +728,11 @@ static const char *const pulsesMenuOptions[] = {
 #if defined(VIBRATOR)
     "Haptic pulses",
 #endif
-    "Pulses threshold",
+#if !defined(DISPLAY_240X320)
+    "Pulse thresholding",
+#else
+    "Pulse threshold.",
+#endif
     NULL,
 };
 
@@ -743,8 +773,8 @@ static void onPulsesMenuSelect(const Menu *menu)
         break;
 #endif
 
-    case PULSES_MENU_OPTIONS_PULSES_THRESHOLD:
-        setView(&pulsesThresholdMenuView);
+    case PULSES_MENU_OPTIONS_PULSE_THRESHOLDING:
+        setView(&pulseThresholdingMenuView);
 
         break;
     }

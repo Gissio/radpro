@@ -305,6 +305,14 @@ enum
     RTC_TIMEZONE_NUM,
 };
 
+enum
+{
+    RTC_TIMEFORMAT_24HOUR,
+    RTC_TIMEFORMAT_12HOUR,
+
+    RTC_TIMEFORMAT_NUM,
+};
+
 #if defined(BATTERY_REMOVABLE)
 enum
 {
@@ -356,7 +364,7 @@ typedef struct
 #if defined(VIBRATOR)
     unsigned int pulseVibrations : 2;
 #endif
-    unsigned int pulseThreshold : 4;
+    unsigned int pulseThresholding : 4;
 
 #if defined(DISPLAY_MONOCHROME)
     unsigned int displayContrast : 3;
@@ -367,6 +375,7 @@ typedef struct
     unsigned int displaySleep : 3;
 
     unsigned int rtcTimeZone : 5;
+    unsigned int rtcTimeFormat : 1;
 
 #if defined(BATTERY_REMOVABLE)
     unsigned int batteryType : 1;

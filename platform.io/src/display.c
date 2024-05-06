@@ -115,8 +115,10 @@
 #define CONTENT_PADDING 3
 
 #define TITLEBAR_HEIGHT 8
-#define TITLEBAR_CLOCK_WIDTH 20
+#define TITLEBAR_CLOCK_WIDTH 21
+#define TITLEBAR_CLOCK_OFFSET_X 1
 #define TITLEBAR_BATTERY_WIDTH 15
+#define TITLEBAR_BATTERY_OFFSET_X 0
 #define TITLEBAR_BATTERY_OFFSET_Y 1
 
 #define MENU_LINE_HEIGHT 14
@@ -163,8 +165,10 @@
 #define CONTENT_PADDING 12
 
 #define TITLEBAR_HEIGHT 40
-#define TITLEBAR_CLOCK_WIDTH 53
-#define TITLEBAR_BATTERY_WIDTH 41
+#define TITLEBAR_CLOCK_WIDTH 57
+#define TITLEBAR_CLOCK_OFFSET_X 0
+#define TITLEBAR_BATTERY_WIDTH 38
+#define TITLEBAR_BATTERY_OFFSET_X 1
 #define TITLEBAR_BATTERY_OFFSET_Y ((TITLEBAR_HEIGHT - 30) / 2)
 
 #define MENU_LINE_HEIGHT 50
@@ -211,8 +215,10 @@
 #define CONTENT_PADDING 12
 
 #define TITLEBAR_HEIGHT 40
-#define TITLEBAR_CLOCK_WIDTH 53
-#define TITLEBAR_BATTERY_WIDTH 41
+#define TITLEBAR_CLOCK_WIDTH 57
+#define TITLEBAR_CLOCK_OFFSET_X 0
+#define TITLEBAR_BATTERY_WIDTH 38
+#define TITLEBAR_BATTERY_OFFSET_X 1
 #define TITLEBAR_BATTERY_OFFSET_Y ((TITLEBAR_HEIGHT - 30) / 2)
 
 #define MENU_LINE_HEIGHT 46
@@ -937,19 +943,22 @@ void drawTitleBar(const char *title)
     strclr(buffer);
     if (dateTime.year >= RTC_YEAR_MIN)
     {
-        strcatUInt32(buffer, dateTime.hour, 2);
+        if (settings.rtcTimeFormat == RTC_TIMEFORMAT_24HOUR)
+            strcatUInt32(buffer, dateTime.hour, 2);
+        else
+            strcatUInt32(buffer, dateTime.hour % 12, 1);
         strcatChar(buffer, ':');
         strcatUInt32(buffer, dateTime.minute, 2);
     }
 
     rectangle.x = TITLEBAR_CLOCK_X;
     rectangle.width = TITLEBAR_CLOCK_WIDTH;
-    offset.x = 0;
+    offset.x = TITLEBAR_CLOCK_WIDTH + TITLEBAR_CLOCK_OFFSET_X - CONTENT_PADDING;
 
     setTextColor(COLOR_ELEMENT_NEUTRAL);
-    drawText(buffer,
-             &rectangle,
-             &offset);
+    drawRightAlignedText(buffer,
+                         &rectangle,
+                         &offset);
 
     // Battery
     int8_t batteryLevel = getDeviceBatteryLevel();
@@ -962,13 +971,13 @@ void drawTitleBar(const char *title)
 
     rectangle.x = TITLEBAR_BATTERY_X;
     rectangle.width = TITLEBAR_BATTERY_WIDTH;
-    offset.x = 0;
+    offset.x = TITLEBAR_BATTERY_WIDTH + TITLEBAR_BATTERY_OFFSET_X - CONTENT_PADDING;
     offset.y = TITLEBAR_BATTERY_OFFSET_Y;
 
     setFont(FONT_SYMBOLS);
-    drawText(buffer,
-             &rectangle,
-             &offset);
+    drawRightAlignedText(buffer,
+                         &rectangle,
+                         &offset);
 
     // Set background
     setFillColor(COLOR_CONTAINER_BACKGROUND);
@@ -1937,7 +1946,7 @@ void drawStatistics(void)
 #if !defined(DISPLAY_PORTRAIT)
             strcpy(key, "Tube dead time");
 #else
-            strcpy(key, "Life pulses");
+            strcpy(key, "Dead time");
 #endif
             float deadTime = getTubeDeadTime();
             if (deadTime >= 1)
@@ -2210,12 +2219,8 @@ static const OptionView displayMenuOptions[] = {
 #elif defined(DISPLAY_COLOR)
     {"Theme", &displayThemeMenuView},
 #endif
-    {"Brightness level", &displayBrightnessMenuView},
-#if defined(DISPLAY_MONOCHROME)
-    {"Backlight", &displaySleepMenuView},
-#elif defined(DISPLAY_COLOR)
+    {"Brightness", &displayBrightnessMenuView},
     {"Sleep", &displaySleepMenuView},
-#endif
     {NULL},
 };
 
@@ -2369,7 +2374,7 @@ static void onDisplayBrightnessMenuSelect(const Menu *menu)
 static MenuState displayBrightnessMenuState;
 
 static const Menu displayBrightnessMenu = {
-    "Brightness level",
+    "Brightness",
     &displayBrightnessMenuState,
     onDisplayBrightnessMenuGetOption,
     onDisplayBrightnessMenuSelect,
@@ -2385,19 +2390,14 @@ const View displayBrightnessMenuView = {
 
 static const char *const displaySleepMenuOptions[] = {
 #if defined(DISPLAY_MONOCHROME)
-    "Off",
+    "Always",
 #endif
-#if !defined(DISPLAY_240X320)
-    "On for 10 seconds",
-    "On for 30 seconds",
-#else
-    "On for 10 sec.",
-    "On for 30 sec.",
-#endif
-    "On for 1 minute",
-    "On for 2 minutes",
-    "On for 5 minutes",
-    "Always on",
+    "10 seconds",
+    "30 seconds",
+    "1 minute",
+    "2 minutes",
+    "5 minutes",
+    "Never",
     NULL,
 };
 
@@ -2420,11 +2420,7 @@ static void onDisplaySleepMenuSelect(const Menu *menu)
 static MenuState displaySleepMenuState;
 
 static const Menu displaySleepMenu = {
-#if defined(DISPLAY_MONOCHROME)
-    "Backlight",
-#elif defined(DISPLAY_COLOR)
     "Sleep",
-#endif
     &displaySleepMenuState,
     onDisplaySleepMenuGetOption,
     onDisplaySleepMenuSelect,

@@ -51,6 +51,7 @@ enum
 {
     AVERAGE_TAB_TIME,
     AVERAGE_TAB_RATE,
+    AVERAGE_TAB_DOSE,
 
     AVERAGE_TAB_NUM,
 };
@@ -186,7 +187,7 @@ static const Menu rateAlarmMenu;
 static const Menu doseAlarmMenu;
 static const Menu averagingMenu;
 
-static void updatePulsesThresholdExceeded(void);
+static void updatePulseThresholding(void);
 
 static bool isTubeFaultAlarm(void);
 static bool isInstantaneousRateAlarm(void);
@@ -527,7 +528,7 @@ void updateMeasurements(void)
         measurements.instantaneous.maxValue =
             measurements.instantaneous.rate.value;
 
-    updatePulsesThresholdExceeded();
+    updatePulseThresholding();
 
     // Average rate
     if ((measurements.average.rate.time < UINT32_MAX) &&
@@ -697,12 +698,12 @@ static const float rateAlarmsSvH[] = {
     100E-6F,
 };
 
-static void updatePulsesThresholdExceeded(void)
+static void updatePulseThresholding(void)
 {
     float svH = units[UNITS_SIEVERTS].rate.scale *
                 measurements.instantaneous.rate.value;
 
-    setPulsesThresholdExceeded(svH >= rateAlarmsSvH[settings.pulseThreshold]);
+    setPulseThresholding(svH < rateAlarmsSvH[settings.pulseThresholding]);
 }
 
 static void resetInstantaneousRate(void)
@@ -990,6 +991,18 @@ static void onAverageRateViewEvent(const View *view,
             }
 
             keyString = "Rate";
+
+            break;
+
+        case AVERAGE_TAB_DOSE:
+            if (measurements.average.pulseCount > 0)
+                buildValueString(valueString,
+                                 unitString,
+                                 measurements.average.pulseCount,
+                                 &units[UNITS_CPM].dose,
+                                 unitsMinMetricPrefixIndex[UNITS_CPM]);
+
+            keyString = "Dose";
 
             break;
         }
@@ -1465,13 +1478,13 @@ const View doseAlarmMenuView = {
     &doseAlarmMenu,
 };
 
-// Pulses threshold menu
+// Pulse thresholding menu
 
-static const char *onPulsesThresholdMenuGetOption(const Menu *menu,
+static const char *onPulseThresholdingMenuGetOption(const Menu *menu,
                                                   uint32_t index,
                                                   MenuStyle *menuStyle)
 {
-    *menuStyle = (index == settings.pulseThreshold);
+    *menuStyle = (index == settings.pulseThresholding);
 
     if (index == 0)
         return "Off";
@@ -1481,22 +1494,26 @@ static const char *onPulsesThresholdMenuGetOption(const Menu *menu,
         return NULL;
 }
 
-static void onPulsesThresholdMenuSelect(const Menu *menu)
+static void onPulseThresholdingMenuSelect(const Menu *menu)
 {
-    settings.pulseThreshold = menu->state->selectedIndex;
+    settings.pulseThresholding = menu->state->selectedIndex;
 }
 
-static MenuState pulsesThresholdMenuState;
+static MenuState pulseThresholdingMenuState;
 
 static const Menu pulsesThresholdMenu = {
-    "Pulses threshold",
-    &pulsesThresholdMenuState,
-    onPulsesThresholdMenuGetOption,
-    onPulsesThresholdMenuSelect,
+#if !defined(DISPLAY_240X320)
+    "Pulse thresholding",
+#else
+    "Pulse threshold.",
+#endif
+    &pulseThresholdingMenuState,
+    onPulseThresholdingMenuGetOption,
+    onPulseThresholdingMenuSelect,
     onPulsesSubMenuBack,
 };
 
-const View pulsesThresholdMenuView = {
+const View pulseThresholdingMenuView = {
     onMenuEvent,
     &pulsesThresholdMenu,
 };

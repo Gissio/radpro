@@ -40,7 +40,7 @@ extern const View unitsMenuView;
 extern const View averagingMenuView;
 extern const View rateAlarmMenuView;
 extern const View doseAlarmMenuView;
-extern const View pulsesThresholdMenuView;
+extern const View pulseThresholdingMenuView;
 
 void initMeasurements(void);
 

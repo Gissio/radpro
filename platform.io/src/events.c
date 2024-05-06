@@ -49,7 +49,7 @@ volatile uint32_t eventsCurrentTick;
 
 static struct
 {
-    bool pulsesThresholdExceeded;
+    bool pulseThresholding;
 
     bool lastPulseTimeCountInitialized;
     uint32_t lastPulseTimeCount;
@@ -271,7 +271,9 @@ void dispatchEvents(void)
 
         updateMeasurements();
         updateADC();
+#if defined(GAME)
         updateGame();
+#endif
         updateView();
     }
 
@@ -347,19 +349,19 @@ bool isDisplayTimerActive(void)
     return events.displayTimer != 0;
 }
 
-void setPulsesThresholdExceeded(bool value)
+void setPulseThresholding(bool value)
 {
-    events.pulsesThresholdExceeded = value;
+    events.pulseThresholding = value;
 }
 
-bool isPulsesThresholdExceeded(void)
+bool isPulseThresholding(void)
 {
-    return events.pulsesThresholdExceeded;
+    return events.pulseThresholding;
 }
 
 void triggerPulse(void)
 {
-    if (!events.pulsesThresholdExceeded)
+    if (events.pulseThresholding)
         return;
 
     if (settings.pulseClicks)

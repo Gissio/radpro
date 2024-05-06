@@ -39,8 +39,8 @@ float getTubeDeadTime(void);
 
 void triggerDisplay(void);
 bool isDisplayTimerActive(void);
-void setPulsesThresholdExceeded(bool value);
-bool isPulsesThresholdExceeded(void);
+void setPulseThresholding(bool value);
+bool isPulseThresholding(void);
 void triggerPulse(void);
 void triggerAlarm(void);
 

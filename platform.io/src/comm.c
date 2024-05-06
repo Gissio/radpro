@@ -62,13 +62,17 @@ static bool matchCommCommand(const char *command)
     }
 }
 
-static bool matchCommCommandWithUInt32(const char *command, uint32_t *value)
+static bool matchCommCommandWithNumber(const char *command,
+                                       uint32_t *mantissa,
+                                       uint32_t *factor)
 {
     if (!matchCommCommand(command))
         return false;
 
     return (strlen(comm.buffer) > (strlen(command) + 1)) &&
-           parseUInt32(comm.buffer + strlen(command) + 1, value);
+           parseNumber(comm.buffer + strlen(command) + 1,
+                       mantissa,
+                       factor);
 }
 
 static void sendCommOk(void)
@@ -127,7 +131,8 @@ void dispatchCommEvents(void)
 
     if (comm.state == COMM_RX_READY)
     {
-        uint32_t value;
+        uint32_t mantissa;
+        uint32_t factor;
 
         if (matchCommCommand("GET deviceId"))
         {
@@ -139,25 +144,31 @@ void dispatchCommEvents(void)
             sendCommOkWithFloat(getDeviceBatteryVoltage(), 3);
         else if (matchCommCommand("GET deviceTime"))
             sendCommOkWithUInt32(getDeviceTime());
-        else if (matchCommCommandWithUInt32("SET deviceTime", &value))
+        else if (matchCommCommandWithNumber("SET deviceTime",
+                                            &mantissa,
+                                            &factor))
         {
-            setDeviceTime(value);
+            setDeviceTime(mantissa / factor);
 
             sendCommOk();
         }
         else if (matchCommCommand("GET tubeTime"))
             sendCommOkWithUInt32(getTubeTime());
-        else if (matchCommCommandWithUInt32("SET tubeTime", &value))
+        else if (matchCommCommandWithNumber("SET tubeTime",
+                                            &mantissa,
+                                            &factor))
         {
-            setTubeTime(value);
+            setTubeTime(mantissa / factor);
 
             sendCommOk();
         }
         else if (matchCommCommand("GET tubePulseCount"))
             sendCommOkWithUInt32(getTubePulseCount());
-        else if (matchCommCommandWithUInt32("SET tubePulseCount", &value))
+        else if (matchCommCommandWithNumber("SET tubePulseCount",
+                                            &mantissa,
+                                            &factor))
         {
-            setTubePulseCount(value);
+            setTubePulseCount(mantissa / factor);
 
             sendCommOk();
         }
@@ -173,10 +184,30 @@ void dispatchCommEvents(void)
             sendCommOkWithFloat(60.0F * getTubeBackgroundCompensation(), 3);
         else if (matchCommCommand("GET tubeHVFrequency"))
             sendCommOkWithFloat(getTubeHVFrequency(), 2);
+        else if (matchCommCommandWithNumber("SET tubeHVFrequency",
+                                           &mantissa,
+                                           &factor))
+        {
+            setTubeHVFrequency((float)mantissa / (float)factor);
+
+            sendCommOk();
+        }
         else if (matchCommCommand("GET tubeHVDutyCycle"))
             sendCommOkWithFloat(getTubeHVDutyCycle(), 4);
-        else if (matchCommCommandWithUInt32("GET datalog", &comm.datalogTimeLimit))
+        else if (matchCommCommandWithNumber("SET tubeHVDutyCycle",
+                                           &mantissa,
+                                           &factor))
         {
+            setTubeHVDutyCycle((float)mantissa / (float)factor);
+
+            sendCommOk();
+        }
+        else if (matchCommCommandWithNumber("GET datalog",
+                                            &mantissa,
+                                            &factor))
+        {
+            comm.datalogTimeLimit = mantissa / factor;
+
             startDatalogDump();
 
             return;

@@ -24,8 +24,9 @@ void strcatChar(char *str,
 
 void strcatUInt32(char *str,
                   uint32_t value, uint32_t length);
-bool parseUInt32(char *str,
-                 uint32_t *value);
+bool parseNumber(char *str,
+                 uint32_t *mantissa,
+                 uint32_t *factor);
 
 void strcatTime(char *str,
                 uint32_t time);

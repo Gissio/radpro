@@ -26,7 +26,9 @@ float getTubeConversionFactor(void);
 float getTubeDeadTimeCompensation(void);
 float getTubeBackgroundCompensation(void);
 float getTubeHVFrequency(void);
+void setTubeHVFrequency(float value);
 float getTubeHVDutyCycle(void);
+void setTubeHVDutyCycle(float value);
 
 void setTubeHV(bool value);
 bool getTubeHV(void);

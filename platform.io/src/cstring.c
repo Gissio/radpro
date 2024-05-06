@@ -46,29 +46,40 @@ void strcatUInt32(char *str,
     str[minLength] = '\0';
 }
 
-bool parseUInt32(char *str,
-                 uint32_t *value)
+bool parseNumber(char *str,
+                 uint32_t *mantissa,
+                 uint32_t *factor)
 {
-    uint32_t shiftRegister = 0;
+    uint32_t localMantissa = 0;
+    uint32_t localFactor = 1;
+    bool decimalPoint = false;
 
     while (true)
     {
         char c = *str++;
 
         if (c < 0x20)
+            break;
+        else if (c == '.')
+            decimalPoint = true;
+        else if ((c >= '0') && (c <= '9') &&
+                 ((localMantissa < (UINT32_MAX / 10)) ||
+                  ((localMantissa == (UINT32_MAX / 10)) &&
+                   (c <= '5'))) &&
+                 (localFactor < (UINT32_MAX / 10)))
         {
-            *value = shiftRegister;
-
-            return true;
+            localMantissa = 10 * localMantissa + (c - '0');
+            if (decimalPoint)
+                localFactor = 10 * localFactor;
         }
-        else if (c < '0' || c > '9')
+        else
             return false;
-        else if (shiftRegister > (UINT32_MAX / 10))
-            return false;
-
-        shiftRegister *= 10;
-        shiftRegister += c - '0';
     }
+
+    *mantissa = localMantissa;
+    *factor = localFactor;
+
+    return true;
 }
 
 void strcatTime(char *str,

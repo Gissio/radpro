@@ -7,7 +7,7 @@
 * Configurable averaging for performing surveys.
 * Live and offline data logging with data compression.
 * Compatibility with the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software.
-* Configurable pulse indication, optionally limited by a radiation level threshold: pulse clicks (off, quiet, loud), pulse LED (on supported devices), display flashes (on backlight sleep) and haptic pulses (on supported devices).
+* Configurable pulse indication with optional thresholding: pulse clicks (off, quiet, loud), pulse LED (on supported devices), display flashes (on display sleep) and haptic pulses (on supported devices).
 * Dead-time measurement.
 * Customizable Geiger-Müller tube settings: conversion factor, instantaneous rate averaging (adaptive fast, adaptive precision, 60 seconds, 30 seconds and 10 seconds), dead-time compensation, background compensation, high voltage generator PWM frequency and duty cycle (for tube voltage control).
 * Preconfigured high voltage profiles.
@@ -17,7 +17,7 @@
 * Anti-aliased text rendering on color screens.
 * `radpro-tool` for low-level access to the device from a computer.
 * Power-on self-test and safety watchdog.
-* Game: nuclear chess.
+* Game: nuclear chess (on supported devices).
 
 ## Measurements
 
@@ -27,9 +27,9 @@ Rad Pro supports the following measurement modes:
 
 ### Instantaneous rate
 
-The instantaneous rate is estimated by dividing the number of pulses within the instantenous rate averaging time period, minus one, by the time between the first and last pulse within that period.
+The instantaneous rate is estimated by dividing the number of pulses within the instantenous rate averaging period, minus one, by the time between the first and last pulse within that period.
 
-The secondary view can be switched between an instantaneous rate bar view (logarithmic, with 1 µSv/h and 10 µSv/h alert zones), a period view that displays the length of the averaging time period, an instantaneous rate max view, and an instantaneous rate cpm (counts per minute) view.
+The secondary view can be switched between an instantaneous rate bar view (logarithmic, with 1 µSv/h and 10 µSv/h alert zones), a period view that displays the length of the averaging period, an instantaneous rate max view, and an instantaneous rate cpm (counts per minute) view.
 
 The [confidence interval](https://en.wikipedia.org/wiki/Confidence_interval) estimates the range of values that contain the true, actual instantaneous rate with a 95% probability, assuming a constant level of radiation.
 
@@ -37,11 +37,11 @@ An example: suppose you measure an instantaneous rate of 1.000 µSv/h with a con
 
 ### Average rate
 
-The average rate is estimated by dividing the number of pulses within the averaging time period, minus one, by the time between the first and last pulse within that period.
+The average rate is estimated by dividing the number of pulses within the averaging period, minus one, by the time between the first and last pulse within that period.
 
-The secondary view can be switched between a time view that displays the length of the averaging time period, and an average rate cpm (counts per minute) view.
+The secondary view can be switched between a time view that displays the length of the averaging period, an average rate cpm (counts per minute) view, and a counts view.
 
-The confidence interval assumes a constant level of radiation over the averaging time period.
+The confidence interval assumes a constant level of radiation over the averaging period.
 
 Averaging can be indefinite, or limited by a configurable time or confidence level. When averaging finishes, the device will flash and emit a beep, signaling the completion of the measurement.
 
@@ -86,21 +86,21 @@ During datalog download, data is not logged.
 
 ## Instantaneous rate averaging
 
-Rad Pro comes with several options for determining the instantaneous rate averaging time period:
+Rad Pro comes with several options for determining the instantaneous rate averaging period:
 
 * “Adaptive fast” is the fastest option, capable of responding quickly to increased levels of radiation, at the expense of lower precision. It is best for users who need quick radiation alerts. It aims for a ±50% confidence interval; at increased levels of radiation, it limits the averaging period to a maximum of 5 seconds. You can check the “adaptive fast” response curves here: [instantaneousaveraging-adaptivefast.ipynb](../tests/instantaneousaveraging-adaptivefast.ipynb)
-* “Adaptive precision” tends to be a bit slower, but achieves higher precision at high levels of radiation. It is best for users who deem precision more important than fast response. It aims for a ±50% confidence interval; at increased levels of radiation, it limits the averaging time period to a minimum of 5 seconds. You can check the “adaptive precision” response curves here: [instantaneousaveraging-adaptiveprecision.ipynb](../tests/instantaneousaveraging-adaptiveprecision.ipynb)
-* “60 seconds”, “30 seconds” and “10 seconds” use fixed averaging time periods. They can produce higher precision than the adaptive options, but have a much slower response.
+* “Adaptive precision” tends to be a bit slower, but achieves higher precision at increased levels of radiation. It is best for users who deem precision more important than fast response. At lower level of radiations, it aims for a ±50% confidence interval; at increased levels of radiation, it uses a fixed 5 second averaging period. You can check the “adaptive precision” response curves here: [instantaneousaveraging-adaptiveprecision.ipynb](../tests/instantaneousaveraging-adaptiveprecision.ipynb)
+* “60 seconds”, “30 seconds” and “10 seconds” use fixed averaging periods. They can produce higher precision than the adaptive options, but have a much slower response.
 
 ## Dead time and dead-time compensation
 
-[Dead time](https://en.wikipedia.org/wiki/Geiger%E2%80%93M%C3%BCller_tube#Quenching_and_dead_time) is the period of time during which the Geiger-Müller tube is unable to detect another radiation event immediately after detecting one. This occurs because the tube becomes saturated after each radiation event, typically for a time of 50-200 µs. Consequently, measurements of high levels of radiation will be inaccurate as the tube fails to register the counts during this dead-time period.
+[Dead time](https://en.wikipedia.org/wiki/Geiger%E2%80%93M%C3%BCller_tube#Quenching_and_dead_time) is the period of time during which the Geiger-Müller tube is unable to detect another radiation event immediately after detecting one. This occurs because the tube becomes saturated after each radiation event, typically for 50-200 µs. Consequently, measurements of high levels of radiation will be inaccurate as the tube fails to register the counts during the dead-time period.
 
 Rad Pro lets you add these missed counts by applying dead-time compensation.
 
-To use dead-time compensation you need to measure the dead time first. To do so, go to the settings, select “Statistics” and monitor the “Dead time” value until it stabilizes. This process can take several hours under normal levels of radiation.
+To use dead-time compensation you need to measure the dead time first. You can do this by going to Rad Pro's settings, selecting “Statistics” and monitoring the “Dead time” value. Dead time is estimated by measuring the shortest time interval between pulses. Obtaining an accurate result requires several hours under normal levels of radiation. To accelerate this process, use a radioactive source.
 
-Dead-time compensation follows the non-paralyzable model:
+Rad Pro employs the non-paralyzable model for dead-time compensation:
 
 $$n = \frac{m}{1 - m \tau}$$
 
@@ -174,14 +174,26 @@ To communicate with Rad Pro through a serial port or SWD (through an ST-LINK don
 
 ## FAQ
 
+**Q: Why does my device's time and date reset every time I turn it on?**
+
+**A:** This happens when the real-time clock loses power. On the FNIRSI GC-01, most likely the backup battery (a CR1220) needs replacement.
+
+**Q: When I power on my device, Rad Pro stays quite some time (up to 60 seconds) on the splash screen. Why is this?**
+
+**A:** Some microprocessors need quite some time to start the real-time clock. If this happens every time you turn on your device, read the previous answer.
+
+<!-- **Q: With the original firmware, my FNIRSI GC-01 lasts at least 5 days. Why do I only get 20 hours with Rad Pro?**
+
+**A:** The original firmware stops measurements and enters sleep mode when the screen turns off. Rad Pro, on the other hand, stays measuring during screen-off periods. You can improve battery life by selecting the “Energy-saving” HV profile. -->
+
 **Q: Why are the instantaneous rate measurements so noisy?**
 
-**A:** There are two conflicting objectives when measuring instantaneous rate: getting low-noise measurements, but, at the same time, a fast response. You can reduce the noise by choosing an instantaneous rate averaging option that increases the averaging time period, at the expense of a slower response.
+**A:** There are two conflicting objectives when measuring instantaneous rate: low measurement noise, and fast response. You can reduce noise by choosing an instantaneous rate averaging option that increases the averaging period, at the expense of a slower response.
 
-**Q: My device is missing counts. What could be wrong?**
+**Q: My device is missing counts. What might be the issue?**
 
-**A:** Most likely you enabled background compensation. Background compensation works by removing counts.
+**A:** Background compensation, if enabled, removes counts. Check if this feature is activated.
 
-**Q: I enabled clicks but aren't hearing any clicks. What's happening?**
+**Q: I enabled clicks but am not hearing any. What's happening?**
 
-**A:** Most likely you enabled pulses thresholding, which enables pulse indication only above a certain radiation level threshold.
+**A:** If you've enabled pulse thresholding, pulse indication will only occur above a certain radiation level threshold. Check if this feature is activated.

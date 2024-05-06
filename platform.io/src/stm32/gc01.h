@@ -20,7 +20,7 @@
 #define FIRMWARE_BASE 0x08004000
 #if defined(CH32)
 #define FLASH_SIZE 0x10000
-#define FIRMWARE_SIZE 0xa800
+#define FIRMWARE_SIZE 0xa000
 #elif defined(APM32)
 #define FLASH_SIZE 0x20000
 #define FIRMWARE_SIZE 0xc000
