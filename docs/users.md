@@ -178,22 +178,22 @@ To communicate with Rad Pro through a serial port or SWD (through an ST-LINK don
 
 **A:** This happens when the real-time clock loses power. On the FNIRSI GC-01, most likely the backup battery (a CR1220) needs replacement.
 
-**Q: When I power on my device, Rad Pro stays quite some time (up to 60 seconds) on the splash screen. Why is this?**
+**Q: When I power on my device, Rad Pro stays quite some time (up to 60 seconds) on the splash screen.**
 
 **A:** Some microprocessors need quite some time to start the real-time clock. If this happens every time you turn on your device, read the previous answer.
-
-<!-- **Q: With the original firmware, my FNIRSI GC-01 lasts at least 5 days. Why do I only get 20 hours with Rad Pro?**
-
-**A:** The original firmware stops measurements and enters sleep mode when the screen turns off. Rad Pro, on the other hand, stays measuring during screen-off periods. You can improve battery life by selecting the “Energy-saving” HV profile. -->
 
 **Q: Why are the instantaneous rate measurements so noisy?**
 
 **A:** There are two conflicting objectives when measuring instantaneous rate: low measurement noise, and fast response. You can reduce noise by choosing an instantaneous rate averaging option that increases the averaging period, at the expense of a slower response.
 
-**Q: My device is missing counts. What might be the issue?**
+**Q: My device is missing counts.**
 
 **A:** Background compensation, if enabled, removes counts. Check if this feature is activated.
 
-**Q: I enabled clicks but am not hearing any. What's happening?**
+**Q: I enabled clicks but am not hearing any.**
 
 **A:** If you've enabled pulse thresholding, pulse indication will only occur above a certain radiation level threshold. Check if this feature is activated.
+
+**Q: I'm not getting any response from the commands I send through Rad Pro's data connection.**
+
+**A:** Make sure your request includes the '\n' newline character at the end of the line.
