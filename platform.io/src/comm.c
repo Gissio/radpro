@@ -247,7 +247,7 @@ void dispatchCommEvents(void)
         else
             sendCommError();
 
-        strcatChar(comm.buffer, '\n');
+        strcat(comm.buffer, "\r\n");
 
         transmitComm();
     }
@@ -264,7 +264,7 @@ void dispatchCommEvents(void)
 
                 if (!getDatalogDownloadEntry(&dose))
                 {
-                    strcatChar(comm.buffer, '\n');
+                    strcat(comm.buffer, "\r\n");
 
                     comm.sendingDatalog = false;
 

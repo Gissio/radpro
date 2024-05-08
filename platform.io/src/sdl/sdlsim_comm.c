@@ -23,6 +23,7 @@ const char *const commId = "Rad Pro simulator;Rad Pro " FIRMWARE_VERSION;
 static struct
 {
     ser_t *sercomm;
+    char lastChar;
 } commController;
 
 void startComm(void)
@@ -95,14 +96,17 @@ void updateCommController(void)
             if ((c >= ' ') &&
                 (comm.bufferIndex < (COMM_BUFFER_SIZE - 1)))
                 comm.buffer[comm.bufferIndex++] = c;
-            else if ((c == '\n') &&
-                     (comm.bufferIndex < COMM_BUFFER_SIZE))
+            else if ((c == '\r') ||
+                     ((c == '\n') &&
+                      (commController.lastChar != '\r')))
             {
                 comm.buffer[comm.bufferIndex] = '\0';
 
                 comm.bufferIndex = 0;
                 comm.state = COMM_RX_READY;
             }
+
+            commController.lastChar = c;
         }
     }
 

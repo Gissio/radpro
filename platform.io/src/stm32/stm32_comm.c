@@ -20,11 +20,15 @@
 
 #if defined(USART_INTERFACE)
 
-bool commStarted;
+static struct
+{
+    bool commStarted;
+    char lastChar;
+} commController;
 
 void startComm(void)
 {
-    if (commStarted)
+    if (commController.commStarted)
         return;
 
         // GPIO
@@ -58,12 +62,12 @@ void startComm(void)
     NVIC_SetPriority(USART_IRQ, 0x80);
     NVIC_EnableIRQ(USART_IRQ);
 
-    commStarted = true;
+    commController.commStarted = true;
 }
 
 void stopComm(void)
 {
-    if (!commStarted)
+    if (!commController.commStarted)
         return;
 
     // USART
@@ -89,12 +93,12 @@ void stopComm(void)
                GPIO_MODE_INPUT_ANALOG);
 #endif
 
-    commStarted = false;
+    commController.commStarted = false;
 }
 
 bool isCommStarted(void)
 {
-    return commStarted;
+    return commController.commStarted;
 }
 
 void transmitComm(void)
@@ -121,14 +125,17 @@ void USART_IRQ_HANDLER(void)
             if ((c >= ' ') &&
                 (comm.bufferIndex < (COMM_BUFFER_SIZE - 1)))
                 comm.buffer[comm.bufferIndex++] = c;
-            else if ((c == '\n') &&
-                     (comm.bufferIndex < COMM_BUFFER_SIZE))
+            else if ((c == '\r') ||
+                     ((c == '\n') &&
+                      (commController.lastChar != '\r')))
             {
                 comm.buffer[comm.bufferIndex] = '\0';
 
                 comm.bufferIndex = 0;
                 comm.state = COMM_RX_READY;
             }
+
+            commController.lastChar = c;
         }
     }
 
@@ -195,7 +202,11 @@ void updateCommController(void)
 #define USB_DATA_PACKETSIZE_MAX 0x40
 #define USB_CONTROL_PACKETSIZE_MAX 0x08
 
-bool commStarted;
+static struct
+{
+    bool commStarted;
+    char lastChar;
+} commController;
 
 // Declaration of the report descriptor
 
@@ -447,14 +458,17 @@ static void onUsbData(usbd_device *dev, uint8_t event, uint8_t ep)
             if ((c >= ' ') &&
                 (comm.bufferIndex < (COMM_BUFFER_SIZE - 1)))
                 comm.buffer[comm.bufferIndex++] = c;
-            else if ((c == '\n') &&
-                     (comm.bufferIndex < COMM_BUFFER_SIZE))
+            else if ((c == '\r') ||
+                     ((c == '\n') &&
+                      (commController.lastChar != '\r')))
             {
                 comm.buffer[comm.bufferIndex] = '\0';
 
                 comm.bufferIndex = 0;
                 comm.state = COMM_RX_READY;
             }
+
+            commController.lastChar = c;
         }
     }
 
@@ -535,7 +549,7 @@ void USB_IRQ_HANDLER(void)
 
 void startComm(void)
 {
-    if (commStarted)
+    if (commController.commStarted)
         return;
 
     // Force USB device reenumeration
@@ -560,12 +574,12 @@ void startComm(void)
     usbd_enable(&usbdDevice, true);
     usbd_connect(&usbdDevice, true);
 
-    commStarted = true;
+    commController.commStarted = true;
 }
 
 void stopComm(void)
 {
-    if (!commStarted)
+    if (!commController.commStarted)
         return;
 
     NVIC_DisableIRQ(USB_IRQ);
@@ -573,12 +587,12 @@ void stopComm(void)
     usbd_connect(&usbdDevice, false);
     usbd_enable(&usbdDevice, false);
 
-    commStarted = false;
+    commController.commStarted = false;
 }
 
 bool isCommStarted(void)
 {
-    return commStarted;
+    return commController.commStarted;
 }
 
 void updateCommController(void)

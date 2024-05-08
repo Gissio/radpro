@@ -1,5 +1,14 @@
 # Releases
 
+## 2.0rc5 The "final?" update
+
+* Added secondary dose view in average measurement mode.
+* Added 12-hour time format.
+* Added "SET tubeHVFrequency" and "SET tubeHVDutyCycle" data communication requests.
+* Devices with data mode allow using the device wile data mode is active.
+* Changed data communications end of line to "\r\n".
+* Minor refinements.
+
 ## 2.0rc4 The "little" update
 
 * Added instantaneous rate averaging options: adaptive fast, adaptive precision, 60 seconds, 30 seconds and 10 seconds.

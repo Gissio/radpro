@@ -101,6 +101,28 @@ void getDeviceDateTime(RTCDateTime *dateTime)
 
 // RTC menu common
 
+enum
+{
+    DATETIME_ZONE,
+    DATETIME_YEAR,
+    DATETIME_MONTH,
+    DATETIME_DAY,
+    DATETIME_HOUR,
+    DATETIME_MINUTE,
+    DATETIME_FORMAT,
+};
+
+static const char *const rtcMenuOptions[] = {
+    "Time zone",
+    "Year",
+    "Month",
+    "Day",
+    "Hour",
+    "Minute",
+    "Time format",
+    NULL,
+};
+
 static MenuState rtcMenuState;
 
 static RTCDateTime rtcCurrentDateTime;
@@ -371,28 +393,6 @@ static const View rtcTimeFormatMenuView = {
 };
 
 // Date and time menu
-
-enum
-{
-    DATETIME_ZONE,
-    DATETIME_YEAR,
-    DATETIME_MONTH,
-    DATETIME_DAY,
-    DATETIME_HOUR,
-    DATETIME_MINUTE,
-    DATETIME_FORMAT,
-};
-
-static const char *const rtcMenuOptions[] = {
-    "Time zone",
-    "Year",
-    "Month",
-    "Day",
-    "Hour",
-    "Minute",
-    "Time format",
-    NULL,
-};
 
 static const char *onRTCMenuGetOption(const Menu *menu,
                                       uint32_t index,

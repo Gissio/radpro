@@ -946,7 +946,10 @@ void drawTitleBar(const char *title)
         if (settings.rtcTimeFormat == RTC_TIMEFORMAT_24HOUR)
             strcatUInt32(buffer, dateTime.hour, 2);
         else
-            strcatUInt32(buffer, dateTime.hour % 12, 1);
+        {
+            int hour = dateTime.hour % 12;
+            strcatUInt32(buffer, (hour == 0) ? 12 : hour, 1);
+        }
         strcatChar(buffer, ':');
         strcatUInt32(buffer, dateTime.minute, 2);
     }

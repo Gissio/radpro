@@ -10,14 +10,14 @@ To establish a connection with a Rad Pro device, you can use either a serial por
 
 The communications protocol is ASCII-based and follows a request-response model.
 
-In the following description, `\n` represents the newline character.
+In the following description, `\r\n` represents the newline character.
 
 ## Requests
 
 ### Get device identification
 
-* Request: `GET deviceId\n`
-* Response: `OK [hardware-id];[software-id];[device-id]\n`
+* Request: `GET deviceId\r\n`
+* Response: `OK [hardware-id];[software-id];[device-id]\r\n`
 
 Identifies the device's hardware and software. The response consists of these components:
 
@@ -32,8 +32,8 @@ Example:
 
 ### Get device battery voltage
 
-* Request: `GET deviceBatteryVoltage\n`
-* Response: `OK [value]\n`
+* Request: `GET deviceBatteryVoltage\r\n`
+* Response: `OK [value]\r\n`
 
 Returns the device's battery voltage (averaged per cell) in Volt, provided in decimal format with three decimal places.
 
@@ -44,8 +44,8 @@ Example:
 
 ### Get device date and time
 
-* Request: `GET deviceTime\n`
-* Response: `OK [value]\n`
+* Request: `GET deviceTime\r\n`
+* Response: `OK [value]\r\n`
 
 Returns the UNIX timestamp (number of seconds since 1/1/1970) of the device's current date and time, provided in decimal format.
 
@@ -56,8 +56,8 @@ Example:
 
 ### Set device date and time
 
-* Request: `SET deviceTime [value]\n`
-* Response: `OK\n`
+* Request: `SET deviceTime [value]\r\n`
+* Response: `OK\r\n`
 
 Sets the device's current date and time as a UNIX timestamp (number of seconds since 1/1/1970), provided in decimal format.
 
@@ -68,8 +68,8 @@ Example:
 
 ### Get tube's life time
 
-* Request: `GET tubeTime\n`
-* Response: `OK [value]\n`
+* Request: `GET tubeTime\r\n`
+* Response: `OK [value]\r\n`
 
 Returns the tube's life time in seconds, provided in decimal format.
 
@@ -80,8 +80,8 @@ Example:
 
 ### Set tube's life time
 
-* Request: `SET tubeTime [value]\n`
-* Response: `OK\n`
+* Request: `SET tubeTime [value]\r\n`
+* Response: `OK\r\n`
 
 Sets the tube's life time in seconds, provided in decimal format.
 
@@ -92,8 +92,8 @@ Example:
 
 ### Get tube's life pulse count
 
-* Request: `GET tubePulseCount\n`
-* Response: `OK [value]\n`
+* Request: `GET tubePulseCount\r\n`
+* Response: `OK [value]\r\n`
 
 Returns the tube's life pulse count, provided in decimal format. After (2^32 - 1), the value overflows to 0. The value is updated continuously.
 
@@ -104,8 +104,8 @@ Example:
 
 ### Set tube's life pulse count
 
-* Request: `SET tubePulseCount [value]\n`
-* Response: `OK\n`
+* Request: `SET tubePulseCount [value]\r\n`
+* Response: `OK\r\n`
 
 Sets the tube's life pulse count, provided in decimal format.
 
@@ -116,8 +116,8 @@ Example:
 
 ### Get tube rate value
 
-* Request: `GET tubeRate\n`
-* Response: `OK [value]\n`
+* Request: `GET tubeRate\r\n`
+* Response: `OK [value]\r\n`
 
 Returns the tube's instantaneous rate measured in counts per minute (cpm), provided in decimal format with three decimal places. The value is updated once per second.
 
@@ -130,8 +130,8 @@ For improved precision, perform two `GET tubePulseCount` measurements over a tim
 
 ### Get tube conversion factor
 
-* Request: `GET tubeConversionFactor\n`
-* Response: `OK [value]\n`
+* Request: `GET tubeConversionFactor\r\n`
+* Response: `OK [value]\r\n`
 
 Returns the tube's conversion factor in cpm/µSv/h, provided in decimal format with three decimal places.
 
@@ -142,8 +142,8 @@ Example:
 
 ### Get tube dead-time measurement
 
-* Request: `GET tubeDeadTime\n`
-* Response: `OK [value]\n`
+* Request: `GET tubeDeadTime\r\n`
+* Response: `OK [value]\r\n`
 
 Returns a measured upper bound of the tube's dead time in seconds, provided in decimal format with seven decimal places.
 
@@ -154,8 +154,8 @@ Example:
 
 ### Get tube dead-time compensation
 
-* Request: `GET tubeDeadTimeCompensation\n`
-* Response: `OK [value]\n`
+* Request: `GET tubeDeadTimeCompensation\r\n`
+* Response: `OK [value]\r\n`
 
 Returns the tube's dead-time compensation in seconds, provided in decimal format with seven decimal places. Returns `0.0000000` if dead-time compensation is turned off.
 
@@ -166,8 +166,8 @@ Example:
 
 ### Get tube background compensation
 
-* Request: `GET tubeBackgroundCompensation\n`
-* Response: `OK [value]\n`
+* Request: `GET tubeBackgroundCompensation\r\n`
+* Response: `OK [value]\r\n`
 
 Returns the tube's background compensation in cpm, provided in decimal format with three decimal places. Returns `0.0` if background compensation is turned off.
 
@@ -178,8 +178,8 @@ Example:
 
 ### Get tube PWM frequency
 
-* Request: `GET tubeHVFrequency\n` 
-* Response: `OK [value]\n`
+* Request: `GET tubeHVFrequency\r\n` 
+* Response: `OK [value]\r\n`
 
 Returns the tube's PWM frequency of the high voltage generator in Hz, provided in decimal format with two decimal places.
 
@@ -190,8 +190,8 @@ Example:
 
 ### Set tube PWM frequency
 
-* Request: `SET tubeHVFrequency [value]\n` 
-* Response: `OK\n`
+* Request: `SET tubeHVFrequency [value]\r\n` 
+* Response: `OK\r\n`
 
 Enables the custom HV profile and sets its PWM frequency, provided in decimal format. Valid values are 1250, 2500, 5000, 10000, 20000, 40000.
 
@@ -202,8 +202,8 @@ Example:
 
 ### Get tube PWM duty cycle
 
-* Request: `GET tubeHVDutyCycle\n` 
-* Response: `OK [value]\n`
+* Request: `GET tubeHVDutyCycle\r\n` 
+* Response: `OK [value]\r\n`
 
 Returns the tube's PWM duty-cycle of the high voltage generator, provided in decimal format with four decimal places.
 
@@ -214,8 +214,8 @@ Example:
 
 ### Set tube PWM duty cycle
 
-* Request: `SET tubeHVDutyCycle [value]\n` 
-* Response: `OK\n`
+* Request: `SET tubeHVDutyCycle [value]\r\n` 
+* Response: `OK\r\n`
 
 Enables the custom HV profile and sets its PWM duty-cycle, provided in decimal format. Valid values are 0.0025 to 0.9, in 0.0025 steps.
 
@@ -226,8 +226,8 @@ Example:
 
 ### Get data log
 
-* Request: `GET datalog [time]\n`
-* Response: `OK [data]\n`
+* Request: `GET datalog [time]\r\n`
+* Response: `OK [data]\r\n`
 
 Returns the data log stored in the device's flash memory. `[time]` is an optional UNIX timestamp (number of seconds since 1/1/1970), provided in decimal format, that limits the output to entries that occur at this date and time or later. `[data]` is a list of records, separated by `;`. Each record's fields are separated by `,`. The first record lists the field names, and the following records are actual measurements ordered from least recent to most recent. Valid fields include:
 
@@ -243,8 +243,8 @@ Example:
 
 ### Get random data from the random generator
 
-* Request: `GET randomData\n`
-* Response: `OK [value]\n`
+* Request: `GET randomData\r\n`
+* Response: `OK [value]\r\n`
 
 Returns up to 16 bytes from the random generator, provided as hexadecimal digits (0-9, a-f).
 
@@ -255,7 +255,7 @@ Example:
 
 ### Invalid or erroneous requests
 
-Invalid or erroneous requests yield an `ERROR\n` response.
+Invalid or erroneous requests yield an `ERROR\r\n` response.
 
 Example:
 
