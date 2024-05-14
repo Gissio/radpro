@@ -45,6 +45,8 @@ The confidence interval assumes a constant level of radiation over the averaging
 
 Averaging can be indefinite, or limited by a configurable time or confidence level. When averaging finishes, the device will flash and emit a beep, signaling the completion of the measurement.
 
+To reset averaging, read your device's installation instructions.
+
 An example: suppose you averaged background radiation for 1 minute, resulting in a measurement of 0.210 µSv/h with a confidence interval of ±36%. This means that the actual level of radiation has a 95% probability of falling within the interval [0.134 µSv/h, 0.286 µSv/h] (36% below and above the measured value). Suppose you consider this confidence interval too high, so you repeat the measurement with 30-minute averaging. Your new measurement is 0.154 µSv/h with a confidence interval of ±7.7%, which you might consider now much more acceptable.
 
 ### Cumulative dose
@@ -52,6 +54,8 @@ An example: suppose you averaged background radiation for 1 minute, resulting in
 The cumulative dose is calculated from the number of pulses in the time period.
 
 The secondary view can be switched between a time view that displays the length of the time period, and a counts view.
+
+To reset cumulative dose, read your device's installation instructions.
 
 ### History
 
