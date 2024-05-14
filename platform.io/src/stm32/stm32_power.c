@@ -19,7 +19,7 @@
 
 void initPowerController(void)
 {
-#if defined(STM32F0) || defined(STM32G0)
+#if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
     gpio_setup_output(PWR_EN_PORT,
                       PWR_EN_PIN,
                       GPIO_OUTPUTTYPE_PUSHPULL,

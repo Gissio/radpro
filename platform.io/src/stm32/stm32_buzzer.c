@@ -24,7 +24,7 @@ void initBuzzerController(void)
                BUZZ_PIN,
                GPIO_MODE_OUTPUT_2MHZ_AF_PUSHPULL);
 #else
-#if defined(STM32F0) || defined(STM32G0)
+#if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
     gpio_setup_output(BUZZ_PORT,
                       BUZZ_PIN,
                       GPIO_OUTPUTTYPE_PUSHPULL,

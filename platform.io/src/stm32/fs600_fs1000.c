@@ -56,7 +56,6 @@ const char *const commId = "Bosean FS-1000;" FIRMWARE_NAME " " FIRMWARE_VERSION;
 void initKeyboardController(void)
 {
     // GPIO
-
     gpio_setup_input(KEY_LEFT_PORT,
                      KEY_LEFT_PIN,
                      GPIO_PULL_FLOATING);

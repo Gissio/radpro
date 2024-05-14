@@ -58,6 +58,7 @@ const char *const commId = "FS2011 (GD32F103C8);" FIRMWARE_NAME " " FIRMWARE_VER
 
 void initKeyboardController(void)
 {
+    // GPIO
 #if defined(STM32F0)
     gpio_setup_input(KEY_PLAYPAUSE_PORT,
                      KEY_PLAYPAUSE_PIN,

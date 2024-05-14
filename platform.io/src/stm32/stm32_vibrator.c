@@ -17,7 +17,7 @@ void initVibratorController(void)
 {
     setVibrator(false);
 
-#if defined(STM32F0) || defined(STM32G0)
+#if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
     gpio_setup_output(VIBRATOR_PORT,
                VIBRATOR_PIN,
                GPIO_OUTPUTTYPE_PUSHPULL,

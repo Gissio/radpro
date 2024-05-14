@@ -17,7 +17,7 @@ void initPulseLEDController(void)
 {
     setPulseLED(false);
 
-#if defined(STM32F0) || defined(STM32G0)
+#if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
     gpio_setup_output(PULSE_LED_PORT,
                PULSE_LED_PIN,
                GPIO_OUTPUTTYPE_PUSHPULL,

@@ -32,7 +32,7 @@ void startComm(void)
         return;
 
         // GPIO
-#if defined(STM32F0) || defined(STM32G0)
+#if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
     gpio_setup_af(USART_RX_PORT,
                   USART_RX_PIN,
                   GPIO_OUTPUTTYPE_PUSHPULL,
@@ -77,7 +77,7 @@ void stopComm(void)
     usart_disable_transmit_interrupt(USART_INTERFACE);
 
     // GPIO
-#if defined(STM32F0) || defined(STM32G0)
+#if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
     gpio_setup_analog(USART_RX_PORT,
                       USART_RX_PIN,
                       GPIO_PULL_FLOATING);

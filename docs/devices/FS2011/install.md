@@ -42,14 +42,16 @@ Make sure the electrical connections are correct. You may break your device if t
 
 ## Step 3: Flash the firmware
 
-Now, download the latest `radpro-flashtool` from the [Rad Pro releases](https://github.com/Gissio/radpro/releases).
+Now, download and decompress the latest `radpro-flashtool` from the [Rad Pro releases](https://github.com/Gissio/radpro/releases).
 
-* Tp install from Windows, start the `flash-fs2011-[mcu].bat` script.
-* To install from macOS or Linux, start the `flash-fs2011-[mcu].sh` script.
+* Tp install from Windows, go to the `fs2011` folder and start `fs2011-[mcu]-[type].bat`.
+* To install from macOS or Linux, go to the `fs2011` folder and start `fs2011-[mcu]-[type].sh`.
 
 `[mcu]` is the type of microprocessor on your board: `stm32f051c8`, `gd32f150c8` or `gd32f103c8`.
 
-The installation will automatically create a backup of the original firmware in the `backup` folder, so you can recover your device if something goes wrong. Make sure you keep the backups safe, so you can always return to the original firmware. To flash a backup, open a terminal and start the `flash-fs2011-[mcu]` script with the path to the backup file as argument.
+`[type]` is the type of installation: `install` or `update`. Note that not all releases support updating.
+
+The installation will automatically create a backup of the original firmware in the `lib/backup` folder, so you can recover your device if something goes wrong. Make sure you keep the backups safe, so you can always return to the original firmware. To flash a backup, drag it onto `fs2011-[mcu]-install.bat` (Windows) or `fs2011-[mcu]-install.sh` (macOS/Linux).
 
 After successfully flashing the firmware, close the device.
 
@@ -67,7 +69,7 @@ Last, read the [user's manual](../../users.md) for learning how to use Rad Pro.
 
 ![FS2011 FTDI connection](img/fs2011-ftdi.jpg)
 
-* Add USB connectivity. You'll need: an [3.3 V USB serial converter](https://www.amazon.com/s?k=ftdi+board) and [wire-wrap](https://www.amazon.com/s?k=wirewrap+30). Important: never use batteries when powering from USB. Follow these instructions:
+* Add USB connectivity. You'll need: an [3.3 V USB serial converter](https://www.amazon.com/s?k=ftdi+board) and [wire-wrap](https://www.amazon.com/s?k=wirewrap+30). Important: do not use batteries when powering from USB. Follow these instructions:
   * Set up the serial converter for 3.3 V.
   * Connect the serial converter's GND and 5V pins to the FS2011 board's 0V and 5V pads, respectively.
   * Connect the PA2 pin of the microprocessor to the serial converter's RX pin.
@@ -94,7 +96,7 @@ The keys are mapped as follows:
   * Select option: the menu/ok or power key.
   * Go back: the play/pause key.
 
-On the FS2011, Rad Pro can store up to 27324 data points. At normal radiation levels (20 cpm), this allows for 569 days of data at 60-minute intervals, 284 days at 30-minute intervals, 94 days at 10-minute intervals, 47 days at 5-minute intervals, 18 days at 1-minute intervals, 9 days at 30-second intervals and 3 days at 10-second intervals.
+On the FS2011, Rad Pro can store up to 27324 data points. At normal radiation levels (20 cpm), this allows for 569 days of data at 60-minute intervals, 94 days at 10-minute intervals, 18 days at 1-minute intervals, 3 days at 10-second intervals and 7 hours at 1-second intervals.
 
 The FS2011 includes two Zener diodes that limit the maximum voltage to 440 V (nominal).
 

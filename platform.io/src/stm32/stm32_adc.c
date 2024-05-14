@@ -48,7 +48,7 @@ void initADC(void)
 
     adc_reset_calibration(ADC1);
     sleep(1);
-#elif defined(STM32G0)
+#elif defined(STM32G0) || defined(STM32L4)
     adc_enable_vreg(ADC1);
     sleep(1);
 #endif
@@ -59,7 +59,7 @@ void initADC(void)
 #if (defined(STM32F0) && defined(GD32)) || defined(STM32F1)
     adc_disable(ADC1);
     sleep(1);
-#elif defined(STM32G0)
+#elif defined(STM32G0) || defined(STM32L4)
     adc_disable_vreg(ADC1);
 #endif
 
@@ -70,7 +70,7 @@ static uint32_t readADC(uint8_t channel)
 {
     syncTimerThread();
 
-#if defined(STM32G0)
+#if defined(STM32G0) || defined(STM32L4)
     adc_enable_vreg(ADC1);
     sleep(1);
 #endif
@@ -86,7 +86,7 @@ static uint32_t readADC(uint8_t channel)
     adc_disable(ADC1);
     sleep(1);
 
-#if defined(STM32G0)
+#if defined(STM32G0) || defined(STM32L4)
     adc_disable_vreg(ADC1);
 #endif
 

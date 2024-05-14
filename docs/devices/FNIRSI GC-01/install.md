@@ -60,7 +60,7 @@ The keys are mapped as follows:
 
 On the FNIRSI GC-01 with a CH32F103R8 microprocessor, you must enable “Data mode” in the Settings to establish a USB data connection. To save power, disable “Data mode” when you are finished.
 
-Data logging can store up to 7084 data points. At normal radiation levels (20 cpm), this allows for 147 days of data at 60-minute intervals, 73 days at 30-minute intervals, 24 days at 10-minute intervals, 12 days at 5-minute intervals, 4 days at 1-minute intervals, 2 days at 30-second intervals and 19 hours at 10-second intervals.
+Data logging can store up to 7084 data points. At normal radiation levels (20 cpm), this allows for 147 days of data at 60-minute intervals, 24 days at 10-minute intervals, 4 days at 1-minute intervals, 19 hours at 10-second intervals and almost 2 hours at 1-second intervals.
 
 The HV profile settings are:
 
@@ -71,7 +71,7 @@ The HV profile settings are:
 
 On the FNIRSI GC-01 with an APM32F103R8 (Geehy) processor, the USB data connection is always available. 
 
-Data logging can store up to 63756 data points. At normal radiation levels (20 cpm), this allows for 1328 days of data at 60-minute intervals, 664 days at 30-minute intervals, 221 days at 10-minute intervals, 110 days at 5-minute intervals, 44 days at 1-minute intervals, 22 days at 30-second intervals and 7 days at 10-second intervals.
+Data logging can store up to 63756 data points. At normal radiation levels (20 cpm), this allows for 1328 days of data at 60-minute intervals, 221 days at 10-minute intervals, 44 days at 1-minute intervals, 7 days at 10-second intervals and 17 hours at 1-second intervals.
 
 The HV profile settings are:
 

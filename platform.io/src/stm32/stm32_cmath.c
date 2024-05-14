@@ -7,7 +7,7 @@
  * License: MIT
  */
 
-#if defined(STM32)
+#if defined(STM32) && defined(QFP)
 
 #include <stdint.h>
 

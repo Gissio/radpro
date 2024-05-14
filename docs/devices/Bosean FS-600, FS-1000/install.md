@@ -42,14 +42,16 @@ Make sure the electrical connections are correct. You may break your device if t
 
 ## Step 3: Flash the firmware
 
-Now, download the latest `radpro-flashtool` from the [Rad Pro releases](https://github.com/Gissio/radpro/releases).
+Now, download and decompress the latest `radpro-flashtool` from the [Rad Pro releases](https://github.com/Gissio/radpro/releases).
 
-* To install from Windows, start the `flash-bosean-[device].bat` script.
-* To install from macOS or Linux, start the `flash-bosean-[device].sh` script.
+* To install from Windows, go to the `bosean` folder and start `bosean-[device]-[type].bat`.
+* To install from macOS or Linux, go to the `bosean` folder and start `bosean-[device]-[type].sh`.
 
 `[device]` is the type of your device: `fs600` or `fs1000`.
 
-The installation will automatically create a backup of the original firmware in the `backup` folder, so you can recover your device if something goes wrong. Make sure you keep the backups safe, so you can always return to the original firmware. To flash a backup, open a terminal and start the `flash-bosean-[device]` script with the path to the backup file as argument.
+`[type]` is the type of installation: `install` or `update`. Note that not all releases support updating.
+
+The installation will automatically create a backup of the original firmware in the `lib/backup` folder, so you can recover your device if something goes wrong. Make sure you keep the backups safe, so you can always return to the original firmware. To flash a backup, drag it onto `bosean-[device]-[type].bat` (windows) or `bosean-[device]-[type].sh` (macOS/Linux).
 
 To enable USB data communications under Windows, install the [CH340 driver](https://www.catalog.update.microsoft.com/Search.aspx?q=USB%5CVID_1A86%26PID_7523).
 
@@ -86,7 +88,7 @@ On the FS-1000, the keys are mapped as follows:
 
 Not all devices support the pulse LED.
 
-On the FS-600 and FS-1000, Rad Pro can store up to 91080 data points. At normal radiation levels (20 cpm), this allows for 1897 days of data at 60-minute intervals, 948 days at 30-minute intervals, 316 days at 10-minute intervals, 158 days at 5-minute intervals, 63 days at 1-minute intervals, 31 days at 30-second intervals and 10 days at 10-second intervals.
+On the FS-600 and FS-1000, Rad Pro can store up to 91080 data points. At normal radiation levels (20 cpm), this allows for 1897 days of data at 60-minute intervals, 316 days at 10-minute intervals, 63 days at 1-minute intervals, 10 days at 10-second intervals and 25 hours at 1-second intervals.
 
 The FS-600 and FS-1000 include two Zener diodes that limit the maximum voltage to 440 V (nominal).
 

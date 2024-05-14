@@ -18,7 +18,7 @@ bool displayBacklightOn;
 
 void initDisplayBacklight(void)
 {
-#if defined(STM32F0) || defined(STM32G0)
+#if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
     gpio_setup_af(DISPLAY_BACKLIGHT_PORT,
                   DISPLAY_BACKLIGHT_PIN,
                   GPIO_OUTPUTTYPE_PUSHPULL,

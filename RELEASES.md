@@ -4,7 +4,7 @@
 
 * Added secondary dose view in average measurement mode.
 * Added 12-hour time format.
-* Added "SET tubeHVFrequency" and "SET tubeHVDutyCycle" data communication requests.
+* Added "SET tubeHVFrequency" and "SET tubeHVDutyCycle" data communication commands.
 * Devices with data mode allow using the device wile data mode is active.
 * Changed data communications end of line to "\r\n".
 * Minor refinements.

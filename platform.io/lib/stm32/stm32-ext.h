@@ -35,23 +35,25 @@
 
 __STATIC_INLINE void rcc_enable_crc(void)
 {
+#if defined(STM32F0) || defined(STM32F1) || defined(STM32G0)
     set_bits(RCC->AHBENR,
              RCC_AHBENR_CRCEN);
+#elif defined(STM32L4)
+    set_bits(RCC->AHB1ENR,
+             RCC_AHB1ENR_CRCEN);
+#endif
 }
 
 __STATIC_INLINE void rcc_disable_crc(void)
 {
+#if defined(STM32F0) || defined(STM32F1) || defined(STM32G0)
     clear_bits(RCC->AHBENR,
                RCC_AHBENR_CRCEN);
-}
-
-#if defined(STM32G0)
-__STATIC_INLINE void rcc_enable_flash(void)
-{
-    set_bits(RCC->AHBENR,
-             RCC_AHBENR_FLASHEN);
-}
+#elif defined(STM32L4)
+    clear_bits(RCC->AHB1ENR,
+               RCC_AHB1ENR_CRCEN);
 #endif
+}
 
 #if defined(STM32F1)
 __STATIC_INLINE void rcc_enable_afio(void)
@@ -81,6 +83,9 @@ __STATIC_INLINE void rcc_enable_adc(ADC_TypeDef *base)
 #elif defined(STM32G0)
     set_bits(RCC->APBENR2,
              RCC_APBENR2_ADCEN);
+#elif defined(STM32L4)
+    set_bits(RCC->AHB2ENR,
+             RCC_AHB2ENR_ADCEN);
 #endif
 }
 
@@ -129,6 +134,19 @@ __STATIC_INLINE void rcc_enable_tim(TIM_TypeDef *base)
         set_bits(RCC->APBENR2, RCC_APBENR2_TIM16EN);
     else if (base == TIM17)
         set_bits(RCC->APBENR2, RCC_APBENR2_TIM17EN);
+#elif defined(STM32L4)
+    if (base == TIM1)
+        set_bits(RCC->APB2ENR, RCC_APB2ENR_TIM1EN);
+    else if (base == TIM2)
+        set_bits(RCC->APB1ENR1, RCC_APB1ENR1_TIM2EN);
+    else if (base == TIM6)
+        set_bits(RCC->APB1ENR1, RCC_APB1ENR1_TIM6EN);
+    else if (base == TIM7)
+        set_bits(RCC->APB1ENR1, RCC_APB1ENR1_TIM7EN);
+    else if (base == TIM15)
+        set_bits(RCC->APB2ENR, RCC_APB2ENR_TIM15EN);
+    else if (base == TIM16)
+        set_bits(RCC->APB2ENR, RCC_APB2ENR_TIM16EN);
 #endif
 }
 
@@ -143,6 +161,9 @@ __STATIC_INLINE void rcc_enable_rtc(void)
 #elif defined(STM32G0)
     set_bits(RCC->APBENR1,
              RCC_APBENR1_PWREN | RCC_APBENR1_RTCAPBEN);
+#elif defined(STM32L4)
+    set_bits(RCC->APB1ENR1,
+             RCC_APB1ENR1_PWREN | RCC_APB1ENR1_RTCAPBEN);
 #endif
 }
 
@@ -160,6 +181,16 @@ __STATIC_INLINE void rcc_enable_usart(USART_TypeDef *base)
     else if (base == USART2)
         set_bits(RCC->APBENR1,
                  RCC_APBENR1_USART2EN);
+#elif defined(STM32L4)
+    if (base == USART1)
+        set_bits(RCC->APB2ENR,
+                 RCC_APB2ENR_USART1EN);
+    else if (base == USART2)
+        set_bits(RCC->APB1ENR1,
+                 RCC_APB1ENR1_USART2EN);
+    else if (base == USART3)
+        set_bits(RCC->APB1ENR1,
+                 RCC_APB1ENR1_USART3EN);
 #endif
 }
 
@@ -183,9 +214,11 @@ __STATIC_INLINE uint32_t crc_read(void)
 
 // FLASH
 
+#if !defined(FLASH_ACR_LATENCY_0WS)
 #define FLASH_ACR_LATENCY_0WS 0
 #define FLASH_ACR_LATENCY_1WS FLASH_ACR_LATENCY_0
 #define FLASH_ACR_LATENCY_2WS FLASH_ACR_LATENCY_1
+#endif
 
 #if defined(STM32F0)
 #define FLASH_PAGE_SIZE 0x400
@@ -221,6 +254,25 @@ __STATIC_INLINE uint32_t crc_read(void)
                          FLASH_SR_OPERR)
 #define FLASH_SR_CLEAR (FLASH_SR_ERRORS | \
                         FLASH_SR_EOP)
+#elif defined(STM32L4)
+#define FLASH_PAGE_SIZE 0x800
+#define FLASH_WORD_SIZE 0x8
+
+#define FLASH_KEY1 0x45670123UL
+#define FLASH_KEY2 0xCDEF89ABUL
+
+#define FLASH_SR_ERRORS (FLASH_SR_OPTVERR | \
+                         FLASH_SR_RDERR |   \
+                         FLASH_SR_FASTERR | \
+                         FLASH_SR_MISERR |  \
+                         FLASH_SR_PGSERR |  \
+                         FLASH_SR_SIZERR |  \
+                         FLASH_SR_PGAERR |  \
+                         FLASH_SR_WRPERR |  \
+                         FLASH_SR_PROGERR | \
+                         FLASH_SR_OPERR)
+#define FLASH_SR_CLEAR (FLASH_SR_ERRORS | \
+                        FLASH_SR_EOP)
 #endif
 
 __STATIC_INLINE uint32_t flash_get_kb_size(void)
@@ -242,7 +294,7 @@ __STATIC_INLINE void flash_lock(void)
 
 __STATIC_INLINE void flash_wait_while_busy(void)
 {
-#if defined(STM32F0) || defined(STM32F1)
+#if defined(STM32F0) || defined(STM32F1) || defined(STM32L4)
     wait_until_bits_clear(FLASH->SR,
                           FLASH_SR_BSY);
 #elif defined(STM32G0)
@@ -265,7 +317,7 @@ __STATIC_INLINE bool flash_erase_page(uint32_t pageIndex)
              FLASH_CR_PER);
 #if defined(STM32F0) || defined(STM32F1)
     FLASH->AR = FLASH_BASE + pageIndex * FLASH_PAGE_SIZE;
-#elif defined(STM32G0)
+#elif defined(STM32G0) || defined(STM32L4)
     modify_bits(FLASH->CR,
                 FLASH_CR_PNB_Msk,
                 (pageIndex << FLASH_CR_PNB_Pos));
@@ -290,7 +342,7 @@ __STATIC_INLINE bool flash_program(uint8_t *dest,
              FLASH_CR_PG);
 #if defined(STM32F0) || defined(STM32F1)
     ((uint16_t *)dest)[0] = ((uint16_t *)source)[0];
-#elif defined(STM32G0)
+#elif defined(STM32G0) || defined(STM32L4)
     ((uint32_t *)dest)[0] = ((uint32_t *)source)[0];
     ((uint32_t *)dest)[1] = ((uint32_t *)source)[1];
 #endif
@@ -304,7 +356,7 @@ __STATIC_INLINE bool flash_program(uint8_t *dest,
 
 // GPIO
 
-#if defined(STM32F0) || defined(STM32G0)
+#if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
 
 #define GPIO_MODE_INPUT 0b00
 #define GPIO_MODE_OUTPUT 0b01
@@ -539,7 +591,7 @@ __STATIC_INLINE void NVIC_DisableAllIRQs(void)
 
 // EXTI
 
-#if defined(STM32F0)
+#if defined(STM32F0) || defined(STM32L4)
 #define STM32EXT_EXTI SYSCFG
 #elif defined(STM32F1)
 #define STM32EXT_EXTI AFIO
@@ -584,7 +636,7 @@ __STATIC_INLINE void exti_setup(GPIO_TypeDef *base,
     modify_bits(EXTI->FTSR,
                 1 << pin,
                 falling_trigger << pin);
-#elif defined(STM32G0)
+#elif defined(STM32G0) || defined(STM32L4)
     modify_bits(EXTI->RTSR1,
                 1 << pin,
                 rising_trigger << pin);
@@ -599,7 +651,7 @@ __STATIC_INLINE void exti_enable_interrupt(uint8_t pin)
 #if defined(STM32F0) || defined(STM32F1)
     set_bits(EXTI->IMR,
              get_bitvalue(pin));
-#elif defined(STM32G0)
+#elif defined(STM32G0) || defined(STM32L4)
     set_bits(EXTI->IMR1,
              get_bitvalue(pin));
 #endif
@@ -610,7 +662,7 @@ __STATIC_INLINE void exti_disable_interrupt(uint8_t pin)
 #if defined(STM32F0) || defined(STM32F1)
     clear_bits(EXTI->IMR,
                get_bitvalue(pin));
-#elif defined(STM32G0)
+#elif defined(STM32G0) || defined(STM32L4)
     clear_bits(EXTI->IMR1,
                get_bitvalue(pin));
 #endif
@@ -626,6 +678,9 @@ __STATIC_INLINE void exti_clear_pending_interrupt(uint8_t pin)
              get_bitvalue(pin));
     set_bits(EXTI->FPR1,
              get_bitvalue(pin));
+#elif defined(STM32L4)
+    set_bits(EXTI->PR1,
+             get_bitvalue(pin));
 #endif
 }
 
@@ -639,6 +694,10 @@ __STATIC_INLINE void exti_clear_pending_interrupt(uint8_t pin)
 #define ADC_TEMP_CHANNEL 12
 #define ADC_VREF_CHANNEL 13
 #define ADC_VBAT_CHANNEL 14
+#elif defined(STM32L4)
+#define ADC_TEMP_CHANNEL 17
+#define ADC_VREF_CHANNEL 0
+#define ADC_VBAT_CHANNEL 18
 #endif
 
 #if defined(STM32F0) && defined(GD32)
@@ -723,7 +782,7 @@ typedef struct
 
 #endif
 
-#if defined(STM32G0)
+#if defined(STM32G0) || defined(STM32L4)
 
 __STATIC_INLINE void adc_enable_vreg(ADC_TypeDef *base)
 {
@@ -747,7 +806,7 @@ __STATIC_INLINE void adc_enable(ADC_TypeDef *base)
                   ADC_CTL1_ADCON))
         set_bits(gdBase->CTL1,
                  ADC_CTL1_ADCON);
-#elif defined(STM32F0) || defined(STM32G0)
+#elif defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
     set_bits(base->CR,
              ADC_CR_ADEN);
 #elif defined(STM32F1)
@@ -764,7 +823,7 @@ __STATIC_INLINE void adc_disable(ADC_TypeDef *base)
     ADC_GD32_TypeDef *gdBase = (ADC_GD32_TypeDef *)base;
     clear_bits(gdBase->CTL1,
                ADC_CTL1_ADCON);
-#elif defined(STM32F0) || defined(STM32G0)
+#elif defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
     set_bits(base->CR,
              ADC_CR_ADDIS);
 #elif defined(STM32F1)
@@ -791,7 +850,7 @@ __STATIC_INLINE void adc_start_calibration(ADC_TypeDef *base)
     ADC_GD32_TypeDef *gdBase = (ADC_GD32_TypeDef *)base;
     set_bits(gdBase->CTL1,
              ADC_CTL1_CLB);
-#elif defined(STM32F0) || defined(STM32G0)
+#elif defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
     set_bits(base->CR,
              ADC_CR_ADCAL);
 #elif defined(STM32F1)
@@ -806,7 +865,7 @@ __STATIC_INLINE void adc_enable_temperature_sensor(ADC_TypeDef *base)
     ADC_GD32_TypeDef *gdBase = (ADC_GD32_TypeDef *)base;
     set_bits(gdBase->CTL1,
              ADC_CTL1_TSVREN);
-#elif defined(STM32F0) || defined(STM32G0)
+#elif defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
     set_bits(((ADC_Common_TypeDef *)((uint8_t *)base + 0x308))->CCR,
              ADC_CCR_TSEN);
 #elif defined(STM32F1)
@@ -821,7 +880,7 @@ __STATIC_INLINE void adc_disable_temperature_sensor(ADC_TypeDef *base)
     ADC_GD32_TypeDef *gdBase = (ADC_GD32_TypeDef *)base;
     clear_bits(gdBase->CTL1,
                ADC_CTL1_TSVREN);
-#elif defined(STM32F0) || defined(STM32G0)
+#elif defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
     clear_bits(((ADC_Common_TypeDef *)((uint8_t *)base + 0x308))->CCR,
                ADC_CCR_TSEN);
 #elif defined(STM32F1)
@@ -871,6 +930,12 @@ __STATIC_INLINE void adc_start_conversion_oneshot(ADC_TypeDef *base,
 
     set_bits(base->CR2,
              ADC_CR2_SWSTART);
+#elif defined(STM32L4)
+    base->SQR1 = (get_bitvalue(channel) << ADC_SQR1_SQ1_Pos);
+    base->SMPR1 = sample_time;
+
+    set_bits(base->CR,
+             ADC_CR_ADSTART);
 #endif
 }
 
@@ -1067,7 +1132,7 @@ __STATIC_INLINE void iwdg_reload(void)
 
 // RTC
 
-#if defined(STM32G0)
+#if defined(STM32G0) || defined(STM32L4)
 #define RCC_BDCR_RTCSEL_NOCLOCK (0x00000000U) /*!< No clock */
 #define RCC_BDCR_RTCSEL_LSE (0x00000100U)     /*!< LSE oscillator clock used as RTC clock */
 #define RCC_BDCR_RTCSEL_LSI (0x00000200U)     /*!< LSI oscillator clock used as RTC clock */
@@ -1079,7 +1144,7 @@ __STATIC_INLINE void rtc_disable_backup_domain_write_protection(void)
 #if defined(STM32F0) || defined(STM32F1)
     set_bits(PWR->CR,
              PWR_CR_DBP);
-#elif defined(STM32G0)
+#elif defined(STM32G0) || defined(STM32L4)
     set_bits(PWR->CR1,
              PWR_CR1_DBP);
 #endif
@@ -1136,6 +1201,14 @@ __STATIC_INLINE void rtc_enter_configuration_mode(void)
              RTC_ICSR_INIT);
     wait_until_bits_set(RTC->ICSR,
                         RTC_ICSR_INITF);
+#elif defined(STM32L4)
+    RTC->WPR = 0xca;
+    RTC->WPR = 0x53;
+
+    set_bits(RTC->ISR,
+             RTC_ISR_INIT);
+    wait_until_bits_set(RTC->ISR,
+                        RTC_ISR_INITF);
 #endif
 }
 
@@ -1168,10 +1241,21 @@ __STATIC_INLINE void rtc_leave_configuration_mode(void)
 
     RTC->WPR = 0xfe;
     RTC->WPR = 0x64;
+#elif defined(STM32L4)
+    clear_bits(RTC->ISR,
+               RTC_ISR_INIT);
+
+    clear_bits(RTC->ISR,
+               RTC_ISR_RSF);
+    wait_until_bits_set(RTC->ISR,
+                        RTC_ISR_RSF);
+
+    RTC->WPR = 0xfe;
+    RTC->WPR = 0x64;
 #endif
 }
 
-#if defined(STM32F0) || defined(STM32G0)
+#if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
 
 __STATIC_INLINE void rtc_get_date_time(uint32_t *dr,
                                        uint32_t *tr)
@@ -1253,7 +1337,7 @@ __STATIC_INLINE void usart_setup_8n1(USART_TypeDef *base,
 
 __STATIC_INLINE void usart_enable_receive_interrupt(USART_TypeDef *base)
 {
-#if defined(STM32F0) || defined(STM32F1)
+#if defined(STM32F0) || defined(STM32F1) || defined(STM32L4)
     set_bits(base->CR1,
              USART_CR1_RXNEIE);
 #elif defined(STM32G0)
@@ -1264,7 +1348,7 @@ __STATIC_INLINE void usart_enable_receive_interrupt(USART_TypeDef *base)
 
 __STATIC_INLINE void usart_disable_receive_interrupt(USART_TypeDef *base)
 {
-#if defined(STM32F0) || defined(STM32F1)
+#if defined(STM32F0) || defined(STM32F1) || defined(STM32L4)
     clear_bits(base->CR1,
                USART_CR1_RXNEIE);
 #elif defined(STM32G0)
@@ -1275,7 +1359,7 @@ __STATIC_INLINE void usart_disable_receive_interrupt(USART_TypeDef *base)
 
 __STATIC_INLINE bool usart_is_receive_interrupt_enabled(USART_TypeDef *base)
 {
-#if defined(STM32F0) || defined(STM32F1)
+#if defined(STM32F0) || defined(STM32F1) || defined(STM32L4)
     return get_bits(base->CR1,
                     USART_CR1_RXNEIE);
 #elif defined(STM32G0)
@@ -1286,7 +1370,7 @@ __STATIC_INLINE bool usart_is_receive_interrupt_enabled(USART_TypeDef *base)
 
 __STATIC_INLINE void usart_enable_transmit_interrupt(USART_TypeDef *base)
 {
-#if defined(STM32F0) || defined(STM32F1)
+#if defined(STM32F0) || defined(STM32F1) || defined(STM32L4)
     set_bits(base->CR1,
              USART_CR1_TXEIE);
 #elif defined(STM32G0)
@@ -1297,7 +1381,7 @@ __STATIC_INLINE void usart_enable_transmit_interrupt(USART_TypeDef *base)
 
 __STATIC_INLINE void usart_disable_transmit_interrupt(USART_TypeDef *base)
 {
-#if defined(STM32F0) || defined(STM32F1)
+#if defined(STM32F0) || defined(STM32F1) || defined(STM32L4)
     clear_bits(base->CR1,
                USART_CR1_TXEIE);
 #elif defined(STM32G0)
@@ -1308,7 +1392,7 @@ __STATIC_INLINE void usart_disable_transmit_interrupt(USART_TypeDef *base)
 
 __STATIC_INLINE bool usart_is_transmit_interrupt_enabled(USART_TypeDef *base)
 {
-#if defined(STM32F0) || defined(STM32F1)
+#if defined(STM32F0) || defined(STM32F1) || defined(STM32L4)
     return get_bits(base->CR1,
                     USART_CR1_TXEIE);
 #elif defined(STM32G0)
@@ -1319,7 +1403,7 @@ __STATIC_INLINE bool usart_is_transmit_interrupt_enabled(USART_TypeDef *base)
 
 __STATIC_INLINE bool usart_is_receive_ready(USART_TypeDef *base)
 {
-#if defined(STM32F0)
+#if defined(STM32F0) || defined(STM32L4)
     return get_bits(base->ISR,
                     USART_ISR_RXNE);
 #elif defined(STM32F1)
@@ -1333,7 +1417,7 @@ __STATIC_INLINE bool usart_is_receive_ready(USART_TypeDef *base)
 
 __STATIC_INLINE bool usart_is_send_ready(USART_TypeDef *base)
 {
-#if defined(STM32F0)
+#if defined(STM32F0) || defined(STM32L4)
     return get_bits(base->ISR,
                     USART_ISR_TXE);
 #elif defined(STM32F1)
@@ -1347,7 +1431,7 @@ __STATIC_INLINE bool usart_is_send_ready(USART_TypeDef *base)
 
 __STATIC_INLINE bool usart_is_overrun(USART_TypeDef *base)
 {
-#if defined(STM32F0) || defined(STM32G0)
+#if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
     return get_bits(base->ISR,
                     USART_ISR_ORE);
 #elif defined(STM32F1)
@@ -1358,7 +1442,7 @@ __STATIC_INLINE bool usart_is_overrun(USART_TypeDef *base)
 
 __STATIC_INLINE void usart_clear_overrun(USART_TypeDef *base)
 {
-#if defined(STM32F0) || defined(STM32G0)
+#if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
     set_bits(base->ICR,
              USART_ICR_ORECF);
 #elif defined(STM32F1)
@@ -1368,7 +1452,7 @@ __STATIC_INLINE void usart_clear_overrun(USART_TypeDef *base)
 
 __STATIC_INLINE uint16_t usart_receive(USART_TypeDef *base)
 {
-#if defined(STM32F0) || defined(STM32G0)
+#if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
     return base->RDR;
 #elif defined(STM32F1)
     return base->DR;
@@ -1385,7 +1469,7 @@ __STATIC_INLINE uint16_t usart_receive_blocking(USART_TypeDef *base)
 __STATIC_INLINE void usart_send(USART_TypeDef *base,
                                 uint16_t data)
 {
-#if defined(STM32F0) || defined(STM32G0)
+#if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
     base->TDR = data;
 #elif defined(STM32F1)
     base->DR = data;
@@ -1419,6 +1503,10 @@ __STATIC_INLINE void spi_send(SPI_TypeDef *base,
 #define VREFINT_CAL (*((__I uint16_t *)0x1ffff7ba))
 #elif defined(STM32G0)
 #define TS_CAL1 (*((__I uint16_t *)0x1fff75a8))
+#define VREFINT (*((__I uint16_t *)0x1fff75aa))
+#elif defined(STM32L4)
+#define TS_CAL1 (*((__I uint16_t *)0x1fff75a8))
+#define TS_CAL2 (*((__I uint16_t *)0x1fff75ca))
 #define VREFINT (*((__I uint16_t *)0x1fff75aa))
 #endif
 

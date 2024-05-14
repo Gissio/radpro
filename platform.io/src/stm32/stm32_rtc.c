@@ -35,7 +35,7 @@ void initRTCController(void)
     }
 }
 
-#if defined(STM32F0) || defined(STM32G0)
+#if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
 
 static uint32_t convertToBCD(uint32_t value)
 {

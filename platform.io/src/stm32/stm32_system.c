@@ -29,7 +29,7 @@ typedef struct
 #define SYSTEM_VECTOR_TABLE ((VectorTable *)0x1fffec00)
 #elif defined(STM32F1)
 #define SYSTEM_VECTOR_TABLE ((VectorTable *)0x1ffff000)
-#elif defined(STM32G0)
+#elif defined(STM32G0) || defined(STM32L4)
 #define SYSTEM_VECTOR_TABLE ((VectorTable *)0x1fff0000)
 #endif
 

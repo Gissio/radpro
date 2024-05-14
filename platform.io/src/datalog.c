@@ -43,23 +43,19 @@ static struct
 static const uint16_t datalogTimeIntervals[] = {
     0,
     60 * 60,
-    30 * 60,
     10 * 60,
-    5 * 60,
     1 * 60,
-    30,
     10,
+    1,
 };
 
 static const char *const datalogMenuOptions[] = {
     "Off",
     "Every 60 minutes",
-    "Every 30 minutes",
     "Every 10 minutes",
-    "Every 5 minutes",
     "Every minute",
-    "Every 30 seconds",
     "Every 10 seconds",
+    "Every second",
     NULL,
 };
 

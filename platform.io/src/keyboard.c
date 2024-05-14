@@ -17,6 +17,9 @@
 #define KEY_REPEAT_START ((uint32_t)(0.5 * SYSTICK_FREQUENCY / KEY_TICKS))
 #define KEY_REPEAT_PERIOD ((uint32_t)(0.05 * SYSTICK_FREQUENCY / KEY_TICKS))
 #define KEY_PRESSED_LONG ((uint32_t)(1.0 * SYSTICK_FREQUENCY / KEY_TICKS))
+#elif defined(KEYBOARD_3KEYS)
+#define KEY_PRESSED_LONG ((uint32_t)(0.25 * SYSTICK_FREQUENCY / KEY_TICKS))
+#define KEY_PRESSED_EXTENDED ((uint32_t)(1.25 * SYSTICK_FREQUENCY / KEY_TICKS))
 #elif defined(KEYBOARD_2KEYS)
 #define KEY_PRESSED_LONG ((uint32_t)(0.25 * SYSTICK_FREQUENCY / KEY_TICKS))
 #define KEY_PRESSED_EXTENDED ((uint32_t)(1.25 * SYSTICK_FREQUENCY / KEY_TICKS))
@@ -34,9 +37,7 @@ static struct
     Key pressedKey;
     uint32_t pressedTicks;
 
-#if defined(KEYBOARD_5KEYS)
     KeyboardMode mode;
-#endif
 
     volatile uint32_t eventQueueHead;
     volatile uint32_t eventQueueTail;
@@ -81,6 +82,13 @@ void onKeyboardTick(void)
             else if ((keyboard.mode != KEYBOARD_MODE_MEASUREMENT) ||
                      (i != KEY_LEFT))
                 event = i;
+#elif defined(KEYBOARD_3KEYS)
+            if (i == KEY_SELECT)
+            {
+                event = (keyboard.mode == KEYBOARD_MODE_MEASUREMENT)
+                            ? EVENT_KEY_BACK
+                            : EVENT_KEY_SELECT;
+            }
 #endif
 
             keyboard.pressedKey = i;
@@ -103,7 +111,7 @@ void onKeyboardTick(void)
                                 ? EVENT_KEY_BACK
                                 : EVENT_KEY_SELECT;
             }
-#elif defined(KEYBOARD_2KEYS)
+#elif defined(KEYBOARD_3KEYS) || defined(KEYBOARD_2KEYS)
             if (keyboard.pressedTicks < KEY_PRESSED_LONG)
             {
                 event = (i == KEY_LEFT)
@@ -155,6 +163,24 @@ void onKeyboardTick(void)
                 break;
             }
         }
+#elif defined(KEYBOARD_3KEYS)
+        if (keyboard.pressedTicks == KEY_PRESSED_LONG)
+        {
+            if (isKeyDown[KEY_LEFT])
+            {
+                if (isKeyDown[KEY_SELECT])
+                    event = EVENT_KEY_RESET;
+                else
+                    event = EVENT_KEY_BACK;
+            }
+            else
+                event = EVENT_KEY_SELECT;
+        }
+        else if (keyboard.pressedTicks == KEY_PRESSED_EXTENDED)
+        {
+            if (isKeyDown[KEY_SELECT])
+                event = EVENT_KEY_POWER;
+        }
 #elif defined(KEYBOARD_2KEYS)
         if (keyboard.pressedTicks == KEY_PRESSED_LONG)
         {
@@ -188,9 +214,9 @@ void setKeyboardMode(KeyboardMode mode)
 {
 #if defined(KEYBOARD_5KEYS)
     keyboard.pressedKey = KEY_NONE;
+#endif
 
     keyboard.mode = mode;
-#endif
 }
 
 Event getKeyboardEvent(void)

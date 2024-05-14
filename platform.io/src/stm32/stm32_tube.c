@@ -42,7 +42,7 @@ static struct
 void initTubeController(void)
 {
     // GPIO
-#if defined(STM32F0) || defined(STM32G0)
+#if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
     gpio_setup_af(TUBE_HV_PORT,
                   TUBE_HV_PIN,
                   GPIO_OUTPUTTYPE_PUSHPULL,
@@ -148,42 +148,6 @@ void TUBE_DET_IRQ_HANDLER(void)
     tube.pulseQueue[tube.pulseQueueHead] = count;
     tube.pulseQueueHead = (tube.pulseQueueHead + 1) & TUBE_PULSE_QUEUE_MASK;
 }
-
-// +++ TEST
-void syncTubeHV(void)
-{
-    uint32_t time1 = tube.hvOnTime - TUBE_HV_SYNC_MARGIN_PRE;
-    uint32_t time2 = tube.hvOnTime + TUBE_HV_SYNC_MARGIN_POST;
-    uint32_t time3 = tube.hvPeriod - TUBE_HV_SYNC_MARGIN_PRE;
-
-    while (true)
-    {
-        uint32_t count = TUBE_HV_TIMER->CNT;
-
-        // +++ TEST 1
-        // if ((count > TUBE_HV_SYNC_MARGIN_POST) &&
-        //     (count < time3))
-        //     break;
-        // +++ TEST 1
-
-        // +++ TEST 2
-        // if (count < time1)
-        //     break;
-        // if (count > time2)
-        //     break;
-        // +++ TEST 2
-
-        // +++ TEST 3
-        if ((count > TUBE_HV_SYNC_MARGIN_POST) &&
-            (count < time1))
-            break;
-        if ((count > time2) &&
-            (count < time3))
-            break;
-        // +++ TEST 3
-    }
-}
-// +++ TEST
 
 bool getTubePulse(uint32_t *pulseTime)
 {

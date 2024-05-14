@@ -52,14 +52,16 @@ Make sure the electrical connections are correct. You may break your device if t
 
 ## Step 3: Flash the firmware
 
-Now, download the latest `radpro-flashtool` from the [Rad Pro releases](https://github.com/Gissio/radpro/releases).
+Now, download and decompress the latest `radpro-flashtool` from the [Rad Pro releases](https://github.com/Gissio/radpro/releases).
 
-* To install from Windows, start the `flash-fnirsi-gc01-[mcu].bat` script.
-* To install from macOS or Linux, start the `flash-fnirsi-gc01-[mcu].sh` script.
+* To install from Windows, go to the `fnirsi-gc01` folder and start `fnirsi-gc01-[mcu]-[type].bat`.
+* To install from macOS or Linux, go to the `fnirsi-gc01` folder and start `fnirsi-gc01-[mcu]-[type].sh`.
 
 `[mcu]` is the type of microprocessor of your board: `ch32f103r8t6` or `apm32f103rbt6`. **NOTE:** Flashing the CH32F103R8T6 takes a couple of minutes.
 
-To flash the original firmware, open a terminal and start the script with the `firmware/fnirsi-gc01-ch32f103r8t6-v1.5.bin` argument if your device has a CH32F103R8T6, or `firmware/fnirsi-gc01-apm32f103rbt6-v1.6.bin` argument if it has an APM32F103RBT6.
+`[type]` is the type of installation: `install` or `update`. Note that not all releases support updating.
+
+To flash the original firmware, drag it from the `lib/firmware` folder onto `fnirsi-gc01-[device]-[type].bat` (Windows) or `fnirsi-gc01-[device]-[type].sh`.
 
 If flashing does not work, try powering your GC-01 from USB.
 

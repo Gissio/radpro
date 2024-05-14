@@ -40,27 +40,19 @@ Sets 60 minute time intervals and encodes initial timestamp and pulse count.
 
     0b11110010 [32-bit timestamp] [32-bit pulse count]
 
-Sets 30 minute time intervals and encodes initial timestamp and pulse count.
+Sets 10 minute time intervals and encodes initial timestamp and pulse count.
 
     0b11110011 [32-bit timestamp] [32-bit pulse count]
 
-Sets 10 minute time intervals and encodes initial timestamp and pulse count.
+Sets 1 minute time intervals and encodes initial timestamp and pulse count.
 
     0b11110100 [32-bit timestamp] [32-bit pulse count]
 
-Sets 5 minute time intervals and encodes initial timestamp and pulse count.
+Sets 10 second time intervals and encodes initial timestamp and pulse count.
 
     0b11110101 [32-bit timestamp] [32-bit pulse count]
 
-Sets 1 minute time intervals and encodes initial timestamp and pulse count.
-
-    0b11110110 [32-bit timestamp] [32-bit pulse count]
-
-Sets 30 second time intervals and encodes initial timestamp and pulse count.
-
-    0b11110111 [32-bit timestamp] [32-bit pulse count]
-
-Sets 10 second time intervals and encodes initial timestamp and pulse count.
+Sets 1 second time intervals and encodes initial timestamp and pulse count.
 
     0b11111110
 

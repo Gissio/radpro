@@ -31,8 +31,10 @@ void initSystem(void)
     __set_MSP(*((uint32_t *)FIRMWARE_BASE));
 
     // Enable HSE
-    set_bits(RCC->CR, RCC_CR_HSEON);
-    wait_until_bits_set(RCC->CR, RCC_CR_HSERDY);
+    set_bits(RCC->CR,
+             RCC_CR_HSEON);
+    wait_until_bits_set(RCC->CR,
+                        RCC_CR_HSERDY);
 
     // Set 2 wait states for flash
     modify_bits(FLASH->ACR,
@@ -47,18 +49,24 @@ void initSystem(void)
         RCC_CFGR_PPRE2_DIV1 |    // Set APB2 clock: 72 MHz / 1 = 72 MHz
         RCC_CFGR_ADCPRE_DIV8 |   // Set ADC clock: 72 MHz / 8 = 9 MHz
         RCC_CFGR_PLLSRC_HSE |    // Set PLL source: HSE
-        RCC_CFGR_PLLXTPRE_HSE |  // Set PLL HSE predivision factor: 1x
+        RCC_CFGR_PLLXTPRE_HSE |  // Set PLL HSE predivision factor: /1
         RCC_CFGR_PLLMULL9 |      // Set PLL multiplier: 9x
         RCC_CFGR_USBPRE_DIV1_5 | // Set USB prescaler: 1.5x
         RCC_CFGR_MCO_NOCLOCK;    // Disable MCO
 
     // Enable PLL
-    set_bits(RCC->CR, RCC_CR_PLLON);
-    wait_until_bits_set(RCC->CR, RCC_CR_PLLRDY);
+    set_bits(RCC->CR,
+             RCC_CR_PLLON);
+    wait_until_bits_set(RCC->CR,
+                        RCC_CR_PLLRDY);
 
     // Select PLL as system clock
-    modify_bits(RCC->CFGR, RCC_CFGR_SW_Msk, RCC_CFGR_SW_PLL);
-    wait_until_bits_value(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_PLL);
+    modify_bits(RCC->CFGR,
+                RCC_CFGR_SW_Msk,
+                RCC_CFGR_SW_PLL);
+    wait_until_bits_value(RCC->CFGR,
+                          RCC_CFGR_SWS_Msk,
+                          RCC_CFGR_SWS_PLL);
 
     // Set vector table
     NVIC_DisableAllIRQs();
@@ -95,6 +103,7 @@ const char *const commId = "FNIRSI GC-01 (APM32F103CB);" FIRMWARE_NAME " " FIRMW
 
 void initKeyboardController(void)
 {
+    // GPIO
     gpio_setup(KEY_LEFT_PORT,
                KEY_LEFT_PIN,
                GPIO_MODE_INPUT_PULLUP);
