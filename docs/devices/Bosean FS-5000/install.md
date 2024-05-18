@@ -45,7 +45,7 @@ Now, download the latest `radpro-flashtool` from the [Rad Pro releases](https://
 
 `[type]` is the type of installation: `install` or `update`. Note that not all releases support updating.
 
-The installation will automatically create a backup of the original firmware in the `backup` folder, so you can recover your device if something goes wrong. Make sure you keep the backups safe, so you can always return to the original firmware. To flash a backup, drag it onto `bosean-fs5000-install.bat` (windows) or `bosean-fs5000-install.sh` (macOS/Linux).
+The installation will automatically create a backup of the original firmware in the `backup` folder, so you can recover your device if something goes wrong. Make sure you keep the backups safe, so you can always return to the original firmware. To flash a backup, drag it onto `bosean-fs5000-install.bat` (Windows) or `bosean-fs5000-install.sh` (macOS/Linux).
 
 Before closing the device, take note of the type of Geiger tube: the markings on the glass should be either J321, J305, M4011 or J614. If you have an unmarked tube measuring 55 or 65 mm long, you probably have a J614 or J613 tube, respectively.
 

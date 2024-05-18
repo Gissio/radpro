@@ -51,7 +51,7 @@ Now, download the latest `radpro-flashtool` from the [Rad Pro releases](https://
 
 `[type]` is the type of installation: `install` or `update`. Note that not all releases support updating.
 
-The installation will automatically create a backup of the original firmware in the `backup` folder, so you can recover your device if something goes wrong. Make sure you keep the backups safe, so you can always return to the original firmware. To flash a backup, drag it onto `bosean-[device]-install.bat` (windows) or `bosean-[device]-install.sh` (macOS/Linux).
+The installation will automatically create a backup of the original firmware in the `backup` folder, so you can recover your device if something goes wrong. Make sure you keep the backups safe, so you can always return to the original firmware. To flash a backup, drag it onto `bosean-[device]-install.bat` (Windows) or `bosean-[device]-install.sh` (macOS/Linux).
 
 ## Step 4: Configure your device
 
