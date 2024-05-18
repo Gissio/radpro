@@ -34,7 +34,7 @@ If you are unable to install Rad Pro on your device, or your device becomes unre
 
 Go to Rad Pro's settings, select “Geiger tube”, “Conversion factor”, and select the option that matches the Geiger-Müller tube installed in your device.
 
-Within the “Geiger tube” settings, select “HV Profile” and choose an appropriate HV profile: “Energy-saving” is best for measuring background levels of radiation; “Factory default” is the profile from the original firmware and consumes considerably more power.
+Within the “Geiger tube” settings, select “HV Profile” and choose an appropriate HV profile: “Energy-saving” is best for measuring background levels of radiation; if the previous profile does not produce any clicks, select “Energy-saving alt.” - **WARNING:** do not use “Energy-saving alt.” if “Energy-saving” works; “Factory default” is the profile from the original firmware and consumes considerably more power.
 
 If your device produces spontaneous key presses by itself, select the “Energy-saving” HV profile to fix this problem.
 
