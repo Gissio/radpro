@@ -52,7 +52,7 @@ Make sure the electrical connections are correct. You may break your device if t
 
 ## Step 3: Flash the firmware
 
-Now, download and decompress the latest `radpro-flashtool` from the [Rad Pro releases](https://github.com/Gissio/radpro/releases).
+Now, download the latest `radpro-flashtool` from the [Rad Pro releases](https://github.com/Gissio/radpro/releases).
 
 * To install from Windows, go to the `fnirsi-gc01` folder and start `fnirsi-gc01-[mcu]-[type].bat`.
 * To install from macOS or Linux, go to the `fnirsi-gc01` folder and start `fnirsi-gc01-[mcu]-[type].sh`.
