@@ -14,11 +14,7 @@ To install Rad Pro on your Bosean FS-5000 Geiger counter, you will need the foll
 
 ![Bosean FS-5000 circuit board](img/fs5000-board.jpg)
 
-Follow these steps to start installing Rad Pro:
-
-* Turn off the device.
-* Remove the battery cover and batteries.
-* Remove the screws holding the back case and open the device.
+To start installing Rad Pro, turn off the device, remove the screws holding the back case and open the device.
 
 The board should look like in the photo above. If it does not, you may have a different hardware revision. In this case, Rad Pro may not function properly.
 
