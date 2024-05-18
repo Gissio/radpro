@@ -859,7 +859,31 @@ __STATIC_INLINE void adc_start_calibration(ADC_TypeDef *base)
 #endif
 }
 
-__STATIC_INLINE void adc_enable_temperature_sensor(ADC_TypeDef *base)
+__STATIC_INLINE void adc_enable_vbat_channel(ADC_TypeDef *base)
+{
+#if defined(STM32F0) && defined(GD32)
+    ADC_GD32_TypeDef *gdBase = (ADC_GD32_TypeDef *)base;
+    set_bits(gdBase->CTL1,
+             ADC_CTL1_VBATEN);
+#elif defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
+    set_bits(((ADC_Common_TypeDef *)((uint8_t *)base + 0x308))->CCR,
+             ADC_CCR_VBATEN);
+#endif
+}
+
+__STATIC_INLINE void adc_disable_vbat_channel(ADC_TypeDef *base)
+{
+#if defined(STM32F0) && defined(GD32)
+    ADC_GD32_TypeDef *gdBase = (ADC_GD32_TypeDef *)base;
+    clear_bits(gdBase->CTL1,
+               ADC_CTL1_VBATEN);
+#elif defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
+    clear_bits(((ADC_Common_TypeDef *)((uint8_t *)base + 0x308))->CCR,
+               ADC_CCR_VBATEN);
+#endif
+}
+
+__STATIC_INLINE void adc_enable_temperature_channel(ADC_TypeDef *base)
 {
 #if defined(STM32F0) && defined(GD32)
     ADC_GD32_TypeDef *gdBase = (ADC_GD32_TypeDef *)base;
@@ -874,7 +898,7 @@ __STATIC_INLINE void adc_enable_temperature_sensor(ADC_TypeDef *base)
 #endif
 }
 
-__STATIC_INLINE void adc_disable_temperature_sensor(ADC_TypeDef *base)
+__STATIC_INLINE void adc_disable_temperature_channel(ADC_TypeDef *base)
 {
 #if defined(STM32F0) && defined(GD32)
     ADC_GD32_TypeDef *gdBase = (ADC_GD32_TypeDef *)base;

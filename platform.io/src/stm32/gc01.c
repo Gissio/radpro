@@ -124,12 +124,10 @@ void initKeyboardController(void)
 void getKeyboardState(bool *isKeyDown)
 {
     isKeyDown[KEY_LEFT] = !gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN);
-#if defined(KEYBOARD_5KEYS)
     isKeyDown[KEY_RIGHT] = !gpio_get(KEY_RIGHT_PORT, KEY_RIGHT_PIN);
     isKeyDown[KEY_UP] = !gpio_get(KEY_UP_PORT, KEY_UP_PIN);
     isKeyDown[KEY_DOWN] = !gpio_get(KEY_DOWN_PORT, KEY_DOWN_PIN);
-#endif
-    isKeyDown[KEY_SELECT] = !gpio_get(KEY_SELECT_PORT, KEY_SELECT_PIN);
+    isKeyDown[KEY_OK] = !gpio_get(KEY_SELECT_PORT, KEY_SELECT_PIN);
 }
 
 // Display
@@ -151,25 +149,25 @@ static const uint8_t displayInitSequence[] = {
     MR_SEND_DATA(0xe0),
     MR_SEND_COMMAND(MR_ST7789_PVGAMCTRL),
     MR_SEND_DATA(0xd0),
-    MR_SEND_DATA(0x1),
-    MR_SEND_DATA(0x8),
-    MR_SEND_DATA(0xf),
+    MR_SEND_DATA(0x01),
+    MR_SEND_DATA(0x08),
+    MR_SEND_DATA(0x0f),
     MR_SEND_DATA(0x11),
     MR_SEND_DATA(0x2a),
     MR_SEND_DATA(0x36),
     MR_SEND_DATA(0x55),
     MR_SEND_DATA(0x44),
     MR_SEND_DATA(0x3a),
-    MR_SEND_DATA(0xb),
-    MR_SEND_DATA(0x6),
+    MR_SEND_DATA(0x0b),
+    MR_SEND_DATA(0x06),
     MR_SEND_DATA(0x11),
     MR_SEND_DATA(0x20),
     MR_SEND_COMMAND(MR_ST7789_NVGAMCTRL),
     MR_SEND_DATA(0xd0),
-    MR_SEND_DATA(0x2),
-    MR_SEND_DATA(0x7),
-    MR_SEND_DATA(0xa),
-    MR_SEND_DATA(0xb),
+    MR_SEND_DATA(0x02),
+    MR_SEND_DATA(0x07),
+    MR_SEND_DATA(0x0a),
+    MR_SEND_DATA(0x0b),
     MR_SEND_DATA(0x18),
     MR_SEND_DATA(0x34),
     MR_SEND_DATA(0x43),
@@ -248,8 +246,10 @@ void initDisplayController(void)
 {
 #if defined(GC01_DISPLAY_SPI)
     // GPIO
-    gpio_set(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN);
-    gpio_set(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN);
+    gpio_set(DISPLAY_RESX_PORT,
+             DISPLAY_RESX_PIN);
+    gpio_set(DISPLAY_CSX_PORT,
+             DISPLAY_CSX_PIN);
 
     gpio_setup(DISPLAY_RESX_PORT,
                DISPLAY_RESX_PIN,
@@ -279,10 +279,12 @@ void initDisplayController(void)
              SPI_CR1_SPE);
 #else
     // GPIO
-    gpio_set(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN);
-    gpio_clear(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN);
-    gpio_set(DISPLAY_RDX_PORT, DISPLAY_RDX_PIN);
-    gpio_set(DISPLAY_WRX_PORT, DISPLAY_WRX_PIN);
+    gpio_set(DISPLAY_RESX_PORT,
+             DISPLAY_RESX_PIN);
+    gpio_set(DISPLAY_RDX_PORT,
+             DISPLAY_RDX_PIN);
+    gpio_set(DISPLAY_WRX_PORT,
+             DISPLAY_WRX_PIN);
 
     gpio_setup(DISPLAY_RESX_PORT,
                DISPLAY_RESX_PIN,

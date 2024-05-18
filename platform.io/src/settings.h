@@ -143,9 +143,7 @@ enum
 #define TUBE_HVPROFILE_ENERGYSAVING_FREQUENCY 2500
 #define TUBE_HVPROFILE_ENERGYSAVING_DUTYCYCLE 0.03F
 #elif defined(FS5000)
-#define TUBE_CONVERSIONFACTOR_DEFAULT TUBE_CONVERSIONFACTOR_J614
-#define TUBE_HVPROFILE_FACTORYDEFAULT_FREQUENCY 2500
-#define TUBE_HVPROFILE_FACTORYDEFAULT_DUTYCYCLE 0.005F
+#define TUBE_CONVERSIONFACTOR_DEFAULT TUBE_CONVERSIONFACTOR_J321
 #elif defined(GC01)
 #if defined(CH32)
 #define TUBE_CONVERSIONFACTOR_DEFAULT TUBE_CONVERSIONFACTOR_J321
@@ -361,9 +359,11 @@ typedef struct
     unsigned int tubeInstantaneousAveraging : 3;
     unsigned int tubeDeadTimeCompensation : 6;
     unsigned int tubeBackgroundCompensation : 4;
+#if defined(TUBE_HV_PWM)    
     unsigned int tubeHVProfile : 3;
     unsigned int tubeHVFrequency : 3;
     unsigned int tubeHVDutyCycle : 9;
+#endif
 
     unsigned int pulseClicks : 2;
 #if defined(PULSE_LED)

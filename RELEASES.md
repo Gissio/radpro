@@ -1,11 +1,15 @@
 # Releases
 
-## 2.0rc5 The "final?" update
+## 2.0rc5 The final countdown
 
+* Added Bosean FS-5000 support.
 * Added secondary dose view in average measurement mode.
-* Added 12-hour time format.
 * Added "SET tubeHVFrequency" and "SET tubeHVDutyCycle" data communication commands.
+* Added 1 second datalog interval options and removed 30 seconds and 30 minutes datalog interval options.
+* Added 12-hour time format.
 * Devices with data mode allow using the device wile data mode is active.
+* Improved battery level indicator on the Bosean FS-600/FS-1000.
+* Improved keyboard control scheme of the Bosean FS-1000.
 * Changed data communications end of line to "\r\n".
 * Minor refinements.
 
@@ -21,7 +25,7 @@
 
 ## 2.0rc3 The "BIG" update
 
-* UI update with BIG numbers.
+* UI update with big digits in measurement view.
 * Instantaneous rate bar with alert zones (1 µSv, 10 µSv).
 * History alert zones (1 µSv, 10 µSv).
 * Average timer expiration after reaching a configurable confidence interval.
@@ -33,18 +37,17 @@
 * Added 30 second and 10 second datalog interval options.
 * Added 10 second display sleep option.
 * Added `radpro-flashtool`.
-* Removed hold option.
+* Removed measurement hold.
 
 ## 2.0rc2
 
-* Changed default display theme to Dusk.
 * Fixed flash programming code.
 * Fixed FNIRSI GC-01 battery indicator.
 * Fixed conversion factor menu logic.
 
 ## 2.0rc1
 
-* Added support for the FNIRSI GC-01.
+* Added FNIRSI GC-01 support.
 
 ## 1.3.0
 

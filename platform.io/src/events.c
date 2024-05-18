@@ -18,8 +18,8 @@
 #include "events.h"
 #include "game.h"
 #include "keyboard.h"
+#include "led.h"
 #include "measurements.h"
-#include "pulseled.h"
 #include "rng.h"
 #include "settings.h"
 #include "tube.h"
@@ -62,6 +62,10 @@ static struct
 
 #if defined(PULSE_LED)
     volatile int32_t pulseLEDTimer;
+#endif
+
+#if defined(ALERT_LED)
+    volatile int32_t alertLEDTimer;
 #endif
 
 #if defined(VIBRATOR)
@@ -217,6 +221,12 @@ void onTick(void)
         setPulseLED(false);
 #endif
 
+#if defined(ALERT_LED)
+    // Alert LED
+    if (updateTimer(&events.alertLEDTimer) == TIMER_ELAPSED)
+        setAlertLED(false);
+#endif
+
 #if defined(VIBRATOR)
     // Vibrator
     if (updateTimer(&events.vibratorTimer) == TIMER_ELAPSED)
@@ -249,6 +259,9 @@ void disableMeasurements(void)
     events.displayTimer = 1;
 #if defined(PULSE_LED)
     events.pulseLEDTimer = 1;
+#endif
+#if defined(ALERT_LED)
+    events.alertLEDTimer = 1;
 #endif
 #if defined(VIBRATOR)
     events.vibratorTimer = 1;
@@ -323,6 +336,18 @@ static void setPulseLEDTimer(int32_t value)
 }
 #endif
 
+#if defined(ALERT_LED)
+static void setAlertLEDTimer(int32_t value)
+{
+    if (value > events.alertLEDTimer)
+    {
+        setAlertLED(true);
+
+        events.alertLEDTimer = value;
+    }
+}
+#endif
+
 #if defined(VIBRATOR)
 static void setVibratorTimer(int32_t value)
 {
@@ -346,7 +371,7 @@ void triggerDisplay(void)
 
 bool isDisplayTimerActive(void)
 {
-    return events.displayTimer != 0;
+    return events.displayTimer > PULSE_FLASH_TICKS;
 }
 
 void setPulseThresholding(bool value)
@@ -361,29 +386,31 @@ bool isPulseThresholding(void)
 
 void triggerPulse(void)
 {
-    if (events.pulseThresholding)
-        return;
-
-    if (settings.pulseClicks)
-        setBuzzerTimer(pulseClickTicks[settings.pulseClicks] + 1,
-                       events.buzzerTimer + 1);
+    if (!events.pulseThresholding)
+    {
+        if (settings.pulseClicks)
+            setBuzzerTimer(pulseClickTicks[settings.pulseClicks] + 1,
+                           events.buzzerTimer + 1);
 #if defined(PULSE_LED)
-    if (settings.pulseLED)
-        setPulseLEDTimer(PULSE_LED_TICKS);
+        if (settings.pulseLED)
+            setPulseLEDTimer(PULSE_LED_TICKS);
 #endif
-    if (settings.pulseFlashes)
-        setDisplayTimer(PULSE_FLASH_TICKS);
+        if (settings.pulseFlashes)
+            setDisplayTimer(PULSE_FLASH_TICKS);
 #if defined(VIBRATOR)
-    if (settings.pulseVibrations)
-        setVibratorTimer(pulseVibrationTicks[settings.pulseVibrations]);
+        if (settings.pulseVibrations)
+            setVibratorTimer(pulseVibrationTicks[settings.pulseVibrations]);
 #endif
+    }
 }
 
 void triggerAlarm(void)
 {
     syncTimerThread();
 
-#if defined(PULSE_LED)
+#if defined(ALERT_LED)
+    setAlertLEDTimer(ALARM_TICKS);
+#elif defined(PULSE_LED)
     setPulseLEDTimer(ALARM_TICKS);
 #endif
     setBuzzerTimer(ALARM_TICKS, 1);

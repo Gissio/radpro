@@ -19,9 +19,9 @@
 #include "display.h"
 #include "flash.h"
 #include "game.h"
+#include "led.h"
 #include "measurements.h"
 #include "power.h"
-#include "pulseled.h"
 #include "rng.h"
 #include "rtc.h"
 #include "settings.h"
@@ -44,7 +44,9 @@ static bool getFlashSettings(FlashIterator *iterator,
 void initSettings(void)
 {
     // Default values
+#if defined(TUBE_HV_PWM)    
     settings.tubeConversionFactor = TUBE_CONVERSIONFACTOR_DEFAULT;
+#endif
 
 #if defined(PULSE_LED)
     settings.pulseLED = PULSE_LED_ON;
@@ -78,10 +80,12 @@ void initSettings(void)
     {
         settings = flashSettings.settings;
 
+#if defined(TUBE_HV_PWM)    
         if (settings.tubeHVFrequency >= TUBE_HVFREQUENCY_NUM)
             settings.tubeHVFrequency = TUBE_HVFREQUENCY_NUM - 1;
         if (settings.tubeHVDutyCycle >= TUBE_HVDUTYCYCLE_NUM)
             settings.tubeHVDutyCycle = TUBE_HVDUTYCYCLE_NUM - 1;
+#endif
 
         setDoseTime(flashSettings.dose.time);
         setDosePulseCount(flashSettings.dose.pulseCount);

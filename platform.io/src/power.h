@@ -15,9 +15,6 @@
 
 #include "view.h"
 
-#define BATTERY_LEVEL_MAX 5
-#define BATTERY_LEVEL_CHARGING -1
-
 typedef enum
 {
     POWERSTATE_ON,
@@ -37,6 +34,7 @@ bool isPowerOffRequested(void);
 
 int8_t getDeviceBatteryLevel(void);
 
+bool isDevicePowered(void);
 bool isBatteryCharging(void);
 
 #endif

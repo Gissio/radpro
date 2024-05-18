@@ -182,6 +182,7 @@ void dispatchCommEvents(void)
             sendCommOkWithFloat(getTubeDeadTimeCompensation(), 7);
         else if (matchCommCommand("GET tubeBackgroundCompensation"))
             sendCommOkWithFloat(60.0F * getTubeBackgroundCompensation(), 3);
+#if defined(TUBE_HV_PWM)
         else if (matchCommCommand("GET tubeHVFrequency"))
             sendCommOkWithFloat(getTubeHVFrequency(), 2);
         else if (matchCommCommandWithNumber("SET tubeHVFrequency",
@@ -202,6 +203,7 @@ void dispatchCommEvents(void)
 
             sendCommOk();
         }
+#endif
         else if (matchCommCommandWithNumber("GET datalog",
                                             &mantissa,
                                             &factor))

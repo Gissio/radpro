@@ -75,13 +75,16 @@ void initKeyboardController(void)
 
 void getKeyboardState(bool *isKeyDown)
 {
+#if defined(KEYBOARD_2KEYS)
     isKeyDown[KEY_LEFT] = gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN);
-#if defined(KEYBOARD_5KEYS)
+    isKeyDown[KEY_RIGHT] = !gpio_get(KEY_SELECT_PORT, KEY_SELECT_PIN);
+#elif defined(KEYBOARD_5KEYS)
+    isKeyDown[KEY_LEFT] = gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN);
     isKeyDown[KEY_RIGHT] = gpio_get(KEY_RIGHT_PORT, KEY_RIGHT_PIN);
     isKeyDown[KEY_UP] = gpio_get(KEY_UP_PORT, KEY_UP_PIN);
     isKeyDown[KEY_DOWN] = gpio_get(KEY_DOWN_PORT, KEY_DOWN_PIN);
+    isKeyDown[KEY_OK] = !gpio_get(KEY_SELECT_PORT, KEY_SELECT_PIN);
 #endif
-    isKeyDown[KEY_SELECT] = !gpio_get(KEY_SELECT_PORT, KEY_SELECT_PIN);
 }
 
 // Display
@@ -176,9 +179,12 @@ static void onDisplaySend(uint16_t value)
 void initDisplayController(void)
 {
     // GPIO
-    gpio_set(DISPLAY_RSTB_PORT, DISPLAY_RSTB_PIN);
-    gpio_set(DISPLAY_CSB_PORT, DISPLAY_CSB_PIN);
-    gpio_set(DISPLAY_SCLK_PORT, DISPLAY_SCLK_PIN);
+    gpio_set(DISPLAY_RSTB_PORT,
+             DISPLAY_RSTB_PIN);
+    gpio_set(DISPLAY_CSB_PORT,
+             DISPLAY_CSB_PIN);
+    gpio_set(DISPLAY_SCLK_PORT,
+             DISPLAY_SCLK_PIN);
 
     gpio_setup_output(DISPLAY_RSTB_PORT,
                       DISPLAY_RSTB_PIN,

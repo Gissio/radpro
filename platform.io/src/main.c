@@ -17,10 +17,10 @@
 #include "flash.h"
 #include "game.h"
 #include "keyboard.h"
+#include "led.h"
 #include "measurements.h"
 #include "menu.h"
 #include "power.h"
-#include "pulseled.h"
 #include "rng.h"
 #include "rtc.h"
 #include "settings.h"
@@ -44,7 +44,7 @@ int main(void)
     initBuzzer();
     initDisplay();
 #if defined(PULSE_LED)
-    initPulseLED();
+    initLED();
 #endif
 #if defined(VIBRATOR)
     initVibrator();
@@ -63,7 +63,7 @@ int main(void)
 #endif
     initDatalog();
 
-#if defined(KEYBOARD_WAIT_FOR_POWERON)
+#if defined(KEYBOARD_WAIT_POWERON)
     sleep(1000);
 #endif
 

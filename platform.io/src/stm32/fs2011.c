@@ -96,13 +96,16 @@ void initKeyboardController(void)
 
 void getKeyboardState(bool *isKeyDown)
 {
+#if defined(KEYBOARD_2lKEYS)
     isKeyDown[KEY_LEFT] = !gpio_get(KEY_PLAYPAUSE_PORT, KEY_PLAYPAUSE_PIN);
-#if defined(KEYBOARD_5KEYS)
+    isKeyDown[KEY_RIGHT] = !gpio_get(KEY_POWER_PORT, KEY_POWER_PIN);
+#elif defined(KEYBOARD_5KEYS)
+    isKeyDown[KEY_LEFT] = !gpio_get(KEY_PLAYPAUSE_PORT, KEY_PLAYPAUSE_PIN);
     isKeyDown[KEY_RIGHT] = !gpio_get(KEY_MENUOK_PORT, KEY_MENUOK_PIN);
     isKeyDown[KEY_UP] = !gpio_get(KEY_UP_PORT, KEY_UP_PIN);
     isKeyDown[KEY_DOWN] = !gpio_get(KEY_DOWN_PORT, KEY_DOWN_PIN);
+    isKeyDown[KEY_OK] = !gpio_get(KEY_POWER_PORT, KEY_POWER_PIN);
 #endif
-    isKeyDown[KEY_SELECT] = !gpio_get(KEY_POWER_PORT, KEY_POWER_PIN);
 }
 
 // Display
@@ -186,9 +189,8 @@ static const uint8_t displayPinSetup[] = {
 void initDisplayController(void)
 {
     // GPIO
-    gpio_set(DISPLAY_RSTB_PORT, DISPLAY_RSTB_PIN);
-    gpio_clear(DISPLAY_RW_PORT, DISPLAY_RW_PIN);
-    gpio_clear(DISPLAY_E_PORT, DISPLAY_E_PIN);
+    gpio_set(DISPLAY_RSTB_PORT,
+             DISPLAY_RSTB_PIN);
 
     for (int i = 0; i < sizeof(displayPinSetup); i++)
     {

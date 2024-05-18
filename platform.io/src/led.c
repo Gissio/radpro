@@ -1,6 +1,6 @@
 /*
  * Rad Pro
- * Pulse LED
+ * LED
  *
  * (C) 2022-2024 Gissio
  *
@@ -10,15 +10,15 @@
 #if defined(PULSE_LED)
 
 #include "menu.h"
-#include "pulseled.h"
+#include "led.h"
 #include "settings.h"
 #include "tube.h"
 
 static const Menu pulseLEDMenu;
 
-void initPulseLED(void)
+void initLED(void)
 {
-    initPulseLEDController();
+    initLEDController();
 
     selectMenuItem(&pulseLEDMenu,
                    settings.pulseLED,

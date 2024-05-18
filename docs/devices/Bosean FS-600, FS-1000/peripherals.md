@@ -11,15 +11,15 @@
 * PA13 (AF0): SWDIO
 * PA14 (AF0): SWCLK
 
-* PB0 (Output): LCD_BACKLIGHT
-* PB1 (Output): LCD_CSB
-* PB2 (Output): LCD_RSTB
+* PB0 (Output): DISPLAY_BACKLIGHT
+* PB1 (Output): DISPLAY_CSB
+* PB2 (Output): DISPLAY_RSTB
 * PB6 (AF0): USART1_RX
 * PB7 (AF0): USART1_TX
 * PB9 (Input, floating): PWR_CHRG
-* PB10 (Output): LCD_A0
-* PB11 (Output): LCD_SCLK
-* PB12 (Output): LCD_SDA
+* PB10 (Output): DISPLAY_A0
+* PB11 (Output): DISPLAY_SCLK
+* PB12 (Output): DISPLAY_SDA
 * PB15 (Input, floating): KEY_POWER
 
 * PC6 (Input, floating): KEY_ENTER

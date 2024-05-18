@@ -14,8 +14,8 @@
 #include "display.h"
 #include "events.h"
 #include "keyboard.h"
+#include "led.h"
 #include "power.h"
-#include "pulseled.h"
 #include "settings.h"
 #include "vibrator.h"
 

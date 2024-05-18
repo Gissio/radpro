@@ -822,7 +822,7 @@ static void onInstantaneousRateViewEvent(const View *view,
                 strcatTime(valueString,
                            measurements.instantaneous.rate.time);
 
-            keyString = "Period";
+            keyString = "Time";
 
             break;
 

@@ -178,6 +178,8 @@ Example:
 
 ### Get tube PWM frequency
 
+(on supported devices)
+
 * Request: `GET tubeHVFrequency\r\n` 
 * Response: `OK [value]\r\n`
 
@@ -189,6 +191,8 @@ Example:
     OK 1250.00
 
 ### Set tube PWM frequency
+
+(on supported devices)
 
 * Request: `SET tubeHVFrequency [value]\r\n` 
 * Response: `OK\r\n`
@@ -202,6 +206,8 @@ Example:
 
 ### Get tube PWM duty cycle
 
+(on supported devices)
+
 * Request: `GET tubeHVDutyCycle\r\n` 
 * Response: `OK [value]\r\n`
 
@@ -213,6 +219,8 @@ Example:
     OK 0.0975
 
 ### Set tube PWM duty cycle
+
+(on supported devices)
 
 * Request: `SET tubeHVDutyCycle [value]\r\n` 
 * Response: `OK\r\n`

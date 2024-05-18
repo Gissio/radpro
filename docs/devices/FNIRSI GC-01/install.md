@@ -49,10 +49,11 @@ If you like Rad Pro, consider watching the project to get notified when new rele
 The keys are mapped as follows:
 
   * Power on/off: long press of the ok/power key.
-  * Go up/down: the up and down keys.
-  * Switch measurement view: the ok/power or left/back key.
+  * Switch measurement mode: the up and down keys.
+  * Switch measurement secondary view: the ok/power or left/back key.
   * Reset measurement: long press of the left/back key.
   * Enter settings: the right/settings key.
+  * Go up/down: the up and down keys.
   * Select option: the ok/power or right/settings key.
   * Go back: the left/back key.
 
@@ -60,7 +61,7 @@ The keys are mapped as follows:
 
 On the FNIRSI GC-01 with a CH32F103R8 microprocessor, you must enable “Data mode” in the Settings to establish a USB data connection. To save power, disable “Data mode” when you are finished.
 
-Data logging can store up to 7084 data points. At normal radiation levels (20 cpm), this allows for 147 days of data at 60-minute intervals, 24 days at 10-minute intervals, 4 days at 1-minute intervals, 19 hours at 10-second intervals and almost 2 hours at 1-second intervals.
+Data logging can store up to 7091 data points. At normal radiation levels (20 cpm), this allows for 147 days of data at 60-minute intervals, 24 days at 10-minute intervals, 4 days at 1-minute intervals, 19 hours at 10-second intervals and almost 2 hours at 1-second intervals.
 
 The HV profile settings are:
 
@@ -71,7 +72,7 @@ The HV profile settings are:
 
 On the FNIRSI GC-01 with an APM32F103R8 (Geehy) processor, the USB data connection is always available. 
 
-Data logging can store up to 63756 data points. At normal radiation levels (20 cpm), this allows for 1328 days of data at 60-minute intervals, 221 days at 10-minute intervals, 44 days at 1-minute intervals, 7 days at 10-second intervals and 17 hours at 1-second intervals.
+Data logging can store up to 63819 data points. At normal radiation levels (20 cpm), this allows for 1329 days of data at 60-minute intervals, 221 days at 10-minute intervals, 44 days at 1-minute intervals, 7 days at 10-second intervals and 17 hours at 1-second intervals.
 
 The HV profile settings are:
 

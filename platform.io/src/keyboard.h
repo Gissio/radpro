@@ -20,14 +20,11 @@ typedef enum
     KEYBOARD_MODE_MENU,
 } KeyboardMode;
 
-#if defined(KEYBOARD_5KEYS)
+#if defined(KEYBOARD_2KEYS)
 typedef enum
 {
     KEY_LEFT,
     KEY_RIGHT,
-    KEY_UP,
-    KEY_DOWN,
-    KEY_SELECT,
 
     KEY_NUM,
     KEY_NONE = KEY_NUM,
@@ -36,17 +33,20 @@ typedef enum
 typedef enum
 {
     KEY_LEFT,
+    KEY_OK,
     KEY_RIGHT,
-    KEY_SELECT,
 
     KEY_NUM,
     KEY_NONE = KEY_NUM,
 } Key;
-#elif defined(KEYBOARD_2KEYS)
+#elif defined(KEYBOARD_5KEYS)
 typedef enum
 {
     KEY_LEFT,
-    KEY_SELECT,
+    KEY_RIGHT,
+    KEY_UP,
+    KEY_DOWN,
+    KEY_OK,
 
     KEY_NUM,
     KEY_NONE = KEY_NUM,

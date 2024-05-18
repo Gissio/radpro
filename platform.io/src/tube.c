@@ -11,8 +11,8 @@
 #include "cmath.h"
 #include "cstring.h"
 #include "display.h"
+#include "led.h"
 #include "measurements.h"
-#include "pulseled.h"
 #include "settings.h"
 #include "tube.h"
 #include "vibrator.h"
@@ -20,20 +20,24 @@
 static const Menu tubeConversionFactorMenu;
 static const Menu tubeDeadTimeCompensationMenu;
 static const Menu tubeBackgroundCompensationMenu;
+#if defined(TUBE_HV_PWM)    
 static const Menu tubeHVProfileMenu;
 static const Menu tubeHVCustomProfileMenu;
 static const Menu tubeHVDutyCycleMenu;
 static const Menu tubeHVFrequencyMenu;
+#endif
 static const Menu tubeInstantaneousAveragingMenu;
 
 static const View tubeConversionFactorMenuView;
 static const View tubeDeadTimeCompensationMenuView;
 static const View tubeBackgroundCompensationMenuView;
+#if defined(TUBE_HV_PWM)    
 static const View tubeHVProfileMenuView;
 static const View tubeHVCustomProfileWarningView;
 static const View tubeHVCustomProfileMenuView;
 static const View tubeHVDutyCycleMenuView;
 static const View tubeHVrequencyMenuView;
+#endif
 static const View tubeInstantaneousAveragingMenuView;
 
 void initTube(void)
@@ -52,6 +56,7 @@ void initTube(void)
     selectMenuItem(&tubeBackgroundCompensationMenu,
                    settings.tubeBackgroundCompensation,
                    TUBE_BACKGROUNDCOMPENSATION_NUM);
+#if defined(TUBE_HV_PWM)
     selectMenuItem(&tubeHVProfileMenu,
                    settings.tubeHVProfile,
                    TUBE_HVPROFILE_NUM);
@@ -61,6 +66,7 @@ void initTube(void)
     selectMenuItem(&tubeHVDutyCycleMenu,
                    settings.tubeHVDutyCycle,
                    TUBE_HVDUTYCYCLE_NUM);
+#endif
 }
 
 // Tube menu
@@ -76,7 +82,9 @@ static const char *const tubeMenuOptions[] = {
     "Dead-time com.",
     "Background com.",
 #endif
+#if defined(TUBE_HV_PWM)
     "HV profile",
+#endif
     NULL,
 };
 
@@ -85,7 +93,9 @@ static const View *tubeMenuOptionViews[] = {
     &tubeInstantaneousAveragingMenuView,
     &tubeDeadTimeCompensationMenuView,
     &tubeBackgroundCompensationMenuView,
+#if defined(TUBE_HV_PWM)
     &tubeHVProfileMenuView,
+#endif
 };
 
 static const char *onTubeMenuGetOption(const Menu *menu,
@@ -207,7 +217,7 @@ static const View tubeConversionFactorMenuView = {
     &tubeConversionFactorMenu,
 };
 
-// Instantaneous averaging men
+// Instantaneous averaging menu
 
 static const char *const tubeInstantaneousAveragingMenuOptions[] = {
     "Adaptive fast",
@@ -382,6 +392,8 @@ static const View tubeBackgroundCompensationMenuView = {
 
 // Tube HV profile menu
 
+#if defined(TUBE_HV_PWM)    
+
 static const char *const tubeHVProfileMenuOptions[] = {
     "Factory default",
 #if defined(TUBE_HVPROFILE_ACCURACY_FREQUENCY)
@@ -441,7 +453,11 @@ static void onTubeHVGeneratorSubMenuBack(const Menu *menu)
     setView(&tubeHVProfileMenuView);
 }
 
+#endif
+
 // Tube HV custom profile warning
+
+#if defined(TUBE_HV_PWM)    
 
 static void onHVCustomProfileWarningEvent(const View *view, Event event)
 {
@@ -477,7 +493,11 @@ static const View tubeHVCustomProfileWarningView = {
     NULL,
 };
 
+#endif
+
 // Tube HV custom profile menu
+
+#if defined(TUBE_HV_PWM)    
 
 static const char *const tubeHVCustomProfileMenuOptions[] = {
     "PWM frequency",
@@ -623,7 +643,11 @@ static const View tubeHVrequencyMenuView = {
     &tubeHVFrequencyMenu,
 };
 
+#endif
+
 // Tube HV duty cycle menu
+
+#if defined(TUBE_HV_PWM)    
 
 static float getTubeHVCustomProfileDutyCycle(uint32_t index)
 {
@@ -716,6 +740,8 @@ static const View tubeHVDutyCycleMenuView = {
     onMenuEvent,
     &tubeHVDutyCycleMenu,
 };
+
+#endif
 
 // Pulses menu
 

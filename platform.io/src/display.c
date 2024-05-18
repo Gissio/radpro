@@ -48,7 +48,7 @@
 
 #elif defined(DISPLAY_320X240) || defined(DISPLAY_240X320)
 
-#if defined(DISPLAY_FONT_2BPP)
+#if defined(FONT_2BPP)
 
 #include "fonts/font_robotoM12_2.h"
 #define FONT_SMALL font_robotoM12_2
@@ -68,9 +68,15 @@
 #define FONT_LARGE_LINE_HEIGHT FONT_ROBOTOM63_2_DIGITS_LINE_HEIGHT
 #endif
 
+#if !defined(FONT_SYMBOLS_LIM)
 #include "fonts/font_symbols30_2.h"
 #define FONT_SYMBOLS font_symbols30_2
 #define FONT_SYMBOLS_LINE_HEIGHT FONT_SYMBOLS30_2_LINE_HEIGHT
+#else
+#include "fonts/font_symbols30_lim_2.h"
+#define FONT_SYMBOLS font_symbols30_lim_2
+#define FONT_SYMBOLS_LINE_HEIGHT FONT_SYMBOLS30_LIM_2_LINE_HEIGHT
+#endif
 
 #include "fonts/font_chess25_2.h"
 #define FONT_GAME font_chess25_2
@@ -95,9 +101,15 @@
 #define FONT_LARGE_LINE_HEIGHT FONT_ROBOTOM63_4_DIGITS_LINE_HEIGHT
 #endif
 
+#if !defined(FONT_SYMBOLS_LIM)
 #include "fonts/font_symbols30_4.h"
 #define FONT_SYMBOLS font_symbols30_4
 #define FONT_SYMBOLS_LINE_HEIGHT FONT_SYMBOLS30_4_LINE_HEIGHT
+#else
+#include "fonts/font_symbols30_lim_4.h"
+#define FONT_SYMBOLS font_symbols30_lim_4
+#define FONT_SYMBOLS_LINE_HEIGHT FONT_SYMBOLS30_LIM_4_LINE_HEIGHT
+#endif
 
 #include "fonts/font_chess25_4.h"
 #define FONT_GAME font_chess25_4
@@ -252,7 +264,7 @@
 #define HISTORY_BOTTOM_LABEL_OFFSET_Y 2
 
 #define GAME_BOARD_X ((CONTENT_WIDTH - GAME_BOARD_WIDTH) / 2)
-#define GAME_BOARD_Y (TITLEBAR_BOTTOM + FONT_SMALL_LINE_HEIGHT)
+#define GAME_BOARD_Y (TITLEBAR_BOTTOM + GAME_BOARD_X)
 #define GAME_SQUARE_WIDTH 25
 #define GAME_SQUARE_HEIGHT 25
 #define GAME_HISTORY_FIRST_WIDTH 68
@@ -964,12 +976,7 @@ void drawTitleBar(const char *title)
                          &offset);
 
     // Battery
-    int8_t batteryLevel = getDeviceBatteryLevel();
-
-    strclr(buffer);
-    buffer[0] = (batteryLevel == BATTERY_LEVEL_CHARGING)
-                    ? '6'
-                    : '0' + batteryLevel;
+    buffer[0] = '0' + getDeviceBatteryLevel();
     buffer[1] = '\0';
 
     rectangle.x = TITLEBAR_BATTERY_X;
@@ -2137,7 +2144,7 @@ void drawGame(const uint8_t board[8][8],
 
     // History
     rectangle.y = GAME_HISTORY_Y;
-    rectangle.height = FONT_SMALL_LINE_HEIGHT;
+    rectangle.height = GAME_HISTORY_HEIGHT / 3;
 
     offset = (mr_point_t){
         0,
@@ -2147,8 +2154,6 @@ void drawGame(const uint8_t board[8][8],
     {
         rectangle.x = GAME_HISTORY_X;
         rectangle.width = GAME_HISTORY_FIRST_WIDTH;
-        if (y == 2)
-            rectangle.height = GAME_HISTORY_HEIGHT - 2 * FONT_SMALL_LINE_HEIGHT;
         offset.x = GAME_HISTORY_FIRST_OFFSET_X;
 
         drawText(history[y][0],
@@ -2163,7 +2168,7 @@ void drawGame(const uint8_t board[8][8],
                  &rectangle,
                  &offset);
 
-        rectangle.y += FONT_SMALL_LINE_HEIGHT;
+        rectangle.y += GAME_HISTORY_HEIGHT / 3;
     }
 
     // Bottom timer

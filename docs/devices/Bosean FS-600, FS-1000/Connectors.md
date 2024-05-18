@@ -39,11 +39,11 @@ From left to right (on PCB, from side opposite to LCD):
 
 From left to right (on PCB, from side opposite to LCD):
 
-* Pin 1: LCD_CSB
-* Pin 2: LCD_RSTB
-* Pin 3: LCD_A0
-* Pin 4: LCD_SCLK
-* Pin 5: LCD_SDA
+* Pin 1: DISPLAY_CSB
+* Pin 2: DISPLAY_RSTB
+* Pin 3: DISPLAY_A0
+* Pin 4: DISPLAY_SCLK
+* Pin 5: DISPLAY_SDA
 * Pin 6: to C31
 * Pîn 7: GND
 * Pin 8: to C26

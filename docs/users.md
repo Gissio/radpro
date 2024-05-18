@@ -2,15 +2,15 @@
 
 ## Features
 
-* Large numbers, ideal for field application.
+* Measurement view with large digits, ideal for field application.
 * Multiple measurement units: Sievert, rem, cpm (counts per minute), cps (counts per second).
 * Configurable averaging for performing surveys.
 * Live and offline data logging with data compression.
 * Compatibility with the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software.
 * Configurable pulse indication with optional thresholding: pulse clicks (off, quiet, loud), pulse LED (on supported devices), display flashes (on display sleep) and haptic pulses (on supported devices).
 * Dead-time measurement.
-* Customizable Geiger-Müller tube settings: conversion factor, instantaneous rate averaging (adaptive fast, adaptive precision, 60 seconds, 30 seconds and 10 seconds), dead-time compensation, background compensation, high voltage generator PWM frequency and duty cycle (for tube voltage control).
-* Preconfigured high voltage profiles.
+* Customizable Geiger-Müller tube settings: conversion factor, instantaneous rate averaging (adaptive fast, adaptive precision, 60 seconds, 30 seconds and 10 seconds), dead-time compensation, background compensation, high voltage generator PWM frequency and duty cycle (on supported devices).
+* Preconfigured high voltage profiles (on supported devices).
 * Tube fault alarm.
 * Statistics for tracking device usage and state.
 * User interface based on the [OpenBridge 4.0](https://www.openbridge.no/) design system.
@@ -27,9 +27,9 @@ Rad Pro supports the following measurement modes:
 
 ### Instantaneous rate
 
-The instantaneous rate is estimated by dividing the number of pulses within the instantenous rate averaging period, minus one, by the time between the first and last pulse within that period.
+The instantaneous rate is estimated by dividing the number of pulses within the instantaneous rate averaging period, minus one, by the time between the first and last pulse within that period.
 
-The secondary view can be switched between an instantaneous rate bar view (logarithmic, with 1 µSv/h and 10 µSv/h alert zones), a period view that displays the length of the averaging period, an instantaneous rate max view, and an instantaneous rate cpm (counts per minute) view.
+The secondary view can be switched between an instantaneous rate bar view (logarithmic, with 1 µSv/h and 10 µSv/h alert zones), a time view that displays the length of the averaging period, an instantaneous rate max view, and an instantaneous rate cpm (counts per minute) view.
 
 The [confidence interval](https://en.wikipedia.org/wiki/Confidence_interval) estimates the range of values that contain the true, actual instantaneous rate with a 95% probability, assuming a constant level of radiation.
 
@@ -45,7 +45,7 @@ The confidence interval assumes a constant level of radiation over the averaging
 
 Averaging can be indefinite, or limited by a configurable time or confidence level. When averaging finishes, the device will flash and emit a beep, signaling the completion of the measurement.
 
-To reset averaging, read your device's installation instructions.
+To reset averaging, read the device's installation instructions.
 
 An example: suppose you averaged background radiation for 1 minute, resulting in a measurement of 0.210 µSv/h with a confidence interval of ±36%. This means that the actual level of radiation has a 95% probability of falling within the interval [0.134 µSv/h, 0.286 µSv/h] (36% below and above the measured value). Suppose you consider this confidence interval too high, so you repeat the measurement with 30-minute averaging. Your new measurement is 0.154 µSv/h with a confidence interval of ±7.7%, which you might consider now much more acceptable.
 
@@ -55,13 +55,15 @@ The cumulative dose is calculated from the number of pulses in the time period.
 
 The secondary view can be switched between a time view that displays the length of the time period, and a counts view.
 
-To reset cumulative dose, read your device's installation instructions.
+To reset cumulative dose, read the device's installation instructions.
 
 ### History
 
 The history is calculated from the instantaneous rate, sampled once per second. The plot displays 1 µSv/h and 10 µSv/h alert zones.
 
 The view can be switched between a 10-minute view, a 60-minute view and a 24-hours view.
+
+To reset history, read the device's installation instructions.
 
 ## Conversion factor
 
@@ -93,7 +95,7 @@ During datalog download, data is not logged.
 Rad Pro comes with several options for determining the instantaneous rate averaging period:
 
 * “Adaptive fast” is the fastest option, capable of responding quickly to increased levels of radiation, at the expense of lower precision. It is best for users who need quick radiation alerts. It aims for a ±50% confidence interval; at increased levels of radiation, it limits the averaging period to a maximum of 5 seconds. You can check the “adaptive fast” response curves here: [instantaneousaveraging-adaptivefast.ipynb](../tests/instantaneousaveraging-adaptivefast.ipynb)
-* “Adaptive precision” tends to be a bit slower, but achieves higher precision at increased levels of radiation. It is best for users who deem precision more important than fast response. At lower level of radiations, it aims for a ±50% confidence interval; at increased levels of radiation, it uses a fixed 5 second averaging period. You can check the “adaptive precision” response curves here: [instantaneousaveraging-adaptiveprecision.ipynb](../tests/instantaneousaveraging-adaptiveprecision.ipynb)
+* “Adaptive precision” tends to be a bit slower, but achieves higher precision at increased levels of radiation. It is best for users who deem precision more important than fast response. At lower levels of radiations, it aims for a ±50% confidence interval; at increased levels of radiation, it uses a fixed 5 second averaging period. You can check the “adaptive precision” response curves here: [instantaneousaveraging-adaptiveprecision.ipynb](../tests/instantaneousaveraging-adaptiveprecision.ipynb)
 * “60 seconds”, “30 seconds” and “10 seconds” use fixed averaging periods. They can produce higher precision than the adaptive options, but have a much slower response.
 
 ## Dead time and dead-time compensation
@@ -122,6 +124,8 @@ Background compensation is applied to instantaneous rate, average rate, cumulati
 
 ## HV profiles
 
+(on supported devices)
+
 HV profiles let you control the high voltage supplied to the Geiger-Müller tube. Rad Pro includes several pre-configured profiles that let you balance power consumption and accuracy.
 
 You can also define your own HV profile. **WARNING:** Wrong profile settings may damage the tube from overvoltage, as well as the switching transistor from overcurrent.
@@ -132,7 +136,7 @@ An HV profile consists of a [PWM](https://en.wikipedia.org/wiki/Pulse-width_modu
 
 ## Tube fault alarm
 
-When no pulses are generated within a five-minute interval, Rad Pro produces a fault alarm. This can occur due to a malfunctioning of the high-voltage generator or the Geiger-Müller tube. Rad Pro also produces a fault alarm when the Geiger tube becomes saturated due to high levels of radiation, or shorted.
+When no pulses are generated within a five-minute interval, Rad Pro produces a fault alarm. This can occur due to a malfunctioning of the high-voltage generator or the Geiger-Müller tube. Rad Pro also produces a fault alarm when the Geiger tube becomes saturated due to high levels of radiation.
 
 ## Random generator
 
@@ -178,13 +182,13 @@ To communicate with Rad Pro through a serial port or SWD (through an ST-LINK don
 
 ## FAQ
 
-**Q: Why does my device's time and date reset every time I turn it on?**
+**Q: Why does my device's date and time reset every time I turn it on?**
 
-**A:** This happens when the real-time clock loses power. On the FNIRSI GC-01, most likely the backup battery (a CR1220) needs replacement.
+**A:** Your device resets date and time every time the real-time clock loses power. On the FNIRSI GC-01, most likely the backup battery (a CR1220) needs replacement.
 
 **Q: When I power on my device, Rad Pro stays quite some time (up to 60 seconds) on the splash screen.**
 
-**A:** Some microprocessors need quite some time to start the real-time clock. If this happens every time you turn on your device, read the previous answer.
+**A:** Some microprocessors need quite some time to start the real-time clock. If this happens every time you turn on your device, check the previous question.
 
 **Q: Why are the instantaneous rate measurements so noisy?**
 
@@ -197,7 +201,3 @@ To communicate with Rad Pro through a serial port or SWD (through an ST-LINK don
 **Q: I enabled clicks but am not hearing any.**
 
 **A:** If you've enabled pulse thresholding, pulse indication will only occur above a certain radiation level threshold. Check if this feature is activated.
-
-**Q: I'm not getting any response from the commands I send through Rad Pro's data connection.**
-
-**A:** Make sure your request includes the '\n' newline character at the end of the line.

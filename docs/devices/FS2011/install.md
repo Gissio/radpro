@@ -51,15 +51,13 @@ Now, download and decompress the latest `radpro-flashtool` from the [Rad Pro rel
 
 `[type]` is the type of installation: `install` or `update`. Note that not all releases support updating.
 
-The installation will automatically create a backup of the original firmware in the `lib/backup` folder, so you can recover your device if something goes wrong. Make sure you keep the backups safe, so you can always return to the original firmware. To flash a backup, drag it onto `fs2011-[mcu]-install.bat` (Windows) or `fs2011-[mcu]-install.sh` (macOS/Linux).
+The installation will automatically create a backup of the original firmware in the `backup` folder, so you can recover your device if something goes wrong. Make sure you keep the backups safe, so you can always return to the original firmware. To flash a backup, drag it onto `fs2011-[mcu]-install.bat` (Windows) or `fs2011-[mcu]-install.sh` (macOS/Linux).
 
-After successfully flashing the firmware, close the device.
+Before closing the device, take note of the type of Geiger tube: the markings on the glass should be either J321, J305, M4011 or J614. If you have an unmarked tube measuring 55 or 65 mm long, you probably have a J614 or J613 tube, respectively.
 
 ## Step 4: Configure your device
 
-![FS2011 tube types](img/fs2011-tube-type.jpg)
-
-Start your device and go to Rad Pro's settings, select “Geiger tube”, “Conversion factor”, and select the option that matches the Geiger-Müller tube installed in your device. The photos above should help you identify the tube.
+Start your device and go to Rad Pro's settings, select “Geiger tube”, “Conversion factor”, and select the option that matches the Geiger-Müller tube installed in your device.
 
 Within the “Geiger tube” settings, select “HV Profile” and choose an appropriate HV profile: “Energy-saving” is best for measuring background levels of radiation, while “Accuracy” consumes more power but allows measurement of higher radiation levels; “Factory default” is the profile from the original firmware and consumes considerably more power.
 
@@ -89,14 +87,15 @@ If you like Rad Pro, consider watching the project to get notified when new rele
 The keys are mapped as follows:
 
   * Power on/off: long press of the power key.
-  * Go up/down: the up and down keys.
-  * Switch measurement view: the play/pause or power key.
+  * Switch measurement mode: the up and down keys.
+  * Switch measurement secondary view: the play/pause or power key.
   * Reset measurement: long press of the play/pause key.
   * Enter settings: the menu/ok key.
+  * Go up/down: the up and down keys.
   * Select option: the menu/ok or power key.
   * Go back: the play/pause key.
 
-On the FS2011, Rad Pro can store up to 27324 data points. At normal radiation levels (20 cpm), this allows for 569 days of data at 60-minute intervals, 94 days at 10-minute intervals, 18 days at 1-minute intervals, 3 days at 10-second intervals and 7 hours at 1-second intervals.
+On the FS2011, Rad Pro can store up to 27351 data points. At normal radiation levels (20 cpm), this allows for 569 days of data at 60-minute intervals, 94 days at 10-minute intervals, almost 19 days at 1-minute intervals, 3 days at 10-second intervals and 7 hours at 1-second intervals.
 
 The FS2011 includes two Zener diodes that limit the maximum voltage to 440 V (nominal).
 

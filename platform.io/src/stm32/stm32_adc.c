@@ -75,6 +75,9 @@ static uint32_t readADC(uint8_t channel)
     sleep(1);
 #endif
 
+    if (channel == ADC_VBAT_CHANNEL)
+        adc_enable_vbat_channel(ADC1);
+
     adc_enable(ADC1);
     sleep(1);
 
@@ -85,6 +88,9 @@ static uint32_t readADC(uint8_t channel)
 
     adc_disable(ADC1);
     sleep(1);
+
+    if (channel == ADC_VBAT_CHANNEL)
+        adc_disable_vbat_channel(ADC1);
 
 #if defined(STM32G0) || defined(STM32L4)
     adc_disable_vreg(ADC1);

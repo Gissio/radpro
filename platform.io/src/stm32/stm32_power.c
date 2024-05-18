@@ -14,20 +14,38 @@
 
 #include "device.h"
 
-#define BATTERY_LOW_VOLTAGE_THRESHOLD 1.0F
-#define BATTERY_EXTERNAL_POWER_SUPPLY_VOLTAGE_THRESHOLD 0.5F
-
 void initPowerController(void)
 {
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
+
     gpio_setup_output(PWR_EN_PORT,
                       PWR_EN_PIN,
                       GPIO_OUTPUTTYPE_PUSHPULL,
                       GPIO_OUTPUTSPEED_2MHZ,
                       GPIO_PULL_FLOATING);
+#if defined(PWR_VCC_PORT)
+    gpio_setup_output(PWR_VCC_PORT,
+                      PWR_VCC_PIN,
+                      GPIO_OUTPUTTYPE_PUSHPULL,
+                      GPIO_OUTPUTSPEED_2MHZ,
+                      GPIO_PULL_FLOATING);
+#endif
+#if defined(PWR_BAT_PORT)
     gpio_setup_analog(PWR_BAT_PORT,
                       PWR_BAT_PIN,
                       GPIO_PULL_FLOATING);
+#endif
+#if defined(PWR_EXTERNAL_PORT)
+    gpio_setup_input(PWR_EXTERNAL_PORT,
+                     PWR_EXTERNAL_PIN,
+#if defined(PWR_EXTERNAL_PULLUP)
+                     GPIO_PULL_UP
+#else
+                     GPIO_PULL_FLOATING
+#endif
+    );
+#endif
+#if defined(PWR_CHRG_PORT)
     gpio_setup_input(PWR_CHRG_PORT,
                      PWR_CHRG_PIN,
 #if defined(PWR_CHRG_PULLUP)
@@ -36,13 +54,34 @@ void initPowerController(void)
                      GPIO_PULL_FLOATING
 #endif
     );
+#endif
+
 #elif defined(STM32F1)
+
     gpio_setup(PWR_EN_PORT,
                PWR_EN_PIN,
                GPIO_MODE_OUTPUT_2MHZ_PUSHPULL);
+#if defined(PWR_VCC_PORT)
+    gpio_setup(PWR_VCC_PORT,
+               PWR_VCC_PIN,
+               GPIO_MODE_OUTPUT_2MHZ_PUSHPULL);
+#endif
+#if defined(PWR_BAT_PORT)
     gpio_setup(PWR_BAT_PORT,
                PWR_BAT_PIN,
                GPIO_MODE_INPUT_ANALOG);
+#endif
+#if defined(PWR_EXTERNAL_PORT)
+    gpio_setup(PWR_EXTERNAL_PORT,
+               PWR_EXTERNAL_PIN,
+#if defined(PWR_EXTERNAL_PULLUP)
+               GPIO_MODE_INPUT_PULLUP
+#else
+               GPIO_MODE_INPUT_FLOATING
+#endif
+    );
+#endif
+#if defined(PWR_CHRG_PORT)
     gpio_setup(PWR_CHRG_PORT,
                PWR_CHRG_PIN,
 #if defined(PWR_CHRG_PULLUP)
@@ -51,6 +90,8 @@ void initPowerController(void)
                GPIO_MODE_INPUT_FLOATING
 #endif
     );
+#endif
+
 #endif
 }
 
@@ -64,22 +105,43 @@ void setPower(bool value)
                 value
 #endif
     );
+
+#if defined(PWR_VCC_PORT)
+    gpio_modify(PWR_VCC_PORT,
+                PWR_VCC_PIN,
+#if defined(PWR_VCC_ACTIVE_LOW)
+                !value
+#endif
+                value);
+#endif
+}
+
+bool isDevicePowered(void)
+{
+#if defined(PWR_EXTERNAL_PORT)
+    return
+#if defined(PWR_EXTERNAL_ACTIVE_LOW)
+        !
+#endif
+        gpio_get(PWR_EXTERNAL_PORT,
+                 PWR_EXTERNAL_PIN);
+#else
+    return isBatteryCharging();
+#endif
 }
 
 bool isBatteryCharging(void)
 {
-    if (
+#if defined(PWR_CHRG_PORT)
+    return
 #if defined(PWR_CHRG_ACTIVE_LOW)
         !
 #endif
         gpio_get(PWR_CHRG_PORT,
-                 PWR_CHRG_PIN))
-        return true;
-
-    if (getDeviceBatteryVoltage() < BATTERY_EXTERNAL_POWER_SUPPLY_VOLTAGE_THRESHOLD)
-        return true;
-
+                 PWR_CHRG_PIN);
+#else
     return false;
+#endif
 }
 
 #endif

@@ -1,26 +1,26 @@
 # FNIRSI GC-01 MCU Pinout
 
-* PA0 (Input): PWR_BAT (divided by 2)
+* PA0 (Input): PWR_BAT
 * PA1 (Input, pull-down): KEY_POWER
-* PA2 (Output): PWR_EN (set to 1 on power on)
+* PA2 (Output): PWR_EN
 * PA3 (AF): TUBE_HV
 * PA4 (Input): PWR_CHRG
-* PA8 (PWM): BUZZ (PWM controlled by TIM1)
-* PA9 (PWM): M_VIB (PWM controlled by TIM1)
-* PA10 (PWM): LCD_BACKLIGHT (PWM controlled by TIM1)
+* PA8 (PWM): BUZZ
+* PA9 (PWM): M_VIB
+* PA10 (PWM): DISPLAY_BACKLIGHT
 * PA13 (AF): SWDIO
 * PA14 (AF): SWCLK
-* PA15 (Output): PULSE_LED (set to 0 on power on)
+* PA15 (Output): PULSE_LED
 
-* PB0-PB15 (Output): LCD_DATA
+* PB0-PB15 (Output): DISPLAY_DATA
 
 * PC0 (Input, pull-down): KEY_UP
 * PC1 (Input, pull-down): KEY_RIGHT
 * PC2 (Input, pull-down): KEY_DOWN
 * PC3 (Input, pull-down): KEY_LEFT
-* PC5 (Output): LCD_RESX
-* PC6 (Output): LCD_RDX (Initialized to 1 on start)
-* PC7 (Output): LCD_WRX (set to 0 before writing)
-* PC8 (Output): LCD_DCX (0: command, 1: data)
-* PC9 (Output): LCD_CSX (set to 0 before writing)
+* PC5 (Output): DISPLAY_RESX
+* PC6 (Output): DISPLAY_RDX
+* PC7 (Output): DISPLAY_WRX 
+* PC8 (Output): DISPLAY_DCX
+* PC9 (Output): DISPLAY_CSX 
 * PC10 (Input, pull-down): TUBE_DET

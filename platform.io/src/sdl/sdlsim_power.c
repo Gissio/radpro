@@ -21,6 +21,11 @@ void setPower(bool value)
 {
 }
 
+bool isDevicePowered(void)
+{
+    return false;
+}
+
 bool isBatteryCharging(void)
 {
     return false;

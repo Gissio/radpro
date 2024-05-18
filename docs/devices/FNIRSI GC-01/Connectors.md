@@ -2,16 +2,14 @@
 
 ## 4-pin SWD connector
 
-From left to roght (on PCB, from side opposite to LCD):
+From left to roght (on PCB, from side opposite to display):
 
 * Pin 1: +3V3
 * Pin 2: SWDIO (MCU PA13)
 * Pin 3: SWCLK (MCU PA14)
 * Pin 4: GND
 
-## 40-pin LCD connector
-
-Numbered 1 to 40:
+## 40-pin display connector
 
 * Pin 1: X-
 * Pin 2: Y-

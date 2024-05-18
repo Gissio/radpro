@@ -21,9 +21,6 @@
 #define TUBE_HV_LOW_DUTYCYCLE_MULTIPLIER ((uint32_t)(TUBE_HVDUTYCYCLE_VALUE_STEP * \
                                                      TUBE_HV_LOW_FREQUENCY_PERIOD))
 
-#define TUBE_HV_SYNC_MARGIN_PRE ((uint32_t)(0.000002F * TIM_FREQUENCY))
-#define TUBE_HV_SYNC_MARGIN_POST ((uint32_t)(0.000004F * TIM_FREQUENCY))
-
 #define TUBE_PULSE_QUEUE_SIZE 64
 #define TUBE_PULSE_QUEUE_MASK (TUBE_PULSE_QUEUE_SIZE - 1)
 
@@ -43,12 +40,21 @@ void initTubeController(void)
 {
     // GPIO
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
+
+#if defined(TUBE_HV_PWM)
     gpio_setup_af(TUBE_HV_PORT,
                   TUBE_HV_PIN,
                   GPIO_OUTPUTTYPE_PUSHPULL,
                   GPIO_OUTPUTSPEED_50MHZ,
                   GPIO_PULL_FLOATING,
                   TUBE_HV_AF);
+#else
+    gpio_setup_output(TUBE_HV_PORT,
+                      TUBE_HV_PIN,
+                      GPIO_OUTPUTTYPE_PUSHPULL,
+                      GPIO_OUTPUTSPEED_2MHZ,
+                      GPIO_PULL_FLOATING);
+#endif
     gpio_setup_input(TUBE_DET_PORT,
                      TUBE_DET_PIN,
 #if defined(TUBE_DET_PULLUP)
@@ -61,9 +67,16 @@ void initTubeController(void)
     );
 
 #elif defined(STM32F1)
+
+#if defined(TUBE_HV_PWM)
     gpio_setup(TUBE_HV_PORT,
                TUBE_HV_PIN,
                GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL);
+#else
+    gpio_setup(TUBE_HV_PORT,
+               TUBE_HV_PIN,
+               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+#endif
     gpio_setup(TUBE_DET_PORT,
                TUBE_DET_PIN,
 #if defined(TUBE_DET_PULLUP)
@@ -74,13 +87,16 @@ void initTubeController(void)
                GPIO_MODE_INPUT_FLOATING
 #endif
     );
+
 #endif
 
-    // HV timer
+    // HV PWM timer
+#if defined(TUBE_HV_PWM)
     tim_setup_pwm(TUBE_HV_TIMER,
                   TUBE_HV_TIMER_CHANNEL);
     updateTubeHV();
     tim_enable(TUBE_HV_TIMER);
+#endif
 
     // Pulse timer
     tim_setup_linked(TUBE_DET_TIMER_MASTER,
@@ -113,6 +129,7 @@ void setTubeHV(bool value)
 
 void updateTubeHV(void)
 {
+#if defined(TUBE_HV_PWM)
     tube.hvPeriod = TIM_FREQUENCY / getTubeHVFrequency();
     tube.hvOnTime = tube.enabled
                         ? tube.hvPeriod * getTubeHVDutyCycle()
@@ -124,6 +141,11 @@ void updateTubeHV(void)
     tim_set_ontime(TUBE_HV_TIMER,
                    TUBE_HV_TIMER_CHANNEL,
                    tube.hvOnTime);
+#else
+    gpio_modify(TUBE_HV_PORT,
+                TUBE_HV_PIN,
+                tube.enabled);
+#endif
 }
 
 void TUBE_DET_IRQ_HANDLER(void)

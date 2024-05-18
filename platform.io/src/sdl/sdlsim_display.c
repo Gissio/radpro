@@ -25,6 +25,7 @@ extern mr_t mr;
 bool displayOn;
 bool displayBacklightOn;
 bool pulseLEDOn;
+bool alertLEDOn;
 bool vibratorOn;
 
 static uint8_t displayBrightnessValues[] = {
@@ -130,6 +131,8 @@ void updateDisplayTitle(void)
         strcat(buffer, " ");
     if (pulseLEDOn)
         strcat(buffer, "🔴");
+    if (alertLEDOn)
+        strcat(buffer, "⚠️");
     if (vibratorOn)
         strcat(buffer, "📳");
 
@@ -158,15 +161,22 @@ bool isDisplayBacklightOn(void)
     return displayBacklightOn;
 }
 
-// Pulse LED
+// LED
 
-void initPulseLEDController(void)
+void initLEDController(void)
 {
 }
 
 void setPulseLED(bool value)
 {
     pulseLEDOn = value;
+
+    updateDisplayTitle();
+}
+
+void setAlertLED(bool value)
+{
+    alertLEDOn = value;
 
     updateDisplayTitle();
 }

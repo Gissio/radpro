@@ -15,7 +15,8 @@
 #include "power.h"
 #include "settings.h"
 
-bool powerOffRequested;
+#define BATTERY_LEVEL_MAX 5
+#define BATTERY_LEVEL_NUM 6
 
 #if defined(BATTERY_REMOVABLE)
 static const float batteryLevelThresholds[2][5] = {
@@ -34,6 +35,8 @@ static const float batteryLevelThresholds[] =
 #if defined(BATTERY_REMOVABLE)
 static const Menu batteryTypeMenu;
 #endif
+
+bool powerOffRequested;
 
 void initPower()
 {
@@ -65,9 +68,6 @@ bool isPowerOffRequested(void)
 
 int8_t getDeviceBatteryLevel(void)
 {
-    if (isBatteryCharging())
-        return BATTERY_LEVEL_CHARGING;
-
 #if defined(BATTERY_REMOVABLE)
     const float *batteryLevelThreshold = batteryLevelThresholds[settings.batteryType];
 #else
@@ -79,12 +79,25 @@ int8_t getDeviceBatteryLevel(void)
 
     for (uint32_t i = 0; i < BATTERY_LEVEL_MAX; i++)
     {
-        if (batteryLevelThreshold[i] > voltage)
+        if (voltage < batteryLevelThreshold[i])
         {
             level = i;
 
             break;
         }
+    }
+
+    if (isDevicePowered())
+    {
+#if !defined(FONT_SYMBOLS_LIM)
+        if (isBatteryCharging() && 
+            (level == BATTERY_LEVEL_MAX))
+            level = BATTERY_LEVEL_MAX - 1;
+#else
+        level = BATTERY_LEVEL_MAX;
+#endif
+
+        level += BATTERY_LEVEL_NUM;
     }
 
     return level;
