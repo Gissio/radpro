@@ -69,10 +69,10 @@ If you like Rad Pro, consider watching the project to get notified when new rele
 
 On the FS-5000, the keys are mapped as follows:
 
-  * Power on/off: long press of the ok/power key.
+  * Power on/off: extended press of the ok/power key.
   * Switch measurement mode: the up/back and down/settings keys.
   * Switch measurement secondary view: the ok/power key.
-  * Reset measurement: long press of the up/back key.
+  * Reset measurement: extended press of the up/back key.
   * Enter settings: the down/settings key.
   * Go up/down: the up/back and down/settings keys.
   * Select option: long press of the right/settings key or the ok/power key.
