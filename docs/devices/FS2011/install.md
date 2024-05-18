@@ -86,10 +86,10 @@ If you like Rad Pro, consider watching the project to get notified when new rele
 
 The keys are mapped as follows:
 
-  * Power on/off: long press of the power key.
+  * Power on/off: long hold of the power key.
   * Switch measurement mode: the up and down keys.
   * Switch measurement secondary view: the play/pause or power key.
-  * Reset measurement: long press of the play/pause key.
+  * Reset measurement: long hold of the play/pause key.
   * Enter settings: the menu/ok key.
   * Go up/down: the up and down keys.
   * Select option: the menu/ok or power key.

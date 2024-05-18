@@ -69,10 +69,10 @@ If you like Rad Pro, consider watching the project to get notified when new rele
 
 On the FS-600, the keys are mapped as follows:
 
-  * Power on/off: long press of the ok/power key.
+  * Power on/off: long hold of the ok/power key.
   * Switch measurement mode: the up and down keys.
   * Switch measurement secondary view: the left/back or ok/power key.
-  * Reset measurement: long press of the left/back key.
+  * Reset measurement: long hold of the left/back key.
   * Enter settings: the right/settings key.
   * Go up/down: the up and down keys.
   * Select option: the ok/power or right/settings key.
@@ -80,14 +80,14 @@ On the FS-600, the keys are mapped as follows:
 
 On the FS-1000, the keys are mapped as follows:
 
-  * Power on/off: extended press of the set/power key.
+  * Power on/off: long hold of the set/power key.
   * Switch measurement mode: the mode key.
   * Switch measurement secondary view: the set/power key.
-  * Reset measurement: extended press of the mode key.
-  * Enter settings: long press of the set/power key.
+  * Reset measurement: long hold of the mode key.
+  * Enter settings: short hold of the set/power key.
   * Go up/down: the mode and set/power key.
-  * Select option: long press of the set/power key.
-  * Go back: long press of the mode key.
+  * Select option: short hold of the set/power key.
+  * Go back: short hold of the mode key.
 
 Not all devices support the pulse LED.
 
