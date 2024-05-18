@@ -74,6 +74,6 @@ On the FS-5000, the keys are mapped as follows:
   * Select option: short hold of the right/settings key or the ok/power key.
   * Go back: short hold of the up/back key.
 
-On the FS-5000, Rad Pro can store up to 208575 data points. At normal radiation levels (20 cpm), this allows for 4345 days of data at 60-minute intervals, 724 days at 10-minute intervals, 144 days at 1-minute intervals, 24 days at 10-second intervals and 2 days at 1-second intervals.
+On the FS-5000, Rad Pro can store up to 220725 data points. At normal radiation levels (20 cpm), this allows for 4598 days of data at 60-minute intervals, 766 days at 10-minute intervals, 153 days at 1-minute intervals, 25 days at 10-second intervals and 2 days at 1-second intervals.
 
 The FS-5000 does not support HV profiles.
