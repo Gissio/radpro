@@ -79,18 +79,18 @@ void initKeyboardController(void)
     gpio_setup_input(KEY_LEFT_PORT,
                      KEY_LEFT_PIN,
                      GPIO_PULL_UP);
+    gpio_setup_input(KEY_OK_PORT,
+                     KEY_OK_PIN,
+                     GPIO_PULL_FLOATING);
     gpio_setup_input(KEY_RIGHT_PORT,
                      KEY_RIGHT_PIN,
                      GPIO_PULL_UP);
-    gpio_setup_input(KEY_SELECT_PORT,
-                     KEY_SELECT_PIN,
-                     GPIO_PULL_FLOATING);
 }
 
 void getKeyboardState(bool *isKeyDown)
 {
     isKeyDown[KEY_LEFT] = !gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN);
-    isKeyDown[KEY_OK] = !gpio_get(KEY_SELECT_PORT, KEY_SELECT_PIN);
+    isKeyDown[KEY_OK] = !gpio_get(KEY_OK_PORT, KEY_OK_PIN);
     isKeyDown[KEY_RIGHT] = !gpio_get(KEY_RIGHT_PORT, KEY_RIGHT_PIN);
 }
 
@@ -243,7 +243,7 @@ void initDisplayController(void)
     mr_st7789_init(&mr,
                    240,
                    320,
-                   MR_DISPLAY_ROTATION_270,
+                   MR_DISPLAY_ROTATION_0,
                    displayTextbuffer,
                    sizeof(displayTextbuffer),
                    onDisplaySleep,

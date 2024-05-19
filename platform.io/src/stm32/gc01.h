@@ -57,8 +57,8 @@
 #define KEY_UP_PIN 0
 #define KEY_DOWN_PORT GPIOC
 #define KEY_DOWN_PIN 2
-#define KEY_SELECT_PORT GPIOA
-#define KEY_SELECT_PIN 1
+#define KEY_OK_PORT GPIOA
+#define KEY_OK_PIN 1
 
 #define BUZZ_PORT GPIOA
 #define BUZZ_PIN 8
