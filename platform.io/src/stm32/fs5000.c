@@ -29,6 +29,12 @@ void initSystem(void)
                 FLASH_ACR_LATENCY_Msk,
                 FLASH_ACR_LATENCY_2WS);
 
+    // Enable HSI16
+    set_bits(RCC->CR,
+             RCC_CR_HSION);
+    wait_until_bits_set(RCC->CR,
+                        RCC_CR_HSIRDY);
+
     // Configure RCC
     modify_bits(RCC->CFGR,
                 RCC_CFGR_HPRE_Msk |
@@ -46,12 +52,6 @@ void initSystem(void)
         (0 << RCC_PLLCFGR_PLLM_Pos) |         // Set PLL division factor: /1
         RCC_PLLCFGR_PLLSRC_HSI;               // Set PLL source: HSI16
     RCC->CCIPR = (3 << RCC_CCIPR_ADCSEL_Pos); // Set system clock as ADC clock
-
-    // Enable HSI16
-    set_bits(RCC->CR,
-             RCC_CR_HSION);
-    wait_until_bits_set(RCC->CR,
-                        RCC_CR_HSIRDY);
 
     // Enable PLL
     set_bits(RCC->CR,
