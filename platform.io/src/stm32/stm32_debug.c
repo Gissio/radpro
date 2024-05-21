@@ -112,18 +112,18 @@ void onHardFault(uint32_t *args)
     while (true);
 }
 
-void aHardFault_Handler(void)
+void HardFault_Handler(void)
 {
     __asm volatile(
         " movs r0, #4           \n"
         " mov r1, lr            \n"
         " tst r0, r1            \n"
-        " bne HARDFAULT_PSP     \n"
+        " bne HardFault_PSP     \n"
         " mrs r0, msp           \n"
-        " b HARDFAULT_CALL      \n"
-        "HARDFAULT_PSP:         \n"
+        " b HardFault_call      \n"
+        "HardFault_PSP:         \n"
         " mrs r0, psp           \n"
-        "HARDFAULT_CALL:        \n"
+        "HardFault_call:        \n"
         " ldr r2,=onHardFault   \n"
         " bx r2                 \n");
 }

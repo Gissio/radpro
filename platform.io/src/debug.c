@@ -17,7 +17,6 @@
 #include "led.h"
 #include "power.h"
 #include "settings.h"
-#include "vibrator.h"
 
 #define DEBUG_BIT_LENGTH 100
 #define DEBUG_BIT0_LENGTH 1
@@ -29,17 +28,11 @@ void debugBeep(void)
 #if defined(PULSE_LED)
     setPulseLED(true);
 #endif
-#if defined(VIBRATOR)
-    setVibrator(true);
-#endif
     sleep(100);
 
     setBuzzer(false);
 #if defined(PULSE_LED)
     setPulseLED(false);
-#endif
-#if defined(VIBRATOR)
-    setVibrator(false);
 #endif
     sleep(400);
 }
@@ -50,9 +43,6 @@ void debugBit(bool value)
 #if defined(PULSE_LED)
     setPulseLED(true);
 #endif
-#if defined(VIBRATOR)
-    setVibrator(true);
-#endif
     if (value)
         debugWait(DEBUG_BIT0_LENGTH);
     else
@@ -61,9 +51,6 @@ void debugBit(bool value)
     setBuzzer(false);
 #if defined(PULSE_LED)
     setPulseLED(false);
-#endif
-#if defined(VIBRATOR)
-    setVibrator(false);
 #endif
     if (value)
         debugWait(DEBUG_BIT_LENGTH - DEBUG_BIT0_LENGTH);

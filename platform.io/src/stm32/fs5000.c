@@ -250,7 +250,7 @@ void initDisplayController(void)
                    onDisplaySetReset,
                    onDisplaySetCommand,
                    onDisplaySend,
-                   onDisplaySend);
+                   onDisplaySend16);
 
     mr_send_sequence(&mr,
                      displayInitSequence);

@@ -16,6 +16,7 @@
 void initLEDController(void)
 {
     setPulseLED(false);
+    setAlertLED(false);
 
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
 

@@ -23,6 +23,7 @@ void initPowerController(void)
                       GPIO_OUTPUTTYPE_PUSHPULL,
                       GPIO_OUTPUTSPEED_2MHZ,
                       GPIO_PULL_FLOATING);
+
 #if defined(PWR_VCC_PORT)
     gpio_setup_output(PWR_VCC_PORT,
                       PWR_VCC_PIN,
@@ -30,11 +31,13 @@ void initPowerController(void)
                       GPIO_OUTPUTSPEED_2MHZ,
                       GPIO_PULL_FLOATING);
 #endif
+
 #if defined(PWR_BAT_PORT)
     gpio_setup_analog(PWR_BAT_PORT,
                       PWR_BAT_PIN,
                       GPIO_PULL_FLOATING);
 #endif
+
 #if defined(PWR_EXTERNAL_PORT)
     gpio_setup_input(PWR_EXTERNAL_PORT,
                      PWR_EXTERNAL_PIN,
@@ -45,10 +48,22 @@ void initPowerController(void)
 #endif
     );
 #endif
+
 #if defined(PWR_CHRG_PORT)
     gpio_setup_input(PWR_CHRG_PORT,
                      PWR_CHRG_PIN,
 #if defined(PWR_CHRG_PULLUP)
+                     GPIO_PULL_UP
+#else
+                     GPIO_PULL_FLOATING
+#endif
+    );
+#endif
+
+#if defined(PWR_STDBY_PORT)
+    gpio_setup_input(PWR_STDBY_PORT,
+                     PWR_STDBY_PIN,
+#if defined(PWR_STDBY_PULLUP)
                      GPIO_PULL_UP
 #else
                      GPIO_PULL_FLOATING
@@ -66,11 +81,13 @@ void initPowerController(void)
                PWR_VCC_PIN,
                GPIO_MODE_OUTPUT_2MHZ_PUSHPULL);
 #endif
+
 #if defined(PWR_BAT_PORT)
     gpio_setup(PWR_BAT_PORT,
                PWR_BAT_PIN,
                GPIO_MODE_INPUT_ANALOG);
 #endif
+
 #if defined(PWR_EXTERNAL_PORT)
     gpio_setup(PWR_EXTERNAL_PORT,
                PWR_EXTERNAL_PIN,
@@ -81,10 +98,22 @@ void initPowerController(void)
 #endif
     );
 #endif
+
 #if defined(PWR_CHRG_PORT)
     gpio_setup(PWR_CHRG_PORT,
                PWR_CHRG_PIN,
 #if defined(PWR_CHRG_PULLUP)
+               GPIO_MODE_INPUT_PULLUP
+#else
+               GPIO_MODE_INPUT_FLOATING
+#endif
+    );
+#endif
+
+#if defined(PWR_STDBY_PORT)
+    gpio_setup(PWR_STDBY_PORT,
+               PWR_STDBY_PIN,
+#if defined(PWR_STDBY_PULLUP)
                GPIO_MODE_INPUT_PULLUP
 #else
                GPIO_MODE_INPUT_FLOATING
@@ -111,8 +140,10 @@ void setPower(bool value)
                 PWR_VCC_PIN,
 #if defined(PWR_VCC_ACTIVE_LOW)
                 !value
+#else
+                value
 #endif
-                value);
+    );
 #endif
 }
 
