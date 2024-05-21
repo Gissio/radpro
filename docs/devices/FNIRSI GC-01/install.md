@@ -67,6 +67,7 @@ The HV profile settings are:
 
 * Factory default: 9.207 kHz frequency and 75% duty cycle.
 * Energy-saving: 5 kHz frequency and 1.5% duty cycle.
+* Energy-saving alt.: 5 kHz frequency and 50% duty cycle.
 
 ### FNIRSI GC-01 with a APM32F103R8 (Geehy) processor
 
@@ -78,3 +79,4 @@ The HV profile settings are:
 
 * Factory default: 47.058 kHz frequency and 50% duty cycle.
 * Energy-saving: 5 kHz frequency and 1.5% duty cycle.
+* Energy-saving alt.: 5 kHz frequency and 50% duty cycle.

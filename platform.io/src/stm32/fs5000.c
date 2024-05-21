@@ -30,11 +30,14 @@ void initSystem(void)
                 FLASH_ACR_LATENCY_2WS);
 
     // Configure RCC
-    RCC->CFGR =
-        RCC_CFGR_SW_HSI |     // Select HSI as system clock
-        RCC_CFGR_HPRE_DIV2 |  // Set AHB clock: 48 MHz / 2 = 24 MHz
-        RCC_CFGR_PPRE1_DIV1 | // Set APB1 clock: 24 MHz / 1 = 24 MHz
-        RCC_CFGR_PPRE2_DIV1;  // Set APB2 clock: 24 MHz / 1 = 24 MHz
+    modify_bits(RCC->CFGR,
+                RCC_CFGR_HPRE_Msk |
+                    RCC_CFGR_PPRE1_Msk |
+                    RCC_CFGR_PPRE2_Msk,
+                RCC_CFGR_HPRE_DIV2 |      // Set AHB clock: 48 MHz / 2 = 24 MHz
+                    RCC_CFGR_PPRE1_DIV1 | // Set APB1 clock: 24 MHz / 1 = 24 MHz
+                    RCC_CFGR_PPRE2_DIV1   // Set APB2 clock: 24 MHz / 1 = 24 MHz
+    );
     RCC->PLLCFGR =
         (7 << RCC_PLLCFGR_PLLPDIV_Pos) |      // Set main PLL PLLSAI2CLK division factor: /7
         (1 << RCC_PLLCFGR_PLLR_Pos) |         // Set main PLL PLLCLK division factor: /4
@@ -44,14 +47,24 @@ void initSystem(void)
         RCC_PLLCFGR_PLLSRC_HSI;               // Set PLL source: HSI16
     RCC->CCIPR = (3 << RCC_CCIPR_ADCSEL_Pos); // Set system clock as ADC clock
 
+    // Enable HSI16
+    set_bits(RCC->CR,
+             RCC_CR_HSION);
+    wait_until_bits_set(RCC->CR,
+                        RCC_CR_HSIRDY);
+
     // Enable PLL
-    set_bits(RCC->CR, RCC_CR_PLLON);
-    wait_until_bits_set(RCC->CR, RCC_CR_PLLRDY);
+    set_bits(RCC->CR,
+             RCC_CR_PLLON);
+    wait_until_bits_set(RCC->CR,
+                        RCC_CR_PLLRDY);
 
     // Select PLL as system clock
-    modify_bits(RCC->CFGR, RCC_CFGR_SW_Msk,
+    modify_bits(RCC->CFGR,
+                RCC_CFGR_SW_Msk,
                 RCC_CFGR_SW_PLL);
-    wait_until_bits_value(RCC->CFGR, RCC_CFGR_SWS_Msk,
+    wait_until_bits_value(RCC->CFGR,
+                          RCC_CFGR_SWS_Msk,
                           RCC_CFGR_SWS_PLL);
 
     // Enable RCC SYSCFG

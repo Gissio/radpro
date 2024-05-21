@@ -33,7 +33,8 @@ void initSystem(void)
     set_bits(RCC->APBENR2,
              RCC_APBENR2_SYSCFGEN);
     set_bits(SYSCFG->CFGR1,
-             SYSCFG_CFGR1_UCPD1_STROBE | SYSCFG_CFGR1_UCPD2_STROBE);
+             SYSCFG_CFGR1_UCPD1_STROBE |
+                 SYSCFG_CFGR1_UCPD2_STROBE);
 
     // Enable GPIOA, GPIOB, GPIOC, GPIOD
     set_bits(RCC->IOPENR,
