@@ -29,7 +29,7 @@ Rad Pro supports the following measurement modes:
 
 The instantaneous rate is estimated by dividing the number of pulses within the instantaneous rate averaging period, minus one, by the time between the first and last pulse within that period.
 
-The secondary view can be switched between an instantaneous rate bar view (logarithmic, with 1 µSv/h and 10 µSv/h alert zones), a time view that displays the length of the averaging period, an instantaneous rate max view, and an instantaneous rate cpm (counts per minute) view.
+The secondary view can be switched between an instantaneous rate bar view (logarithmic, with each tick representing a factor of 10, and 1 µSv/h and 10 µSv/h alert zones), a time view that displays the length of the averaging period, an instantaneous rate max view, and an instantaneous rate cpm (counts per minute) view.
 
 The [confidence interval](https://en.wikipedia.org/wiki/Confidence_interval) estimates the range of values that contain the true, actual instantaneous rate with a 95% probability, assuming a constant level of radiation.
 
