@@ -15,24 +15,28 @@
 
 void initLEDController(void)
 {
+#if defined(PULSE_LED)
     setPulseLED(false);
+#endif
+#if defined(ALERT_LED)
     setAlertLED(false);
+#endif
 
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
 
 #if defined(PULSE_LED)
     gpio_setup_output(PULSE_LED_PORT,
-               PULSE_LED_PIN,
-               GPIO_OUTPUTTYPE_PUSHPULL,
-               GPIO_OUTPUTSPEED_2MHZ,
-               GPIO_PULL_FLOATING);
+                      PULSE_LED_PIN,
+                      GPIO_OUTPUTTYPE_PUSHPULL,
+                      GPIO_OUTPUTSPEED_2MHZ,
+                      GPIO_PULL_FLOATING);
 #endif
 #if defined(ALERT_LED)
     gpio_setup_output(ALERT_LED_PORT,
-               ALERT_LED_PIN,
-               GPIO_OUTPUTTYPE_PUSHPULL,
-               GPIO_OUTPUTSPEED_2MHZ,
-               GPIO_PULL_FLOATING);
+                      ALERT_LED_PIN,
+                      GPIO_OUTPUTTYPE_PUSHPULL,
+                      GPIO_OUTPUTSPEED_2MHZ,
+                      GPIO_PULL_FLOATING);
 #endif
 
 #elif defined(STM32F1)

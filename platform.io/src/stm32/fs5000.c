@@ -245,7 +245,7 @@ void initDisplayController(void)
     gpio_set(DISPLAY_WRX_PORT,
              DISPLAY_WRX_PIN);
 
-    for (int i = 0; i < sizeof(displayPinSetup); i++)
+    for (uint32_t i = 0; i < sizeof(displayPinSetup); i++)
         gpio_setup_output(displayPortSetup[i],
                           displayPinSetup[i],
                           GPIO_OUTPUTTYPE_PUSHPULL,

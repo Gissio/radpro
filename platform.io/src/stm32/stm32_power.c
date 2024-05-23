@@ -76,6 +76,7 @@ void initPowerController(void)
     gpio_setup(PWR_EN_PORT,
                PWR_EN_PIN,
                GPIO_MODE_OUTPUT_2MHZ_PUSHPULL);
+
 #if defined(PWR_VCC_PORT)
     gpio_setup(PWR_VCC_PORT,
                PWR_VCC_PIN,

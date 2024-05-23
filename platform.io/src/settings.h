@@ -392,7 +392,7 @@ typedef struct
 
     unsigned int gameStrength : 3;
 } Settings
-#if defined(STM32G0)
+#if defined(STM32G0) || defined(STM32L4)
     __attribute__((aligned(8)))
 #endif
     ;
