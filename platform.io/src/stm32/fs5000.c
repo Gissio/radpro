@@ -45,13 +45,12 @@ void initSystem(void)
                     RCC_CFGR_PPRE2_DIV1   // Set APB2 clock: 24 MHz / 1 = 24 MHz
     );
     RCC->PLLCFGR =
-        (7 << RCC_PLLCFGR_PLLPDIV_Pos) |      // Set main PLL PLLSAI2CLK division factor: /7
-        (1 << RCC_PLLCFGR_PLLR_Pos) |         // Set main PLL PLLCLK division factor: /4
-        RCC_PLLCFGR_PLLREN |                  // Enable main PLL PLLCLK output
-        (12 << RCC_PLLCFGR_PLLN_Pos) |        // Set main PLL VCO multiplication factor: 12x
-        (0 << RCC_PLLCFGR_PLLM_Pos) |         // Set PLL division factor: /1
-        RCC_PLLCFGR_PLLSRC_HSI;               // Set PLL source: HSI16
-    RCC->CCIPR = (3 << RCC_CCIPR_ADCSEL_Pos); // Set system clock as ADC clock
+        (7 << RCC_PLLCFGR_PLLPDIV_Pos) | // Set main PLL PLLSAI2CLK division factor: /7
+        (1 << RCC_PLLCFGR_PLLR_Pos) |    // Set main PLL PLLCLK division factor: /4
+        RCC_PLLCFGR_PLLREN |             // Enable main PLL PLLCLK output
+        (12 << RCC_PLLCFGR_PLLN_Pos) |   // Set main PLL VCO multiplication factor: 12x
+        (0 << RCC_PLLCFGR_PLLM_Pos) |    // Set PLL division factor: /1
+        RCC_PLLCFGR_PLLSRC_HSI;          // Set PLL source: HSI16
 
     // Enable PLL
     set_bits(RCC->CR,
@@ -78,6 +77,11 @@ void initSystem(void)
                  RCC_AHB2ENR_GPIOBEN |
                  RCC_AHB2ENR_GPIOCEN |
                  RCC_AHB2ENR_GPIODEN);
+
+    // ADC
+    RCC->CCIPR = (3 << RCC_CCIPR_ADCSEL_Pos); // Set system clock as ADC clock
+    set_bits(((ADC_Common_TypeDef *)((uint8_t *)ADC1 + 0x300))->CCR,
+             (4 << ADC_CCR_PRESC_Pos)); // ADC clock divided by 8
 }
 
 // Communications

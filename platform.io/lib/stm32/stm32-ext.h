@@ -804,10 +804,9 @@ __STATIC_INLINE void adc_disable_vreg(ADC_TypeDef *base)
 __STATIC_INLINE void adc_enable(ADC_TypeDef *base)
 {
 #if defined(STM32F0) && defined(GD32)
-    ADC_GD32_TypeDef *gdBase = (ADC_GD32_TypeDef *)base;
-    if (!get_bits(gdBase->CTL1,
+    if (!get_bits(((ADC_GD32_TypeDef *)base)->CTL1,
                   ADC_CTL1_ADCON))
-        set_bits(gdBase->CTL1,
+        set_bits(((ADC_GD32_TypeDef *)base)->CTL1,
                  ADC_CTL1_ADCON);
 #elif defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
     set_bits(base->CR,
@@ -823,8 +822,7 @@ __STATIC_INLINE void adc_enable(ADC_TypeDef *base)
 __STATIC_INLINE void adc_disable(ADC_TypeDef *base)
 {
 #if defined(STM32F0) && defined(GD32)
-    ADC_GD32_TypeDef *gdBase = (ADC_GD32_TypeDef *)base;
-    clear_bits(gdBase->CTL1,
+    clear_bits(((ADC_GD32_TypeDef *)base)->CTL1,
                ADC_CTL1_ADCON);
 #elif defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
     set_bits(base->CR,
@@ -838,8 +836,7 @@ __STATIC_INLINE void adc_disable(ADC_TypeDef *base)
 __STATIC_INLINE void adc_reset_calibration(ADC_TypeDef *base)
 {
 #if defined(STM32F0) && defined(GD32)
-    ADC_GD32_TypeDef *gdBase = (ADC_GD32_TypeDef *)base;
-    set_bits(gdBase->CTL1,
+    set_bits(((ADC_GD32_TypeDef *)base)->CTL1,
              ADC_CTL1_RSTCLB);
 #elif defined(STM32F1)
     set_bits(base->CR2,
@@ -850,8 +847,7 @@ __STATIC_INLINE void adc_reset_calibration(ADC_TypeDef *base)
 __STATIC_INLINE void adc_start_calibration(ADC_TypeDef *base)
 {
 #if defined(STM32F0) && defined(GD32)
-    ADC_GD32_TypeDef *gdBase = (ADC_GD32_TypeDef *)base;
-    set_bits(gdBase->CTL1,
+    set_bits(((ADC_GD32_TypeDef *)base)->CTL1,
              ADC_CTL1_CLB);
 #elif defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
     set_bits(base->CR,
@@ -865,8 +861,7 @@ __STATIC_INLINE void adc_start_calibration(ADC_TypeDef *base)
 __STATIC_INLINE void adc_enable_vbat_channel(ADC_TypeDef *base)
 {
 #if defined(STM32F0) && defined(GD32)
-    ADC_GD32_TypeDef *gdBase = (ADC_GD32_TypeDef *)base;
-    set_bits(gdBase->CTL1,
+    set_bits(((ADC_GD32_TypeDef *)base)->CTL1,
              ADC_CTL1_VBATEN);
 #elif defined(STM32F0) || defined(STM32G0)
     set_bits(((ADC_Common_TypeDef *)((uint8_t *)base + 0x308))->CCR,
@@ -880,8 +875,7 @@ __STATIC_INLINE void adc_enable_vbat_channel(ADC_TypeDef *base)
 __STATIC_INLINE void adc_disable_vbat_channel(ADC_TypeDef *base)
 {
 #if defined(STM32F0) && defined(GD32)
-    ADC_GD32_TypeDef *gdBase = (ADC_GD32_TypeDef *)base;
-    clear_bits(gdBase->CTL1,
+    clear_bits(((ADC_GD32_TypeDef *)base)->CTL1,
                ADC_CTL1_VBATEN);
 #elif defined(STM32F0) || defined(STM32G0)
     clear_bits(((ADC_Common_TypeDef *)((uint8_t *)base + 0x308))->CCR,
@@ -895,30 +889,34 @@ __STATIC_INLINE void adc_disable_vbat_channel(ADC_TypeDef *base)
 __STATIC_INLINE void adc_enable_temperature_channel(ADC_TypeDef *base)
 {
 #if defined(STM32F0) && defined(GD32)
-    ADC_GD32_TypeDef *gdBase = (ADC_GD32_TypeDef *)base;
-    set_bits(gdBase->CTL1,
+    set_bits(((ADC_GD32_TypeDef *)base)->CTL1,
              ADC_CTL1_TSVREN);
-#elif defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
-    set_bits(((ADC_Common_TypeDef *)((uint8_t *)base + 0x300))->CCR,
+#elif defined(STM32F0) || defined(STM32G0)
+    set_bits(((ADC_Common_TypeDef *)((uint8_t *)base + 0x308))->CCR,
              ADC_CCR_TSEN);
 #elif defined(STM32F1)
     set_bits(base->CR2,
              ADC_CR2_TSVREFE);
+#elif defined(STM32L4)
+    set_bits(((ADC_Common_TypeDef *)((uint8_t *)base + 0x300))->CCR,
+             ADC_CCR_TSEN);
 #endif
 }
 
 __STATIC_INLINE void adc_disable_temperature_channel(ADC_TypeDef *base)
 {
 #if defined(STM32F0) && defined(GD32)
-    ADC_GD32_TypeDef *gdBase = (ADC_GD32_TypeDef *)base;
-    clear_bits(gdBase->CTL1,
+    clear_bits(((ADC_GD32_TypeDef *)base)->CTL1,
                ADC_CTL1_TSVREN);
-#elif defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
-    clear_bits(((ADC_Common_TypeDef *)((uint8_t *)base + 0x300))->CCR,
+#elif defined(STM32F0) || defined(STM32G0)
+    clear_bits(((ADC_Common_TypeDef *)((uint8_t *)base + 0x308))->CCR,
                ADC_CCR_TSEN);
 #elif defined(STM32F1)
     clear_bits(base->CR2,
                ADC_CR2_TSVREFE);
+#elif defined(STM32L4)
+    clear_bits(((ADC_Common_TypeDef *)((uint8_t *)base + 0x300))->CCR,
+               ADC_CCR_TSEN);
 #endif
 }
 
@@ -927,20 +925,19 @@ __STATIC_INLINE void adc_start_conversion_oneshot(ADC_TypeDef *base,
                                                   uint8_t sample_time)
 {
 #if defined(STM32F0) && defined(GD32)
-    ADC_GD32_TypeDef *gdBase = (ADC_GD32_TypeDef *)base;
-    gdBase->RSQ0 = 0;
-    gdBase->RSQ2 = channel;
+    ((ADC_GD32_TypeDef *)base)->RSQ0 = 0;
+    ((ADC_GD32_TypeDef *)base)->RSQ2 = channel;
 
-    modify_bits(gdBase->CTL1,
+    modify_bits(((ADC_GD32_TypeDef *)base)->CTL1,
                 ADC_CTL1_ETERC_Msk | ADC_CTL1_ETSRC_Msk,
                 ADC_CTL1_ETERC | ADC_CTL1_ETSRC_SWRCST);
 
     if (channel >= 10)
-        gdBase->SAMPT0 = sample_time << (3 * (channel - 10));
+        ((ADC_GD32_TypeDef *)base)->SAMPT0 = sample_time << (3 * (channel - 10));
     else
-        gdBase->SAMPT1 = sample_time << (3 * channel);
+        ((ADC_GD32_TypeDef *)base)->SAMPT1 = sample_time << (3 * channel);
 
-    set_bits(gdBase->CTL1,
+    set_bits(((ADC_GD32_TypeDef *)base)->CTL1,
              ADC_CTL1_SWRCST);
 #elif defined(STM32F0) || defined(STM32G0)
     base->CHSELR = get_bitvalue(channel);
@@ -965,18 +962,23 @@ __STATIC_INLINE void adc_start_conversion_oneshot(ADC_TypeDef *base,
              ADC_CR2_SWSTART);
 #elif defined(STM32L4)
     base->SQR1 = (get_bitvalue(channel) << ADC_SQR1_SQ1_Pos);
-    base->SMPR1 = sample_time;
+
+    if (channel >= 10)
+        base->SMPR1 = sample_time << (3 * (channel - 10));
+    else
+        base->SMPR2 = sample_time << (3 * channel);
 
     set_bits(base->CR,
              ADC_CR_ADSTART);
+    set_bits(base->CFGR,
+             ADC_CFGR_OVRMOD);
 #endif
 }
 
 __STATIC_INLINE uint32_t adc_get_conversion_oneshot(ADC_TypeDef *base)
 {
 #if defined(STM32F0) && defined(GD32)
-    ADC_GD32_TypeDef *gdBase = (ADC_GD32_TypeDef *)base;
-    return gdBase->RDATA;
+    return ((ADC_GD32_TypeDef *)base)->RDATA;
 #else
     return base->DR;
 #endif
