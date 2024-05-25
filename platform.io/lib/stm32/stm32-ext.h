@@ -961,12 +961,12 @@ __STATIC_INLINE void adc_start_conversion_oneshot(ADC_TypeDef *base,
     set_bits(base->CR2,
              ADC_CR2_SWSTART);
 #elif defined(STM32L4)
-    base->SQR1 = (get_bitvalue(channel) << ADC_SQR1_SQ1_Pos);
+    base->SQR1 = (channel << ADC_SQR1_SQ1_Pos);
 
-    if (channel >= 10)
-        base->SMPR1 = sample_time << (3 * (channel - 10));
+    if (channel < 10)
+        base->SMPR1 = sample_time << (3 * channel);
     else
-        base->SMPR2 = sample_time << (3 * channel);
+        base->SMPR2 = sample_time << (3 * (channel - 10));
 
     set_bits(base->CR,
              ADC_CR_ADSTART);

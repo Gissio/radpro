@@ -41,7 +41,7 @@ void initSystem(void)
                 FLASH_ACR_LATENCY_Msk,
                 FLASH_ACR_LATENCY_2WS);
 
-    // Configure RCC
+    // Configure AHB, APB1, APB2, ADC, PLL
     RCC->CFGR =
         RCC_CFGR_SW_HSI |        // Select HSI as system clock
         RCC_CFGR_HPRE_DIV1 |     // Set AHB clock: 72 MHz / 1 = 72 MHz
@@ -60,7 +60,7 @@ void initSystem(void)
     wait_until_bits_set(RCC->CR,
                         RCC_CR_PLLRDY);
 
-    // Select PLL as system clock
+    // Set PLL as system clock
     modify_bits(RCC->CFGR,
                 RCC_CFGR_SW_Msk,
                 RCC_CFGR_SW_PLL);
@@ -85,7 +85,7 @@ void initSystem(void)
                     AFIO_MAPR_USART1_REMAP);
 #endif
 
-    // Enable RCC GPIOA, GPIOB, GPIOC
+    // Enable GPIOA, GPIOB, GPIOC
     set_bits(RCC->APB2ENR,
              RCC_APB2ENR_IOPAEN |
                  RCC_APB2ENR_IOPBEN |

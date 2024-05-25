@@ -35,7 +35,7 @@ void initSystem(void)
     wait_until_bits_set(RCC->CR,
                         RCC_CR_HSIRDY);
 
-    // Configure RCC
+    // Configure AHB, APB1, APB2
     modify_bits(RCC->CFGR,
                 RCC_CFGR_HPRE_Msk |
                     RCC_CFGR_PPRE1_Msk |
@@ -44,6 +44,8 @@ void initSystem(void)
                     RCC_CFGR_PPRE1_DIV1 | // Set APB1 clock: 24 MHz / 1 = 24 MHz
                     RCC_CFGR_PPRE2_DIV1   // Set APB2 clock: 24 MHz / 1 = 24 MHz
     );
+
+    // Configure PLL
     RCC->PLLCFGR =
         (7 << RCC_PLLCFGR_PLLPDIV_Pos) | // Set main PLL PLLSAI2CLK division factor: /7
         (1 << RCC_PLLCFGR_PLLR_Pos) |    // Set main PLL PLLCLK division factor: /4
@@ -58,7 +60,7 @@ void initSystem(void)
     wait_until_bits_set(RCC->CR,
                         RCC_CR_PLLRDY);
 
-    // Select PLL as system clock
+    // Set PLL as system clock
     modify_bits(RCC->CFGR,
                 RCC_CFGR_SW_Msk,
                 RCC_CFGR_SW_PLL);
@@ -66,11 +68,11 @@ void initSystem(void)
                           RCC_CFGR_SWS_Msk,
                           RCC_CFGR_SWS_PLL);
 
-    // Enable RCC SYSCFG
+    // Enable SYSCFG
     set_bits(RCC->APB2ENR,
              RCC_APB2ENR_SYSCFGEN);
 
-    // Enable RCC GPIOA, GPIOB, GPIOC, GPIOD
+    // Enable GPIOA, GPIOB, GPIOC, GPIOD, ADC
     set_bits(RCC->AHB2ENR,
              RCC_AHB2ENR_ADCEN |
                  RCC_AHB2ENR_GPIOAEN |
