@@ -1,0 +1,41 @@
+name: Build all
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "**"
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-all:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup base
+        id: base
+        uses: ./.github/actions/setup
+
+      - uses: actions/cache@v3
+        with:
+          path: ~/.platformio/.cache
+          key: ${{ runner.os }}-pio
+
+      - name: Build project
+        run: |
+          cd platform.io
+          pio run
+
+      - name: Sign firmware
+        run: |
+          cd tools
+          python radpro-sign.py
+
+      - name: Save artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware
+          overwrite: true
+          path: tools/*.bin
