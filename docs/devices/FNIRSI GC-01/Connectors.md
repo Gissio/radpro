@@ -2,14 +2,13 @@
 
 ## 4-pin SWD connector
 
-From left to right (on PCB, staring to count from `Pin 1` next to the tube opposite the display side ):
-* Pin 1: +3V3 [square PIN]
-* Pin 2: SWDIO (MCU PA13)
-* Pin 3: SWCLK (MCU PA14)
-* Pin 4: GND
+From right to left (looking from the PCB chip side, staring to counting from `Pin 1` close to the display side ):
+* Pin 1: GND [square PIN]
+* Pin 2: SWCLK (MCU PA14)
+* Pin 3: SWDIO (MCU PA13)
+* Pin 4: +3V3 [square PIN]
 
 There are some PCB variations `GC01-V0.2` that are different pinout:
-From right to left (looking from the PCB chip side, staring to count from `Pin 1` close to the display side )
 * Pin 1: +3V3 [square PIN]
 * Pin 2: GND  
 * Pin 3: SWDIO (MCU PA13)
