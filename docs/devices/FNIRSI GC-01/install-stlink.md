@@ -42,7 +42,7 @@ Now, follow these steps:
 
 * Optional: Solder the 4-pin header to the JP1 pads of the board.
 * If you use Windows, install the [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html).
-* Connect the ST-LINK V2 device to the JP1 pads. If the JP1 pads are labeled, follow their labels. If they are unlabeled, the pins are, from left to right:
+* Connect the ST-LINK V2 device to the four pads next to the button cells. If the pads are labeled, follow their labels. If they are unlabeled, the pins are, from left to right:
   * +3.3V
   * SWDIO
   * SWCLK

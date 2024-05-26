@@ -92,10 +92,10 @@ During datalog download, data is not logged.
 
 ## Instantaneous rate averaging
 
-Rad Pro comes with several options for determining the instantaneous rate averaging period:
+Rad Pro offers several options for adjusting the instantaneous rate averaging period:
 
 * “Adaptive fast” is the fastest option, capable of responding quickly to increased levels of radiation, at the expense of lower precision. It is best for users who need quick radiation alerts. It aims for a ±50% confidence interval; at increased levels of radiation, it limits the averaging period to a maximum of 5 seconds. You can check the “adaptive fast” response curves here: [instantaneousaveraging-adaptivefast.ipynb](../tests/instantaneousaveraging-adaptivefast.ipynb)
-* “Adaptive precision” tends to be a bit slower, but achieves higher precision at increased levels of radiation. It is best for users who deem precision more important than fast response. At lower levels of radiations, it aims for a ±50% confidence interval; at increased levels of radiation, it uses a fixed 5 second averaging period. You can check the “adaptive precision” response curves here: [instantaneousaveraging-adaptiveprecision.ipynb](../tests/instantaneousaveraging-adaptiveprecision.ipynb)
+* “Adaptive precision” tends to be a bit slower, but achieves higher precision at increased levels of radiation. It is best for users who deem precision more important than fast response. At lower levels of radiations, it aims for a ±50% confidence interval, as the “Adaptive fast” option; at increased levels of radiation, it uses a fixed 5 second averaging period. You can check the “adaptive precision” response curves here: [instantaneousaveraging-adaptiveprecision.ipynb](../tests/instantaneousaveraging-adaptiveprecision.ipynb)
 * “60 seconds”, “30 seconds” and “10 seconds” use fixed averaging periods. They can produce higher precision than the adaptive options, but have a much slower response.
 
 ## Dead time and dead-time compensation
@@ -184,7 +184,7 @@ To communicate with Rad Pro through a serial port or SWD (through an ST-LINK don
 
 **Q: Why does my device's date and time reset every time I turn it on?**
 
-**A:** Your device resets date and time every time the real-time clock loses power. On the FNIRSI GC-01, most likely the backup battery (a CR1220) needs replacement.
+**A:** This happens when your device's real-time clock is not powered during power-off. On the FNIRSI GC-01, most likely the backup battery (a CR1220) needs replacement.
 
 **Q: When I power on my device, Rad Pro stays quite some time (up to 60 seconds) on the splash screen.**
 

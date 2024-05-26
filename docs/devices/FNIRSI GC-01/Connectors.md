@@ -2,12 +2,19 @@
 
 ## 4-pin SWD connector
 
-From left to roght (on PCB, from side opposite to display):
+On boards marked "GC01" (below the tube), with unlabeled pads next to the button cell, on the back side of the device, from right to left:
 
-* Pin 1: +3V3
-* Pin 2: SWDIO (MCU PA13)
-* Pin 3: SWCLK (MCU PA14)
-* Pin 4: GND
+* Pin 1: GND \[square pad\]
+* Pin 2: SWCLK (MCU PA14)
+* Pin 3: SWDIO (MCU PA13)
+* Pin 4: +3V3
+
+On PCBs marked "GC01 V0.2" (below the tube), with labeled pads next to the button cell, on the back side of the device, from right to left:
+
+* Pin 1: +3V3 \[square pad\]
+* Pin 2: GND
+* Pin 3: SWDIO (MCU PA13)
+* Pin 4: SWCLK (MCU PA14)
 
 ## 40-pin display connector
 
