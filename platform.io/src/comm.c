@@ -38,7 +38,7 @@ void initComm(void)
 
     selectMenuItem(&dataModeMenu,
                    settings.dataMode,
-                   2);
+                   DATAMODE_NUM);
 #endif
 }
 
@@ -320,7 +320,11 @@ static const char *onDataModeMenuGetOption(const Menu *menu,
 
 static void onDataModeMenuSelect(const Menu *menu)
 {
-    if (menu->state->selectedIndex)
+    uint32_t selectedIndex = menu->state->selectedIndex;
+
+    settings.dataMode = selectedIndex;
+
+    if (selectedIndex)
         startComm();
     else
         stopComm();

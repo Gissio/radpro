@@ -23,8 +23,6 @@
 #define ADC_VDD 3.3F
 #define ADC_VALUE_MAX ((1 << 12) - 1)
 
-#define ADC_VALUE_TO_VOLTAGE (ADC_VDD / ADC_VALUE_MAX)
-
 // Battery voltage
 
 // First order filter (n: time constant in taps): k = exp(-1 / n)
@@ -33,7 +31,7 @@
 
 static struct
 {
-    float filteredBatteryVoltageValue;
+    float filteredBatteryVoltage;
 } adc;
 
 void initADC(void)
@@ -74,8 +72,12 @@ static uint32_t readADC(uint8_t channel)
 {
     syncTimerThread();
 
-#if defined(STM32G0) || defined(STM32L4)
+#if (defined(STM32F0) && !defined(GD32))
+    adc_enable_vref_channel(ADC1);
+    sleep(1);
+#elif defined(STM32G0) || defined(STM32L4)
     adc_enable_vreg(ADC1);
+    adc_enable_vref_channel(ADC1);
     sleep(1);
 #endif
 
@@ -90,34 +92,44 @@ static uint32_t readADC(uint8_t channel)
     adc_disable(ADC1);
     sleep(1);
 
-#if defined(STM32G0) || defined(STM32L4)
+#if defined(STM32F0) && !defined(GD32)
+    adc_disable_vref_channel(ADC1);
+#elif defined(STM32G0) || defined(STM32L4)
+    adc_disable_vref_channel(ADC1);
     adc_disable_vreg(ADC1);
 #endif
 
     return value;
 }
 
-static float readBatteryVoltageValue(void)
+static float readBatteryVoltage(void)
 {
-    return readADC(PWR_BAT_CHANNEL);
+#if defined(STM32F0) && !defined(GD32) || defined(STM32G0) || defined(STM32L4)
+    return (VREFINT_CAL_VOLTAGE * PWR_BAT_SCALE_FACTOR / ADC_VALUE_MAX) *
+           VREFINT_CAL_VALUE *
+           readADC(PWR_BAT_CHANNEL) /
+           readADC(ADC_VREF_CHANNEL);
+#else
+    return ((ADC_VDD * PWR_BAT_SCALE_FACTOR / ADC_VALUE_MAX)) *
+           readADC(PWR_BAT_CHANNEL);
+#endif
 }
 
 void updateADC(void)
 {
     float value;
 
-    value = readBatteryVoltageValue();
-    adc.filteredBatteryVoltageValue =
-        (adc.filteredBatteryVoltageValue == 0.0F)
+    value = readBatteryVoltage();
+    adc.filteredBatteryVoltage =
+        (adc.filteredBatteryVoltage == 0.0F)
             ? value
             : value + BATTERY_VOLTAGE_FILTER_CONSTANT *
-                          (adc.filteredBatteryVoltageValue - value);
+                          (adc.filteredBatteryVoltage - value);
 }
 
 float getDeviceBatteryVoltage(void)
 {
-    return (ADC_VALUE_TO_VOLTAGE * PWR_BAT_SCALE_FACTOR) *
-           adc.filteredBatteryVoltageValue;
+    return adc.filteredBatteryVoltage;
 }
 
 #endif

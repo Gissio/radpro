@@ -701,6 +701,7 @@ __STATIC_INLINE void exti_clear_pending_interrupt(uint8_t pin)
 #define ADC_VREF_CHANNEL 0
 #define ADC_TEMP_CHANNEL 17
 #define ADC_VBAT_CHANNEL 18
+#define ADC_VREF_CHANNEL 0
 #endif
 
 #if defined(STM32F0) && defined(GD32)
@@ -874,6 +875,28 @@ __STATIC_INLINE void adc_start_calibration(ADC_TypeDef *base)
 #endif
 }
 
+__STATIC_INLINE void adc_enable_vref_channel(ADC_TypeDef *base)
+{
+#if defined(STM32F0) || defined(STM32G0)
+    set_bits(((ADC_Common_TypeDef *)((uint8_t *)base + 0x308))->CCR,
+             ADC_CCR_VREFEN);
+#elif defined(STM32L4)
+    set_bits(((ADC_Common_TypeDef *)((uint8_t *)base + 0x300))->CCR,
+             ADC_CCR_VREFEN);
+#endif
+}
+
+__STATIC_INLINE void adc_disable_vref_channel(ADC_TypeDef *base)
+{
+#if defined(STM32F0) || defined(STM32G0)
+    clear_bits(((ADC_Common_TypeDef *)((uint8_t *)base + 0x308))->CCR,
+               ADC_CCR_VREFEN);
+#elif defined(STM32L4)
+    clear_bits(((ADC_Common_TypeDef *)((uint8_t *)base + 0x300))->CCR,
+               ADC_CCR_VREFEN);
+#endif
+}
+
 __STATIC_INLINE void adc_enable_vbat_channel(ADC_TypeDef *base)
 {
 #if defined(STM32F0) && defined(GD32)
@@ -904,15 +927,9 @@ __STATIC_INLINE void adc_disable_vbat_channel(ADC_TypeDef *base)
 
 __STATIC_INLINE void adc_enable_temperature_channel(ADC_TypeDef *base)
 {
-#if defined(STM32F0) && defined(GD32)
-    set_bits(((ADC_GD32_TypeDef *)base)->CTL1,
-             ADC_CTL1_TSVREN);
-#elif defined(STM32F0) || defined(STM32G0)
+#if defined(STM32F0) || defined(STM32G0)
     set_bits(((ADC_Common_TypeDef *)((uint8_t *)base + 0x308))->CCR,
              ADC_CCR_TSEN);
-#elif defined(STM32F1)
-    set_bits(base->CR2,
-             ADC_CR2_TSVREFE);
 #elif defined(STM32L4)
     set_bits(((ADC_Common_TypeDef *)((uint8_t *)base + 0x300))->CCR,
              ADC_CCR_TSEN);
@@ -921,18 +938,34 @@ __STATIC_INLINE void adc_enable_temperature_channel(ADC_TypeDef *base)
 
 __STATIC_INLINE void adc_disable_temperature_channel(ADC_TypeDef *base)
 {
-#if defined(STM32F0) && defined(GD32)
-    clear_bits(((ADC_GD32_TypeDef *)base)->CTL1,
-               ADC_CTL1_TSVREN);
-#elif defined(STM32F0) || defined(STM32G0)
+#if defined(STM32F0) || defined(STM32G0)
     clear_bits(((ADC_Common_TypeDef *)((uint8_t *)base + 0x308))->CCR,
                ADC_CCR_TSEN);
-#elif defined(STM32F1)
-    clear_bits(base->CR2,
-               ADC_CR2_TSVREFE);
 #elif defined(STM32L4)
     clear_bits(((ADC_Common_TypeDef *)((uint8_t *)base + 0x300))->CCR,
                ADC_CCR_TSEN);
+#endif
+}
+
+__STATIC_INLINE void adc_enable_temperature_vref_channel(ADC_TypeDef *base)
+{
+#if defined(STM32F0) && defined(GD32)
+    set_bits(((ADC_GD32_TypeDef *)base)->CTL1,
+             ADC_CTL1_TSVREN);
+#elif defined(STM32F1)
+    set_bits(base->CR2,
+             ADC_CR2_TSVREFE);
+#endif
+}
+
+__STATIC_INLINE void adc_disable_temperature_vref_channel(ADC_TypeDef *base)
+{
+#if defined(STM32F0) && defined(GD32)
+    clear_bits(((ADC_GD32_TypeDef *)base)->CTL1,
+               ADC_CTL1_TSVREN);
+#elif defined(STM32F1)
+    clear_bits(base->CR2,
+               ADC_CR2_TSVREFE);
 #endif
 }
 
@@ -1552,14 +1585,17 @@ __STATIC_INLINE void spi_send(SPI_TypeDef *base,
 #if defined(STM32F0)
 #define TS_CAL1 (*((__I uint16_t *)0x1ffff7b8))
 #define TS_CAL2 (*((__I uint16_t *)0x1ffff7c2))
-#define VREFINT_CAL (*((__I uint16_t *)0x1ffff7ba))
+#define VREFINT_CAL_VALUE (*((__I uint16_t *)0x1ffff7ba))
+#define VREFINT_CAL_VOLTAGE 3.3F
 #elif defined(STM32G0)
 #define TS_CAL1 (*((__I uint16_t *)0x1fff75a8))
-#define VREFINT (*((__I uint16_t *)0x1fff75aa))
+#define VREFINT_CAL_VALUE (*((__I uint16_t *)0x1fff75aa))
+#define VREFINT_CAL_VOLTAGE 3.0F
 #elif defined(STM32L4)
 #define TS_CAL1 (*((__I uint16_t *)0x1fff75a8))
 #define TS_CAL2 (*((__I uint16_t *)0x1fff75ca))
-#define VREFINT (*((__I uint16_t *)0x1fff75aa))
+#define VREFINT_CAL_VALUE (*((__I uint16_t *)0x1fff75aa))
+#define VREFINT_CAL_VOLTAGE 3.0F
 #endif
 
 #define UID0 (((__I uint32_t *)UID_BASE)[0])

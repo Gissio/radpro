@@ -5,11 +5,12 @@
 * Added Bosean FS-5000 support.
 * Added secondary dose view in average measurement mode.
 * Extended conversion factor range to 25-1600 cpm/µSv/h.
-* Added "SET tubeHVFrequency" and "SET tubeHVDutyCycle" data communication commands.
 * Added 1 second datalog interval options and removed 30 seconds and 30 minutes datalog interval options.
+* Added "SET tubeHVFrequency" and "SET tubeHVDutyCycle" data communication commands.
 * Added 12-hour time format.
 * Devices with data mode allow using the device wile data mode is active; data mode state is also preserved after powering off.
-* Improved battery level indicator on the Bosean FS-600/FS-1000.
+* Improved battery level indicator of the Bosean FS-600/FS-1000.
+* Improved battery level readout of the FS2011(STM32F051), Bosean FS-600/FS-1000.
 * Improved keyboard control scheme of the Bosean FS-1000.
 * Changed data communications end of line to "\r\n".
 * Minor refinements.

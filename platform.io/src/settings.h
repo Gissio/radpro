@@ -330,6 +330,16 @@ enum
 };
 #endif
 
+#if defined(DATA_MODE)
+enum
+{
+    DATAMODE_OFF,
+    DATAMODE_ON,
+
+    DATAMODE_NUM,
+};
+#endif
+
 enum
 {
     GAMESTRENGTH_1,
