@@ -6,7 +6,7 @@ From right to left (looking from the PCB chip side, staring to counting from `Pi
 * Pin 1: GND [square PIN]
 * Pin 2: SWCLK (MCU PA14)
 * Pin 3: SWDIO (MCU PA13)
-* Pin 4: +3V3 [square PIN]
+* Pin 4: +3V3
 
 There are some PCB variations `GC01-V0.2` that are different pinout:
 * Pin 1: +3V3 [square PIN]
