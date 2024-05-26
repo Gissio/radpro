@@ -103,9 +103,9 @@ enum
 };
 
 #define TUBE_CONVERSIONFACTOR_VALUE_MIN 25.0F
-#define TUBE_CONVERSIONFACTOR_VALUE_MAX 800.01F
-#define TUBE_CONVERSIONFACTOR_VALUE_LOG_MAX_MIN 5.0F
-#define TUBE_CONVERSIONFACTOR_VALUE_NUM 81
+#define TUBE_CONVERSIONFACTOR_VALUE_MAX 1600.01F
+#define TUBE_CONVERSIONFACTOR_VALUE_LOG_MAX_MIN 6.0F
+#define TUBE_CONVERSIONFACTOR_VALUE_NUM 97
 #define TUBE_CONVERSIONFACTOR_NUM (TUBE_CONVERSIONFACTOR_PRESETS_NUM + TUBE_CONVERSIONFACTOR_VALUE_NUM)
 
 enum
@@ -359,7 +359,7 @@ typedef struct
     unsigned int tubeInstantaneousAveraging : 3;
     unsigned int tubeDeadTimeCompensation : 6;
     unsigned int tubeBackgroundCompensation : 4;
-#if defined(TUBE_HV_PWM)    
+#if defined(TUBE_HV_PWM)
     unsigned int tubeHVProfile : 3;
     unsigned int tubeHVFrequency : 3;
     unsigned int tubeHVDutyCycle : 9;
@@ -388,6 +388,10 @@ typedef struct
 
 #if defined(BATTERY_REMOVABLE)
     unsigned int batteryType : 1;
+#endif
+
+#if defined(DATA_MODE)
+    unsigned int dataMode : 1;
 #endif
 
     unsigned int gameStrength : 3;

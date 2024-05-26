@@ -42,6 +42,10 @@ void initADC(void)
 
     rcc_enable_adc(ADC1);
 
+#if defined(STM32L4)
+    adc_disable_deep_power_down(ADC1);
+#endif
+
 #if (defined(STM32F0) && defined(GD32)) || defined(STM32F1)
     adc_enable(ADC1);
     sleep(1);

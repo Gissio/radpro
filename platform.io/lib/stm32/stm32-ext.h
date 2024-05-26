@@ -785,6 +785,22 @@ typedef struct
 
 #endif
 
+#if defined(STM32L4)
+
+__STATIC_INLINE void adc_enable_deep_power_down(ADC_TypeDef *base)
+{
+    set_bits(base->CR,
+             ADC_CR_DEEPPWD);
+}
+
+__STATIC_INLINE void adc_disable_deep_power_down(ADC_TypeDef *base)
+{
+    clear_bits(base->CR,
+               ADC_CR_DEEPPWD);
+}
+
+#endif
+
 #if defined(STM32G0) || defined(STM32L4)
 
 __STATIC_INLINE void adc_enable_vreg(ADC_TypeDef *base)

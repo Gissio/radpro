@@ -33,8 +33,11 @@ void initComm(void)
 #if !defined(DATA_MODE)
     startComm();
 #else
+    if (settings.dataMode)
+        startComm();
+
     selectMenuItem(&dataModeMenu,
-                   0,
+                   settings.dataMode,
                    2);
 #endif
 }
@@ -186,8 +189,8 @@ void dispatchCommEvents(void)
         else if (matchCommCommand("GET tubeHVFrequency"))
             sendCommOkWithFloat(getTubeHVFrequency(), 2);
         else if (matchCommCommandWithNumber("SET tubeHVFrequency",
-                                           &mantissa,
-                                           &factor))
+                                            &mantissa,
+                                            &factor))
         {
             setTubeHVFrequency((float)mantissa / (float)factor);
 
@@ -196,8 +199,8 @@ void dispatchCommEvents(void)
         else if (matchCommCommand("GET tubeHVDutyCycle"))
             sendCommOkWithFloat(getTubeHVDutyCycle(), 4);
         else if (matchCommCommandWithNumber("SET tubeHVDutyCycle",
-                                           &mantissa,
-                                           &factor))
+                                            &mantissa,
+                                            &factor))
         {
             setTubeHVDutyCycle((float)mantissa / (float)factor);
 

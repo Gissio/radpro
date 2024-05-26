@@ -36,6 +36,6 @@ jobs:
       - name: Save artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: firmware
+          name: radpro-firmware-snapshot
           overwrite: true
           path: tools/*.bin
