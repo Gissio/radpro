@@ -3,7 +3,7 @@
 ## 2.0rc5 The final countdown
 
 * Added Bosean FS-5000 support.
-* Added display panels menu for selecting the display panel.
+* Added display panel menu for selecting the display panel (on supported devices).
 * Added secondary dose view in average measurement mode.
 * Extended conversion factor range to 25-1600 cpm/µSv/h.
 * Added 1 second datalog interval options and removed 30 seconds and 30 minutes datalog interval options.
