@@ -10,7 +10,6 @@
 #include "display.h"
 #include "events.h"
 #include "keyboard.h"
-#include "game.h"
 #include "power.h"
 #include "settings.h"
 #include "view.h"
@@ -34,31 +33,21 @@ void dispatchViewEvents(void)
     while (true)
     {
         Event event = getKeyboardEvent();
+
         if (event == EVENT_NONE)
             break;
-
-#if defined(DISPLAY_MONOCHROME)
-        if ((settings.displaySleep == DISPLAY_SLEEP_ALWAYS_OFF) ||
-            displayTimerActive)
-#elif defined(DISPLAY_COLOR)
-        if (displayTimerActive)
-#endif
+        else if (event == EVENT_KEY_POWER)
+            requestPowerOff();
+        else 
         {
-            if (event == EVENT_KEY_POWER)
-                requestPowerOff();
-            else
-            {
-                triggerDisplay();
+            view.currentView->onEvent(view.currentView, event);
 
-                view.currentView->onEvent(view.currentView, event);
-            }
-        }
-        else
             triggerDisplay();
+        }
     }
 
 #if defined(DISPLAY_COLOR)
-    // Pre-draw operations
+    // Pre-draw
     if (isDisplayBacklightOn())
     {
         if (!isDisplayOn())
@@ -87,7 +76,7 @@ void dispatchViewEvents(void)
     }
 
 #if defined(DISPLAY_COLOR)
-    // Post-draw operations
+    // Post-draw
     if (isDisplayBacklightOn())
     {
         if (!isDisplayOn())

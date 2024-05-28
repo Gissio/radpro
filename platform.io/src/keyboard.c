@@ -12,6 +12,7 @@
 #include "cmath.h"
 #include "events.h"
 #include "keyboard.h"
+#include "settings.h"
 
 #if defined(KEYBOARD_2KEYS) || defined(KEYBOARD_3KEYS)
 #define KEY_PRESSED_LONG ((uint32_t)(0.25 * SYSTICK_FREQUENCY / KEY_TICKS))
@@ -33,6 +34,8 @@ static struct
 
     Key pressedKey;
     uint32_t pressedTicks;
+
+    bool isBacklightDown;
 
     KeyboardMode mode;
 
@@ -66,22 +69,32 @@ void onKeyboardTick(void)
     bool isKeyDown[KEY_NUM];
     getKeyboardState(isKeyDown);
 
+    bool isBacklightPressed = false;
+    bool isBacklightReleased = false;
+
     for (int32_t i = 0; i < KEY_NUM; i++)
     {
         // Key down
         if (!keyboard.wasKeyDown[i] &&
             isKeyDown[i])
         {
+#if defined(DISPLAY_MONOCHROME)
+            if ((settings.displaySleep != DISPLAY_SLEEP_ALWAYS_OFF) &&
+                !isDisplayTimerActive())
+#elif defined(DISPLAY_COLOR)
+            if (!isDisplayTimerActive())
+#endif
+                isBacklightPressed = true;
+
 #if defined(KEYBOARD_5KEYS)
-            if (keyboard.mode == KEYBOARD_MODE_MEASUREMENT)
+            if (i != KEY_OK)
             {
-                if ((i != KEY_LEFT) &&
-                    (i != KEY_OK))
-                    event = i;
-            }
-            else
-            {
-                if (i != KEY_OK)
+                if (keyboard.mode == KEYBOARD_MODE_MEASUREMENT)
+                {
+                    if (i != KEY_LEFT)
+                        event = i;
+                }
+                else
                     event = i;
             }
 #endif
@@ -95,6 +108,8 @@ void onKeyboardTick(void)
             !isKeyDown[i] &&
             (i == keyboard.pressedKey))
         {
+            isBacklightReleased = true;
+
 #if defined(KEYBOARD_2KEYS)
             if (keyboard.mode == KEYBOARD_MODE_MEASUREMENT)
             {
@@ -279,11 +294,25 @@ void onKeyboardTick(void)
     }
 
     // Enqueue event
-    if (event != EVENT_NONE)
+    bool ignoreEvent = keyboard.isBacklightDown &&
+                       (event != EVENT_KEY_POWER) &&
+                       (event != EVENT_KEY_BACKLIGHT);
+
+    if (isBacklightPressed)
     {
-        keyboard.eventQueue[keyboard.eventQueueHead] = event;
-        keyboard.eventQueueHead = (keyboard.eventQueueHead + 1) & EVENT_QUEUE_MASK;
+        event = EVENT_KEY_BACKLIGHT;
+        keyboard.isBacklightDown = true;
     }
+
+    if (isBacklightReleased)
+        keyboard.isBacklightDown = false;
+
+    if ((event == EVENT_NONE) ||
+        ignoreEvent)
+        return;
+
+    keyboard.eventQueue[keyboard.eventQueueHead] = event;
+    keyboard.eventQueueHead = (keyboard.eventQueueHead + 1) & EVENT_QUEUE_MASK;
 }
 
 void setKeyboardMode(KeyboardMode mode)

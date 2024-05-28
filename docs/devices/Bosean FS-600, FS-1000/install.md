@@ -22,7 +22,7 @@ Follow these steps to start installing Rad Pro:
 
 The board should look like in the photo above. If it does not, you may have a different hardware revision. In this case, Rad Pro may not function properly.
 
-If your board looks different and Rad Pro does not work, create an issue on https://github.com/Gissio/radpro/issues.
+If your board looks different and Rad Pro does not work, create an [issue](https://github.com/Gissio/radpro/issues).
 
 ## Step 2: Connect the programmer
 

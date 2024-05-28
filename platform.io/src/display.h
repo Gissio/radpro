@@ -59,13 +59,19 @@ void initDisplay(void);
 void initDisplayController(void);
 void initDisplayBacklight(void);
 
+void updateDisplayPanel(void);
+
 void setDisplayOn(bool value);
 bool isDisplayOn(void);
+
 void setDisplaySleep(bool value);
 bool isDisplaySleep(void);
+
 void setDisplayBacklightOn(bool value);
 bool isDisplayBacklightOn(void);
+
 void updateDisplayContrast(void);
+
 void refreshDisplay(void);
 
 void drawTitleBar(const char *title);

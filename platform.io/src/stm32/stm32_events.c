@@ -21,9 +21,9 @@ float timerCountToSeconds = (1.0F / PULSE_MEASUREMENT_FREQUENCY);
 
 void initEventsController(void)
 {
+    NVIC_SetPriority(SysTick_IRQn, 0xc0);
     SysTick->LOAD = AHB_FREQUENCY / SYSTICK_FREQUENCY - 1;
     SysTick->VAL = 0;
-    NVIC_SetPriority(SysTick_IRQn, 0xc0);
     SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk |
                     SysTick_CTRL_TICKINT_Msk |
                     SysTick_CTRL_ENABLE_Msk;
@@ -31,12 +31,12 @@ void initEventsController(void)
     wait_until_bits_clear(IWDG->SR, IWDG_SR_PVU);
     iwdg_unlock();
     IWDG->PR = 1;
+
     wait_until_bits_clear(IWDG->SR, IWDG_SR_RVU);
     iwdg_unlock();
     IWDG->RLR = 1000 * LSI_FREQUENCY - 1;
-    // +++ TEST
-    // iwdg_start();
-    // +++ TEST
+
+    iwdg_start();
 }
 
 void SysTick_Handler(void)

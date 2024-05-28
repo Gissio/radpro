@@ -279,6 +279,12 @@ enum
     DISPLAY_BRIGHTNESS_NUM,
 };
 
+#if defined(GC01) || defined(SIMULATOR)
+#define DISPLAY_PANEL_1 "CL24CG1045-40B"
+#define DISPLAY_PANEL_2 "ENH-TV0240B026"
+#define DISPLAY_PANEL_3 "GMT024-05 V2.0"
+#endif
+
 enum
 {
     RTC_TIMEZONE_M1200,
@@ -392,6 +398,9 @@ typedef struct
 #endif
     unsigned int displayBrightness : 2;
     unsigned int displaySleep : 3;
+#if defined(DISPLAY_PANEL)
+    unsigned int displayPanel : 2;
+#endif
 
     unsigned int rtcTimeZone : 5;
     unsigned int rtcTimeFormat : 1;

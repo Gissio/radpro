@@ -18,7 +18,7 @@ To start installing Rad Pro, turn off the device, remove the screws holding the 
 
 The board should look like in the photo above. If it does not, you may have a different hardware revision. In this case, Rad Pro may not function properly.
 
-If your board looks different and Rad Pro does not work, create an issue on https://github.com/Gissio/radpro/issues.
+If your board looks different and Rad Pro does not work, create an [issue](https://github.com/Gissio/radpro/issues).
 
 ## Step 2: Connect the programmer
 
@@ -48,6 +48,8 @@ Now, download the latest `radpro-flashtool` from the [Rad Pro releases](https://
 The installation will automatically create a backup of the original firmware in the `backup` folder, so you can recover your device if something goes wrong. Make sure you keep the backups safe, so you can always return to the original firmware. To flash a backup, drag it onto `bosean-fs5000-install.bat` (Windows) or `bosean-fs5000-install.sh` (macOS/Linux).
 
 Before closing the device, take note of the type of Geiger tube: the markings on the glass should be either J321, J305, M4011 or J614. If you have an unmarked tube measuring 55 or 65 mm long, you probably have a J614 or J613 tube, respectively.
+
+Also take note of the type of LCD display: the marking on the ribbon cable should be “FPC1-H24C159-01W”. If it is not, please create an [issue](https://github.com/Gissio/radpro/issues).
 
 ## Step 4: Configure your device
 

@@ -371,7 +371,7 @@ void triggerDisplay(void)
 
 bool isDisplayTimerActive(void)
 {
-    return events.displayTimer > PULSE_FLASH_TICKS;
+    return events.displayTimer > ALARM_FLASH_TICKS;
 }
 
 void setPulseThresholding(bool value)

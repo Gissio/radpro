@@ -122,16 +122,16 @@ bool displayOn;
 static uint8_t displayTextbuffer[86 * 86];
 
 static const uint8_t displayInitSequence[] = {
-    MR_SEND_COMMAND(MR_ST7789_VCOMS),
-    MR_SEND_DATA(0x2b), // Set: 1.175 V (default 0.9 V)
-    MR_SEND_COMMAND(MR_ST7789_VRHS),
-    MR_SEND_DATA(0x11), // Set: -4.4 V (default -4.1 V)
-    MR_SEND_COMMAND(MR_ST7789_PWCTRL1),
-    MR_SEND_DATA(0xa4), // Set: AVDD 6.8 V, AVCL -4.8 V, VDDS 2.3 V
-    MR_SEND_DATA(0xa1),
     MR_SEND_COMMAND(MR_ST7789_RAMCTRL),
     MR_SEND_DATA(0x00),
     MR_SEND_DATA(0xe0),
+    MR_SEND_COMMAND(MR_ST7789_VCOMS),
+    MR_SEND_DATA(0x2b), // Set: 1.175 V (default 0.9 V)
+    MR_SEND_COMMAND(MR_ST7789_VRHS),
+    MR_SEND_DATA(0x11), // Set: 4.4 V (default 4.1 V)
+    MR_SEND_COMMAND(MR_ST7789_PWCTRL1),
+    MR_SEND_DATA(0xa4), // Set: AVDD 6.8 V, AVCL -4.8 V, VDDS 2.3 V
+    MR_SEND_DATA(0xa1),
     MR_SEND_COMMAND(MR_ST7789_PVGAMCTRL),
     MR_SEND_DATA(0xd0),
     MR_SEND_DATA(0x00),
@@ -162,7 +162,6 @@ static const uint8_t displayInitSequence[] = {
     MR_SEND_DATA(0x18),
     MR_SEND_DATA(0x16),
     MR_SEND_DATA(0x19),
-
     MR_END(),
 };
 

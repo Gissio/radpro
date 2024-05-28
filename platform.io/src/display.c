@@ -2216,19 +2216,24 @@ void drawGame(const uint8_t board[8][8],
 
 // Display menu
 
-const View displayContrastMenuView;
 const View displayThemeMenuView;
+const View displayContrastMenuView;
 const View displayBrightnessMenuView;
 const View displaySleepMenuView;
+const View displayPanelMenuView;
 
 static const OptionView displayMenuOptions[] = {
-#if defined(DISPLAY_MONOCHROME)
-    {"Contrast", &displayContrastMenuView},
-#elif defined(DISPLAY_COLOR)
+#if defined(DISPLAY_COLOR)
     {"Theme", &displayThemeMenuView},
 #endif
     {"Brightness", &displayBrightnessMenuView},
+#if defined(DISPLAY_MONOCHROME)
+    {"Contrast", &displayContrastMenuView},
+#endif
     {"Sleep", &displaySleepMenuView},
+#if defined(DISPLAY_PANEL)
+    {"Panel", &displayPanelMenuView},
+#endif
     {NULL},
 };
 
@@ -2246,7 +2251,7 @@ static void onDisplayMenuSelect(const Menu *menu)
     setView(displayMenuOptions[menu->state->selectedIndex].view);
 }
 
-static void onDisplaySubMenuBack(const Menu *menu)
+void onDisplaySubMenuBack(const Menu *menu)
 {
     setView(&displayMenuView);
 }
@@ -2439,6 +2444,56 @@ const View displaySleepMenuView = {
     onMenuEvent,
     &displaySleepMenu,
 };
+
+// Display panel menu
+
+#if defined(DISPLAY_PANEL)
+
+static const char *const displayPanelMenuOptions[] = {
+#if defined(DISPLAY_PANEL_1)
+    DISPLAY_PANEL_1,
+#endif
+#if defined(DISPLAY_PANEL_2)
+    DISPLAY_PANEL_2,
+#endif
+#if defined(DISPLAY_PANEL_3)
+    DISPLAY_PANEL_3,
+#endif
+    NULL,
+};
+
+static const char *onDisplayPanelMenuGetOption(const Menu *menu,
+                                              uint32_t index,
+                                              MenuStyle *menuStyle)
+{
+    *menuStyle = (index == settings.displayPanel);
+
+    return displayPanelMenuOptions[index];
+}
+
+static void onDisplayPanelMenuSelect(const Menu *menu)
+{
+    settings.displayPanel = menu->state->selectedIndex;
+
+    updateDisplayPanel();
+}
+
+static MenuState displayPanelMenuState;
+
+static const Menu displayPanelMenu = {
+    "Panel",
+    &displayPanelMenuState,
+    onDisplayPanelMenuGetOption,
+    onDisplayPanelMenuSelect,
+    onDisplaySubMenuBack,
+};
+
+const View displayPanelMenuView = {
+    onMenuEvent,
+    &displayPanelMenu,
+};
+
+#endif
 
 // Display flashes menu
 
