@@ -1,5 +1,11 @@
 # Releases
 
+## 2.0rc6
+
+* Modified default J613/J614 conversion factor to 34.2 cpm/µSv/h.
+* Unified display panel settings of the FNIRSI GC-01.
+* Increased granularity for the "SET tubeHVFrequency" and "SET tubeHVDutyCycle" data communication commands (not stored in the settings).
+
 ## 2.0rc5 The final countdown
 
 * Added Bosean FS-5000 support.

@@ -20,7 +20,7 @@
 static const Menu tubeConversionFactorMenu;
 static const Menu tubeDeadTimeCompensationMenu;
 static const Menu tubeBackgroundCompensationMenu;
-#if defined(TUBE_HV_PWM)    
+#if defined(TUBE_HV_PWM)
 static const Menu tubeHVProfileMenu;
 static const Menu tubeHVCustomProfileMenu;
 static const Menu tubeHVDutyCycleMenu;
@@ -31,7 +31,7 @@ static const Menu tubeInstantaneousAveragingMenu;
 static const View tubeConversionFactorMenuView;
 static const View tubeDeadTimeCompensationMenuView;
 static const View tubeBackgroundCompensationMenuView;
-#if defined(TUBE_HV_PWM)    
+#if defined(TUBE_HV_PWM)
 static const View tubeHVProfileMenuView;
 static const View tubeHVCustomProfileWarningView;
 static const View tubeHVCustomProfileMenuView;
@@ -39,6 +39,17 @@ static const View tubeHVDutyCycleMenuView;
 static const View tubeHVrequencyMenuView;
 #endif
 static const View tubeInstantaneousAveragingMenuView;
+
+#if defined(TUBE_HV_PWM)
+static struct
+{
+    float hvFrequency;
+    float hvDutyCycle;
+} tube;
+#endif
+
+static float getTubeHVCustomProfileFrequency(uint32_t index);
+static float getTubeHVCustomProfileDutyCycle(uint32_t index);
 
 void initTube(void)
 {
@@ -56,7 +67,11 @@ void initTube(void)
     selectMenuItem(&tubeBackgroundCompensationMenu,
                    settings.tubeBackgroundCompensation,
                    TUBE_BACKGROUNDCOMPENSATION_NUM);
+
 #if defined(TUBE_HV_PWM)
+    tube.hvFrequency = getTubeHVCustomProfileFrequency(settings.tubeHVFrequency);
+    tube.hvDutyCycle = getTubeHVCustomProfileDutyCycle(settings.tubeHVDutyCycle);
+
     selectMenuItem(&tubeHVProfileMenu,
                    settings.tubeHVProfile,
                    TUBE_HVPROFILE_NUM);
@@ -137,8 +152,8 @@ const View tubeMenuView = {
 static const float tubeConversionFactorMenuPresets[] = {
     153.8F,
     153.8F,
-    68.4F,
-    68.4F,
+    38.4F,
+    38.4F,
     153.8F,
     153.8F,
 };
@@ -392,7 +407,7 @@ static const View tubeBackgroundCompensationMenuView = {
 
 // Tube HV profile menu
 
-#if defined(TUBE_HV_PWM)    
+#if defined(TUBE_HV_PWM)
 
 static const char *const tubeHVProfileMenuOptions[] = {
     "Factory default",
@@ -454,7 +469,7 @@ static void onTubeHVGeneratorSubMenuBack(const Menu *menu)
 
 // Tube HV custom profile warning
 
-#if defined(TUBE_HV_PWM)    
+#if defined(TUBE_HV_PWM)
 
 static void onHVCustomProfileWarningEvent(const View *view, Event event)
 {
@@ -494,7 +509,7 @@ static const View tubeHVCustomProfileWarningView = {
 
 // Tube HV custom profile menu
 
-#if defined(TUBE_HV_PWM)    
+#if defined(TUBE_HV_PWM)
 
 static const char *const tubeHVCustomProfileMenuOptions[] = {
     "PWM frequency",
@@ -558,7 +573,7 @@ static const char *const tubeHVFrequencyMenuOptions[] = {
     NULL,
 };
 
-float getTubeHVCustomProfileFrequency(uint32_t index)
+static float getTubeHVCustomProfileFrequency(uint32_t index)
 {
     uint32_t value = 1250 << index;
 
@@ -583,7 +598,7 @@ float getTubeHVFrequency(void)
 #endif
 
     case TUBE_HVPROFILE_CUSTOM:
-        return getTubeHVCustomProfileFrequency(settings.tubeHVFrequency);
+        return tube.hvFrequency;
 
     default:
         return 1250;
@@ -592,6 +607,13 @@ float getTubeHVFrequency(void)
 
 void setTubeHVFrequency(float value)
 {
+    if (value > 40000.0F)
+        value = 40000.0F;
+    else if (value < 100.0F)
+        value = 100.0F;
+
+    tube.hvFrequency = value;
+
     uint32_t tubeHVFrequency = log2f(value / 1250);
     if (tubeHVFrequency < 0)
         tubeHVFrequency = 0;
@@ -639,7 +661,7 @@ static const View tubeHVrequencyMenuView = {
 
 // Tube HV duty cycle menu
 
-#if defined(TUBE_HV_PWM)    
+#if defined(TUBE_HV_PWM)
 
 static float getTubeHVCustomProfileDutyCycle(uint32_t index)
 {
@@ -666,7 +688,7 @@ float getTubeHVDutyCycle(void)
 #endif
 
     case TUBE_HVPROFILE_CUSTOM:
-        return getTubeHVCustomProfileDutyCycle(settings.tubeHVDutyCycle);
+        return tube.hvDutyCycle;
 
     default:
         return 0;
@@ -675,6 +697,13 @@ float getTubeHVDutyCycle(void)
 
 void setTubeHVDutyCycle(float value)
 {
+    if (value > 1)
+        value = 1;
+    else if (value < 0)
+        value = 0;
+
+    tube.hvDutyCycle = value;
+
     uint32_t tubeHVDutyCycle = (value - TUBE_HVDUTYCYCLE_MIN / 2) /
                                TUBE_HVDUTYCYCLE_STEP;
     if (tubeHVDutyCycle < 0)

@@ -73,8 +73,8 @@ Rad Pro comes with default conversion factors for various Geiger-Müller tubes:
 
 * J305: 153.8 cpm/µSv/h
 * J321: 153.8 cpm/µSv/h
-* J613: 68.4 cpm/µSv/h
-* J614: 68.4 cpm/µSv/h
+* J613: 34.2 cpm/µSv/h
+* J614: 34.2 cpm/µSv/h
 * M4011: 153.8 cpm/µSv/h
 * SBM-20: 153.8 cpm/µSv/h
 
