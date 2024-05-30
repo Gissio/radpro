@@ -263,7 +263,11 @@ void initDisplayController(void)
     mr_st7789_init(&mr,
                    240,
                    320,
+#if defined(DISPLAY_240X320)
                    MR_DISPLAY_ROTATION_0,
+#else
+                   MR_DISPLAY_ROTATION_270,
+#endif
                    displayTextbuffer,
                    sizeof(displayTextbuffer),
                    onDisplaySleep,

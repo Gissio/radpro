@@ -22,6 +22,7 @@ ${SERCOMM_LIB}
 
 add_definitions(-D SIMULATOR)
 add_definitions(-D SIMULATE_PULSES)
+add_definitions(-D TUBE_HV_PWM)
 add_definitions(-D BATTERY_REMOVABLE)
 add_definitions(-D KEYBOARD_5KEYS)
 # add_definitions(-D DISPLAY_PANEL)

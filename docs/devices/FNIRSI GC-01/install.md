@@ -36,11 +36,13 @@ If you are unable to install Rad Pro on your device, or your device becomes unre
 
 Go to Rad Pro's settings, select “Geiger tube”, “Conversion factor”, and select the option that matches the Geiger-Müller tube installed in your device.
 
-Within the “Geiger tube” settings, select “HV Profile” and choose an appropriate HV profile: “Energy-saving” is best for measuring background levels of radiation; if the previous profile does not produce any clicks, select “Energy-saving alt.” - **WARNING:** do not use “Energy-saving alt.” if “Energy-saving” works; “Factory default” is the profile from the original firmware and consumes considerably more power.
+Within the “Geiger tube” settings, select “HV Profile” and choose an appropriate HV profile: “Energy-saving” is best for measuring background levels of radiation; “Factory default” is the profile from the original firmware and consumes considerably more power.
+
+If the “Energy-saving” does not produce any tube counts, you will need to setup a custom HV profile to reduce power consumption.
+
+If your device produces spontaneous key presses by itself, select the “Energy-saving” HV profile or use custom HV profile to fix this problem.
 
 Also, go to the “Display” settings, select “Type” and choose the type that matches the marking on the display's ribbon cable.
-
-If your device produces spontaneous key presses by itself, select the “Energy-saving” HV profile to fix this problem.
 
 Last, read the [user's manual](../../users.md) for learning how to use Rad Pro.
 
@@ -71,7 +73,6 @@ The HV profile settings are:
 
 * Factory default: 9.207 kHz frequency and 75% duty cycle.
 * Energy-saving: 5 kHz frequency and 1.5% duty cycle.
-* Energy-saving alt.: 5 kHz frequency and 50% duty cycle.
 
 ### FNIRSI GC-01 with a APM32F103R8 (Geehy) processor
 
@@ -83,4 +84,3 @@ The HV profile settings are:
 
 * Factory default: 47.058 kHz frequency and 50% duty cycle.
 * Energy-saving: 5 kHz frequency and 1.5% duty cycle.
-* Energy-saving alt.: 5 kHz frequency and 50% duty cycle.
