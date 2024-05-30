@@ -53,10 +53,6 @@ void initDisplayController(void)
 #endif
 }
 
-void updateDisplayPanel(void)
-{
-}
-
 void setDisplayOn(bool value)
 {
     displayOn = value;

@@ -59,8 +59,6 @@ void initDisplay(void);
 void initDisplayController(void);
 void initDisplayBacklight(void);
 
-void updateDisplayPanel(void);
-
 void setDisplayOn(bool value);
 bool isDisplayOn(void);
 

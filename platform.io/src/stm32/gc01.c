@@ -139,66 +139,6 @@ bool displayOn;
 
 static uint8_t displayTextbuffer[86 * 86];
 
-static const uint8_t displayCL24CG104540BInitSequence[] = {
-    MR_SEND_COMMAND(MR_ST7789_RAMCTRL),
-    MR_SEND_DATA(0x00),
-    MR_SEND_DATA(0xe0),
-    MR_SEND_COMMAND(MR_ST7789_PORCTRL),
-    MR_SEND_DATA(0x0c),
-    MR_SEND_DATA(0x0c),
-    MR_SEND_DATA(0x00),
-    MR_SEND_DATA(0x33),
-    MR_SEND_DATA(0x33),
-    MR_SEND_COMMAND(MR_ST7789_GCTRL),
-    MR_SEND_DATA(0x35), // VGLS=-10.43 V, VGHS=13.26 V
-    MR_SEND_COMMAND(MR_ST7789_VCOMS),
-    MR_SEND_DATA(0x28), // VCOM=1.1 V
-    MR_SEND_COMMAND(MR_ST7789_VRHS),
-    MR_SEND_DATA(0x0b), // VRH=4.1 V
-    MR_SEND_COMMAND(MR_ST7789_FRCTRL2),
-    MR_SEND_DATA(0x0f), // 60 Hz
-    MR_SEND_COMMAND(MR_ST7789_PWCTRL1),
-    MR_SEND_DATA(0xa4), // AVDD=6.8 V, AVCL=-4.8 V, VDDS=2.3 V
-    MR_SEND_DATA(0xa1),
-    MR_SEND_COMMAND(MR_ST7789_PVGAMCTRL),
-    MR_SEND_DATA(0xd0),
-    MR_SEND_DATA(0x01),
-    MR_SEND_DATA(0x08),
-    MR_SEND_DATA(0x0f),
-    MR_SEND_DATA(0x11),
-    MR_SEND_DATA(0x2a),
-    MR_SEND_DATA(0x36),
-    MR_SEND_DATA(0x55),
-    MR_SEND_DATA(0x44),
-    MR_SEND_DATA(0x3a),
-    MR_SEND_DATA(0x0b),
-    MR_SEND_DATA(0x06),
-    MR_SEND_DATA(0x11),
-    MR_SEND_DATA(0x20),
-    MR_SEND_COMMAND(MR_ST7789_NVGAMCTRL),
-    MR_SEND_DATA(0xd0),
-    MR_SEND_DATA(0x02),
-    MR_SEND_DATA(0x07),
-    MR_SEND_DATA(0x0a),
-    MR_SEND_DATA(0x0b),
-    MR_SEND_DATA(0x18),
-    MR_SEND_DATA(0x34),
-    MR_SEND_DATA(0x43),
-    MR_SEND_DATA(0x4a),
-    MR_SEND_DATA(0x2b),
-    MR_SEND_DATA(0x1b),
-    MR_SEND_DATA(0x1c),
-    MR_SEND_DATA(0x22),
-    MR_SEND_DATA(0x1f),
-    MR_SEND_COMMAND(MR_ST7789_PWCTRL2),
-    MR_SEND_DATA(0x93), // SBCLK DIV 3, BCLK DIV 6
-    MR_SEND_COMMAND(MR_ST7789_EQCTRL),
-    MR_SEND_DATA(0x11), // SEQ=6.8 µs
-    MR_SEND_DATA(0x11), // SPRET=6.8 µs
-    MR_SEND_DATA(0x08), // GEQ=3.2 µs
-    MR_END(),
-};
-
 static const uint8_t displayENHTV0240B026InitSequence[] = {
     MR_SEND_COMMAND(MR_ST7789_RAMCTRL),
     MR_SEND_DATA(0x00),
@@ -259,66 +199,6 @@ static const uint8_t displayENHTV0240B026InitSequence[] = {
     MR_END(),
 };
 
-static const uint8_t displayGMT02405V20InitSequence[] = {
-    MR_SEND_COMMAND(MR_ST7789_RAMCTRL),
-    MR_SEND_DATA(0x00),
-    MR_SEND_DATA(0xe0),
-    MR_SEND_COMMAND(MR_ST7789_PORCTRL),
-    MR_SEND_DATA(0x05),
-    MR_SEND_DATA(0x05),
-    MR_SEND_DATA(0x00),
-    MR_SEND_DATA(0x33),
-    MR_SEND_DATA(0x33),
-    MR_SEND_COMMAND(MR_ST7789_GCTRL),
-    MR_SEND_DATA(0x05), // VGLS=-10.43 V, VGHS=12.2 V
-    MR_SEND_COMMAND(MR_ST7789_VCOMS),
-    MR_SEND_DATA(0x39), // VCOM=1.525 V
-    MR_SEND_COMMAND(MR_ST7789_VRHS),
-    MR_SEND_DATA(0x0f), // VRH=4.3 V
-    MR_SEND_COMMAND(MR_ST7789_FRCTRL2),
-    MR_SEND_DATA(0x01), // 111 Hz
-    MR_SEND_COMMAND(MR_ST7789_PWCTRL1),
-    MR_SEND_DATA(0xa4), // AVDD=6.8 V, AVCL=-4.8 V, VDDS=2.3 V
-    MR_SEND_DATA(0xa1),
-    MR_SEND_COMMAND(MR_ST7789_PVGAMCTRL),
-    MR_SEND_DATA(0xd0),
-    MR_SEND_DATA(0x05),
-    MR_SEND_DATA(0x09),
-    MR_SEND_DATA(0x09),
-    MR_SEND_DATA(0x08),
-    MR_SEND_DATA(0x14),
-    MR_SEND_DATA(0x28),
-    MR_SEND_DATA(0x33),
-    MR_SEND_DATA(0x3f),
-    MR_SEND_DATA(0x07),
-    MR_SEND_DATA(0x13),
-    MR_SEND_DATA(0x14),
-    MR_SEND_DATA(0x28),
-    MR_SEND_DATA(0x30),
-    MR_SEND_COMMAND(MR_ST7789_NVGAMCTRL),
-    MR_SEND_DATA(0xd0),
-    MR_SEND_DATA(0x05),
-    MR_SEND_DATA(0x09),
-    MR_SEND_DATA(0x09),
-    MR_SEND_DATA(0x08),
-    MR_SEND_DATA(0x03),
-    MR_SEND_DATA(0x24),
-    MR_SEND_DATA(0x32),
-    MR_SEND_DATA(0x32),
-    MR_SEND_DATA(0x3B),
-    MR_SEND_DATA(0x14),
-    MR_SEND_DATA(0x13),
-    MR_SEND_DATA(0x28),
-    MR_SEND_DATA(0x2f),
-    MR_SEND_COMMAND(MR_ST7789_PWCTRL2),
-    MR_SEND_DATA(0x03), // SBCLK DIV 2, BCLK DIV 6
-    MR_SEND_COMMAND(MR_ST7789_EQCTRL),
-    MR_SEND_DATA(0x09), // SEQ=3.6 µs
-    MR_SEND_DATA(0x09), // SPRET=3.6 µs
-    MR_SEND_DATA(0x08), // GEQ=3.2 µs
-    MR_END(),
-};
-
 #if defined(GC01_DISPLAY_SPI)
 static const uint8_t displayIPSInitSequence[] = {
     MR_SEND_COMMAND(MR_ST7789_INVON), // Inverse for IPS displays
@@ -326,35 +206,6 @@ static const uint8_t displayIPSInitSequence[] = {
     MR_END(),
 };
 #endif
-
-void updateDisplayPanel(void)
-{
-    switch (settings.displayPanel)
-    {
-    case 0:
-        mr_send_sequence(&mr,
-                         displayCL24CG104540BInitSequence);
-
-        break;
-
-    case 1:
-        mr_send_sequence(&mr,
-                         displayENHTV0240B026InitSequence);
-
-        break;
-
-    case 2:
-        mr_send_sequence(&mr,
-                         displayGMT02405V20InitSequence);
-
-        break;
-    }
-
-#if defined(GC01_DISPLAY_SPI)
-    mr_send_sequence(&mr,
-                     displayIPSInitSequence);
-#endif
-}
 
 static void onDisplaySleep(uint32_t value)
 {
@@ -520,7 +371,13 @@ void initDisplayController(void)
                    onDisplaySend);
 #endif
 
-    updateDisplayPanel();
+    mr_send_sequence(&mr,
+                     displayENHTV0240B026InitSequence);
+
+#if defined(GC01_DISPLAY_SPI)
+    mr_send_sequence(&mr,
+                     displayIPSInitSequence);
+#endif
 }
 
 void setDisplayOn(bool value)

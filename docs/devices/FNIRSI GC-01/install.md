@@ -78,7 +78,7 @@ The HV profile settings are:
 
 On the FNIRSI GC-01 with an APM32F103R8 (Geehy) processor, the USB data connection is always available. 
 
-Data logging can store up to 61793 data points. At normal radiation levels (20 cpm), this allows for 1287 days of data at 60-minute intervals, 214 days at 10-minute intervals, 42 days at 1-minute intervals, 7 days at 10-second intervals and 17 hours at 1-second intervals.
+Data logging can store up to 63819 data points. At normal radiation levels (20 cpm), this allows for 1329 days of data at 60-minute intervals, 221 days at 10-minute intervals, 44 days at 1-minute intervals, 7 days at 10-second intervals and 17 hours at 1-second intervals.
 
 The HV profile settings are:
 

@@ -2220,7 +2220,6 @@ const View displayThemeMenuView;
 const View displayContrastMenuView;
 const View displayBrightnessMenuView;
 const View displaySleepMenuView;
-const View displayPanelMenuView;
 
 static const OptionView displayMenuOptions[] = {
 #if defined(DISPLAY_COLOR)
@@ -2231,9 +2230,6 @@ static const OptionView displayMenuOptions[] = {
     {"Contrast", &displayContrastMenuView},
 #endif
     {"Sleep", &displaySleepMenuView},
-#if defined(DISPLAY_PANEL)
-    {"Panel", &displayPanelMenuView},
-#endif
     {NULL},
 };
 
@@ -2444,56 +2440,6 @@ const View displaySleepMenuView = {
     onMenuEvent,
     &displaySleepMenu,
 };
-
-// Display panel menu
-
-#if defined(DISPLAY_PANEL)
-
-static const char *const displayPanelMenuOptions[] = {
-#if defined(DISPLAY_PANEL_1)
-    DISPLAY_PANEL_1,
-#endif
-#if defined(DISPLAY_PANEL_2)
-    DISPLAY_PANEL_2,
-#endif
-#if defined(DISPLAY_PANEL_3)
-    DISPLAY_PANEL_3,
-#endif
-    NULL,
-};
-
-static const char *onDisplayPanelMenuGetOption(const Menu *menu,
-                                              uint32_t index,
-                                              MenuStyle *menuStyle)
-{
-    *menuStyle = (index == settings.displayPanel);
-
-    return displayPanelMenuOptions[index];
-}
-
-static void onDisplayPanelMenuSelect(const Menu *menu)
-{
-    settings.displayPanel = menu->state->selectedIndex;
-
-    updateDisplayPanel();
-}
-
-static MenuState displayPanelMenuState;
-
-static const Menu displayPanelMenu = {
-    "Panel",
-    &displayPanelMenuState,
-    onDisplayPanelMenuGetOption,
-    onDisplayPanelMenuSelect,
-    onDisplaySubMenuBack,
-};
-
-const View displayPanelMenuView = {
-    onMenuEvent,
-    &displayPanelMenu,
-};
-
-#endif
 
 // Display flashes menu
 
