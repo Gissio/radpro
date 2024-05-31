@@ -23,7 +23,7 @@
 #define FIRMWARE_SIZE 0xa000
 #elif defined(APM32)
 #define FLASH_SIZE 0x20000
-#define FIRMWARE_SIZE 0xc000
+#define FIRMWARE_SIZE 0xc800
 #endif
 
 #define PWR_EN_PORT GPIOA

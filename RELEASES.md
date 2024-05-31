@@ -1,10 +1,10 @@
 # Releases
 
-## 2.0rc6
+## 2.0
 
 * Modified default J613/J614 conversion factor to 34.2 cpm/µSv/h.
 * Unified display panel settings of the FNIRSI GC-01.
-* Increased granularity for the "SET tubeHVFrequency" and "SET tubeHVDutyCycle" data communication commands (not stored in the settings).
+* Increased granularity of the "SET tubeHVFrequency" and "SET tubeHVDutyCycle" data communication requests (not stored in settings).
 
 ## 2.0rc5 The final countdown
 
@@ -15,7 +15,7 @@
 * Added 1 second datalog interval options and removed 30 seconds and 30 minutes datalog interval options.
 * Added "SET tubeHVFrequency" and "SET tubeHVDutyCycle" data communication commands.
 * Added 12-hour time format.
-* Devices with data mode allow using the device wile data mode is active; data mode state is also preserved after powering off.
+* Devices with data mode allow using the device while data mode is active; data mode state is also preserved after powering off.
 * Improved battery level indicator of the Bosean FS-600/FS-1000.
 * Improved battery level readout of the FS2011(STM32F051), Bosean FS-600/FS-1000.
 * Improved keyboard control scheme of the Bosean FS-1000.
