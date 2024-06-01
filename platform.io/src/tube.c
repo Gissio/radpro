@@ -152,8 +152,8 @@ const View tubeMenuView = {
 static const float tubeConversionFactorMenuPresets[] = {
     153.8F,
     153.8F,
-    38.4F,
-    38.4F,
+    30.0F,
+    30.0F,
     153.8F,
     153.8F,
 };
@@ -607,8 +607,8 @@ float getTubeHVFrequency(void)
 
 void setTubeHVFrequency(float value)
 {
-    if (value > 40000.0F)
-        value = 40000.0F;
+    if (value > 100000.0F)
+        value = 100000.0F;
     else if (value < 100.0F)
         value = 100.0F;
 

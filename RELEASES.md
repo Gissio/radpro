@@ -2,9 +2,10 @@
 
 ## 2.0
 
-* Modified default J613/J614 conversion factor to 34.2 cpm/µSv/h.
+* First 2.0 release.
+* Modified default J613/J614 conversion factor to 30.0 cpm/µSv/h.
 * Unified display panel settings of the FNIRSI GC-01.
-* Increased granularity of the "SET tubeHVFrequency" and "SET tubeHVDutyCycle" data communication requests (not stored in settings).
+* "SET tubeHVFrequency" and "SET tubeHVDutyCycle" set now automatically the custom HV profile; also increased their granularity and range from 100 Hz to 100 kHz, 0 % to 100 %.
 
 ## 2.0rc5 The final countdown
 
@@ -50,7 +51,7 @@
 
 ## 2.0rc2
 
-* Fixed flash programming code.
+* Fixed flash programming.
 * Fixed FNIRSI GC-01 battery indicator.
 * Fixed conversion factor menu logic.
 
