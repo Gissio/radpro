@@ -126,9 +126,9 @@ static const uint8_t displayInitSequence[] = {
     MR_SEND_DATA(0x00),
     MR_SEND_DATA(0xe0),
     MR_SEND_COMMAND(MR_ST7789_VCOMS),
-    MR_SEND_DATA(0x2b), // VCOM=1.175 V
+    MR_SEND_DATA(0x36), // VCOM=1.45 V
     MR_SEND_COMMAND(MR_ST7789_VRHS),
-    MR_SEND_DATA(0x11), // VRH=4.4 V
+    MR_SEND_DATA(0x12), // VRH=4.45 V
     MR_SEND_COMMAND(MR_ST7789_PWCTRL1),
     MR_SEND_DATA(0xa4), // AVDD=6.8 V, AVCL=-4.8 V, VDDS=2.3 V
     MR_SEND_DATA(0xa1),
