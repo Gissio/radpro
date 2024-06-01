@@ -139,24 +139,14 @@ bool displayOn;
 
 static uint8_t displayTextbuffer[86 * 86];
 
-static const uint8_t displayENHTV0240B026InitSequence[] = {
+static const uint8_t displayInitSequence[] = {
     MR_SEND_COMMAND(MR_ST7789_RAMCTRL),
     MR_SEND_DATA(0x00),
     MR_SEND_DATA(0xe0),
-    MR_SEND_COMMAND(MR_ST7789_PORCTRL),
-    MR_SEND_DATA(0x0c),
-    MR_SEND_DATA(0x0c),
-    MR_SEND_DATA(0x00),
-    MR_SEND_DATA(0x33),
-    MR_SEND_DATA(0x33),
-    MR_SEND_COMMAND(MR_ST7789_GCTRL),
-    MR_SEND_DATA(0x35), // VGLS=-10.43 V, VGHS=13.26 V
     MR_SEND_COMMAND(MR_ST7789_VCOMS),
     MR_SEND_DATA(0x36), // VCOM=1.45 V
     MR_SEND_COMMAND(MR_ST7789_VRHS),
     MR_SEND_DATA(0x12), // VRH=4.45 V
-    MR_SEND_COMMAND(MR_ST7789_FRCTRL2),
-    MR_SEND_DATA(0x0f), // 60 Hz
     MR_SEND_COMMAND(MR_ST7789_PWCTRL1),
     MR_SEND_DATA(0xa4), // AVDD=6.8 V, AVCL=-4.8 V, VDDS=2.3 V
     MR_SEND_DATA(0xa1),
@@ -190,12 +180,6 @@ static const uint8_t displayENHTV0240B026InitSequence[] = {
     MR_SEND_DATA(0x18),
     MR_SEND_DATA(0x16),
     MR_SEND_DATA(0x19),
-    MR_SEND_COMMAND(MR_ST7789_PWCTRL2),
-    MR_SEND_DATA(0x93), // SBCLK DIV 3, BCLK DIV 6
-    MR_SEND_COMMAND(MR_ST7789_EQCTRL),
-    MR_SEND_DATA(0x11), // SEQ=6.8 µs
-    MR_SEND_DATA(0x11), // SPRET=6.8 µs
-    MR_SEND_DATA(0x08), // GEQ=3.2 µs
     MR_END(),
 };
 
@@ -372,7 +356,7 @@ void initDisplayController(void)
 #endif
 
     mr_send_sequence(&mr,
-                     displayENHTV0240B026InitSequence);
+                     displayInitSequence);
 
 #if defined(GC01_DISPLAY_SPI)
     mr_send_sequence(&mr,
