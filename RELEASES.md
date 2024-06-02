@@ -3,7 +3,7 @@
 ## 2.0
 
 * First 2.0 release.
-* Updated the UI design system to [OpenBridge 5.0](https://www.openbridge.no/), whose colors meet the [WCAG 2.1](https://www.w3.org/WAI/standards-guidelines/wcag/glance/) standard.
+* Updated the UI design system to [OpenBridge 5.0](https://www.openbridge.no/), which complies with the [WCAG 2.1](https://www.w3.org/WAI/standards-guidelines/wcag/glance/) standard.
 * Modified default J613/J614 conversion factor to 30.0 cpm/µSv/h.
 * Unified display panel settings of the FNIRSI GC-01.
 * "SET tubeHVFrequency" and "SET tubeHVDutyCycle" set now automatically the custom HV profile; also increased their granularity and range from 100 Hz to 100 kHz, 0 % to 100 %.

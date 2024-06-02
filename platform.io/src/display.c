@@ -578,52 +578,52 @@ static const mr_color_t displayColors[][3] = {
 
     // Instrument enhanced primary alert zone 1
     {mr_get_color(0x2e548e),
-     mr_get_color(0x4980a9),
+     mr_get_color(0x45789f),
      mr_get_color(0x002911)},
 
     // Instrument enhanced tertiary (on instrument frame primary) alert zone 1
     {mr_get_color(0xc5cdd9),
-     mr_get_color(0x323b44),
+     mr_get_color(0x2f3740),
      mr_get_color(0x060f02)}, // 0x060e02
 
     // Instrument enhanced tertiary (on instrument frame tertiary) alert zone 1
     {mr_get_color(0xaab1bd),
-     mr_get_color(0x1d252f),
+     mr_get_color(0x1b232c),
      mr_get_color(0x151f02)},
 
     // Instrument frame primary alert zone 1
     {mr_get_color(0xebedeb), // 0xebebeb
-     mr_get_color(0x2b2a2b), // 0x2b2b2b
+     mr_get_color(0x292929), // 0x2b2b2b
      mr_get_color(0x080800)},
 
     // Instrument frame tertiary alert zone 1
     {mr_get_color(0xc8c8c8),
-     mr_get_color(0x111111),
+     mr_get_color(0x101010),
      mr_get_color(0x1a1d00)},
 
     // Instrument enhanced primary alert zone 2
     {mr_get_color(0x2a4d83),
-     mr_get_color(0x3e6d90),
+     mr_get_color(0x37607f),
      mr_get_color(0x00210e)},
 
     // Instrument enhanced tertiary (on instrument frame primary) alert zone 2
     {mr_get_color(0xb6bdc8),
-     mr_get_color(0x323b44),
+     mr_get_color(0x262c33),
      mr_get_color(0x050b02)},
 
     // Instrument enhanced tertiary (on instrument frame tertiary) alert zone 2
     {mr_get_color(0x9da3ae),
-     mr_get_color(0x1d252f),
+     mr_get_color(0x161c23),
      mr_get_color(0x111902)},
 
     // Instrument frame primary alert zone 2
     {mr_get_color(0xd9d8d9),  // 0xd9d9d9
-     mr_get_color(0x252225),  // 0x252525
+     mr_get_color(0x212121),
      mr_get_color(0x060700)}, // 0x060600
 
     // Instrument frame tertiary alert zone 2
     {mr_get_color(0xb8b8b8),
-     mr_get_color(0x0e0f0e), // 0x0e0e0e
+     mr_get_color(0x0d0f0d), // 0x0d0d0d
      mr_get_color(0x151700)},
 
     // Instrument tickmark primary
