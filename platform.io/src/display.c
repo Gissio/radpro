@@ -533,133 +533,133 @@ typedef enum
 static const mr_color_t displayColors[][3] = {
     // Element active
     {mr_get_color(0x1a1a1a),
-     mr_get_color(0xffffff),
-     mr_get_color(0x686800)},
+     mr_get_color(0xf2f0f2), // 0xf2f2f2
+     mr_get_color(0x474700)},
 
     // Element neutral (on container background)
-    {mr_get_color(0x636363),
-     mr_get_color(0xabadab), // 0xababab
-     mr_get_color(0x474700)},
+    {mr_get_color(0x666366), // 0x666666
+     mr_get_color(0x9a9a9a),
+     mr_get_color(0x2e2f00)}, // 0x2e2e00
 
     // Container background [global background]
     {mr_get_color(0xf7f7f7),
-     mr_get_color(0x2e2f2e), // 0x2e2e2e
+     mr_get_color(0x1f1f1f),
      mr_get_color(0x000000)},
 
     // Container global [title bar background]
-    {mr_get_color(0xffffff), // 0xfcfcfc
-     mr_get_color(0x363736), // 0x363636
-     mr_get_color(0x000000)},
+    {mr_get_color(0xfcfdfc), // 0xfcfcfc
+     mr_get_color(0x262726), // 0x262626
+     mr_get_color(0x0a0a00)},
 
     // Instrument enhanced primary
-    {mr_get_color(0x166ce4),
-     mr_get_color(0x28a0ff),
-     mr_get_color(0x0f4c24)},
+    {mr_get_color(0x325b9a),
+     mr_get_color(0x5696c7),
+     mr_get_color(0x003315)},
 
     // Instrument enhanced tertiary (on instrument frame primary)
-    {mr_get_color(0xbad3f7),
-     mr_get_color(0x3b5266), // 0x3b5366
-     mr_get_color(0x051107)},
+    {mr_get_color(0xd6deeb),
+     mr_get_color(0x3b4550),
+     mr_get_color(0x081303)}, // 0x081203
 
     // Instrument enhanced tertiary (on instrument frame tertiary)
-    {mr_get_color(0x9db6da),
-     mr_get_color(0x183043),
-     mr_get_color(0x243007)},
+    {mr_get_color(0xb8c0cd),
+     mr_get_color(0x222c37),
+     mr_get_color(0x1a2703)},
 
     // Instrument frame primary
     {mr_get_color(0xffffff),
-     mr_get_color(0x404040),
-     mr_get_color(0x030300)},
+     mr_get_color(0x333233), // 0x333333
+     mr_get_color(0x0a0a00)},
 
     // Instrument frame tertiary
-    {mr_get_color(0xd6d6d6),
+    {mr_get_color(0xd9d8d9), // 0xd9d9d9
      mr_get_color(0x141214), // 0x141414
-     mr_get_color(0x292900)},
+     mr_get_color(0x212400)},
 
     // Instrument enhanced primary alert zone 1
-    {mr_get_color(0x1461ce),
-     mr_get_color(0x2490e6),
-     mr_get_color(0x0e4520)},
+    {mr_get_color(0x2e548e),
+     mr_get_color(0x4980a9),
+     mr_get_color(0x002911)},
 
     // Instrument enhanced tertiary (on instrument frame primary) alert zone 1
-    {mr_get_color(0xa8bedf),
-     mr_get_color(0x354a5c), // 0x354b5c
-     mr_get_color(0x050f06)},
+    {mr_get_color(0xc5cdd9),
+     mr_get_color(0x323b44),
+     mr_get_color(0x060f02)}, // 0x060e02
 
     // Instrument enhanced tertiary (on instrument frame tertiary) alert zone 1
-    {mr_get_color(0x8ea4c5),
-     mr_get_color(0x162b3c),
-     mr_get_color(0x202b06)},
+    {mr_get_color(0xaab1bd),
+     mr_get_color(0x1d252f),
+     mr_get_color(0x151f02)},
 
     // Instrument frame primary alert zone 1
-    {mr_get_color(0xe6e6e6),
-     mr_get_color(0x3a3a3a),
-     mr_get_color(0x030300)},
+    {mr_get_color(0xebedeb), // 0xebebeb
+     mr_get_color(0x2b2a2b), // 0x2b2b2b
+     mr_get_color(0x080800)},
 
     // Instrument frame tertiary alert zone 1
-    {mr_get_color(0xc1c0c1), // 0xc1c1c1
-     mr_get_color(0x121212),
-     mr_get_color(0x252500)},
+    {mr_get_color(0xc8c8c8),
+     mr_get_color(0x111111),
+     mr_get_color(0x1a1d00)},
 
     // Instrument enhanced primary alert zone 2
-    {mr_get_color(0x1257ba),
-     mr_get_color(0x2082cf),
-     mr_get_color(0x0d3e1d)},
+    {mr_get_color(0x2a4d83),
+     mr_get_color(0x3e6d90),
+     mr_get_color(0x00210e)},
 
     // Instrument enhanced tertiary (on instrument frame primary) alert zone 2
-    {mr_get_color(0x98abc9),
-     mr_get_color(0x304253), // 0x304453
-     mr_get_color(0x050e05)},
+    {mr_get_color(0xb6bdc8),
+     mr_get_color(0x323b44),
+     mr_get_color(0x050b02)},
 
     // Instrument enhanced tertiary (on instrument frame tertiary) alert zone 2
-    {mr_get_color(0x8094b2),
-     mr_get_color(0x142736),
-     mr_get_color(0x1d2705)},
+    {mr_get_color(0x9da3ae),
+     mr_get_color(0x1d252f),
+     mr_get_color(0x111902)},
 
     // Instrument frame primary alert zone 2
-    {mr_get_color(0xcfcfcf),
-     mr_get_color(0x343234), // 0x343434
-     mr_get_color(0x030300)},
+    {mr_get_color(0xd9d8d9),  // 0xd9d9d9
+     mr_get_color(0x252225),  // 0x252525
+     mr_get_color(0x060700)}, // 0x060600
 
     // Instrument frame tertiary alert zone 2
-    {mr_get_color(0xaeaeae),
-     mr_get_color(0x101010),
-     mr_get_color(0x212100)},
+    {mr_get_color(0xb8b8b8),
+     mr_get_color(0x0e0f0e), // 0x0e0e0e
+     mr_get_color(0x151700)},
 
     // Instrument tickmark primary
-    {mr_get_color(0x333333),
-     mr_get_color(0xc6c6c6),
-     mr_get_color(0x686800)},
+    {mr_get_color(0x333233), // 0x333333
+     mr_get_color(0xe6e6e6),
+     mr_get_color(0x474700)},
 
     // Instrument tickmark secondary
-    {mr_get_color(0x8c8c8c),
-     mr_get_color(0x828282),
-     mr_get_color(0x474700)},
+    {mr_get_color(0x707070),
+     mr_get_color(0x9c9c9c),
+     mr_get_color(0x333200)}, // 0x0x333300
 
     // Alarm
     {mr_get_color(0xdf1b1b),
      mr_get_color(0xe52626),
-     mr_get_color(0xac1515)},
+     mr_get_color(0x4d0005)},
 
     // Normal enabled background [menu background]
     {mr_get_color(0xffffff),
-     mr_get_color(0x424242),
+     mr_get_color(0x333233), // 0x333333
      mr_get_color(0x000000)},
 
     // Flat checked background (on container global) [menu selected background]
     {mr_get_color(0xd6dde9),  // Changed alpha to 20 %
-     mr_get_color(0x3a4d63),  // 0x394c6a, changed alpha to 50 %
-     mr_get_color(0x101c29)}, // 0x111e33, changed alpha to 35 %
+     mr_get_color(0x324563),  // Changed alpha to 50 %
+     mr_get_color(0x00230f)}, // Changed alpha to 50 %
 
     // On flat active (on container global) [menu selected foreground]
-    {mr_get_color(0x1a1a1a),
-     mr_get_color(0xffffff),
-     mr_get_color(0x686800)}, // 0x686800
+    {mr_get_color(0x161718),
+     mr_get_color(0xf2f0f2), // 0xf2f2f2
+     mr_get_color(0x474700)},
 
     // On flat neutral (on container global) [menu selected gadget]
-    {mr_get_color(0x737373),
-     mr_get_color(0xb0b0b0),
-     mr_get_color(0x424200)},
+    {mr_get_color(0x737473),  // 0x737373
+     mr_get_color(0xa3a4a3),  // 0xa3a3a3
+     mr_get_color(0x333200)}, // 0x333300
 
     // Selected enabled background [game square selected]
     {mr_get_color(0x305792),
@@ -927,7 +927,7 @@ static void drawRightAlignedText(const char *str,
 
 void drawTitleBar(const char *title)
 {
-    setFillColor(COLOR_NORMAL_ENABLED_BACKGROUND);
+    setFillColor(COLOR_CONTAINER_GLOBAL);
 
     mr_rectangle_t rectangle;
     mr_point_t offset;
@@ -1121,7 +1121,7 @@ void drawMenu(const Menu *menu)
 
         setFillColor((index == selectedIndex)
                          ? COLOR_FLAT_CHECKED_BACKGROUND
-                         : COLOR_CONTAINER_GLOBAL);
+                         : COLOR_NORMAL_ENABLED_BACKGROUND);
 
         // Submenu
         if (menuStyle & MENUSTYLE_SUBMENU)
@@ -1164,7 +1164,7 @@ void drawMenu(const Menu *menu)
     rectangle.width = CONTENT_WIDTH;
     rectangle.height = CONTENT_BOTTOM - rectangle.y;
 
-    setFillColor(COLOR_CONTAINER_GLOBAL);
+    setFillColor(COLOR_NORMAL_ENABLED_BACKGROUND);
     drawRectangle(&rectangle);
 }
 

@@ -33,6 +33,6 @@ With Rad Pro, you can:
 
 ## Acknowledgements
 
-* Rad Pro's user interface is based on the [OpenBridge 4.0](https://www.openbridge.no/) design system.
+* Rad Pro's user interface is based on the [OpenBridge 5.0](https://www.openbridge.no/) design system.
 * Thanks to `Alfred90`, `danielhahn76`, `felixsteghofer`, `DG0MG`, `murkle`, `cromagn`, `ivohar`,`mryndzionek`, `JantarX`,  `mizsha`, `Tig3rch3n`, `Arparela`, `w01fdev`, `martin-machacek`, `dsl71`, `Davegsm82`, `alfmck`, `jonwhite227`, `dc1rdb`, `ihrapsa` and many others who helped with device testing and suggestions.
 * Thanks to `pixitha` for the FS2011/GD32F150 board photos with a J305 Geiger tube, `felixsteghofer` for the FS2011/GD32F103 board photos, `DG0MG` for the Bosean FS-600 board photos, `murkle` for the Bosean FS-1000 board photos, `ivohar` for the FNIRSCI GC-01 schematics and `oOblik` for the Bosean FS-5000 board photos.

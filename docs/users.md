@@ -13,7 +13,7 @@
 * Preconfigured high voltage profiles (on supported devices).
 * Tube fault alarm.
 * Statistics for tracking device usage and state.
-* User interface based on the [OpenBridge 4.0](https://www.openbridge.no/) design system.
+* User interface based on the [OpenBridge 5.0](https://www.openbridge.no/) design system.
 * Anti-aliased text rendering on color screens.
 * `radpro-tool` for low-level access to the device from a computer.
 * Power-on self-test and safety watchdog.
