@@ -40,9 +40,7 @@ Within the “Geiger tube” settings, select “HV Profile” and choose an app
 
 If the “Energy-saving” does not produce any tube counts, you will need to setup a custom HV profile to reduce power consumption.
 
-If your device produces spontaneous key presses by itself, select the “Energy-saving” HV profile or use custom HV profile to fix this problem.
-
-Also, go to the “Display” settings, select “Type” and choose the type that matches the marking on the display's ribbon cable.
+If your device produces spontaneous key presses by itself, select the “Energy-saving” HV profile or use a custom HV profile to fix this problem.
 
 Last, read the [user's manual](../../users.md) for learning how to use Rad Pro.
 

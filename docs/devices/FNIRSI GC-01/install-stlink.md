@@ -62,7 +62,7 @@ Now, download the latest `radpro-flashtool` from the [Rad Pro releases](https://
 
 `[type]` is the type of installation: `install` or `update`. Note that not all releases support updating.
 
-To flash the original firmware, drag it from the `lib/firmware` folder onto `fnirsi-gc01-[device]-[type].bat` (Windows) or `fnirsi-gc01-[device]-[type].sh`.
+To flash the [original firmware](firmware), drag it onto `fnirsi-gc01-[device]-[type].bat` (Windows) or `fnirsi-gc01-[device]-[type].sh`.
 
 If flashing does not work, try powering your GC-01 from USB.
 
