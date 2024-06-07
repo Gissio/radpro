@@ -16,7 +16,7 @@ To install Rad Pro on your FNIRSI GC-01 Geiger counter with an ST-LINK USB dongl
 * A 4-pin header
 * A Philips screwdriver
 * Optional: A soldering iron and solder
-* If you use Windows, the [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html).
+* If you use Windows, the [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html)
 
 ## Step 1: Open the device
 
