@@ -136,7 +136,9 @@ An HV profile consists of a [PWM](https://en.wikipedia.org/wiki/Pulse-width_modu
 
 ## Tube fault alarm
 
-When no pulses are generated within a five-minute interval, Rad Pro produces a fault alarm. This can occur due to a malfunctioning of the high-voltage generator or the Geiger-Müller tube. Rad Pro also produces a fault alarm when the Geiger tube becomes saturated due to high levels of radiation.
+Rad Pro triggers a fault alarm if no pulses are detected within a five-minute interval. This may occur due to a malfunctioning high-voltage generator, or a defective Geiger-Müller tube.
+
+Rad Pro also triggers a fault alarm if the Geiger-Müller tube becomes saturated due to high radiation levels, or shorted due to a malfunction.
 
 ## Random generator
 
