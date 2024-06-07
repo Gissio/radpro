@@ -1,5 +1,12 @@
 # Installing Rad Pro on the FNIRSI GC-01
 
+## Supplies
+
+To install Rad Pro on your FNIRSI GC-01 Geiger counter, you will need the following tools and components:
+
+* A USB data cable
+* A Philips screwdriver
+
 ## Step 1: Open the device
 
 ![FNIRSI GC-01 circuit board types](img/gc-01-board-type.jpg)
@@ -22,7 +29,7 @@ Download the `radpro-fnirsi-gc01-[mcu]-x.y.z-install.bin` firmware file from the
 
 Next:
 
-* Connect the device to a USB 2.0 port of a Windows computer using the USB cable. **WARNING:** Installation from macOS or Linux may fail. **WARNING:** Installation from a USB 3.0 port may fail.
+* Connect the device to a USB 2.0 port of a Windows computer using the USB data cable. **WARNING:** Installation from macOS or Linux may fail. **WARNING:** Installation from a USB 3.0 port may fail.
 * Power on the device. A USB drive should become available.
 * Drag the firmware file onto the USB drive. The device should restart with Rad Pro installed.
 
@@ -44,7 +51,7 @@ If your device produces spontaneous key presses by itself, select the “Energy-
 
 Last, read the [user's manual](../../users.md) for learning how to use Rad Pro.
 
-## Step 4: Getting involved
+## Step 4: Get involved
 
 If you like Rad Pro, consider watching the project to get notified when new releases are out. Also, show your support by starring the project on GitHub.
 

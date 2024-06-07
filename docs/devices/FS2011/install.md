@@ -78,7 +78,7 @@ Last, read the [user's manual](../../users.md) for learning how to use Rad Pro.
 * Some AA rechargeable batteries have low-profile caps that don't make electrical contact with the battery holder. Fix this problem by applying solder on the battery holder's pads.
 * To increase the buzzer's volume, drill holes on the back case, in front of the buzzer.
 
-## Step 6: Getting involved
+## Step 6: Get involved
 
 If you like Rad Pro, consider watching the project to get notified when new releases are out. Also, show your support by starring the project on GitHub.
 

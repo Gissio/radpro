@@ -59,7 +59,7 @@ To enable USB data communications under Windows, install the [CH340 driver](http
 
 Last, read the [user's manual](../../users.md) for learning how to use Rad Pro.
 
-## Step 5: Getting involved
+## Step 5: Get involved
 
 If you like Rad Pro, consider watching the project to get notified when new releases are out. Also, show your support by starring the project on GitHub.
 
