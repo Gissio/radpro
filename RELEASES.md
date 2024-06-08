@@ -6,7 +6,7 @@
 * Updated the UI design system to [OpenBridge 5.0](https://www.openbridge.no/), improving legibility under sunlight.
 * Changed the default conversion factor for J613/J614 tubes to 30.0 cpm/µSv/h.
 * Removed the FNIRSI GC-01 display panel settings.
-* Increased the granularity and range of the "SET tubeHVFrequency" and "SET tubeHVDutyCycle" data communication requests to CPU clock resolution and 100 Hz-100 kHz and 0 %-100 %, respectively.
+* Increased the granularity and range of the "SET tubeHVFrequency" and "SET tubeHVDutyCycle" data communication requests to CPU clock resolution and 100 Hz-100 kHz and 0 %-100 %, respectively (not stored on power-off).
 
 ## 2.0rc5 The final countdown
 
