@@ -183,12 +183,12 @@ Example:
 * Request: `GET tubeHVFrequency\r\n` 
 * Response: `OK [value]\r\n`
 
-Returns the tube's PWM frequency of the high voltage generator in Hz, provided in decimal format with two decimal places.
+Returns the tube's PWM frequency of the high voltage generator in Hz, provided in decimal format with three decimal places.
 
 Example:
 
     GET tubeHVFrequency
-    OK 1250.00
+    OK 1250.000
 
 ### Set tube PWM frequency
 
@@ -197,11 +197,11 @@ Example:
 * Request: `SET tubeHVFrequency [value]\r\n` 
 * Response: `OK\r\n`
 
-Enables the custom HV profile and sets its PWM frequency, provided in decimal format. Valid values are 1250, 2500, 5000, 10000, 20000, 40000.
+Enables the custom HV profile and sets its PWM frequency, provided in decimal format with decimal places. Valid values are from 100 to 100000.
 
 Example:
 
-    SET tubeHVFrequency 2500
+    SET tubeHVFrequency 2500.0
     OK
 
 ### Get tube PWM duty cycle
@@ -211,12 +211,12 @@ Example:
 * Request: `GET tubeHVDutyCycle\r\n` 
 * Response: `OK [value]\r\n`
 
-Returns the tube's PWM duty-cycle of the high voltage generator, provided in decimal format with four decimal places.
+Returns the tube's PWM duty-cycle of the high voltage generator, provided in decimal format with six decimal places.
 
 Example:
 
     GET tubeHVDutyCycle
-    OK 0.0975
+    OK 0.097500
 
 ### Set tube PWM duty cycle
 
@@ -225,7 +225,7 @@ Example:
 * Request: `SET tubeHVDutyCycle [value]\r\n` 
 * Response: `OK\r\n`
 
-Enables the custom HV profile and sets its PWM duty-cycle, provided in decimal format. Valid values are 0.0025 to 0.9, in 0.0025 steps.
+Enables the custom HV profile and sets its PWM duty-cycle, provided in decimal format with decimal places. Valid values are 0.0 to 1.0.
 
 Example:
 

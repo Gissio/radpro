@@ -39,6 +39,8 @@ void initTubeController(void)
     srand(time(NULL));
 
     tubeCPS = SIM_CPS;
+
+    updateTubeHV();
 }
 
 void setTubeHV(bool value)
@@ -47,6 +49,9 @@ void setTubeHV(bool value)
 
 void updateTubeHV(void)
 {
+    printf("Frequency, duty cycle: %f %f\n",
+           getTubeHVFrequency(),
+           getTubeHVDutyCycle());
 }
 
 static float getUniformRandomValue(void)

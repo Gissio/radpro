@@ -31,9 +31,6 @@ static struct
     volatile uint32_t pulseQueueHead;
     volatile uint32_t pulseQueueTail;
     volatile uint32_t pulseQueue[TUBE_PULSE_QUEUE_SIZE];
-
-    uint32_t hvPeriod;
-    uint32_t hvOnTime;
 } tube;
 
 void initTubeController(void)
@@ -130,17 +127,17 @@ void setTubeHV(bool value)
 void updateTubeHV(void)
 {
 #if defined(TUBE_HV_PWM)
-    tube.hvPeriod = TIM_FREQUENCY / getTubeHVFrequency();
-    tube.hvOnTime = tube.enabled
-                        ? tube.hvPeriod * getTubeHVDutyCycle()
-                        : 0;
+    uuint32_t hvPeriod = TIM_FREQUENCY / getTubeHVFrequency();
+    uuint32_t hvOnTime = tube.enabled
+                             ? tube.hvPeriod * getTubeHVDutyCycle()
+                             : 0;
 
     tim_set_period(TUBE_HV_TIMER,
-                   tube.hvPeriod);
+                   hvPeriod);
 
     tim_set_ontime(TUBE_HV_TIMER,
                    TUBE_HV_TIMER_CHANNEL,
-                   tube.hvOnTime);
+                   hvOnTime);
 #else
     gpio_modify(TUBE_HV_PORT,
                 TUBE_HV_PIN,

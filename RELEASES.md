@@ -1,5 +1,9 @@
 # Releases
 
+## 2.0.1
+
+* Fixes errors in custom HV profile settings.
+
 ## 2.0
 
 * First 2.0 release.

@@ -53,8 +53,6 @@ static float getTubeHVCustomProfileDutyCycle(uint32_t index);
 
 void initTube(void)
 {
-    initTubeController();
-
     selectMenuItem(&tubeConversionFactorMenu,
                    settings.tubeConversionFactor,
                    TUBE_CONVERSIONFACTOR_NUM);
@@ -82,6 +80,8 @@ void initTube(void)
                    settings.tubeHVDutyCycle,
                    TUBE_HVDUTYCYCLE_NUM);
 #endif
+
+    initTubeController();
 }
 
 // Tube menu
@@ -637,9 +637,8 @@ static const char *onTubeHVFrequencyMenuGetOption(const Menu *menu,
 
 static void onTubeHVFrequencyMenuSelect(const Menu *menu)
 {
-    settings.tubeHVFrequency = menu->state->selectedIndex;
-
-    updateTubeHV();
+    setTubeHVFrequency(
+        getTubeHVCustomProfileFrequency(menu->state->selectedIndex));
 }
 
 static MenuState tubeHVFrequencyMenuState;
@@ -737,9 +736,8 @@ static const char *onTubeHVDutyCycleMenuGetOption(const Menu *menu,
 
 static void onTubeHVDutyCycleMenuSelect(const Menu *menu)
 {
-    settings.tubeHVDutyCycle = menu->state->selectedIndex;
-
-    updateTubeHV();
+    setTubeHVDutyCycle(
+        getTubeHVCustomProfileDutyCycle(menu->state->selectedIndex));
 }
 
 static MenuState tubeHVDutyCycleMenuState;
