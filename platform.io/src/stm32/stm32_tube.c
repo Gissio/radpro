@@ -127,10 +127,10 @@ void setTubeHV(bool value)
 void updateTubeHV(void)
 {
 #if defined(TUBE_HV_PWM)
-    uuint32_t hvPeriod = TIM_FREQUENCY / getTubeHVFrequency();
-    uuint32_t hvOnTime = tube.enabled
-                             ? tube.hvPeriod * getTubeHVDutyCycle()
-                             : 0;
+    uint32_t hvPeriod = TIM_FREQUENCY / getTubeHVFrequency();
+    uint32_t hvOnTime = tube.enabled
+                            ? hvPeriod * getTubeHVDutyCycle()
+                            : 0;
 
     tim_set_period(TUBE_HV_TIMER,
                    hvPeriod);
