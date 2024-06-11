@@ -127,10 +127,31 @@ void setTubeHV(bool value)
 void updateTubeHV(void)
 {
 #if defined(TUBE_HV_PWM)
+    uint32_t hvPrescalerFactor = 1;
     uint32_t hvPeriod = TIM_FREQUENCY / getTubeHVFrequency();
     uint32_t hvOnTime = tube.enabled
                             ? hvPeriod * getTubeHVDutyCycle()
                             : 0;
+
+    // Fit period in 16-bit counter
+    while (hvPeriod >= 0x10000)
+    {
+        hvPeriod >>= 1;
+        hvOnTime >>= 1;
+        hvPrescalerFactor <<= 1;
+    }
+
+    // Trade prescaler for period
+    while (((hvPeriod & 0b1) == 0) &&
+           (hvOnTime & 0b1) == 0)
+    {
+        hvPeriod >>= 1;
+        hvOnTime >>= 1;
+        hvPrescalerFactor <<= 1;
+    }
+
+    tim_set_prescaler_factor(TUBE_HV_TIMER,
+                             hvPrescalerFactor);
 
     tim_set_period(TUBE_HV_TIMER,
                    hvPeriod);
