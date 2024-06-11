@@ -9,6 +9,7 @@
 
 #if defined(STM32)
 
+#include "../cmath.h"
 #include "../events.h"
 #include "../settings.h"
 #include "../tube.h"
@@ -127,23 +128,26 @@ void setTubeHV(bool value)
 void updateTubeHV(void)
 {
 #if defined(TUBE_HV_PWM)
-    uint32_t hvPrescalerFactor = 1;
     uint32_t hvPeriod = TIM_FREQUENCY / getTubeHVFrequency();
     uint32_t hvOnTime = tube.enabled
                             ? hvPeriod * getTubeHVDutyCycle()
                             : 0;
 
-    // Fit period in 16-bit counter
-    while (hvPeriod >= 0x10000)
+    // Get presacler factor
+    uint32_t hvPrescalerFactor = getGCD(hvPeriod, hvOnTime);
+    hvPeriod /= hvPrescalerFactor;
+    hvOnTime /= hvPrescalerFactor;
+
+    // Scale prescaler factor
+    while (hvPrescalerFactor >= 0x10000)
     {
-        hvPeriod >>= 1;
-        hvOnTime >>= 1;
-        hvPrescalerFactor <<= 1;
+        hvPeriod <<= 1;
+        hvOnTime <<= 1;
+        hvPrescalerFactor >>= 1;
     }
 
-    // Trade prescaler for period
-    while (((hvPeriod & 0b1) == 0) &&
-           (hvOnTime & 0b1) == 0)
+    // Scale period
+    while (hvPeriod >= 0x10000)
     {
         hvPeriod >>= 1;
         hvOnTime >>= 1;

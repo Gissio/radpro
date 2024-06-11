@@ -183,7 +183,7 @@ Example:
 * Request: `GET tubeHVFrequency\r\n` 
 * Response: `OK [value]\r\n`
 
-Returns the tube's PWM frequency of the high voltage generator in Hz, provided in decimal format with three decimal places.
+Returns the tube's PWM frequency of the high voltage generator in Hz, provided in decimal format with two decimal places.
 
 Example:
 
@@ -211,12 +211,12 @@ Example:
 * Request: `GET tubeHVDutyCycle\r\n` 
 * Response: `OK [value]\r\n`
 
-Returns the tube's PWM duty-cycle of the high voltage generator, provided in decimal format with six decimal places.
+Returns the tube's PWM duty-cycle of the high voltage generator, provided in decimal format with five decimal places.
 
 Example:
 
     GET tubeHVDutyCycle
-    OK 0.097500
+    OK 0.09750
 
 ### Set tube PWM duty cycle
 

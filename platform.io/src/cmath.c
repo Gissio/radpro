@@ -47,3 +47,17 @@ bool getRandomBit(void)
 
     return lsb;
 }
+
+uint32_t getGCD(uint32_t x, uint32_t y)
+{
+    // Greatest common divisor with Euclidean algorithm
+    // https://en.wikipedia.org/wiki/Euclidean_algorithm#Implementations
+    while (y > 0)
+    {
+        uint32_t t = y;
+        y = x % y;
+        x = t;
+    }
+
+    return x;
+}

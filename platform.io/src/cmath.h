@@ -35,4 +35,6 @@ float getConfidenceInterval(uint32_t n);
 
 bool getRandomBit(void);
 
+uint32_t getGCD(uint32_t x, uint32_t y);
+
 #endif

@@ -187,7 +187,7 @@ void dispatchCommEvents(void)
             sendCommOkWithFloat(60.0F * getTubeBackgroundCompensation(), 3);
 #if defined(TUBE_HV_PWM)
         else if (matchCommCommand("GET tubeHVFrequency"))
-            sendCommOkWithFloat(getTubeHVFrequency(), 3);
+            sendCommOkWithFloat(getTubeHVFrequency(), 2);
         else if (matchCommCommandWithNumber("SET tubeHVFrequency",
                                             &mantissa,
                                             &factor))
@@ -197,7 +197,7 @@ void dispatchCommEvents(void)
             sendCommOk();
         }
         else if (matchCommCommand("GET tubeHVDutyCycle"))
-            sendCommOkWithFloat(getTubeHVDutyCycle(), 6);
+            sendCommOkWithFloat(getTubeHVDutyCycle(), 5);
         else if (matchCommCommandWithNumber("SET tubeHVDutyCycle",
                                             &mantissa,
                                             &factor))
