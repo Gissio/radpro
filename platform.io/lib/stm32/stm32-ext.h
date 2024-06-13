@@ -1080,16 +1080,10 @@ __STATIC_INLINE void tim_disable(TIM_TypeDef *base)
                TIM_CR1_CEN);
 }
 
-__STATIC_INLINE void tim_enable_update_events(TIM_TypeDef *base)
+__STATIC_INLINE void tim_generate_update(TIM_TypeDef *base)
 {
     set_bits(base->EGR,
              TIM_EGR_UG);
-}
-
-__STATIC_INLINE void tim_disable_update_events(TIM_TypeDef *base)
-{
-    clear_bits(base->EGR,
-               TIM_EGR_UG);
 }
 
 __STATIC_INLINE void tim_set_period(TIM_TypeDef *base,
@@ -1195,7 +1189,7 @@ __STATIC_INLINE void tim_setup_linked(TIM_TypeDef *base_master,
              (trigger_connection << TIM_SMCR_TS_Pos) | TIM_SMCR_SMS_ECM1);
     base_slave->ARR = 0xffff;
 
-    tim_enable_update_events(base_master);
+    tim_generate_update(base_master);
 }
 
 // IWDG

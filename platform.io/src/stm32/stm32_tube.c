@@ -130,7 +130,7 @@ void updateTubeHV(void)
 #if defined(TUBE_HV_PWM)
     uint32_t hvPeriod = TIM_FREQUENCY / getTubeHVFrequency();
     uint32_t hvOnTime = tube.enabled
-                            ? hvPeriod * getTubeHVDutyCycle()
+                            ? hvPeriod * getTubeHVDutyCycle() + 0.5F
                             : 0;
 
     // Get presacler factor
@@ -163,6 +163,8 @@ void updateTubeHV(void)
     tim_set_ontime(TUBE_HV_TIMER,
                    TUBE_HV_TIMER_CHANNEL,
                    hvOnTime);
+
+    tim_generate_update(TUBE_HV_TIMER);
 #else
     gpio_modify(TUBE_HV_PORT,
                 TUBE_HV_PIN,

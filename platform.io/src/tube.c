@@ -41,15 +41,15 @@ static const View tubeHVrequencyMenuView;
 static const View tubeInstantaneousAveragingMenuView;
 
 #if defined(TUBE_HV_PWM)
+static float getTubeHVCustomProfileFrequency(uint32_t index);
+static float getTubeHVCustomProfileDutyCycle(uint32_t index);
+
 static struct
 {
     float hvFrequency;
     float hvDutyCycle;
 } tube;
 #endif
-
-static float getTubeHVCustomProfileFrequency(uint32_t index);
-static float getTubeHVCustomProfileDutyCycle(uint32_t index);
 
 void initTube(void)
 {

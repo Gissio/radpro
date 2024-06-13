@@ -27,8 +27,6 @@ void dispatchViewEvents(void)
 {
     syncTimerThread();
 
-    bool displayTimerActive = isDisplayTimerActive();
-
     // Key events
     while (true)
     {
