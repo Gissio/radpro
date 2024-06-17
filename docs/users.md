@@ -5,7 +5,7 @@
 * Measurement view with large digits, ideal for field application.
 * Multiple measurement units: Sievert, rem, cpm (counts per minute), cps (counts per second).
 * Configurable averaging for performing surveys.
-* Live and offline data logging with data compression.
+* Offline and live data logging with data compression.
 * Compatibility with the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software.
 * Configurable pulse indication with optional thresholding: pulse clicks (off, quiet, loud), pulse LED (on supported devices), display flashes (on display sleep) and haptic pulses (on supported devices).
 * Dead-time measurement.
@@ -84,11 +84,11 @@ You can also set a custom conversion factor by going to the settings, selecting 
 
 Rad Pro lets you log cumulative dose count, from which both rate and dose can be derived.
 
-To start logging, simply select a data logging interval in the settings. Data is automatically logged in the background. When memory gets full, old data is overwritten. In order to avoid flash memory wear, data cannot be manually erased.
+To start logging, ensure that the time zone, date and time of your device are correctly set, and enable data logging in the settings. Data is automatically logged in the background. When the memory becomes full, older data is overwritten.
 
-To live log data on a computer or download the datalogs, use the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software. “CPS” data is the low-level counts per second value. To average the data, use the “MvAvg” function.
+To download the data logs or log data live to a computer, use the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software. “CPS” data is the low-level counts per second value. To average the data, use the “MvAvg” function.
 
-During datalog download, data is not logged.
+Please note that data is not logged during the download process.
 
 ## Instantaneous rate averaging
 
@@ -112,7 +112,7 @@ $$n = \frac{m}{1 - m \tau}$$
 
 where $m$ is the rate in counts per seconds, and $\tau$ is the tube's dead time in seconds. To prevent overflow, the compensation factor is limited to a maximum value of 10.
 
-Dead-time compensation is applied to instantaneous rate, average rate, cumulative dose and history. It is not applied to tube life pulse count nor datalogging.
+Dead-time compensation is applied to instantaneous rate, average rate, cumulative dose and history. It is not applied to tube life pulse count nor data logs.
 
 ## Background compensation
 
@@ -120,7 +120,7 @@ Geiger-Müller tubes, being composed of matter, inherently contain atoms prone t
 
 Rad Pro lets you remove these extra counts by applying background compensation.
 
-Background compensation is applied to instantaneous rate, average rate, cumulative dose and history. It is not applied to tube life pulse count nor datalogging.
+Background compensation is applied to instantaneous rate, average rate, cumulative dose and history. It is not applied to tube life pulse count nor data logs.
 
 ## HV profiles
 
@@ -152,7 +152,7 @@ For faster bit generation, use a radioactive source.
 
 ## radpro-tool
 
-`radpro-tool` gives you low-level access to your device from a computer, allowing you to live log data, download datalogs, submit live data to radiation monitoring websites, get device information and sync the device's clock.
+`radpro-tool` gives you low-level access to your device from a computer, allowing you to download data logs, log data live, submit data live to radiation monitoring websites, get device information and sync the device's clock.
 
 To use `radpro-tool`, install [Python](https://www.python.org), [PIP](https://pip.pypa.io/en/stable/). You must also install the necessary requirements by running the following command in a terminal:
 
@@ -166,15 +166,15 @@ To sync the clock of a Rad Pro device connected to COM13:
 
     python tools/radpro-tool.py --port COM13
 
-To live log data to the file `live.csv` every 60 seconds:
-
-    python tools/radpro-tool.py --port COM13 --live-datalog live.csv --live-datalog-period 60
-
-To download the datalog to the file `datalog.csv`:
+To download the data log to the file `datalog.csv`:
 
     python tools/radpro-tool.py --port COM13 --download-datalog datalog.csv
 
-To live submit the level of radiation to the https://gmcmap.com website:
+To log pulse data live to the file `live.csv` every 60 seconds:
+
+    python tools/radpro-tool.py --port COM13 --log-pulsedata live.csv --period 60
+
+To submit data live to the https://gmcmap.com website:
 
     python tools/radpro-tool.py --port COM13 --submit-gmcmap [USER_ACCOUNT_ID] [GEIGER_COUNTER_ID]
 

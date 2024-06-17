@@ -20,10 +20,9 @@ extern const View datalogMenuView;
 
 void initDatalog(void);
 
+void startDatalog(void);
 void updateDatalog(void);
-void writeDatalog(void);
-void lockDatalog(void);
-void unlockDatalog(void);
+void stopDatalog(void);
 
 void startDatalogDownload(void);
 bool getDatalogDownloadEntry(Dose *dose);

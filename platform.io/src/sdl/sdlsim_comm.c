@@ -17,6 +17,7 @@
 #include "../system.h"
 
 #define COMM_SERIAL_BAUDRATE 115200
+#define COMM_BUFFER_SIZE 64
 
 const char *const commId = "Rad Pro simulator;Rad Pro " FIRMWARE_VERSION;
 
@@ -83,16 +84,23 @@ void updateCommController(void)
     if (commController.sercomm == NULL)
         return;
 
-    char c;
+    char receiveBuffer[COMM_BUFFER_SIZE];
+    size_t receivedBytes = 0;
 
-    while (ser_read(commController.sercomm,
-                    &c,
-                    1,
-                    NULL) == 0)
+    ser_read(commController.sercomm,
+             receiveBuffer,
+             COMM_BUFFER_SIZE,
+             &receivedBytes);
+
+    if (comm.enabled &&
+        (comm.state == COMM_RX))
     {
-        if (comm.enabled &&
-            (comm.state == COMM_RX))
+        for (int32_t i = 0;
+             i < receivedBytes;
+             i++)
         {
+            char c = receiveBuffer[i];
+
             if ((c >= ' ') &&
                 (comm.bufferIndex < (COMM_BUFFER_SIZE - 1)))
                 comm.buffer[comm.bufferIndex++] = c;
@@ -110,26 +118,25 @@ void updateCommController(void)
         }
     }
 
-    while (comm.state == COMM_TX)
+    if (comm.state == COMM_TX)
     {
-        c = comm.buffer[comm.bufferIndex];
+        char *sendBuffer = comm.buffer + comm.bufferIndex;
+        size_t sentBytes = 0;
 
-        if (c != '\0')
+        ser_write(commController.sercomm,
+                  sendBuffer,
+                  strlen(sendBuffer),
+                  &sentBytes);
+
+        comm.bufferIndex += sentBytes;
+
+        if ((comm.bufferIndex > 0) &&
+            (comm.buffer[comm.bufferIndex - 1] == '\n'))
         {
-            ser_write(commController.sercomm,
-                      &c,
-                      1,
-                      NULL);
-
-            comm.bufferIndex++;
-
-            if (c == '\n')
-            {
-                comm.bufferIndex = 0;
-                comm.state = COMM_RX;
-            }
+            comm.bufferIndex = 0;
+            comm.state = COMM_RX;
         }
-        else
+        else if (comm.buffer[comm.bufferIndex] == '\0')
         {
             comm.bufferIndex = 0;
             comm.state = COMM_TX_READY;

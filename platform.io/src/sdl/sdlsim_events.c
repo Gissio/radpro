@@ -13,19 +13,18 @@
 
 #include "../events.h"
 
+#define TIM_FREQUENCY 8000000
+
 // STM32 8 MHz
 // #define SDL_EVENTS_CALLS_MAX 4
-
 // STM32 72 MHz
 #define SDL_EVENTS_CALLS_MAX (4 * 9)
-
-#define TIM_FREQUENCY 8000000
 
 extern volatile uint32_t eventsCurrentTick;
 
 float timerCountToSeconds = (1.0F / PULSE_MEASUREMENT_FREQUENCY);
 
-static uint32_t sdlEventsCalls;
+static uint32_t sdlCallsPerTick;
 
 void updateDisplay(void);
 
@@ -37,34 +36,24 @@ void sleep(uint32_t value)
 {
     if (!value)
     {
-        sdlEventsCalls++;
+        sdlCallsPerTick++;
 
-        if (sdlEventsCalls < SDL_EVENTS_CALLS_MAX)
+        if (sdlCallsPerTick < SDL_EVENTS_CALLS_MAX)
             return;
 
-        sdlEventsCalls = 0;
+        sdlCallsPerTick = 0;
+        value = 1;
     }
 
-    while (true)
+    while (value--)
     {
-        uint32_t realtimeTick = SDL_GetTicks();
+        int32_t deltaTicks = SDL_GetTicks() - eventsCurrentTick;
+        eventsCurrentTick++;
 
-        uint32_t deltaTicks = realtimeTick - eventsCurrentTick;
+        onTick();
 
-        while (eventsCurrentTick != realtimeTick)
-        {
-            eventsCurrentTick++;
-
-            onTick();
-        }
-
-        if (deltaTicks)
+        if (deltaTicks < 0)
             updateDisplay();
-
-        if (value > deltaTicks)
-            value -= deltaTicks;
-        else
-            return;
     }
 }
 

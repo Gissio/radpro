@@ -85,7 +85,7 @@ void updateDisplay(void)
         switch (event.type)
         {
         case SDL_QUIT:
-            writeDatalog();
+            stopDatalog();
             writeSettings();
 
             exit(0);

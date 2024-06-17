@@ -488,20 +488,18 @@ static void onUsbData(usbd_device *dev, uint8_t event, uint8_t ep)
                                           sendBuffer,
                                           strlen(sendBuffer));
 
-        if (sentBytes >= 0)
-        {
-            comm.bufferIndex += sentBytes;
+        comm.bufferIndex += sentBytes;
 
-            if (comm.buffer[comm.bufferIndex - 1] == '\n')
-            {
-                comm.bufferIndex = 0;
-                comm.state = COMM_RX;
-            }
-            else if (comm.buffer[comm.bufferIndex] == '\0')
-            {
-                comm.bufferIndex = 0;
-                comm.state = COMM_TX_READY;
-            }
+        if ((comm.bufferIndex > 0) &&
+            (comm.buffer[comm.bufferIndex - 1] == '\n'))
+        {
+            comm.bufferIndex = 0;
+            comm.state = COMM_RX;
+        }
+        else if (comm.buffer[comm.bufferIndex] == '\0')
+        {
+            comm.bufferIndex = 0;
+            comm.state = COMM_TX_READY;
         }
     }
 }

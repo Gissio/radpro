@@ -50,53 +50,44 @@ bool verifyFlash(void)
     return (crc == FIRMWARE_CRC);
 }
 
-void readFlash(FlashIterator *iterator,
-               uint8_t *dest,
-               uint32_t size)
+uint8_t *getFlashPage(uint8_t pageIndex)
 {
-    uint32_t address = iterator->pageIndex * FLASH_PAGE_SIZE + iterator->index;
-
-    memcpy(dest,
-           (uint8_t *)(FLASH_BASE + address),
-           size);
-
-    iterator->index += size;
+    return (uint8_t *)(FLASH_BASE + pageIndex * FLASH_PAGE_SIZE);
 }
 
-void eraseFlash(FlashIterator *iterator)
+void eraseFlashPage(uint8_t pageIndex)
 {
     flash_unlock();
 
-    flash_erase_page(iterator->pageIndex);
+    flash_erase_page(pageIndex);
 
     flash_lock();
 }
 
-void writeFlash(FlashIterator *iterator,
+void writeFlash(uint8_t pageIndex,
+                uint32_t index,
                 uint8_t *source,
                 uint32_t size)
 {
     uint8_t *dest =
         (uint8_t *)(FLASH_BASE +
-                    iterator->pageIndex * FLASH_PAGE_SIZE +
-                    iterator->index);
+                    pageIndex * FLASH_PAGE_SIZE +
+                    index);
 
     flash_unlock();
 
     for (uint32_t i = 0; i < size; i += FLASH_WORD_SIZE)
     {
         if (!flash_program(dest + i, source + i) &&
-            (iterator->index == 0))
+            (index == 0))
         {
-            flash_erase_page(iterator->pageIndex);
+            flash_erase_page(pageIndex);
 
             flash_program(dest + i, source + i);
         }
     }
 
     flash_lock();
-
-    iterator->index += size;
 }
 
 #endif

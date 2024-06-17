@@ -242,7 +242,7 @@ Returns the data log stored in the device's flash memory. `[time]` is an optiona
 * `time`: The record's UNIX timestamp (number of seconds since 1/1/1970), provided in decimal format.
 * `tubePulseCount`: The tube's life pulse count, provided in decimal format.
 
-During datalog download, data is not logged.
+During data log download, data is not logged.
 
 Example:
 

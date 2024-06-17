@@ -49,9 +49,6 @@ void setTubeHV(bool value)
 
 void updateTubeHV(void)
 {
-    printf("Frequency, duty cycle: %f %f\n",
-           getTubeHVFrequency(),
-           getTubeHVDutyCycle());
 }
 
 static float getUniformRandomValue(void)

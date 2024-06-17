@@ -262,8 +262,11 @@ void dispatchCommEvents(void)
         {
             strclr(comm.buffer);
 
-            uint32_t i = 0;
-            while (i < 2)
+            uint32_t sentEntriesNum = 0;
+            uint32_t checkedEntriesNum = 0;
+
+            while ((sentEntriesNum < 2) &&
+                   (checkedEntriesNum < 1000))
             {
                 Dose dose;
 
@@ -281,8 +284,10 @@ void dispatchCommEvents(void)
                     strcatChar(comm.buffer, ';');
                     strcatDatalogEntry(comm.buffer, &dose);
 
-                    i++;
+                    sentEntriesNum++;
                 }
+
+                checkedEntriesNum++;
             }
 
             transmitComm();

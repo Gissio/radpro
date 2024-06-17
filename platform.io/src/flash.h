@@ -30,25 +30,40 @@ typedef struct
     const FlashRegion *region;
 
     uint8_t pageIndex;
+
     uint32_t index;
 } FlashIterator;
+
+typedef enum
+{
+    FLASHPAGE_FULL = 0x00,
+    FLASHPAGE_RESET = 0x01,
+    FLASHPAGE_AVAILABLE = 0xff,
+} FlashPageState;
 
 void initFlash(void);
 
 bool verifyFlash(void);
 
-void readFlash(FlashIterator *iterator,
-               uint8_t *dest, uint32_t size);
-void eraseFlash(FlashIterator *iterator);
-void writeFlash(FlashIterator *iterator,
-                uint8_t *source, uint32_t size);
+uint8_t *getFlashPage(uint8_t pageIndex);
+void eraseFlashPage(uint8_t pageIndex);
+void writeFlash(uint8_t pageIndex,
+                uint32_t index,
+                uint8_t *source,
+                uint32_t size);
 
-bool isFlashPageFull(FlashIterator *iterator);
-void setFlashPageHead(FlashIterator *iterator);
-void setFlashPageTail(FlashIterator *iterator);
+bool isFlashEmpty(uint8_t *data, uint32_t size);
+uint32_t getFlashPaddedSize(uint32_t size);
+
+FlashPageState getFlashPageState(FlashIterator *iterator);
+void setFlashPageState(FlashIterator *iterator,
+                       FlashPageState pageState);
+bool setFlashPageHead(FlashIterator *iterator);
+bool setFlashPageTail(FlashIterator *iterator);
 void setFlashPageNext(FlashIterator *iterator);
 void setFlashPagePrev(FlashIterator *iterator);
 void writeFlashPage(FlashIterator *iterator,
-                    uint8_t *source, uint32_t size);
+                    uint8_t *source,
+                    uint32_t size);
 
 #endif

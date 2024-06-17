@@ -105,7 +105,7 @@ int main(void)
         enableMeasurements();
         setCommEnabled(true);
 
-        writeDatalog();
+        startDatalog();
 
         // Consume keyboard events
         while (getKeyboardEvent() != EVENT_NONE)
@@ -127,7 +127,7 @@ int main(void)
         }
 
         // Disable devices
-        writeDatalog();
+        stopDatalog();
         writeSettings();
 
         setCommEnabled(false);

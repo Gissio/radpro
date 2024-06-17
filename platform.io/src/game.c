@@ -36,7 +36,7 @@ typedef enum
     GAME_SELECTING_FROM,
     GAME_SELECTING_TO,
     GAME_SEARCHING,
-    GAME_CANCELLING_SEARCH,
+    GAME_SEARCH_STOPPED,
     GAME_OVER,
 } GameState;
 
@@ -204,12 +204,8 @@ void dispatchGameEvents(void)
             GAME_DEPTH_MAX);
         mcumax_set_callback(NULL, NULL);
 
-        if (game.state == GAME_CANCELLING_SEARCH)
-        {
-            game.state = GAME_SEARCHING;
-
+        if (game.state == GAME_SEARCH_STOPPED)
             setView(&gameMenuView);
-        }
         else
         {
             if (move.from == MCUMAX_SQUARE_INVALID)
@@ -324,7 +320,7 @@ static void onGameViewEvent(const View *view, Event event)
         {
             mcumax_stop_search();
 
-            game.state = GAME_CANCELLING_SEARCH;
+            game.state = GAME_SEARCH_STOPPED;
         }
         else if (game.state == GAME_SELECTING_TO)
         {
@@ -332,7 +328,7 @@ static void onGameViewEvent(const View *view, Event event)
 
             updateGameBoard();
         }
-        else if (game.state != GAME_CANCELLING_SEARCH)
+        else if (game.state != GAME_SEARCH_STOPPED)
             setView(&gameMenuView);
 
         break;
@@ -458,7 +454,12 @@ static void onGameMenuSelect(const Menu *menu)
     switch (menu->state->selectedIndex)
     {
     case 0:
-        if (!game.moveIndex)
+        if (game.moveIndex)
+        {
+            if (game.state == GAME_SEARCH_STOPPED)
+                game.state = GAME_SEARCHING;
+        }
+        else
             resetGame(0);
 
         setView(&gameView);

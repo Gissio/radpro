@@ -30,21 +30,19 @@
 
 typedef struct
 {
-    Settings settings;
-
-    Dose dose;
     Dose tube;
-} FlashSettings;
+    Dose dose;
+    Settings settings;
+} FlashState;
 
 Settings settings;
 
-static bool getFlashSettings(FlashIterator *iterator,
-                             FlashSettings *flashSettings);
+static FlashState *getFlashState(FlashIterator *iterator);
 
 void initSettings(void)
 {
     // Default values
-#if defined(TUBE_HV_PWM)    
+#if defined(TUBE_HV_PWM)
     settings.tubeConversionFactor = TUBE_CONVERSIONFACTOR_DEFAULT;
 #endif
 
@@ -70,98 +68,61 @@ void initSettings(void)
     settings.rtcTimeZone = RTC_TIMEZONE_P0000;
 #endif
 
-    // Read settings
+    // Read flash state
     FlashIterator iterator;
-    iterator.region = &flashSettingsRegion;
+    FlashState *flashState = getFlashState(&iterator);
 
-    FlashSettings flashSettings;
-
-    if (getFlashSettings(&iterator, &flashSettings))
+    if (flashState)
     {
-        settings = flashSettings.settings;
-
-#if defined(TUBE_HV_PWM)    
-        if (settings.tubeHVFrequency >= TUBE_HVFREQUENCY_NUM)
-            settings.tubeHVFrequency = TUBE_HVFREQUENCY_NUM - 1;
-        if (settings.tubeHVDutyCycle >= TUBE_HVDUTYCYCLE_NUM)
-            settings.tubeHVDutyCycle = TUBE_HVDUTYCYCLE_NUM - 1;
-#endif
-
-        setDoseTime(flashSettings.dose.time);
-        setDosePulseCount(flashSettings.dose.pulseCount);
-        setTubeTime(flashSettings.tube.time);
-        setTubePulseCount(flashSettings.tube.pulseCount);
+        setDoseTime(flashState->dose.time);
+        setDosePulseCount(flashState->dose.pulseCount);
+        setTubeTime(flashState->tube.time);
+        setTubePulseCount(flashState->tube.pulseCount);
+        settings = flashState->settings;
     }
 }
 
-static bool isFlashSettingsEmpty(FlashSettings *entry)
+static FlashState *getFlashState(FlashIterator *iterator)
 {
-    uint8_t *data = (uint8_t *)entry;
-
-    for (uint32_t i = 0;
-         i < sizeof(FlashSettings);
-         i++)
-    {
-        if (data[i] != 0xff)
-            return false;
-    }
-
-    return true;
-}
-
-static bool getFlashSettings(FlashIterator *iterator,
-                             FlashSettings *flashSettings)
-{
+    iterator->region = &flashSettingsRegion;
     setFlashPageHead(iterator);
 
-    bool entryValid = false;
+    uint8_t *entry = getFlashPage(iterator->pageIndex);
+    FlashState *flashState = NULL;
 
-    while (iterator->index <= (flashPageDataSize - sizeof(FlashSettings)))
+    for (iterator->index = 0;
+         iterator->index <= (flashPageDataSize - sizeof(FlashState));
+         iterator->index += sizeof(FlashState))
     {
-        FlashSettings entry;
-
-        readFlash(iterator,
-                  (uint8_t *)&entry,
-                  sizeof(FlashSettings));
-
-        if (isFlashSettingsEmpty(&entry))
-        {
-            iterator->index -= sizeof(FlashSettings);
-
+        if (isFlashEmpty(entry, sizeof(FlashState)))
             break;
-        }
 
-        memcpy(flashSettings,
-               &entry,
-               sizeof(FlashSettings));
+        flashState = (FlashState *)entry;
 
-        entryValid = true;
+        entry += sizeof(FlashState);
     }
 
-    return entryValid;
+    return flashState;
 }
 
 void writeSettings(void)
 {
     FlashIterator iterator;
-    iterator.region = &flashSettingsRegion;
+    getFlashState(&iterator);
 
-    FlashSettings flashSettings;
-
-    getFlashSettings(&iterator, &flashSettings);
-
-    flashSettings.settings = settings;
-    flashSettings.dose.time = getDoseTime();
-    flashSettings.dose.pulseCount = getDosePulseCount();
-    flashSettings.tube.time = getTubeTime();
-    flashSettings.tube.pulseCount = getTubePulseCount();
+    FlashState flashState;
+    flashState.dose.time = getDoseTime();
+    flashState.dose.pulseCount = getDosePulseCount();
+    flashState.tube.time = getTubeTime();
+    flashState.tube.pulseCount = getTubePulseCount();
+    flashState.settings = settings;
 
     writeFlashPage(&iterator,
-                   (uint8_t *)&flashSettings,
-                   sizeof(FlashSettings));
+                   (uint8_t *)&flashState,
+                   sizeof(FlashState));
 }
 
-// Settings Menu
+// Settings menu
 
 static const OptionView settingsMenuOptions[] = {
     {"Units", &unitsMenuView},
@@ -169,7 +130,7 @@ static const OptionView settingsMenuOptions[] = {
     {"Rate alarm", &rateAlarmMenuView},
     {"Dose alarm", &doseAlarmMenuView},
     {"Geiger tube", &tubeMenuView},
-    {"Data logging", &datalogMenuView},
+    {"Data log", &datalogMenuView},
     {"Pulses", &pulsesMenuView},
     {"Display", &displayMenuView},
     {"Date and time", &dateAndTimeMenuView},

@@ -12,9 +12,9 @@ To build the software, follow these steps:
 
 ## Internal storage format
 
-Data is stored internally using a compressed storage format. Integer values are stored in big-endian byte order.
+Data is stored internally using a compressed storage format. Integer values are represented in big-endian byte order.
 
-Encoding:
+### Data encodings
 
     0b0sxxxxxx
 

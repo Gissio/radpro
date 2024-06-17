@@ -67,8 +67,14 @@ void initTube(void)
                    TUBE_BACKGROUNDCOMPENSATION_NUM);
 
 #if defined(TUBE_HV_PWM)
-    tube.hvFrequency = getTubeHVCustomProfileFrequency(settings.tubeHVFrequency);
-    tube.hvDutyCycle = getTubeHVCustomProfileDutyCycle(settings.tubeHVDutyCycle);
+    tube.hvFrequency = getTubeHVCustomProfileFrequency(
+        (settings.tubeHVFrequency >= TUBE_HVFREQUENCY_NUM)
+            ? TUBE_HVFREQUENCY_NUM - 1
+            : settings.tubeHVFrequency);
+    tube.hvDutyCycle = getTubeHVCustomProfileDutyCycle(
+        (settings.tubeHVDutyCycle >= TUBE_HVDUTYCYCLE_NUM)
+            ? TUBE_HVDUTYCYCLE_NUM - 1
+            : settings.tubeHVDutyCycle);
 
     selectMenuItem(&tubeHVProfileMenu,
                    settings.tubeHVProfile,

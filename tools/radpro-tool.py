@@ -244,19 +244,19 @@ def log_live(device, args):
     last_time = time.time()
     last_pulse_count = None
 
-    log_cpm_data = args.live_datalog_file != None or\
+    log_cpm_data = args.datalog_file != None or\
         args.submit_gmcmap != None or\
         args.submit_radmon != None or\
         args.submit_safecast != None
 
-    if args.live_datalog_file != None:
+    if args.datalog_file != None:
         try:
-            open(args.live_datalog_file, 'rt')
+            open(args.datalog_file, 'rt')
         except IOError:
-            open(args.live_datalog_file, 'wt').write('# Date time,' +
-                                                     'Cumulative pulse count,' +
-                                                     'Counts per minute,' +
-                                                     'Micro-Sievert per hour\n')
+            open(args.datalog_file, 'wt').write('# Date time,' +
+                                                'Cumulative pulse count,' +
+                                                'Counts per minute,' +
+                                                'Micro-Sievert per hour\n')
             pass
 
     while True:
@@ -276,11 +276,11 @@ def log_live(device, args):
                     delta_pulse_count = pulse_count - last_pulse_count
                     last_pulse_count = pulse_count
 
-                    cpm = delta_pulse_count * 60 / args.live_datalog_period
+                    cpm = delta_pulse_count * 60 / args.period
                     uSvH = cpm / conversion_factor
 
-                    if args.live_datalog_file != None:
-                        open(args.live_datalog_file, 'at').write(
+                    if args.datalog_file != None:
+                        open(args.datalog_file, 'at').write(
                             f'{str(capture_datetime)},{pulse_count},{cpm:.1f},{uSvH:.3f}\n')
 
                     if args.submit_gmcmap != None:
@@ -320,10 +320,10 @@ def log_live(device, args):
 
         # Wait
         delta_time = time.time() - last_time
-        delta_time_frac = args.live_datalog_period * \
-            math.ceil(delta_time / args.live_datalog_period) - delta_time
+        delta_time_frac = args.period * \
+            math.ceil(delta_time / args.period) - delta_time
 
-        if args.live_randomdatalog_file:
+        if args.randomdata_file:
             next_time = time.time() + delta_time_frac
 
             while time.time() < next_time:
@@ -332,7 +332,7 @@ def log_live(device, args):
                 if success and len(response) > 0:
                     try:
                         data = bytes.fromhex(response)
-                        open(args.live_randomdatalog_file, 'ab').write(data)
+                        open(args.randomdata_file, 'ab').write(data)
 
                     except:
                         pass
@@ -342,7 +342,7 @@ def log_live(device, args):
         else:
             time.sleep(delta_time_frac)
 
-        last_time += args.live_datalog_period
+        last_time += args.period
 
 
 parser = argparse.ArgumentParser(
@@ -355,38 +355,38 @@ parser.add_argument('-p', '--port',
                     dest='port',
                     help='serial port device id or "SWD" (e.g. "COM13" or "/dev/ttyS0)"')
 parser.add_argument('--download-datalog',
-                    dest='download_datalog_file',
-                    help='download datalog to a .csv file')
+                    dest='datalog_file',
+                    help='download data log to a .csv file')
 parser.add_argument('--download-datalog-start',
-                    dest='download_datalog_start_datetime',
-                    help='limit datalog download to entries newer than a certain ISO 8601 date and time (e.g. "2024-01-01" or "2024-01-01T12:00:00")')
-parser.add_argument('--live-datalog',
-                    dest='live_datalog_file',
-                    help='live datalog to a .csv file')
-parser.add_argument('--live-datalog-period',
+                    dest='datalog_datetime',
+                    help='download only data log entries newer than a certain ISO 8601 date and time (e.g. "2024-01-01" or "2024-01-01T12:00:00")')
+parser.add_argument('--log-pulsedata',
+                    dest='datalog_file',
+                    help='log pulse data live to a .csv file')
+parser.add_argument('--period',
                     type=int,
                     choices=range(1, 3600),
                     metavar='[1-3600]',
                     default=300,
-                    help='sets the time period for live datalogging and data submission to radiation monitoring websites (default: 300 seconds)')
+                    help='sets the time period for logging pulse data live and submitting data live to radiation monitoring websites (default: 300 seconds)')
 parser.add_argument('--submit-gmcmap',
                     nargs=2,
                     metavar=('USER_ACCOUNT_ID', 'GEIGER_COUNTER_ID'),
                     action='store',
-                    help='live submit data to https://gmcmap.com')
+                    help='submit data live to https://gmcmap.com')
 parser.add_argument('--submit-radmon',
                     nargs=2,
                     metavar=('USERNAME', 'DATA_SENDING_PASSWORD'),
                     action='store',
-                    help='live submit data to https://radmon.org')
+                    help='submit data live to https://radmon.org')
 parser.add_argument('--submit-safecast',
                     nargs=2,
                     metavar=('API_KEY', 'DEVICE_ID'),
                     action='store',
-                    help='live submit data to https://safecast.org')
-parser.add_argument('--live-randomdatalog',
-                    dest='live_randomdatalog_file',
-                    help='live log random generator data to a binary file')
+                    help='submit data live to https://safecast.org')
+parser.add_argument('--log-randomdata',
+                    dest='randomdata_file',
+                    help='log randomly generated data live to a binary file')
 parser.add_argument('--get-device-id',
                     action='store_true',
                     help='get device id')
@@ -495,14 +495,15 @@ if args.get_tube_hv_duty_cycle:
 if args.get_tube_hv_frequency:
     show_property(device, 'tubeHVFrequency')
 
-if args.download_datalog_file:
-    print('Downloading datalog...')
+if args.datalog_file:
+    print('Downloading data log...')
 
-    download_datalog(device, args.download_datalog_file,
-                     args.download_datalog_start_datetime)
+    download_datalog(device,
+                     args.datalog_file,
+                     args.datalog_datetime)
 
-if args.live_datalog_file != None or\
-        args.live_randomdatalog_file != None or\
+if args.datalog_file != None or\
+        args.randomdata_file != None or\
         args.submit_gmcmap != None or\
         args.submit_radmon != None or\
         args.submit_safecast != None:

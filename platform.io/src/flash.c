@@ -10,35 +10,59 @@
 #include "cstring.h"
 #include "flash.h"
 
-bool isFlashPageFull(FlashIterator *iterator)
+bool isFlashEmpty(uint8_t *data,
+                  uint32_t size)
 {
-    uint8_t marker;
+    for (uint32_t i = 0; i < size; i++)
+    {
+        if (data[i] != 0xff)
+            return false;
+    }
 
-    uint32_t oldIndex = iterator->index;
-    iterator->index = flashPageDataSize;
-
-    readFlash(iterator,
-              &marker,
-              sizeof(marker));
-
-    iterator->index = oldIndex;
-
-    return (marker != 0xff);
+    return true;
 }
 
-static void markFlashPageFull(FlashIterator *iterator)
+uint32_t getFlashPaddedSize(uint32_t size)
 {
-    uint8_t marker[8];
-    memset(&marker,
-           0,
-           sizeof(marker));
-
-    iterator->index = flashPageDataSize;
-
-    writeFlash(iterator, marker, flashWordSize);
+    return ((size + flashWordSize - 1) / flashWordSize) * flashWordSize;
 }
 
-void setFlashPageHead(FlashIterator *iterator)
+FlashPageState getFlashPageState(FlashIterator *iterator)
+{
+    uint8_t *data = getFlashPage(iterator->pageIndex);
+
+    return data[flashPageDataSize];
+}
+
+void setFlashPageState(FlashIterator *iterator,
+                       FlashPageState pageState)
+{
+    // Write in next page
+    FlashIterator prevPageIterator = *iterator;
+
+    setFlashPageNext(iterator);
+
+    if (iterator->pageIndex == prevPageIterator.pageIndex)
+        eraseFlashPage(iterator->pageIndex);
+    else
+    {
+        uint8_t buffer[8];
+        memset(&buffer,
+               0,
+               flashWordSize);
+        buffer[0] = pageState;
+
+        writeFlash(prevPageIterator.pageIndex,
+                   flashPageDataSize,
+                   buffer,
+                   flashWordSize);
+
+        if (getFlashPageState(iterator) != FLASHPAGE_AVAILABLE)
+            eraseFlashPage(iterator->pageIndex);
+    }
+}
+
+bool setFlashPageHead(FlashIterator *iterator)
 {
     iterator->index = 0;
 
@@ -46,16 +70,21 @@ void setFlashPageHead(FlashIterator *iterator)
          iterator->pageIndex < iterator->region->endPageIndex;
          iterator->pageIndex++)
     {
-        if (!isFlashPageFull(iterator))
-            return;
+        if (getFlashPageState(iterator) == FLASHPAGE_AVAILABLE)
+            return true;
     }
 
+    // Head not found
     iterator->pageIndex = iterator->region->beginPageIndex;
+    eraseFlashPage(iterator->pageIndex);
+
+    return false;
 }
 
-void setFlashPageTail(FlashIterator *iterator)
+bool setFlashPageTail(FlashIterator *iterator)
 {
-    setFlashPageHead(iterator);
+    if (!setFlashPageHead(iterator))
+        return false;
 
     uint8_t headPageIndex = iterator->pageIndex;
     uint8_t tailPageIndex = iterator->pageIndex;
@@ -65,55 +94,48 @@ void setFlashPageTail(FlashIterator *iterator)
         setFlashPagePrev(iterator);
 
         if ((iterator->pageIndex == headPageIndex) ||
-            !isFlashPageFull(iterator))
+            getFlashPageState(iterator) != FLASHPAGE_FULL)
             break;
 
         tailPageIndex = iterator->pageIndex;
     }
 
     iterator->pageIndex = tailPageIndex;
+
+    return true;
 }
 
 void setFlashPageNext(FlashIterator *iterator)
 {
-    const FlashRegion *region = iterator->region;
     iterator->pageIndex++;
     iterator->index = 0;
 
+    const FlashRegion *region = iterator->region;
     if (iterator->pageIndex >= region->endPageIndex)
         iterator->pageIndex = region->beginPageIndex;
 }
 
 void setFlashPagePrev(FlashIterator *iterator)
 {
-    const FlashRegion *region = iterator->region;
     iterator->pageIndex--;
     iterator->index = 0;
 
+    const FlashRegion *region = iterator->region;
     if (iterator->pageIndex < region->beginPageIndex)
         iterator->pageIndex = region->endPageIndex - 1;
 }
 
 void writeFlashPage(FlashIterator *iterator,
-                    uint8_t *source, uint32_t size)
+                    uint8_t *source,
+                    uint32_t size)
 {
     if ((iterator->index + size) > flashPageDataSize)
-    {
-        // Not enough space in page
-        FlashIterator startIterator = *iterator;
+        setFlashPageState(iterator, FLASHPAGE_FULL);
 
-        setFlashPageNext(iterator);
+    writeFlash(iterator->pageIndex,
+               iterator->index,
+               source,
+               size);
 
-        if (iterator->pageIndex != startIterator.pageIndex)
-        {
-            markFlashPageFull(&startIterator);
-
-            if (isFlashPageFull(iterator))
-                eraseFlash(iterator);
-        }
-        else
-            eraseFlash(iterator);
-    }
-
-    writeFlash(iterator, source, size);
+    iterator->index += size;
 }

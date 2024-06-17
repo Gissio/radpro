@@ -2,7 +2,11 @@
 
 ## 2.0.1
 
-* Fixes errors in custom HV profile settings.
+* Added data log reset.
+* Resolved issues with custom HV profiles.
+* Resolved issues with the "SET tubeHVFrequency" and "SET tubeHVDutyCycle" data communication requests.
+* Resolved issues with new history data log download.
+* Minor refinements.
 
 ## 2.0
 
@@ -18,7 +22,7 @@
 * Added display panel menu for selecting the display panel (on supported devices).
 * Added secondary dose view in average measurement mode.
 * Extended conversion factor range to 25-1600 cpm/µSv/h.
-* Added 1 second datalog interval options and removed 30 seconds and 30 minutes datalog interval options.
+* Added 1 second data log interval options and removed 30 seconds and 30 minutes data log interval options.
 * Added "SET tubeHVFrequency" and "SET tubeHVDutyCycle" data communication commands.
 * Added 12-hour time format.
 * Devices with data mode allow using the device while data mode is active; data mode state is also preserved after powering off.
@@ -35,7 +39,7 @@
 * Improved haptic pulse strengths.
 * Improved FNIRSI GC-01 quiet pulse clicks.
 * Improved selected menu item contrast.
-* Improved datalogging time precision.
+* Improved data logging time precision.
 * Fixed History (24 h) bug.
 
 ## 2.0rc3 The "BIG" update
@@ -49,7 +53,7 @@
 * Haptic pulses on the FNIRSI GC-01 (off, weak or strong).
 * Pulse thresholding (disables pulse indication if instantaneous rate is below a certain value).
 * Fault alarm on HV/tube failure (lack of pulses) or tube saturation (tube shorted).
-* Added 30 second and 10 second datalog interval options.
+* Added 30 second and 10 second data log interval options.
 * Added 10 second display sleep option.
 * Added `radpro-flashtool`.
 * Removed measurement hold.
