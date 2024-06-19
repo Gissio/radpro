@@ -1,6 +1,6 @@
 # Communications protocol
 
-To establish a connection with a Rad Pro device, you can use either a serial port or an SWD connection. When using the serial port, make sure to configure it as follows:
+To establish a connection with a Rad Pro device, you can use either a USB serial port or an SWD connection. When using the USB serial port, make sure to configure it as follows:
 
 * Baudrate: 115200
 * Data bits: 8

@@ -182,7 +182,7 @@ To submit data live to the https://gmcmap.com website:
 
 ## Data communications
 
-To communicate with Rad Pro through a serial port or SWD (through an ST-LINK dongle), read the [communications protocol description](comm.md).
+To communicate with Rad Pro through a USB serial port, read the [communications protocol description](comm.md).
 
 ## FAQ
 
