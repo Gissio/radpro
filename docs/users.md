@@ -86,6 +86,8 @@ Rad Pro lets you log cumulative dose count, from which both rate and dose can be
 
 To start logging, ensure that the time zone, date and time of your device are correctly set, and enable data logging in the settings. Data is automatically logged in the background. When the memory becomes full, older data is overwritten.
 
+To establish a USB data connection, some devices require enabling “Data mode” in the settings. To save power, disable “Data mode” when you are finished.
+
 To download the data logs or log data live to a computer, use the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software. “CPS” data is the low-level counts per second value. To average the data, use the “MvAvg” function.
 
 Please note that data is not logged during the download process.
