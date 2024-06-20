@@ -55,7 +55,7 @@ The installation will automatically create a backup of the original firmware in 
 
 ## Step 4: Configure your device
 
-Start your device and go to Rad Pro's settings, select “Geiger tube”, “HV Profile” and choose an appropriate HV profile: “Energy-saving” is best for measuring background levels of radiation, while “Accuracy” consumes more power but allows measurement of higher radiation levels; “Factory default” is the profile from the original firmware and consumes considerably more power.
+Start your device and go to Rad Pro's settings, select “Geiger tube”, “HV Profile” and choose an appropriate HV profile: “Energy-saving” is best for measuring background levels of radiation, while “Accuracy” consumes more power but allows measurement of higher levels of radiation; “Factory default” is the profile from the original firmware and consumes considerably more power.
 
 To enable USB data communications under Windows, install the [CH340 driver](https://www.catalog.update.microsoft.com/Search.aspx?q=USB%5CVID_1A86%26PID_7523).
 
