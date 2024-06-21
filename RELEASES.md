@@ -3,7 +3,6 @@
 ## 2.0.1
 
 * Added data log reset.
-* Added the “Energy-saving alt.” HV profile for the FNIRSI GC-01.
 * Changed the default conversion factor for J613/J614 tubes to 60.0 cpm/µSv/h.
 * Resolved issues with custom HV profiles.
 * Resolved issues with the "SET tubeHVFrequency" and "SET tubeHVDutyCycle" data communication requests.

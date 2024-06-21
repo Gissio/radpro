@@ -423,9 +423,6 @@ static const char *const tubeHVProfileMenuOptions[] = {
 #if defined(TUBE_HVPROFILE_ENERGYSAVING_FREQUENCY)
     "Energy-saving",
 #endif
-#if defined(TUBE_HVPROFILE_ENERGYSAVINGALT_FREQUENCY)
-    "Energy-saving alt.",
-#endif
     "Custom profile",
     NULL,
 };
@@ -606,11 +603,6 @@ float getTubeHVFrequency(void)
         return TUBE_HVPROFILE_ENERGYSAVING_FREQUENCY;
 #endif
 
-#if defined(TUBE_HVPROFILE_ENERGYSAVINGALT_FREQUENCY)
-    case TUBE_HVPROFILE_ENERGYSAVINGALT:
-        return TUBE_HVPROFILE_ENERGYSAVINGALT_FREQUENCY;
-#endif
-
     case TUBE_HVPROFILE_CUSTOM:
         return tube.hvFrequency;
 
@@ -698,11 +690,6 @@ float getTubeHVDutyCycle(void)
 #if defined(TUBE_HVPROFILE_ENERGYSAVING_DUTYCYCLE)
     case TUBE_HVPROFILE_ENERGYSAVING:
         return TUBE_HVPROFILE_ENERGYSAVING_DUTYCYCLE;
-#endif
-
-#if defined(TUBE_HVPROFILE_ENERGYSAVINGALT_DUTYCYCLE)
-    case TUBE_HVPROFILE_ENERGYSAVINGALT:
-        return TUBE_HVPROFILE_ENERGYSAVINGALT_DUTYCYCLE;
 #endif
 
     case TUBE_HVPROFILE_CUSTOM:
