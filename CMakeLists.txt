@@ -16,8 +16,8 @@ find_library(SERCOMM_LIB sercomm.lib)
 include_directories(platform.io/lib/mcu-renderer platform.io/lib/mcu-max ${SERCOMM_INCLUDE_DIR})
 
 link_libraries($<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-$<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
-${SERCOMM_LIB}
+    $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+    ${SERCOMM_LIB}
 )
 
 add_definitions(-D SIMULATOR)

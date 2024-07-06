@@ -23,8 +23,6 @@
 #define AVERAGING_PERIOD_TIME_CONSTANT 20.0F
 #define AVERAGING_PERIOD_TIME_MIN 5.0F
 #define AVERAGING_PERIOD_TIME_MAX 300.0F
-#define AVERAGING_TRANSITION_SVH_MIN 0.3E-6F
-#define AVERAGING_TRANSITION_SVH_MAX 1.0E-6F
 
 #define ALERTZONE1_USVH 1.0E-6F
 #define ALERTZONE2_USVH 1.0E-5F
@@ -291,41 +289,6 @@ static uint32_t getInstantaneousAveragingPeriod(float value)
         averagingPeriod = AVERAGING_PERIOD_TIME_CONSTANT / value;
 
     if (settings.tubeInstantaneousAveraging ==
-        TUBE_INSTANTANEOUSAVERAGING_ADAPTIVEFAST)
-    {
-        float scale = units[UNITS_SIEVERTS].rate.scale;
-
-        if (scale * (AVERAGING_PERIOD_TIME_CONSTANT /
-                     AVERAGING_TRANSITION_SVH_MAX) >
-            AVERAGING_PERIOD_TIME_MIN)
-        {
-            float svH = scale * value;
-
-            if (svH < AVERAGING_TRANSITION_SVH_MAX)
-            {
-                if (svH > AVERAGING_TRANSITION_SVH_MIN)
-                {
-                    float transitionExponent =
-                        log10f((AVERAGING_PERIOD_TIME_CONSTANT /
-                                AVERAGING_TRANSITION_SVH_MIN /
-                                AVERAGING_PERIOD_TIME_MIN) *
-                               scale) /
-                        log10f(AVERAGING_TRANSITION_SVH_MIN /
-                               AVERAGING_TRANSITION_SVH_MAX);
-
-                    averagingPeriod = (AVERAGING_PERIOD_TIME_MIN *
-                                       powf(svH / AVERAGING_TRANSITION_SVH_MAX,
-                                            transitionExponent));
-                }
-            }
-            else
-            {
-                if (averagingPeriod > AVERAGING_PERIOD_TIME_MIN)
-                    averagingPeriod = AVERAGING_PERIOD_TIME_MIN;
-            }
-        }
-    }
-    else if (settings.tubeInstantaneousAveraging ==
              TUBE_INSTANTANEOUSAVERAGING_ADAPTIVEPRECISION)
     {
         if (averagingPeriod < AVERAGING_PERIOD_TIME_MIN)
@@ -726,6 +689,10 @@ static bool isTubeFaultAlarm(void)
 static bool isInstantaneousRateAlarm(void)
 {
     if (!settings.rateAlarm)
+        return false;
+
+    // Disable alarm if confidence is above 75 %
+    if (measurements.instantaneous.rate.confidence >= 0.75)
         return false;
 
     float svH = units[UNITS_SIEVERTS].rate.scale *

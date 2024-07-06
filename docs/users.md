@@ -96,9 +96,13 @@ Please note that data is not logged during the download process.
 
 Rad Pro offers several options for adjusting the instantaneous rate averaging period:
 
-* “Adaptive fast” is the fastest option, capable of responding quickly to increased levels of radiation, at the expense of lower precision. It is best for users who need quick radiation alerts. It aims for a ±50% confidence interval; at increased levels of radiation, it limits the averaging period to a maximum of 5 seconds. You can check the “adaptive fast” response curves here: [instantaneousaveraging-adaptivefast.ipynb](../tests/instantaneousaveraging-adaptivefast.ipynb)
-* “Adaptive precision” tends to be a bit slower, but achieves higher precision at increased levels of radiation. It is best for users who deem precision more important than fast response. At lower levels of radiations, it aims for a ±50% confidence interval, as the “Adaptive fast” option; at increased levels of radiation, it uses a fixed 5 second averaging period. You can check the “adaptive precision” response curves here: [instantaneousaveraging-adaptiveprecision.ipynb](../tests/instantaneousaveraging-adaptiveprecision.ipynb)
+* “Adaptive fast” is capable of responding quickly to increased levels of radiation, at the expense of lower precision. It always aims for a ±50% confidence interval, and is best for users who need quick radiation alerts. You can view the “adaptive fast” response curves here: [instantaneousaveraging-adaptivefast.ipynb](../tests/instantaneousaveraging-adaptivefast.ipynb)
+* “Adaptive precision” also aims for a ±50% confidence interval, but sets the minimum averaging period to 5 s. At increased levels of radiation it achieves higher precision, and is best for users who deem precision more important than fast response. You can view the “adaptive precision” response curves here: [instantaneousaveraging-adaptiveprecision.ipynb](../tests/instantaneousaveraging-adaptiveprecision.ipynb)
 * “60 seconds”, “30 seconds” and “10 seconds” use fixed averaging periods. They can produce higher precision than the adaptive options, but have a much slower response.
+
+## Instantaneous rate alarm
+
+The instantaneous rate alarm triggers when the confidence interval falls below 75%.
 
 ## Dead time and dead-time compensation
 
