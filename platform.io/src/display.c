@@ -132,6 +132,7 @@
 #define TITLEBAR_BATTERY_WIDTH 15
 #define TITLEBAR_BATTERY_OFFSET_X 0
 #define TITLEBAR_BATTERY_OFFSET_Y 1
+#define TITLEBAR_SHADOW_HEIGHT 0
 
 #define MENU_LINE_HEIGHT 14
 #define MENU_SUBMENU_WIDTH 5
@@ -176,12 +177,13 @@
 
 #define CONTENT_PADDING 12
 
-#define TITLEBAR_HEIGHT 40
+#define TITLEBAR_HEIGHT 38
 #define TITLEBAR_CLOCK_WIDTH 57
 #define TITLEBAR_CLOCK_OFFSET_X 0
 #define TITLEBAR_BATTERY_WIDTH 38
 #define TITLEBAR_BATTERY_OFFSET_X 1
 #define TITLEBAR_BATTERY_OFFSET_Y ((TITLEBAR_HEIGHT - 30) / 2)
+#define TITLEBAR_SHADOW_HEIGHT 2
 
 #define MENU_LINE_HEIGHT 50
 #define MENU_SUBMENU_WIDTH 12
@@ -226,12 +228,13 @@
 
 #define CONTENT_PADDING 12
 
-#define TITLEBAR_HEIGHT 40
+#define TITLEBAR_HEIGHT 38
 #define TITLEBAR_CLOCK_WIDTH 57
 #define TITLEBAR_CLOCK_OFFSET_X 0
 #define TITLEBAR_BATTERY_WIDTH 38
 #define TITLEBAR_BATTERY_OFFSET_X 1
 #define TITLEBAR_BATTERY_OFFSET_Y ((TITLEBAR_HEIGHT - 30) / 2)
+#define TITLEBAR_SHADOW_HEIGHT 2
 
 #define MENU_LINE_HEIGHT 46
 #define MENU_SUBMENU_WIDTH 12
@@ -277,7 +280,7 @@
 #define TITLEBAR_X 0
 #define TITLEBAR_Y 0
 #define TITLEBAR_WIDTH DISPLAY_WIDTH
-#define TITLEBAR_BOTTOM (TITLEBAR_Y + TITLEBAR_HEIGHT)
+#define TITLEBAR_BOTTOM (TITLEBAR_Y + TITLEBAR_HEIGHT + TITLEBAR_SHADOW_HEIGHT)
 #define TITLEBAR_TEXT_OFFSET_Y ((TITLEBAR_HEIGHT - FONT_SMALL_LINE_HEIGHT) / 2)
 #define TITLEBAR_TITLE_X 0
 #define TITLEBAR_TITLE_OFFSET_X CONTENT_PADDING
@@ -487,6 +490,10 @@ typedef enum
 
     COLOR_CONTAINER_BACKGROUND,
     COLOR_CONTAINER_GLOBAL,
+    COLOR_CONTAINER_GLOBAL_SHADOW1,
+    COLOR_CONTAINER_GLOBAL_SHADOW2,
+    COLOR_CONTAINER_GLOBAL_SHADOW1_MENU,
+    COLOR_CONTAINER_GLOBAL_SHADOW2_MENU,
 
     COLOR_INSTRUMENT_ENHANCED_PRIMARY,
     COLOR_INSTRUMENT_ENHANCED_TERTIARY_OVER_PRIMARY,
@@ -550,6 +557,26 @@ static const mr_color_t displayColors[][3] = {
     {mr_get_color(0xfcfdfc), // 0xfcfcfc
      mr_get_color(0x262726), // 0x262626
      mr_get_color(0x0a0a00)},
+
+    // Container global shadow 1
+    {mr_get_color(0xd0d0d0),
+     mr_get_color(0x181818),
+     mr_get_color(0x000000)},
+
+    // Container global shadow 2
+    {mr_get_color(0xe8e8e8),
+     mr_get_color(0x1f1f1f),
+     mr_get_color(0x000000)},
+
+    // Container global shadow 1 menu
+    {mr_get_color(0xd0d0d0),
+     mr_get_color(0x202020),
+     mr_get_color(0x000000)},
+
+    // Container global shadow 2 menu
+    {mr_get_color(0xe8e8e8),
+     mr_get_color(0x282828),
+     mr_get_color(0x000000)},
 
     // Instrument enhanced primary
     {mr_get_color(0x325b9a),
@@ -617,7 +644,7 @@ static const mr_color_t displayColors[][3] = {
      mr_get_color(0x111902)},
 
     // Instrument frame primary alert zone 2
-    {mr_get_color(0xd9d8d9),  // 0xd9d9d9
+    {mr_get_color(0xd9d8d9), // 0xd9d9d9
      mr_get_color(0x212121),
      mr_get_color(0x060700)}, // 0x060600
 
@@ -647,9 +674,9 @@ static const mr_color_t displayColors[][3] = {
      mr_get_color(0x000000)},
 
     // Flat checked background (on container global) [menu selected background]
-    {mr_get_color(0xd6dde9),  // Changed alpha to 20 %
-     mr_get_color(0x324563),  // Changed alpha to 50 %
-     mr_get_color(0x00230f)}, // Changed alpha to 50 %
+    {mr_get_color(0xd6dde9),  // Changed alpha to 20%
+     mr_get_color(0x324563),  // Changed alpha to 50%
+     mr_get_color(0x00230f)}, // Changed alpha to 50%
 
     // On flat active (on container global) [menu selected foreground]
     {mr_get_color(0x161718),
@@ -925,7 +952,8 @@ static void drawRightAlignedText(const char *str,
              &rightAlignedOffset);
 }
 
-void drawTitleBar(const char *title)
+void drawTitleBar(const char *title,
+                  bool isMenu)
 {
     setFillColor(COLOR_CONTAINER_GLOBAL);
 
@@ -988,6 +1016,25 @@ void drawTitleBar(const char *title)
     drawRightAlignedText(buffer,
                          &rectangle,
                          &offset);
+
+// Shadow
+#if (TITLEBAR_SHADOW_HEIGHT > 0)
+    rectangle.x = TITLEBAR_TITLE_X;
+    rectangle.y = TITLEBAR_BOTTOM - 2;
+    rectangle.width = TITLEBAR_WIDTH;
+    rectangle.height = 1;
+
+    setFillColor(!isMenu
+                     ? COLOR_CONTAINER_GLOBAL_SHADOW1
+                     : COLOR_CONTAINER_GLOBAL_SHADOW1_MENU);
+    drawRectangle(&rectangle);
+
+    rectangle.y++;
+    setFillColor(!isMenu
+                     ? COLOR_CONTAINER_GLOBAL_SHADOW2
+                     : COLOR_CONTAINER_GLOBAL_SHADOW2_MENU);
+    drawRectangle(&rectangle);
+#endif
 
     // Set background
     setFillColor(COLOR_CONTAINER_BACKGROUND);
@@ -1086,7 +1133,7 @@ void drawLowBattery(void)
 
 void drawMenu(const Menu *menu)
 {
-    drawTitleBar(menu->title);
+    drawTitleBar(menu->title, true);
 
     setFont(FONT_MEDIUM);
 
@@ -1865,7 +1912,7 @@ void drawRNG(const char *title,
              const char *rngString,
              const char *stateString)
 {
-    drawTitleBar(title);
+    drawTitleBar(title, false);
 
     // RNG string
     const mr_rectangle_t rngDataRectangle = {
@@ -1904,7 +1951,7 @@ void drawRNG(const char *title,
 
 void drawStatistics(void)
 {
-    drawTitleBar("Statistics");
+    drawTitleBar("Statistics", false);
 
     setFont(FONT_SMALL);
 
@@ -2050,7 +2097,7 @@ void drawGame(const uint8_t board[8][8],
     mr_point_t offset;
 
 #if defined(DISPLAY_COLOR)
-    drawTitleBar("Game");
+    drawTitleBar("Game", false);
 #endif
 
     // Board

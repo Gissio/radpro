@@ -72,7 +72,8 @@ void updateDisplayContrast(void);
 
 void refreshDisplay(void);
 
-void drawTitleBar(const char *title);
+void drawTitleBar(const char *title,
+                  bool isMenu);
 void drawNotification(const char *title,
                       const char *subtitle);
 void drawMenu(const Menu *menu);

@@ -36,7 +36,7 @@ Thickness: 0.05 mm
 * Operating voltage range: 350 V - 475 V
 * Initial voltage: 260 V - 320 V
 * Plateau length: at least 100 V
-* Maximum plateau slope: 0.1 %/V
+* Maximum plateau slope: 0.1%/V
 * Minimum dead time: 190 µs (@ 400 V)
 * Working range: 0.004 µR/s (40 µR/s)
 * Working range: 0.014 mR/h (144 mR/h)

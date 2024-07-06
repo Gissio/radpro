@@ -20,9 +20,8 @@
 #include "system.h"
 #include "tube.h"
 
-#define AVERAGING_PERIOD_TIME_CONSTANT 20.0F
-#define AVERAGING_PERIOD_TIME_MIN 5.0F
-#define AVERAGING_PERIOD_TIME_MAX 300.0F
+// For 50% configence interval:
+#define AVERAGING_PULSE_COUNT 20
 
 #define ALERTZONE1_USVH 1.0E-6F
 #define ALERTZONE2_USVH 1.0E-5F
@@ -130,7 +129,6 @@ static struct
 
         Rate rate;
         float maxValue;
-        float averagingPeriod;
     } instantaneous;
 
     uint32_t instantaneousTabIndex;
@@ -164,6 +162,9 @@ static struct
 
     int32_t viewIndex;
 } measurements;
+
+uint8_t instantaneousAveragingPeriods[] = {
+    0, 5, 60, 30, 10};
 
 static const int32_t averagingTimes[] = {
     30 * 24 * 60 * 60, // Off (actually 30 days)
@@ -268,34 +269,6 @@ static float getDeadTimeCompensationFactor(float value)
 
         return 1.0F / denominator;
     }
-}
-
-uint8_t instantaneousAveragingPeriods[] = {
-    60, 30, 10};
-
-static uint32_t getInstantaneousAveragingPeriod(float value)
-{
-    if (settings.tubeInstantaneousAveraging >=
-        TUBE_INSTANTANEOUSAVERAGING_60SECONDS)
-        return instantaneousAveragingPeriods[settings.tubeInstantaneousAveraging -
-                                             TUBE_INSTANTANEOUSAVERAGING_60SECONDS];
-
-    float averagingPeriod;
-    if (value < (AVERAGING_PERIOD_TIME_CONSTANT / AVERAGING_PERIOD_TIME_MAX))
-        averagingPeriod = AVERAGING_PERIOD_TIME_MAX;
-    else if (value > AVERAGING_PERIOD_TIME_CONSTANT)
-        averagingPeriod = 1;
-    else
-        averagingPeriod = AVERAGING_PERIOD_TIME_CONSTANT / value;
-
-    if (settings.tubeInstantaneousAveraging ==
-             TUBE_INSTANTANEOUSAVERAGING_ADAPTIVEPRECISION)
-    {
-        if (averagingPeriod < AVERAGING_PERIOD_TIME_MIN)
-            averagingPeriod = AVERAGING_PERIOD_TIME_MIN;
-    }
-
-    return (uint32_t)(averagingPeriod + 0.999F);
 }
 
 static void calculateRate(uint32_t pulseCount, uint32_t ticks, Rate *rate)
@@ -444,8 +417,13 @@ void updateMeasurements(void)
 
     measurements.instantaneous.rate.time = 0;
 
-    measurements.instantaneous.averagingPeriod =
-        getInstantaneousAveragingPeriod(measurements.instantaneous.rate.value);
+    uint32_t averagingPeriod =
+        instantaneousAveragingPeriods[settings.tubeInstantaneousAveraging];
+    uint32_t averagingPulseCount =
+        (settings.tubeInstantaneousAveraging <=
+         TUBE_INSTANTANEOUSAVERAGING_ADAPTIVEPRECISION)
+            ? AVERAGING_PULSE_COUNT
+            : 0;
 
     uint32_t queueSize = (measurements.instantaneous.queueTail -
                           measurements.instantaneous.queueHead) &
@@ -461,12 +439,16 @@ void updateMeasurements(void)
              measurements.instantaneous.queue[queueIndex].firstPulseTick) /
                 SYSTICK_FREQUENCY;
 
-        if (timePeriod > measurements.instantaneous.averagingPeriod)
+        if (timePeriod > averagingPeriod)
         {
-            measurements.instantaneous.queueHead =
-                (queueIndex + 1) & INSTANTANEOUS_RATE_QUEUE_MASK;
+            if (instantaneousMeasurement.pulseCount >=
+                averagingPulseCount)
+            {
+                measurements.instantaneous.queueHead =
+                    (queueIndex + 1) & INSTANTANEOUS_RATE_QUEUE_MASK;
 
-            break;
+                break;
+            }
         }
 
         instantaneousMeasurement.firstPulseTick =
@@ -691,7 +673,7 @@ static bool isInstantaneousRateAlarm(void)
     if (!settings.rateAlarm)
         return false;
 
-    // Disable alarm if confidence is above 75 %
+    // Disable alarm if confidence is above 75%
     if (measurements.instantaneous.rate.confidence >= 0.75)
         return false;
 
@@ -760,7 +742,7 @@ static void onInstantaneousRateViewEvent(const View *view,
             style = MEASUREMENTSTYLE_NORMAL;
         }
 
-        drawTitleBar("Instantaneous");
+        drawTitleBar("Instantaneous", false);
         drawMeasurementValue(valueString,
                              unitString,
                              measurements.instantaneous.rate.confidence,
@@ -923,7 +905,7 @@ static void onAverageRateViewEvent(const View *view,
             style = MEASUREMENTSTYLE_NORMAL;
         }
 
-        drawTitleBar("Average");
+        drawTitleBar("Average", false);
         drawMeasurementValue(valueString,
                              unitString,
                              measurements.average.timerRate.confidence,
@@ -1110,7 +1092,7 @@ static void onCumulativeDoseViewEvent(const View *view,
             style = MEASUREMENTSTYLE_NORMAL;
         }
 
-        drawTitleBar("Cumulative");
+        drawTitleBar("Cumulative", false);
         drawMeasurementValue(valueString,
                              unitString,
                              0,
@@ -1238,7 +1220,7 @@ static void onHistoryViewEvent(const View *view, Event event)
             data[i] = historyState->buffer[dataIndex];
         }
 
-        drawTitleBar(histories[measurements.history.tabIndex].name);
+        drawTitleBar(histories[measurements.history.tabIndex].name, false);
         drawHistory(rateUnit->scale,
                     rateUnit->name,
                     histories[measurements.history.tabIndex].timeTickNum,
@@ -1448,8 +1430,8 @@ const View doseAlarmMenuView = {
 // Pulse thresholding menu
 
 static const char *onPulseThresholdingMenuGetOption(const Menu *menu,
-                                                  uint32_t index,
-                                                  MenuStyle *menuStyle)
+                                                    uint32_t index,
+                                                    MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.pulseThresholding);
 
