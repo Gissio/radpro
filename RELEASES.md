@@ -3,7 +3,7 @@
 ## 2.0.2
 
 * Simplified the instantaneous rate averaging response curves, resulting in improved precision when using J613/J614 tubes.
-* Disabled rate alarms in situations where the confidence interval is high, such as immediately after device startup.
+* Disabled instantaneous rate alarms in situations where the confidence interval is high, such as immediately after device startup.
 
 ## 2.0.1
 
