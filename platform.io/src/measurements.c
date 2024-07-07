@@ -29,7 +29,7 @@
 
 #define INSTANTANEOUS_RATE_QUEUE_SIZE 32
 #define INSTANTANEOUS_RATE_QUEUE_MASK (INSTANTANEOUS_RATE_QUEUE_SIZE - 1)
-#define INSTANTANEOUS_RATE_AVERAGING_PULSE_COUNT 20 // For 50% configence interval:
+#define INSTANTANEOUS_RATE_AVERAGING_PULSE_COUNT 19 // For 50% configence interval:
 #define INSTANTANEOUS_RATE_MAX_PULSE_COUNT 10
 
 enum
@@ -437,16 +437,7 @@ void updateMeasurements(void)
              measurements.instantaneous.queue[queueIndex].firstPulseTick) /
                 SYSTICK_FREQUENCY;
 
-        instantaneousMeasurement.firstPulseTick =
-            measurements.instantaneous.queue[queueIndex].firstPulseTick;
-        if (!instantaneousMeasurement.pulseCount)
-            instantaneousMeasurement.lastPulseTick =
-                measurements.instantaneous.queue[queueIndex].lastPulseTick;
-        instantaneousMeasurement.pulseCount +=
-            measurements.instantaneous.queue[queueIndex].pulseCount;
-        measurements.instantaneous.rate.time = timePeriod;
-
-        if (timePeriod >= averagingPeriod)
+        if (timePeriod > averagingPeriod)
         {
             if (instantaneousMeasurement.pulseCount >
                 averagingPulseCount)
@@ -457,6 +448,15 @@ void updateMeasurements(void)
                 break;
             }
         }
+
+        instantaneousMeasurement.firstPulseTick =
+            measurements.instantaneous.queue[queueIndex].firstPulseTick;
+        if (!instantaneousMeasurement.pulseCount)
+            instantaneousMeasurement.lastPulseTick =
+                measurements.instantaneous.queue[queueIndex].lastPulseTick;
+        instantaneousMeasurement.pulseCount +=
+            measurements.instantaneous.queue[queueIndex].pulseCount;
+        measurements.instantaneous.rate.time = timePeriod;
     }
 
     calculateRate(instantaneousMeasurement.pulseCount,
