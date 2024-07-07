@@ -20,9 +20,6 @@
 #include "system.h"
 #include "tube.h"
 
-// For 50% configence interval:
-#define AVERAGING_PULSE_COUNT 20
-
 #define ALERTZONE1_USVH 1.0E-6F
 #define ALERTZONE2_USVH 1.0E-5F
 
@@ -32,6 +29,7 @@
 
 #define INSTANTANEOUS_RATE_QUEUE_SIZE 32
 #define INSTANTANEOUS_RATE_QUEUE_MASK (INSTANTANEOUS_RATE_QUEUE_SIZE - 1)
+#define INSTANTANEOUS_RATE_AVERAGING_PULSE_COUNT 20 // For 50% configence interval:
 #define INSTANTANEOUS_RATE_MAX_PULSE_COUNT 10
 
 enum
@@ -422,7 +420,7 @@ void updateMeasurements(void)
     uint32_t averagingPulseCount =
         (settings.tubeInstantaneousAveraging <=
          TUBE_INSTANTANEOUSAVERAGING_ADAPTIVEPRECISION)
-            ? AVERAGING_PULSE_COUNT
+            ? INSTANTANEOUS_RATE_AVERAGING_PULSE_COUNT
             : 0;
 
     uint32_t queueSize = (measurements.instantaneous.queueTail -
@@ -439,18 +437,6 @@ void updateMeasurements(void)
              measurements.instantaneous.queue[queueIndex].firstPulseTick) /
                 SYSTICK_FREQUENCY;
 
-        if (timePeriod > averagingPeriod)
-        {
-            if (instantaneousMeasurement.pulseCount >=
-                averagingPulseCount)
-            {
-                measurements.instantaneous.queueHead =
-                    (queueIndex + 1) & INSTANTANEOUS_RATE_QUEUE_MASK;
-
-                break;
-            }
-        }
-
         instantaneousMeasurement.firstPulseTick =
             measurements.instantaneous.queue[queueIndex].firstPulseTick;
         if (!instantaneousMeasurement.pulseCount)
@@ -459,6 +445,18 @@ void updateMeasurements(void)
         instantaneousMeasurement.pulseCount +=
             measurements.instantaneous.queue[queueIndex].pulseCount;
         measurements.instantaneous.rate.time = timePeriod;
+
+        if (timePeriod >= averagingPeriod)
+        {
+            if (instantaneousMeasurement.pulseCount >
+                averagingPulseCount)
+            {
+                measurements.instantaneous.queueHead =
+                    (queueIndex + 1) & INSTANTANEOUS_RATE_QUEUE_MASK;
+
+                break;
+            }
+        }
     }
 
     calculateRate(instantaneousMeasurement.pulseCount,

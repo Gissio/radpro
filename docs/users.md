@@ -29,11 +29,11 @@ Rad Pro supports the following measurement modes:
 
 The instantaneous rate is estimated by dividing the number of pulses within the instantaneous rate averaging period, minus one, by the time between the first and last pulse within that period.
 
-The secondary view can be switched between an instantaneous rate bar view (logarithmic, with each tick representing a factor of 10, and 1 µSv/h and 10 µSv/h alert zones), a time view that displays the length of the averaging period, an instantaneous rate max view, and an instantaneous rate cpm (counts per minute) view.
+The secondary view can be switched between an instantaneous rate bar view (logarithmic, with each tick representing a tenfold increase in radiation level, and 1 µSv/h and 10 µSv/h alert zones), a time view that displays the length of the averaging period, an instantaneous rate max view, and an instantaneous rate cpm (counts per minute) view.
 
 The [confidence interval](https://en.wikipedia.org/wiki/Confidence_interval) estimates the range of values that contain the true, actual instantaneous rate with a 95% probability, assuming a constant level of radiation.
 
-An example: suppose you measure an instantaneous rate of 1.000 µSv/h with a confidence interval of ±40%. This means that the true, actual level of radiation has a 95% probability of falling within the interval [0.600 µSv/h, 1.400 µSv/h] (40% below and above the measured value). This also means that there is a 5% chance that the true level of radiation is outside this interval. As the confidence interval becomes smaller, the certainty of your measurement increases.
+An example: Imagine measuring an instantaneous radiation rate of 1.000 µSv/h with a confidence interval of ±40%. This means there's a 95% probability that the true radiation level lies between 0.600 µSv/h and 1.400 µSv/h. In other words, the measured value could be as low as 0.600 µSv/h or as high as 1.400 µSv/h with 95% confidence. There's a 5% chance the true level falls outside this range. As the confidence interval narrows (becomes smaller), our measurement becomes more precise and certain.
 
 ### Average rate
 
@@ -47,7 +47,7 @@ Averaging can be indefinite, or limited by a configurable time or confidence lev
 
 To reset averaging, read the device's installation instructions.
 
-An example: suppose you averaged background radiation for 1 minute, resulting in a measurement of 0.210 µSv/h with a confidence interval of ±36%. This means that the actual level of radiation has a 95% probability of falling within the interval [0.134 µSv/h, 0.286 µSv/h] (36% below and above the measured value). Suppose you consider this confidence interval too high, so you repeat the measurement with 30-minute averaging. Your new measurement is 0.154 µSv/h with a confidence interval of ±7.7%, which you might consider now much more acceptable.
+An example: Imagine measuring background radiation. A one-minute average yields 0.210 µSv/h with a ±36% confidence interval. This means there's a 95% chance the true radiation level lies between 0.134 µSv/h and 0.286 µSv/h. Finding this interval too wide, you repeat the measurement with a 30-minute average. The result is 0.154 µSv/h, now with a much narrower ±7.7% confidence interval.
 
 ### Cumulative dose
 
@@ -59,7 +59,7 @@ To reset cumulative dose, read the device's installation instructions.
 
 ### History
 
-The history is calculated from the instantaneous rate, sampled once per second. The plot displays 1 µSv/h and 10 µSv/h alert zones.
+The history is calculated from the instantaneous rate, sampled once per second. The plot is logarithmic, with each division representing a tenfold increase in radiation level. Alert zones at 1 µSv/h and 10 µSv/h alert are displayed.
 
 The view can be switched between a 10-minute view, a 60-minute view and a 24-hours view.
 
@@ -73,8 +73,8 @@ Rad Pro comes with default conversion factors for various Geiger-Müller tubes:
 
 * J305: 153.8 cpm/µSv/h
 * J321: 153.8 cpm/µSv/h
-* J613: 30.0 cpm/µSv/h
-* J614: 30.0 cpm/µSv/h
+* J613: 60.0 cpm/µSv/h
+* J614: 60.0 cpm/µSv/h
 * M4011: 153.8 cpm/µSv/h
 * SBM-20: 153.8 cpm/µSv/h
 
@@ -158,9 +158,9 @@ For faster bit generation, use a radioactive source.
 
 ## radpro-tool
 
-`radpro-tool` gives you low-level access to your device from a computer, allowing you to download data logs, log data live, submit data live to radiation monitoring websites, get device information and sync the device's clock.
+`radpro-tool` gives you low-level access to your device from a computer, allowing you to download data logs, log data live, submit data live to radiation monitoring websites, get device information, set custom HV profiles (on supported devices) and sync the device's clock.
 
-To use `radpro-tool`, install [Python](https://www.python.org), [PIP](https://pip.pypa.io/en/stable/). You must also install the necessary requirements by running the following command in a terminal:
+To use `radpro-tool`, install [Python](https://www.python.org) and [PIP](https://pip.pypa.io/en/stable/). You must also install the necessary requirements by running the following command in a terminal:
 
     pip install -r tools/requirements.txt
 
@@ -192,15 +192,19 @@ To communicate with Rad Pro through a USB serial port, read the [communications 
 
 **Q: Why does my device's date and time reset every time I turn it on?**
 
-**A:** This happens when your device's real-time clock is not powered during power-off. On the FNIRSI GC-01, most likely the backup battery (a CR1220) needs replacement.
+**A:** Your device's date and time reset because its real-time clock (RTC) loses power when you turn it off. On the FNIRSI GC-01, this is likely due to a failing backup battery (a CR1220). Replacing this battery should resolve the issue.
 
 **Q: When I power on my device, Rad Pro stays quite some time (up to 60 seconds) on the splash screen.**
 
-**A:** Some microprocessors need quite some time to start the real-time clock. If this happens every time you turn on your device, check the previous question.
+**A:** A splash screen delay of up to 60 seconds during startup can be caused by your device's microprocessor taking time to initialize the real-time clock. If this happens consistently, please refer to the previous question for troubleshooting.
 
 **Q: Why are the instantaneous rate measurements so noisy?**
 
-**A:** There are two conflicting objectives when measuring instantaneous rate: low measurement noise, and fast response. You can reduce noise by choosing an instantaneous rate averaging option that increases the averaging period, at the expense of a slower response.
+**A:** Measuring instantaneous rate presents a trade-off between low noise and fast response. To minimize noise, you can select an averaging option that increases the measurement period. However, this comes at the cost of a slower response.
+
+**Q: Why isn’t the rate alarm triggering?**
+
+**A:** To minimize false alarms, the rate alarm is only activated when the confidence interval falls below 75%.
 
 **Q: My device is missing counts.**
 
