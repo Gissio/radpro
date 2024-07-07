@@ -57,7 +57,7 @@ The installation will automatically create a backup of the original firmware in 
 
 Start your device and go to Rad Pro's settings, select “Geiger tube”, “HV Profile” and choose an appropriate HV profile: “Energy-saving” is best for measuring background levels of radiation, while “Accuracy” consumes more power but allows measurement of higher levels of radiation; “Factory default” is the profile from the original firmware and consumes considerably more power.
 
-To enable USB data communications under Windows, install the [CH340 driver](https://www.catalog.update.microsoft.com/Search.aspx?q=USB%5CVID_1A86%26PID_7523).
+To establish a USB data connection under Windows, install the [CH340 driver](https://www.catalog.update.microsoft.com/Search.aspx?q=USB%5CVID_1A86%26PID_7523).
 
 Last, read the [user's manual](../../users.md) for learning how to use Rad Pro.
 
@@ -91,9 +91,9 @@ On the FS-1000, the keys are mapped as follows:
 
 Not all devices support the pulse LED.
 
-On the FS-600 and FS-1000, Rad Pro can store up to 91125 data points. At normal radiation levels (20 cpm), this allows for 1898 days of data at 60-minute intervals, 316 days at 10-minute intervals, 63 days at 1-minute intervals, 10 days at 10-second intervals and 25 hours at 1-second intervals.
+To establish a USB data connection, connect your FS-600 or FS-1000 to a computer using a USB data cable.
 
-To establish data communication, connect your FS-600 or FS-1000 to a computer using a USB data cable.
+On the FS-600 and FS-1000, Rad Pro can store up to 91125 data points. At normal radiation levels (20 cpm), this allows for 1898 days of data at 60-minute intervals, 316 days at 10-minute intervals, 63 days at 1-minute intervals, 10 days at 10-second intervals and 25 hours at 1-second intervals.
 
 The FS-600 and FS-1000 include two Zener diodes that limit the maximum voltage to 440 V (nominal).
 

@@ -67,7 +67,7 @@ The keys are mapped as follows:
   * Select option: the ok/power or right/settings key.
   * Go back: the left/back key.
 
-To establish data communication, connect your FNIRSI GC-01 to a computer using a USB data cable.
+To establish a USB data connection, connect your FNIRSI GC-01 to a computer using a USB data cable.
 
 ### FNIRSI GC-01 with a CH32F103R8 (WCH) microprocessor
 

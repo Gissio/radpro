@@ -55,7 +55,7 @@ Also take note of the type of LCD display: the marking on the ribbon cable shoul
 
 Start your device and go to Rad Pro's settings, select “Geiger tube”, “Conversion factor”, and select the option that matches the Geiger-Müller tube installed in your device.
 
-To enable USB data communications under Windows, install the [CH340 driver](https://www.catalog.update.microsoft.com/Search.aspx?q=USB%5CVID_1A86%26PID_7523).
+To establish a USB data connection under Windows, install the [CH340 driver](https://www.catalog.update.microsoft.com/Search.aspx?q=USB%5CVID_1A86%26PID_7523).
 
 Last, read the [user's manual](../../users.md) for learning how to use Rad Pro.
 
@@ -76,8 +76,8 @@ On the FS-5000, the keys are mapped as follows:
   * Select option: short hold of the right/settings key, or the ok/power key.
   * Go back: short hold of the up/back key.
 
-On the FS-5000, Rad Pro can store up to 220725 data points. At normal radiation levels (20 cpm), this allows for 4598 days of data at 60-minute intervals, 766 days at 10-minute intervals, 153 days at 1-minute intervals, 25 days at 10-second intervals and 2 days at 1-second intervals.
+To establish a USB data connection, connect your FS-5000 to a computer using a USB data cable.
 
-To establish data communication, connect your FS-5000 to a computer using a USB data cable.
+On the FS-5000, Rad Pro can store up to 220725 data points. At normal radiation levels (20 cpm), this allows for 4598 days of data at 60-minute intervals, 766 days at 10-minute intervals, 153 days at 1-minute intervals, 25 days at 10-second intervals and 2 days at 1-second intervals.
 
 The FS-5000 does not support HV profiles.

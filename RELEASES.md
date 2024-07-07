@@ -12,7 +12,7 @@
 * Added data log reset.
 * Changed the default conversion factor for J613/J614 tubes to 60.0 cpm/µSv/h.
 * Resolved issues with custom HV profiles.
-* Resolved issues with the "SET tubeHVFrequency" and "SET tubeHVDutyCycle" data communication requests.
+* Resolved issues with the "SET tubeHVFrequency" and "SET tubeHVDutyCycle" data connection requests.
 * Resolved issues with new history data log download.
 * Minor refinements.
 
@@ -22,7 +22,7 @@
 * Updated the UI design system to [OpenBridge 5.0](https://www.openbridge.no/), improving legibility under sunlight.
 * Changed the default conversion factor for J613/J614 tubes to 30.0 cpm/µSv/h.
 * Removed the FNIRSI GC-01 display panel settings.
-* Increased the granularity and range of the "SET tubeHVFrequency" and "SET tubeHVDutyCycle" data communication requests to CPU clock resolution and 100 Hz-100 kHz and 0%-100%, respectively (not stored on power-off).
+* Increased the granularity and range of the "SET tubeHVFrequency" and "SET tubeHVDutyCycle" data connection requests to CPU clock resolution and 100 Hz-100 kHz and 0%-100%, respectively (not stored on power-off).
 
 ## 2.0rc5 The final countdown
 
@@ -31,13 +31,13 @@
 * Added secondary dose view in average measurement mode.
 * Extended conversion factor range to 25-1600 cpm/µSv/h.
 * Added 1 second data log interval options and removed 30 seconds and 30 minutes data log interval options.
-* Added "SET tubeHVFrequency" and "SET tubeHVDutyCycle" data communication commands.
+* Added "SET tubeHVFrequency" and "SET tubeHVDutyCycle" data connection commands.
 * Added 12-hour time format.
 * Devices with data mode allow using the device while data mode is active; data mode state is also preserved after powering off.
 * Improved battery level indicator of the Bosean FS-600/FS-1000.
 * Improved battery level readout of the FS2011(STM32F051), Bosean FS-600/FS-1000.
 * Improved keyboard control scheme of the Bosean FS-1000.
-* Changed data communications end of line to "\r\n".
+* Changed USB data connection end of line to "\r\n".
 * Minor refinements.
 
 ## 2.0rc4 The "little" update
