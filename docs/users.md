@@ -102,7 +102,7 @@ Rad Pro offers several options for adjusting the instantaneous rate averaging pe
 
 ## Instantaneous rate alarm
 
-To minimize false alarms, the instantaneous rate alarm is only triggered when the confidence interval falls below 75%.
+To minimize false alarms, the instantaneous rate alarm triggers only when the confidence interval falls below 75%.
 
 ## Dead time and dead-time compensation
 
@@ -204,7 +204,7 @@ To communicate with Rad Pro through a USB serial port, read the [communications 
 
 **Q: Why isn’t the rate alarm triggering?**
 
-**A:** To minimize false alarms, the rate alarm is only triggered when the confidence interval falls below 75%.
+**A:** To minimize false alarms, the rate alarm triggers only when the confidence interval falls below 75%.
 
 **Q: My device is missing counts.**
 
