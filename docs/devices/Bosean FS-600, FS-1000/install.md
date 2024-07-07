@@ -93,6 +93,8 @@ Not all devices support the pulse LED.
 
 On the FS-600 and FS-1000, Rad Pro can store up to 91125 data points. At normal radiation levels (20 cpm), this allows for 1898 days of data at 60-minute intervals, 316 days at 10-minute intervals, 63 days at 1-minute intervals, 10 days at 10-second intervals and 25 hours at 1-second intervals.
 
+To establish data communication, connect your FS-600 or FS-1000 to a computer using a USB data cable.
+
 The FS-600 and FS-1000 include two Zener diodes that limit the maximum voltage to 440 V (nominal).
 
 The FS-600 and FS-1000 HV profile settings are:

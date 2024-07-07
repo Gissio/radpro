@@ -68,6 +68,8 @@ The keys are mapped as follows:
   * Select option: the ok/power or right/settings key.
   * Go back: the left/back key.
 
+To establish data communication, connect your FNIRSI GC-01 to a computer using a USB data cable.
+
 ### FNIRSI GC-01 with a CH32F103R8 (WCH) microprocessor
 
 On the FNIRSI GC-01 with a CH32F103R8 microprocessor, you must enable “Data mode” in the settings to establish a USB data connection. To save power, disable “Data mode” when you are finished.
