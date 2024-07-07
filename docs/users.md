@@ -29,11 +29,11 @@ Rad Pro supports the following measurement modes:
 
 The instantaneous rate is estimated by dividing the number of pulses within the instantaneous rate averaging period, minus one, by the time between the first and last pulse within that period.
 
-The secondary view can be switched between an instantaneous rate bar view (logarithmic, with each tick representing a tenfold increase in radiation level, and 1 µSv/h and 10 µSv/h alert zones), a time view that displays the length of the averaging period, an instantaneous rate max view, and an instantaneous rate cpm (counts per minute) view.
+The secondary view can be switched between an instantaneous rate bar view ([logarithmic](https://en.wikipedia.org/wiki/Logarithmic_scale), with each tick representing a tenfold increase in radiation level, and 1 µSv/h and 10 µSv/h alert zones), a time view that displays the length of the averaging period, an instantaneous rate max view, and an instantaneous rate cpm (counts per minute) view.
 
 The [confidence interval](https://en.wikipedia.org/wiki/Confidence_interval) estimates the range of values that contain the true, actual instantaneous rate with a 95% probability, assuming a constant level of radiation.
 
-An example: Imagine measuring an instantaneous radiation rate of 1.000 µSv/h with a confidence interval of ±40%. This means there's a 95% probability that the true radiation level lies between 0.600 µSv/h and 1.400 µSv/h. In other words, the measured value could be as low as 0.600 µSv/h or as high as 1.400 µSv/h with 95% confidence. There's a 5% chance the true level falls outside this range. As the confidence interval narrows (becomes smaller), our measurement becomes more precise and certain.
+An example: Imagine measuring an instantaneous radiation rate of 1.000 µSv/h with a confidence interval of ±40%. This means there's a 95% probability that the true radiation level lies between 0.600 µSv/h and 1.400 µSv/h. In other words, there's a 5% chance the true level falls outside this range. As the confidence interval narrows (becomes smaller), the measurement becomes more precise and certain.
 
 ### Average rate
 
@@ -47,7 +47,7 @@ Averaging can be indefinite, or limited by a configurable time or confidence lev
 
 To reset averaging, read the device's installation instructions.
 
-An example: Imagine measuring background radiation. A one-minute average yields 0.210 µSv/h with a ±36% confidence interval. This means there's a 95% chance the true radiation level lies between 0.134 µSv/h and 0.286 µSv/h. Finding this interval too wide, you repeat the measurement with a 30-minute average. The result is 0.154 µSv/h, now with a much narrower ±7.7% confidence interval.
+An example: Imagine measuring background radiation. A one-minute average yields 0.210 µSv/h with a ±36% confidence interval. This means there's a 95% chance the true radiation level lies between 0.134 µSv/h and 0.286 µSv/h. Finding this interval too wide, you repeat the measurement with a 30-minute average. The new measurement is 0.154 µSv/h, now with a much narrower ±7.7% confidence interval.
 
 ### Cumulative dose
 
@@ -59,7 +59,7 @@ To reset cumulative dose, read the device's installation instructions.
 
 ### History
 
-The history is calculated from the instantaneous rate, sampled once per second. The plot is logarithmic, with each division representing a tenfold increase in radiation level. Alert zones at 1 µSv/h and 10 µSv/h alert are displayed.
+The history is calculated from the instantaneous rate, sampled once per second. The plot is [logarithmic](https://en.wikipedia.org/wiki/Logarithmic_scale), with each division representing a tenfold increase in radiation level. Alert zones at 1 µSv/h and 10 µSv/h are displayed.
 
 The view can be switched between a 10-minute view, a 60-minute view and a 24-hours view.
 
@@ -96,8 +96,8 @@ Please note that data is not logged during the download process.
 
 Rad Pro offers several options for adjusting the instantaneous rate averaging period:
 
-* “Adaptive fast” is capable of responding quickly to increased levels of radiation, at the expense of lower precision. It always aims for a ±50% confidence interval, and is best for users who need quick radiation alerts. You can view the “adaptive fast” response curves here: [instantaneousaveraging-adaptivefast.ipynb](../tests/instantaneousaveraging-adaptivefast.ipynb)
-* “Adaptive precision” also aims for a ±50% confidence interval, but sets the minimum averaging period to 5 s. At increased levels of radiation it achieves higher precision, and is best for users who deem precision more important than fast response. You can view the “adaptive precision” response curves here: [instantaneousaveraging-adaptiveprecision.ipynb](../tests/instantaneousaveraging-adaptiveprecision.ipynb)
+* “Adaptive fast” averages the last 20 pulses, providing a confidence interval of ±50%. It is best for users who need quick radiation alerts. You can view the “adaptive fast” response curves here: [instantaneousaveraging-adaptivefast.ipynb](../tests/instantaneousaveraging-adaptivefast.ipynb)
+* “Adaptive precision” is similar to “Adaptive fast”, but also sets a minimum averaging time of 5 seconds. This ensures higher precision when more than 20 pulses occur within the last 5 seconds. Otherwise it functions identically to "Adaptive fast". It is best for users who deem precision more important than fast response. You can view the “adaptive precision” response curves here: [instantaneousaveraging-adaptiveprecision.ipynb](../tests/instantaneousaveraging-adaptiveprecision.ipynb)
 * “60 seconds”, “30 seconds” and “10 seconds” use fixed averaging periods. They can produce higher precision than the adaptive options, but have a much slower response.
 
 ## Instantaneous rate alarm
