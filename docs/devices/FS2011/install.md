@@ -44,7 +44,7 @@ Make sure the electrical connections are correct. You may break your device if t
 
 Now, download the latest `radpro-flashtool` from the [Rad Pro releases](https://github.com/Gissio/radpro/releases).
 
-* Tp install from Windows, go to the `fs2011` folder and start `fs2011-[mcu]-[type].bat`.
+* To install from Windows, go to the `fs2011` folder and start `fs2011-[mcu]-[type].bat`.
 * To install from macOS or Linux, go to the `fs2011` folder and start `fs2011-[mcu]-[type].sh`.
 
 `[mcu]` is the type of microprocessor on your board: `stm32f051c8`, `gd32f150c8` or `gd32f103c8`.
