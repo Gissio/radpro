@@ -96,8 +96,8 @@ Please note that data is not logged during the download process.
 
 Rad Pro offers several options for adjusting the instantaneous rate averaging period:
 
-* “Adaptive fast” averages the last 20 pulses, providing a confidence interval of ±50%. It is best for users who need quick radiation alerts. You can view the “adaptive fast” response curves here: [instantaneousaveraging-adaptivefast.ipynb](../tests/instantaneousaveraging-adaptivefast.ipynb)
-* “Adaptive precision” is similar to “Adaptive fast”, but also sets a minimum averaging time of 5 seconds. This ensures higher precision when more than 20 pulses occur within the last 5 seconds. Otherwise it functions identically to "Adaptive fast". It is best for users who deem precision more important than fast response. You can view the “adaptive precision” response curves here: [instantaneousaveraging-adaptiveprecision.ipynb](../tests/instantaneousaveraging-adaptiveprecision.ipynb)
+* “Adaptive fast” averages the last 20 pulses, providing a confidence interval of ±50%. It is best for users who need quick radiation alerts. You can view the “adaptive fast” response curves (response time vs. level of radiation) here: [instantaneousaveraging-adaptivefast.ipynb](../tests/instantaneousaveraging-adaptivefast.ipynb)
+* “Adaptive precision” is similar to “Adaptive fast”, but also sets a minimum averaging time of 5 seconds. This ensures higher precision when more than 20 pulses occur within the last 5 seconds. Otherwise it functions identically to "Adaptive fast". It is best for users who deem precision more important than fast response. You can view the “adaptive precision” response curves (response time vs. level of radiation) here: [instantaneousaveraging-adaptiveprecision.ipynb](../tests/instantaneousaveraging-adaptiveprecision.ipynb)
 * “60 seconds”, “30 seconds” and “10 seconds” use fixed averaging periods. They can produce higher precision than the adaptive options, but have a much slower response.
 
 ## Instantaneous rate alarm
