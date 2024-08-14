@@ -7,7 +7,7 @@
 * Configurable averaging for performing surveys.
 * Offline and live data logging with data compression.
 * Compatibility with the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software.
-* Configurable pulse indication with optional thresholding: pulse clicks (off, quiet, loud), pulse LED (on supported devices), display flashes (on display sleep) and haptic pulses (on supported devices).
+* Configurable pulse indication with optional thresholding: pulse clicks (off, clicks, beeps), pulse LED (on supported devices), display flashes (on display sleep) and haptic pulses (on supported devices).
 * Dead-time measurement.
 * Customizable Geiger-Müller tube settings: conversion factor, instantaneous rate averaging (adaptive fast, adaptive precision, 60 seconds, 30 seconds and 10 seconds), dead-time compensation, background compensation, high voltage generator PWM frequency and duty cycle (on supported devices).
 * Preconfigured high voltage profiles (on supported devices).
