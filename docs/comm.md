@@ -10,7 +10,7 @@ To establish a USB data connection with a Rad Pro device, make sure to configure
 
 The communications protocol is ASCII-based and follows a request-response model.
 
-In the following description, `\r\n` represents the newline character.
+In the following description, `\r\n` represents the ASCII return and the newline character sequence.
 
 ## Requests
 
@@ -169,7 +169,7 @@ Example:
 * Request: `GET tubeBackgroundCompensation\r\n`
 * Response: `OK [value]\r\n`
 
-Returns the tube's background compensation in cpm, provided in decimal format with three decimal places. Returns `0.0` if background compensation is turned off.
+Returns the tube's background compensation in cpm, provided in decimal format with three decimal places. Returns `0.000` if background compensation is turned off.
 
 Example:
 
@@ -188,7 +188,7 @@ Returns the tube's PWM frequency of the high voltage generator in Hz, provided i
 Example:
 
     GET tubeHVFrequency
-    OK 1250.000
+    OK 1250.00
 
 ### Set tube PWM frequency
 
@@ -197,11 +197,11 @@ Example:
 * Request: `SET tubeHVFrequency [value]\r\n` 
 * Response: `OK\r\n`
 
-Enables the custom HV profile and sets its PWM frequency, provided in decimal format with decimal places. Valid values are from 100 to 100000.
+Enables the custom HV profile and sets its PWM frequency, provided in decimal format with up to two decimal places. Valid values are from 100 to 100000.
 
 Example:
 
-    SET tubeHVFrequency 2500.0
+    SET tubeHVFrequency 2500.00
     OK
 
 ### Get tube PWM duty cycle
@@ -225,7 +225,7 @@ Example:
 * Request: `SET tubeHVDutyCycle [value]\r\n` 
 * Response: `OK\r\n`
 
-Enables the custom HV profile and sets its PWM duty-cycle, provided in decimal format with decimal places. Valid values are 0.0 to 1.0.
+Enables the custom HV profile and sets its PWM duty-cycle, provided in decimal format with up to five decimal places. Valid values are 0.0 to 1.0.
 
 Example:
 
@@ -254,7 +254,7 @@ Example:
 * Request: `GET randomData\r\n`
 * Response: `OK [value]\r\n`
 
-Returns up to 16 bytes from the random generator, provided as hexadecimal digits (0-9, a-f).
+Returns up to 16 bytes from the random generator, each byte provided as a pair of hexadecimal digits (0-9, a-f).
 
 Example:
 
