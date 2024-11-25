@@ -80,6 +80,8 @@ Rad Pro comes with default conversion factors for various Geiger-Müller tubes:
 
 You can also set a custom conversion factor by going to the settings, selecting “Geiger tube”, “Conversion Factor”, and choosing an appropriate value from the list.
 
+When using sensitive detectors with a conversion factor of 600 cpm/µSv/h or higher, Rad Pro caps the pulse indication at 600 cpm/µSv/h to provide approximately one pulse per second at background levels of radiation. This does not impact the actual measurement.
+
 ## Data logging
 
 Rad Pro lets you log cumulative dose count, from which both rate and dose can be derived.
@@ -155,12 +157,6 @@ The generator produces random bits by comparing the time interval between two su
 Random symbols are generated from the bits using the [Fast Dice Roller](https://arxiv.org/abs/1304.1916) algorithm. “Alphanumeric” uses approximately 6 bits per symbol, “Full ASCII” uses 7 bits, “20-sided dice” uses 5 bits, “Hexadecimal”, “Decimal” and “12-sided dice” use 4 bits, “8-sided dice” and “6-sided dice” use 3 bits, “4-sided dice” uses 2 bits, and “Coin flip” uses 1 bit.
 
 For faster bit generation, use a radioactive source.
-
-## Pulse indication divider
-
-When employing highly sensitive detectors with a conversion factor of 600 cpm/µSv/h or above, Rad Pro limits the conversion factor used for pulse indication to 600 cpm/µSv/h. This results in background radiation levels of approximately one click per second.
-
-Note this does not affect the conversion factor applied to the measurements.
 
 ## radpro-tool
 
