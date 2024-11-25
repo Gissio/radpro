@@ -2,7 +2,7 @@
 
 ## 2.0.3
 
-* Extended conversion factor range to 1.5625-12800 cpm/µSv/h.
+* Extended conversion factor range to 25-12800 cpm/µSv/h.
 * When using sensitive detectors with a conversion factor of 600 cpm/µSv/h or higher, Rad Pro caps the pulse indication at 600 cpm/µSv/h to provide approximately one pulse per second at background levels of radiation. This does not impact the actual measurement.
 * Minor UI and performance refinements.
 
