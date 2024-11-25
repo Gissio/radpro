@@ -26,7 +26,7 @@ void initBuzzer(void)
 
 void playSystemAlert(void)
 {
-    for (uint32_t i = 0; i < 10; i++)
+    for (uint32_t i = 0; i < 8; i++)
     {
         setBuzzer(true);
         sleep(50);

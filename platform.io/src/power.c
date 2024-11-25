@@ -36,8 +36,6 @@ static const float batteryLevelThresholds[] =
 static const Menu batteryTypeMenu;
 #endif
 
-bool powerOffRequested;
-
 void initPower()
 {
     initPowerController();
@@ -47,23 +45,6 @@ void initPower()
                    settings.batteryType,
                    BATTERYTYPE_NUM);
 #endif
-}
-
-void requestPowerOff(void)
-{
-    powerOffRequested = true;
-}
-
-bool isPowerOffRequested(void)
-{
-    if (powerOffRequested)
-    {
-        powerOffRequested = false;
-
-        return true;
-    }
-
-    return false;
 }
 
 int8_t getDeviceBatteryLevel(void)
@@ -90,7 +71,7 @@ int8_t getDeviceBatteryLevel(void)
     if (isDevicePowered())
     {
 #if !defined(FONT_SYMBOLS_LIM)
-        if (isBatteryCharging() && 
+        if (isBatteryCharging() &&
             (level == BATTERY_LEVEL_MAX))
             level = BATTERY_LEVEL_MAX - 1;
 #else

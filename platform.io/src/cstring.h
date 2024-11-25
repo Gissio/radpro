@@ -14,10 +14,18 @@
 #include <stdint.h>
 #include <string.h>
 
+#ifdef __EMSCRIPTEN__
+
+void strclr(char *str);
+
+#else
+
 inline void strclr(char *str)
 {
     *str = '\0';
 }
+
+#endif
 
 void strcatChar(char *str,
                 char c);

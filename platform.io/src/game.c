@@ -161,7 +161,9 @@ static void updateGameBoard(void)
 
 static void onGameCallback(void *userdata)
 {
+#if !__EMSCRIPTEN__
     dispatchEvents();
+#endif
 }
 
 static void updateValidMoves(void)
@@ -226,17 +228,6 @@ void dispatchGameEvents(void)
 
             updateGameBoard();
         }
-    }
-}
-
-void updateGame(void)
-{
-    if ((getView() == &gameView) &&
-        (game.state != GAME_OVER))
-    {
-        uint32_t side = (game.moveIndex & 0x1);
-        game.playerTime[side] =
-            game.playerTime[side] + 1;
     }
 }
 
@@ -408,6 +399,16 @@ static void onGameViewEvent(const View *view, Event event)
 
         break;
     }
+
+    case EVENT_PERIOD:
+        if (game.state != GAME_OVER)
+        {
+            uint32_t side = (game.moveIndex & 0x1);
+            game.playerTime[side] =
+                game.playerTime[side] + 1;
+        }
+
+        break;
 
     default:
         break;

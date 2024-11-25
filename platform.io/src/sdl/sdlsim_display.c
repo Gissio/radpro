@@ -9,16 +9,22 @@
 
 #if defined(SIMULATOR)
 
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 #include <SDL.h>
 
 #include <mcu-renderer-sdl.h>
 
 #include "../cstring.h"
+#include "../datalog.h"
 #include "../display.h"
+#include "../events.h"
 #include "../settings.h"
 #include "../system.h"
 
-// Controller
+// Display
 
 extern mr_t mr;
 
@@ -114,12 +120,24 @@ void updateDisplay(void)
     }
 }
 
-// const Uint8 *state = SDL_GetKeyboardState(NULL);
+extern volatile uint32_t eventsCurrentTick;
 
-// if (state[SDL_SCANCODE_LCTRL])
-//     tubeCPS /= 1.001F;
-// else if (state[SDL_SCANCODE_RCTRL])
-//     tubeCPS *= 1.001F;
+bool updateSDLTicks()
+{
+    int32_t deltaTicks = SDL_GetTicks() - eventsCurrentTick;
+    eventsCurrentTick++;
+
+    onTick();
+
+    if (deltaTicks < 0) 
+    {
+        updateDisplay();
+
+        return false;
+    }
+
+    return true;
+}
 
 void updateDisplayTitle(void)
 {

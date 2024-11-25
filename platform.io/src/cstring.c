@@ -12,6 +12,15 @@
 #include "cmath.h"
 #include "cstring.h"
 
+#ifdef __EMSCRIPTEN__
+
+void strclr(char *str)
+{
+    *str = '\0';
+}
+
+#endif
+
 void strcatChar(char *str,
                 char c)
 {

@@ -268,7 +268,7 @@ void onKeyboardTick(void)
             {
                 if ((keyboard.pressedKey == KEY_UP) ||
                     (keyboard.pressedKey == KEY_DOWN))
-                    event = keyboard.pressedKey;
+                    event = (Event)keyboard.pressedKey;
             }
         }
 

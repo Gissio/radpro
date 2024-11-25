@@ -103,9 +103,9 @@ enum
 };
 
 #define TUBE_CONVERSIONFACTOR_VALUE_MIN 25.0F
-#define TUBE_CONVERSIONFACTOR_VALUE_MAX 1600.01F
-#define TUBE_CONVERSIONFACTOR_VALUE_LOG_MAX_MIN 6.0F
-#define TUBE_CONVERSIONFACTOR_VALUE_NUM 97
+#define TUBE_CONVERSIONFACTOR_VALUE_MAX 12800.01F
+#define TUBE_CONVERSIONFACTOR_VALUE_LOG_MAX_MIN 9.0F
+#define TUBE_CONVERSIONFACTOR_VALUE_NUM 145
 #define TUBE_CONVERSIONFACTOR_NUM (TUBE_CONVERSIONFACTOR_PRESETS_NUM + TUBE_CONVERSIONFACTOR_VALUE_NUM)
 
 enum
@@ -356,7 +356,7 @@ typedef struct
 
     unsigned int datalogInterval : 3;
 
-    unsigned int tubeConversionFactor : 7;
+    unsigned int tubeConversionFactor : 8;
     unsigned int tubeInstantaneousAveraging : 3;
     unsigned int tubeDeadTimeCompensation : 6;
     unsigned int tubeBackgroundCompensation : 4;

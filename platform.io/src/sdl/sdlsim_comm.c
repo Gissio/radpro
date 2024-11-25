@@ -11,15 +11,17 @@
 
 #include <stdio.h>
 
-#include <sercomm/sercomm.h>
-
 #include "../comm.h"
 #include "../system.h"
 
+const char *const commId = "Rad Pro simulator;Rad Pro " FIRMWARE_VERSION;
+
+#if defined(SIMULATE_COMM)
+
+#include <sercomm/sercomm.h>
+
 #define COMM_SERIAL_BAUDRATE 115200
 #define COMM_BUFFER_SIZE 64
-
-const char *const commId = "Rad Pro simulator;Rad Pro " FIRMWARE_VERSION;
 
 static struct
 {
@@ -143,5 +145,36 @@ void updateCommController(void)
         }
     }
 }
+
+#else
+
+#include <stdbool.h>
+
+static bool commControllerStarted = false;
+
+void startComm(void)
+{
+    commControllerStarted = true;
+}
+
+void stopComm(void)
+{
+    commControllerStarted = false;
+}
+
+bool isCommStarted(void)
+{
+    return commControllerStarted;
+}
+
+void transmitComm(void)
+{
+}
+
+void updateCommController(void)
+{
+}
+
+#endif
 
 #endif

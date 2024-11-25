@@ -156,6 +156,12 @@ Random symbols are generated from the bits using the [Fast Dice Roller](https://
 
 For faster bit generation, use a radioactive source.
 
+## Pulse indication divider
+
+When employing highly sensitive detectors with a conversion factor of 600 cpm/µSv/h or above, Rad Pro limits the conversion factor used for pulse indication to 600 cpm/µSv/h. This results in background radiation levels of approximately one click per second.
+
+Note this does not affect the conversion factor applied to the measurements.
+
 ## radpro-tool
 
 `radpro-tool` gives you low-level access to your device from a computer, allowing you to download data logs, log data live, submit data live to radiation monitoring websites, get device information, set custom HV profiles (on supported devices) and sync the device's clock.

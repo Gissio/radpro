@@ -22,6 +22,8 @@ typedef enum
 
     EVENT_DRAW,
 
+    EVENT_PERIOD,
+
     EVENT_NONE,
 } Event;
 
@@ -47,5 +49,6 @@ void setView(const View *view);
 const View *getView(void);
 
 void updateView(void);
+void updateViewPeriod(void);
 
 #endif

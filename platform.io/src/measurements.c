@@ -32,6 +32,10 @@
 #define INSTANTANEOUS_RATE_AVERAGING_PULSE_COUNT 19 // For 50% configence interval:
 #define INSTANTANEOUS_RATE_MAX_PULSE_COUNT 10
 
+#define PULSE_INDICATION_CONVERSION_FACTOR_MAX 600.0F
+#define PULSE_INDICATION_FACTOR_UNIT 0x10000
+#define PULSE_INDICATION_FACTOR_MASK 0xffff
+
 enum
 {
     INSTANTANEOUS_TAB_BAR,
@@ -113,7 +117,7 @@ static struct
         uint32_t snapshotTick;
         Measurement snapshotMeasurement;
 
-        float remainingPulseCount;
+        float deadTimeCompensationRemainder;
 
         uint32_t faultTimer;
         bool faultShortedTube;
@@ -124,6 +128,9 @@ static struct
         uint32_t queueHead;
         uint32_t queueTail;
         Measurement queue[INSTANTANEOUS_RATE_QUEUE_SIZE];
+
+        uint32_t pulseIndicationFactor;
+        uint32_t pulseIndicationRemainder;
 
         Rate rate;
         float maxValue;
@@ -246,12 +253,19 @@ void updateMeasurementUnits(void)
     units[UNITS_SIEVERTS].dose.scale = (60 * 1E-6F / 3600) / conversionFactor;
     units[UNITS_REM].rate.scale = (60 * 1E-4F) / conversionFactor;
     units[UNITS_REM].dose.scale = (60 * 1E-4F / 3600) / conversionFactor;
+
+    if (conversionFactor < PULSE_INDICATION_CONVERSION_FACTOR_MAX)
+        measurements.instantaneous.pulseIndicationFactor = PULSE_INDICATION_FACTOR_UNIT;
+    else
+        measurements.instantaneous.pulseIndicationFactor =
+            (PULSE_INDICATION_FACTOR_UNIT * PULSE_INDICATION_CONVERSION_FACTOR_MAX) /
+            conversionFactor;
 }
 
 void updateCompensations(void)
 {
-    if (measurements.period.remainingPulseCount < 0)
-        measurements.period.remainingPulseCount = 0;
+    if (measurements.period.deadTimeCompensationRemainder < 0)
+        measurements.period.deadTimeCompensationRemainder = 0;
 }
 
 static float getDeadTimeCompensationFactor(float value)
@@ -319,7 +333,18 @@ void onMeasurementTick(uint32_t pulseCount)
         measurements.period.measurement.lastPulseTick = getTick();
         measurements.period.measurement.pulseCount += pulseCount;
 
-        triggerPulse();
+        // Pulse indication divider
+        measurements.instantaneous.pulseIndicationRemainder +=
+            pulseCount * measurements.instantaneous.pulseIndicationFactor;
+
+        if (measurements.instantaneous.pulseIndicationRemainder >=
+            PULSE_INDICATION_FACTOR_UNIT)
+        {
+            measurements.instantaneous.pulseIndicationRemainder &=
+                PULSE_INDICATION_FACTOR_MASK;
+
+            triggerPulse();
+        }
     }
 }
 
@@ -369,25 +394,25 @@ void updateMeasurements(void)
     compensatedMeasurement.lastPulseTick =
         measurements.period.snapshotMeasurement.lastPulseTick;
 
-    measurements.period.remainingPulseCount +=
+    measurements.period.deadTimeCompensationRemainder +=
         measurements.period.snapshotMeasurement.pulseCount *
         getDeadTimeCompensationFactor(measurements.instantaneous.rate.value);
     float tubeBackgroundCompensation = getTubeBackgroundCompensation();
-    measurements.period.remainingPulseCount -= tubeBackgroundCompensation;
+    measurements.period.deadTimeCompensationRemainder -= tubeBackgroundCompensation;
 
-    if (measurements.period.remainingPulseCount >= 1)
+    if (measurements.period.deadTimeCompensationRemainder >= 1)
     {
         compensatedMeasurement.pulseCount =
-            (uint32_t)measurements.period.remainingPulseCount;
-        measurements.period.remainingPulseCount -= compensatedMeasurement.pulseCount;
+            (uint32_t)measurements.period.deadTimeCompensationRemainder;
+        measurements.period.deadTimeCompensationRemainder -= compensatedMeasurement.pulseCount;
     }
     else
     {
         compensatedMeasurement.pulseCount = 0;
 
-        if (measurements.period.remainingPulseCount <
+        if (measurements.period.deadTimeCompensationRemainder <
             -REMAINING_PULSE_COUNT_LOWER_LIMIT)
-            measurements.period.remainingPulseCount =
+            measurements.period.deadTimeCompensationRemainder =
                 -REMAINING_PULSE_COUNT_LOWER_LIMIT;
     }
 

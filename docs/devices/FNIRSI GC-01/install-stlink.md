@@ -1,16 +1,16 @@
-# Installing Rad Pro on the FNIRSI GC-01 with an ST-LINK USB dongle
+# Installing Rad Pro on the FNIRSI GC-01/JOY-IT JT-RAD01with an ST-LINK USB dongle
 
-These instructions let you install Rad Pro on an FNIRSI GC-01 with a CH32F103R8T6 (WCH) or APM32F103RBT6 (Geehy) microprocessor if you:
+These instructions let you install Rad Pro on an FNIRSI GC-01/JOY-IT JT-RAD01 with a CH32F103R8T6 (WCH) or APM32F103RBT6 (Geehy) microprocessor if you:
 
 * cannot access the USB drive as described in the [main installation instructions](install.md).
 * want to install Rad Pro from macOS or Linux.
-* your FNIRSI GC-01 became unresponsive and you need to recover your device.
+* your FNIRSI GC-01/JOY-IT JT-RAD01 became unresponsive and you need to recover your device.
 
 **WARNING:** Rad Pro is incompatible with the FNIRSI GC-01 with a CACHIP microprocessor. Installing Rad Pro on such a device WILL BREAK IT.
 
 ## Supplies
 
-To install Rad Pro on your FNIRSI GC-01 Geiger counter with an ST-LINK USB dongle, you will need the following tools and components:
+To install Rad Pro on your FNIRSI GC-01/JOY-IT JT-RAD01 Geiger counter with an ST-LINK USB dongle, you will need the following tools and components:
 
 * An [ST-LINK V2 USB dongle (or clone)](https://www.amazon.com/s?k=st-link+v2)
 * A 4-pin header
@@ -64,7 +64,7 @@ Now, download the latest `radpro-flashtool` from the [Rad Pro releases](https://
 
 To flash the [original firmware](firmware), drag it onto `fnirsi-gc01-[device]-[type].bat` (Windows) or `fnirsi-gc01-[device]-[type].sh`.
 
-If flashing does not work, try powering your GC-01 from USB.
+If flashing does not work, try powering your device from USB.
 
 After successfully flashing the firmware, reconnect the battery connector and close the device.
 

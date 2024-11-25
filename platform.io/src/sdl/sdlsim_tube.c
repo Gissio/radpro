@@ -11,6 +11,7 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "../events.h"
 #include "../settings.h"
@@ -53,7 +54,7 @@ void updateTubeHV(void)
 
 static float getUniformRandomValue(void)
 {
-    return (float)rand() / RAND_MAX;
+    return (float)rand() / (float)RAND_MAX;
 }
 
 static uint32_t getPoisson(double lambda)

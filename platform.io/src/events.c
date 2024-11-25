@@ -74,9 +74,10 @@ static struct
 
     int32_t keyboardTimer;
 
-    int32_t measurementPeriodTimer;
-    volatile uint32_t measurementPeriodUpdate;
-    uint32_t lastMeasurementPeriodUpdate;
+    int32_t periodTimer;
+    volatile uint32_t periodUpdate;
+    uint32_t lastPeriodUpdate;
+
     bool measurementsEnabled;
 } events;
 
@@ -111,7 +112,7 @@ void initEvents(void)
     initEventsController();
 
     events.deadTimeCount = PULSE_MEASUREMENT_FREQUENCY;
-    events.measurementPeriodTimer = SYSTICK_FREQUENCY;
+    events.periodTimer = 1;
     events.keyboardTimer = KEY_TICKS;
 }
 
@@ -160,14 +161,15 @@ void onTick(void)
         }
 
         onMeasurementTick(pulseCount);
+    }
 
-        if (updateTimer(&events.measurementPeriodTimer) == TIMER_ELAPSED)
-        {
-            events.measurementPeriodTimer = SYSTICK_FREQUENCY;
-            events.measurementPeriodUpdate++;
+    if (updateTimer(&events.periodTimer) == TIMER_ELAPSED)
+    {
+        events.periodTimer = SYSTICK_FREQUENCY;
+        events.periodUpdate++;
 
+        if (events.measurementsEnabled)
             onMeasurementPeriod();
-        }
     }
 
     // Keyboard
@@ -277,17 +279,14 @@ void dispatchEvents(void)
     dispatchCommEvents();
     updateDatalog();
 
-    uint32_t periodUpdate = events.measurementPeriodUpdate;
-    if (events.lastMeasurementPeriodUpdate != periodUpdate)
+    uint32_t periodUpdate = events.periodUpdate;
+    if (events.lastPeriodUpdate != periodUpdate)
     {
-        events.lastMeasurementPeriodUpdate = periodUpdate;
+        events.lastPeriodUpdate = periodUpdate;
 
         updateMeasurements();
         updateADC();
-#if defined(GAME)
-        updateGame();
-#endif
-        updateView();
+        updateViewPeriod();
     }
 
     dispatchViewEvents();

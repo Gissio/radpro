@@ -57,7 +57,7 @@ Start your device and go to Rad Pro's settings, select “Geiger tube”, “Con
 
 To establish a USB data connection under Windows, install the [CH340 driver](https://www.catalog.update.microsoft.com/Search.aspx?q=USB%5CVID_1A86%26PID_7523).
 
-Last, read the [user's manual](../../users.md) for learning how to use Rad Pro.
+Last, read the [user's manual](../../manual.md) for learning how to use Rad Pro.
 
 ## Step 5: Get involved
 

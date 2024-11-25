@@ -1,8 +1,8 @@
-# Installing Rad Pro on the FNIRSI GC-01
+# Installing Rad Pro on the FNIRSI GC-01/JOY-IT JT-RAD01
 
 ## Supplies
 
-To install Rad Pro on your FNIRSI GC-01 Geiger counter, you will need the following tools and components:
+To install Rad Pro on your FNIRSI GC-01/JOY-IT JT-RAD01 Geiger counter, you will need the following tools and components:
 
 * A USB data cable
 * A Philips screwdriver
@@ -11,7 +11,7 @@ To install Rad Pro on your FNIRSI GC-01 Geiger counter, you will need the follow
 
 ![FNIRSI GC-01 circuit board types](img/gc-01-board-type.jpg)
 
-Follow these steps to start installing Rad Pro on your FNIRSI GC-01:
+Follow these steps to start installing Rad Pro on your FNIRSI GC-01/JOY-IT JT-RAD01:
 
 * Turn off the device.
 * Remove the screws holding the back case and open the device.
@@ -48,7 +48,7 @@ If the “Energy-saving” does not produce any tube counts, you will need to se
 
 If your device produces spontaneous key presses by itself, select the “Energy-saving” HV profile or use a custom HV profile to fix this problem.
 
-Last, read the [user's manual](../../users.md) for learning how to use Rad Pro.
+Last, read the [user's manual](../../manual.md) for learning how to use Rad Pro.
 
 ## Step 4: Get involved
 
@@ -67,11 +67,11 @@ The keys are mapped as follows:
   * Select option: the ok/power or right/settings key.
   * Go back: the left/back key.
 
-To establish a USB data connection, connect your FNIRSI GC-01 to a computer using a USB data cable.
+To establish a USB data connection, connect your FNIRSI GC-01/JOY-IT JT-RAD01 to a computer using a USB data cable.
 
-### FNIRSI GC-01 with a CH32F103R8 (WCH) microprocessor
+### FNIRSI GC-01/JOY-IT JT-RAD01 with a CH32F103R8 (WCH) microprocessor
 
-On the FNIRSI GC-01 with a CH32F103R8 microprocessor, you must enable “Data mode” in the settings to establish a USB data connection. To save power, disable “Data mode” when you are finished.
+On the FNIRSI GC-01/JOY-IT JT-RAD01 with a CH32F103R8 microprocessor, you must enable “Data mode” in the settings to establish a USB data connection. To save power, disable “Data mode” when you are finished.
 
 Data logging can store up to 7091 data points. At normal radiation levels (20 cpm), this allows for 147 days of data at 60-minute intervals, 24 days at 10-minute intervals, 4 days at 1-minute intervals, 19 hours at 10-second intervals and almost 2 hours at 1-second intervals.
 
@@ -80,9 +80,9 @@ The HV profile settings are:
 * Factory default: 9.207 kHz frequency and 75% duty cycle.
 * Energy-saving: 5 kHz frequency and 1.5% duty cycle.
 
-### FNIRSI GC-01 with a APM32F103R8 (Geehy) processor
+### FNIRSI GC-01/JOY-IT JT-RAD01 with a APM32F103R8 (Geehy) processor
 
-On the FNIRSI GC-01 with an APM32F103R8 (Geehy) processor, the USB data connection is always available. 
+On the FNIRSI GC-01/JOY-IT JT-RAD01 with an APM32F103R8 (Geehy) processor, the USB data connection is always available.
 
 Data logging can store up to 61793 data points. At normal radiation levels (20 cpm), this allows for 1287 days of data at 60-minute intervals, 214 days at 10-minute intervals, 42 days at 1-minute intervals, 7 days at 10-second intervals and 17 hours at 1-second intervals.
 

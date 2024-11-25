@@ -7,6 +7,10 @@
  * License: MIT
  */
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 #include "adc.h"
 #include "buzzer.h"
 #include "comm.h"
@@ -16,6 +20,7 @@
 #include "events.h"
 #include "flash.h"
 #include "game.h"
+#include "init.h"
 #include "keyboard.h"
 #include "led.h"
 #include "measurements.h"
@@ -28,6 +33,21 @@
 #include "tube.h"
 #include "vibrator.h"
 #include "view.h"
+
+#if SIMULATOR
+bool updateSDLTicks();
+
+static void simulateFrame(void)
+{
+    while (updateSDLTicks())
+    {
+#if defined(GAME)
+        dispatchGameEvents();
+#endif
+        dispatchEvents();
+    }
+}
+#endif
 
 int main(void)
 {
@@ -51,11 +71,9 @@ int main(void)
 #endif
 
 #if defined(TEST_MODE)
-
     setPower(true);
     runTestMode();
-
-#else
+#endif
 
     initMeasurements();
 #if defined(GAME)
@@ -67,82 +85,25 @@ int main(void)
     sleep(1000);
 #endif
 
+    setSplashView();
+
     // Main loop
+#if SIMULATOR
+#if __EMSCRIPTEN__
+    emscripten_set_main_loop(simulateFrame, 0, 1);
+#else
+    while (true)
+        simulateFrame();
+#endif
+#else
     while (true)
     {
-        // Power on
-        setPower(true);
-
-        // Firmware checksum
-        if (!verifyFlash())
-        {
-            drawNotification("WARNING",
-                             "Firmware checksum failure.");
-            refreshDisplay();
-            triggerDisplay();
-            setDisplayOn(true);
-
-            playSystemAlert();
-
-            sleep(1000);
-        }
-
-        // Splash screen
-        drawNotification(FIRMWARE_NAME,
-                         FIRMWARE_VERSION);
-        refreshDisplay();
-        triggerDisplay();
-        setDisplayOn(true);
-        uint32_t splashStartTime = getTick();
-        initRTC();
-        uint32_t splashTime = getTick() - splashStartTime;
-        if (splashTime < 1000)
-            splashTime = 1000;
-        sleep(splashTime);
-
-        // Enable devices
-        setTubeHV(true);
-        enableMeasurements();
-        setCommEnabled(true);
-
-        startDatalog();
-
-        // Consume keyboard events
-        while (getKeyboardEvent() != EVENT_NONE)
-            ;
-
-        // UI setup
-        setMeasurementView(0);
-        triggerDisplay();
-
-        // UI loop
-        while (!isPowerOffRequested())
-        {
-            sleep(1);
-
 #if defined(GAME)
-            dispatchGameEvents();
+        dispatchGameEvents();
 #endif
-            dispatchEvents();
-        }
+        dispatchEvents();
 
-        // Disable devices
-        stopDatalog();
-        writeSettings();
-
-        setCommEnabled(false);
-        disableMeasurements();
-        setTubeHV(false);
-
-        setDisplayBacklightOn(false);
-        setDisplayOn(false);
-
-        // Power off
-        setPower(false);
-
-        while (getKeyboardEvent() != EVENT_KEY_POWER)
-            sleep(1);
+        sleep(1);
     }
-
 #endif
 }

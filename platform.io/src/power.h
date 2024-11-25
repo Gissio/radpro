@@ -29,9 +29,6 @@ void initPowerController(void);
 
 void setPower(bool value);
 
-void requestPowerOff(void);
-bool isPowerOffRequested(void);
-
 int8_t getDeviceBatteryLevel(void);
 
 bool isDevicePowered(void);

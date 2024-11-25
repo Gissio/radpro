@@ -1,10 +1,10 @@
-![Title](docs/img/radpro-title.png)
+[![Rad Pro Simulator - Try me!](docs/img/radpro-title-tryme.png)](https://gissio.github.io/radpro/simulator)
 
-<!-- [![Rad Pro Demonstration](docs/img/radpro-video.jpg)](https://www.youtube.com/watch?v=7dpVG1jSLn8) -->
+Try the [Rad Pro simulator](https://gissio.github.io/radpro/simulator)!
 
 ## Introduction
 
-Rad Pro is a custom firmware that enhances the capabilities of several commercially available Geiger counters, including the [FS2011](docs/devices/FS2011/install.md), [YT-203B](docs/devices/FS2011/install.md), [Bosean FS-600](docs/devices/Bosean%20FS-600,%20FS-1000/install.md), [Bosean FS-1000](docs/devices/Bosean%20FS-600,%20FS-1000/install.md), [Bosean FS-5000](docs/devices/Bosean%20FS-5000/install.md) and [FNIRSI GC-01](docs/devices/FNIRSI%20GC-01/install.md).
+Rad Pro is a custom firmware that enhances the capabilities of several commercially available Geiger counters, including the [FS2011](docs/devices/FS2011/install.md), [YT-203B](docs/devices/FS2011/install.md), [Bosean FS-600](docs/devices/Bosean%20FS-600,%20FS-1000/install.md), [Bosean FS-1000](docs/devices/Bosean%20FS-600,%20FS-1000/install.md), [Bosean FS-5000](docs/devices/Bosean%20FS-5000/install.md), [FNIRSI GC-01](docs/devices/FNIRSI%20GC-01/install.md) and [JOY-IT JT-RAD01](https://joy-it.net/en/products/JT-RAD01).
 
 With Rad Pro, you can:
 
@@ -22,13 +22,12 @@ With Rad Pro, you can:
 * [Installing on the FS2011/YT-203B](docs/devices/FS2011/install.md)
 * [Installing on the Bosean FS-600/Bosean FS-1000](docs/devices/Bosean%20FS-600,%20FS-1000/install.md)
 * [Installing on the Bosean FS-5000](docs/devices/Bosean%20FS-5000/install.md)
-* [Installing on the FNIRSI GC-01](docs/devices/FNIRSI%20GC-01/install.md)
-* [Rad Pro simulator](docs/install-simulator.md)
+* [Installing on the FNIRSI GC-01/JOY-IT JT-RAD01](docs/devices/FNIRSI%20GC-01/install.md)
 * [Installing on other devices](docs/install-other.md)
 
 ## Manuals
 
-* [User's manual](docs/users.md)
+* [User's manual](docs/manual.md)
 * [Developers's manual](docs/developers.md)
 
 ## Acknowledgements

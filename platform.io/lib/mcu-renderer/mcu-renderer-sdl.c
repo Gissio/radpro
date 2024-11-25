@@ -98,9 +98,11 @@ void mr_sdl_init(mr_t *mr,
         exit(1);
     }
 
+#ifndef __EMSCRIPTEN__
     SDL_RenderSetLogicalSize(display->sdl_renderer,
                              width * upscale,
                              height * upscale);
+#endif
 
     display->sdl_texture = SDL_CreateTexture(display->sdl_renderer,
                                              SDL_PIXELFORMAT_ABGR8888,

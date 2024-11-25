@@ -20,7 +20,7 @@
 * PC3 (Input, pull-down): KEY_LEFT
 * PC5 (Output): DISPLAY_RESX
 * PC6 (Output): DISPLAY_RDX
-* PC7 (Output): DISPLAY_WRX 
+* PC7 (Output): DISPLAY_WRX
 * PC8 (Output): DISPLAY_DCX
-* PC9 (Output): DISPLAY_CSX 
+* PC9 (Output): DISPLAY_CSX
 * PC10 (Input, pull-down): TUBE_DET

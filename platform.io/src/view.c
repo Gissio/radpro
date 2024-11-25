@@ -9,6 +9,7 @@
 
 #include "display.h"
 #include "events.h"
+#include "init.h"
 #include "keyboard.h"
 #include "power.h"
 #include "settings.h"
@@ -18,6 +19,7 @@ static struct
 {
     const View *currentView;
 
+    bool periodUpdate;
     bool drawUpdate;
 
     uint32_t displayTimer;
@@ -25,22 +27,38 @@ static struct
 
 void dispatchViewEvents(void)
 {
-    syncTimerThread();
+    // Period events
+    if (view.periodUpdate)
+    {
+        view.periodUpdate = false;
+        view.currentView->onEvent(view.currentView, EVENT_PERIOD);
+    }
 
     // Key events
+    syncTimerThread();
+
     while (true)
     {
         Event event = getKeyboardEvent();
 
         if (event == EVENT_NONE)
             break;
-        else if (event == EVENT_KEY_POWER)
-            requestPowerOff();
-        else 
-        {
-            view.currentView->onEvent(view.currentView, event);
 
-            triggerDisplay();
+        if (isPowerOffViewEnabled())
+        {
+            if (event == EVENT_KEY_POWER)
+                setSplashView();
+        }
+        else
+        {
+            if (event == EVENT_KEY_POWER)
+                setPowerOffView();
+            else
+            {
+                view.currentView->onEvent(view.currentView, event);
+
+                triggerDisplay();
+            }
         }
     }
 
@@ -87,11 +105,17 @@ void setView(const View *newView)
 {
     view.currentView = newView;
 
-    view.drawUpdate = true;
+    updateView();
 }
 
 void updateView(void)
 {
+    view.drawUpdate = true;
+}
+
+void updateViewPeriod(void)
+{
+    view.periodUpdate = true;
     view.drawUpdate = true;
 }
 

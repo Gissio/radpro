@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en-us">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Rad Pro Simulator</title>
+    <style>
+        html {
+            -webkit-user-select: none !important;
+            user-select: none !important;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1f1f1f;
+            color: #ffffff;
+            font: 1rem Helvetica, Arial, sans-serif;
+        }
+
+        .device {
+            position: relative;
+            margin: auto;
+            width: 494px;
+            height: 782px;
+        }
+
+        .device img {
+            position: absolute;
+        }
+
+        .device canvas {
+            position: absolute;
+            border: 0 none;
+            background-color: black;
+            left: 87px;
+            top: 123px;
+            width: 320px;
+            height: 240px;
+        }
+
+        .device div {
+            position: absolute;
+            left: 134px;
+            top: 429px;
+            width: 226px;
+            height: 222px;
+            z-index: 100;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        #key-power {
+            clip-path: polygon(31% 33%, 69% 33%, 69% 67%, 31% 67%);
+        }
+
+        #key-up {
+            clip-path: polygon(0 0, 100% 0, 69% 33%, 31% 33%);
+        }
+
+        #key-right {
+            clip-path: polygon(69% 33%, 100% 0, 100% 100%, 69% 67%);
+        }
+
+        #key-down {
+            clip-path: polygon(31% 67%, 69% 67%, 100% 100%, 0 100%);
+        }
+
+        #key-left {
+            clip-path: polygon(0 0, 31% 33%, 31% 67%, 0 100%);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="device">
+        <img src="device.png">
+        <canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+        <div id="key-power"></div>
+        <div id="key-up"></div>
+        <div id="key-right"></div>
+        <div id="key-down"></div>
+        <div id="key-left"></div>
+    </div>
+
+    <script>
+        var keysDown = {};
+
+        var Module = {
+            canvas: (() => {
+                var canvas = document.getElementById('canvas');
+                canvas.addEventListener("webglcontextlost",
+                    (e) => {
+                        alert('WebGL context lost. You will need to reload the page.');
+                        e.preventDefault();
+                    },
+                    false);
+                return canvas;
+            })(),
+        };
+
+        function dispatchKeyEvent(type, key, keyCode) {
+            event = new KeyboardEvent(type, {
+                bubbles: true,
+                key: key,
+                code: key,
+                which: keyCode,
+                keyCode: keyCode,
+            });
+            Module.canvas.dispatchEvent(event);
+        }
+
+        function addKeyListeners(id, key, keyCode) {
+            var element = document.getElementById(id);
+            element.addEventListener('mousedown', (e) => {
+                onKeyDown(key, keyCode);
+            });
+            element.addEventListener('touchstart', (e) => {
+                onKeyDown(key, keyCode);
+            });
+        }
+
+        function onKeyDown(key, keyCode) {
+            if (key in keysDown)
+                return;
+
+            dispatchKeyEvent('keydown', key, keyCode);
+            keysDown[key] = keyCode;
+        }
+
+        function onKeysUp() {
+            for (key in keysDown)
+                dispatchKeyEvent('keyup', key, keysDown[key]);
+            keysDown = {}
+        }
+
+        addKeyListeners('key-power', 'Enter', 13);
+        addKeyListeners('key-up', 'ArrowUp', 38);
+        addKeyListeners('key-right', 'ArrowRight', 39);
+        addKeyListeners('key-down', 'ArrowDown', 40);
+        addKeyListeners('key-left', 'ArrowLeft', 37);
+        addEventListener('mouseup', (e) => {
+            onKeysUp();
+        });
+        addEventListener('touchend', (e) => {
+            onKeysUp();
+        });
+    </script>
+    <script async src="radpro-color-landscape.js"></script>
+</body>
+
+</html>
