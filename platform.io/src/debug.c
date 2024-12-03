@@ -106,7 +106,7 @@ void runTestMode(void)
         drawTestMode(lines);
         refreshDisplay();
 
-        setDisplayOn(true);
-        setDisplayBacklightOn(true);
+        enableDisplay(true);
+        setDisplayBacklight(true);
     }
 }

@@ -23,84 +23,78 @@
 
 typedef enum
 {
-    INIT_START,
-    INIT_FLASHFAILURE,
-    INIT_SPLASH,
-    INIT_DONE,
-} InitState;
+    POWERON_VIEW_FLASHFAILURE,
+    POWERON_VIEW_SPLASH,
+} PowerOnViewState;
 
-static InitState initState = INIT_START;
+// Init state
 
-// Init view
+static PowerOnViewState powerOnViewState;
 
-static void onInitViewEvent(const View *view, Event event)
+// Power on view
+
+static void onPowerOnViewEvent(const View *view, Event event)
 {
     switch (event)
     {
-    case EVENT_PERIOD:
-        if ((initState == INIT_START) && verifyFlash())
-            initState = INIT_FLASHFAILURE;
-
-        if (initState == INIT_START)
-        {
-            initState = INIT_FLASHFAILURE;
-
+    case EVENT_DRAW:
+        if (powerOnViewState == POWERON_VIEW_FLASHFAILURE)
             drawNotification("WARNING",
                              "Firmware checksum failure.");
-            playSystemAlert();
-        }
-        else if (initState == INIT_FLASHFAILURE)
-        {
-            initState = INIT_SPLASH;
-
+        else
             drawNotification(FIRMWARE_NAME,
                              FIRMWARE_VERSION);
+
+        break;
+
+    case EVENT_POST_DRAW:
+        if (powerOnViewState == POWERON_VIEW_FLASHFAILURE)
+            playSystemAlert();
+        else
             initRTC();
-        }
+
+        break;
+
+    case EVENT_PERIOD:
+        if (powerOnViewState == POWERON_VIEW_FLASHFAILURE)
+            powerOnViewState = POWERON_VIEW_SPLASH;
         else
         {
-            initState = INIT_DONE;
-
             // Start measurements
             setTubeHV(true);
             enableMeasurements();
-            setCommEnabled(true);
-            startDatalog();
+            enableComm(true);
+            openDatalog();
 
             setMeasurementView(0);
         }
-        break;
 
     default:
         break;
     }
 }
 
-static const View initView = {
-    onInitViewEvent,
+static const View powerOnView = {
+    onPowerOnViewEvent,
     NULL,
 };
 
-void setSplashView(void)
+void setPowerOnView(void)
 {
-    // Clear screen
-    drawNotification("", "");
-
     // Power on
     setPower(true);
-    setDisplayOn(true);
-    triggerDisplay();
-    initEvents();
+    resetEvents();
+    requestDisplayBacklightTrigger();
+    clearKeyboardEvents();
 
-    // Consume keyboard events
-    while (getKeyboardEvent() != EVENT_NONE)
-        ;
-
-    initState = INIT_START;
-    setView(&initView);
+    if (!verifyFlash())
+        powerOnViewState = POWERON_VIEW_FLASHFAILURE;
+    else
+        powerOnViewState = POWERON_VIEW_SPLASH;
+    setView(&powerOnView);
 }
 
-// Deinit view
+// Power off view
 
 static void onPowerOffViewEvent(const View *view, Event event)
 {
@@ -114,24 +108,20 @@ static const View powerOffView = {
 void setPowerOffView(void)
 {
     // Stop measurements
-    stopDatalog();
+    closeDatalog();
     writeSettings();
 
-    setCommEnabled(false);
+    enableComm(false);
     disableMeasurements();
     setTubeHV(false);
-
-    setDisplayBacklightOn(false);
-    setDisplayOn(false);
+    cancelDisplayBacklight();
 
     // Power off
     setPower(false);
     setView(&powerOffView);
 }
 
-// Getters
-
-bool isPowerOffViewEnabled(void)
+bool isPowerOffViewActive(void)
 {
     return (getView() == &powerOffView);
 }

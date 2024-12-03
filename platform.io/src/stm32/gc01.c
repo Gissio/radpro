@@ -135,7 +135,7 @@ void getKeyboardState(bool *isKeyDown)
 
 extern mr_t mr;
 
-bool displayOn;
+bool displayEnabled;
 
 static uint8_t displayTextbuffer[86 * 86];
 
@@ -364,17 +364,17 @@ void initDisplayController(void)
 #endif
 }
 
-void setDisplayOn(bool value)
+void enableDisplay(bool value)
 {
-    displayOn = value;
-
     mr_st7789_set_display(&mr, value);
     mr_st7789_set_sleep(&mr, !value);
+
+    displayEnabled = value;
 }
 
-bool isDisplayOn(void)
+bool isDisplayEnabled(void)
 {
-    return displayOn;
+    return displayEnabled;
 }
 
 void refreshDisplay(void)

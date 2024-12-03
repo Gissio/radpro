@@ -31,10 +31,10 @@ static const Menu dataModeMenu;
 void initComm(void)
 {
 #if !defined(DATA_MODE)
-    startComm();
+    openComm();
 #else
     if (settings.dataMode)
-        startComm();
+        openComm();
 
     selectMenuItem(&dataModeMenu,
                    settings.dataMode,
@@ -42,7 +42,7 @@ void initComm(void)
 #endif
 }
 
-void setCommEnabled(bool value)
+void enableComm(bool value)
 {
     comm.enabled = value;
 }
@@ -318,7 +318,7 @@ static const char *onDataModeMenuGetOption(const Menu *menu,
                                            uint32_t index,
                                            MenuStyle *menuStyle)
 {
-    *menuStyle = (index == isCommStarted());
+    *menuStyle = (index == isCommOpen());
 
     return dataModeMenuOptions[index];
 }
@@ -330,9 +330,9 @@ static void onDataModeMenuSelect(const Menu *menu)
     settings.dataMode = selectedIndex;
 
     if (selectedIndex)
-        startComm();
+        openComm();
     else
-        stopComm();
+        closeComm();
 }
 
 static MenuState dataModeMenuState;

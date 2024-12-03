@@ -59,14 +59,10 @@ void initDisplay(void);
 void initDisplayController(void);
 void initDisplayBacklight(void);
 
-void setDisplayOn(bool value);
-bool isDisplayOn(void);
+void enableDisplay(bool value);
+bool isDisplayEnabled(void);
 
-void setDisplaySleep(bool value);
-bool isDisplaySleep(void);
-
-void setDisplayBacklightOn(bool value);
-bool isDisplayBacklightOn(void);
+void setDisplayBacklight(bool value);
 
 void updateDisplayContrast(void);
 

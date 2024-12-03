@@ -1,9 +1,18 @@
 # Releases
 
-## 2.0.3
+## 2.0.4 The bugfixes
+
+* On color displays: fixed splash screen.
+* On color displays: fixed unsightly flash when returning from sleep.
+* Dose counts below 10000 are now indicated in standard notation.
+* Fixed an issue where alarms would continue to sound even after the device was turned off while connected to an external power source.
+* Fixed an issue where 60-second instantaneous averaging, when combined with high radiation levels, failed to correctly average over 60 seconds.
+* Improved UI event management.
+
+## 2.0.3 The sensitive update
 
 * Extended conversion factor range to 25-12800 cpm/µSv/h.
-* When using sensitive detectors with a conversion factor of 600 cpm/µSv/h or higher, Rad Pro caps the pulse indication at 600 cpm/µSv/h to provide approximately one pulse per second at background levels of radiation. This does not impact the actual measurement.
+* When using sensitive detectors with a conversion factor of 600 cpm/µSv/h or higher, pulse indication is now capped at 600 cpm/µSv/h to provide approximately one pulse per second at background levels of radiation. This does not impact the actual measurements.
 * Minor UI and performance refinements.
 
 ## 2.0.2

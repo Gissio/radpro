@@ -14,8 +14,6 @@
 
 #include "device.h"
 
-bool displayBacklightOn;
-
 void initDisplayBacklight(void)
 {
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
@@ -33,16 +31,14 @@ void initDisplayBacklight(void)
 
     tim_setup_pwm(DISPLAY_BACKLIGHT_TIMER,
                   DISPLAY_BACKLIGHT_TIMER_CHANNEL);
-    setDisplayBacklightOn(false);
+    setDisplayBacklight(false);
     tim_set_period(DISPLAY_BACKLIGHT_TIMER,
                    DISPLAY_BACKLIGHT_TIMER_PERIOD);
     tim_enable(DISPLAY_BACKLIGHT_TIMER);
 }
 
-void setDisplayBacklightOn(bool value)
+void setDisplayBacklight(bool value)
 {
-    displayBacklightOn = value;
-
     uint32_t ontime =
         value
             ? displayBrightnessValue[settings.displayBrightness] *
@@ -57,11 +53,6 @@ void setDisplayBacklightOn(bool value)
                    ontime
 #endif
     );
-}
-
-bool isDisplayBacklightOn(void)
-{
-    return displayBacklightOn;
 }
 
 #endif

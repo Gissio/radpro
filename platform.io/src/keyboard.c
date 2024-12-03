@@ -80,9 +80,9 @@ void onKeyboardTick(void)
         {
 #if defined(DISPLAY_MONOCHROME)
             if ((settings.displaySleep != DISPLAY_SLEEP_ALWAYS_OFF) &&
-                !isDisplayTimerActive())
+                !isDisplayBacklightActive())
 #elif defined(DISPLAY_COLOR)
-            if (!isDisplayTimerActive())
+            if (!isDisplayBacklightActive())
 #endif
                 isBacklightPressed = true;
 
@@ -329,12 +329,20 @@ void setKeyboardMode(KeyboardMode mode)
 
 Event getKeyboardEvent(void)
 {
-    if (keyboard.eventQueueHead == keyboard.eventQueueTail)
-        return EVENT_NONE;
+    if (keyboard.eventQueueHead != keyboard.eventQueueTail)
+    {
+        // Dequeue event
+        Event event = keyboard.eventQueue[keyboard.eventQueueTail];
+        keyboard.eventQueueTail = (keyboard.eventQueueTail + 1) & EVENT_QUEUE_MASK;
 
-    // Dequeue event
-    Event event = keyboard.eventQueue[keyboard.eventQueueTail];
-    keyboard.eventQueueTail = (keyboard.eventQueueTail + 1) & EVENT_QUEUE_MASK;
+        return event;
+    }
 
-    return event;
+    return EVENT_NONE;
+}
+
+void clearKeyboardEvents(void)
+{
+    while (getKeyboardEvent() != EVENT_NONE)
+        ;
 }

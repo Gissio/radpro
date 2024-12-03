@@ -21,26 +21,26 @@
 extern float timerCountToSeconds;
 
 void initEvents(void);
-void initEventsController(void);
-void updateEventsMenus(void);
+void resetEvents(void);
 
 void onTick(void);
 uint32_t getTick(void);
 void sleep(uint32_t value);
 
 void syncTimerThread(void);
-void enableMeasurements(void);
-void disableMeasurements(void);
-void setEventHandling(bool value);
-void dispatchDisplayEvents(void);
 void dispatchEvents(void);
 
 float getTubeDeadTime(void);
 
-void triggerDisplay(void);
-bool isDisplayTimerActive(void);
-void setPulseThresholding(bool value);
-bool isPulseThresholding(void);
+void requestDisplayBacklightTrigger(void);
+bool isDisplayBacklightTriggerRequested(void);
+void triggerDisplayBacklight(void);
+void cancelDisplayBacklight(void);
+bool isDisplayBacklightActive(void);
+
+void enablePulseThresholding(bool value);
+bool isPulseThresholdingEnabled(void);
+
 void triggerPulse(void);
 void triggerAlarm(void);
 

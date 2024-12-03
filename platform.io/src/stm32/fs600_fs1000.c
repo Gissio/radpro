@@ -92,7 +92,7 @@ void getKeyboardState(bool *isKeyDown)
 
 extern mr_t mr;
 
-bool displayOn;
+bool displayEnabled;
 
 static uint8_t displayFramebuffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8];
 
@@ -230,16 +230,16 @@ void initDisplayController(void)
     updateDisplayContrast();
 }
 
-void setDisplayOn(bool value)
+void enableDisplay(bool value)
 {
-    displayOn = value;
-
     mr_st7565_set_display(&mr, value);
+
+    displayEnabled = value;
 }
 
-bool isDisplayOn(void)
+bool isDisplayEnabled(void)
 {
-    return displayOn;
+    return displayEnabled;
 }
 
 void updateDisplayContrast(void)

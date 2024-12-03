@@ -29,7 +29,7 @@ static struct
     char lastChar;
 } commController;
 
-void startComm(void)
+void openComm(void)
 {
     if (commController.sercomm)
         return;
@@ -63,7 +63,7 @@ void startComm(void)
     }
 }
 
-void stopComm(void)
+void closeComm(void)
 {
     ser_close(commController.sercomm);
     ser_destroy(commController.sercomm);
@@ -71,7 +71,7 @@ void stopComm(void)
     commController.sercomm = NULL;
 }
 
-bool isCommStarted(void)
+bool isCommOpen(void)
 {
     return (commController.sercomm != NULL);
 }
@@ -152,17 +152,17 @@ void updateCommController(void)
 
 static bool commControllerStarted = false;
 
-void startComm(void)
+void openComm(void)
 {
     commControllerStarted = true;
 }
 
-void stopComm(void)
+void closeComm(void)
 {
     commControllerStarted = false;
 }
 
-bool isCommStarted(void)
+bool isCommOpen(void)
 {
     return commControllerStarted;
 }

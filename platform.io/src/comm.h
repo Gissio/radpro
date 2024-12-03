@@ -59,11 +59,11 @@ extern const View dataModeMenuView;
 
 void initComm(void);
 
-void startComm(void);
-void stopComm(void);
-bool isCommStarted(void);
+void openComm(void);
+void closeComm(void);
+bool isCommOpen(void);
 
-void setCommEnabled(bool value);
+void enableComm(bool value);
 
 void transmitComm(void);
 

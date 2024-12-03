@@ -21,8 +21,6 @@ static struct
 
     bool periodUpdate;
     bool drawUpdate;
-
-    uint32_t displayTimer;
 } view;
 
 void dispatchViewEvents(void)
@@ -31,12 +29,11 @@ void dispatchViewEvents(void)
     if (view.periodUpdate)
     {
         view.periodUpdate = false;
+
         view.currentView->onEvent(view.currentView, EVENT_PERIOD);
     }
 
     // Key events
-    syncTimerThread();
-
     while (true)
     {
         Event event = getKeyboardEvent();
@@ -44,10 +41,10 @@ void dispatchViewEvents(void)
         if (event == EVENT_NONE)
             break;
 
-        if (isPowerOffViewEnabled())
+        if (isPowerOffViewActive())
         {
             if (event == EVENT_KEY_POWER)
-                setSplashView();
+                setPowerOnView();
         }
         else
         {
@@ -57,48 +54,52 @@ void dispatchViewEvents(void)
             {
                 view.currentView->onEvent(view.currentView, event);
 
-                triggerDisplay();
+                requestDisplayBacklightTrigger();
             }
         }
     }
 
-#if defined(DISPLAY_COLOR)
     // Pre-draw
-    if (isDisplayBacklightOn())
-    {
-        if (!isDisplayOn())
-            view.drawUpdate = true;
-    }
+    if (isDisplayBacklightTriggerRequested())
+        view.drawUpdate = true;
     else
     {
-        if (!settings.pulseFlashes ||
-            isPulseThresholding())
+#if defined(DISPLAY_MONOCHROME)
+        bool isDisplayActive = !isPowerOffViewActive();
+#elif defined(DISPLAY_COLOR)
+        bool isPulseFlashesActive = settings.pulseFlashes &&
+                                    !isPulseThresholdingEnabled();
+        bool isDisplayActive = !isPowerOffViewActive() &&
+                               (isDisplayBacklightActive() ||
+                                isPulseFlashesActive);
+#endif
+
+        if (!isDisplayActive)
         {
             view.drawUpdate = false;
 
-            if (isDisplayOn())
-                setDisplayOn(false);
+            if (isDisplayEnabled())
+                enableDisplay(false);
         }
     }
-#endif
 
     // Draw
     if (view.drawUpdate)
     {
         view.drawUpdate = false;
+
         view.currentView->onEvent(view.currentView, EVENT_DRAW);
 
         refreshDisplay();
-    }
 
-#if defined(DISPLAY_COLOR)
-    // Post-draw
-    if (isDisplayBacklightOn())
-    {
-        if (!isDisplayOn())
-            setDisplayOn(true);
+        if (!isDisplayEnabled())
+            enableDisplay(true);
+
+        if (isDisplayBacklightTriggerRequested())
+            triggerDisplayBacklight();
+
+        view.currentView->onEvent(view.currentView, EVENT_POST_DRAW);
     }
-#endif
 }
 
 void setView(const View *newView)
@@ -106,6 +107,11 @@ void setView(const View *newView)
     view.currentView = newView;
 
     updateView();
+}
+
+const View *getView(void)
+{
+    return view.currentView;
 }
 
 void updateView(void)
@@ -117,9 +123,4 @@ void updateViewPeriod(void)
 {
     view.periodUpdate = true;
     view.drawUpdate = true;
-}
-
-const View *getView(void)
-{
-    return view.currentView;
 }

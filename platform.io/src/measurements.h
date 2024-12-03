@@ -47,6 +47,9 @@ void initMeasurements(void);
 void updateMeasurementUnits(void);
 void updateCompensations(void);
 
+void enableMeasurements(void);
+void disableMeasurements(void);
+
 void onMeasurementTick(uint32_t pulseCount);
 void onMeasurementPeriod(void);
 void updateMeasurements(void);

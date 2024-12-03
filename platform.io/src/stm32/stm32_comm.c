@@ -26,7 +26,7 @@ static struct
     char lastChar;
 } commController;
 
-void startComm(void)
+void openComm(void)
 {
     if (commController.commStarted)
         return;
@@ -65,7 +65,7 @@ void startComm(void)
     commController.commStarted = true;
 }
 
-void stopComm(void)
+void closeComm(void)
 {
     if (!commController.commStarted)
         return;
@@ -96,7 +96,7 @@ void stopComm(void)
     commController.commStarted = false;
 }
 
-bool isCommStarted(void)
+bool isCommOpen(void)
 {
     return commController.commStarted;
 }
@@ -545,7 +545,7 @@ void USB_IRQ_HANDLER(void)
     usbd_poll(&usbdDevice);
 }
 
-void startComm(void)
+void openComm(void)
 {
     if (commController.commStarted)
         return;
@@ -575,7 +575,7 @@ void startComm(void)
     commController.commStarted = true;
 }
 
-void stopComm(void)
+void closeComm(void)
 {
     if (!commController.commStarted)
         return;
@@ -588,7 +588,7 @@ void stopComm(void)
     commController.commStarted = false;
 }
 
-bool isCommStarted(void)
+bool isCommOpen(void)
 {
     return commController.commStarted;
 }
@@ -599,15 +599,15 @@ void updateCommController(void)
 
 #else
 
-void startComm(void)
+void openComm(void)
 {
 }
 
-void stopComm(void)
+void closeComm(void)
 {
 }
 
-bool isCommStarted(void)
+bool isCommOpen(void)
 {
     return false;
 }

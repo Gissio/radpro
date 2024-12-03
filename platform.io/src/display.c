@@ -140,7 +140,7 @@
 
 #define MEASUREMENT_PADDING 7
 #define MEASUREMENT_VALUE_HEIGHT 35
-#define MEASUREMENT_VALUE_OFFSET_X 5
+#define MEASUREMENT_VALUE_OFFSET_X (CONTENT_WIDTH - 6)
 #define MEASUREMENT_VALUE_OFFSET_Y 2
 #define MEASUREMENT_UNIT_X 78
 #define MEASUREMENT_CONFIDENCE_HEIGHT (CONTENT_BOTTOM - MEASUREMENT_UNIT_BOTTOM)
@@ -192,7 +192,7 @@
 
 #define MEASUREMENT_PADDING 15
 #define MEASUREMENT_VALUE_HEIGHT 122
-#define MEASUREMENT_VALUE_OFFSET_X 9
+#define MEASUREMENT_VALUE_OFFSET_X (CONTENT_WIDTH - 10)
 #define MEASUREMENT_VALUE_OFFSET_Y 3
 #define MEASUREMENT_UNIT_X 206
 #define MEASUREMENT_CONFIDENCE_HEIGHT (CONTENT_BOTTOM - MEASUREMENT_UNIT_BOTTOM)
@@ -244,7 +244,7 @@
 
 #define MEASUREMENT_PADDING 15
 #define MEASUREMENT_VALUE_HEIGHT 150
-#define MEASUREMENT_VALUE_OFFSET_X 10
+#define MEASUREMENT_VALUE_OFFSET_X (CONTENT_WIDTH - 10)
 #define MEASUREMENT_VALUE_OFFSET_Y 62
 #define MEASUREMENT_UNIT_X CONTENT_X
 #define MEASUREMENT_CONFIDENCE_HEIGHT FONT_SMALL_LINE_HEIGHT
@@ -1274,9 +1274,9 @@ void drawMeasurementValue(const char *valueString,
         : (style == MEASUREMENTSTYLE_HOLD)
             ? COLOR_ELEMENT_ACTIVE
             : COLOR_INSTRUMENT_ENHANCED_PRIMARY);
-    drawText(valueString,
-             &valueRectangle,
-             &valueOffset);
+    drawRightAlignedText(valueString,
+                         &valueRectangle,
+                         &valueOffset);
 
 #if defined(DISPLAY_MONOCHROME)
     if (style == MEASUREMENTSTYLE_ALARM)
@@ -2425,8 +2425,6 @@ static const char *onDisplayBrightnessMenuGetOption(const Menu *menu,
 static void onDisplayBrightnessMenuSelect(const Menu *menu)
 {
     settings.displayBrightness = menu->state->selectedIndex;
-
-    setDisplayBacklightOn(true);
 }
 
 static MenuState displayBrightnessMenuState;
@@ -2471,8 +2469,6 @@ static const char *onDisplaySleepMenuGetOption(const Menu *menu,
 static void onDisplaySleepMenuSelect(const Menu *menu)
 {
     settings.displaySleep = menu->state->selectedIndex;
-
-    triggerDisplay();
 }
 
 static MenuState displaySleepMenuState;

@@ -63,5 +63,6 @@ void setKeyboardMode(KeyboardMode mode);
 void onKeyboardTick(void);
 
 Event getKeyboardEvent(void);
+void clearKeyboardEvents();
 
 #endif

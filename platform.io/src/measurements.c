@@ -27,9 +27,9 @@
 
 #define REMAINING_PULSE_COUNT_LOWER_LIMIT 10
 
-#define INSTANTANEOUS_RATE_QUEUE_SIZE 32
+#define INSTANTANEOUS_RATE_QUEUE_SIZE 64
 #define INSTANTANEOUS_RATE_QUEUE_MASK (INSTANTANEOUS_RATE_QUEUE_SIZE - 1)
-#define INSTANTANEOUS_RATE_AVERAGING_PULSE_COUNT 19 // For 50% configence interval:
+#define INSTANTANEOUS_RATE_AVERAGING_PULSE_COUNT 19 // For 50% confidence interval
 #define INSTANTANEOUS_RATE_MAX_PULSE_COUNT 10
 
 #define PULSE_INDICATION_CONVERSION_FACTOR_MAX 600.0F
@@ -165,6 +165,7 @@ static struct
         uint32_t tabIndex;
     } history;
 
+    bool enabled;
     int32_t viewIndex;
 } measurements;
 
@@ -322,8 +323,21 @@ static void calculateRate(uint32_t pulseCount, uint32_t ticks, Rate *rate)
         1;
 }
 
+void enableMeasurements(void)
+{
+    measurements.enabled = true;
+}
+
+void disableMeasurements(void)
+{
+    measurements.enabled = false;
+}
+
 void onMeasurementTick(uint32_t pulseCount)
 {
+    if (!measurements.enabled)
+        return;
+
     if (pulseCount)
     {
         measurements.tube.dose.pulseCount += pulseCount;
@@ -350,6 +364,9 @@ void onMeasurementTick(uint32_t pulseCount)
 
 void onMeasurementPeriod(void)
 {
+    if (!measurements.enabled)
+        return;
+
     measurements.period.snapshotTick = getTick();
     measurements.period.snapshotMeasurement = measurements.period.measurement;
     measurements.period.measurement.pulseCount = 0;
@@ -369,6 +386,9 @@ uint8_t getHistoryValue(float value)
 
 void updateMeasurements(void)
 {
+    if (!measurements.enabled)
+        return;
+
     // Tube life
     measurements.tube.dose.time++;
 
@@ -601,10 +621,18 @@ static void buildValueString(char *valueString,
                              const Unit *unit,
                              int32_t minMetricPrefixIndex)
 {
-    strcatFloatAsMetricValueAndPrefix(valueString,
-                                      unitString,
-                                      value * unit->scale,
-                                      minMetricPrefixIndex);
+    if ((strcmp(unit->name, "counts") == 0) &&
+        (value < 10000))
+    {
+        strcatUInt32(valueString, (uint32_t) value, 0);
+        strcpy(unitString, " ");
+    }
+    else
+        strcatFloatAsMetricValueAndPrefix(valueString,
+                                          unitString,
+                                          value * unit->scale,
+                                          minMetricPrefixIndex);
+
     strcat(unitString, unit->name);
 }
 
@@ -671,7 +699,7 @@ static void updatePulseThresholding(void)
     float svH = units[UNITS_SIEVERTS].rate.scale *
                 measurements.instantaneous.rate.value;
 
-    setPulseThresholding(svH < rateAlarmsSvH[settings.pulseThresholding]);
+    enablePulseThresholding(svH < rateAlarmsSvH[settings.pulseThresholding]);
 }
 
 static void resetInstantaneousRate(void)

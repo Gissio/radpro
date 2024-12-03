@@ -28,8 +28,7 @@
 
 extern mr_t mr;
 
-bool displayOn;
-bool displayBacklightOn;
+bool displayEnabled;
 bool pulseLEDOn;
 bool alertLEDOn;
 bool vibratorOn;
@@ -38,6 +37,8 @@ static uint8_t displayBrightnessValues[] = {
     0x3f, 0x7f, 0xbf, 0xff};
 
 extern float tubeCPS;
+
+void updateDisplayTitle(void);
 
 void initDisplayController(void)
 {
@@ -57,18 +58,19 @@ void initDisplayController(void)
                 DISPLAY_UPSCALE,
                 FIRMWARE_NAME);
 #endif
+    updateDisplayTitle();
 }
 
-void setDisplayOn(bool value)
+void enableDisplay(bool value)
 {
-    displayOn = value;
+    mr_sdl_set_display(&mr, value);
 
-    mr_sdl_set_display(&mr, displayOn);
+    displayEnabled = value;
 }
 
-bool isDisplayOn(void)
+bool isDisplayEnabled(void)
 {
-    return displayOn;
+    return displayEnabled;
 }
 
 void updateDisplayContrast(void)
@@ -78,8 +80,6 @@ void updateDisplayContrast(void)
 void refreshDisplay(void)
 {
 }
-
-void updateDisplayTitle(void);
 
 void updateDisplay(void)
 {
@@ -91,7 +91,7 @@ void updateDisplay(void)
         switch (event.type)
         {
         case SDL_QUIT:
-            stopDatalog();
+            closeDatalog();
             writeSettings();
 
             exit(0);
@@ -157,26 +157,19 @@ void updateDisplayTitle(void)
     mr_sdl_set_title(&mr, buffer);
 }
 
-// Backlight
+// Display backlight
 
 void initDisplayBacklight(void)
 {
 }
 
-void setDisplayBacklightOn(bool value)
+void setDisplayBacklight(bool value)
 {
-    displayBacklightOn = value;
-
     mr_sdl_set_backlight(
         &mr,
         value
             ? displayBrightnessValues[settings.displayBrightness]
             : 0);
-}
-
-bool isDisplayBacklightOn(void)
-{
-    return displayBacklightOn;
 }
 
 // LED

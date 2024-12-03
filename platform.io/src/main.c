@@ -85,7 +85,7 @@ int main(void)
     sleep(1000);
 #endif
 
-    setSplashView();
+    setPowerOnView();
 
     // Main loop
 #if SIMULATOR

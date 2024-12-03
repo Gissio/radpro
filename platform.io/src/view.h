@@ -21,6 +21,7 @@ typedef enum
     EVENT_KEY_BACKLIGHT,
 
     EVENT_DRAW,
+    EVENT_POST_DRAW,
 
     EVENT_PERIOD,
 
