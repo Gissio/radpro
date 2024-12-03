@@ -15,14 +15,14 @@
 * When using sensitive detectors with a conversion factor of 600 cpm/µSv/h or higher, pulse indication is now capped at 600 cpm/µSv/h to provide approximately one pulse per second at background levels of radiation. This does not impact the actual measurements.
 * Minor UI and performance refinements.
 
-## 2.0.2
+## 2.0.2 The precise release
 
 * Improved the instantaneous rate averaging algorithm.
 * Simplified the instantaneous rate averaging response curves, resulting in improved precision when using J613/J614 tubes.
 * Disabled instantaneous rate alarms in situations where the confidence interval is high, such as immediately after device startup.
 * Minor UI improvements.
 
-## 2.0.1
+## 2.0.1 The trifles update
 
 * Added data log reset.
 * Changed the default conversion factor for J613/J614 tubes to 60.0 cpm/µSv/h.
