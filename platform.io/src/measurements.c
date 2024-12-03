@@ -624,14 +624,21 @@ static void buildValueString(char *valueString,
     if ((strcmp(unit->name, "counts") == 0) &&
         (value < 10000))
     {
-        strcatUInt32(valueString, (uint32_t) value, 0);
-        strcpy(unitString, " ");
+        uint32_t intValue = (uint32_t) value;
+
+        strcatUInt32(valueString, intValue, 0);
+        if (intValue == 1)
+            strcpy(unitString, "count");
+        else
+            strcpy(unitString, "counts");
+
+        return;
     }
-    else
-        strcatFloatAsMetricValueAndPrefix(valueString,
-                                          unitString,
-                                          value * unit->scale,
-                                          minMetricPrefixIndex);
+
+    strcatFloatAsMetricValueAndPrefix(valueString,
+                                        unitString,
+                                        value * unit->scale,
+                                        minMetricPrefixIndex);
 
     strcat(unitString, unit->name);
 }
