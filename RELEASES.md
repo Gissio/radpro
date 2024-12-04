@@ -1,6 +1,6 @@
 # Releases
 
-## 2.0.4 The bugfixes
+## 2.0.4 Delicious trifles
 
 * On color displays: fixed splash screen.
 * On color displays: fixed unsightly flash when returning from sleep.
@@ -22,7 +22,7 @@
 * Disabled instantaneous rate alarms in situations where the confidence interval is high, such as immediately after device startup.
 * Minor UI improvements.
 
-## 2.0.1
+## 2.0.1 Nobody's perfect
 
 * Added data log reset.
 * Changed the default conversion factor for J613/J614 tubes to 60.0 cpm/µSv/h.
@@ -31,7 +31,7 @@
 * Resolved issues with new history data log download.
 * Minor refinements.
 
-## 2.0
+## 2.0 Grand première 
 
 * First 2.0 release.
 * Updated the UI design system to [OpenBridge 5.0](https://www.openbridge.no/), improving legibility under sunlight.

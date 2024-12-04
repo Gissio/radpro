@@ -229,15 +229,17 @@ void initMeasurements(void)
 
 // Events
 
+const char countsString[] = "counts";
+
 Units units[] = {
     {{"Sv/h", (60 * 1E-6F)},
      {"Sv", (60 * 1E-6F / 3600)}},
     {{"rem/h", (60 * 1E-4F)},
      {"rem", (60 * 1E-4F / 3600)}},
     {{"cpm", 60},
-     {"counts", 1}},
+     {countsString, 1}},
     {{"cps", 1},
-     {"counts", 1}},
+     {countsString, 1}},
 };
 
 const int8_t unitsMinMetricPrefixIndex[] = {
@@ -621,24 +623,25 @@ static void buildValueString(char *valueString,
                              const Unit *unit,
                              int32_t minMetricPrefixIndex)
 {
-    if ((strcmp(unit->name, "counts") == 0) &&
+    if ((unit->name == countsString) &&
         (value < 10000))
     {
-        uint32_t intValue = (uint32_t) value;
+        uint32_t intValue = (uint32_t)value;
 
         strcatUInt32(valueString, intValue, 0);
+        strcpy(unitString, " ");
         if (intValue == 1)
-            strcpy(unitString, "count");
+            strcat(unitString, "count");
         else
-            strcpy(unitString, "counts");
+            strcat(unitString, countsString);
 
         return;
     }
 
     strcatFloatAsMetricValueAndPrefix(valueString,
-                                        unitString,
-                                        value * unit->scale,
-                                        minMetricPrefixIndex);
+                                      unitString,
+                                      value * unit->scale,
+                                      minMetricPrefixIndex);
 
     strcat(unitString, unit->name);
 }

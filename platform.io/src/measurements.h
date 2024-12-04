@@ -18,7 +18,7 @@
 
 typedef struct
 {
-    char *const name;
+    const char *name;
     float scale;
 } Unit;
 
