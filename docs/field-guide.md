@@ -180,7 +180,7 @@ In the event of a nuclear incident, Geiger counters are vital for survivors to n
 
 * **Method:** Measure radiation from items like smoke detectors (which contain small amounts of Americium-241), old watches with radium dials, ceramic pottery with uranium glaze, or Brazilian granite countertops. Document the radiation levels and compare them to background levels to see if they're significantly above normal.
 
-* **WARNING:** In order to avoid internal contamination, wear gloves when handling radioactive objects like uranium rocks. Also, place them in sealed plastic bags in order to minimize the risk of external contamination.
+* **WARNING:** To prevent internal contamination, always wear gloves when handling radioactive materials such as uranium rocks. Additionally, store these items in sealed plastic bags to reduce the risk of external contamination.
 
 ### Radiation shielding experiment
 
@@ -188,7 +188,7 @@ In the event of a nuclear incident, Geiger counters are vital for survivors to n
 
 * **Method:** Place a known radioactive source (like a small piece of uranium ore or a radioactive check source) beside the Geiger counter. Measure the count rate. Then, introduce various materials (lead, aluminum, paper, wood, water) between the source and the counter, noting the reduction in counts for each material.
 
-* **WARNING:** In order to avoid internal contamination, wear gloves when handling radioactive objects like uranium rocks. Also, place them in sealed plastic bags in order to minimize the risk of external contamination.
+* **WARNING:** To prevent internal contamination, always wear gloves when handling radioactive materials such as uranium rocks. Additionally, store these items in sealed plastic bags to reduce the risk of external contamination.
 
 ### Experiment with distance (inverse square law)
 
@@ -196,7 +196,7 @@ In the event of a nuclear incident, Geiger counters are vital for survivors to n
 
 * **Method:** Place a radioactive source at a fixed position and take measurements at increasing distances from the source. Plot the count rate vs. distance to verify the inverse square law of radiation.
 
-* **WARNING:** In order to avoid internal contamination, wear gloves when handling radioactive objects like uranium rocks. Also, place them in sealed plastic bags in order to minimize the risk of external contamination.
+* **WARNING:** To prevent internal contamination, always wear gloves when handling radioactive materials such as uranium rocks. Additionally, store these items in sealed plastic bags to reduce the risk of external contamination.
 
 ### Altitude effects on radiation
 
