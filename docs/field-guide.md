@@ -1,3 +1,5 @@
+![Title](img/field-guide-title.jpg)
+
 # The ionizing radiation field guide
 
 © 2024 Gissio
@@ -10,9 +12,11 @@ Geiger counters and scintillation detectors are instruments capable of detecting
 
 ## What is a radioactive substance?
 
-A radioactive material is any substance with unstable atomic nuclei that spontaneously disintegrate, releasing ionizing radiationn. This decay process continues until the material transforms into a stable, non-radioactive state.
+A radioactive material is any substance with unstable atomic nuclei that spontaneously disintegrate, releasing ionizing radiation. This decay process continues until the material transforms into a stable, non-radioactive state.
 
 Examples of such materials include uranium in glass and ceramics, naturally occurring potassium, and medical isotopes like iodine-131 used in treatments.
+
+![Radioactive contamination](img/field-guide-contamination.jpg)
 
 ## What is radioactive contamination?
 
@@ -41,6 +45,8 @@ Each type of radiation is associated with specific energy levels, typically meas
 
 Generally, particles with higher energy cause more damage.
 
+![Radioactive decay](img/field-guide-decay.jpg)
+
 ## How is ionizing radiation measured?
 
 Ionizing radiation is measured through:
@@ -60,6 +66,8 @@ Equivalent dose is a measure that reflects the **biological damage** to human ti
 Equivalent rate is equivalent dose per unit of time.
 
 This measurement allows for a more accurate assessment of radiation risk to biological tissues.
+
+![Geiger counter](img/field-guide-counter.jpg)
 
 ## How does a Geiger counter work?
 
@@ -103,6 +111,8 @@ A scintillation detector is a type of radiation detector that uses a material, k
 Signal Processing: The electrical signal is then amplified, shaped, and can be analyzed to determine the energy, type, and intensity of the radiation.
 
 Scintillation detectors are valued for their fast response times and the capacity to determine the energy levels (also known as spectroscopy), which allows to identify the source of radiation.
+
+![Applications](img/field-guide-applications.jpg)
 
 ## Applications of Geiger counters/scintillation detectors
 
@@ -163,6 +173,8 @@ Each of these isotopes has specific properties that make them suitable for parti
 ### SHTF (shit hits the fan)
 
 In the event of a nuclear incident, Geiger counters are vital for survivors to navigate through contaminated areas safely, identifying safe zones and avoiding highly radioactive spots. They also allow checking food and water for radioactive substances.
+
+![Experiments](img/field-guide-experiments.jpg)
 
 ## Experiments
 
