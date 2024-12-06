@@ -73,7 +73,7 @@ Ionizing radiation can be harmful in a way that's largely analogous to how UV ra
 
 Here's a brief breakdown of doses considered safe:
 
-* **Natural Background Radiation:** The natural background radiation is on average 2.4 mSv per year, which translates to about 2.74 μSv per hour.
+* **Natural Background Radiation:** The natural background radiation is on average 2.4 mSv per year, which translates to about 0.27 μSv per hour.
 
 * **Public Exposure Limits:** The International Commission on Radiological Protection (ICRP) suggests an annual effective dose limit for the general public of 1 mSv, in addition to natural background radiation.
 
