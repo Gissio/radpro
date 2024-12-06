@@ -35,7 +35,7 @@ For internal contamination, specific treatments are used. If contaminated with I
 
 ## What Types of Ionizing Radiation Are There?
 
-Ionizing radiation includes several types, each verying in energy, penetration ability, and interaction with matter:
+Ionizing radiation includes several types, each varying in energy, penetration ability, and interaction with matter:
 
 * **Gamma Rays (γ):** These are high-energy photons produced during nuclear decay. They are highly penetrating and require significant shielding, such as several centimeters of lead or meters of concrete. Their energy levels span from 100 keV to 8 MeV.
 * **X-Rays:** Similar to gamma rays but of lower energy, X-rays are less penetrating but still require substantial shielding. Their energy ranges from 100 eV to 100 keV.
@@ -73,13 +73,13 @@ Ionizing radiation can be harmful in a way that's largely analogous to how UV ra
 
 Here's a brief breakdown of doses considered safe:
 
-* **Natural Background Radiation:** The natural background radiation is on average 2.4 mSv per year. Divided over 365 days and 24 hours, this gives an average hourly rate of about 2.74 μSv/h.
+* **Natural Background Radiation:** The natural background radiation is on average 2.4 mSv per year, which translates to about 2.74 μSv per hour.
 
 * **Public Exposure Limits:** The International Commission on Radiological Protection (ICRP) suggests an annual effective dose limit for the general public of 1 mSv, in addition to natural background radiation.
 
 * **Occupational Exposure Limits:** For workers in fields involving radiation exposure (like nuclear power or medical imaging), the ICRP recommends an average of 20 mSv per year over 5 years, with no single year exceeding 50 mSv.
 
-Here's how higher radiation doses can affect health:
+Here's how higher radiation doses can impact health:
 
 * **Low Dose (<100 mSv):** This is somewhat akin to a mild sunburn. Effects might not be immediately visible; cells can repair most of the damage. However, there's an increased risk of cancer over time, much like frequent mild sunburns might lead to skin cancer.
 
