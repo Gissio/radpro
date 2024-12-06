@@ -5,6 +5,7 @@
 * On color displays: fixed splash screen.
 * On color displays: fixed unsightly flash when returning from sleep.
 * Dose counts below 10000 are now indicated in standard notation.
+* Changed the default conversion factor for J613/J614 tubes to 30.0 cpm/µSv/h.
 * Fixed an issue where alarms would continue to sound even after the device was turned off while connected to an external power source.
 * Fixed an issue where 60-second instantaneous averaging, when combined with high radiation levels, failed to correctly average over 60 seconds.
 * Improved UI event management.

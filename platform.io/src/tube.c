@@ -158,8 +158,8 @@ const View tubeMenuView = {
 static const float tubeConversionFactorMenuPresets[] = {
     153.8F,
     153.8F,
-    60.0F,
-    60.0F,
+    30.0F,
+    30.0F,
     153.8F,
     153.8F,
 };
