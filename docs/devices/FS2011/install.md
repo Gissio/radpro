@@ -61,7 +61,7 @@ Start your device and go to Rad Pro's settings, select “Geiger tube”, “Con
 
 Within the “Geiger tube” settings, select “HV Profile” and choose an appropriate HV profile: “Energy-saving” is best for measuring background levels of radiation, while “Accuracy” consumes more power but allows measurement of higher radiation levels; “Factory default” is the profile from the original firmware and consumes considerably more power.
 
-Last, read the [user's manual](../../manual.md) for learning how to use Rad Pro.
+Last, read the [user's manual](../../manual.md) for learning how to use Rad Pro, and the [field guide](../../field-guide.md) for learning more about ionizing radiation.
 
 ## Step 5: Optional mods
 
