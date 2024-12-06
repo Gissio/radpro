@@ -14,7 +14,7 @@ Geiger counters and scintillation detectors are instruments capable of detecting
 
 A **radioactive substance** is any material with unstable atoms that spontaneously disintegrate, releasing ionizing radiation.
 
-As the atoms disintegrate, they transform into different elements or **isotopes**, often at a predictable rate known as the **half-life**. The half-life is the time it takes for half of the radioactive atoms in a sample to decay.
+As the atoms disintegrate, they transform into different **isotopes** of other elements, often at a predictable rate known as the **half-life**. The half-life is the time it takes for half of the radioactive atoms in a sample to decay.
 
 Examples of radioactive materials include uranium glass, uranium-glazed ceramics, naturally occurring potassium, and isotopes like Iodine-131 used in medical treatment.
 
