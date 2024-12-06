@@ -16,7 +16,7 @@ A **radioactive substance** is any material with unstable atoms that spontaneous
 
 As the atoms disintegrate, they transform into different elements or **isotopes**, often at a predictable rate known as the **half-life**. The half-life is the time it takes for half of the radioactive atoms in a sample to decay.
 
-Examples of such materials include uranium glass, uranium-glazed ceramics, naturally occurring potassium, and isotopes like Iodine-131 used in medical treatment.
+Examples of radioactive materials include uranium glass, uranium-glazed ceramics, naturally occurring potassium, and isotopes like Iodine-131 used in medical treatment.
 
 ![Radioactive contamination](img/field-guide-contamination.jpg)
 
