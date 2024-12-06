@@ -125,7 +125,7 @@ Manufacturers typically provide a conversion factor under standard conditions, a
 
 ## What Is an Energy-Compensated Geiger Tube?
 
-An energy-compensated Geiger tube is a type of Geiger-Müller counter designed to measure radiation more accurately across different energy levels of ionizing radiation. It includes additional materials or structures, like filters or windows, that adjust the response of the tube so that it detects radiation with a sensitivity that is more uniform across various energies. This compensation helps to ensure that the readings are not disproportionately influenced by either low-energy or high-energy particles, providing a more accurate measure of total radiation exposure.
+An energy-compensated Geiger tube is a type of Geiger-Müller tube designed to measure radiation more accurately across different energy levels of ionizing radiation. It includes additional materials or structures, like filters or windows, that adjust the response of the tube so that it detects radiation with a sensitivity that is more uniform across various energies. This compensation helps to ensure that the readings are not disproportionately influenced by either low-energy or high-energy particles, providing a more accurate measure of total radiation exposure.
 
 ## What Is a Scintillation Detector?
 
