@@ -35,15 +35,15 @@ For internal contamination, specific treatments are used. If contaminated with I
 
 ## What Types of Ionizing Radiation Are There?
 
-Ionizing radiation includes several types, each distinguished by its energy, penetration ability, and interaction with matter:
+Ionizing radiation includes several types, each verying in energy, penetration ability, and interaction with matter:
 
-* **Gamma Rays (γ):** These are high-energy photons emitted during nuclear decay. They are highly penetrating and require substantial shielding, such as several centimeters of lead or meters of concrete. Energy levels range from 100 keV to 8 MeV.
-* **X-Rays:** Similar to gamma rays but of lower energy, X-rays are less penetrating but still require shielding. Energy levels range from 100 eV to 100 keV.
-* **Beta Particles (β):** These are fast-moving electrons or positrons. They are less penetrating than gamma rays and can be stopped by a few millimeters of aluminum or several meters of air. Energy levels range from a few keV to tens of MeV.
-* **Alpha Particles (α):** Composed of helium nuclei (two protons and two neutrons), alpha particles have low penetration but high energy. They can be blocked by just a few centimeters of air, a sheet of paper, or the outer layer of the human skin. Energy levels are typically between 3 and 7 MeV.
-* **Neutrons (n):** These pose a unique danger as they can induce radioactivity upon interaction. Effective shielding for neutrons involves hydrogen-rich materials like water or plastic. Energy levels range from less than 1 eV for slow neutrons to over 1 MeV for fast neutrons.
+* **Gamma Rays (γ):** These are high-energy photons produced during nuclear decay. They are highly penetrating and require significant shielding, such as several centimeters of lead or meters of concrete. Their energy levels span from 100 keV to 8 MeV.
+* **X-Rays:** Similar to gamma rays but of lower energy, X-rays are less penetrating but still require substantial shielding. Their energy ranges from 100 eV to 100 keV.
+* **Beta Particles (β):** Comprising fast-moving electrons or positrons, these particles have moderate penetration. They can be stopped by a few millimeters of aluminum or several meters of air. Energy levels are from a few keV to tens of MeV.
+* **Alpha Particles (α):** Composed of helium nuclei (two protons and two neutrons), alpha particles have low penetration but high ionization capacity. They can be blocked by just a few centimeters of air, a sheet of paper, or even the outer layer of human skin. Their energy typically falls between 3 and 7 MeV.
+* **Neutrons (n):** These pose a unique danger as they can make other materials radioactive upon collision. Effective shielding for neutrons involves hydrogen-rich materials like water or plastic. Neutron energies vary from less than 1 eV for slow neutrons to over 1 MeV for fast ones.
 
-Generally, particles with higher energy cause more damage.
+In general, the higher the energy of the radiation, the more potential damage it can inflict.
 
 ![Radioactive decay](img/field-guide-decay.jpg)
 
