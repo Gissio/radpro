@@ -717,6 +717,8 @@ static void resetInstantaneousRate(void)
     memset(&measurements.instantaneous,
            0,
            sizeof(measurements.instantaneous));
+
+    updateMeasurementUnits();
 }
 
 float getInstantaneousRate(void)

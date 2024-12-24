@@ -1,4 +1,4 @@
-# Installing Rad Pro on the FNIRSI GC-01/JOY-IT JT-RAD01with an ST-LINK USB dongle
+# Installing Rad Pro on the FNIRSI GC-01/JOY-IT JT-RAD01 with an ST-LINK USB dongle
 
 These instructions let you install Rad Pro on an FNIRSI GC-01/JOY-IT JT-RAD01 with a CH32F103R8T6 (WCH) or APM32F103RBT6 (Geehy) microprocessor if you:
 

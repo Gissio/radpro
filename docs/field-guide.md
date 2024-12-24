@@ -8,13 +8,13 @@ Are you thinking about buying a Geiger counter or a scintillation detector, or m
 
 ## What Do Geiger Counters and Scintillation Detectors Measure?
 
-Geiger counters and scintillation detectors are instruments capable of detecting and measuring **ionizing radiation**, which consist of subatomic particles that carry enough energy to remove electrons from atoms, thus ionizing them. This radiation is particularly hazardous to biological tissues, as it can disrupt chemical bonds, damage DNA, cause cellular damage and produce free radicals which in turn can cause further damage.
+Geiger counters and scintillation detectors are instruments capable of detecting and measuring **ionizing radiation**, which consists of subatomic particles that carry enough energy to remove electrons from atoms, thus ionizing them. This radiation is particularly hazardous to biological tissues, as it can disrupt chemical bonds, damage DNA, cause cellular damage and produce free radicals which in turn can cause further damage.
 
 ## What Is a Radioactive Substance?
 
-A **radioactive substance** is any material with unstable atoms that spontaneously disintegrate, releasing ionizing radiation.
+A **radioactive substance** is any material with unstable atoms that spontaneously disintegrate, emitting ionizing radiation.
 
-As the atoms disintegrate, they transform into different **isotopes** of other elements, often at a predictable rate known as the **half-life**. The half-life is the time it takes for half of the radioactive atoms in a sample to decay.
+As the atoms disintegrate, they transform into different **isotopes**, often at a predictable rate known as the **half-life**. The half-life is the time it takes for half of the radioactive atoms in a sample to decay.
 
 Examples of radioactive materials include uranium glass, uranium-glazed ceramics, naturally occurring potassium, and isotopes like Iodine-131 used in medical treatment.
 
@@ -29,7 +29,7 @@ This contamination can be divided into two types:
 * **External contamination**, where radioactive substances settle on external surfaces like skin, clothing, or other objects.
 * **Internal contamination**, where radioactive substances enter the body through inhalation, ingestion, or absorption through open wounds, posing a significant danger due to the close-range interaction with biological tissues.
 
-Decontamination is the process of removing these radioactive particles from external surfaces. By simply removing clothing and shoes, one can eliminate about 90% of external contamination. A gentle wash with soap and water further removes radiation particles from the skin, preventing the spread of radioactive substances and reducing the risk of internal contamination.
+Decontamination is the process of removing radioactive particles from external surfaces. By simply removing clothing and shoes, one can eliminate about 90% of external contamination. A gentle wash with soap and water further removes radiation particles from the skin, preventing the spread of radioactive substances and reducing the risk of internal contamination.
 
 For internal contamination, specific treatments are used. If contaminated with Iodine-131, one might take potassium iodide to saturate the thyroid, thus blocking the uptake of the radioactive iodine. For contamination with Cesium-137, Prussian blue can be administered to bind with the radioactive particles, which then exit the body through natural means.
 
@@ -37,11 +37,11 @@ For internal contamination, specific treatments are used. If contaminated with I
 
 Ionizing radiation includes several types, each varying in energy, penetration ability, and interaction with matter:
 
-* **Gamma Rays (γ):** These are high-energy photons produced during nuclear decay. They are highly penetrating and require significant shielding, such as several centimeters of lead or meters of concrete. Their energy levels span from 100 keV to 8 MeV.
-* **X-Rays:** Similar to gamma rays but of lower energy, X-rays are less penetrating but still require substantial shielding. Their energy ranges from 100 eV to 100 keV.
-* **Beta Particles (β):** Comprising fast-moving electrons or positrons, these particles have moderate penetration. They can be stopped by a few millimeters of aluminum or several meters of air. Energy levels are from a few keV to tens of MeV.
-* **Alpha Particles (α):** Composed of helium nuclei (two protons and two neutrons), alpha particles have low penetration but high ionization capacity. They can be blocked by just a few centimeters of air, a sheet of paper, or even the outer layer of human skin. Their energy typically falls between 3 and 7 MeV.
-* **Neutrons (n):** These pose a unique danger as they can make other materials radioactive upon collision. Effective shielding for neutrons involves hydrogen-rich materials like water or plastic. Neutron energies vary from less than 1 eV for slow neutrons to over 1 MeV for fast ones.
+* **Gamma rays (γ)**  are high-energy photons produced during nuclear decay. They are highly penetrating and require significant shielding, such as several centimeters of lead or meters of concrete. Their energy levels span from 100 keV to 8 MeV.
+* **X-Rays** are similar to gamma rays but of lower energy, X-rays are less penetrating but still require substantial shielding. Their energy ranges from 100 eV to 100 keV.
+* **Beta particles (β)** comprise fast-moving electrons or positrons, these particles have moderate penetration. They can be stopped by a few millimeters of aluminum or several meters of air. Energy levels are from a few keV to tens of MeV.
+* **Alpha particles (α)** are composed of helium nuclei (two protons and two neutrons), alpha particles have low penetration but high ionization capacity. They can be blocked by just a few centimeters of air, a sheet of paper, or even the outer layer of human skin. Their energy typically falls between 3 and 7 MeV.
+* **Neutrons (n)**  pose a unique danger as they can make other materials radioactive upon collision. Effective shielding for neutrons involves hydrogen-rich materials like water or plastic. Neutron energies vary from less than 1 eV for slow neutrons to over 1 MeV for fast ones.
 
 In general, the higher the energy of the radiation, the more potential damage it can inflict.
 
@@ -53,17 +53,17 @@ Ionizing radiation is measured using several metrics:
 
 ### Absorbed Dose and Rate
 
-Absorbed dose refers to the amount of energy deposited by ionizing radiation per unit mass of any material. It is measured in grays (Gy) in the SI system, where 1 gray equals 1 joule of energy absorbed per kilogram of matter. In older units, it's measured in rads, where 1 rad equals 0.01 gray.
+**Absorbed dose** refers to the amount of energy deposited by ionizing radiation per unit mass of any material. It is measured in grays (Gy) in the SI system, where 1 gray equals 1 joule of energy absorbed per kilogram of matter. In older units, it's measured in rads, where 1 rad equals 0.01 gray.
 
-Absorbed rate is absorbed dose per unit of time.
+**Absorbed rate** is absorbed dose per unit of time.
 
 This measurement quantifies the **physical impact** of radiation but does not directly account for the biological effects, which depend on the type of radiation.
 
 ### Equivalent Dose and Rate
 
-Equivalent dose is a measure that reflects the **biological damage** to human tissue from exposure to ionizing radiation. It takes into account not only the absorbed dose (energy deposited per unit mass) but also the biological effectiveness (W<sup>R</sup>) of the radiation type. It's measured in sieverts (Sv) in the SI system, where 1 sievert equals the amount of radiation that would have the same biological effect as 1 gray of gamma rays or X-rays. In older units, it's measured in rems, where 1 rem equals 0.01 sievert.
+**Equivalent dose** is a measure that reflects the **biological damage** to human tissue from exposure to ionizing radiation. It takes into account not only the absorbed dose (energy deposited per unit mass) but also the biological effectiveness (W<sup>R</sup>) of the radiation type. It's measured in sieverts (Sv) in the SI system, where 1 sievert equals the amount of radiation that would have the same biological effect as 1 gray of gamma rays or X-rays. In older units, it's measured in rems, where 1 rem equals 0.01 sievert.
 
-Equivalent rate is equivalent dose per unit of time.
+**Equivalent rate** is equivalent dose per unit of time.
 
 This measurement allows for a more accurate assessment of radiation risk to biological tissues.
 

@@ -204,6 +204,10 @@ To communicate with Rad Pro through a USB serial port, read the [communications 
 
 **A:** Measuring instantaneous rate presents a trade-off between low noise and fast response. To minimize noise, you can select an averaging option that increases the measurement period. However, this comes at the cost of a slower response.
 
+**Q: I enabled clicks but am not hearing any.**
+
+**A:** If you've enabled pulse thresholding, pulse indication will only occur above a certain radiation level threshold. Check if this feature is activated.
+
 **Q: Why isn’t the rate alarm triggering?**
 
 **A:** To minimize false alarms, the rate alarm triggers only when the confidence interval falls below 75%.
@@ -212,6 +216,6 @@ To communicate with Rad Pro through a USB serial port, read the [communications 
 
 **A:** Background compensation, if enabled, removes counts. Check if this feature is activated.
 
-**Q: I enabled clicks but am not hearing any.**
+**Q: My device is not clicking on every count.**
 
-**A:** If you've enabled pulse thresholding, pulse indication will only occur above a certain radiation level threshold. Check if this feature is activated.
+**A:** When you select a conversion factor above 600 cpm/µSv/h, Rad Pro caps the pulse indication at 600 cpm/µSv/h. 

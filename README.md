@@ -27,9 +27,9 @@ With Rad Pro, you can:
 
 ## Manuals
 
-* [User's manual](docs/manual.md)
-* [Field guide](docs/field-guide.md) - Learn how to use a Geiger counter!
-* [Developers's manual](docs/developers.md)
+* [Rad Pro user's manual](docs/manual.md)
+* [The ionizing radiation gield guide](docs/field-guide.md) - Learn about ionizing radiation!
+* [Rad Pro Developers's manual](docs/developers.md)
 
 ## Acknowledgements
 

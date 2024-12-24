@@ -48,7 +48,7 @@ If the “Energy-saving” does not produce any tube counts, you will need to se
 
 If your device produces spontaneous key presses by itself, select the “Energy-saving” HV profile or use a custom HV profile to fix this problem.
 
-Last, read the [user's manual](../../manual.md) for learning how to use Rad Pro, and the [field guide](../../field-guide.md) for learning more about ionizing radiation.
+Last, read the [user's manual](../../manual.md) for learning how to use Rad Pro, and the [ionizing radiation field guide](../../field-guide.md) for learning more about ionizing radiation.
 
 ## Step 4: Get involved
 

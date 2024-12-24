@@ -43,5 +43,6 @@ bool isPulseThresholdingEnabled(void);
 
 void triggerPulse(void);
 void triggerAlarm(void);
+void triggerPowerOnTest(void);
 
 #endif

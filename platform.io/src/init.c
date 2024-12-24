@@ -51,7 +51,10 @@ static void onPowerOnViewEvent(const View *view, Event event)
         if (powerOnViewState == POWERON_VIEW_FLASHFAILURE)
             playSystemAlert();
         else
+        {
+            triggerPowerOnTest();
             initRTC();
+        }
 
         break;
 
