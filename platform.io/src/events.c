@@ -426,5 +426,5 @@ void triggerPowerOnTest(void)
 {
     syncTimerThread();
 
-    setBuzzerTimer(POWERON_TEST_TICKS, 1);
+    setVibratorTimer(POWERON_TEST_TICKS, 1);
 }
