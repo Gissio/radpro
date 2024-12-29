@@ -427,6 +427,6 @@ void triggerPowerOnTest(void)
 #if defined(VIBRATOR)
     syncTimerThread();
 
-    setVibratorTimer(POWERON_TEST_TICKS, 1);
+    setVibratorTimer(POWERON_TEST_TICKS);
 #endif
 }
