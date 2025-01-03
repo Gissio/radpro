@@ -40,19 +40,19 @@ The board should look like in the photo above. If it does not, you may have a di
 There are different versions of the boards. The following pictures show two of them.
 If there are no labels on the programming pads, the pins are, from left to right:
 
-* +3.3V
-* SWDIO
-* SWCLK
-* GND
+`+3.3V`  
+`SWDIO`  
+`SWCLK`  
+`GND`  
 
 ![Bosean FS-600 connectors](img/gc-01-swd.jpg)
 
 On other board versions there are labels for each pad. In this case, the labels are:
 
-1. SWCLK
-2. SWDIO 
-3. GND
-4. +3.3V
+`1. SWCLK`  
+`2. SWDIO`  
+`3. GND`  
+`4. +3.3V`  
 
 ![Bosean FS-600 connectors](img/gc-01-swd_2.png)
 
@@ -64,10 +64,10 @@ Now, follow these steps:
 
 The following example shows how to connect the ST-LINK V2 device to the board.
 
-Pin 7   - SWDIO
-Pin 9   - SWCLK
-Pin 19  - +3.3V
-Pin 20  - GND
+`Pin 7   -  SWDIO`  
+`Pin 9   -  SWCLK`  
+`Pin 19  -  +3.3V`  
+`Pin 20  -  GND`  
 
 ![Bosean FS-600 connectors](img/gc-01-stlink.png)
 
