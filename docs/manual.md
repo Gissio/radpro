@@ -36,7 +36,7 @@ The [confidence interval](https://en.wikipedia.org/wiki/Confidence_interval) est
 
 An example: Imagine measuring an instantaneous radiation rate of 1.000 µSv/h with a confidence interval of ±40%. This means there's a 95% probability that the true radiation level lies between 0.600 µSv/h and 1.400 µSv/h. In other words, there's a 5% chance the true level falls outside this range. As the confidence interval narrows (becomes smaller), the measurement becomes more precise and certain.
 
-To dismiss a rate alarm, read the device's installation instructions.
+To reset the instantaeous rate and dismiss an rate alarm, read the device's installation instructions.
 
 ### Average rate
 
@@ -48,7 +48,7 @@ The confidence interval assumes a constant level of radiation over the averaging
 
 Averaging can be indefinite, or limited by a configurable time or confidence level. When averaging finishes, the device will flash and emit a beep, signaling the completion of the measurement.
 
-To reset averaging, read the device's installation instructions.
+To reset the average, read the device's installation instructions.
 
 An example: Imagine measuring background radiation. A one-minute average yields 0.210 µSv/h with a ±36% confidence interval. This means there's a 95% chance the true radiation level lies between 0.134 µSv/h and 0.286 µSv/h. Finding this interval too wide, you repeat the measurement with a 30-minute average. The new measurement is 0.154 µSv/h, now with a much narrower ±7.7% confidence interval.
 
@@ -58,7 +58,7 @@ The cumulative dose is calculated from the number of pulses in the time period.
 
 The secondary view can be switched between a time view that displays the length of the time period, and a counts view.
 
-To reset cumulative dose and dismiss a dose alarm, read the device's installation instructions.
+To reset the cumulative dose and dismiss a dose alarm, read the device's installation instructions.
 
 ### History
 
@@ -66,7 +66,7 @@ The history is calculated from the instantaneous rate, sampled once per second. 
 
 The view can be switched between a 10-minute view, a 60-minute view and a 24-hours view.
 
-To reset history, read the device's installation instructions.
+To reset the history, read the device's installation instructions.
 
 ## Conversion factor
 
