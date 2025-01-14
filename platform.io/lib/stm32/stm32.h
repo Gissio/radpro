@@ -1,7 +1,7 @@
 /*
  * CMSIS compatibility header
  *
- * (C) 2022-2024 Gissio
+ * (C) 2022-2025 Gissio
  *
  * License: MIT
  * Based on: https://github.com/dmitrystu/stm32h

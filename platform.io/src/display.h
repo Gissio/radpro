@@ -2,7 +2,7 @@
  * Rad Pro
  * Display
  *
- * (C) 2022-2024 Gissio
+ * (C) 2022-2025 Gissio
  *
  * License: MIT
  */
@@ -73,7 +73,6 @@ void drawTitleBar(const char *title,
 void drawNotification(const char *title,
                       const char *subtitle);
 void drawMenu(const Menu *menu);
-void drawLowBattery(void);
 void drawMeasurementValue(const char *valueString,
                           const char *unitString,
                           float confidence,

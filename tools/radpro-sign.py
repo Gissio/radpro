@@ -106,11 +106,11 @@ def sign_firmware(env_name, container_offset, container_size, flash_size):
 
 
 # Variables
-sign_firmware('fs2011-stm32f051c8', 0x0, 0x9000, 0x10000)
-sign_firmware('fs2011-gd32f150c8', 0x0, 0x9000, 0x10000)
-sign_firmware('fs2011-gd32f103c8', 0x0, 0x9000, 0x10000,)
-sign_firmware('bosean-fs600', 0x0, 0x9000, 0x20000)
-sign_firmware('bosean-fs1000', 0x0, 0x9000, 0x20000)
+sign_firmware('fs2011-stm32f051c8', 0x0, 0x9800, 0x10000)
+sign_firmware('fs2011-gd32f150c8', 0x0, 0x9800, 0x10000)
+sign_firmware('fs2011-gd32f103c8', 0x0, 0x9800, 0x10000,)
+sign_firmware('bosean-fs600', 0x0, 0x9800, 0x20000)
+sign_firmware('bosean-fs1000', 0x0, 0x9800, 0x20000)
 sign_firmware('bosean-fs5000-portrait', 0x0, 0xc000, 0x40000)
 sign_firmware('bosean-fs5000-landscape', 0x0, 0xc000, 0x40000)
 sign_firmware('fnirsi-gc01-ch32f103r8', 0x4000, 0xa000, 0x10000)

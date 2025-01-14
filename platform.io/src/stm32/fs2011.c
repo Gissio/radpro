@@ -2,7 +2,7 @@
  * Rad Pro
  * FS2011 specifics
  *
- * (C) 2022-2024 Gissio
+ * (C) 2022-2025 Gissio
  *
  * License: MIT
  */
@@ -138,6 +138,10 @@ static void onDisplaySetReset(bool value)
                 !value);
 }
 
+static void onDisplaySetChipselect(bool value)
+{
+}
+
 static void onDisplaySetCommand(bool value)
 {
     gpio_modify(DISPLAY_A0_PORT,
@@ -217,6 +221,7 @@ void initDisplayController(void)
                    displayFramebuffer,
                    onDisplaySleep,
                    onDisplaySetReset,
+                   onDisplaySetChipselect,
                    onDisplaySetCommand,
                    onDisplaySend);
 

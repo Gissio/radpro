@@ -65,6 +65,7 @@ extern "C" {
  * @param framebuffer A user-provided framebuffer of size (width * height / 8).
  * @param sleep_callback A user-provided sleep callback.
  * @param set_reset_callback A user-provided set reset callback.
+ * @param set_chipselect_callback A user-provided set chipselect callback.
  * @param set_command_callback A user-provided set command callback.
  * @param send_callback A user-provided send 8-bit data callback.
  */
@@ -75,6 +76,7 @@ void mr_st7565_init(mr_t *mr,
                     uint8_t *framebuffer,
                     mr_sleep_callback_t sleep_callback,
                     mr_set_reset_callback_t set_reset_callback,
+                    mr_set_chipselect_callback_t set_chipselect_callback,
                     mr_set_command_callback_t set_command_callback,
                     mr_send_callback_t send_callback);
 

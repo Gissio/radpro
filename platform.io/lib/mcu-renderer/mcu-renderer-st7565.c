@@ -42,6 +42,7 @@ void mr_st7565_init(mr_t *mr,
                     uint8_t *framebuffer,
                     mr_sleep_callback_t sleep_callback,
                     mr_set_reset_callback_t set_reset_callback,
+                    mr_set_chipselect_callback_t set_chipselect_callback,
                     mr_set_command_callback_t set_command_callback,
                     mr_send_callback_t send_callback)
 {
@@ -55,11 +56,15 @@ void mr_st7565_init(mr_t *mr,
 
     mr->draw_rectangle_callback = mr_draw_rectangle_framebuffer_monochrome_vertical;
     mr->draw_string_callback = mr_draw_string_framebuffer_monochrome_vertical;
+#if defined(MCURENDERER_BITMAP_SUPPORT)
+    mr->draw_bitmap_callback = mr_draw_bitmap_framebuffer_monochrome_vertical;
+#endif
 #if defined(MCURENDERER_IMAGE_SUPPORT)
     mr->draw_image_callback = mr_draw_image_framebuffer_monochrome_vertical;
 #endif
     mr->sleep_callback = sleep_callback;
     mr->set_reset_callback = set_reset_callback;
+    mr->set_chipselect_callback = set_chipselect_callback;
     mr->set_command_callback = set_command_callback;
     mr->send_callback = send_callback;
 

@@ -359,7 +359,7 @@ parser.add_argument('--download-datalog',
                     help='download data log to a .csv file')
 parser.add_argument('--download-datalog-start',
                     dest='datalog_datetime',
-                    help='download only data log entries newer than a certain ISO 8601 date and time (e.g. "2024-01-01" or "2024-01-01T12:00:00")')
+                    help='download only data log entries newer than a certain ISO 8601 date and time (e.g. "2000-01-01" or "2000-01-01T12:00:00")')
 parser.add_argument('--log-pulsedata',
                     dest='datalog_file',
                     help='log pulse data live to a .csv file')

@@ -2,7 +2,7 @@
  * Rad Pro
  * User interface view
  *
- * (C) 2022-2024 Gissio
+ * (C) 2022-2025 Gissio
  *
  * License: MIT
  */
@@ -18,6 +18,7 @@ typedef enum
     EVENT_KEY_DOWN,
     EVENT_KEY_RESET,
     EVENT_KEY_POWER,
+    EVENT_KEY_UNLOCK,
     EVENT_KEY_BACKLIGHT,
 
     EVENT_DRAW,

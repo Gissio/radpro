@@ -2,7 +2,7 @@
  * Rad Pro
  * Battery
  *
- * (C) 2022-2024 Gissio
+ * (C) 2022-2025 Gissio
  *
  * License: MIT
  */
@@ -14,13 +14,6 @@
 #include <stdint.h>
 
 #include "view.h"
-
-typedef enum
-{
-    POWERSTATE_ON,
-    POWERSTATE_OFF_REQUESTED,
-    POWERSTATE_OFF,
-} PowerState;
 
 extern const View batteryTypeMenuView;
 

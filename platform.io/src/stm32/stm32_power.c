@@ -2,7 +2,7 @@
  * Rad Pro
  * STM32 power
  *
- * (C) 2022-2024 Gissio
+ * (C) 2022-2025 Gissio
  *
  * License: MIT
  */
@@ -146,6 +146,9 @@ void setPower(bool value)
 #endif
     );
 #endif
+
+    if (!value)
+        while(true);
 }
 
 bool isDevicePowered(void)

@@ -1,13 +1,23 @@
 # Releases
 
-## 2.0.4 Delicious trifles
+## 2.1 The big update
 
-* On color displays: fixed splash screen.
-* On color displays: fixed unsightly flash when returning from sleep.
-* Dose counts below 10000 are now indicated in standard notation.
-* Fixed an issue where alarms would continue to sound even after the device was turned off while connected to an external power source.
-* Fixed an issue where 60-second instantaneous averaging, when combined with high radiation levels, failed to correctly average over 60 seconds.
-* Improved UI event management.
+* Added the ability to dismiss alarms using the reset measurement key.
+* Introduced an alarm enabled indicator.
+* Added options for higher rate and dose alarms.
+* Extended the duration of alarm sounds.
+* Implemented a lock mode accesible from Settings.
+* Displays of dose counts below 10000 now uses standard notation for clarity.
+* Enhanced the menu structure for improved navigation.
+* Updated the UI font to Open Sans to enhance readability.
+* Minor UI improvements.
+
+* On color displays, fixed an issue causing an unsightly flash when waking from sleep mode.
+* On the FNIRSI GC-01, corrected random pixel issues during the splash screen.
+* On the FNIRSI GC-01, added a battery charging indicator.
+* Fixed alarms continuing to sound after device shutdown while connected to external power.
+* Resolved an issue where the device state wasn't reset after a quick power cycle.
+* Corrected a problem where 60-second instantaneous averaging at high radiation levels didn't average correctly over the full seconds.
 
 ## 2.0.3 The sensitive update
 
@@ -26,6 +36,7 @@
 
 * Added data log reset.
 * Changed the default conversion factor for J613/J614 tubes to 60.0 cpm/µSv/h.
+
 * Resolved issues with custom HV profiles.
 * Resolved issues with the "SET tubeHVFrequency" and "SET tubeHVDutyCycle" data connection requests.
 * Resolved issues with new history data log download.
@@ -63,6 +74,7 @@
 * Improved FNIRSI GC-01 quiet pulse clicks.
 * Improved selected menu item contrast.
 * Improved data logging time precision.
+
 * Fixed History (24 h) bug.
 
 ## 2.0rc3 The "BIG" update

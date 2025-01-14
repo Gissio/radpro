@@ -2,7 +2,7 @@
  * Rad Pro
  * STM32 debugging
  *
- * (C) 2022-2024 Gissio
+ * (C) 2022-2025 Gissio
  *
  * License: MIT
  */
@@ -112,6 +112,7 @@ void onHardFault(uint32_t *args)
     while (true);
 }
 
+#if DEBUG
 void HardFault_Handler(void)
 {
     __asm volatile(
@@ -127,5 +128,6 @@ void HardFault_Handler(void)
         " ldr r2,=onHardFault   \n"
         " bx r2                 \n");
 }
+#endif
 
 #endif

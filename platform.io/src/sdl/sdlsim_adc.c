@@ -2,7 +2,7 @@
  * Rad Pro
  * Simulator ADC
  *
- * (C) 2022-2024 Gissio
+ * (C) 2022-2025 Gissio
  *
  * License: MIT
  */
@@ -23,7 +23,7 @@ void updateADC(void)
 
 float getDeviceBatteryVoltage(void)
 {
-    return 1.296F;
+    return 3.854F;
 }
 
 #endif

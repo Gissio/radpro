@@ -2,7 +2,7 @@
  * Rad Pro
  * Settings
  *
- * (C) 2022-2024 Gissio
+ * (C) 2022-2025 Gissio
  *
  * License: MIT
  */
@@ -74,8 +74,8 @@ void initSettings(void)
 
     if (flashState)
     {
-        setDoseTime(flashState->dose.time);
-        setDosePulseCount(flashState->dose.pulseCount);
+        setCumulativeDoseTime(flashState->dose.time);
+        setCumulativeDosePulseCount(flashState->dose.pulseCount);
         setTubeTime(flashState->tube.time);
         setTubePulseCount(flashState->tube.pulseCount);
         settings = flashState->settings;
@@ -111,8 +111,8 @@ void writeSettings(void)
     getFlashState(&iterator);
 
     FlashState flashState;
-    flashState.dose.time = getDoseTime();
-    flashState.dose.pulseCount = getDosePulseCount();
+    flashState.dose.time = getCumulativeDoseTime();
+    flashState.dose.pulseCount = getCumulativeDosePulseCount();
     flashState.tube.time = getTubeTime();
     flashState.tube.pulseCount = getTubePulseCount();
     flashState.settings = settings;
@@ -125,23 +125,17 @@ void writeSettings(void)
 // Settings menu
 
 static const OptionView settingsMenuOptions[] = {
-    {"Units", &unitsMenuView},
-    {"Averaging", &averagingMenuView},
-    {"Rate alarm", &rateAlarmMenuView},
-    {"Dose alarm", &doseAlarmMenuView},
+    {"Pulses", &pulsesMenuView},
+    {"Alarms", &alarmsMenuView},
+    {"Measurements", &measurementsMenuView},
     {"Geiger tube", &tubeMenuView},
     {"Data log", &datalogMenuView},
-    {"Pulses", &pulsesMenuView},
     {"Display", &displayMenuView},
     {"Date and time", &dateAndTimeMenuView},
 #if defined(BATTERY_REMOVABLE)
     {"Battery type", &batteryTypeMenuView},
 #endif
-#if !defined(DISPLAY_240X320)
     {"Random generator", &rngMenuView},
-#else
-    {"Random gen.", &rngMenuView},
-#endif
 #if defined(GAME)
     {"Game", &gameMenuView},
 #endif
@@ -149,6 +143,7 @@ static const OptionView settingsMenuOptions[] = {
 #if defined(DATA_MODE)
     {"Data mode", &dataModeMenuView},
 #endif
+    {"Lock mode", &lockView},
     {NULL},
 };
 

@@ -2,7 +2,7 @@
  * Rad Pro
  * Tube
  *
- * (C) 2022-2024 Gissio
+ * (C) 2022-2025 Gissio
  *
  * License: MIT
  */
@@ -26,7 +26,6 @@ static const Menu tubeHVCustomProfileMenu;
 static const Menu tubeHVDutyCycleMenu;
 static const Menu tubeHVFrequencyMenu;
 #endif
-static const Menu tubeInstantaneousAveragingMenu;
 
 static const View tubeConversionFactorMenuView;
 static const View tubeDeadTimeCompensationMenuView;
@@ -38,7 +37,6 @@ static const View tubeHVCustomProfileMenuView;
 static const View tubeHVDutyCycleMenuView;
 static const View tubeHVrequencyMenuView;
 #endif
-static const View tubeInstantaneousAveragingMenuView;
 
 #if defined(TUBE_HV_PWM)
 static float getTubeHVCustomProfileFrequency(uint32_t index);
@@ -56,9 +54,6 @@ void initTube(void)
     selectMenuItem(&tubeConversionFactorMenu,
                    settings.tubeConversionFactor,
                    TUBE_CONVERSIONFACTOR_NUM);
-    selectMenuItem(&tubeInstantaneousAveragingMenu,
-                   settings.tubeInstantaneousAveraging,
-                   TUBE_INSTANTANEOUSAVERAGING_NUM);
     selectMenuItem(&tubeDeadTimeCompensationMenu,
                    settings.tubeDeadTimeCompensation,
                    TUBE_DEADTIMECOMPENSATION_NUM);
@@ -94,15 +89,8 @@ void initTube(void)
 
 static const char *const tubeMenuOptions[] = {
     "Conversion factor",
-#if !defined(DISPLAY_240X320)
-    "Instant. averaging",
-    "Dead-time comp.",
-    "Background comp.",
-#else
-    "Inst. averaging",
-    "Dead-time com.",
-    "Background com.",
-#endif
+    "Dead-time compensation",
+    "Background compensation",
 #if defined(TUBE_HV_PWM)
     "HV profile",
 #endif
@@ -111,12 +99,12 @@ static const char *const tubeMenuOptions[] = {
 
 static const View *tubeMenuOptionViews[] = {
     &tubeConversionFactorMenuView,
-    &tubeInstantaneousAveragingMenuView,
     &tubeDeadTimeCompensationMenuView,
     &tubeBackgroundCompensationMenuView,
 #if defined(TUBE_HV_PWM)
     &tubeHVProfileMenuView,
 #endif
+    NULL,
 };
 
 static const char *onTubeMenuGetOption(const Menu *menu,
@@ -238,50 +226,6 @@ static const View tubeConversionFactorMenuView = {
     &tubeConversionFactorMenu,
 };
 
-// Instantaneous averaging menu
-
-static const char *const tubeInstantaneousAveragingMenuOptions[] = {
-    "Adaptive fast",
-    "Adaptive precision",
-    "60 seconds",
-    "30 seconds",
-    "10 seconds",
-    NULL,
-};
-
-static const char *onTubeInstantaneousAveragingMenuGetOption(const Menu *menu,
-                                                             uint32_t index,
-                                                             MenuStyle *menuStyle)
-{
-    *menuStyle = (index == settings.tubeInstantaneousAveraging);
-
-    return tubeInstantaneousAveragingMenuOptions[index];
-}
-
-static void onTubeInstantaneousAveragingMenuSelect(const Menu *menu)
-{
-    settings.tubeInstantaneousAveraging = menu->state->selectedIndex;
-}
-
-static MenuState tubeInstantaneousAveragingMenuState;
-
-static const Menu tubeInstantaneousAveragingMenu = {
-#if !defined(DISPLAY_240X320)
-    "Instantaneous averaging",
-#else
-    "Inst. averaging",
-#endif
-    &tubeInstantaneousAveragingMenuState,
-    onTubeInstantaneousAveragingMenuGetOption,
-    onTubeInstantaneousAveragingMenuSelect,
-    onTubeSubMenuBack,
-};
-
-static const View tubeInstantaneousAveragingMenuView = {
-    onMenuEvent,
-    &tubeInstantaneousAveragingMenu,
-};
-
 // Tube dead-time compensation menu
 
 static float getTubeDeadTimeCompensationFromIndex(uint32_t index)
@@ -323,17 +267,13 @@ static void onTubeDeadTimeCompensationMenuSelect(const Menu *menu)
 {
     settings.tubeDeadTimeCompensation = menu->state->selectedIndex;
 
-    updateCompensations();
+    updateDeadTimeCompensation();
 }
 
 static MenuState tubeDeadTimeCompensationMenuState;
 
 static const Menu tubeDeadTimeCompensationMenu = {
-#if !defined(DISPLAY_240X320)
     "Dead-time compensation",
-#else
-    "Dead-time com.",
-#endif
     &tubeDeadTimeCompensationMenuState,
     onTubeDeadTimeCompensationMenuGetOption,
     onTubeDeadTimeCompensationMenuSelect,
@@ -389,17 +329,13 @@ static void onTubeBackgroundCompensationMenuSelect(const Menu *menu)
 {
     settings.tubeBackgroundCompensation = menu->state->selectedIndex;
 
-    updateCompensations();
+    updateDeadTimeCompensation();
 }
 
 static MenuState tubeBackgroundCompensationMenuState;
 
 static const Menu tubeBackgroundCompensationMenu = {
-#if !defined(DISPLAY_240X320)
     "Background compensation",
-#else
-    "Background com.",
-#endif
     &tubeBackgroundCompensationMenuState,
     onTubeBackgroundCompensationMenuGetOption,
     onTubeBackgroundCompensationMenuSelect,
@@ -423,7 +359,7 @@ static const char *const tubeHVProfileMenuOptions[] = {
 #if defined(TUBE_HVPROFILE_ENERGYSAVING_FREQUENCY)
     "Energy-saving",
 #endif
-    "Custom profile",
+    "Custom",
     NULL,
 };
 
@@ -497,7 +433,7 @@ static void onHVCustomProfileWarningEvent(const View *view, Event event)
 
     case EVENT_DRAW:
         drawNotification("WARNING",
-                         "Wrong values can harm device.");
+                         "Wrong values harm device.");
 
         break;
 
@@ -550,7 +486,7 @@ static void onTubeHVCustomProfileMenuSelect(const Menu *menu)
 static MenuState tubeHVCustomProfileMenuState;
 
 static const Menu tubeHVCustomProfileMenu = {
-    "Custom profile",
+    "Custom",
     &tubeHVCustomProfileMenuState,
     onTubeHVCustomProfileMenuGetOption,
     onTubeHVCustomProfileMenuSelect,
@@ -775,7 +711,7 @@ enum
 #if defined(VIBRATOR)
     PULSES_MENU_OPTIONS_HAPTIC_PULSES,
 #endif
-    PULSES_MENU_OPTIONS_PULSE_THRESHOLDING,
+    PULSES_MENU_OPTIONS_PULSE_THRESHOLD,
 };
 
 static const char *const pulsesMenuOptions[] = {
@@ -787,11 +723,7 @@ static const char *const pulsesMenuOptions[] = {
 #if defined(VIBRATOR)
     "Haptic pulses",
 #endif
-#if !defined(DISPLAY_240X320)
-    "Pulse thresholding",
-#else
-    "Pulse threshold.",
-#endif
+    "Threshold",
     NULL,
 };
 
@@ -832,8 +764,8 @@ static void onPulsesMenuSelect(const Menu *menu)
         break;
 #endif
 
-    case PULSES_MENU_OPTIONS_PULSE_THRESHOLDING:
-        setView(&pulseThresholdingMenuView);
+    case PULSES_MENU_OPTIONS_PULSE_THRESHOLD:
+        setView(&pulseThresholdMenuView);
 
         break;
     }

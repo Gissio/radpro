@@ -2,7 +2,7 @@
  * Rad Pro
  * Real-time clock
  *
- * (C) 2022-2024 Gissio
+ * (C) 2022-2025 Gissio
  *
  * License: MIT
  */
@@ -359,7 +359,7 @@ static const View rtcMinuteMenuView = {
 
 // Time format menu
 
-static const char *const averagingMenuOptions[] = {
+static const char *const rtcTimeFormatMenuOptions[] = {
     "24-hour",
     "12-hour",
     NULL,
@@ -371,7 +371,7 @@ static const char *onRTCTimeFormatMenuGetOption(const Menu *menu,
 {
     *menuStyle = (index == settings.rtcTimeFormat);
 
-    return averagingMenuOptions[index];
+    return rtcTimeFormatMenuOptions[index];
 }
 
 static void onRTCTimeFormatMenuSelect(const Menu *menu)

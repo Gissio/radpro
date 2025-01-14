@@ -2,7 +2,7 @@
  * Rad Pro
  * LED
  *
- * (C) 2022-2024 Gissio
+ * (C) 2022-2025 Gissio
  *
  * License: MIT
  */
@@ -13,6 +13,7 @@
 #include "display.h"
 #include "events.h"
 #include "flash.h"
+#include "game.h"
 #include "init.h"
 #include "keyboard.h"
 #include "measurements.h"
@@ -21,17 +22,17 @@
 #include "system.h"
 #include "tube.h"
 
+// Init state
+
 typedef enum
 {
     POWERON_VIEW_FLASHFAILURE,
     POWERON_VIEW_SPLASH,
 } PowerOnViewState;
 
-// Init state
-
 static PowerOnViewState powerOnViewState;
 
-// Power on view
+// Power-on view
 
 static void onPowerOnViewEvent(const View *view, Event event)
 {
@@ -51,10 +52,7 @@ static void onPowerOnViewEvent(const View *view, Event event)
         if (powerOnViewState == POWERON_VIEW_FLASHFAILURE)
             playSystemAlert();
         else
-        {
-            triggerPowerOnTest();
             initRTC();
-        }
 
         break;
 
@@ -90,6 +88,15 @@ void setPowerOnView(void)
     requestDisplayBacklightTrigger();
     clearKeyboardEvents();
 
+    // Iniitalize modules
+    initMeasurements();
+#if defined(GAME)
+    initGame();
+#endif
+    initDatalog();
+
+    triggerVibrator();
+
     if (!verifyFlash())
         powerOnViewState = POWERON_VIEW_FLASHFAILURE;
     else
@@ -97,7 +104,7 @@ void setPowerOnView(void)
     setView(&powerOnView);
 }
 
-// Power off view
+// Power-off view
 
 static void onPowerOffViewEvent(const View *view, Event event)
 {
@@ -120,8 +127,8 @@ void setPowerOffView(void)
     cancelDisplayBacklight();
 
     // Power off
-    setPower(false);
     setView(&powerOffView);
+    setPower(false);
 }
 
 bool isPowerOffViewActive(void)

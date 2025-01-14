@@ -2,7 +2,7 @@
  * Rad Pro
  * Measurements
  *
- * (C) 2022-2024 Gissio
+ * (C) 2022-2025 Gissio
  *
  * License: MIT
  */
@@ -36,16 +36,14 @@ extern const View averageRateView;
 extern const View cumulativeDoseView;
 extern const View historyView;
 
-extern const View unitsMenuView;
-extern const View averagingMenuView;
-extern const View rateAlarmMenuView;
-extern const View doseAlarmMenuView;
-extern const View pulseThresholdingMenuView;
+extern const View alarmsMenuView;
+extern const View measurementsMenuView;
+extern const View pulseThresholdMenuView;
 
 void initMeasurements(void);
 
 void updateMeasurementUnits(void);
-void updateCompensations(void);
+void updateDeadTimeCompensation(void);
 
 void enableMeasurements(void);
 void disableMeasurements(void);
@@ -58,14 +56,17 @@ void setMeasurementView(int32_t index);
 
 float getInstantaneousRate(void);
 
-void setDoseTime(uint32_t value);
-uint32_t getDoseTime(void);
-void setDosePulseCount(uint32_t value);
-uint32_t getDosePulseCount(void);
+void setCumulativeDoseTime(uint32_t value);
+uint32_t getCumulativeDoseTime(void);
+void setCumulativeDosePulseCount(uint32_t value);
+uint32_t getCumulativeDosePulseCount(void);
 
 void setTubeTime(uint32_t value);
 uint32_t getTubeTime(void);
 void setTubePulseCount(uint32_t value);
 uint32_t getTubePulseCount(void);
+
+bool isAlarmEnabled(void);
+bool isAlarm(void);
 
 #endif

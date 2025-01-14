@@ -2,7 +2,7 @@
  * Rad Pro
  * Data logging
  *
- * (C) 2022-2024 Gissio
+ * (C) 2022-2025 Gissio
  *
  * License: MIT
  */
@@ -504,8 +504,8 @@ static void onDatalogResetAlertEvent(const View *view, Event event)
         break;
 
     case EVENT_DRAW:
-        drawNotification("ALERT",
-                         "Reset data log?");
+        drawNotification("Reset data log?",
+                         "All records will be deleted.");
 
         break;
 

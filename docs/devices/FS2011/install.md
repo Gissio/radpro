@@ -90,12 +90,24 @@ The keys are mapped as follows:
   * Switch measurement mode: the up and down keys.
   * Switch measurement secondary view: the play/pause or power key.
   * Reset measurement: long hold of the play/pause key.
+  * Dismiss alarm: long hold of the play/pause key.
   * Enter settings: the menu/ok key.
   * Go up/down: the up and down keys.
   * Select option: the menu/ok or power key.
   * Go back: the play/pause key.
+  * Leave lock mode: long hold of the power and play/pause key.
 
-On the FS2011, Rad Pro can store up to 27351 data points. At normal radiation levels (20 cpm), this allows for 569 days of data at 60-minute intervals, 94 days at 10-minute intervals, almost 19 days at 1-minute intervals, 3 days at 10-second intervals and 7 hours at 1-second intervals.
+<!-- Calculated as follows:
+
+* With 1-byte differential values: [25 pages * (1 timestamp entry/page [9 bytes] + 1010 differential entries/page [2 byte each])] = 25275 entries
+* With 2-byte differential values: [25 pages * (1 timestamp entry/page [9 bytes] + 505 differential entries/page [2 byte each])] = 12650 entries
+
+* 60-minute and 10-minute intervals require 2-byte differential values.
+* 10-minute intervals and less require 1-byte differential values.
+
+ -->
+
+On the FS2011, Rad Pro can store up to 26312 data points. At normal radiation levels (20 cpm), this allows for 527 days of data at 60-minute intervals, 87 days at 10-minute intervals, 17 days at 1-minute intervals, almost 3 days at 10-second intervals and 7 hours at 1-second intervals.
 
 The FS2011 includes two Zener diodes that limit the maximum voltage to 440 V (nominal).
 

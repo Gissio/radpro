@@ -2,7 +2,7 @@
  * Rad Pro
  * Battery
  *
- * (C) 2022-2024 Gissio
+ * (C) 2022-2025 Gissio
  *
  * License: MIT
  */
@@ -15,21 +15,20 @@
 #include "power.h"
 #include "settings.h"
 
-#define BATTERY_LEVEL_MAX 5
-#define BATTERY_LEVEL_NUM 6
+#define BATTERY_LEVEL_NUM 5
 
 #if defined(BATTERY_REMOVABLE)
-static const float batteryLevelThresholds[2][5] = {
+static const float batteryLevelThresholds[2][BATTERY_LEVEL_NUM - 1] = {
     // Ni-MH
-    {1.188F, 1.231F, 1.257F, 1.274F, 1.307F},
+    {1.198F, 1.243F, 1.268F, 1.297F},
 
     // Alkaline
-    {1.186F, 1.260F, 1.296F, 1.338F, 1.395F},
+    {1.159F, 1.220F, 1.283F, 1.358F},
 };
 #else
-static const float batteryLevelThresholds[] =
+static const float batteryLevelThresholds[BATTERY_LEVEL_NUM - 1] =
     // Li-Ion
-    {3.527F, 3.653F, 3.780F, 3.907F, 4.033F};
+    {3.527F, 3.646F, 3.839F, 3.982F};
 #endif
 
 #if defined(BATTERY_REMOVABLE)
@@ -50,17 +49,17 @@ void initPower()
 int8_t getDeviceBatteryLevel(void)
 {
 #if defined(BATTERY_REMOVABLE)
-    const float *batteryLevelThreshold = batteryLevelThresholds[settings.batteryType];
+    const float *selectedBatteryLevelThresholds = batteryLevelThresholds[settings.batteryType];
 #else
-    const float *batteryLevelThreshold = batteryLevelThresholds;
+    const float *selectedBatteryLevelThresholds = batteryLevelThresholds;
 #endif
 
-    int8_t level = BATTERY_LEVEL_MAX;
     float voltage = getDeviceBatteryVoltage();
+    int8_t level = (BATTERY_LEVEL_NUM - 1);
 
-    for (uint32_t i = 0; i < BATTERY_LEVEL_MAX; i++)
+    for (uint32_t i = 0; i < (BATTERY_LEVEL_NUM - 1); i++)
     {
-        if (voltage < batteryLevelThreshold[i])
+        if (voltage < selectedBatteryLevelThresholds[i])
         {
             level = i;
 
@@ -68,18 +67,10 @@ int8_t getDeviceBatteryLevel(void)
         }
     }
 
-    if (isDevicePowered())
-    {
-#if !defined(FONT_SYMBOLS_LIM)
-        if (isBatteryCharging() &&
-            (level == BATTERY_LEVEL_MAX))
-            level = BATTERY_LEVEL_MAX - 1;
-#else
-        level = BATTERY_LEVEL_MAX;
-#endif
-
+#if !defined(FONT_SYMBOLS_NOCHARGING)
+    if (isDevicePowered() || isBatteryCharging()) 
         level += BATTERY_LEVEL_NUM;
-    }
+#endif
 
     return level;
 }

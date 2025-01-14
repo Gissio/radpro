@@ -2,7 +2,7 @@
  * Rad Pro
  * Simulator display
  *
- * (C) 2022-2024 Gissio
+ * (C) 2022-2025 Gissio
  *
  * License: MIT
  */

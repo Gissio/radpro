@@ -2,7 +2,7 @@
  * Rad Pro
  * Communications
  *
- * (C) 2022-2024 Gissio
+ * (C) 2022-2025 Gissio
  *
  * License: MIT
  */
@@ -241,14 +241,6 @@ void dispatchCommEvents(void)
                 strcatUInt8Hex(comm.buffer, randomData);
             }
         }
-#if defined(START_BOOTLOADER_SUPPORT)
-        else if (matchCommCommand("START bootloader"))
-        {
-            comm.startBootloader = true;
-
-            sendCommOk();
-        }
-#endif
         else
             sendCommError();
 
@@ -294,11 +286,6 @@ void dispatchCommEvents(void)
         }
         else
         {
-#if defined(START_BOOTLOADER_SUPPORT)
-            if (comm.startBootloader)
-                startBootloader();
-#endif
-
             comm.state = COMM_RX;
         }
     }

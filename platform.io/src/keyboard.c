@@ -2,7 +2,7 @@
  * Rad Pro
  * Keyboard
  *
- * (C) 2022-2024 Gissio
+ * (C) 2022-2025 Gissio
  *
  * License: MIT
  */
@@ -13,6 +13,7 @@
 #include "events.h"
 #include "keyboard.h"
 #include "settings.h"
+#include "system.h"
 
 #if defined(KEYBOARD_2KEYS) || defined(KEYBOARD_3KEYS)
 #define KEY_PRESSED_LONG ((uint32_t)(0.25 * SYSTICK_FREQUENCY / KEY_TICKS))
@@ -206,10 +207,18 @@ void onKeyboardTick(void)
             }
             else if (keyboard.pressedTicks == KEY_PRESSED_EXTENDED)
             {
-                if (isKeyDown[KEY_LEFT])
-                    event = EVENT_KEY_RESET;
-                else if (isKeyDown[KEY_RIGHT])
-                    event = EVENT_KEY_POWER;
+                if (isLockMode())
+                {
+                    if (isKeyDown[KEY_LEFT] && isKeyDown[KEY_RIGHT])
+                        event = EVENT_KEY_UNLOCK;
+                }
+                else
+                {
+                    if (isKeyDown[KEY_LEFT])
+                        event = EVENT_KEY_RESET;
+                    else if (isKeyDown[KEY_RIGHT])
+                        event = EVENT_KEY_POWER;
+                }
             }
         }
         else
@@ -223,8 +232,16 @@ void onKeyboardTick(void)
             }
             else if (keyboard.pressedTicks == KEY_PRESSED_EXTENDED)
             {
-                if (isKeyDown[KEY_RIGHT])
-                    event = EVENT_KEY_POWER;
+                if (isLockMode())
+                {
+                    if (isKeyDown[KEY_LEFT] && isKeyDown[KEY_RIGHT])
+                        event = EVENT_KEY_UNLOCK;
+                }
+                else
+                {
+                    if (isKeyDown[KEY_RIGHT])
+                        event = EVENT_KEY_POWER;
+                }
             }
         }
 #elif defined(KEYBOARD_3KEYS)
@@ -237,10 +254,18 @@ void onKeyboardTick(void)
             }
             else if (keyboard.pressedTicks == KEY_PRESSED_EXTENDED)
             {
-                if (isKeyDown[KEY_LEFT])
-                    event = EVENT_KEY_RESET;
-                else if (isKeyDown[KEY_OK])
-                    event = EVENT_KEY_POWER;
+                if (isLockMode())
+                {
+                    if (isKeyDown[KEY_LEFT] && isKeyDown[KEY_OK])
+                        event = EVENT_KEY_UNLOCK;
+                }
+                else
+                {
+                    if (isKeyDown[KEY_LEFT])
+                        event = EVENT_KEY_RESET;
+                    else if (isKeyDown[KEY_OK])
+                        event = EVENT_KEY_POWER;
+                }
             }
         }
         else
@@ -254,8 +279,16 @@ void onKeyboardTick(void)
             }
             else if (keyboard.pressedTicks == KEY_PRESSED_EXTENDED)
             {
-                if (isKeyDown[KEY_OK])
-                    event = EVENT_KEY_POWER;
+                if (isLockMode())
+                {
+                    if (isKeyDown[KEY_LEFT] && isKeyDown[KEY_OK])
+                        event = EVENT_KEY_UNLOCK;
+                }
+                else
+                {
+                    if (isKeyDown[KEY_OK])
+                        event = EVENT_KEY_POWER;
+                }
             }
         }
 #elif defined(KEYBOARD_5KEYS)
@@ -276,18 +309,34 @@ void onKeyboardTick(void)
         {
             if (keyboard.pressedTicks == KEY_PRESSED_LONG)
             {
-                if (keyboard.pressedKey == KEY_LEFT)
-                    event = EVENT_KEY_RESET;
-                else if (keyboard.pressedKey == KEY_OK)
-                    event = EVENT_KEY_POWER;
+                if (isLockMode())
+                {
+                    if (isKeyDown[KEY_LEFT] && isKeyDown[KEY_OK])
+                        event = EVENT_KEY_UNLOCK;
+                }
+                else
+                {
+                    if (keyboard.pressedKey == KEY_LEFT)
+                        event = EVENT_KEY_RESET;
+                    else if (keyboard.pressedKey == KEY_OK)
+                        event = EVENT_KEY_POWER;
+                }
             }
         }
         else
         {
             if (keyboard.pressedTicks == KEY_PRESSED_LONG)
             {
-                if (keyboard.pressedKey == KEY_OK)
-                    event = EVENT_KEY_POWER;
+                if (isLockMode())
+                {
+                    if (isKeyDown[KEY_LEFT] && isKeyDown[KEY_OK])
+                        event = EVENT_KEY_UNLOCK;
+                }
+                else
+                {
+                    if (keyboard.pressedKey == KEY_OK)
+                        event = EVENT_KEY_POWER;
+                }
             }
         }
 #endif

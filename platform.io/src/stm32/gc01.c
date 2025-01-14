@@ -2,7 +2,7 @@
  * Rad Pro
  * FNIRSI GC-01 specifics
  *
- * (C) 2022-2024 Gissio
+ * (C) 2022-2025 Gissio
  *
  * License: MIT
  */
@@ -183,13 +183,7 @@ static const uint8_t displayInitSequence[] = {
     MR_END(),
 };
 
-#if defined(GC01_DISPLAY_SPI)
-static const uint8_t displayIPSInitSequence[] = {
-    MR_SEND_COMMAND(MR_ST7789_INVON), // Inverse for IPS displays
-
-    MR_END(),
-};
-#endif
+#if !defined(GC01_DISPLAY_SPI)
 
 static void onDisplaySleep(uint32_t value)
 {
@@ -203,34 +197,12 @@ static void onDisplaySetReset(bool value)
                 !value);
 }
 
-#if defined(GC01_DISPLAY_SPI)
-
-static void onDisplaySetCommand(bool value)
+static void onDisplaySetChipselect(bool value)
 {
-    if (value)
-    {
-        // Trigger CS before command
-        gpio_set(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN);
-        gpio_clear(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN);
-    }
-
-    gpio_modify(DISPLAY_DCX_PORT,
-                DISPLAY_DCX_PIN,
+    gpio_modify(DISPLAY_CSX_PORT,
+                DISPLAY_CSX_PIN,
                 !value);
 }
-
-static void onDisplaySend(uint16_t value)
-{
-    spi_send(SPI1, value);
-}
-
-static void onDisplaySend16(uint16_t value)
-{
-    spi_send(SPI1, (value >> 8) & 0xff);
-    spi_send(SPI1, (value >> 0) & 0xff);
-}
-
-#else
 
 static void onDisplaySetCommand(bool value)
 {
@@ -246,44 +218,8 @@ static void onDisplaySend(uint16_t value)
     DISPLAY_WRX_PORT->BSRR = get_bitvalue(DISPLAY_WRX_PIN);
 }
 
-#endif
-
 void initDisplayController(void)
 {
-#if defined(GC01_DISPLAY_SPI)
-    // GPIO
-    gpio_set(DISPLAY_RESX_PORT,
-             DISPLAY_RESX_PIN);
-    gpio_set(DISPLAY_CSX_PORT,
-             DISPLAY_CSX_PIN);
-
-    gpio_setup(DISPLAY_RESX_PORT,
-               DISPLAY_RESX_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_CSX_PORT,
-               DISPLAY_CSX_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_DCX_PORT,
-               DISPLAY_DCX_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_SCL_PORT,
-               DISPLAY_SCL_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL);
-    gpio_setup(DISPLAY_SDA_PORT,
-               DISPLAY_SDA_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL);
-
-    set_bits(RCC->APB2ENR, RCC_APB2ENR_SPI1EN);
-
-    // SPI
-    SPI1->CR1 = SPI_CR1_CPHA |
-                SPI_CR1_CPOL |
-                SPI_CR1_MSTR |
-                SPI_CR1_SSI |
-                SPI_CR1_SSM;
-    set_bits(SPI1->CR1,
-             SPI_CR1_SPE);
-#else
     // GPIO
     gpio_set(DISPLAY_RESX_PORT,
              DISPLAY_RESX_PIN);
@@ -291,6 +227,8 @@ void initDisplayController(void)
              DISPLAY_RDX_PIN);
     gpio_set(DISPLAY_WRX_PORT,
              DISPLAY_WRX_PIN);
+    gpio_set(DISPLAY_CSX_PORT,
+             DISPLAY_CSX_PIN);
 
     gpio_setup(DISPLAY_RESX_PORT,
                DISPLAY_RESX_PIN,
@@ -326,10 +264,8 @@ void initDisplayController(void)
         (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 20) |
         (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 24) |
         (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 28);
-#endif
 
     // mcu-renderer
-#if defined(GC01_DISPLAY_SPI)
     mr_st7789_init(&mr,
                    240,
                    320,
@@ -338,30 +274,13 @@ void initDisplayController(void)
                    sizeof(displayTextbuffer),
                    onDisplaySleep,
                    onDisplaySetReset,
-                   onDisplaySetCommand,
-                   onDisplaySend,
-                   onDisplaySend16);
-#else
-    mr_st7789_init(&mr,
-                   240,
-                   320,
-                   MR_DISPLAY_ROTATION_270,
-                   displayTextbuffer,
-                   sizeof(displayTextbuffer),
-                   onDisplaySleep,
-                   onDisplaySetReset,
+                   onDisplaySetChipselect,
                    onDisplaySetCommand,
                    onDisplaySend,
                    onDisplaySend);
-#endif
 
     mr_send_sequence(&mr,
                      displayInitSequence);
-
-#if defined(GC01_DISPLAY_SPI)
-    mr_send_sequence(&mr,
-                     displayIPSInitSequence);
-#endif
 }
 
 void enableDisplay(bool value)
@@ -380,5 +299,125 @@ bool isDisplayEnabled(void)
 void refreshDisplay(void)
 {
 }
+
+#else
+
+static const uint8_t displayIPSInitSequence[] = {
+    MR_SEND_COMMAND(MR_ST7789_INVON), // Inverse for IPS displays
+
+    MR_END(),
+};
+
+static void onDisplaySleep(uint32_t value)
+{
+    sleep(value);
+}
+
+static void onDisplaySetReset(bool value)
+{
+    gpio_modify(DISPLAY_RESX_PORT,
+                DISPLAY_RESX_PIN,
+                !value);
+}
+
+static void onDisplaySetChipselect(bool value)
+{
+    gpio_modify(DISPLAY_CSX_PORT,
+                DISPLAY_CSX_PIN,
+                !value);
+}
+
+static void onDisplaySetCommand(bool value)
+{
+    gpio_modify(DISPLAY_DCX_PORT,
+                DISPLAY_DCX_PIN,
+                !value);
+}
+
+static void onDisplaySend(uint16_t value)
+{
+    spi_send(SPI1, value);
+}
+
+static void onDisplaySend16(uint16_t value)
+{
+    spi_send(SPI1, (value >> 8) & 0xff);
+    spi_send(SPI1, (value >> 0) & 0xff);
+}
+
+void initDisplayController(void)
+{
+    // GPIO
+    gpio_set(DISPLAY_RESX_PORT,
+             DISPLAY_RESX_PIN);
+    gpio_set(DISPLAY_CSX_PORT,
+             DISPLAY_CSX_PIN);
+
+    gpio_setup(DISPLAY_RESX_PORT,
+               DISPLAY_RESX_PIN,
+               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+    gpio_setup(DISPLAY_CSX_PORT,
+               DISPLAY_CSX_PIN,
+               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+    gpio_setup(DISPLAY_DCX_PORT,
+               DISPLAY_DCX_PIN,
+               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+    gpio_setup(DISPLAY_SCL_PORT,
+               DISPLAY_SCL_PIN,
+               GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL);
+    gpio_setup(DISPLAY_SDA_PORT,
+               DISPLAY_SDA_PIN,
+               GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL);
+
+    set_bits(RCC->APB2ENR, RCC_APB2ENR_SPI1EN);
+
+    // SPI
+    SPI1->CR1 = SPI_CR1_CPHA |
+                SPI_CR1_CPOL |
+                SPI_CR1_MSTR |
+                SPI_CR1_SSI |
+                SPI_CR1_SSM;
+    set_bits(SPI1->CR1,
+             SPI_CR1_SPE);
+
+    // mcu-renderer
+    mr_st7789_init(&mr,
+                   240,
+                   320,
+                   MR_DISPLAY_ROTATION_270,
+                   displayTextbuffer,
+                   sizeof(displayTextbuffer),
+                   onDisplaySleep,
+                   onDisplaySetReset,
+                   onDisplaySetChipselect,
+                   onDisplaySetCommand,
+                   onDisplaySend,
+                   onDisplaySend16);
+
+    mr_send_sequence(&mr,
+                     displayInitSequence);
+
+    mr_send_sequence(&mr,
+                     displayIPSInitSequence);
+}
+
+void enableDisplay(bool value)
+{
+    mr_st7789_set_display(&mr, value);
+    mr_st7789_set_sleep(&mr, !value);
+
+    displayEnabled = value;
+}
+
+bool isDisplayEnabled(void)
+{
+    return displayEnabled;
+}
+
+void refreshDisplay(void)
+{
+}
+
+#endif
 
 #endif

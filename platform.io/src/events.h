@@ -2,7 +2,7 @@
  * Rad Pro
  * Events
  *
- * (C) 2022-2024 Gissio
+ * (C) 2022-2025 Gissio
  *
  * License: MIT
  */
@@ -38,11 +38,11 @@ void triggerDisplayBacklight(void);
 void cancelDisplayBacklight(void);
 bool isDisplayBacklightActive(void);
 
-void enablePulseThresholding(bool value);
-bool isPulseThresholdingEnabled(void);
+void enablePulseThreshold(bool value);
+bool isPulseThresholdEnabled(void);
 
 void triggerPulse(void);
 void triggerAlarm(void);
-void triggerPowerOnTest(void);
+void triggerVibrator(void);
 
 #endif

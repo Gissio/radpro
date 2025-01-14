@@ -2,7 +2,7 @@
  * Rad Pro
  * Settings
  *
- * (C) 2022-2024 Gissio
+ * (C) 2022-2025 Gissio
  *
  * License: MIT
  */
@@ -59,6 +59,12 @@ enum
     RATEALARM_20,
     RATEALARM_50,
     RATEALARM_100,
+    RATEALARM_200,
+    RATEALARM_500,
+    RATEALARM_1000,
+    RATEALARM_2000,
+    RATEALARM_5000,
+    RATEALARM_10000,
 
     RATEALARM_NUM,
 };
@@ -74,6 +80,12 @@ enum
     DOSEALARM_100,
     DOSEALARM_200,
     DOSEALARM_500,
+    DOSEALARM_1000,
+    DOSEALARM_2000,
+    DOSEALARM_5000,
+    DOSEALARM_10000,
+    DOSEALARM_20000,
+    DOSEALARM_50000,
 
     DOSEALARM_NUM,
 };
@@ -357,7 +369,7 @@ typedef struct
     unsigned int datalogInterval : 3;
 
     unsigned int tubeConversionFactor : 8;
-    unsigned int tubeInstantaneousAveraging : 3;
+    unsigned int instantaneousAveraging : 3;
     unsigned int tubeDeadTimeCompensation : 6;
     unsigned int tubeBackgroundCompensation : 4;
 #if defined(TUBE_HV_PWM)
@@ -374,7 +386,7 @@ typedef struct
 #if defined(VIBRATOR)
     unsigned int pulseVibrations : 2;
 #endif
-    unsigned int pulseThresholding : 4;
+    unsigned int pulseThreshold : 4;
 
 #if defined(DISPLAY_MONOCHROME)
     unsigned int displayContrast : 3;

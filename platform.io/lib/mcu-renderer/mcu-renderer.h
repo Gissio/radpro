@@ -19,6 +19,10 @@ extern "C" {
 
 // Switches (defined as compiler define parameters)
 
+#if !defined(MCURENDERER_WITHOUT_BITMAP_SUPPORT)
+#define MCURENDERER_BITMAP_SUPPORT
+#endif
+
 #if !defined(MCURENDERER_WITHOUT_IMAGE_SUPPORT)
 #define MCURENDERER_IMAGE_SUPPORT
 #endif
@@ -118,6 +122,13 @@ void mr_draw_string_textbuffer(mr_t *mr,
                                const mr_point_t *offset,
                                mr_get_charcode_callback_t get_charcode_callback);
 
+void mr_draw_bitmap_framebuffer_monochrome_vertical(mr_t *mr,
+                                                   const mr_rectangle_t *rectangle,
+                                                   const uint8_t *bitmap);
+void mr_draw_bitmap_framebuffer_color(mr_t *mr,
+                                      const mr_rectangle_t *rectangle,
+                                      const uint8_t *bitmap);
+
 void mr_draw_image_framebuffer_monochrome_vertical(mr_t *mr,
                                                    const mr_rectangle_t *rectangle,
                                                    const mr_color_t *image);
@@ -129,6 +140,7 @@ void mr_draw_image_framebuffer_color(mr_t *mr,
 
 typedef void (*mr_sleep_callback_t)(uint32_t value);
 typedef void (*mr_set_reset_callback_t)(bool value);
+typedef void (*mr_set_chipselect_callback_t)(bool value);
 typedef void (*mr_set_command_callback_t)(bool value);
 typedef void (*mr_send_callback_t)(uint16_t value);
 
@@ -160,6 +172,9 @@ void mr_send_sequence(mr_t *mr,
 
 typedef void (*mr_draw_rectangle_callback_t)(mr_t *mr,
                                              const mr_rectangle_t *rectangle);
+typedef void (*mr_draw_bitmap_callback_t)(mr_t *mr,
+                                          const mr_rectangle_t *rectangle,
+                                          const uint8_t *bitmap);
 typedef void (*mr_draw_image_callback_t)(mr_t *mr,
                                          const mr_rectangle_t *rectangle,
                                          const mr_color_t *image);
@@ -178,6 +193,9 @@ typedef void (*mr_draw_textbuffer_callback_t)(mr_t *mr,
 struct mr_t_
 {
     mr_draw_rectangle_callback_t draw_rectangle_callback;
+#if defined(MCURENDERER_BITMAP_SUPPORT)
+    mr_draw_bitmap_callback_t draw_bitmap_callback;
+#endif
 #if defined(MCURENDERER_IMAGE_SUPPORT)
     mr_draw_image_callback_t draw_image_callback;
 #endif
@@ -186,6 +204,7 @@ struct mr_t_
     mr_draw_textbuffer_callback_t draw_textbuffer_callback;
     mr_sleep_callback_t sleep_callback;
     mr_set_reset_callback_t set_reset_callback;
+    mr_set_chipselect_callback_t set_chipselect_callback;
     mr_set_command_callback_t set_command_callback;
     mr_send_callback_t send_callback;
     mr_send_callback_t send16_callback;
@@ -199,12 +218,14 @@ struct mr_t_
     uint32_t buffer_size;
     uint32_t buffer_pitch;
 
+    mr_color_t stroke_color;
     mr_color_t fill_color;
 
-    mr_color_t text_color;
     mr_color_t blend_table[COLOR_BLEND_TABLE_SIZE];
     const uint8_t *font;
     mr_glyph_t glyph;
+
+    bool chipselect;
 };
 
 void mr_init(mr_t *mr);
@@ -227,7 +248,16 @@ inline void mr_send16(mr_t *mr, uint16_t value)
 // API functions
 
 /**
- * Sets the fill color.
+ * Sets the stroke/text color.
+ *
+ * @param mr The mcu-renderer instance.
+ * @param font The text color.
+ */
+void mr_set_stroke_color(mr_t *mr,
+                         mr_color_t color);
+
+/**
+ * Sets the fill/background color.
  *
  * @param mr The mcu-renderer instance.
  * @param color The fill color.
@@ -236,7 +266,7 @@ void mr_set_fill_color(mr_t *mr,
                        mr_color_t color);
 
 /**
- * Draws a filled rectangle.
+ * Draws a filled rectangle with the fill color.
  *
  * @param mr The mcu-renderer instance.
  * @param rectangle The rectangle.
@@ -244,8 +274,22 @@ void mr_set_fill_color(mr_t *mr,
 void mr_draw_rectangle(mr_t *mr,
                        const mr_rectangle_t *rectangle);
 
+#if defined(MCURENDERER_BITMAP_SUPPORT)
 /**
- * Draws an image.
+ * Draws a monochrome bitmap using the stroke and fill colors.
+ *
+ * @param mr The mcu-renderer instance.
+ * @param rectangle The rectangle.
+ * @param bitmap The bitmap data.
+ */
+void mr_draw_bitmap(mr_t *mr,
+                    const mr_rectangle_t *rectangle,
+                    const uint8_t *bitmap);
+#endif
+
+#if defined(MCURENDERER_IMAGE_SUPPORT)
+/**
+ * Draws a color RGB565 image.
  *
  * @param mr The mcu-renderer instance.
  * @param rectangle The rectangle.
@@ -254,6 +298,7 @@ void mr_draw_rectangle(mr_t *mr,
 void mr_draw_image(mr_t *mr,
                    const mr_rectangle_t *rectangle,
                    const mr_color_t *image);
+#endif
 
 /**
  * Sets the font.
@@ -263,15 +308,6 @@ void mr_draw_image(mr_t *mr,
  */
 void mr_set_font(mr_t *mr,
                  const uint8_t *font);
-
-/**
- * Sets the text color.
- *
- * @param mr The mcu-renderer instance.
- * @param font The text color.
- */
-void mr_set_text_color(mr_t *mr,
-                       mr_color_t color);
 
 /**
  * Draws a C-string.

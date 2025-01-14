@@ -2,7 +2,7 @@
  * Rad Pro
  * Bosean FS-5000 specifics
  *
- * (C) 2022-2024 Gissio
+ * (C) 2022-2025 Gissio
  *
  * License: MIT
  */
@@ -177,6 +177,10 @@ static void onDisplaySetReset(bool value)
                 !value);
 }
 
+static void onDisplaySetChipselect(bool value)
+{
+}
+
 static void onDisplaySetCommand(bool value)
 {
     gpio_modify(DISPLAY_DCX_PORT,
@@ -272,6 +276,7 @@ void initDisplayController(void)
                    sizeof(displayTextbuffer),
                    onDisplaySleep,
                    onDisplaySetReset,
+                   onDisplaySetChipselect,
                    onDisplaySetCommand,
                    onDisplaySend,
                    onDisplaySend16);

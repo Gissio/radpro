@@ -2,7 +2,7 @@
  * Rad Pro
  * Events
  *
- * (C) 2022-2024 Gissio
+ * (C) 2022-2025 Gissio
  *
  * License: MIT
  */
@@ -36,8 +36,7 @@
 #define PULSE_VIBRATION_WEAK_TICKS ((uint32_t)(0.050 * SYSTICK_FREQUENCY))
 #define PULSE_VIBRATION_STRONG_TICKS ((uint32_t)(0.100 * SYSTICK_FREQUENCY))
 
-#define ALARM_TICKS ((uint32_t)(0.100 * SYSTICK_FREQUENCY))
-#define ALARM_FLASH_TICKS ((uint32_t)(0.200 * SYSTICK_FREQUENCY))
+#define ALARM_TICKS ((uint32_t)(0.200 * SYSTICK_FREQUENCY))
 
 #define POWERON_TEST_TICKS ((uint32_t)(0.100 * SYSTICK_FREQUENCY))
 
@@ -52,7 +51,7 @@ volatile uint32_t eventsCurrentTick;
 
 static struct
 {
-    bool pulseThresholding;
+    bool pulseThreshold;
 
     bool lastPulseTimeCountInitialized;
     uint32_t lastPulseTimeCount;
@@ -340,8 +339,8 @@ void requestDisplayBacklightTrigger(void)
 static void requestDisplayBacklightAlarm(void)
 {
     if ((events.requestedDisplayBacklightTimer >= 0) &&
-        events.requestedDisplayBacklightTimer < ALARM_FLASH_TICKS)
-        events.requestedDisplayBacklightTimer = ALARM_FLASH_TICKS;
+        events.requestedDisplayBacklightTimer < ALARM_TICKS)
+        events.requestedDisplayBacklightTimer = ALARM_TICKS;
 }
 
 bool isDisplayBacklightTriggerRequested(void)
@@ -370,19 +369,19 @@ bool isDisplayBacklightActive(void)
     return events.displayBacklightTimer != 0;
 }
 
-void enablePulseThresholding(bool value)
+void enablePulseThreshold(bool value)
 {
-    events.pulseThresholding = value;
+    events.pulseThreshold = value;
 }
 
-bool isPulseThresholdingEnabled(void)
+bool isPulseThresholdEnabled(void)
 {
-    return events.pulseThresholding;
+    return events.pulseThreshold;
 }
 
 void triggerPulse(void)
 {
-    if (!events.pulseThresholding)
+    if (!events.pulseThreshold)
     {
         if (settings.pulseClicks)
             setBuzzerTimer(pulseClickTicks[settings.pulseClicks] + 1,
@@ -422,7 +421,7 @@ void triggerAlarm(void)
 #endif
 }
 
-void triggerPowerOnTest(void)
+void triggerVibrator(void)
 {
 #if defined(VIBRATOR)
     syncTimerThread();

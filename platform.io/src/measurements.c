@@ -2,7 +2,7 @@
  * Rad Pro
  * Measurements
  *
- * (C) 2022-2024 Gissio
+ * (C) 2022-2025 Gissio
  *
  * License: MIT
  */
@@ -103,6 +103,42 @@ static const History histories[] = {
 
 #define HISTORY_NUM (sizeof(histories) / sizeof(History))
 
+static const float rateAlarmsSvH[] = {
+    0,
+    0.5E-6F,
+    1E-6F,
+    2E-6F,
+    5E-6F,
+    10E-6F,
+    20E-6F,
+    50E-6F,
+    100E-6F,
+    200E-6F,
+    500E-6F,
+    1E-3F,
+    2E-3F,
+    5E-3F,
+    10E-3F,
+};
+
+static const float doseAlarmsSv[] = {
+    0,
+    2E-6F,
+    5E-6F,
+    10E-6F,
+    20E-6F,
+    50E-6F,
+    100E-6F,
+    200E-6F,
+    500E-6F,
+    1E-3F,
+    2E-3F,
+    5E-3F,
+    10E-3F,
+    20E-3F,
+    50E-3F,
+};
+
 static struct
 {
     struct
@@ -120,7 +156,8 @@ static struct
         float deadTimeCompensationRemainder;
 
         uint32_t faultTimer;
-        bool faultShortedTube;
+        bool faultAlarm;
+        bool lastShortCircuit;
     } period;
 
     struct
@@ -134,6 +171,8 @@ static struct
 
         Rate rate;
         float maxValue;
+        bool lastAlarm;
+        bool alarm;
     } instantaneous;
 
     uint32_t instantaneousTabIndex;
@@ -154,9 +193,11 @@ static struct
     struct
     {
         Dose dose;
-    } cumulative;
+        bool lastAlarm;
+        bool alarm;
+    } cumulativeDose;
 
-    uint32_t cumulativeTabIndex;
+    uint32_t cumulativeDoseTabIndex;
 
     struct
     {
@@ -187,16 +228,22 @@ static const float averagingConfidences[] = {
     0.0505F, // ±5% confidence
 };
 
-static const Menu unitsMenu;
+static const View rateAlarmMenuView;
+static const View doseAlarmMenuView;
+static const View unitsMenuView;
+static const View instantaneousMenuView;
+static const View averageMenuView;
+
 static const Menu rateAlarmMenu;
 static const Menu doseAlarmMenu;
-static const Menu averagingMenu;
+static const Menu unitsMenu;
+static const Menu instantaneousMenu;
+static const Menu averageMenu;
 
-static void updatePulseThresholding(void);
-
-static bool isTubeFaultAlarm(void);
-static bool isInstantaneousRateAlarm(void);
-static bool isDoseAlarm(void);
+static void resetInstantaneousRate(void);
+static void resetAverageRate(void);
+static void resetCumulativeDose(void);
+static void resetHistory(void);
 
 // Measurements
 
@@ -211,23 +258,34 @@ const View *const measurementViews[] = {
 
 void initMeasurements(void)
 {
-    selectMenuItem(&unitsMenu,
-                   settings.units,
-                   UNITS_NUM);
-    selectMenuItem(&averagingMenu,
-                   settings.averaging,
-                   AVERAGING_NUM);
     selectMenuItem(&rateAlarmMenu,
                    settings.rateAlarm,
                    RATEALARM_NUM);
     selectMenuItem(&doseAlarmMenu,
                    settings.doseAlarm,
                    DOSEALARM_NUM);
+    selectMenuItem(&unitsMenu,
+                   settings.units,
+                   UNITS_NUM);
+    selectMenuItem(&instantaneousMenu,
+                   settings.instantaneousAveraging,
+                   TUBE_INSTANTANEOUSAVERAGING_NUM);
+    selectMenuItem(&averageMenu,
+                   settings.averaging,
+                   AVERAGING_NUM);
 
-    updateMeasurementUnits();
+    memset(&measurements.period, 0, sizeof(measurements.period));
+    resetInstantaneousRate();
+    measurements.instantaneousTabIndex = 0;
+    resetAverageRate();
+    measurements.averageTabIndex = 0;
+    resetCumulativeDose();
+    measurements.cumulativeDoseTabIndex = 0;
+
+    resetHistory();
 }
 
-// Events
+// Measurement events
 
 const char countsString[] = "counts";
 
@@ -265,7 +323,7 @@ void updateMeasurementUnits(void)
             conversionFactor;
 }
 
-void updateCompensations(void)
+void updateDeadTimeCompensation(void)
 {
     if (measurements.period.deadTimeCompensationRemainder < 0)
         measurements.period.deadTimeCompensationRemainder = 0;
@@ -400,13 +458,13 @@ void updateMeasurements(void)
     else
         measurements.period.faultTimer++;
 
-    bool isShortedTube =
-        (!measurements.period.snapshotMeasurement.pulseCount &&
-         getTubeDet());
-    if (measurements.period.faultShortedTube &&
-        isShortedTube)
+    bool isTubeShortCircuit =
+        (!measurements.period.snapshotMeasurement.pulseCount && getTubeDet());
+    if (measurements.period.lastShortCircuit && isTubeShortCircuit)
         measurements.period.faultTimer = TUBE_FAULT_TIMEOUT;
-    measurements.period.faultShortedTube = isShortedTube;
+    measurements.period.lastShortCircuit = isTubeShortCircuit;
+
+    measurements.period.faultAlarm = (measurements.period.faultTimer >= TUBE_FAULT_TIMEOUT);
 
     // Compensations
     Measurement compensatedMeasurement;
@@ -463,9 +521,9 @@ void updateMeasurements(void)
     measurements.instantaneous.rate.time = 0;
 
     uint32_t averagingPeriod =
-        instantaneousAveragingPeriods[settings.tubeInstantaneousAveraging];
+        instantaneousAveragingPeriods[settings.instantaneousAveraging];
     uint32_t averagingPulseCount =
-        (settings.tubeInstantaneousAveraging <=
+        (settings.instantaneousAveraging <=
          TUBE_INSTANTANEOUSAVERAGING_ADAPTIVEPRECISION)
             ? INSTANTANEOUS_RATE_AVERAGING_PULSE_COUNT
             : 0;
@@ -518,7 +576,21 @@ void updateMeasurements(void)
         measurements.instantaneous.maxValue =
             measurements.instantaneous.rate.value;
 
-    updatePulseThresholding();
+    float svH = units[UNITS_SIEVERTS].rate.scale *
+                measurements.instantaneous.rate.value;
+
+    enablePulseThreshold(svH < rateAlarmsSvH[settings.pulseThreshold]);
+
+    bool instantaneousRateAlarm = false;
+    // Trigger alarm if alarm enabled and confidence interval is below 75%
+    if (settings.rateAlarm && (measurements.instantaneous.rate.confidence < 0.75))
+        instantaneousRateAlarm = (svH >= rateAlarmsSvH[settings.rateAlarm]);
+
+    if (measurements.instantaneous.lastAlarm != instantaneousRateAlarm)
+    {
+        measurements.instantaneous.lastAlarm = instantaneousRateAlarm;
+        measurements.instantaneous.alarm = instantaneousRateAlarm;
+    }
 
     // Average rate
     if ((measurements.average.rate.time < UINT32_MAX) &&
@@ -570,12 +642,26 @@ void updateMeasurements(void)
     }
 
     // Cumulative dose
-    if ((measurements.cumulative.dose.time < UINT32_MAX) &&
-        (measurements.cumulative.dose.pulseCount < UINT32_MAX))
+    if ((measurements.cumulativeDose.dose.time < UINT32_MAX) &&
+        (measurements.cumulativeDose.dose.pulseCount < UINT32_MAX))
     {
-        addClamped(&measurements.cumulative.dose.time, 1);
-        addClamped(&measurements.cumulative.dose.pulseCount,
+        addClamped(&measurements.cumulativeDose.dose.time, 1);
+        addClamped(&measurements.cumulativeDose.dose.pulseCount,
                    compensatedMeasurement.pulseCount);
+    }
+
+    float cumulativeDoseAlarm = false;
+    if (settings.doseAlarm)
+    {
+        float doseSv = units[UNITS_SIEVERTS].dose.scale *
+                       measurements.cumulativeDose.dose.pulseCount;
+        cumulativeDoseAlarm = (doseSv >= doseAlarmsSv[settings.doseAlarm]);
+    }
+
+    if (measurements.cumulativeDose.lastAlarm != cumulativeDoseAlarm)
+    {
+        measurements.cumulativeDose.lastAlarm = cumulativeDoseAlarm;
+        measurements.cumulativeDose.alarm = cumulativeDoseAlarm;
     }
 
     // History
@@ -609,13 +695,11 @@ void updateMeasurements(void)
     }
 
     // Alarms
-    if (isInstantaneousRateAlarm() ||
-        isDoseAlarm() ||
-        isTubeFaultAlarm())
+    if (isAlarm())
         triggerAlarm();
 }
 
-// View
+// Measurement views common
 
 static void buildValueString(char *valueString,
                              char *unitString,
@@ -661,9 +745,12 @@ static void onMeasurementEvent(const View *view, Event event)
     switch (event)
     {
     case EVENT_KEY_SELECT:
-        setKeyboardMode(KEYBOARD_MODE_MENU);
+        if (!isLockMode())
+        {
+            setKeyboardMode(KEYBOARD_MODE_MENU);
 
-        setView(&settingsMenuView);
+            setView(&settingsMenuView);
+        }
 
         break;
 
@@ -692,26 +779,6 @@ static void onMeasurementEvent(const View *view, Event event)
 
 // Instantaneous
 
-static const float rateAlarmsSvH[] = {
-    0,
-    0.5E-6F,
-    1E-6F,
-    2E-6F,
-    5E-6F,
-    10E-6F,
-    20E-6F,
-    50E-6F,
-    100E-6F,
-};
-
-static void updatePulseThresholding(void)
-{
-    float svH = units[UNITS_SIEVERTS].rate.scale *
-                measurements.instantaneous.rate.value;
-
-    enablePulseThresholding(svH < rateAlarmsSvH[settings.pulseThresholding]);
-}
-
 static void resetInstantaneousRate(void)
 {
     memset(&measurements.instantaneous,
@@ -724,25 +791,6 @@ static void resetInstantaneousRate(void)
 float getInstantaneousRate(void)
 {
     return measurements.instantaneous.rate.value;
-}
-
-static bool isTubeFaultAlarm(void)
-{
-    return (measurements.period.faultTimer >= TUBE_FAULT_TIMEOUT);
-}
-
-static bool isInstantaneousRateAlarm(void)
-{
-    if (!settings.rateAlarm)
-        return false;
-
-    // Disable alarm if confidence is above 75%
-    if (measurements.instantaneous.rate.confidence >= 0.75)
-        return false;
-
-    float svH = units[UNITS_SIEVERTS].rate.scale *
-                measurements.instantaneous.rate.value;
-    return svH >= rateAlarmsSvH[settings.rateAlarm];
 }
 
 static void onInstantaneousRateViewEvent(const View *view,
@@ -763,9 +811,15 @@ static void onInstantaneousRateViewEvent(const View *view,
         break;
 
     case EVENT_KEY_RESET:
-        resetInstantaneousRate();
+        if (!isLockMode())
+        {
+            if (measurements.instantaneous.alarm)
+                measurements.instantaneous.alarm = false;
+            else
+                resetInstantaneousRate();
 
-        updateView();
+            updateView();
+        }
 
         break;
 
@@ -786,17 +840,17 @@ static void onInstantaneousRateViewEvent(const View *view,
                          &units[settings.units].rate,
                          unitsMinMetricPrefixIndex[settings.units]);
 
-        if (isInstantaneousRateAlarm())
-        {
-            stateString = "ALARM";
-
-            style = MEASUREMENTSTYLE_ALARM;
-        }
-        else if (isTubeFaultAlarm())
+        if (measurements.period.faultAlarm)
         {
             stateString = "FAULT";
 
             style = MEASUREMENTSTYLE_NORMAL;
+        }
+        else if (measurements.instantaneous.alarm)
+        {
+            stateString = "ALARM";
+
+            style = MEASUREMENTSTYLE_ALARM;
         }
         else
         {
@@ -920,9 +974,12 @@ static void onAverageRateViewEvent(const View *view,
         break;
 
     case EVENT_KEY_RESET:
-        resetAverageRate();
+        if (!isLockMode())
+        {
+            resetAverageRate();
 
-        updateView();
+            updateView();
+        }
 
         break;
 
@@ -943,11 +1000,11 @@ static void onAverageRateViewEvent(const View *view,
                          &units[settings.units].rate,
                          unitsMinMetricPrefixIndex[settings.units]);
 
-        if (measurements.average.timerExpired)
+        if (measurements.period.faultAlarm)
         {
-            stateString = "DONE";
+            stateString = "FAULT";
 
-            style = MEASUREMENTSTYLE_HOLD;
+            style = MEASUREMENTSTYLE_NORMAL;
         }
         else if (measurements.average.pulseCount == UINT32_MAX)
         {
@@ -955,11 +1012,11 @@ static void onAverageRateViewEvent(const View *view,
 
             style = MEASUREMENTSTYLE_HOLD;
         }
-        else if (isTubeFaultAlarm())
+        else if (measurements.average.timerExpired)
         {
-            stateString = "FAULT";
+            stateString = "DONE";
 
-            style = MEASUREMENTSTYLE_NORMAL;
+            style = MEASUREMENTSTYLE_HOLD;
         }
         else
         {
@@ -1040,53 +1097,31 @@ const View averageRateView = {
 
 // Dose
 
-static const float doseAlarmsSv[] = {
-    0,
-    2E-6F,
-    5E-6F,
-    10E-6F,
-    20E-6F,
-    50E-6F,
-    100E-6F,
-    200E-6F,
-    500E-6F,
-};
-
-void setDoseTime(uint32_t value)
+void setCumulativeDoseTime(uint32_t value)
 {
-    measurements.cumulative.dose.time = value;
+    measurements.cumulativeDose.dose.time = value;
 }
 
-uint32_t getDoseTime(void)
+uint32_t getCumulativeDoseTime(void)
 {
-    return measurements.cumulative.dose.time;
+    return measurements.cumulativeDose.dose.time;
 }
 
-void setDosePulseCount(uint32_t value)
+void setCumulativeDosePulseCount(uint32_t value)
 {
-    measurements.cumulative.dose.pulseCount = value;
+    measurements.cumulativeDose.dose.pulseCount = value;
 }
 
-uint32_t getDosePulseCount(void)
+uint32_t getCumulativeDosePulseCount(void)
 {
-    return measurements.cumulative.dose.pulseCount;
+    return measurements.cumulativeDose.dose.pulseCount;
 }
 
-static void resetDose(void)
+static void resetCumulativeDose(void)
 {
-    memset(&measurements.cumulative,
+    memset(&measurements.cumulativeDose,
            0,
-           sizeof(measurements.cumulative));
-}
-
-static bool isDoseAlarm(void)
-{
-    if (!settings.doseAlarm)
-        return false;
-
-    float doseSv = units[UNITS_SIEVERTS].dose.scale *
-                   measurements.cumulative.dose.pulseCount;
-    return doseSv >= doseAlarmsSv[settings.doseAlarm];
+           sizeof(measurements.cumulativeDose));
 }
 
 static void onCumulativeDoseViewEvent(const View *view,
@@ -1097,19 +1132,25 @@ static void onCumulativeDoseViewEvent(const View *view,
     switch (event)
     {
     case EVENT_KEY_BACK:
-        measurements.cumulativeTabIndex++;
+        measurements.cumulativeDoseTabIndex++;
 
-        if (measurements.cumulativeTabIndex >= CUMULATIVE_TAB_NUM)
-            measurements.cumulativeTabIndex = 0;
+        if (measurements.cumulativeDoseTabIndex >= CUMULATIVE_TAB_NUM)
+            measurements.cumulativeDoseTabIndex = 0;
 
         updateView();
 
         break;
 
     case EVENT_KEY_RESET:
-        resetDose();
+        if (!isLockMode())
+        {
+            if (measurements.cumulativeDose.alarm)
+                measurements.cumulativeDose.alarm = false;
+            else
+                resetCumulativeDose();
 
-        updateView();
+            updateView();
+        }
 
         break;
 
@@ -1126,27 +1167,27 @@ static void onCumulativeDoseViewEvent(const View *view,
 
         buildValueString(valueString,
                          unitString,
-                         measurements.cumulative.dose.pulseCount,
+                         measurements.cumulativeDose.dose.pulseCount,
                          &units[settings.units].dose,
                          unitsMinMetricPrefixIndex[settings.units]);
 
-        if (measurements.cumulative.dose.pulseCount == UINT32_MAX)
+        if (measurements.period.faultAlarm)
         {
-            stateString = "OVER";
+            stateString = "FAULT";
 
-            style = MEASUREMENTSTYLE_HOLD;
+            style = MEASUREMENTSTYLE_NORMAL;
         }
-        else if (isDoseAlarm())
+        else if (measurements.cumulativeDose.alarm)
         {
             stateString = "ALARM";
 
             style = MEASUREMENTSTYLE_ALARM;
         }
-        else if (isTubeFaultAlarm())
+        else if (measurements.cumulativeDose.dose.pulseCount == UINT32_MAX)
         {
-            stateString = "FAULT";
+            stateString = "OVER";
 
-            style = MEASUREMENTSTYLE_NORMAL;
+            style = MEASUREMENTSTYLE_HOLD;
         }
         else
         {
@@ -1164,18 +1205,18 @@ static void onCumulativeDoseViewEvent(const View *view,
         strclr(valueString);
         strcpy(unitString, " ");
 
-        switch (measurements.cumulativeTabIndex)
+        switch (measurements.cumulativeDoseTabIndex)
         {
         case CUMULATIVE_TAB_TIME:
             strcatTime(valueString,
-                       measurements.cumulative.dose.time);
+                       measurements.cumulativeDose.dose.time);
 
             keyString = "Time";
 
             break;
 
         case CUMULATIVE_TAB_DOSE:
-            if (measurements.cumulative.dose.pulseCount > 0)
+            if (measurements.cumulativeDose.dose.pulseCount > 0)
             {
                 uint32_t unitsIndex = ((settings.units != UNITS_CPM) &&
                                        (settings.units != UNITS_CPS))
@@ -1184,7 +1225,7 @@ static void onCumulativeDoseViewEvent(const View *view,
 
                 buildValueString(valueString,
                                  unitString,
-                                 measurements.cumulative.dose.pulseCount,
+                                 measurements.cumulativeDose.dose.pulseCount,
                                  &units[unitsIndex].dose,
                                  unitsMinMetricPrefixIndex[unitsIndex]);
             }
@@ -1261,9 +1302,12 @@ static void onHistoryViewEvent(const View *view, Event event)
         break;
 
     case EVENT_KEY_RESET:
-        resetHistory();
+        if (!isLockMode())
+        {
+            resetHistory();
 
-        updateView();
+            updateView();
+        }
 
         break;
 
@@ -1304,92 +1348,59 @@ const View historyView = {
     NULL,
 };
 
-// Units menu
+// Alarms menu
 
-static const char *const unitsMenuOptions[] = {
-    "Sievert",
-    "rem",
-    "cpm",
-    "cps",
-    NULL,
+bool isAlarmEnabled(void)
+{
+    return (settings.rateAlarm || settings.doseAlarm);
+}
+
+bool isAlarm(void)
+{
+    return (measurements.instantaneous.alarm ||
+            measurements.cumulativeDose.alarm ||
+            measurements.period.faultAlarm);
+}
+
+static const OptionView alarmsMenuOptions[] = {
+    {"Rate alarm", &rateAlarmMenuView},
+    {"Dose alarm", &doseAlarmMenuView},
+    {NULL},
 };
 
-static const char *onUnitsMenuGetOption(const Menu *menu,
-                                        uint32_t index,
-                                        MenuStyle *menuStyle)
+static const char *onAlarmsMenuGetOption(const Menu *menu,
+                                         uint32_t index,
+                                         MenuStyle *menuStyle)
 {
-    *menuStyle = (index == settings.units);
+    *menuStyle = MENUSTYLE_SUBMENU;
 
-    return unitsMenuOptions[index];
+    return alarmsMenuOptions[index].option;
 }
 
-static void onUnitsMenuSelect(const Menu *menu)
+static void onAlarmsMenuSelect(const Menu *menu)
 {
-    settings.units = menu->state->selectedIndex;
+    setView(alarmsMenuOptions[menu->state->selectedIndex].view);
 }
 
-static MenuState unitsMenuState;
+static MenuState displayMenuState;
 
-static const Menu unitsMenu = {
-    "Units",
-    &unitsMenuState,
-    onUnitsMenuGetOption,
-    onUnitsMenuSelect,
+static const Menu displayMenu = {
+    "Alarms",
+    &displayMenuState,
+    onAlarmsMenuGetOption,
+    onAlarmsMenuSelect,
     onSettingsSubMenuBack,
 };
 
-const View unitsMenuView = {
+const View alarmsMenuView = {
     onMenuEvent,
-    &unitsMenu,
+    &displayMenu,
 };
 
-// Averaging menu
-
-static const char *const averagingMenuOptions[] = {
-    "Unlimited",
-    "5 minutes",
-    "10 minutes",
-    "30 minutes",
-    "60 minutes",
-    "\xb1"
-    "40% confidence",
-    "\xb1"
-    "20% confidence",
-    "\xb1"
-    "10% confidence",
-    "\xb1"
-    "5% confidence",
-    NULL,
-};
-
-static const char *onAveragingMenuGetOption(const Menu *menu,
-                                            uint32_t index,
-                                            MenuStyle *menuStyle)
+static void onAlarmsSubMenuBack(const Menu *menu)
 {
-    *menuStyle = (index == settings.averaging);
-
-    return averagingMenuOptions[index];
+    setView(&alarmsMenuView);
 }
-
-static void onAveragingMenuSelect(const Menu *menu)
-{
-    settings.averaging = menu->state->selectedIndex;
-}
-
-static MenuState averagingMenuState;
-
-static const Menu averagingMenu = {
-    "Averaging",
-    &averagingMenuState,
-    onAveragingMenuGetOption,
-    onAveragingMenuSelect,
-    onSettingsSubMenuBack,
-};
-
-const View averagingMenuView = {
-    onMenuEvent,
-    &averagingMenu,
-};
 
 // Rate alarm menu
 
@@ -1434,10 +1445,10 @@ static const Menu rateAlarmMenu = {
     &rateAlarmMenuState,
     onRateAlarmMenuGetOption,
     onRateAlarmMenuSelect,
-    onSettingsSubMenuBack,
+    onAlarmsSubMenuBack,
 };
 
-const View rateAlarmMenuView = {
+static const View rateAlarmMenuView = {
     onMenuEvent,
     &rateAlarmMenu,
 };
@@ -1482,21 +1493,191 @@ static const Menu doseAlarmMenu = {
     &doseAlarmMenuState,
     onDoseAlarmMenuGetOption,
     onDoseAlarmMenuSelect,
-    onSettingsSubMenuBack,
+    onAlarmsSubMenuBack,
 };
 
-const View doseAlarmMenuView = {
+static const View doseAlarmMenuView = {
     onMenuEvent,
     &doseAlarmMenu,
 };
 
-// Pulse thresholding menu
+// Measurements menu
 
-static const char *onPulseThresholdingMenuGetOption(const Menu *menu,
-                                                    uint32_t index,
-                                                    MenuStyle *menuStyle)
+static const OptionView measurementMenuOptions[] = {
+    {"Units", &unitsMenuView},
+    {"Instantaneous", &instantaneousMenuView},
+    {"Average", &averageMenuView},
+    {NULL},
+};
+
+static const char *onMeasurementsMenuGetOption(const Menu *menu,
+                                               uint32_t index,
+                                               MenuStyle *menuStyle)
 {
-    *menuStyle = (index == settings.pulseThresholding);
+    *menuStyle = MENUSTYLE_SUBMENU;
+
+    return measurementMenuOptions[index].option;
+}
+
+static void onMeasurementsMenuSelect(const Menu *menu)
+{
+    setView(measurementMenuOptions[menu->state->selectedIndex].view);
+}
+
+static MenuState measurementsMenuState;
+
+static const Menu measurementMenu = {
+    "Measurements",
+    &measurementsMenuState,
+    onMeasurementsMenuGetOption,
+    onMeasurementsMenuSelect,
+    onSettingsSubMenuBack,
+};
+
+const View measurementsMenuView = {
+    onMenuEvent,
+    &measurementMenu,
+};
+
+static void onMeasurementsSubMenuBack(const Menu *menu)
+{
+    setView(&measurementsMenuView);
+}
+
+// Units menu
+
+static const char *const unitsMenuOptions[] = {
+    "Sievert",
+    "rem",
+    "cpm",
+    "cps",
+    NULL,
+};
+
+static const char *onUnitsMenuGetOption(const Menu *menu,
+                                        uint32_t index,
+                                        MenuStyle *menuStyle)
+{
+    *menuStyle = (index == settings.units);
+
+    return unitsMenuOptions[index];
+}
+
+static void onUnitsMenuSelect(const Menu *menu)
+{
+    settings.units = menu->state->selectedIndex;
+}
+
+static MenuState unitsMenuState;
+
+static const Menu unitsMenu = {
+    "Units",
+    &unitsMenuState,
+    onUnitsMenuGetOption,
+    onUnitsMenuSelect,
+    onMeasurementsSubMenuBack,
+};
+
+static const View unitsMenuView = {
+    onMenuEvent,
+    &unitsMenu,
+};
+
+// Instantaneous menu
+
+static const char *const instantaneousMenuOptions[] = {
+    "Adaptive fast",
+    "Adaptive precision",
+    "60 seconds",
+    "30 seconds",
+    "10 seconds",
+    NULL,
+};
+
+static const char *onInstantaneousMenuGetOption(const Menu *menu,
+                                                uint32_t index,
+                                                MenuStyle *menuStyle)
+{
+    *menuStyle = (index == settings.instantaneousAveraging);
+
+    return instantaneousMenuOptions[index];
+}
+
+static void onInstantaneousMenuSelect(const Menu *menu)
+{
+    settings.instantaneousAveraging = menu->state->selectedIndex;
+}
+
+static MenuState instantaneousMenuState;
+
+static const Menu instantaneousMenu = {
+    "Instantaneous",
+    &instantaneousMenuState,
+    onInstantaneousMenuGetOption,
+    onInstantaneousMenuSelect,
+    onMeasurementsSubMenuBack,
+};
+
+static const View instantaneousMenuView = {
+    onMenuEvent,
+    &instantaneousMenu,
+};
+
+// Average menu
+
+static const char *const averageMenuOptions[] = {
+    "Unlimited",
+    "5 minutes",
+    "10 minutes",
+    "30 minutes",
+    "60 minutes",
+    "\xb1"
+    "40% confidence",
+    "\xb1"
+    "20% confidence",
+    "\xb1"
+    "10% confidence",
+    "\xb1"
+    "5% confidence",
+    NULL,
+};
+
+static const char *onAverageMenuGetOption(const Menu *menu,
+                                          uint32_t index,
+                                          MenuStyle *menuStyle)
+{
+    *menuStyle = (index == settings.averaging);
+
+    return averageMenuOptions[index];
+}
+
+static void onAverageMenuSelect(const Menu *menu)
+{
+    settings.averaging = menu->state->selectedIndex;
+}
+
+static MenuState averageMenuState;
+
+static const Menu averageMenu = {
+    "Average",
+    &averageMenuState,
+    onAverageMenuGetOption,
+    onAverageMenuSelect,
+    onMeasurementsSubMenuBack,
+};
+
+static const View averageMenuView = {
+    onMenuEvent,
+    &averageMenu,
+};
+
+// Pulse threshold menu
+
+static const char *onPulseThresholdMenuGetOption(const Menu *menu,
+                                                 uint32_t index,
+                                                 MenuStyle *menuStyle)
+{
+    *menuStyle = (index == settings.pulseThreshold);
 
     if (index == 0)
         return "Off";
@@ -1506,26 +1687,22 @@ static const char *onPulseThresholdingMenuGetOption(const Menu *menu,
         return NULL;
 }
 
-static void onPulseThresholdingMenuSelect(const Menu *menu)
+static void onPulseThresholdMenuSelect(const Menu *menu)
 {
-    settings.pulseThresholding = menu->state->selectedIndex;
+    settings.pulseThreshold = menu->state->selectedIndex;
 }
 
-static MenuState pulseThresholdingMenuState;
+static MenuState pulseThresholdMenuState;
 
 static const Menu pulsesThresholdMenu = {
-#if !defined(DISPLAY_240X320)
-    "Pulse thresholding",
-#else
-    "Pulse threshold.",
-#endif
-    &pulseThresholdingMenuState,
-    onPulseThresholdingMenuGetOption,
-    onPulseThresholdingMenuSelect,
+    "Threshold",
+    &pulseThresholdMenuState,
+    onPulseThresholdMenuGetOption,
+    onPulseThresholdMenuSelect,
     onPulsesSubMenuBack,
 };
 
-const View pulseThresholdingMenuView = {
+const View pulseThresholdMenuView = {
     onMenuEvent,
     &pulsesThresholdMenu,
 };

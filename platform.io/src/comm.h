@@ -2,7 +2,7 @@
  * Rad Pro
  * Communications
  *
- * (C) 2022-2024 Gissio
+ * (C) 2022-2025 Gissio
  *
  * License: MIT
  */
@@ -47,10 +47,6 @@ typedef struct
 
     bool sendingDatalog;
     uint32_t datalogTimeLimit;
-
-#if defined(START_BOOTLOADER_SUPPORT)
-    bool startBootloader;
-#endif
 } Comm;
 
 extern Comm comm;

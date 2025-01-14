@@ -2,7 +2,7 @@
  * Rad Pro
  * STM32 system
  *
- * (C) 2022-2024 Gissio
+ * (C) 2022-2025 Gissio
  *
  * License: MIT
  */

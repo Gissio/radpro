@@ -2,7 +2,7 @@
  * Rad Pro
  * STM32 Main module
  *
- * (C) 2022-2024 Gissio
+ * (C) 2022-2025 Gissio
  *
  * License: MIT
  */
@@ -14,7 +14,6 @@
 #include "adc.h"
 #include "buzzer.h"
 #include "comm.h"
-#include "datalog.h"
 #include "debug.h"
 #include "display.h"
 #include "events.h"
@@ -23,7 +22,6 @@
 #include "init.h"
 #include "keyboard.h"
 #include "led.h"
-#include "measurements.h"
 #include "menu.h"
 #include "power.h"
 #include "rng.h"
@@ -75,13 +73,7 @@ int main(void)
     runTestMode();
 #endif
 
-    initMeasurements();
-#if defined(GAME)
-    initGame();
-#endif
-    initDatalog();
-
-#if defined(KEYBOARD_WAIT_POWERON)
+#if !defined(KEYBOARD_POWERON_NOSLEEP)
     sleep(1000);
 #endif
 

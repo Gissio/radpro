@@ -2,7 +2,7 @@
  * Rad Pro
  * Bosean FS-600/FS-1000 specifics
  *
- * (C) 2022-2024 Gissio
+ * (C) 2022-2025 Gissio
  *
  * License: MIT
  */
@@ -19,7 +19,7 @@
 
 #define FLASH_SIZE 0x20000
 #define FIRMWARE_BASE 0x08000000
-#define FIRMWARE_SIZE 0x9000
+#define FIRMWARE_SIZE 0x9800
 
 #define PWR_EN_PORT GPIOA
 #define PWR_EN_PIN 11

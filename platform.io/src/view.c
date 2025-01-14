@@ -2,7 +2,7 @@
  * Rad Pro
  * User interface view
  *
- * (C) 2022-2024 Gissio
+ * (C) 2022-2025 Gissio
  *
  * License: MIT
  */
@@ -13,6 +13,7 @@
 #include "keyboard.h"
 #include "power.h"
 #include "settings.h"
+#include "system.h"
 #include "view.h"
 
 static struct
@@ -41,6 +42,9 @@ void dispatchViewEvents(void)
         if (event == EVENT_NONE)
             break;
 
+        if (event == EVENT_KEY_UNLOCK)
+            setLockMode(false);
+
         if (isPowerOffViewActive())
         {
             if (event == EVENT_KEY_POWER)
@@ -68,7 +72,7 @@ void dispatchViewEvents(void)
         bool isDisplayActive = !isPowerOffViewActive();
 #elif defined(DISPLAY_COLOR)
         bool isPulseFlashesActive = settings.pulseFlashes &&
-                                    !isPulseThresholdingEnabled();
+                                    !isPulseThresholdEnabled();
         bool isDisplayActive = !isPowerOffViewActive() &&
                                (isDisplayBacklightActive() ||
                                 isPulseFlashesActive);
