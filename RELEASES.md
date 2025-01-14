@@ -1,6 +1,6 @@
 # Releases
 
-## 2.1 The big update
+## 2.1 Delicious trifles
 
 * Added the ability to dismiss alarms using the reset measurement key.
 * Introduced an alarm enabled indicator.
