@@ -2,6 +2,8 @@
 
 ## 2.1 Delicious trifles
 
+Updates:
+
 * Added the ability to dismiss alarms using the reset measurement key.
 * Introduced an alarm enabled indicator.
 * Added options for higher rate and dose alarms.
@@ -10,8 +12,10 @@
 * Displays of dose counts below 10000 now uses standard notation for clarity.
 * Enhanced the menu structure for improved navigation.
 * Updated the UI font to Open Sans to enhance readability.
-* Minor UI improvements.
 
+Fixes:
+
+* Minor UI improvements.
 * On color displays, fixed an issue causing an unsightly flash when waking from sleep mode.
 * On the FNIRSI GC-01, corrected random pixel issues during the splash screen.
 * On the FNIRSI GC-01, added a battery charging indicator.
