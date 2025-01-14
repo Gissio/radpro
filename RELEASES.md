@@ -9,7 +9,7 @@ Updates:
 * Added options for higher rate and dose alarms.
 * Extended the duration of alarm sounds.
 * Implemented a lock mode accesible from Settings.
-* Displays of dose counts below 10000 now uses standard notation for clarity.
+* Display of dose counts below 10000 now uses standard notation for clarity.
 * Enhanced the menu structure for improved navigation.
 * Updated the UI font to Open Sans to enhance readability.
 * Minor UI improvements.
