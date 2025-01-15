@@ -18,7 +18,6 @@ Fixes:
 
 * On color displays, fixed an issue causing an unsightly flash when waking from sleep mode.
 * On the FNIRSI GC-01, corrected random pixel issues during the splash screen.
-* On the FNIRSI GC-01, added a battery charging indicator.
 * Fixed alarms continuing to sound after device shutdown while connected to external power.
 * Resolved an issue where the device state wasn't reset after a quick power cycle.
 * Corrected a problem where 60-second instantaneous averaging at high radiation levels didn't average correctly over the full seconds.

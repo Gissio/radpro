@@ -51,12 +51,16 @@ static const uint8_t mr_st7789_madctl[] = {
 
 static void mr_st7789_draw_rectangle(mr_t *mr,
                                      const mr_rectangle_t *rectangle);
+#if defined(MCURENDERER_BITMAP_SUPPORT)
 static void mr_st7789_draw_bitmap(mr_t *mr,
                                   const mr_rectangle_t *rectangle,
                                   const uint8_t *bitmap);
+#endif
+#if defined(MCURENDERER_IMAGE_SUPPORT)
 static void mr_st7789_draw_image(mr_t *mr,
                                  const mr_rectangle_t *rectangle,
                                  const mr_color_t *image);
+#endif
 static void mr_st7789_draw_textbuffer(mr_t *mr,
                                       uint8_t *buffer,
                                       uint32_t buffer_pitch,
@@ -69,8 +73,8 @@ void mr_st7789_init(mr_t *mr,
                     uint8_t *textbuffer,
                     uint32_t textbuffer_size,
                     mr_sleep_callback_t sleep_callback,
-                    mr_set_chipselect_callback_t set_chipselect_callback,
                     mr_set_reset_callback_t set_reset_callback,
+                    mr_set_chipselect_callback_t set_chipselect_callback,
                     mr_set_command_callback_t set_command_callback,
                     mr_send_callback_t send_callback,
                     mr_send_callback_t send16_callback)
@@ -177,6 +181,7 @@ static void mr_st7789_draw_rectangle(mr_t *mr,
         mr_send16(mr, mr->fill_color);
 }
 
+#if defined(MCURENDERER_BITMAP_SUPPORT)
 static void mr_st7789_draw_bitmap(mr_t *mr,
                                   const mr_rectangle_t *rectangle,
                                   const uint8_t *bitmap)
@@ -205,7 +210,9 @@ static void mr_st7789_draw_bitmap(mr_t *mr,
         bitmap += ((source_index + 7) >> 3);
     }
 }
+#endif
 
+#if defined(MCURENDERER_IMAGE_SUPPORT)
 static void mr_st7789_draw_image(mr_t *mr,
                                  const mr_rectangle_t *rectangle,
                                  const mr_color_t *image)
@@ -222,6 +229,7 @@ static void mr_st7789_draw_image(mr_t *mr,
         mr_send16(mr, source_color);
     }
 }
+#endif
 
 static void mr_st7789_draw_textbuffer(mr_t *mr,
                                       uint8_t *buffer,
