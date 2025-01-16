@@ -406,7 +406,13 @@ void triggerAlarm(void)
 {
     syncTimerThread();
 
-    setBuzzerTimer(ALARM_TICKS, 1);
+    if (settings.alarmNotifications == ALARMNOTIFICATIONS_AUDIBLE)
+        setBuzzerTimer(ALARM_TICKS, 1);
+
+#if defined(VIBRATOR)
+    if (settings.alarmNotifications <= ALARMNOTIFICATIONS_HAPTIC)
+        setVibratorTimer(ALARM_TICKS);
+#endif
 
     requestDisplayBacklightAlarm();
 
@@ -414,10 +420,6 @@ void triggerAlarm(void)
     setAlertLEDTimer(ALARM_TICKS);
 #elif defined(PULSE_LED)
     setPulseLEDTimer(ALARM_TICKS);
-#endif
-
-#if defined(VIBRATOR)
-    setVibratorTimer(ALARM_TICKS);
 #endif
 }
 

@@ -76,10 +76,10 @@ static void onLockViewEvent(const View *view, Event event)
                          "POWER+PLAY to unlock.");
 #elif defined(FS1000)
         drawNotification("Enter lock mode?",
-                         "POWER+MODE to unlock.");
+                         "SET+MODE to unlock.");
 #else
         drawNotification("Enter lock mode?",
-                         "POWER+BACK to unlock.");
+                         "OK+BACK to unlock.");
 #endif
         break;
 

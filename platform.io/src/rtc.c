@@ -89,7 +89,7 @@ static uint32_t getDaysInMonth(uint32_t year, uint32_t month)
     return daysInMonth[month - 1];
 }
 
-void setDeviceDateTime(RTCDateTime *dateTime)
+void setDeviceDateTime(const RTCDateTime *dateTime)
 {
     setDeviceTime(getTimeFromDateTime(dateTime) - getTimeZoneOffset());
 }

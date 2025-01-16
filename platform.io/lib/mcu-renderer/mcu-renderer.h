@@ -2,7 +2,7 @@
  * MCU renderer
  * Core module
  *
- * (C) 2023-2024 Gissio
+ * (C) 2023-2025 Gissio
  *
  * License: MIT
  */
@@ -224,11 +224,14 @@ struct mr_t_
     mr_color_t blend_table[COLOR_BLEND_TABLE_SIZE];
     const uint8_t *font;
     mr_glyph_t glyph;
-
-    bool chipselect;
 };
 
 void mr_init(mr_t *mr);
+
+inline void mr_set_chipselect(mr_t *mr, bool value)
+{
+    mr->set_chipselect_callback(value);
+}
 
 inline void mr_set_command(mr_t *mr, bool value)
 {

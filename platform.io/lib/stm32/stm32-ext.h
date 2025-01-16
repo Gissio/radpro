@@ -63,7 +63,7 @@ __STATIC_INLINE void rcc_enable_afio(void)
 }
 #endif
 
-__STATIC_INLINE void rcc_enable_adc(ADC_TypeDef *base)
+__STATIC_INLINE void rcc_enable_adc(const ADC_TypeDef *base)
 {
 #if defined(STM32F0)
     set_bits(RCC->CR2, RCC_CR2_HSI14ON);
@@ -89,7 +89,7 @@ __STATIC_INLINE void rcc_enable_adc(ADC_TypeDef *base)
 #endif
 }
 
-__STATIC_INLINE void rcc_enable_tim(TIM_TypeDef *base)
+__STATIC_INLINE void rcc_enable_tim(const TIM_TypeDef *base)
 {
 #if defined(STM32F0)
     if (base == TIM1)
@@ -167,7 +167,7 @@ __STATIC_INLINE void rcc_enable_rtc(void)
 #endif
 }
 
-__STATIC_INLINE void rcc_enable_usart(USART_TypeDef *base)
+__STATIC_INLINE void rcc_enable_usart(const USART_TypeDef *base)
 {
 #if defined(STM32F0) || defined(STM32F1)
     if (base == USART1)
@@ -545,7 +545,7 @@ __STATIC_INLINE void gpio_setup(GPIO_TypeDef *base,
 
 #endif
 
-__STATIC_INLINE bool gpio_get(GPIO_TypeDef *base,
+__STATIC_INLINE bool gpio_get(const GPIO_TypeDef *base,
                               uint8_t pin)
 {
     return get_bits(base->IDR,
@@ -599,7 +599,7 @@ __STATIC_INLINE void NVIC_DisableAllIRQs(void)
 #define STM32EXT_EXTI EXTI
 #endif
 
-__STATIC_INLINE void exti_setup(GPIO_TypeDef *base,
+__STATIC_INLINE void exti_setup(const GPIO_TypeDef *base,
                                 uint8_t pin,
                                 bool rising_trigger,
                                 bool falling_trigger)
@@ -1025,7 +1025,7 @@ __STATIC_INLINE void adc_start_conversion_oneshot(ADC_TypeDef *base,
 #endif
 }
 
-__STATIC_INLINE uint32_t adc_get_conversion_oneshot(ADC_TypeDef *base)
+__STATIC_INLINE uint32_t adc_get_conversion_oneshot(const ADC_TypeDef *base)
 {
 #if defined(STM32F0) && defined(GD32)
     return ((ADC_GD32_TypeDef *)base)->RDATA;
@@ -1436,7 +1436,7 @@ __STATIC_INLINE void usart_disable_receive_interrupt(USART_TypeDef *base)
 #endif
 }
 
-__STATIC_INLINE bool usart_is_receive_interrupt_enabled(USART_TypeDef *base)
+__STATIC_INLINE bool usart_is_receive_interrupt_enabled(const USART_TypeDef *base)
 {
 #if defined(STM32F0) || defined(STM32F1) || defined(STM32L4)
     return get_bits(base->CR1,
@@ -1469,7 +1469,7 @@ __STATIC_INLINE void usart_disable_transmit_interrupt(USART_TypeDef *base)
 #endif
 }
 
-__STATIC_INLINE bool usart_is_transmit_interrupt_enabled(USART_TypeDef *base)
+__STATIC_INLINE bool usart_is_transmit_interrupt_enabled(const USART_TypeDef *base)
 {
 #if defined(STM32F0) || defined(STM32F1) || defined(STM32L4)
     return get_bits(base->CR1,
@@ -1480,7 +1480,7 @@ __STATIC_INLINE bool usart_is_transmit_interrupt_enabled(USART_TypeDef *base)
 #endif
 }
 
-__STATIC_INLINE bool usart_is_receive_ready(USART_TypeDef *base)
+__STATIC_INLINE bool usart_is_receive_ready(const USART_TypeDef *base)
 {
 #if defined(STM32F0) || defined(STM32L4)
     return get_bits(base->ISR,
@@ -1494,7 +1494,7 @@ __STATIC_INLINE bool usart_is_receive_ready(USART_TypeDef *base)
 #endif
 }
 
-__STATIC_INLINE bool usart_is_send_ready(USART_TypeDef *base)
+__STATIC_INLINE bool usart_is_send_ready(const USART_TypeDef *base)
 {
 #if defined(STM32F0) || defined(STM32L4)
     return get_bits(base->ISR,
@@ -1508,7 +1508,7 @@ __STATIC_INLINE bool usart_is_send_ready(USART_TypeDef *base)
 #endif
 }
 
-__STATIC_INLINE bool usart_is_overrun(USART_TypeDef *base)
+__STATIC_INLINE bool usart_is_overrun(const USART_TypeDef *base)
 {
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
     return get_bits(base->ISR,
@@ -1529,7 +1529,7 @@ __STATIC_INLINE void usart_clear_overrun(USART_TypeDef *base)
 #endif
 }
 
-__STATIC_INLINE uint16_t usart_receive(USART_TypeDef *base)
+__STATIC_INLINE uint16_t usart_receive(const USART_TypeDef *base)
 {
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
     return base->RDR;
@@ -1538,7 +1538,7 @@ __STATIC_INLINE uint16_t usart_receive(USART_TypeDef *base)
 #endif
 }
 
-__STATIC_INLINE uint16_t usart_receive_blocking(USART_TypeDef *base)
+__STATIC_INLINE uint16_t usart_receive_blocking(const USART_TypeDef *base)
 {
     while (!usart_is_receive_ready(base))
         ;

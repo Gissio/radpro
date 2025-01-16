@@ -36,7 +36,7 @@ void initEvents(void)
     iwdg_unlock();
     IWDG->RLR = 1000 * LSI_FREQUENCY - 1;
 
-    iwdg_start();
+    // iwdg_start();
 }
 
 void SysTick_Handler(void)

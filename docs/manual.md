@@ -3,22 +3,25 @@
 ## Features
 
 * Measurement view with large digits, ideal for field application.
+* Configurable pulse indication with optional thresholding: audible (off, clicks, beeps), pulse LED (on supported devices), display flashes (on display sleep) and haptic (on supported devices).
+* Configurable alarm notifications: audible, haptic and visual-only.
+* Ability to dismiss alarms.
+* Tube fault alarm.
+* Multiple measurement units: Sievert, rem, cpm (counts per minute), cps (counts per second).
 * Configurable instantaneous rate averaging (adaptive fast, adaptive precision, 60 seconds, 30 seconds and 10 seconds), 
 * Configurable averaging for performing surveys.
-* Multiple measurement units: Sievert, rem, cpm (counts per minute), cps (counts per second).
-* Offline and live data logging with data compression.
-* Compatibility with the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software.
-* Configurable pulse indication with optional thresholding: pulse clicks (off, clicks, beeps), pulse LED (on supported devices), display flashes (on display sleep) and haptic pulses (on supported devices).
-* Dead-time measurement.
 * Customizable Geiger-Müller tube settings: conversion factor, dead-time compensation, background compensation, high voltage generator PWM frequency and duty cycle (on supported devices).
 * Preconfigured high voltage profiles (on supported devices).
-* Tube fault alarm.
+* Offline and live data logging with data compression.
+* Compatibility with the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software.
 * Statistics for tracking device usage and state.
-* User interface based on the [OpenBridge 5.0](https://www.openbridge.no/) design system.
+* Geiger tube dead-time measurement.
+* Game: nuclear chess (on supported devices).
+* Lock mode.
+* User interface based on the industry-standard [OpenBridge 5.0](https://www.openbridge.no/) design system.
 * Anti-aliased text rendering on color screens.
 * `radpro-tool` for low-level access to the device from a computer.
 * Power-on self-test and safety watchdog.
-* Game: nuclear chess (on supported devices).
 
 ## Measurements
 

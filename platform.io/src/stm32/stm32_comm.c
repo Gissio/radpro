@@ -362,7 +362,9 @@ static struct usb_cdc_line_coding cdc_line = {
     .bDataBits = 8,
 };
 
-static usbd_respond onUSBGetDescription(usbd_ctlreq *req, void **address, uint16_t *length)
+static usbd_respond onUSBGetDescription(usbd_ctlreq *req,
+                                        void **address,
+                                        uint16_t *length)
 {
     const uint8_t dtype = req->wValue >> 8;
     const uint8_t dnumber = req->wValue & 0xFF;
@@ -403,7 +405,9 @@ static usbd_respond onUSBGetDescription(usbd_ctlreq *req, void **address, uint16
     return usbd_ack;
 }
 
-static usbd_respond onUSBControl(usbd_device *dev, usbd_ctlreq *req, usbd_rqc_callback *callback)
+static usbd_respond onUSBControl(usbd_device *dev,
+                                 usbd_ctlreq *req,
+                                 usbd_rqc_callback *callback)
 {
     if (((USB_REQ_RECIPIENT | USB_REQ_TYPE) & req->bmRequestType) ==
             (USB_REQ_INTERFACE | USB_REQ_CLASS) &&
@@ -433,7 +437,9 @@ static usbd_respond onUSBControl(usbd_device *dev, usbd_ctlreq *req, usbd_rqc_ca
     return usbd_fail;
 }
 
-static void onUsbData(usbd_device *dev, uint8_t event, uint8_t ep)
+static void onUsbData(usbd_device *dev,
+                      uint8_t event,
+                      uint8_t ep)
 {
     char receiveBuffer[USB_DATA_PACKETSIZE_MAX];
     int32_t receivedBytes;
@@ -482,7 +488,7 @@ static void onUsbData(usbd_device *dev, uint8_t event, uint8_t ep)
     }
     else if (comm.state == COMM_TX)
     {
-        char *sendBuffer = comm.buffer + comm.bufferIndex;
+        const char *sendBuffer = comm.buffer + comm.bufferIndex;
         int32_t sentBytes = usbd_ep_write(dev,
                                           USB_DATA_TRANSMIT_ENDPOINT,
                                           sendBuffer,
@@ -504,7 +510,8 @@ static void onUsbData(usbd_device *dev, uint8_t event, uint8_t ep)
     }
 }
 
-static usbd_respond onUSBConfigure(usbd_device *dev, uint8_t cfg)
+static usbd_respond onUSBConfigure(usbd_device *dev,
+                                   uint8_t cfg)
 {
     switch (cfg)
     {

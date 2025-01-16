@@ -173,12 +173,15 @@ void strcatFloatAsMetricValueAndPrefix(char *str,
     if (fractionalDecimals > 3)
         fractionalDecimals = 3;
 
-    float metricValue = powf(10.0F, decimalPower - metricPower);
 
     if (value == 0.0F)
         strcat(str, "\x7f.\x7f\x7f\x7f");
     else
+    {
+        float metricValue = powf(10.0F, decimalPower - metricPower);
+
         strcatFloat(str, metricValue, fractionalDecimals);
+    }
     strcatMetricPrefix(metricPrefix, metricPrefixIndex);
 }
 

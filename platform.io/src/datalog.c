@@ -152,7 +152,7 @@ static void writeDatalogBuffer(void)
     datalog.bufferSize = 0;
 }
 
-static void writeDatalogEntry(uint8_t *entry,
+static void writeDatalogEntry(const uint8_t *entry,
                               uint32_t entrySize)
 {
     // Write datalog buffer if entry does not fit

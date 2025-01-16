@@ -2,7 +2,7 @@
  * MCU renderer
  * ST7565 driver
  *
- * (C) 2023-2024 Gissio
+ * (C) 2023-2025 Gissio
  *
  * License: MIT
  */
@@ -82,28 +82,31 @@ void mr_st7565_set_display(mr_t *mr,
 
 void mr_st7565_refresh_display(mr_t *mr)
 {
+    mr_set_chipselect(mr, true);
+
     for (int16_t pageIndex = 0;
          pageIndex < (mr->display_height / 8);
          pageIndex++)
     {
         // Send page address
-
         mr_send_command(mr, MR_ST7565_PAGE_ADDRESS | pageIndex);
 
         // Send column address
-
         mr_send_command(mr, MR_ST7565_COLUMN_LSB | 0x00);
         mr_send_command(mr, MR_ST7565_COLUMN_MSB | 0x00);
 
         // Send data
-
         mr_set_command(mr, false);
         uint8_t *buffer = (uint8_t *)mr->buffer +
                           mr->display_width * pageIndex;
 
+        mr_send_callback_t send = mr->send_callback;
+
         for (int16_t i = 0;
              i < mr->display_width;
              i++)
-            mr_send(mr, buffer[i]);
+            send(buffer[i]);
     }
+
+    mr_set_chipselect(mr, false);
 }

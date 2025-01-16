@@ -38,7 +38,7 @@ uint32_t getTimeFromDateTime(const RTCDateTime *dateTime);
 void getDateTimeFromTime(uint32_t value, RTCDateTime *dateTime);
 uint32_t getTimeZoneOffset(void);
 
-void setDeviceDateTime(RTCDateTime *dateTime);
+void setDeviceDateTime(const RTCDateTime *dateTime);
 void getDeviceDateTime(RTCDateTime *dateTime);
 
 void setDeviceTime(uint32_t value);

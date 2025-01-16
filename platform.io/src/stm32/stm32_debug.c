@@ -99,7 +99,7 @@ void debugWait(uint32_t ms)
         sleep(0);
 }
 
-void onHardFault(uint32_t *args)
+void onHardFault(const uint32_t *args)
 {
     // args: R0, R1, R2, R3, R12, LR, PC, PSR
 

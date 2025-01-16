@@ -52,10 +52,10 @@ void writeFlash(uint8_t pageIndex,
                 uint8_t *source,
                 uint32_t size);
 
-bool isFlashEmpty(uint8_t *data, uint32_t size);
+bool isFlashEmpty(const uint8_t *data, uint32_t size);
 uint32_t getFlashPaddedSize(uint32_t size);
 
-FlashPageState getFlashPageState(FlashIterator *iterator);
+FlashPageState getFlashPageState(const FlashIterator *iterator);
 void setFlashPageState(FlashIterator *iterator,
                        FlashPageState pageState);
 bool setFlashPageHead(FlashIterator *iterator);

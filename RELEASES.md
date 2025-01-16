@@ -4,21 +4,23 @@
 
 Updates:
 
-* Added the ability to dismiss alarms using the reset measurement key.
 * Introduced an alarm enabled indicator.
-* Added options for higher rate and dose alarms.
+* Added configurable alarm options for audible, haptic and visual-only notifications.
+* Added the ability to dismiss alarms using the reset measurement key.
+* Added options for setting higher rate and dose alarms.
 * Extended the duration of alarm sounds.
 * Implemented a lock mode accesible from Settings.
-* Display of dose counts below 10000 now uses standard notation for clarity.
-* Enhanced the menu structure for improved navigation.
-* Updated the UI font to Open Sans to enhance readability.
+* Display of dose counts below 10000 now uses standard notation.
+* Enhanced the menu structure for more intuitive navigation.
+* Updated the UI font to Open Sans for enhanced readability.
 * Minor UI improvements.
 
 Fixes:
 
 * On color displays, fixed an issue causing an unsightly flash when waking from sleep mode.
-* On the FNIRSI GC-01, corrected random pixel issues during the splash screen.
+* On the FNIRSI GC-01, resolved random pixel issues during the splash screen.
 * Fixed alarms continuing to sound after device shutdown while connected to external power.
+* Corrected the display of secondary rate and count views after the average timer expired.
 * Resolved an issue where the device state wasn't reset after a quick power cycle.
 * Corrected a problem where 60-second instantaneous averaging at high radiation levels didn't average correctly over the full seconds.
 

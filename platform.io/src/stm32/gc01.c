@@ -137,7 +137,7 @@ extern mr_t mr;
 
 bool displayEnabled;
 
-static uint8_t displayTextbuffer[86 * 86];
+static uint8_t displayTextbuffer[88 * 88];
 
 static const uint8_t displayInitSequence[] = {
     MR_SEND_COMMAND(MR_ST7789_RAMCTRL),
@@ -223,27 +223,27 @@ void initDisplayController(void)
     // GPIO
     gpio_set(DISPLAY_RESX_PORT,
              DISPLAY_RESX_PIN);
+    gpio_set(DISPLAY_CSX_PORT,
+             DISPLAY_CSX_PIN);
     gpio_set(DISPLAY_RDX_PORT,
              DISPLAY_RDX_PIN);
     gpio_set(DISPLAY_WRX_PORT,
              DISPLAY_WRX_PIN);
-    gpio_set(DISPLAY_CSX_PORT,
-             DISPLAY_CSX_PIN);
 
     gpio_setup(DISPLAY_RESX_PORT,
                DISPLAY_RESX_PIN,
+               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+    gpio_setup(DISPLAY_CSX_PORT,
+               DISPLAY_CSX_PIN,
+               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+    gpio_setup(DISPLAY_DCX_PORT,
+               DISPLAY_DCX_PIN,
                GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
     gpio_setup(DISPLAY_RDX_PORT,
                DISPLAY_RDX_PIN,
                GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
     gpio_setup(DISPLAY_WRX_PORT,
                DISPLAY_WRX_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_DCX_PORT,
-               DISPLAY_DCX_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_CSX_PORT,
-               DISPLAY_CSX_PIN,
                GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
 
     DISPLAY_DATA_PORT->CRL =

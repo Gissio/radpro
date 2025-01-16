@@ -23,6 +23,44 @@ typedef struct
 
 enum
 {
+    PULSE_CLICKS_OFF,
+    PULSE_CLICKS_CLICKS,
+    PULSE_CLICKS_BEEPS,
+
+    PULSE_CLICKS_NUM,
+};
+
+#if defined(PULSE_LED)
+enum
+{
+    PULSE_LED_OFF,
+    PULSE_LED_ON,
+
+    PULSE_LED_NUM,
+};
+#endif
+
+enum
+{
+    PULSE_FLASHES_OFF,
+    PULSE_FLASHES_ON,
+
+    PULSE_FLASHES_NUM,
+};
+
+#if defined(VIBRATOR)
+enum
+{
+    PULSE_VIBRATIONS_OFF,
+    PULSE_VIBRATIONS_WEAK,
+    PULSE_VIBRATIONS_STRONG,
+
+    PULSE_VIBRATIONS_NUM,
+};
+#endif
+
+enum
+{
     UNITS_SIEVERTS,
     UNITS_REM,
     UNITS_CPM,
@@ -46,6 +84,17 @@ enum
     AVERAGING_5CONFIDENCE,
 
     AVERAGING_NUM,
+};
+
+enum
+{
+    INSTANTANEOUSAVERAGING_ADAPTIVEFAST,
+    INSTANTANEOUSAVERAGING_ADAPTIVEPRECISION,
+    INSTANTANEOUSAVERAGING_60SECONDS,
+    INSTANTANEOUSAVERAGING_30SECONDS,
+    INSTANTANEOUSAVERAGING_10SECONDS,
+
+    INSTANTANEOUSAVERAGING_NUM,
 };
 
 enum
@@ -92,14 +141,11 @@ enum
 
 enum
 {
-    DATALOG_INTERVAL_OFF,
-    DATALOG_INTERVAL_60M,
-    DATALOG_INTERVAL_10M,
-    DATALOG_INTERVAL_1M,
-    DATALOG_INTERVAL_10S,
-    DATALOG_INTERVAL_1S,
+    ALARMNOTIFICATIONS_AUDIBLE,
+    ALARMNOTIFICATIONS_HAPTIC,
+    ALARMNOTIFICATIONS_VISUAL,
 
-    DATALOG_INTERVAL_NUM,
+    ALARMNOTIFICATIONS_NUM,
 };
 
 enum
@@ -119,17 +165,6 @@ enum
 #define TUBE_CONVERSIONFACTOR_VALUE_LOG_MAX_MIN 9.0F
 #define TUBE_CONVERSIONFACTOR_VALUE_NUM 145
 #define TUBE_CONVERSIONFACTOR_NUM (TUBE_CONVERSIONFACTOR_PRESETS_NUM + TUBE_CONVERSIONFACTOR_VALUE_NUM)
-
-enum
-{
-    TUBE_INSTANTANEOUSAVERAGING_ADAPTIVEFAST,
-    TUBE_INSTANTANEOUSAVERAGING_ADAPTIVEPRECISION,
-    TUBE_INSTANTANEOUSAVERAGING_60SECONDS,
-    TUBE_INSTANTANEOUSAVERAGING_30SECONDS,
-    TUBE_INSTANTANEOUSAVERAGING_10SECONDS,
-
-    TUBE_INSTANTANEOUSAVERAGING_NUM,
-};
 
 #define TUBE_DEADTIMECOMPENSATION_MIN 0.000040F
 #define TUBE_DEADTIMECOMPENSATION_MAX 0.000640F
@@ -206,47 +241,20 @@ enum
 
 enum
 {
-    PULSE_CLICKS_OFF,
-    PULSE_CLICKS_CLICKS,
-    PULSE_CLICKS_BEEPS,
+    DATALOG_INTERVAL_OFF,
+    DATALOG_INTERVAL_60M,
+    DATALOG_INTERVAL_10M,
+    DATALOG_INTERVAL_1M,
+    DATALOG_INTERVAL_10S,
+    DATALOG_INTERVAL_1S,
 
-    PULSE_CLICKS_NUM,
+    DATALOG_INTERVAL_NUM,
 };
-
-#if defined(PULSE_LED)
-enum
-{
-    PULSE_LED_OFF,
-    PULSE_LED_ON,
-
-    PULSE_LED_NUM,
-};
-#endif
-
-enum
-{
-    PULSE_FLASHES_OFF,
-    PULSE_FLASHES_ON,
-
-    PULSE_FLASHES_NUM,
-};
-
-#if defined(VIBRATOR)
-enum
-{
-    PULSE_VIBRATIONS_OFF,
-    PULSE_VIBRATIONS_WEAK,
-    PULSE_VIBRATIONS_STRONG,
-
-    PULSE_VIBRATIONS_NUM,
-};
-#endif
 
 #if defined(DISPLAY_MONOCHROME)
 #define DISPLAY_CONTRAST_DEFAULT 4
 #define DISPLAY_CONTRAST_NUM 8
 #elif defined(DISPLAY_COLOR)
-
 enum
 {
     DISPLAY_THEME_DAY,
@@ -361,23 +369,6 @@ typedef struct
 {
     unsigned int entryEmpty : 1;
 
-    unsigned int units : 2;
-    unsigned int averaging : 4;
-    unsigned int rateAlarm : 4;
-    unsigned int doseAlarm : 4;
-
-    unsigned int datalogInterval : 3;
-
-    unsigned int tubeConversionFactor : 8;
-    unsigned int instantaneousAveraging : 3;
-    unsigned int tubeDeadTimeCompensation : 6;
-    unsigned int tubeBackgroundCompensation : 4;
-#if defined(TUBE_HV_PWM)
-    unsigned int tubeHVProfile : 3;
-    unsigned int tubeHVFrequency : 3;
-    unsigned int tubeHVDutyCycle : 9;
-#endif
-
     unsigned int pulseClicks : 2;
 #if defined(PULSE_LED)
     unsigned int pulseLED : 1;
@@ -387,6 +378,25 @@ typedef struct
     unsigned int pulseVibrations : 2;
 #endif
     unsigned int pulseThreshold : 4;
+
+    unsigned int units : 2;
+    unsigned int averaging : 4;
+    unsigned int instantaneousAveraging : 3;
+
+    unsigned int rateAlarm : 4;
+    unsigned int doseAlarm : 4;
+    unsigned int alarmNotifications : 2;
+
+    unsigned int tubeConversionFactor : 8;
+    unsigned int tubeDeadTimeCompensation : 6;
+    unsigned int tubeBackgroundCompensation : 4;
+#if defined(TUBE_HV_PWM)
+    unsigned int tubeHVProfile : 3;
+    unsigned int tubeHVFrequency : 3;
+    unsigned int tubeHVDutyCycle : 9;
+#endif
+
+    unsigned int datalogInterval : 3;
 
 #if defined(DISPLAY_MONOCHROME)
     unsigned int displayContrast : 3;

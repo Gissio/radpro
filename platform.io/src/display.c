@@ -738,6 +738,10 @@ uint16_t displayBrightnessValue[] = {
 
 // Definitions
 
+const uint32_t menuLineNum = MENU_LINE_NUM;
+
+static const Menu displayFlashesMenu;
+
 #if defined(DISPLAY_MONOCHROME)
 static const Menu displayContrastMenu;
 #elif defined(DISPLAY_COLOR)
@@ -745,10 +749,6 @@ static const Menu displayThemeMenu;
 #endif
 static const Menu displayBrightnessMenu;
 static const Menu displaySleepMenu;
-
-static const Menu displayFlashesMenu;
-
-const uint32_t menuLineNum = MENU_LINE_NUM;
 
 // Variables
 
@@ -882,7 +882,7 @@ static void drawFrame(const mr_rectangle_t *rectangle)
 }
 
 static void drawImage(const mr_rectangle_t *rectangle,
-                      mr_color_t *imageBuffer)
+                      const mr_color_t *imageBuffer)
 {
     mr_draw_image(&mr, rectangle, imageBuffer);
 }
@@ -1811,7 +1811,7 @@ void drawHistory(float scale,
     int16_t timeTickIndex = 1;
     int16_t timeTickNext = HISTORY_DATA_WIDTH / timeTickNum;
 
-    int16_t yDataLast;
+    int16_t yDataLast = 0;
 #if defined(DISPLAY_COLOR)
     int16_t yAlertZone1 = getHistoryY(alertZone1Value,
                                       dataExponentMinValue,
@@ -2302,6 +2302,43 @@ void drawGame(const uint8_t board[8][8],
 #endif
 }
 
+// Display flashes menu
+
+static const char *const displayFlashesMenuOptions[] = {
+    "Off",
+    "On",
+    NULL,
+};
+
+static const char *onDisplayFlashesMenuGetOption(const Menu *menu,
+                                                 uint32_t index,
+                                                 MenuStyle *menuStyle)
+{
+    *menuStyle = (index == settings.pulseFlashes);
+
+    return displayFlashesMenuOptions[index];
+}
+
+static void onDisplayFlashesMenuSelect(const Menu *menu)
+{
+    settings.pulseFlashes = menu->state->selectedIndex;
+}
+
+static MenuState displayFlashesMenuState;
+
+static const Menu displayFlashesMenu = {
+    "Display flashes",
+    &displayFlashesMenuState,
+    onDisplayFlashesMenuGetOption,
+    onDisplayFlashesMenuSelect,
+    onPulsesSubMenuBack,
+};
+
+const View displayFlashesMenuView = {
+    onMenuEvent,
+    &displayFlashesMenu,
+};
+
 // Display menu
 
 const View displayThemeMenuView;
@@ -2523,41 +2560,4 @@ static const Menu displaySleepMenu = {
 const View displaySleepMenuView = {
     onMenuEvent,
     &displaySleepMenu,
-};
-
-// Display flashes menu
-
-static const char *const displayFlashesMenuOptions[] = {
-    "Off",
-    "On",
-    NULL,
-};
-
-static const char *onDisplayFlashesMenuGetOption(const Menu *menu,
-                                                 uint32_t index,
-                                                 MenuStyle *menuStyle)
-{
-    *menuStyle = (index == settings.pulseFlashes);
-
-    return displayFlashesMenuOptions[index];
-}
-
-static void onDisplayFlashesMenuSelect(const Menu *menu)
-{
-    settings.pulseFlashes = menu->state->selectedIndex;
-}
-
-static MenuState displayFlashesMenuState;
-
-static const Menu displayFlashesMenu = {
-    "Display flashes",
-    &displayFlashesMenuState,
-    onDisplayFlashesMenuGetOption,
-    onDisplayFlashesMenuSelect,
-    onPulsesSubMenuBack,
-};
-
-const View displayFlashesMenuView = {
-    onMenuEvent,
-    &displayFlashesMenu,
 };

@@ -310,7 +310,7 @@ static const char *onTubeBackgroundCompensationMenuGetOption(const Menu *menu,
         return "Off";
     else if (index < TUBE_BACKGROUNDCOMPENSATION_NUM)
     {
-        Unit *rateUnit = &units[settings.units].rate;
+        const Unit *rateUnit = &units[settings.units].rate;
 
         strclr(menuOption);
         strcatFloatAsMetricValueWithPrefix(menuOption,
@@ -556,12 +556,7 @@ void setTubeHVFrequency(float value)
 
     tube.hvFrequency = value;
 
-    uint32_t tubeHVFrequency = log2f(value / 1250);
-    if (tubeHVFrequency < 0)
-        tubeHVFrequency = 0;
-    else if (tubeHVFrequency >= TUBE_HVFREQUENCY_NUM)
-        tubeHVFrequency = TUBE_HVFREQUENCY_NUM - 1;
-
+    int32_t tubeHVFrequency = log2f(value / 1250);
     settings.tubeHVProfile = TUBE_HVPROFILE_CUSTOM;
     settings.tubeHVFrequency = tubeHVFrequency;
 
@@ -645,7 +640,7 @@ void setTubeHVDutyCycle(float value)
 
     tube.hvDutyCycle = value;
 
-    uint32_t tubeHVDutyCycle = (value - TUBE_HVDUTYCYCLE_MIN / 2) /
+    int32_t tubeHVDutyCycle = (value - TUBE_HVDUTYCYCLE_MIN / 2) /
                                TUBE_HVDUTYCYCLE_STEP;
     if (tubeHVDutyCycle < 0)
         tubeHVDutyCycle = 0;
@@ -715,14 +710,14 @@ enum
 };
 
 static const char *const pulsesMenuOptions[] = {
-    "Pulse clicks",
+    "Audible",
+#if defined(VIBRATOR)
+    "Haptic",
+#endif
 #if defined(PULSE_LED)
     "Pulse LED",
 #endif
     "Display flashes",
-#if defined(VIBRATOR)
-    "Haptic pulses",
-#endif
     "Threshold",
     NULL,
 };

@@ -185,7 +185,8 @@ static struct
 
         Rate rate;
         bool timerExpired;
-        Rate timerRate;
+        uint32_t timedPulseCount;
+        Rate timedRate;
     } average;
 
     uint32_t averageTabIndex;
@@ -230,12 +231,14 @@ static const float averagingConfidences[] = {
 
 static const View rateAlarmMenuView;
 static const View doseAlarmMenuView;
+static const View alarmNotificationsMenuView;
 static const View unitsMenuView;
 static const View instantaneousMenuView;
 static const View averageMenuView;
 
 static const Menu rateAlarmMenu;
 static const Menu doseAlarmMenu;
+static const Menu alarmNotificationsMenu;
 static const Menu unitsMenu;
 static const Menu instantaneousMenu;
 static const Menu averageMenu;
@@ -264,25 +267,23 @@ void initMeasurements(void)
     selectMenuItem(&doseAlarmMenu,
                    settings.doseAlarm,
                    DOSEALARM_NUM);
+    selectMenuItem(&alarmNotificationsMenu,
+                   settings.alarmNotifications,
+                   ALARMNOTIFICATIONS_NUM);
     selectMenuItem(&unitsMenu,
                    settings.units,
                    UNITS_NUM);
     selectMenuItem(&instantaneousMenu,
                    settings.instantaneousAveraging,
-                   TUBE_INSTANTANEOUSAVERAGING_NUM);
+                   INSTANTANEOUSAVERAGING_NUM);
     selectMenuItem(&averageMenu,
                    settings.averaging,
                    AVERAGING_NUM);
 
-    memset(&measurements.period, 0, sizeof(measurements.period));
-    resetInstantaneousRate();
-    measurements.instantaneousTabIndex = 0;
-    resetAverageRate();
-    measurements.averageTabIndex = 0;
-    resetCumulativeDose();
-    measurements.cumulativeDoseTabIndex = 0;
-
-    resetHistory();
+    Dose tubeDose = measurements.tube.dose;
+    memset(&measurements, 0, sizeof(measurements));
+    measurements.tube.dose = tubeDose;
+    updateMeasurementUnits();
 }
 
 // Measurement events
@@ -524,7 +525,7 @@ void updateMeasurements(void)
         instantaneousAveragingPeriods[settings.instantaneousAveraging];
     uint32_t averagingPulseCount =
         (settings.instantaneousAveraging <=
-         TUBE_INSTANTANEOUSAVERAGING_ADAPTIVEPRECISION)
+         INSTANTANEOUSAVERAGING_ADAPTIVEPRECISION)
             ? INSTANTANEOUS_RATE_AVERAGING_PULSE_COUNT
             : 0;
 
@@ -628,12 +629,17 @@ void updateMeasurements(void)
                        averagingConfidences[settings.averaging - AVERAGING_TIME_NUM]);
 
         if (!timerExpired)
-            measurements.average.timerRate = measurements.average.rate;
+        {
+            measurements.average.timedPulseCount = measurements.average.pulseCount;
+            measurements.average.timedRate = measurements.average.rate;
+        }
 
         if (timerExpired && !measurements.average.timerExpired)
         {
             measurements.average.timerExpired = true;
-            measurements.average.timerRate = measurements.average.rate;
+
+            measurements.average.timedPulseCount = measurements.average.pulseCount;
+            measurements.average.timedRate = measurements.average.rate;
 
             triggerAlarm();
         }
@@ -996,7 +1002,7 @@ static void onAverageRateViewEvent(const View *view,
 
         buildValueString(valueString,
                          unitString,
-                         measurements.average.timerRate.value,
+                         measurements.average.timedRate.value,
                          &units[settings.units].rate,
                          unitsMinMetricPrefixIndex[settings.units]);
 
@@ -1028,7 +1034,7 @@ static void onAverageRateViewEvent(const View *view,
         drawTitleBar("Average", false);
         drawMeasurementValue(valueString,
                              unitString,
-                             measurements.average.timerRate.confidence,
+                             measurements.average.timedRate.confidence,
                              style);
 
         strclr(valueString);
@@ -1038,7 +1044,7 @@ static void onAverageRateViewEvent(const View *view,
         {
         case AVERAGE_TAB_TIME:
             strcatTime(valueString,
-                       measurements.average.timerRate.time);
+                       measurements.average.timedRate.time);
 
             keyString = "Time";
 
@@ -1054,7 +1060,7 @@ static void onAverageRateViewEvent(const View *view,
 
                 buildValueString(valueString,
                                  unitString,
-                                 measurements.average.rate.value,
+                                 measurements.average.timedRate.value,
                                  &units[unitsIndex].rate,
                                  unitsMinMetricPrefixIndex[unitsIndex]);
             }
@@ -1067,7 +1073,7 @@ static void onAverageRateViewEvent(const View *view,
             if (measurements.average.pulseCount > 0)
                 buildValueString(valueString,
                                  unitString,
-                                 measurements.average.pulseCount,
+                                 measurements.average.timedPulseCount,
                                  &units[UNITS_CPM].dose,
                                  unitsMinMetricPrefixIndex[UNITS_CPM]);
 
@@ -1315,7 +1321,7 @@ static void onHistoryViewEvent(const View *view, Event event)
     {
         HistoryState *historyState =
             &measurements.history.states[measurements.history.tabIndex];
-        Unit *rateUnit = &units[settings.units].rate;
+        const Unit *rateUnit = &units[settings.units].rate;
 
         uint8_t data[HISTORY_BUFFER_SIZE];
         for (uint32_t i = 0; i < HISTORY_BUFFER_SIZE; i++)
@@ -1365,6 +1371,7 @@ bool isAlarm(void)
 static const OptionView alarmsMenuOptions[] = {
     {"Rate alarm", &rateAlarmMenuView},
     {"Dose alarm", &doseAlarmMenuView},
+    {"Notification", &alarmNotificationsMenuView},
     {NULL},
 };
 
@@ -1406,7 +1413,7 @@ static void onAlarmsSubMenuBack(const Menu *menu)
 
 static char *buildRateAlarmMenuOption(uint32_t index)
 {
-    Unit *rateUnit = &units[settings.units].rate;
+    const Unit *rateUnit = &units[settings.units].rate;
     float value = rateAlarmsSvH[index] /
                   units[UNITS_SIEVERTS].rate.scale;
 
@@ -1465,7 +1472,7 @@ static const char *onDoseAlarmMenuGetOption(const Menu *menu,
         return "Off";
     else if (index < DOSEALARM_NUM)
     {
-        Unit *doseUnit = &units[settings.units].dose;
+        const Unit *doseUnit = &units[settings.units].dose;
         float value = doseAlarmsSv[index] /
                       units[UNITS_SIEVERTS].dose.scale;
 
@@ -1499,6 +1506,44 @@ static const Menu doseAlarmMenu = {
 static const View doseAlarmMenuView = {
     onMenuEvent,
     &doseAlarmMenu,
+};
+
+// Alarm indication menu
+
+static const char *const alarmNotificationsMenuOptions[] = {
+    "Audible",
+    "Haptic",
+    "Visual",
+    NULL,
+};
+
+static const char *onAlarmNotificationsMenuGetOption(const Menu *menu,
+                                            uint32_t index,
+                                            MenuStyle *menuStyle)
+{
+    *menuStyle = (index == settings.alarmNotifications);
+
+    return alarmNotificationsMenuOptions[index];
+}
+
+static void onAlarmNotificationsMenuSelect(const Menu *menu)
+{
+    settings.alarmNotifications = menu->state->selectedIndex;
+}
+
+static MenuState alarmNotificationsMenuState;
+
+static const Menu alarmNotificationsMenu = {
+    "Notification",
+    &alarmNotificationsMenuState,
+    onAlarmNotificationsMenuGetOption,
+    onAlarmNotificationsMenuSelect,
+    onAlarmsSubMenuBack,
+};
+
+static const View alarmNotificationsMenuView = {
+    onMenuEvent,
+    &alarmNotificationsMenu,
 };
 
 // Measurements menu

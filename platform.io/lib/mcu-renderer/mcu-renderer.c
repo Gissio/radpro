@@ -2,7 +2,7 @@
  * MCU renderer
  * Core module
  *
- * (C) 2023-2024 Gissio
+ * (C) 2023-2025 Gissio
  *
  * License: MIT
  */
@@ -116,7 +116,6 @@ static mr_charcode mr_decode_utf16(uint8_t **strp)
     else
     {
         // Invalid
-
         value = -1;
 
         *strp += 2;
@@ -285,22 +284,9 @@ static inline bool mr_is_point_in_rect(const mr_point_t *p,
 
 // I/O
 
-void mr_set_chipselect(mr_t *mr,
-                       bool value)
-{
-    if (value == mr->chipselect)
-        return;
-
-    mr->set_chipselect_callback(value);
-    mr->chipselect = value;
-}
-
 void mr_send_command(mr_t *mr,
                      uint8_t command)
 {
-    mr_set_chipselect(mr, false);
-    mr_set_chipselect(mr, true);
-
     mr_set_command(mr, true);
     mr_send(mr, command);
 }
@@ -315,6 +301,8 @@ void mr_send_data(mr_t *mr,
 void mr_send_sequence(mr_t *mr,
                       const uint8_t *sequence)
 {
+    mr_set_chipselect(mr, true);
+
     while (true)
     {
         mr_sequence_t sequenceCommand = *sequence++;
@@ -343,11 +331,11 @@ void mr_send_sequence(mr_t *mr,
             break;
 
         case MR_SEQ_END:
-            mr_set_chipselect(mr, false);
-
             return;
         }
     }
+
+    mr_set_chipselect(mr, false);
 }
 
 // Rectangle rendering
@@ -429,9 +417,9 @@ void mr_draw_bitmap_framebuffer_monochrome_vertical(mr_t *mr,
             mr_color_t source_color = source_pixel ? mr->stroke_color : mr->fill_color;
 
             mr_point_t dest_position = mr_rotate_point(mr, &position);
-            mr_color_t *dest_buffer = (mr_color_t *)mr->buffer +
-                                      dest_position.y * mr->display_width +
-                                      dest_position.x;
+            uint8_t *dest_buffer = (uint8_t *)mr->buffer +
+                                   (dest_position.y >> 3) * mr->display_width +
+                                   dest_position.x;
             uint8_t dest_buffer_mask = 1 << (dest_position.y & 0b111);
 
             if (source_color >> 15)
@@ -492,9 +480,9 @@ void mr_draw_image_framebuffer_monochrome_vertical(mr_t *mr,
         {
             mr_color_t source_color = *image++;
             mr_point_t dest_position = mr_rotate_point(mr, &position);
-            mr_color_t *dest_buffer = (mr_color_t *)mr->buffer +
-                                      dest_position.y * mr->display_width +
-                                      dest_position.x;
+            uint8_t *dest_buffer = (uint8_t *)mr->buffer +
+                                   (dest_position.y >> 3) * mr->display_width +
+                                   dest_position.x;
             uint8_t dest_buffer_mask = 1 << (dest_position.y & 0b111);
 
             if (source_color >> 15)
@@ -793,14 +781,17 @@ mr_draw_glyph_template(mr_draw_glyph_framebuffer_color_prototype,
                              const mr_point_t *pen, \
                              uint32_t buffer_pitch)
 
-#define mr_draw_glyph_textbuffer_init             \
-    mr_point_t position = {                       \
-        pen->x + glyph_rectangle.x,               \
-        pen->y - glyph_rectangle.y};              \
-                                                  \
-    uint8_t *buffer = (uint8_t *)mr->buffer +     \
-                      buffer_pitch * position.y + \
-                      position.x;                 \
+#define mr_draw_glyph_textbuffer_init                         \
+    mr_point_t position = {                                   \
+        pen->x + glyph_rectangle.x,                           \
+        pen->y - glyph_rectangle.y};                          \
+                                                              \
+    if ((position.x + glyph_rectangle.width) >= buffer_pitch) \
+        return;                                               \
+                                                              \
+    uint8_t *buffer = (uint8_t *)mr->buffer +                 \
+                      buffer_pitch * position.y +             \
+                      position.x;                             \
     uint8_t *buffer_line = buffer;
 
 #define mr_draw_glyph_textbuffer_loop \
@@ -831,7 +822,6 @@ static bool mr_get_glyph(mr_t *mr,
         (const mr_font_header_t *)mr->font;
 
     // Search block
-
     const uint8_t *block;
     const uint8_t *block_end = mr->font + MR_FONT_HEADER_SIZE;
     mr_charcode block_charcode = -1;
@@ -859,7 +849,6 @@ static bool mr_get_glyph(mr_t *mr,
         return false;
 
     // Search glyph
-
     while (block < block_end)
     {
         int32_t glyph_size = mr_get_variable_length_word(&block);
@@ -1040,7 +1029,6 @@ void mr_draw_string_textbuffer(mr_t *mr,
             // * A clear rectangle
 
             // Calculate move rectangle width
-
             uint16_t move_rectangle_width;
             if (charcode &&
                 (mr->glyph.boundingbox_left < 0))
@@ -1054,7 +1042,6 @@ void mr_draw_string_textbuffer(mr_t *mr,
             buffer_rectangle.width -= move_rectangle_width;
 
             // Send draw rectangle
-
             mr_rectangle_t buffer_clipped_rectangle;
             if (mr_intersect_rectangles(rectangle,
                                         &buffer_rectangle,
@@ -1070,7 +1057,6 @@ void mr_draw_string_textbuffer(mr_t *mr,
             }
 
             // Update move and clear rectangles
-
             uint8_t *line = mr->buffer;
             for (uint16_t y = 0; y < buffer_rectangle.height; y++)
             {
@@ -1097,7 +1083,6 @@ void mr_draw_string_textbuffer(mr_t *mr,
     }
 
     // Draw fill rectangles
-
     if (!mr_intersect_rectangles(rectangle,
                                  &text_rectangle,
                                  &text_rectangle))
@@ -1156,8 +1141,6 @@ void mr_draw_rectangle(mr_t *mr,
                        const mr_rectangle_t *rectangle)
 {
     mr->draw_rectangle_callback(mr, rectangle);
-
-    mr_set_chipselect(mr, false);
 }
 
 void mr_set_font(mr_t *mr,
@@ -1176,8 +1159,6 @@ void mr_draw_text(mr_t *mr,
                              rectangle,
                              offset,
                              mr_decode_c_string);
-
-    mr_set_chipselect(mr, false);
 }
 
 void mr_draw_utf8_text(mr_t *mr,
@@ -1190,8 +1171,6 @@ void mr_draw_utf8_text(mr_t *mr,
                              rectangle,
                              offset,
                              mr_decode_utf8);
-
-    mr_set_chipselect(mr, false);
 }
 
 void mr_draw_utf16_text(mr_t *mr,
@@ -1204,8 +1183,6 @@ void mr_draw_utf16_text(mr_t *mr,
                              rectangle,
                              offset,
                              mr_decode_utf16);
-
-    mr_set_chipselect(mr, false);
 }
 
 int16_t mr_get_text_width(mr_t *mr,
@@ -1266,10 +1243,7 @@ void mr_draw_bitmap(mr_t *mr,
                     const mr_rectangle_t *rectangle,
                     const uint8_t *bitmap)
 {
-    if (mr->draw_bitmap_callback)
-        mr->draw_bitmap_callback(mr, rectangle, bitmap);
-
-    mr_set_chipselect(mr, false);
+    mr->draw_bitmap_callback(mr, rectangle, bitmap);
 }
 #endif
 
@@ -1278,9 +1252,6 @@ void mr_draw_image(mr_t *mr,
                    const mr_rectangle_t *rectangle,
                    const mr_color_t *image)
 {
-    if (mr->draw_image_callback)
-        mr->draw_image_callback(mr, rectangle, image);
-
-    mr_set_chipselect(mr, false);
+    mr->draw_image_callback(mr, rectangle, image);
 }
 #endif

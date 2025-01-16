@@ -10,7 +10,7 @@
 #include "cstring.h"
 #include "flash.h"
 
-bool isFlashEmpty(uint8_t *data,
+bool isFlashEmpty(const uint8_t *data,
                   uint32_t size)
 {
     for (uint32_t i = 0; i < size; i++)
@@ -27,9 +27,9 @@ uint32_t getFlashPaddedSize(uint32_t size)
     return ((size + flashWordSize - 1) / flashWordSize) * flashWordSize;
 }
 
-FlashPageState getFlashPageState(FlashIterator *iterator)
+FlashPageState getFlashPageState(const FlashIterator *iterator)
 {
-    uint8_t *data = getFlashPage(iterator->pageIndex);
+    const uint8_t *data = getFlashPage(iterator->pageIndex);
 
     return data[flashPageDataSize];
 }

@@ -61,7 +61,7 @@ static void onPulseClicksMenuSelect(const Menu *menu)
 static MenuState pulseClicksMenuState;
 
 static const Menu pulseClicksMenu = {
-    "Pulse clicks",
+    "Audible",
     &pulseClicksMenuState,
     onPulseClicksMenuGetOption,
     onPulseClicksMenuSelect,
