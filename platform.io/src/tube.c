@@ -699,18 +699,18 @@ static const View tubeHVDutyCycleMenuView = {
 enum
 {
     PULSES_MENU_OPTIONS_PULSE_CLICKS,
+#if defined(VIBRATOR)
+    PULSES_MENU_OPTIONS_HAPTIC_PULSES,
+#endif
 #if defined(PULSE_LED)
     PULSES_MENU_OPTIONS_PULSE_LED,
 #endif
     PULSES_MENU_OPTIONS_DISPLAY_FLASHES,
-#if defined(VIBRATOR)
-    PULSES_MENU_OPTIONS_HAPTIC_PULSES,
-#endif
     PULSES_MENU_OPTIONS_PULSE_THRESHOLD,
 };
 
 static const char *const pulsesMenuOptions[] = {
-    "Audible",
+    "Sound",
 #if defined(VIBRATOR)
     "Haptic",
 #endif

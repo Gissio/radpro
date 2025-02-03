@@ -85,7 +85,7 @@ static const char *const batteryTypeMenuOptions[] = {
     NULL,
 };
 
-static const char *onPulseClicksMenuGetOption(const Menu *menu,
+static const char *onBatteryTypeMenuGetOption(const Menu *menu,
                                               uint32_t index,
                                               MenuStyle *menuStyle)
 {
@@ -104,7 +104,7 @@ static MenuState batteryTypeMenuState;
 static const Menu batteryTypeMenu = {
     "Battery type",
     &batteryTypeMenuState,
-    onPulseClicksMenuGetOption,
+    onBatteryTypeMenuGetOption,
     onBatteryTypeMenuSelect,
     onSettingsSubMenuBack,
 };

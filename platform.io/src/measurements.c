@@ -231,14 +231,14 @@ static const float averagingConfidences[] = {
 
 static const View rateAlarmMenuView;
 static const View doseAlarmMenuView;
-static const View alarmNotificationsMenuView;
+static const View alarmSignalingMenuView;
 static const View unitsMenuView;
 static const View instantaneousMenuView;
 static const View averageMenuView;
 
 static const Menu rateAlarmMenu;
 static const Menu doseAlarmMenu;
-static const Menu alarmNotificationsMenu;
+static const Menu alarmSignalingMenu;
 static const Menu unitsMenu;
 static const Menu instantaneousMenu;
 static const Menu averageMenu;
@@ -267,9 +267,9 @@ void initMeasurements(void)
     selectMenuItem(&doseAlarmMenu,
                    settings.doseAlarm,
                    DOSEALARM_NUM);
-    selectMenuItem(&alarmNotificationsMenu,
-                   settings.alarmNotifications,
-                   ALARMNOTIFICATIONS_NUM);
+    selectMenuItem(&alarmSignalingMenu,
+                   settings.alarmSignaling,
+                   ALARMSIGNALING_NUM);
     selectMenuItem(&unitsMenu,
                    settings.units,
                    UNITS_NUM);
@@ -396,10 +396,7 @@ void disableMeasurements(void)
 
 void onMeasurementTick(uint32_t pulseCount)
 {
-    if (!measurements.enabled)
-        return;
-
-    if (pulseCount)
+    if (measurements.enabled && pulseCount)
     {
         measurements.tube.dose.pulseCount += pulseCount;
 
@@ -425,12 +422,12 @@ void onMeasurementTick(uint32_t pulseCount)
 
 void onMeasurementPeriod(void)
 {
-    if (!measurements.enabled)
-        return;
-
-    measurements.period.snapshotTick = getTick();
-    measurements.period.snapshotMeasurement = measurements.period.measurement;
-    measurements.period.measurement.pulseCount = 0;
+    if (measurements.enabled)
+    {
+        measurements.period.snapshotTick = getTick();
+        measurements.period.snapshotMeasurement = measurements.period.measurement;
+        measurements.period.measurement.pulseCount = 0;
+    }
 }
 
 uint8_t getHistoryValue(float value)
@@ -580,7 +577,7 @@ void updateMeasurements(void)
     float svH = units[UNITS_SIEVERTS].rate.scale *
                 measurements.instantaneous.rate.value;
 
-    enablePulseThreshold(svH < rateAlarmsSvH[settings.pulseThreshold]);
+    setPulseThreshold(svH < rateAlarmsSvH[settings.pulseThreshold]);
 
     bool instantaneousRateAlarm = false;
     // Trigger alarm if alarm enabled and confidence interval is below 75%
@@ -1371,7 +1368,7 @@ bool isAlarm(void)
 static const OptionView alarmsMenuOptions[] = {
     {"Rate alarm", &rateAlarmMenuView},
     {"Dose alarm", &doseAlarmMenuView},
-    {"Notification", &alarmNotificationsMenuView},
+    {"Signaling", &alarmSignalingMenuView},
     {NULL},
 };
 
@@ -1508,42 +1505,42 @@ static const View doseAlarmMenuView = {
     &doseAlarmMenu,
 };
 
-// Alarm indication menu
+// Alarm signaling menu
 
-static const char *const alarmNotificationsMenuOptions[] = {
-    "Audible",
+static const char *const alarmSignalingMenuOptions[] = {
+    "Acoustic",
     "Haptic",
     "Visual",
     NULL,
 };
 
-static const char *onAlarmNotificationsMenuGetOption(const Menu *menu,
-                                            uint32_t index,
-                                            MenuStyle *menuStyle)
+static const char *onAlarmSignalingMenuGetOption(const Menu *menu,
+                                                     uint32_t index,
+                                                     MenuStyle *menuStyle)
 {
-    *menuStyle = (index == settings.alarmNotifications);
+    *menuStyle = (index == settings.alarmSignaling);
 
-    return alarmNotificationsMenuOptions[index];
+    return alarmSignalingMenuOptions[index];
 }
 
-static void onAlarmNotificationsMenuSelect(const Menu *menu)
+static void onAlarmSignalingMenuSelect(const Menu *menu)
 {
-    settings.alarmNotifications = menu->state->selectedIndex;
+    settings.alarmSignaling = menu->state->selectedIndex;
 }
 
-static MenuState alarmNotificationsMenuState;
+static MenuState alarmSignalingMenuState;
 
-static const Menu alarmNotificationsMenu = {
-    "Notification",
-    &alarmNotificationsMenuState,
-    onAlarmNotificationsMenuGetOption,
-    onAlarmNotificationsMenuSelect,
+static const Menu alarmSignalingMenu = {
+    "Signaling",
+    &alarmSignalingMenuState,
+    onAlarmSignalingMenuGetOption,
+    onAlarmSignalingMenuSelect,
     onAlarmsSubMenuBack,
 };
 
-static const View alarmNotificationsMenuView = {
+static const View alarmSignalingMenuView = {
     onMenuEvent,
-    &alarmNotificationsMenu,
+    &alarmSignalingMenu,
 };
 
 // Measurements menu

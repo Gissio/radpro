@@ -1,13 +1,12 @@
 /*
  * Rad Pro
- * LED
+ * Initialization
  *
  * (C) 2022-2025 Gissio
  *
  * License: MIT
  */
 
-#include "buzzer.h"
 #include "comm.h"
 #include "datalog.h"
 #include "display.h"
@@ -49,9 +48,7 @@ static void onPowerOnViewEvent(const View *view, Event event)
         break;
 
     case EVENT_POST_DRAW:
-        if (powerOnViewState == POWERON_VIEW_FLASHFAILURE)
-            playSystemAlert();
-        else
+        if (powerOnViewState == POWERON_VIEW_SPLASH)
             initRTC();
 
         break;
@@ -84,23 +81,28 @@ void setPowerOnView(void)
 {
     // Power on
     setPower(true);
-    resetEvents();
-    requestDisplayBacklightTrigger();
-    clearKeyboardEvents();
 
-    // Iniitalize modules
+    // Initialize modules
     initMeasurements();
 #if defined(GAME)
     initGame();
 #endif
     initDatalog();
 
-    triggerVibrator();
-
-    if (!verifyFlash())
+    if (!verifyFlash()) 
+    {
         powerOnViewState = POWERON_VIEW_FLASHFAILURE;
+
+        triggerAlarm();
+    }
     else
         powerOnViewState = POWERON_VIEW_SPLASH;
+
+    requestDisplayBacklightTrigger();
+    clearKeyboardEvents();
+    triggerVibrator();
+    startEvents();
+
     setView(&powerOnView);
 }
 

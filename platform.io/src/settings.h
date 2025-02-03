@@ -141,11 +141,11 @@ enum
 
 enum
 {
-    ALARMNOTIFICATIONS_AUDIBLE,
-    ALARMNOTIFICATIONS_HAPTIC,
-    ALARMNOTIFICATIONS_VISUAL,
+    ALARMSIGNALING_SOUND,
+    ALARMSIGNALING_HAPTIC,
+    ALARMSIGNALING_VISUAL,
 
-    ALARMNOTIFICATIONS_NUM,
+    ALARMSIGNALING_NUM,
 };
 
 enum
@@ -385,7 +385,7 @@ typedef struct
 
     unsigned int rateAlarm : 4;
     unsigned int doseAlarm : 4;
-    unsigned int alarmNotifications : 2;
+    unsigned int alarmSignaling : 2;
 
     unsigned int tubeConversionFactor : 8;
     unsigned int tubeDeadTimeCompensation : 6;

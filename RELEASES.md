@@ -4,15 +4,15 @@
 
 Updates:
 
-* Introduced an alarm enabled indicator.
-* Added configurable alarm options for audible, haptic and visual-only notifications.
 * Added the ability to dismiss alarms using the reset measurement key.
-* Added options for setting higher rate and dose alarms.
-* Extended the duration of alarm sounds.
-* Implemented a lock mode accesible from Settings.
+* Added configurable alarm options for acoustic, haptic and visual-only signaling.
+* Introduced an alarm enabled indicator.
+* Implemented a keyboard lock mode, accesible from Settings.
 * Display of dose counts below 10000 now uses standard notation.
+* Added options for setting higher rate and dose alarms.
 * Enhanced the menu structure for more intuitive navigation.
 * Updated the UI font to Open Sans for enhanced readability.
+* Extended the duration of alarm sounds.
 * Minor UI improvements.
 
 Fixes:

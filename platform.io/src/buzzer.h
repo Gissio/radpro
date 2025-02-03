@@ -27,6 +27,4 @@ void updateBuzzer(void);
 
 void setBuzzer(bool value);
 
-void playSystemAlert(void);
-
 #endif

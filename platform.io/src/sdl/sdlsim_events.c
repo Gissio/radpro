@@ -13,8 +13,6 @@
 
 #include "../events.h"
 
-extern volatile uint32_t eventsCurrentTick;
-
 float timerCountToSeconds = (1.0F / PULSE_MEASUREMENT_FREQUENCY);
 
 void initEvents(void)

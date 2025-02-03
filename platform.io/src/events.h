@@ -21,7 +21,7 @@
 extern float timerCountToSeconds;
 
 void initEvents(void);
-void resetEvents(void);
+void startEvents(void);
 
 void onTick(void);
 uint32_t getTick(void);
@@ -38,7 +38,7 @@ void triggerDisplayBacklight(void);
 void cancelDisplayBacklight(void);
 bool isDisplayBacklightActive(void);
 
-void enablePulseThreshold(bool value);
+void setPulseThreshold(bool value);
 bool isPulseThresholdEnabled(void);
 
 void triggerPulse(void);

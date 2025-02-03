@@ -13,62 +13,51 @@
 #include "settings.h"
 #include "tube.h"
 
-static const Menu pulseClicksMenu;
+static const Menu pulseSoundMenu;
 
 void initBuzzer(void)
 {
     initBuzzerController();
 
-    selectMenuItem(&pulseClicksMenu,
+    selectMenuItem(&pulseSoundMenu,
                    settings.pulseClicks,
                    PULSE_CLICKS_NUM);
 }
 
-void playSystemAlert(void)
-{
-    for (uint32_t i = 0; i < 8; i++)
-    {
-        setBuzzer(true);
-        sleep(50);
-        setBuzzer(false);
-        sleep(50);
-    }
-}
-
 // Pulse clicks menu
 
-static const char *const pulseClicksMenuOptions[] = {
+static const char *const pulseSoundMenuOptions[] = {
     "Off",
     "Clicks",
     "Beeps",
     NULL,
 };
 
-static const char *onPulseClicksMenuGetOption(const Menu *menu,
-                                              uint32_t index,
-                                              MenuStyle *menuStyle)
+static const char *onPulseSoundMenuGetOption(const Menu *menu,
+                                             uint32_t index,
+                                             MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.pulseClicks);
 
-    return pulseClicksMenuOptions[index];
+    return pulseSoundMenuOptions[index];
 }
 
-static void onPulseClicksMenuSelect(const Menu *menu)
+static void onPulseSoundMenuSelect(const Menu *menu)
 {
     settings.pulseClicks = menu->state->selectedIndex;
 }
 
-static MenuState pulseClicksMenuState;
+static MenuState pulseSoundMenuState;
 
-static const Menu pulseClicksMenu = {
-    "Audible",
-    &pulseClicksMenuState,
-    onPulseClicksMenuGetOption,
-    onPulseClicksMenuSelect,
+static const Menu pulseSoundMenu = {
+    "Sound",
+    &pulseSoundMenuState,
+    onPulseSoundMenuGetOption,
+    onPulseSoundMenuSelect,
     onPulsesSubMenuBack,
 };
 
 const View pulseClicksMenuView = {
     onMenuEvent,
-    &pulseClicksMenu,
+    &pulseSoundMenu,
 };

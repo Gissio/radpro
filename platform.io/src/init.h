@@ -1,6 +1,6 @@
 /*
  * Rad Pro
- * LED
+ * Initialization
  *
  * (C) 2022-2025 Gissio
  *

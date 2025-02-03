@@ -1,6 +1,6 @@
 /*
  * Rad Pro
- * Bosean FS-600/FS-1000 specifics
+ * Bosean FS-5000 specifics
  *
  * (C) 2022-2025 Gissio
  *

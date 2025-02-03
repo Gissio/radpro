@@ -109,7 +109,7 @@ static uint32_t pulseVibrationTicks[] = {
 };
 #endif
 
-void resetEvents(void)
+void startEvents(void)
 {
     events.deadTimeCount = PULSE_MEASUREMENT_FREQUENCY;
     events.periodTimer = SYSTICK_FREQUENCY;
@@ -369,7 +369,7 @@ bool isDisplayBacklightActive(void)
     return events.displayBacklightTimer != 0;
 }
 
-void enablePulseThreshold(bool value)
+void setPulseThreshold(bool value)
 {
     events.pulseThreshold = value;
 }
@@ -406,11 +406,11 @@ void triggerAlarm(void)
 {
     syncTimerThread();
 
-    if (settings.alarmNotifications == ALARMNOTIFICATIONS_AUDIBLE)
+    if (settings.alarmSignaling == ALARMSIGNALING_SOUND)
         setBuzzerTimer(ALARM_TICKS, 1);
 
 #if defined(VIBRATOR)
-    if (settings.alarmNotifications <= ALARMNOTIFICATIONS_HAPTIC)
+    if (settings.alarmSignaling <= ALARMSIGNALING_HAPTIC)
         setVibratorTimer(ALARM_TICKS);
 #endif
 
