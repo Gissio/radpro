@@ -740,7 +740,7 @@ uint16_t displayBrightnessValue[] = {
 
 const uint32_t menuLineNum = MENU_LINE_NUM;
 
-static const Menu displayFlashesMenu;
+static const Menu pulseDisplayFlashMenu;
 
 #if defined(DISPLAY_MONOCHROME)
 static const Menu displayContrastMenu;
@@ -778,9 +778,9 @@ void initDisplay(void)
                    settings.displayBrightness,
                    DISPLAY_BRIGHTNESS_NUM);
 
-    selectMenuItem(&displayFlashesMenu,
-                   settings.pulseFlashes,
-                   PULSE_FLASHES_NUM);
+    selectMenuItem(&pulseDisplayFlashMenu,
+                   settings.pulseDisplayFlash,
+                   PULSE_DISPLAY_FLASH_NUM);
 }
 
 // Drawing functions
@@ -2304,39 +2304,39 @@ void drawGame(const uint8_t board[8][8],
 
 // Display flashes menu
 
-static const char *const displayFlashesMenuOptions[] = {
+static const char *const pulseDisplayFlashMenuOptions[] = {
     "Off",
     "On",
     NULL,
 };
 
-static const char *onDisplayFlashesMenuGetOption(const Menu *menu,
-                                                 uint32_t index,
-                                                 MenuStyle *menuStyle)
+static const char *onPulseDisplayFlashMenuGetOption(const Menu *menu,
+                                                    uint32_t index,
+                                                    MenuStyle *menuStyle)
 {
-    *menuStyle = (index == settings.pulseFlashes);
+    *menuStyle = (index == settings.pulseDisplayFlash);
 
-    return displayFlashesMenuOptions[index];
+    return pulseDisplayFlashMenuOptions[index];
 }
 
-static void onDisplayFlashesMenuSelect(const Menu *menu)
+static void onPulseDisplayFlashMenuSelect(const Menu *menu)
 {
-    settings.pulseFlashes = menu->state->selectedIndex;
+    settings.pulseDisplayFlash = menu->state->selectedIndex;
 }
 
-static MenuState displayFlashesMenuState;
+static MenuState pulseDisplayFlashMenuState;
 
-static const Menu displayFlashesMenu = {
+static const Menu pulseDisplayFlashMenu = {
     "Display flashes",
-    &displayFlashesMenuState,
-    onDisplayFlashesMenuGetOption,
-    onDisplayFlashesMenuSelect,
+    &pulseDisplayFlashMenuState,
+    onPulseDisplayFlashMenuGetOption,
+    onPulseDisplayFlashMenuSelect,
     onPulsesSubMenuBack,
 };
 
-const View displayFlashesMenuView = {
+const View pulseDisplayFlashMenuView = {
     onMenuEvent,
-    &displayFlashesMenu,
+    &pulseDisplayFlashMenu,
 };
 
 // Display menu

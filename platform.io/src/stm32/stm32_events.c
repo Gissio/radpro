@@ -29,13 +29,13 @@ void initEvents(void)
                     SysTick_CTRL_ENABLE_Msk;
 
     // Set IWDG prescaler to divider /8
+    iwdg_unlock();
     wait_until_bits_clear(IWDG->SR, IWDG_SR_PVU);
-    iwdg_unlock();
-    IWDG->PR = 1;
+    IWDG->PR = 0b110;
 
-    wait_until_bits_clear(IWDG->SR, IWDG_SR_RVU);
     iwdg_unlock();
-    IWDG->RLR = (LSI_FREQUENCY / 8) - 1;
+    wait_until_bits_clear(IWDG->SR, IWDG_SR_RVU);
+    IWDG->RLR = (LSI_FREQUENCY / 256) - 1;
 
     iwdg_start();
 }

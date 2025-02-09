@@ -100,7 +100,7 @@ void setPowerOnView(void)
 
     requestDisplayBacklightTrigger();
     clearKeyboardEvents();
-    triggerVibrator();
+    triggerVibration();
     startEvents();
 
     setView(&powerOnView);

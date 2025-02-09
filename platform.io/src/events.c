@@ -23,18 +23,18 @@
 #include "rng.h"
 #include "settings.h"
 #include "tube.h"
-#include "vibrator.h"
+#include "vibration.h"
 
 #if !defined(SPEAKER)
-#define PULSE_CLICK_QUIET_TICKS ((uint32_t)(0.001 * SYSTICK_FREQUENCY))
+#define PULSE_SOUND_CLICKS_TICKS ((uint32_t)(0.001 * SYSTICK_FREQUENCY))
 #else
-#define PULSE_CLICK_QUIET_TICKS ((uint32_t)(0.004 * SYSTICK_FREQUENCY))
+#define PULSE_SOUND_CLICKS_TICKS ((uint32_t)(0.004 * SYSTICK_FREQUENCY))
 #endif
-#define PULSE_CLICK_LOUD_TICKS ((uint32_t)(0.015 * SYSTICK_FREQUENCY))
-#define PULSE_LED_TICKS ((uint32_t)(0.050 * SYSTICK_FREQUENCY))
-#define PULSE_FLASH_TICKS ((uint32_t)(0.050 * SYSTICK_FREQUENCY))
+#define PULSE_SOUND_BEEPS_TICKS ((uint32_t)(0.015 * SYSTICK_FREQUENCY))
 #define PULSE_VIBRATION_WEAK_TICKS ((uint32_t)(0.050 * SYSTICK_FREQUENCY))
 #define PULSE_VIBRATION_STRONG_TICKS ((uint32_t)(0.100 * SYSTICK_FREQUENCY))
+#define PULSE_LED_TICKS ((uint32_t)(0.050 * SYSTICK_FREQUENCY))
+#define PULSE_DISPLAY_FLASH_TICKS ((uint32_t)(0.050 * SYSTICK_FREQUENCY))
 
 #define ALARM_TICKS ((uint32_t)(0.200 * SYSTICK_FREQUENCY))
 
@@ -72,8 +72,8 @@ static struct
     volatile int32_t alertLEDTimer;
 #endif
 
-#if defined(VIBRATOR)
-    volatile int32_t vibratorTimer;
+#if defined(VIBRATION)
+    volatile int32_t vibrationTimer;
 #endif
 
     int32_t keyboardTimer;
@@ -95,13 +95,13 @@ static int32_t displayTimerValues[] = {
     -1,
 };
 
-static uint32_t pulseClickTicks[] = {
+static uint32_t pulseSoundTicks[] = {
     0,
-    PULSE_CLICK_QUIET_TICKS,
-    PULSE_CLICK_LOUD_TICKS,
+    PULSE_SOUND_CLICKS_TICKS,
+    PULSE_SOUND_BEEPS_TICKS,
 };
 
-#if defined(VIBRATOR)
+#if defined(VIBRATION)
 static uint32_t pulseVibrationTicks[] = {
     0,
     PULSE_VIBRATION_WEAK_TICKS,
@@ -225,10 +225,10 @@ void onTick(void)
         setAlertLED(false);
 #endif
 
-#if defined(VIBRATOR)
-    // Vibrator
-    if (updateTimer(&events.vibratorTimer) == TIMER_ELAPSED)
-        setVibrator(false);
+#if defined(VIBRATION)
+    // Vibration
+    if (updateTimer(&events.vibrationTimer) == TIMER_ELAPSED)
+        setVibration(false);
 #endif
 }
 
@@ -318,14 +318,14 @@ static void setAlertLEDTimer(int32_t value)
 }
 #endif
 
-#if defined(VIBRATOR)
-static void setVibratorTimer(int32_t value)
+#if defined(VIBRATION)
+static void setVibrationTimer(int32_t value)
 {
-    if (value > events.vibratorTimer)
+    if (value > events.vibrationTimer)
     {
-        setVibrator(true);
+        setVibration(true);
 
-        events.vibratorTimer = value;
+        events.vibrationTimer = value;
     }
 }
 #endif
@@ -383,22 +383,22 @@ void triggerPulse(void)
 {
     if (!events.pulseThreshold)
     {
-        if (settings.pulseClicks)
-            setBuzzerTimer(pulseClickTicks[settings.pulseClicks] + 1,
+        if (settings.pulseSound)
+            setBuzzerTimer(pulseSoundTicks[settings.pulseSound] + 1,
                            events.buzzerTimer + 1);
+
+#if defined(VIBRATION)
+        if (settings.pulseVibration)
+            setVibrationTimer(pulseVibrationTicks[settings.pulseVibration]);
+#endif
 
 #if defined(PULSE_LED)
         if (settings.pulseLED)
             setPulseLEDTimer(PULSE_LED_TICKS);
 #endif
 
-        if (settings.pulseFlashes && isDisplayEnabled())
-            setDisplayBacklightTimer(PULSE_FLASH_TICKS);
-
-#if defined(VIBRATOR)
-        if (settings.pulseVibrations)
-            setVibratorTimer(pulseVibrationTicks[settings.pulseVibrations]);
-#endif
+        if (settings.pulseDisplayFlash && isDisplayEnabled())
+            setDisplayBacklightTimer(PULSE_DISPLAY_FLASH_TICKS);
     }
 }
 
@@ -406,28 +406,31 @@ void triggerAlarm(void)
 {
     syncTimerThread();
 
-    if (settings.alarmSignaling == ALARMSIGNALING_SOUND)
+    if (settings.alarmSignaling & (1 << ALARMSIGNALING_SOUND))
         setBuzzerTimer(ALARM_TICKS, 1);
 
-#if defined(VIBRATOR)
-    if (settings.alarmSignaling <= ALARMSIGNALING_HAPTIC)
-        setVibratorTimer(ALARM_TICKS);
+#if defined(VIBRATION)
+    if (settings.alarmSignaling & (1 << ALARMSIGNALING_VIBRATION))
+        setVibrationTimer(ALARM_TICKS);
 #endif
-
-    requestDisplayBacklightAlarm();
 
 #if defined(ALERT_LED)
-    setAlertLEDTimer(ALARM_TICKS);
+    if (settings.alarmSignaling & (1 << ALARMSIGNALING_ALERT_LED))
+        setAlertLEDTimer(ALARM_TICKS);
 #elif defined(PULSE_LED)
-    setPulseLEDTimer(ALARM_TICKS);
+    if (settings.alarmSignaling & (1 << ALARMSIGNALING_ALERT_LED))
+        setPulseLEDTimer(ALARM_TICKS);
 #endif
+
+    if (settings.alarmSignaling & (1 << ALARMSIGNALING_DISPLAY_FLASH))
+        requestDisplayBacklightAlarm();
 }
 
-void triggerVibrator(void)
+void triggerVibration(void)
 {
-#if defined(VIBRATOR)
+#if defined(VIBRATION)
     syncTimerThread();
 
-    setVibratorTimer(POWERON_TEST_TICKS);
+    setVibrationTimer(POWERON_TEST_TICKS);
 #endif
 }

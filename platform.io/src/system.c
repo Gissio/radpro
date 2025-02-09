@@ -46,7 +46,7 @@ void setLockMode(bool value)
 {
     systemLockMode = value;
 
-    triggerVibrator();
+    triggerVibration();
 }
 
 bool isLockMode(void)

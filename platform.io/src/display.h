@@ -17,7 +17,7 @@
 #include "view.h"
 
 extern const View displayMenuView;
-extern const View displayFlashesMenuView;
+extern const View pulseDisplayFlashMenuView;
 
 #if defined(DISPLAY_128X64)
 #define DISPLAY_WIDTH 128

@@ -29,9 +29,9 @@
 extern mr_t mr;
 
 bool displayEnabled;
+bool vibrationOn;
 bool pulseLEDOn;
 bool alertLEDOn;
-bool vibratorOn;
 
 static uint8_t displayBrightnessValues[] = {
     0x3f, 0x7f, 0xbf, 0xff};
@@ -129,7 +129,7 @@ bool updateSDLTicks()
 
     onTick();
 
-    if (deltaTicks < 0) 
+    if (deltaTicks < 0)
     {
         updateDisplay();
 
@@ -145,14 +145,19 @@ void updateDisplayTitle(void)
 
     sprintf(buffer, "%s (%.2f cps)", FIRMWARE_NAME, tubeCPS);
 
-    if (pulseLEDOn || vibratorOn)
+    if (vibrationOn || pulseLEDOn || alertLEDOn)
+    {
         strcat(buffer, " ");
-    if (pulseLEDOn)
-        strcat(buffer, "🔴");
-    if (alertLEDOn)
-        strcat(buffer, "⚠️");
-    if (vibratorOn)
-        strcat(buffer, "📳");
+  
+        if (vibrationOn)
+            strcat(buffer, "📳");
+  
+        if (pulseLEDOn)
+            strcat(buffer, "🔴");
+  
+        if (alertLEDOn)
+            strcat(buffer, "⚠️");
+    }
 
     mr_sdl_set_title(&mr, buffer);
 }
@@ -172,6 +177,19 @@ void setDisplayBacklight(bool value)
             : 0);
 }
 
+// Vibration
+
+void initVibrationController(void)
+{
+}
+
+void setVibration(bool value)
+{
+    vibrationOn = value;
+
+    updateDisplayTitle();
+}
+
 // LED
 
 void initLEDController(void)
@@ -188,19 +206,6 @@ void setPulseLED(bool value)
 void setAlertLED(bool value)
 {
     alertLEDOn = value;
-
-    updateDisplayTitle();
-}
-
-// Vibrator
-
-void initVibratorController(void)
-{
-}
-
-void setVibrator(bool value)
-{
-    vibratorOn = value;
 
     updateDisplayTitle();
 }

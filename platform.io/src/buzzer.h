@@ -14,7 +14,7 @@
 
 #include "view.h"
 
-extern const View pulseClicksMenuView;
+extern const View pulseSoundMenuView;
 
 void initBuzzer(void);
 void initBuzzerController(void);

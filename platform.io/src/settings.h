@@ -23,12 +23,23 @@ typedef struct
 
 enum
 {
-    PULSE_CLICKS_OFF,
-    PULSE_CLICKS_CLICKS,
-    PULSE_CLICKS_BEEPS,
+    PULSE_SOUND_OFF,
+    PULSE_SOUND_CLICKS,
+    PULSE_SOUND_BEEPS,
 
-    PULSE_CLICKS_NUM,
+    PULSE_SOUND_NUM,
 };
+
+#if defined(VIBRATION)
+enum
+{
+    PULSE_VIBRATION_OFF,
+    PULSE_VIBRATION_WEAK,
+    PULSE_VIBRATION_STRONG,
+
+    PULSE_VIBRATION_NUM,
+};
+#endif
 
 #if defined(PULSE_LED)
 enum
@@ -42,22 +53,11 @@ enum
 
 enum
 {
-    PULSE_FLASHES_OFF,
-    PULSE_FLASHES_ON,
+    PULSE_DISPLAY_FLASH_OFF,
+    PULSE_DISPLAY_FLASH_ON,
 
-    PULSE_FLASHES_NUM,
+    PULSE_DISPLAY_FLASH_NUM,
 };
-
-#if defined(VIBRATOR)
-enum
-{
-    PULSE_VIBRATIONS_OFF,
-    PULSE_VIBRATIONS_WEAK,
-    PULSE_VIBRATIONS_STRONG,
-
-    PULSE_VIBRATIONS_NUM,
-};
-#endif
 
 enum
 {
@@ -142,8 +142,13 @@ enum
 enum
 {
     ALARMSIGNALING_SOUND,
-    ALARMSIGNALING_HAPTIC,
-    ALARMSIGNALING_VISUAL,
+#if defined(VIBRATION)
+    ALARMSIGNALING_VIBRATION,
+#endif
+#if defined(ALERT_LED) || defined(PULSE_LED)
+    ALARMSIGNALING_ALERT_LED,
+#endif
+    ALARMSIGNALING_DISPLAY_FLASH,
 
     ALARMSIGNALING_NUM,
 };
@@ -369,14 +374,14 @@ typedef struct
 {
     unsigned int entryEmpty : 1;
 
-    unsigned int pulseClicks : 2;
+    unsigned int pulseSound : 2;
+#if defined(VIBRATION)
+    unsigned int pulseVibration : 2;
+#endif
 #if defined(PULSE_LED)
     unsigned int pulseLED : 1;
 #endif
-    unsigned int pulseFlashes : 1;
-#if defined(VIBRATOR)
-    unsigned int pulseVibrations : 2;
-#endif
+    unsigned int pulseDisplayFlash : 1;
     unsigned int pulseThreshold : 4;
 
     unsigned int units : 2;
@@ -385,7 +390,7 @@ typedef struct
 
     unsigned int rateAlarm : 4;
     unsigned int doseAlarm : 4;
-    unsigned int alarmSignaling : 2;
+    unsigned int alarmSignaling : 4;
 
     unsigned int tubeConversionFactor : 8;
     unsigned int tubeDeadTimeCompensation : 6;

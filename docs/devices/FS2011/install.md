@@ -72,7 +72,7 @@ Last, read the [user's manual](../../manual.md) for learning how to use Rad Pro,
   * Connect the serial converter's GND and 5V pins to the FS2011 board's 0V and 5V pads, respectively.
   * Connect the PA2 pin of the microprocessor to the serial converter's RX pin.
   * Connect the PA3 pin of the microprocessor to the serial converter's TX pin.
-* Add a vibrator (which you can recover from an old cellphone). Solder one terminal to the output of the Q5 transistor, and the other terminal to 3.3 V.
+* Add a vibration device (which you can recover from an old cellphone). Solder one terminal to the output of the Q5 transistor, and the other terminal to 3.3 V.
 * For easier access to XS1, use a file to extend the hole for the battery holder clip so that a 4-pin header connector can fit. Solder four cables between XS1 and the 4-pin header. Using a glue gun, attach the header to the inside of the back case, so you can access the header with the battery case open.
 * On some FS2011 devices, the tube is not aligned to the holes of the back case. For improved measurement, align the tube to the holes using a heat gun/glue gun. Be careful, as the tube's glass is very delicate.
 * Some AA rechargeable batteries have low-profile caps that don't make electrical contact with the battery holder. Fix this problem by applying solder on the battery holder's pads.

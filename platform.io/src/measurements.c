@@ -268,8 +268,9 @@ void initMeasurements(void)
                    settings.doseAlarm,
                    DOSEALARM_NUM);
     selectMenuItem(&alarmSignalingMenu,
-                   settings.alarmSignaling,
+                   0,
                    ALARMSIGNALING_NUM);
+
     selectMenuItem(&unitsMenu,
                    settings.units,
                    UNITS_NUM);
@@ -281,8 +282,10 @@ void initMeasurements(void)
                    AVERAGING_NUM);
 
     Dose tubeDose = measurements.tube.dose;
+    Dose cumulativeDose = measurements.cumulativeDose.dose;
     memset(&measurements, 0, sizeof(measurements));
     measurements.tube.dose = tubeDose;
+    measurements.cumulativeDose.dose = cumulativeDose;
     updateMeasurementUnits();
 }
 
@@ -1508,24 +1511,31 @@ static const View doseAlarmMenuView = {
 // Alarm signaling menu
 
 static const char *const alarmSignalingMenuOptions[] = {
-    "Acoustic",
-    "Haptic",
-    "Visual",
+    "Sound",
+#if defined(VIBRATION)
+    "Vibration",
+#endif
+#if defined(ALERT_LED)
+    "Alert LED",
+#elif defined(PULSE_LED)
+    "Pulse LED",
+#endif
+    "Display flash",
     NULL,
 };
 
 static const char *onAlarmSignalingMenuGetOption(const Menu *menu,
-                                                     uint32_t index,
-                                                     MenuStyle *menuStyle)
+                                                 uint32_t index,
+                                                 MenuStyle *menuStyle)
 {
-    *menuStyle = (index == settings.alarmSignaling);
+    *menuStyle = (settings.alarmSignaling >> index) & 1;
 
     return alarmSignalingMenuOptions[index];
 }
 
 static void onAlarmSignalingMenuSelect(const Menu *menu)
 {
-    settings.alarmSignaling = menu->state->selectedIndex;
+    settings.alarmSignaling ^= (1 << menu->state->selectedIndex);
 }
 
 static MenuState alarmSignalingMenuState;

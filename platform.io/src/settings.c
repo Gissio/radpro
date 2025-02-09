@@ -42,14 +42,25 @@ static FlashState *getFlashState(FlashIterator *iterator);
 void initSettings(void)
 {
     // Default values
+#if defined(PULSE_LED)
+    settings.pulseLED = PULSE_LED_ON;
+#endif
+    settings.pulseSound = PULSE_SOUND_CLICKS;
+
+    settings.alarmSignaling =
+        (1 << ALARMSIGNALING_SOUND) |
+#if defined(VIBRATION)
+        (1 << ALARMSIGNALING_VIBRATION) |
+#endif
+#if defined(PULSE_LED) || defined(ALERT_LED)
+        (1 << ALARMSIGNALING_ALERT_LED) |
+#endif
+        (1 << ALARMSIGNALING_DISPLAY_FLASH);
+
 #if defined(TUBE_HV_PWM)
     settings.tubeConversionFactor = TUBE_CONVERSIONFACTOR_DEFAULT;
 #endif
 
-#if defined(PULSE_LED)
-    settings.pulseLED = PULSE_LED_ON;
-#endif
-    settings.pulseClicks = PULSE_CLICKS_CLICKS;
 #if defined(DISPLAY_MONOCHROME)
     settings.displayContrast = DISPLAY_CONTRAST_DEFAULT;
 #endif
@@ -59,6 +70,7 @@ void initSettings(void)
     settings.displayBrightness = DISPLAY_BRIGHTNESS_HIGH;
 #endif
     settings.displaySleep = DISPLAY_SLEEP_30S;
+
 #if defined(SIMULATOR)
     time_t unixTime = time(NULL);
     struct tm *localTM = gmtime(&unixTime);

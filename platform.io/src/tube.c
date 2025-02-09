@@ -15,7 +15,7 @@
 #include "measurements.h"
 #include "settings.h"
 #include "tube.h"
-#include "vibrator.h"
+#include "vibration.h"
 
 static const Menu tubeConversionFactorMenu;
 static const Menu tubeDeadTimeCompensationMenu;
@@ -698,26 +698,26 @@ static const View tubeHVDutyCycleMenuView = {
 
 enum
 {
-    PULSES_MENU_OPTIONS_PULSE_CLICKS,
-#if defined(VIBRATOR)
-    PULSES_MENU_OPTIONS_HAPTIC_PULSES,
+    PULSES_MENU_OPTIONS_SOUND,
+#if defined(VIBRATION)
+    PULSES_MENU_OPTIONS_VIBRATION,
 #endif
 #if defined(PULSE_LED)
     PULSES_MENU_OPTIONS_PULSE_LED,
 #endif
-    PULSES_MENU_OPTIONS_DISPLAY_FLASHES,
+    PULSES_MENU_OPTIONS_DISPLAY_FLASH,
     PULSES_MENU_OPTIONS_PULSE_THRESHOLD,
 };
 
 static const char *const pulsesMenuOptions[] = {
     "Sound",
-#if defined(VIBRATOR)
-    "Haptic",
+#if defined(VIBRATION)
+    "Vibration",
 #endif
 #if defined(PULSE_LED)
     "Pulse LED",
 #endif
-    "Display flashes",
+    "Display flash",
     "Threshold",
     NULL,
 };
@@ -735,10 +735,17 @@ static void onPulsesMenuSelect(const Menu *menu)
 {
     switch (menu->state->selectedIndex)
     {
-    case PULSES_MENU_OPTIONS_PULSE_CLICKS:
-        setView(&pulseClicksMenuView);
+    case PULSES_MENU_OPTIONS_SOUND:
+        setView(&pulseSoundMenuView);
 
         break;
+
+#if defined(VIBRATION)
+    case PULSES_MENU_OPTIONS_VIBRATION:
+        setView(&pulseVibrationMenuView);
+
+        break;
+#endif
 
 #if defined(PULSE_LED)
     case PULSES_MENU_OPTIONS_PULSE_LED:
@@ -747,17 +754,10 @@ static void onPulsesMenuSelect(const Menu *menu)
         break;
 #endif
 
-    case PULSES_MENU_OPTIONS_DISPLAY_FLASHES:
-        setView(&displayFlashesMenuView);
+    case PULSES_MENU_OPTIONS_DISPLAY_FLASH:
+        setView(&pulseDisplayFlashMenuView);
 
         break;
-
-#if defined(VIBRATOR)
-    case PULSES_MENU_OPTIONS_HAPTIC_PULSES:
-        setView(&pulseVibrationsMenuView);
-
-        break;
-#endif
 
     case PULSES_MENU_OPTIONS_PULSE_THRESHOLD:
         setView(&pulseThresholdMenuView);

@@ -71,7 +71,7 @@ void dispatchViewEvents(void)
 #if defined(DISPLAY_MONOCHROME)
         bool isDisplayActive = !isPowerOffViewActive();
 #elif defined(DISPLAY_COLOR)
-        bool isPulseFlashesActive = settings.pulseFlashes &&
+        bool isPulseFlashesActive = settings.pulseDisplayFlash &&
                                     !isPulseThresholdEnabled();
         bool isDisplayActive = !isPowerOffViewActive() &&
                                (isDisplayBacklightActive() ||

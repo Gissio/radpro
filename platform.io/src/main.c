@@ -29,7 +29,7 @@
 #include "settings.h"
 #include "system.h"
 #include "tube.h"
-#include "vibrator.h"
+#include "vibration.h"
 #include "view.h"
 
 #if SIMULATOR
@@ -59,13 +59,13 @@ int main(void)
     initADC();
     initTube();
     initKeyboard();
-    initBuzzer();
     initDisplay();
+    initBuzzer();
+#if defined(VIBRATION)
+    initVibration();
+#endif
 #if defined(PULSE_LED)
     initLED();
-#endif
-#if defined(VIBRATOR)
-    initVibrator();
 #endif
 
 #if defined(TEST_MODE)

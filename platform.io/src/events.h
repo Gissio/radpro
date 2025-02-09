@@ -43,6 +43,6 @@ bool isPulseThresholdEnabled(void);
 
 void triggerPulse(void);
 void triggerAlarm(void);
-void triggerVibrator(void);
+void triggerVibration(void);
 
 #endif

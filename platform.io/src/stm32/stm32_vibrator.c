@@ -1,6 +1,6 @@
 /*
  * Rad Pro
- * STM32 vibrator
+ * STM32 vibration
  *
  * (C) 2022-2025 Gissio
  *
@@ -9,19 +9,19 @@
 
 #if defined(STM32)
 
-#include "../vibrator.h"
+#include "../vibration.h"
 
 #include "device.h"
 
-void initVibratorController(void)
+void initVibrationController(void)
 {
-    setVibrator(false);
+    setVibration(false);
 
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
 
-#if defined(VIBRATOR)
-    gpio_setup_output(VIBRATOR_PORT,
-               VIBRATOR_PIN,
+#if defined(VIBRATION)
+    gpio_setup_output(VIBRATION_PORT,
+               VIBRATION_PIN,
                GPIO_OUTPUTTYPE_PUSHPULL,
                GPIO_OUTPUTSPEED_2MHZ,
                GPIO_PULL_FLOATING);
@@ -29,21 +29,21 @@ void initVibratorController(void)
 
 #elif defined(STM32F1)
 
-#if defined(VIBRATOR)
-    gpio_setup(VIBRATOR_PORT,
-               VIBRATOR_PIN,
+#if defined(VIBRATION)
+    gpio_setup(VIBRATION_PORT,
+               VIBRATION_PIN,
                GPIO_MODE_OUTPUT_2MHZ_PUSHPULL);
 #endif
 
 #endif
 }
 
-void setVibrator(bool value)
+void setVibration(bool value)
 {
-#if defined(VIBRATOR)
-    gpio_modify(VIBRATOR_PORT,
-                VIBRATOR_PIN,
-#if defined(VIBRATOR_ACTIVE_LOW)
+#if defined(VIBRATION)
+    gpio_modify(VIBRATION_PORT,
+                VIBRATION_PIN,
+#if defined(VIBRATION_ACTIVE_LOW)
                 !
 #endif
                 value);

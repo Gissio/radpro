@@ -29,7 +29,7 @@
 * PC6 (Output): PWR_VCC
 * PC7 (Input, pull-down): PWR_STDBY
 * PC8 (Input, floating): KEY_POWER
-* PC9 (Output): VIBRATOR
+* PC9 (Output): VIBRATION
 * PC12 (Input, pull-up): KEY_RIGHT
 
 * PD2 (Input, pull-up): KEY_LEFT

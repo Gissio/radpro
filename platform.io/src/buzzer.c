@@ -20,8 +20,8 @@ void initBuzzer(void)
     initBuzzerController();
 
     selectMenuItem(&pulseSoundMenu,
-                   settings.pulseClicks,
-                   PULSE_CLICKS_NUM);
+                   settings.pulseSound,
+                   PULSE_SOUND_NUM);
 }
 
 // Pulse clicks menu
@@ -37,14 +37,14 @@ static const char *onPulseSoundMenuGetOption(const Menu *menu,
                                              uint32_t index,
                                              MenuStyle *menuStyle)
 {
-    *menuStyle = (index == settings.pulseClicks);
+    *menuStyle = (index == settings.pulseSound);
 
     return pulseSoundMenuOptions[index];
 }
 
 static void onPulseSoundMenuSelect(const Menu *menu)
 {
-    settings.pulseClicks = menu->state->selectedIndex;
+    settings.pulseSound = menu->state->selectedIndex;
 }
 
 static MenuState pulseSoundMenuState;
@@ -57,7 +57,7 @@ static const Menu pulseSoundMenu = {
     onPulsesSubMenuBack,
 };
 
-const View pulseClicksMenuView = {
+const View pulseSoundMenuView = {
     onMenuEvent,
     &pulseSoundMenu,
 };

@@ -146,9 +146,6 @@ void setPower(bool value)
 #endif
     );
 #endif
-
-    if (!value)
-        while(true);
 }
 
 bool isDevicePowered(void)
