@@ -22,7 +22,7 @@ Fixes:
 * Fixed alarms continuing to sound after device shutdown while connected to external power.
 * Corrected the display of secondary rate and count views after the average timer expired.
 * Resolved an issue where the device state wasn't reset after a quick power cycle.
-* Corrected a problem where 60-second instantaneous averaging at high radiation levels didn't average correctly.
+* Corrected a problem where 1 minute instantaneous averaging at high radiation levels didn't average correctly.
 
 ## 2.0.3 The sensitive update
 
