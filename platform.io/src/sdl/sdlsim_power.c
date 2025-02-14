@@ -13,7 +13,7 @@
 
 #include "../power.h"
 
-void initPowerController(void)
+void initPower(void)
 {
 }
 

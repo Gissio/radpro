@@ -17,10 +17,10 @@
 #include "view.h"
 
 extern const View tubeMenuView;
-extern const View pulsesMenuView;
 
 void initTube(void);
 void initTubeController(void);
+void initTubeMenus(void);
 
 float getTubeConversionFactor(void);
 float getTubeDeadTimeCompensation(void);

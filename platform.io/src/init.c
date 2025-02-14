@@ -18,6 +18,9 @@
 #include "measurements.h"
 #include "rtc.h"
 #include "power.h"
+#include "rng.h"
+#include "rtc.h"
+#include "settings.h"
 #include "system.h"
 #include "tube.h"
 
@@ -102,6 +105,19 @@ void setPowerOnView(void)
     clearKeyboardEvents();
     triggerVibration();
     startEvents();
+
+    // Initialize menus
+    initSettingsMenus();
+    initEventsMenus();
+    initPowerMenus();
+    initCommMenus();
+    initTubeMenus();
+    initDisplayMenus();
+    initMeasurementsMenus();
+    initGameMenus();
+    initDatalogMenus();
+    initRTCMenus();
+    initRNGMenus();
 
     setView(&powerOnView);
 }

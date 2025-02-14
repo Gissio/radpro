@@ -16,6 +16,8 @@
 
 extern const View rngMenuView;
 
+void initRNGMenus(void);
+
 int32_t getRandomData(void);
 
 void onRNGPulse(uint32_t pulseTime);

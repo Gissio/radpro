@@ -12,11 +12,14 @@
 #include "rtc.h"
 #include "settings.h"
 
+static const Menu rtcMenu;
 static const Menu rtcTimeZoneMenu;
 
-void initRTC(void)
+void initRTCMenus(void)
 {
-    initRTCController();
+    selectMenuItem(&rtcMenu,
+                   0,
+                   0);
 
     selectMenuItem(&rtcTimeZoneMenu,
                    settings.rtcTimeZone,
@@ -232,7 +235,7 @@ static void onRTCSubMenuSelect(const Menu *menu)
 
 static void onRTCSubMenuBack(const Menu *menu)
 {
-    setView(&dateAndTimeMenuView);
+    setView(&rtcMenuView);
 }
 
 static MenuState rtcItemMenuState;
@@ -392,7 +395,7 @@ static const View rtcTimeFormatMenuView = {
     &rtcTimeFormatMenu,
 };
 
-// Date and time menu
+// RTC menu
 
 static const char *onRTCMenuGetOption(const Menu *menu,
                                       uint32_t index,
@@ -478,7 +481,7 @@ static const Menu rtcMenu = {
     onSettingsSubMenuBack,
 };
 
-const View dateAndTimeMenuView = {
+const View rtcMenuView = {
     onMenuEvent,
     &rtcMenu,
 };

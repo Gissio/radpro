@@ -18,7 +18,7 @@
 extern const View batteryTypeMenuView;
 
 void initPower(void);
-void initPowerController(void);
+void initPowerMenus(void);
 
 void setPower(bool value);
 

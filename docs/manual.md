@@ -3,8 +3,8 @@
 ## Features
 
 * Measurement view with large digits, ideal for field application.
-* Configurable pulse indication with optional thresholding: sound (off, clicks, beeps), haptic (on suppored devices), pulse LED (on supported devices), display flashes (on display sleep).
-* Configurable alarm signaling: acoustic, haptic and visual.
+* Configurable pulse indication with optional thresholding: sound (off, clicks, beeps), vibration (on supported devices), pulse LED (on supported devices), display flashes (on display sleep).
+* Configurable alarm signaling: sound, vibration, pulse LED and display flashes.
 * Ability to dismiss alarms.
 * Tube fault alarm.
 * Multiple measurement units: Sievert, rem, cpm (counts per minute), cps (counts per second).
@@ -39,7 +39,7 @@ The [confidence interval](https://en.wikipedia.org/wiki/Confidence_interval) est
 
 An example: Imagine measuring an instantaneous radiation rate of 1.000 µSv/h with a confidence interval of ±40%. This means there's a 95% probability that the true radiation level lies between 0.600 µSv/h and 1.400 µSv/h. In other words, there's a 5% chance the true level falls outside this range. As the confidence interval narrows (becomes smaller), the measurement becomes more precise and certain.
 
-To reset the instantaeous rate and dismiss an rate alarm, read the device's installation instructions.
+To reset the instantaeous rate or dismiss a rate alarm, read the device's installation instructions.
 
 ### Average rate
 
@@ -61,7 +61,7 @@ The cumulative dose is calculated from the number of pulses in the time period.
 
 The secondary view can be switched between a time view that displays the length of the time period, and a counts view.
 
-To reset the cumulative dose and dismiss a dose alarm, read the device's installation instructions.
+To reset the cumulative dose or dismiss a dose alarm, read the device's installation instructions.
 
 ### History
 
@@ -124,7 +124,7 @@ Rad Pro employs the non-paralyzable model for dead-time compensation:
 
 $$n = \frac{m}{1 - m \tau}$$
 
-where $m$ is the rate in counts per seconds, and $\tau$ is the tube's dead time in seconds. To prevent overflow, the compensation factor is limited to a maximum value of 10.
+Here, $m$ is the uncompensated rate in counts per seconds, $\tau$ is the tube's dead time in seconds and $n$ is the compensated rate in counts per second. To prevent overflow, the compensation factor $1/(1 - m\tau)$ is limited to a maximum value of 10.
 
 Dead-time compensation is applied to instantaneous rate, average rate, cumulative dose and history. It is not applied to tube life pulse count nor data logs.
 

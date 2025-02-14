@@ -43,7 +43,7 @@ static struct
 
 static void onAudioBuffer(void *userdata, Uint8 *stream, int len);
 
-void initBuzzerController(void)
+void initBuzzer(void)
 {
     SDL_AudioSpec audioSpec;
     audioSpec.freq = AUDIO_SAMPLE_FREQUENCY;

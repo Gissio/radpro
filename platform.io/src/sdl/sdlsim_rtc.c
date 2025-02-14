@@ -16,7 +16,7 @@
 
 static int32_t timeDelta;
 
-void initRTCController(void)
+void initRTC(void)
 {
     timeDelta = 0;
 }

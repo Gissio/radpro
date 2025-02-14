@@ -78,6 +78,15 @@ static struct
 
 extern const View rngView;
 
+extern const Menu rngMenu;
+
+void initRNGMenus(void)
+{
+    selectMenuItem(&rngMenu,
+                   0,
+                   0);
+}
+
 static void enqueueBit(bool bit)
 {
     uint32_t queueSize = (rng.bitQueueHead - rng.bitQueueTail) &
@@ -274,39 +283,6 @@ static void updateFastDiceRollerText(void)
     }
 }
 
-// RNG menu
-
-static const char *onRNGMenuGetOption(const Menu *menu,
-                                      uint32_t index,
-                                      MenuStyle *menuStyle)
-{
-    *menuStyle = MENUSTYLE_SUBMENU;
-
-    return rngModeMenuOptions[index];
-}
-
-static void onRNGMenuSelect(const Menu *menu)
-{
-    initFastDiceRoller(menu->state->selectedIndex);
-
-    setView(&rngView);
-}
-
-static MenuState rngMenuState;
-
-static const Menu rngMenu = {
-    "Random generator",
-    &rngMenuState,
-    onRNGMenuGetOption,
-    onRNGMenuSelect,
-    onSettingsSubMenuBack,
-};
-
-const View rngMenuView = {
-    onMenuEvent,
-    &rngMenu,
-};
-
 // RNG view
 
 static void onRNGEvent(const View *view, Event event)
@@ -348,4 +324,37 @@ static void onRNGEvent(const View *view, Event event)
 const View rngView = {
     onRNGEvent,
     NULL,
+};
+
+// RNG menu
+
+static const char *onRNGMenuGetOption(const Menu *menu,
+    uint32_t index,
+    MenuStyle *menuStyle)
+{
+*menuStyle = MENUSTYLE_SUBMENU;
+
+return rngModeMenuOptions[index];
+}
+
+static void onRNGMenuSelect(const Menu *menu)
+{
+initFastDiceRoller(menu->state->selectedIndex);
+
+setView(&rngView);
+}
+
+static MenuState rngMenuState;
+
+static const Menu rngMenu = {
+"Random generator",
+&rngMenuState,
+onRNGMenuGetOption,
+onRNGMenuSelect,
+onSettingsSubMenuBack,
+};
+
+const View rngMenuView = {
+onMenuEvent,
+&rngMenu,
 };

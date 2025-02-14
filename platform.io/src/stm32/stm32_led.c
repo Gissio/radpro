@@ -13,7 +13,7 @@
 
 #include "device.h"
 
-void initLEDController(void)
+void initLED(void)
 {
 #if defined(PULSE_LED)
     setPulseLED(false);

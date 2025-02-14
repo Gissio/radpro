@@ -38,9 +38,9 @@ extern const View historyView;
 
 extern const View alarmsMenuView;
 extern const View measurementsMenuView;
-extern const View pulseThresholdMenuView;
 
 void initMeasurements(void);
+void initMeasurementsMenus(void);
 
 void updateMeasurementUnits(void);
 void updateDeadTimeCompensation(void);
@@ -68,5 +68,7 @@ uint32_t getTubePulseCount(void);
 
 bool isAlarmEnabled(void);
 bool isAlarm(void);
+
+char *buildRateAlarmMenuOption(uint32_t index);
 
 #endif

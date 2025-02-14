@@ -14,7 +14,7 @@
 
 #include "device.h"
 
-void initBuzzerController(void)
+void initBuzzer(void)
 {
     // GPIO
     setBuzzer(false);

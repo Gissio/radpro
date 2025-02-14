@@ -179,7 +179,7 @@ void setDisplayBacklight(bool value)
 
 // Vibration
 
-void initVibrationController(void)
+void initVibration(void)
 {
 }
 
@@ -192,7 +192,7 @@ void setVibration(bool value)
 
 // LED
 
-void initLEDController(void)
+void initLED(void)
 {
 }
 

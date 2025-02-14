@@ -25,14 +25,10 @@
 #include "tube.h"
 #include "vibration.h"
 
-#if !defined(SPEAKER)
 #define PULSE_SOUND_CLICKS_TICKS ((uint32_t)(0.001 * SYSTICK_FREQUENCY))
-#else
-#define PULSE_SOUND_CLICKS_TICKS ((uint32_t)(0.004 * SYSTICK_FREQUENCY))
-#endif
+#define PULSE_SOUND_CHIRPS_TICKS ((uint32_t)(0.004 * SYSTICK_FREQUENCY))
 #define PULSE_SOUND_BEEPS_TICKS ((uint32_t)(0.015 * SYSTICK_FREQUENCY))
-#define PULSE_VIBRATION_WEAK_TICKS ((uint32_t)(0.050 * SYSTICK_FREQUENCY))
-#define PULSE_VIBRATION_STRONG_TICKS ((uint32_t)(0.100 * SYSTICK_FREQUENCY))
+#define PULSE_VIBRATION_TICKS ((uint32_t)(0.050 * SYSTICK_FREQUENCY))
 #define PULSE_LED_TICKS ((uint32_t)(0.050 * SYSTICK_FREQUENCY))
 #define PULSE_DISPLAY_FLASH_TICKS ((uint32_t)(0.050 * SYSTICK_FREQUENCY))
 
@@ -83,6 +79,12 @@ static struct
     uint32_t lastPeriodUpdate;
 } events;
 
+static uint32_t getPulsesSoundMenuItem();
+
+static const Menu pulsesMenu;
+static const Menu pulsesSoundMenu;
+static const Menu pulsesThresholdMenu;
+
 static int32_t displayTimerValues[] = {
 #if defined(DISPLAY_MONOCHROME)
     1,
@@ -98,16 +100,22 @@ static int32_t displayTimerValues[] = {
 static uint32_t pulseSoundTicks[] = {
     0,
     PULSE_SOUND_CLICKS_TICKS,
+    PULSE_SOUND_CHIRPS_TICKS,
     PULSE_SOUND_BEEPS_TICKS,
 };
 
-#if defined(VIBRATION)
-static uint32_t pulseVibrationTicks[] = {
-    0,
-    PULSE_VIBRATION_WEAK_TICKS,
-    PULSE_VIBRATION_STRONG_TICKS,
-};
-#endif
+void initEventsMenus(void)
+{
+    selectMenuItem(&pulsesMenu,
+                   0,
+                   0);
+    selectMenuItem(&pulsesSoundMenu,
+                   getPulsesSoundMenuItem(),
+                   PULSE_SOUND_NUM);
+    selectMenuItem(&pulsesThresholdMenu,
+                   settings.pulseThreshold,
+                   RATEALARM_NUM);
+}
 
 void startEvents(void)
 {
@@ -383,13 +391,13 @@ void triggerPulse(void)
 {
     if (!events.pulseThreshold)
     {
-        if (settings.pulseSound)
-            setBuzzerTimer(pulseSoundTicks[settings.pulseSound] + 1,
+        if (settings.pulseSound & PULSE_SOUND_ON_MASK)
+            setBuzzerTimer(pulseSoundTicks[settings.pulseSound & PULSE_SOUND_TYPE_MASK] + 1,
                            events.buzzerTimer + 1);
 
 #if defined(VIBRATION)
         if (settings.pulseVibration)
-            setVibrationTimer(pulseVibrationTicks[settings.pulseVibration]);
+            setVibrationTimer(PULSE_VIBRATION_TICKS);
 #endif
 
 #if defined(PULSE_LED)
@@ -433,4 +441,213 @@ void triggerVibration(void)
 
     setVibrationTimer(POWERON_TEST_TICKS);
 #endif
+}
+
+// Pulses sound menu
+
+static const char *const pulsesSoundMenuOptions[] = {
+    "Off",
+    "Clicks",
+    "Chirps",
+    "Beeps",
+    NULL,
+};
+
+void togglePulseClicks(void)
+{
+    settings.pulseSound ^= PULSE_SOUND_ON_MASK;
+}
+
+static uint32_t getPulsesSoundMenuItem()
+{
+    if (!(settings.pulseSound & PULSE_SOUND_ON_MASK))
+        return 0;
+    else
+        return (settings.pulseSound & PULSE_SOUND_TYPE_MASK);
+}
+
+static const char *onPulsesSoundMenuGetOption(const Menu *menu,
+                                              uint32_t index,
+                                              MenuStyle *menuStyle)
+{
+    *menuStyle = (index == getPulsesSoundMenuItem());
+
+    return pulsesSoundMenuOptions[index];
+}
+
+static void onPulsesSoundMenuSelect(const Menu *menu)
+{
+    if (!menu->state->selectedIndex)
+        settings.pulseSound = PULSE_SOUND_OFF_CLICKS;
+    else
+        settings.pulseSound = menu->state->selectedIndex | PULSE_SOUND_ON_MASK;
+}
+
+static MenuState pulsesSoundMenuState;
+
+static const Menu pulsesSoundMenu = {
+    "Sound",
+    &pulsesSoundMenuState,
+    onPulsesSoundMenuGetOption,
+    onPulsesSoundMenuSelect,
+    onPulsesSubMenuBack,
+};
+
+const View pulsesSoundMenuView = {
+    onMenuEvent,
+    &pulsesSoundMenu,
+};
+
+// Pulses threshold menu
+
+static const char *onPulseThresholdMenuGetOption(const Menu *menu,
+                                                 uint32_t index,
+                                                 MenuStyle *menuStyle)
+{
+    *menuStyle = (index == settings.pulseThreshold);
+
+    if (index == 0)
+        return "Off";
+    else if (index < RATEALARM_NUM)
+        return buildRateAlarmMenuOption(index);
+    else
+        return NULL;
+}
+
+static void onPulseThresholdMenuSelect(const Menu *menu)
+{
+    settings.pulseThreshold = menu->state->selectedIndex;
+}
+
+static MenuState pulseThresholdMenuState;
+
+static const Menu pulsesThresholdMenu = {
+    "Threshold",
+    &pulseThresholdMenuState,
+    onPulseThresholdMenuGetOption,
+    onPulseThresholdMenuSelect,
+    onPulsesSubMenuBack,
+};
+
+const View pulseThresholdMenuView = {
+    onMenuEvent,
+    &pulsesThresholdMenu,
+};
+
+// Pulses menu
+
+enum
+{
+    PULSES_MENU_OPTIONS_SOUND,
+#if defined(VIBRATION)
+    PULSES_MENU_OPTIONS_VIBRATION,
+#endif
+#if defined(PULSE_LED)
+    PULSES_MENU_OPTIONS_PULSE_LED,
+#endif
+    PULSES_MENU_OPTIONS_DISPLAY_FLASH,
+    PULSES_MENU_OPTIONS_PULSE_THRESHOLD,
+};
+
+static const char *const pulsesMenuOptions[] = {
+    "Sound",
+#if defined(VIBRATION)
+    "Vibration",
+#endif
+#if defined(PULSE_LED)
+    "Pulse LED",
+#endif
+    "Display flash",
+    "Threshold",
+    NULL,
+};
+
+static const char *onPulsesMenuGetOption(const Menu *menu,
+                                         uint32_t index,
+                                         MenuStyle *menuStyle)
+{
+    switch (index)
+    {
+    case PULSES_MENU_OPTIONS_SOUND:
+    case PULSES_MENU_OPTIONS_PULSE_THRESHOLD:
+        *menuStyle = MENUSTYLE_SUBMENU;
+
+        break;
+
+#if defined(VIBRATION)
+    case PULSES_MENU_OPTIONS_VIBRATION:
+        *menuStyle = settings.pulseVibration;
+
+        break;
+#endif
+
+#if defined(PULSE_LED)
+    case PULSES_MENU_OPTIONS_PULSE_LED:
+        *menuStyle = settings.pulseLED;
+
+        break;
+#endif
+
+    case PULSES_MENU_OPTIONS_DISPLAY_FLASH:
+        *menuStyle = settings.pulseDisplayFlash;
+
+        break;
+    }
+
+    return pulsesMenuOptions[index];
+}
+
+static void onPulsesMenuSelect(const Menu *menu)
+{
+    switch (menu->state->selectedIndex)
+    {
+    case PULSES_MENU_OPTIONS_SOUND:
+        setView(&pulsesSoundMenuView);
+
+        break;
+
+#if defined(VIBRATION)
+    case PULSES_MENU_OPTIONS_VIBRATION:
+        settings.pulseVibration = !settings.pulseVibration;
+
+        break;
+#endif
+
+#if defined(PULSE_LED)
+    case PULSES_MENU_OPTIONS_PULSE_LED:
+        settings.pulseLED = !settings.pulseLED;
+
+        break;
+#endif
+
+    case PULSES_MENU_OPTIONS_DISPLAY_FLASH:
+        settings.pulseDisplayFlash = !settings.pulseDisplayFlash;
+
+        break;
+
+    case PULSES_MENU_OPTIONS_PULSE_THRESHOLD:
+        setView(&pulseThresholdMenuView);
+
+        break;
+    }
+}
+
+static MenuState pulsesMenuState;
+
+static const Menu pulsesMenu = {
+    "Pulses",
+    &pulsesMenuState,
+    onPulsesMenuGetOption,
+    onPulsesMenuSelect,
+    onSettingsSubMenuBack,
+};
+
+const View pulsesMenuView = {
+    onMenuEvent,
+    &pulsesMenu,
+};
+
+void onPulsesSubMenuBack(const Menu *menu)
+{
+    setView(&pulsesMenuView);
 }

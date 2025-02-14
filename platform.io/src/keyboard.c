@@ -53,11 +53,6 @@ void initKeyboard(void)
 
     keyboard.pressedKey = KEY_NONE;
     keyboard.isInitialized = true;
-
-#if defined(START_BOOTLOADER_SUPPORT)
-    if (keyboard.wasKeyDown[KEY_LEFT])
-        startBootloader();
-#endif
 }
 
 void onKeyboardTick(void)
@@ -92,7 +87,8 @@ void onKeyboardTick(void)
             {
                 if (keyboard.mode == KEYBOARD_MODE_MEASUREMENT)
                 {
-                    if (i != KEY_LEFT)
+                    if ((i == KEY_UP) ||
+                        (i == KEY_DOWN))
                         event = i;
                 }
                 else
@@ -174,6 +170,8 @@ void onKeyboardTick(void)
                     if ((i == KEY_LEFT) ||
                         (i == KEY_OK))
                         event = EVENT_KEY_BACK;
+                    else if (i == KEY_RIGHT)
+                        event = EVENT_KEY_SELECT;
                 }
             }
             else
@@ -250,7 +248,14 @@ void onKeyboardTick(void)
             if (keyboard.pressedTicks == KEY_PRESSED_LONG)
             {
                 if (isKeyDown[KEY_RIGHT])
-                    event = EVENT_KEY_SELECT;
+                {
+                    if (isKeyDown[KEY_LEFT]) {
+                        event = EVENT_KEY_TOGGLEPULSECLICKS;
+                        keyboard.pressedKey = (KEY_PRESSED_EXTENDED + 1);
+                    }
+                    else
+                        event = EVENT_KEY_SELECT;
+                }
             }
             else if (keyboard.pressedTicks == KEY_PRESSED_EXTENDED)
             {
@@ -320,6 +325,8 @@ void onKeyboardTick(void)
                         event = EVENT_KEY_RESET;
                     else if (keyboard.pressedKey == KEY_OK)
                         event = EVENT_KEY_POWER;
+                    else if (keyboard.pressedKey == KEY_RIGHT)
+                        event = EVENT_KEY_TOGGLEPULSECLICKS;
                 }
             }
         }

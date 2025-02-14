@@ -24,18 +24,25 @@ typedef struct
 enum
 {
     PULSE_SOUND_OFF,
-    PULSE_SOUND_CLICKS,
-    PULSE_SOUND_BEEPS,
-
+    PULSE_SOUND_OFF_CLICKS,
+    PULSE_SOUND_OFF_CHIRPS,
+    PULSE_SOUND_OFF_BEEPS,
     PULSE_SOUND_NUM,
+    PULSE_SOUND_ON = PULSE_SOUND_NUM,
+    PULSE_SOUND_ON_CLICKS,
+    PULSE_SOUND_ON_CHIRPS,
+    PULSE_SOUND_ON_BEEPS,
+    
+
+    PULSE_SOUND_ON_MASK = PULSE_SOUND_ON,
+    PULSE_SOUND_TYPE_MASK = PULSE_SOUND_OFF_BEEPS,
 };
 
 #if defined(VIBRATION)
 enum
 {
     PULSE_VIBRATION_OFF,
-    PULSE_VIBRATION_WEAK,
-    PULSE_VIBRATION_STRONG,
+    PULSE_VIBRATION_ON,
 
     PULSE_VIBRATION_NUM,
 };
@@ -72,10 +79,15 @@ enum
 enum
 {
     AVERAGING_UNLIMITED,
-    AVERAGING_5M,
-    AVERAGING_10M,
+    AVERAGING_1H,
     AVERAGING_30M,
-    AVERAGING_60M,
+    AVERAGING_10M,
+    AVERAGING_5M,
+    AVERAGING_1M,
+    AVERAGING_30S,
+    AVERAGING_10S,
+    AVERAGING_5S,
+    AVERAGING_1S,
     AVERAGING_TIME_NUM,
 
     AVERAGING_40CONFIDENCE = AVERAGING_TIME_NUM,
@@ -114,6 +126,7 @@ enum
     RATEALARM_2000,
     RATEALARM_5000,
     RATEALARM_10000,
+    RATEALARM_20000,
 
     RATEALARM_NUM,
 };
@@ -135,6 +148,7 @@ enum
     DOSEALARM_10000,
     DOSEALARM_20000,
     DOSEALARM_50000,
+    DOSEALARM_100000,
 
     DOSEALARM_NUM,
 };
@@ -171,8 +185,8 @@ enum
 #define TUBE_CONVERSIONFACTOR_VALUE_NUM 145
 #define TUBE_CONVERSIONFACTOR_NUM (TUBE_CONVERSIONFACTOR_PRESETS_NUM + TUBE_CONVERSIONFACTOR_VALUE_NUM)
 
-#define TUBE_DEADTIMECOMPENSATION_MIN 0.000040F
-#define TUBE_DEADTIMECOMPENSATION_MAX 0.000640F
+#define TUBE_DEADTIMECOMPENSATION_MIN 0.000020F
+#define TUBE_DEADTIMECOMPENSATION_MAX 0.000320F
 #define TUBE_DEADTIMECOMPENSATION_LOG_MAX_MIN 4.0F
 #define TUBE_DEADTIMECOMPENSATION_NUM 64
 
@@ -374,9 +388,9 @@ typedef struct
 {
     unsigned int entryEmpty : 1;
 
-    unsigned int pulseSound : 2;
+    unsigned int pulseSound : 3;
 #if defined(VIBRATION)
-    unsigned int pulseVibration : 2;
+    unsigned int pulseVibration : 1;
 #endif
 #if defined(PULSE_LED)
     unsigned int pulseLED : 1;
@@ -396,7 +410,7 @@ typedef struct
     unsigned int tubeDeadTimeCompensation : 6;
     unsigned int tubeBackgroundCompensation : 4;
 #if defined(TUBE_HV_PWM)
-    unsigned int tubeHVProfile : 3;
+    unsigned int tubeHVProfile : 2;
     unsigned int tubeHVFrequency : 3;
     unsigned int tubeHVDutyCycle : 9;
 #endif
@@ -434,6 +448,7 @@ extern Settings settings;
 extern const View settingsMenuView;
 
 void initSettings(void);
+void initSettingsMenus(void);
 
 void writeSettings(void);
 

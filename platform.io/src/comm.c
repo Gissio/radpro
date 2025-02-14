@@ -35,7 +35,12 @@ void initComm(void)
 #else
     if (settings.dataMode)
         openComm();
+#endif
+}
 
+void initCommMenus(void)
+{
+#if defined(DATA_MODE)
     selectMenuItem(&dataModeMenu,
                    settings.dataMode,
                    DATAMODE_NUM);

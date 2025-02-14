@@ -29,10 +29,10 @@ typedef struct
     uint8_t second;
 } RTCDateTime;
 
-extern const View dateAndTimeMenuView;
+extern const View rtcMenuView;
 
 void initRTC(void);
-void initRTCController(void);
+void initRTCMenus(void);
 
 uint32_t getTimeFromDateTime(const RTCDateTime *dateTime);
 void getDateTimeFromTime(uint32_t value, RTCDateTime *dateTime);

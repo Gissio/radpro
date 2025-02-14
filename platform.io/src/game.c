@@ -66,13 +66,21 @@ static const uint16_t gameStrengthToNodesCount[] = {
     16384,
 };
 
-static const Menu gameStrengthMenu;
 static const Menu gameMenu;
+static const Menu gameStrengthMenu;
 
 static void onGameCallback(void *userdata);
 
 void initGame(void)
 {
+    memset(&game, 0, sizeof(game));
+}
+
+void initGameMenus(void)
+{
+    selectMenuItem(&gameMenu,
+                   0,
+                   0);
     selectMenuItem(&gameStrengthMenu,
                    settings.gameStrength,
                    GAMESTRENGTH_NUM);
@@ -420,6 +428,50 @@ const View gameView = {
     NULL,
 };
 
+// Game strength menu
+
+static const char *onGameStrengthMenuGetOption(const Menu *menu,
+                                               uint32_t index,
+                                               MenuStyle *menuStyle)
+{
+    *menuStyle = (index == settings.gameStrength);
+
+    if (index < GAMESTRENGTH_NUM)
+    {
+        strcpy(menuOption, "Level ");
+        strcatUInt32(menuOption, index + 1, 0);
+
+        return menuOption;
+    }
+    else
+        return NULL;
+}
+
+static void onGameStrengthMenuSelect(const Menu *menu)
+{
+    settings.gameStrength = menu->state->selectedIndex;
+}
+
+static void onGameStrengthMenuBack(const Menu *menu)
+{
+    setView(&gameMenuView);
+}
+
+static MenuState gameStrengthMenuState;
+
+static const Menu gameStrengthMenu = {
+    "Strength",
+    &gameStrengthMenuState,
+    onGameStrengthMenuGetOption,
+    onGameStrengthMenuSelect,
+    onGameStrengthMenuBack,
+};
+
+static const View gameStrengthMenuView = {
+    onMenuEvent,
+    &gameStrengthMenu,
+};
+
 // Game menu
 
 static const View gameStrengthMenuView;
@@ -468,7 +520,9 @@ static void onGameMenuSelect(const Menu *menu)
         break;
 
     case 1:
-        selectMenuItem(&gameMenu, 0, GAME_MENU_OPTIONS_NUM);
+        selectMenuItem(&gameMenu,
+                       0,
+                       0);
 
         if (!game.moveIndex)
         {
@@ -505,48 +559,4 @@ static const Menu gameMenu = {
 const View gameMenuView = {
     onMenuEvent,
     &gameMenu,
-};
-
-// Game strength menu
-
-static const char *onGameStrengthMenuGetOption(const Menu *menu,
-                                               uint32_t index,
-                                               MenuStyle *menuStyle)
-{
-    *menuStyle = (index == settings.gameStrength);
-
-    if (index < GAMESTRENGTH_NUM)
-    {
-        strcpy(menuOption, "Level ");
-        strcatUInt32(menuOption, index + 1, 0);
-
-        return menuOption;
-    }
-    else
-        return NULL;
-}
-
-static void onGameStrengthMenuSelect(const Menu *menu)
-{
-    settings.gameStrength = menu->state->selectedIndex;
-}
-
-static void onGameStrengthMenuBack(const Menu *menu)
-{
-    setView(&gameMenuView);
-}
-
-static MenuState gameStrengthMenuState;
-
-static const Menu gameStrengthMenu = {
-    "Strength",
-    &gameStrengthMenuState,
-    onGameStrengthMenuGetOption,
-    onGameStrengthMenuSelect,
-    onGameStrengthMenuBack,
-};
-
-static const View gameStrengthMenuView = {
-    onMenuEvent,
-    &gameStrengthMenu,
 };

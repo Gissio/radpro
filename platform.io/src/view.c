@@ -54,6 +54,11 @@ void dispatchViewEvents(void)
         {
             if (event == EVENT_KEY_POWER)
                 setPowerOffView();
+            else if (event == EVENT_KEY_TOGGLEPULSECLICKS) {
+                togglePulseClicks();
+
+                triggerVibration();
+            }
             else
             {
                 view.currentView->onEvent(view.currentView, event);

@@ -68,10 +68,10 @@ If you like Rad Pro, consider watching the project to get notified when new rele
 On the FS-5000, the keys are mapped as follows:
 
   * Power on/off: long hold of the ok/power key.
-  * Switch measurement mode: the up/back and down/settings keys.
+  * Switch measurement mode: the up/back or down/settings keys.
   * Switch measurement secondary view: the ok/power key.
-  * Reset measurement: long hold of the up/back key.
-  * Dismiss alarm: long hold of the up/back key.
+  * Reset measurement/dismiss alarm: long hold of the up/back key.
+  * Toggle pulses sound in measurement view: the up/back and down/settings key simultaneously.
   * Enter settings: short hold of the down/settings key.
   * Go up/down: the up/back and down/settings keys.
   * Select option: short hold of the right/settings key, or the ok/power key.

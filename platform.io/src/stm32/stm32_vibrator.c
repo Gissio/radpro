@@ -13,7 +13,7 @@
 
 #include "device.h"
 
-void initVibrationController(void)
+void initVibration(void)
 {
     setVibration(false);
 

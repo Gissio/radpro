@@ -19,6 +19,7 @@
 extern const View datalogMenuView;
 
 void initDatalog(void);
+void initDatalogMenus(void);
 
 void openDatalog(void);
 void updateDatalog(void);

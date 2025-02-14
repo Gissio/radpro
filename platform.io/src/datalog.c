@@ -41,6 +41,8 @@ static struct
     uint32_t lastTimeFast;
 } datalog;
 
+void onDatalogSubMenuBack(const Menu *menu);
+
 static const uint16_t datalogIntervalTime[] = {
     0,
     60 * 60,
@@ -62,18 +64,11 @@ static const char *const datalogIntervalMenuOptions[] = {
 
 static const Menu datalogMenu;
 static const Menu datalogIntervalMenu;
-static const View datalogIntervalMenuView;
-static const View datalogResetAlertView;
-static const View datalogResetConfirmationView;
 
 static bool decodeDatalogEntry(DatalogState *state);
 
 void initDatalog(void)
 {
-    selectMenuItem(&datalogIntervalMenu,
-                   settings.datalogInterval,
-                   DATALOG_INTERVAL_NUM);
-
     datalog.writeState.iterator.region = &flashDatalogRegion;
 
     setFlashPageHead(&datalog.writeState.iterator);
@@ -90,6 +85,16 @@ void initDatalog(void)
             break;
         }
     }
+}
+
+void initDatalogMenus(void)
+{
+    selectMenuItem(&datalogMenu,
+                   0,
+                   0);
+    selectMenuItem(&datalogIntervalMenu,
+                   settings.datalogInterval,
+                   DATALOG_INTERVAL_NUM);
 }
 
 static void encodeDatalogValue(int32_t value,
@@ -400,6 +405,109 @@ bool getDatalogDownloadEntry(Dose *dose)
     return entryValid;
 }
 
+// Data log interval menu
+
+static const char *onDatalogIntervalMenuGetOption(const Menu *menu,
+                                                  uint32_t index,
+                                                  MenuStyle *menuStyle)
+{
+    *menuStyle = (index == settings.datalogInterval);
+
+    return datalogIntervalMenuOptions[index];
+}
+
+static void onDatalogIntervalMenuSelect(const Menu *menu)
+{
+    uint32_t datalogInterval = menu->state->selectedIndex;
+
+    if (settings.datalogInterval == datalogInterval)
+        return;
+
+    settings.datalogInterval = datalogInterval;
+
+    if (datalogInterval == DATALOG_INTERVAL_OFF)
+        closeDatalog();
+    else
+        openDatalog();
+}
+
+static MenuState datalogIntervalMenuState;
+
+static const Menu datalogIntervalMenu = {
+    "Logging",
+    &datalogIntervalMenuState,
+    onDatalogIntervalMenuGetOption,
+    onDatalogIntervalMenuSelect,
+    onDatalogSubMenuBack,
+};
+
+static const View datalogIntervalMenuView = {
+    onMenuEvent,
+    &datalogIntervalMenu,
+};
+
+// Data log reset confirmation view
+
+static void onDatalogResetConfirmationEvent(const View *view, Event event)
+{
+    switch (event)
+    {
+    case EVENT_KEY_BACK:
+    case EVENT_KEY_SELECT:
+        onDatalogSubMenuBack(NULL);
+
+        break;
+
+    case EVENT_DRAW:
+        drawNotification("SUCCESS",
+                         "Data log has been reset.");
+
+        break;
+
+    default:
+        break;
+    }
+}
+
+static const View datalogResetConfirmationView = {
+    onDatalogResetConfirmationEvent,
+    NULL,
+};
+
+// Data log reset alert view
+
+static void onDatalogResetAlertEvent(const View *view, Event event)
+{
+    switch (event)
+    {
+    case EVENT_KEY_BACK:
+        onDatalogSubMenuBack(NULL);
+
+        break;
+
+    case EVENT_KEY_SELECT:
+        writeDatalogReset();
+
+        setView(&datalogResetConfirmationView);
+
+        break;
+
+    case EVENT_DRAW:
+        drawNotification("Reset data log?",
+                         "All records will be deleted.");
+
+        break;
+
+    default:
+        break;
+    }
+}
+
+static const View datalogResetAlertView = {
+    onDatalogResetAlertEvent,
+    NULL,
+};
+
 // Data log menu
 
 static const char *const datalogMenuOptions[] = {
@@ -442,107 +550,4 @@ static const Menu datalogMenu = {
 const View datalogMenuView = {
     onMenuEvent,
     &datalogMenu,
-};
-
-// Data log interval menu
-
-static const char *onDatalogIntervalMenuGetOption(const Menu *menu,
-                                                  uint32_t index,
-                                                  MenuStyle *menuStyle)
-{
-    *menuStyle = (index == settings.datalogInterval);
-
-    return datalogIntervalMenuOptions[index];
-}
-
-static void onDatalogIntervalMenuSelect(const Menu *menu)
-{
-    uint32_t datalogInterval = menu->state->selectedIndex;
-
-    if (settings.datalogInterval == datalogInterval)
-        return;
-
-    settings.datalogInterval = datalogInterval;
-
-    if (datalogInterval == DATALOG_INTERVAL_OFF)
-        closeDatalog();
-    else
-        openDatalog();
-}
-
-static MenuState datalogIntervalMenuState;
-
-static const Menu datalogIntervalMenu = {
-    "Logging",
-    &datalogIntervalMenuState,
-    onDatalogIntervalMenuGetOption,
-    onDatalogIntervalMenuSelect,
-    onDatalogSubMenuBack,
-};
-
-static const View datalogIntervalMenuView = {
-    onMenuEvent,
-    &datalogIntervalMenu,
-};
-
-// Data log reset alert view
-
-static void onDatalogResetAlertEvent(const View *view, Event event)
-{
-    switch (event)
-    {
-    case EVENT_KEY_BACK:
-        onDatalogSubMenuBack(NULL);
-
-        break;
-
-    case EVENT_KEY_SELECT:
-        writeDatalogReset();
-
-        setView(&datalogResetConfirmationView);
-
-        break;
-
-    case EVENT_DRAW:
-        drawNotification("Reset data log?",
-                         "All records will be deleted.");
-
-        break;
-
-    default:
-        break;
-    }
-}
-
-static const View datalogResetAlertView = {
-    onDatalogResetAlertEvent,
-    NULL,
-};
-
-// Data log reset confirmation view
-
-static void onDatalogResetConfirmationEvent(const View *view, Event event)
-{
-    switch (event)
-    {
-    case EVENT_KEY_BACK:
-    case EVENT_KEY_SELECT:
-        onDatalogSubMenuBack(NULL);
-
-        break;
-
-    case EVENT_DRAW:
-        drawNotification("SUCCESS",
-                         "Data log has been reset.");
-
-        break;
-
-    default:
-        break;
-    }
-}
-
-static const View datalogResetConfirmationView = {
-    onDatalogResetConfirmationEvent,
-    NULL,
 };

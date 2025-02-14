@@ -89,14 +89,13 @@ The keys are mapped as follows:
   * Power on/off: long hold of the power key.
   * Switch measurement mode: the up and down keys.
   * Switch measurement secondary view: the play/pause or power key.
-  * Reset measurement: long hold of the play/pause key.
-  * Dismiss alarm: long hold of the play/pause key.
+  * Reset measurement/dismiss alarm: long hold of the play/pause key.
+  * Toggle pulses sound in measurement view: long hold of the menu/ok key.
   * Enter settings: the menu/ok key.
   * Go up/down: the up and down keys.
   * Select option: the menu/ok or power key.
   * Go back: the play/pause key.
   * Leave lock mode: long hold of the power and play/pause key.
-
 <!-- Calculated as follows:
 
 * With 1-byte differential values: [25 pages * (1 timestamp entry/page [9 bytes] + 1010 differential entries/page [2 byte each])] = 25275 entries

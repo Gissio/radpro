@@ -61,8 +61,8 @@ The keys are mapped as follows:
   * Power on/off: long hold of the ok/power key.
   * Switch measurement mode: the up and down keys.
   * Switch measurement secondary view: the ok/power or left/back key.
-  * Reset measurement: long hold of the left/back key.
-  * Dismiss alarm: long hold of the left/back key.
+  * Reset measurement/dismiss alarm: long hold of the left/back key.
+  * Toggle pulses sound in measurement view: long hold of the right/settings key.
   * Enter settings: the right/settings key.
   * Go up/down: the up and down keys.
   * Select option: the ok/power or right/settings key.

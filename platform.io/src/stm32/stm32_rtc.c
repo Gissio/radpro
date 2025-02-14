@@ -14,7 +14,7 @@
 
 #include "device.h"
 
-void initRTCController(void)
+void initRTC(void)
 {
     syncTimerThread();
 

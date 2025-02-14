@@ -129,11 +129,11 @@
 #define TITLEBAR_HEIGHT 8
 #define TITLEBAR_PADDING 3
 #define TITLEBAR_TIME_WIDTH (20 + 2)
-#define TITLEBAR_TIME_PADDING 2
+#define TITLEBAR_TIME_PADDING 1
 #define TITLEBAR_NOTIFICATIONICON_WIDTH 9
 #define TITLEBAR_NOTIFICATIONICON_HEIGHT 7
-#define TITLEBAR_NOTIFICATIONICON_PADDING 3
-#define TITLEBAR_BATTERYICON_WIDTH 11
+#define TITLEBAR_NOTIFICATIONICON_PADDING 2
+#define TITLEBAR_BATTERYICON_WIDTH 9
 #define TITLEBAR_BATTERYICON_HEIGHT 7
 #define TITLEBAR_SHADOW_HEIGHT 1
 
@@ -730,6 +730,8 @@ static const mr_color_t displayColors[][3] = {
 
 #endif
 
+void onDisplaySubMenuBack(const Menu *menu);
+
 // Gamma-corrected linear brightness values
 
 // value = 8000 * [0.25, 0.5, 0.75, 1] ^ 2.2
@@ -740,8 +742,7 @@ uint16_t displayBrightnessValue[] = {
 
 const uint32_t menuLineNum = MENU_LINE_NUM;
 
-static const Menu pulseDisplayFlashMenu;
-
+static const Menu displayMenu;
 #if defined(DISPLAY_MONOCHROME)
 static const Menu displayContrastMenu;
 #elif defined(DISPLAY_COLOR)
@@ -760,6 +761,13 @@ void initDisplay(void)
 {
     initDisplayController();
     initDisplayBacklight();
+}
+
+void initDisplayMenus(void)
+{
+    selectMenuItem(&displayMenu,
+                   0,
+                   0);
 
 #if defined(DISPLAY_MONOCHROME)
     selectMenuItem(&displayContrastMenu,
@@ -777,10 +785,6 @@ void initDisplay(void)
     selectMenuItem(&displayBrightnessMenu,
                    settings.displayBrightness,
                    DISPLAY_BRIGHTNESS_NUM);
-
-    selectMenuItem(&pulseDisplayFlashMenu,
-                   settings.pulseDisplayFlash,
-                   PULSE_DISPLAY_FLASH_NUM);
 }
 
 // Drawing functions
@@ -2302,96 +2306,6 @@ void drawGame(const uint8_t board[8][8],
 #endif
 }
 
-// Display flashes menu
-
-static const char *const pulseDisplayFlashMenuOptions[] = {
-    "Off",
-    "On",
-    NULL,
-};
-
-static const char *onPulseDisplayFlashMenuGetOption(const Menu *menu,
-                                                    uint32_t index,
-                                                    MenuStyle *menuStyle)
-{
-    *menuStyle = (index == settings.pulseDisplayFlash);
-
-    return pulseDisplayFlashMenuOptions[index];
-}
-
-static void onPulseDisplayFlashMenuSelect(const Menu *menu)
-{
-    settings.pulseDisplayFlash = menu->state->selectedIndex;
-}
-
-static MenuState pulseDisplayFlashMenuState;
-
-static const Menu pulseDisplayFlashMenu = {
-    "Display flashes",
-    &pulseDisplayFlashMenuState,
-    onPulseDisplayFlashMenuGetOption,
-    onPulseDisplayFlashMenuSelect,
-    onPulsesSubMenuBack,
-};
-
-const View pulseDisplayFlashMenuView = {
-    onMenuEvent,
-    &pulseDisplayFlashMenu,
-};
-
-// Display menu
-
-const View displayThemeMenuView;
-const View displayContrastMenuView;
-const View displayBrightnessMenuView;
-const View displaySleepMenuView;
-
-static const OptionView displayMenuOptions[] = {
-#if defined(DISPLAY_COLOR)
-    {"Theme", &displayThemeMenuView},
-#endif
-    {"Brightness", &displayBrightnessMenuView},
-#if defined(DISPLAY_MONOCHROME)
-    {"Contrast", &displayContrastMenuView},
-#endif
-    {"Sleep", &displaySleepMenuView},
-    {NULL},
-};
-
-static const char *onDisplayMenuGetOption(const Menu *menu,
-                                          uint32_t index,
-                                          MenuStyle *menuStyle)
-{
-    *menuStyle = MENUSTYLE_SUBMENU;
-
-    return displayMenuOptions[index].option;
-}
-
-static void onDisplayMenuSelect(const Menu *menu)
-{
-    setView(displayMenuOptions[menu->state->selectedIndex].view);
-}
-
-void onDisplaySubMenuBack(const Menu *menu)
-{
-    setView(&displayMenuView);
-}
-
-static MenuState displayMenuState;
-
-static const Menu displayMenu = {
-    "Display",
-    &displayMenuState,
-    onDisplayMenuGetOption,
-    onDisplayMenuSelect,
-    onSettingsSubMenuBack,
-};
-
-const View displayMenuView = {
-    onMenuEvent,
-    &displayMenu,
-};
-
 // Display contrast level menu
 
 #if defined(DISPLAY_MONOCHROME)
@@ -2560,4 +2474,52 @@ static const Menu displaySleepMenu = {
 const View displaySleepMenuView = {
     onMenuEvent,
     &displaySleepMenu,
+};
+
+// Display menu
+
+static const OptionView displayMenuOptions[] = {
+#if defined(DISPLAY_COLOR)
+    {"Theme", &displayThemeMenuView},
+#endif
+    {"Brightness", &displayBrightnessMenuView},
+#if defined(DISPLAY_MONOCHROME)
+    {"Contrast", &displayContrastMenuView},
+#endif
+    {"Sleep", &displaySleepMenuView},
+    {NULL},
+};
+
+static const char *onDisplayMenuGetOption(const Menu *menu,
+                                          uint32_t index,
+                                          MenuStyle *menuStyle)
+{
+    *menuStyle = MENUSTYLE_SUBMENU;
+
+    return displayMenuOptions[index].option;
+}
+
+static void onDisplayMenuSelect(const Menu *menu)
+{
+    setView(displayMenuOptions[menu->state->selectedIndex].view);
+}
+
+void onDisplaySubMenuBack(const Menu *menu)
+{
+    setView(&displayMenuView);
+}
+
+static MenuState displayMenuState;
+
+static const Menu displayMenu = {
+    "Display",
+    &displayMenuState,
+    onDisplayMenuGetOption,
+    onDisplayMenuSelect,
+    onSettingsSubMenuBack,
+};
+
+const View displayMenuView = {
+    onMenuEvent,
+    &displayMenu,
 };

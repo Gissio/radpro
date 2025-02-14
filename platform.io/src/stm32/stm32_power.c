@@ -14,7 +14,7 @@
 
 #include "device.h"
 
-void initPowerController(void)
+void initPower(void)
 {
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
 

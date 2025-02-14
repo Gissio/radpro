@@ -35,10 +35,8 @@ static const float batteryLevelThresholds[BATTERY_LEVEL_NUM - 1] =
 static const Menu batteryTypeMenu;
 #endif
 
-void initPower()
+void initPowerMenus()
 {
-    initPowerController();
-
 #if defined(BATTERY_REMOVABLE)
     selectMenuItem(&batteryTypeMenu,
                    settings.batteryType,

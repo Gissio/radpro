@@ -12,12 +12,7 @@
 
 #include <stdbool.h>
 
-#include "view.h"
-
-extern const View pulseLEDMenuView;
-
 void initLED(void);
-void initLEDController(void);
 
 void setPulseLED(bool value);
 void setAlertLED(bool value);

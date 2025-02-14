@@ -3,26 +3,26 @@
 ## 2.1 Delicious trifles
 
 Updates:
-
-* Added the ability to dismiss alarms using the reset measurement key.
-* Added configurable alarm options for acoustic, haptic and visual-only signaling.
-* Introduced an alarm enabled indicator.
+* Added the ability to dismiss alarms with the reset measurement key.
+* Added configurable alarm signaling: sound, vibration, pulse LED and display flash.
+* Added an alarm enabled indicator.
 * Implemented a keyboard lock mode, accesible from Settings.
 * Display of dose counts below 10000 now uses standard notation.
-* Added options for setting higher rate and dose alarms.
+* Added more rate and dose alarm options.
+* Added average timer options.
+* Added the ability to toggle pulse sounds from the measurement view (on selected devices).
+* Added pulses chirps sound option.
+* Extended the duration of alarm sounds.
 * Enhanced the menu structure for more intuitive navigation.
 * Updated the UI font to Open Sans for enhanced readability.
-* Extended the duration of alarm sounds.
 * Minor UI improvements.
 
 Fixes:
-
 * On color displays, fixed an issue causing an unsightly flash when waking from sleep mode.
-* On the FNIRSI GC-01, resolved random pixel issues during the splash screen.
 * Fixed alarms continuing to sound after device shutdown while connected to external power.
 * Corrected the display of secondary rate and count views after the average timer expired.
 * Resolved an issue where the device state wasn't reset after a quick power cycle.
-* Corrected a problem where 60-second instantaneous averaging at high radiation levels didn't average correctly over the full seconds.
+* Corrected a problem where 60-second instantaneous averaging at high radiation levels didn't average correctly.
 
 ## 2.0.3 The sensitive update
 
@@ -40,7 +40,7 @@ Fixes:
 ## 2.0.1 Nobody's perfect
 
 * Added data log reset.
-* Changed the default conversion factor for J613/J614 tubes to 60.0 cpm/µSv/h.
+* Reverted the default conversion factor for J613/J614 tubes to 60.0 cpm/µSv/h.
 
 * Resolved issues with custom HV profiles.
 * Resolved issues with the "SET tubeHVFrequency" and "SET tubeHVDutyCycle" data connection requests.
@@ -63,7 +63,7 @@ Fixes:
 * Extended conversion factor range to 25-1600 cpm/µSv/h.
 * Added 1 second data log interval options and removed 30 seconds and 30 minutes data log interval options.
 * Added "SET tubeHVFrequency" and "SET tubeHVDutyCycle" data connection commands.
-* Added 12-hour time format.
+* Added 24/12-hour time format selection.
 * Devices with data mode allow using the device while data mode is active; data mode state is also preserved after powering off.
 * Improved battery level indicator of the Bosean FS-600/FS-1000.
 * Improved battery level readout of the FS2011(STM32F051), Bosean FS-600/FS-1000.
@@ -75,7 +75,7 @@ Fixes:
 
 * Added instantaneous rate averaging options: adaptive fast, adaptive precision, 60 seconds, 30 seconds and 10 seconds.
 * Added secondary CPM and count displays in measurement views.
-* Improved haptic pulse strengths.
+* Improved vibration pulse strengths.
 * Improved FNIRSI GC-01 quiet pulse clicks.
 * Improved selected menu item contrast.
 * Improved data logging time precision.
@@ -87,12 +87,12 @@ Fixes:
 * UI update with big digits in measurement view.
 * Instantaneous rate bar with alert zones (1 µSv, 10 µSv).
 * History alert zones (1 µSv, 10 µSv).
-* Average timer expiration after reaching a configurable confidence interval.
-* Background compensation.
-* Display flashes on the FNIRSI GC-01 (after display sleep).
-* Haptic pulses on the FNIRSI GC-01 (off, weak or strong).
-* Pulse thresholding (disables pulse indication if instantaneous rate is below a certain value).
-* Fault alarm on HV/tube failure (lack of pulses) or tube saturation (tube shorted).
+* Adde average timer expiration after reaching a configurable confidence interval.
+* Added background compensation.
+* Added display flashes on the FNIRSI GC-01 (after display sleep).
+* Added vibration pulses on the FNIRSI GC-01 (off, weak or strong).
+* Added pulse threshold (disables pulse indication if instantaneous rate is below a certain value).
+* Added fault alarm on HV generator/Geiger tube failure (lack of pulses) or tube saturation (tube shorted).
 * Added 30 second and 10 second data log interval options.
 * Added 10 second display sleep option.
 * Added `radpro-flashtool`.
@@ -159,7 +159,7 @@ Fixes:
 
 * Improved pulse click volume.
 * Fixed battery indicator.
-* Fixed several bugs in Nuclear chess.
+* Fixed several bugs in game.
 
 ## 1.0.0
 

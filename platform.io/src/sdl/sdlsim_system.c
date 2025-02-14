@@ -22,8 +22,4 @@ uint32_t getDeviceId(void)
     return 0x08192A3B;
 }
 
-void startBootloader(void)
-{
-}
-
 #endif

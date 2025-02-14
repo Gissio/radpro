@@ -17,7 +17,6 @@
 #include "view.h"
 
 extern const View displayMenuView;
-extern const View pulseDisplayFlashMenuView;
 
 #if defined(DISPLAY_128X64)
 #define DISPLAY_WIDTH 128
@@ -58,6 +57,7 @@ extern uint16_t displayBrightnessValue[];
 void initDisplay(void);
 void initDisplayController(void);
 void initDisplayBacklight(void);
+void initDisplayMenus(void);
 
 void enableDisplay(bool value);
 bool isDisplayEnabled(void);
