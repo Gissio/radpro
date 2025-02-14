@@ -3,13 +3,13 @@
 ## Features
 
 * Measurement view with large digits, ideal for field application.
-* Configurable pulse indication with optional thresholding: sound (off, clicks, beeps), vibration (on supported devices), pulse LED (on supported devices), display flashes (on display sleep).
+* Configurable pulse indication with optional threshold: sound (off, clicks, chirps, beeps), vibration (on supported devices), pulse LED (on supported devices), display flashes (on display sleep).
 * Configurable alarm signaling: sound, vibration, pulse LED and display flashes.
 * Ability to dismiss alarms.
 * Tube fault alarm.
 * Multiple measurement units: Sievert, rem, cpm (counts per minute), cps (counts per second).
 * Configurable instantaneous rate averaging (adaptive fast, adaptive precision, 1 minute, 30 seconds and 10 seconds), 
-* Configurable averaging for performing surveys.
+* Configurable average timer for performing surveys.
 * Customizable Geiger-Müller tube settings: conversion factor, dead-time compensation, background compensation, high voltage generator PWM frequency and duty cycle (on supported devices).
 * Preconfigured high voltage profiles (on supported devices).
 * Offline and live data logging with data compression.
