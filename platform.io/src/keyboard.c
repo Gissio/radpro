@@ -249,9 +249,10 @@ void onKeyboardTick(void)
             {
                 if (isKeyDown[KEY_RIGHT])
                 {
-                    if (isKeyDown[KEY_LEFT]) {
+                    if (isKeyDown[KEY_LEFT])
+                    {
                         event = EVENT_KEY_TOGGLEPULSECLICKS;
-                        keyboard.pressedKey = (KEY_PRESSED_EXTENDED + 1);
+                        keyboard.pressedTicks = (KEY_PRESSED_EXTENDED + 1);
                     }
                     else
                         event = EVENT_KEY_SELECT;

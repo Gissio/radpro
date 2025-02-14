@@ -98,15 +98,15 @@ The keys are mapped as follows:
   * Leave lock mode: long hold of the power and play/pause key.
 <!-- Calculated as follows:
 
-* With 1-byte differential values: [25 pages * (1 timestamp entry/page [9 bytes] + 1010 differential entries/page [2 byte each])] = 25275 entries
-* With 2-byte differential values: [25 pages * (1 timestamp entry/page [9 bytes] + 505 differential entries/page [2 byte each])] = 12650 entries
+* With 1-byte differential values: [25 pages * (1 timestamp entry/page [10 bytes] + 1012 differential entries/page [1 byte each])] = 25325 entries
+* With 2-byte differential values: [25 pages * (1 timestamp entry/page [10 bytes] + 506 differential entries/page [2 byte each])] = 12675 entries
 
 * 60-minute and 10-minute intervals require 2-byte differential values.
-* 10-minute intervals and less require 1-byte differential values.
+* 1-minute intervals and less require 1-byte differential values.
 
  -->
 
-On the FS2011, Rad Pro can store up to 26312 data points. At normal radiation levels (20 cpm), this allows for 527 days of data at 60-minute intervals, 87 days at 10-minute intervals, 17 days at 1-minute intervals, almost 3 days at 10-second intervals and 7 hours at 1-second intervals.
+On the FS2011, Rad Pro can store up to 25325 data points. At normal radiation levels (20 cpm), this allows for 528 days of data at 60-minute intervals, 88 days at 10-minute intervals, 17 days at 1-minute intervals, almost 3 days at 10-second intervals and 7 hours at 1-second intervals.
 
 The FS2011 includes two Zener diodes that limit the maximum voltage to 440 V (nominal).
 

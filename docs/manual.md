@@ -8,7 +8,7 @@
 * Ability to dismiss alarms.
 * Tube fault alarm.
 * Multiple measurement units: Sievert, rem, cpm (counts per minute), cps (counts per second).
-* Configurable instantaneous rate averaging (adaptive fast, adaptive precision, 60 seconds, 30 seconds and 10 seconds), 
+* Configurable instantaneous rate averaging (adaptive fast, adaptive precision, 1 minute, 30 seconds and 10 seconds), 
 * Configurable averaging for performing surveys.
 * Customizable Geiger-Müller tube settings: conversion factor, dead-time compensation, background compensation, high voltage generator PWM frequency and duty cycle (on supported devices).
 * Preconfigured high voltage profiles (on supported devices).
@@ -106,7 +106,7 @@ Rad Pro offers several options for adjusting the instantaneous rate averaging pe
 
 * “Adaptive fast” averages the last 20 pulses, providing a confidence interval of ±50%. It is best for users who need quick radiation alerts. You can view the “adaptive fast” response curves (radiation level vs. response time) here: [instantaneousaveraging-adaptivefast.ipynb](../tests/instantaneousaveraging-adaptivefast.ipynb)
 * “Adaptive precision” is similar to “Adaptive fast”, but also sets a minimum averaging time of 5 seconds. This ensures higher precision when more than 20 pulses occur within the last 5 seconds. Otherwise it functions identically to "Adaptive fast". It is best for users who deem precision more important than fast response. You can view the “adaptive precision” response curves (radiation level vs. response time) here: [instantaneousaveraging-adaptiveprecision.ipynb](../tests/instantaneousaveraging-adaptiveprecision.ipynb)
-* “60 seconds”, “30 seconds” and “10 seconds” use fixed averaging periods. They can produce higher precision than the adaptive options, but have a much slower response.
+* “1 minute”, “30 seconds” and “10 seconds” use fixed averaging periods. They can produce higher precision than the adaptive options, but have a much slower response.
 
 ## Instantaneous rate alarm
 
@@ -184,7 +184,7 @@ To download the data log to the file `datalog.csv`:
 
     python tools/radpro-tool.py --port COM13 --download-datalog datalog.csv
 
-To log pulse data live to the file `live.csv` every 60 seconds:
+To log pulse data live to the file `live.csv` every minute:
 
     python tools/radpro-tool.py --port COM13 --log-pulsedata live.csv --period 60
 

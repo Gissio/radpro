@@ -56,8 +56,10 @@ def sign_firmware(env_name, container_offset, container_size, flash_size):
 
     tools_path, _ = os.path.split(__file__)
     system_h_file = tools_path + '/../platform.io/src/system.h'
-    bin_file = tools_path + '/../platform.io/.pio/build/' + env_name + '/' + 'firmware.bin'
-    elf_file = tools_path + '/../platform.io/.pio/build/' + env_name + '/' + 'firmware.elf'
+    bin_file = tools_path + '/../platform.io/.pio/build/' + \
+        env_name + '/' + 'firmware.bin'
+    elf_file = tools_path + '/../platform.io/.pio/build/' + \
+        env_name + '/' + 'firmware.elf'
 
     # Read compiled firmware
     if not os.path.exists(elf_file):
@@ -113,5 +115,5 @@ sign_firmware('bosean-fs600', 0x0, 0x9800, 0x20000)
 sign_firmware('bosean-fs1000', 0x0, 0x9800, 0x20000)
 sign_firmware('bosean-fs5000-portrait', 0x0, 0xc000, 0x40000)
 sign_firmware('bosean-fs5000-landscape', 0x0, 0xc000, 0x40000)
-sign_firmware('fnirsi-gc01-ch32f103r8', 0x4000, 0xa000, 0x10000)
+sign_firmware('fnirsi-gc01-ch32f103r8', 0x4000, 0xa400, 0x10000)
 sign_firmware('fnirsi-gc01-apm32f103rb', 0x4000, 0xc800, 0x20000)

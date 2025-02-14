@@ -77,16 +77,15 @@ On the FNIRSI GC-01/JOY-IT JT-RAD01 with a CH32F103R8 microprocessor, you must e
 
 <!-- Calculated as follows:
 
-* With 1-byte differential values: [7 pages * (1 timestamp entry/page [9 bytes] + 1010 differential entries/page [2 byte each])] = 7077 entries
-* With 2-byte differential values: [7 pages * (1 timestamp entry/page [9 bytes] + 505 differential entries/page [2 byte each])] = 3542 entries
+* With 1-byte differential values: [6 pages * (1 timestamp entry/page [10 bytes] + 1012 differential entries/page [1 byte each])] = 6078 entries
+* With 2-byte differential values: [6 pages * (1 timestamp entry/page [10 bytes] + 506 differential entries/page [2 byte each])] = 3042 entries
 
 * 60-minute and 10-minute intervals require 2-byte differential values.
-* 10-minute intervals: 20 cpm = 200 counts per 10 min require 2-byte differential values.
 * 1-minute intervals and less require 1-byte differential values.
 
  -->
  
- Data logging can store up to 8088 data points. At normal radiation levels (20 cpm), this allows for 147 days of data at 60-minute intervals, 24 days at 10-minute intervals, almost 5 days at 1-minute intervals, 19 hours at 10-second intervals and almost 2 hours at 1-second intervals.
+ Data logging can store up to 6078 data points. At normal radiation levels (20 cpm), this allows for 126 days of data at 60-minute intervals, 21 days at 10-minute intervals, 4 days at 1-minute intervals, 16 hours at 10-second intervals and almost 2 hours at 1-second intervals.
 
 The HV profile settings are:
 
@@ -99,16 +98,15 @@ On the FNIRSI GC-01/JOY-IT JT-RAD01 with an APM32F103R8 (Geehy) processor, the U
 
 <!-- Calculated as follows:
 
-* With 1-byte differential values: [61 pages * (1 timestamp entry/page [9 bytes] + 1010 differential entries/page [2 byte each])] = 61671 entries
-* With 2-byte differential values: [61 pages * (1 timestamp entry/page [9 bytes] + 505 differential entries/page [2 byte each])] = 30866 entries
+* With 1-byte differential values: [61 pages * (1 timestamp entry/page [10 bytes] + 1012 differential entries/page [1 byte each])] = 61793 entries
+* With 2-byte differential values: [61 pages * (1 timestamp entry/page [10 bytes] + 506 differential entries/page [2 byte each])] = 30927 entries
 
 * 60-minute and 10-minute intervals require 2-byte differential values.
-* 10-minute intervals: 20 cpm = 200 counts per 10 min require 2-byte differential values.
 * 1-minute intervals and less require 1-byte differential values.
 
  -->
 
-Data logging can store up to 61671 data points. At normal radiation levels (20 cpm), this allows for 1286 days of data at 60-minute intervals, 214 days at 10-minute intervals, 42 days at 1-minute intervals, 7 days at 10-second intervals and 17 hours at 1-second intervals.
+Data logging can store up to 61793 data points. At normal radiation levels (20 cpm), this allows for 1288 days of data at 60-minute intervals, 214 days at 10-minute intervals, 42 days at 1-minute intervals, 7 days at 10-second intervals and 17 hours at 1-second intervals.
 
 The HV profile settings are:
 

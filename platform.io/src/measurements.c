@@ -221,7 +221,7 @@ uint8_t instantaneousAveragingPeriods[] = {
 
 static const int32_t averagingTimes[] = {
     30 * 24 * 60 * 60, // Off (actually 30 days)
-    60 * 60,           // 60 minutes
+    60 * 60,           // 1 hour
     30 * 60,           // 30 minutes
     10 * 60,           // 10 minutes
     5 * 60,            // 5 minutes
@@ -1065,7 +1065,7 @@ static void onAverageRateViewEvent(const View *view,
             break;
 
         case AVERAGE_TAB_RATE:
-            if (measurements.average.rate.value > 0)
+            if (measurements.average.timedRate.value > 0)
             {
                 uint32_t unitsIndex = ((settings.units != UNITS_CPM) &&
                                        (settings.units != UNITS_CPS))
@@ -1084,7 +1084,7 @@ static void onAverageRateViewEvent(const View *view,
             break;
 
         case AVERAGE_TAB_DOSE:
-            if (measurements.average.pulseCount > 0)
+            if (measurements.average.timedPulseCount > 0)
                 buildValueString(valueString,
                                  unitString,
                                  measurements.average.timedPulseCount,
@@ -1611,7 +1611,7 @@ static const View unitsMenuView = {
 static const char *const instantaneousMenuOptions[] = {
     "Adaptive fast",
     "Adaptive precision",
-    "60 seconds",
+    "1 minute",
     "30 seconds",
     "10 seconds",
     NULL,

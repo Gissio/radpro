@@ -148,13 +148,13 @@ void updateDisplayTitle(void)
     if (vibrationOn || pulseLEDOn || alertLEDOn)
     {
         strcat(buffer, " ");
-  
+
         if (vibrationOn)
             strcat(buffer, "📳");
-  
+
         if (pulseLEDOn)
             strcat(buffer, "🔴");
-  
+
         if (alertLEDOn)
             strcat(buffer, "⚠️");
     }

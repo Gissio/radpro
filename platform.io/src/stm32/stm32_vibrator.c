@@ -21,10 +21,10 @@ void initVibration(void)
 
 #if defined(VIBRATION)
     gpio_setup_output(VIBRATION_PORT,
-               VIBRATION_PIN,
-               GPIO_OUTPUTTYPE_PUSHPULL,
-               GPIO_OUTPUTSPEED_2MHZ,
-               GPIO_PULL_FLOATING);
+                      VIBRATION_PIN,
+                      GPIO_OUTPUTTYPE_PUSHPULL,
+                      GPIO_OUTPUTSPEED_2MHZ,
+                      GPIO_PULL_FLOATING);
 #endif
 
 #elif defined(STM32F1)

@@ -54,7 +54,7 @@ static const uint16_t datalogIntervalTime[] = {
 
 static const char *const datalogIntervalMenuOptions[] = {
     "Off",
-    "Every 60 minutes",
+    "Every hour",
     "Every 10 minutes",
     "Every minute",
     "Every 10 seconds",

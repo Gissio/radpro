@@ -66,7 +66,7 @@ int8_t getDeviceBatteryLevel(void)
     }
 
 #if !defined(FONT_SYMBOLS_NOCHARGING)
-    if (isDevicePowered() || isBatteryCharging()) 
+    if (isDevicePowered() || isBatteryCharging())
         level += BATTERY_LEVEL_NUM;
 #endif
 

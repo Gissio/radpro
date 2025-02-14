@@ -173,7 +173,6 @@ void strcatFloatAsMetricValueAndPrefix(char *str,
     if (fractionalDecimals > 3)
         fractionalDecimals = 3;
 
-
     if (value == 0.0F)
         strcat(str, "\x7f.\x7f\x7f\x7f");
     else

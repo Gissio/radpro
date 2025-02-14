@@ -31,7 +31,7 @@ void openComm(void)
     if (commController.commStarted)
         return;
 
-        // GPIO
+    // GPIO
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
     gpio_setup_af(USART_RX_PORT,
                   USART_RX_PIN,

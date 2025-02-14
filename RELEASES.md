@@ -8,7 +8,7 @@ Updates:
 * Added an alarm enabled indicator.
 * Implemented a keyboard lock mode, accesible from Settings.
 * Display of dose counts below 10000 now uses standard notation.
-* Added more rate and dose alarm options.
+* Added rate and dose alarm options.
 * Added average timer options.
 * Added the ability to toggle pulse sounds from the measurement view (on selected devices).
 * Added pulses chirps sound option.
@@ -73,7 +73,7 @@ Fixes:
 
 ## 2.0rc4 The "little" update
 
-* Added instantaneous rate averaging options: adaptive fast, adaptive precision, 60 seconds, 30 seconds and 10 seconds.
+* Added instantaneous rate averaging options: adaptive fast, adaptive precision, 1 minute, 30 seconds and 10 seconds.
 * Added secondary CPM and count displays in measurement views.
 * Improved vibration pulse strengths.
 * Improved FNIRSI GC-01 quiet pulse clicks.

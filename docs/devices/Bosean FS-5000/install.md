@@ -82,14 +82,14 @@ To establish a USB data connection, connect your FS-5000 to a computer using a U
 
 <!-- Calculated as follows:
 
-* With 1-byte differential values: [103 pages * (1 timestamp entry/page [9 bytes] + 2024 differential entries/page [2 byte each])] = 208575 entries
-* With 2-byte differential values: [103 pages * (1 timestamp entry/page [9 bytes] + 1012 differential entries/page [2 byte each])] = 104339 entries
+* With 1-byte differential values: [103 pages * (1 timestamp entry/page [16 bytes] + 2024 differential entries/page [1 byte each]) + page full indicator (2 bytes)] = 208575 entries
+* With 2-byte differential values: [103 pages * (1 timestamp entry/page [16 bytes] + 1012 differential entries/page [2 byte each])] = 104339 entries
 
 * 60-minute and 10-minute intervals require 2-byte differential values.
-* 10-minute intervals and less require 1-byte differential values.
+* 1-minute intervals and less require 1-byte differential values.
 
  -->
 
-On the FS-5000, Rad Pro can store up to 220725 data points. At normal radiation levels (20 cpm), this allows for 4347 days of data at 60-minute intervals, 724 days at 10-minute intervals, 144 days at 1-minute intervals, 24 days at 10-second intervals and 57 hours at 1-second intervals.
+On the FS-5000, Rad Pro can store up to 208575 data points. At normal radiation levels (20 cpm), this allows for 4347 days of data at 60-minute intervals, 724 days at 10-minute intervals, 144 days at 1-minute intervals, 24 days at 10-second intervals and 57 hours at 1-second intervals.
 
 The FS-5000 does not support HV profiles.

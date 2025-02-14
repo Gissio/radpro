@@ -109,7 +109,8 @@ void onHardFault(const uint32_t *args)
 
     setPower(false);
 
-    while (true);
+    while (true)
+        ;
 }
 
 #if DEBUG
