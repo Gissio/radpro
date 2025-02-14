@@ -16,6 +16,7 @@
 
 extern const View gameMenuView;
 
+void initGame(void);
 void initGameMenus(void);
 
 void dispatchGameEvents(void);

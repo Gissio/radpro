@@ -92,7 +92,7 @@ void setPowerOnView(void)
 #endif
     initDatalog();
 
-    if (!verifyFlash()) 
+    if (!verifyFlash())
     {
         powerOnViewState = POWERON_VIEW_FLASHFAILURE;
 
@@ -114,7 +114,9 @@ void setPowerOnView(void)
     initTubeMenus();
     initDisplayMenus();
     initMeasurementsMenus();
+#if defined(GAME)
     initGameMenus();
+#endif
     initDatalogMenus();
     initRTCMenus();
     initRNGMenus();

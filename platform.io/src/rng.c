@@ -329,32 +329,32 @@ const View rngView = {
 // RNG menu
 
 static const char *onRNGMenuGetOption(const Menu *menu,
-    uint32_t index,
-    MenuStyle *menuStyle)
+                                      uint32_t index,
+                                      MenuStyle *menuStyle)
 {
-*menuStyle = MENUSTYLE_SUBMENU;
+    *menuStyle = MENUSTYLE_SUBMENU;
 
-return rngModeMenuOptions[index];
+    return rngModeMenuOptions[index];
 }
 
 static void onRNGMenuSelect(const Menu *menu)
 {
-initFastDiceRoller(menu->state->selectedIndex);
+    initFastDiceRoller(menu->state->selectedIndex);
 
-setView(&rngView);
+    setView(&rngView);
 }
 
 static MenuState rngMenuState;
 
-static const Menu rngMenu = {
-"Random generator",
-&rngMenuState,
-onRNGMenuGetOption,
-onRNGMenuSelect,
-onSettingsSubMenuBack,
+const Menu rngMenu = {
+    "Random generator",
+    &rngMenuState,
+    onRNGMenuGetOption,
+    onRNGMenuSelect,
+    onSettingsSubMenuBack,
 };
 
 const View rngMenuView = {
-onMenuEvent,
-&rngMenu,
+    onMenuEvent,
+    &rngMenu,
 };

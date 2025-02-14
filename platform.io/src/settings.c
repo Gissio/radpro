@@ -102,12 +102,14 @@ void initSettings(void)
             settings.instantaneousAveraging = INSTANTANEOUSAVERAGING_ADAPTIVEFAST;
         if (settings.tubeConversionFactor >= TUBE_CONVERSIONFACTOR_NUM)
             settings.tubeConversionFactor = TUBE_CONVERSIONFACTOR_DEFAULT;
+#if defined(TUBE_HV_PWM)
         if ((settings.tubeHVFrequency >= TUBE_HVFREQUENCY_NUM) ||
             (settings.tubeHVDutyCycle >= TUBE_HVDUTYCYCLE_NUM))
         {
-            settings.tubeHVFrequency = TUBE_HVPROFILE_FACTORYDEFAULT_FREQUENCY;
-            settings.tubeHVDutyCycle = TUBE_HVPROFILE_FACTORYDEFAULT_DUTYCYCLE;
+            settings.tubeHVFrequency = TUBE_HVFREQUENCY_1_25;
+            settings.tubeHVDutyCycle = 0;
         }
+#endif
         if (settings.datalogInterval >= DATALOG_INTERVAL_NUM)
             settings.datalogInterval = DATALOG_INTERVAL_OFF;
 #if defined(DISPLAY_COLOR)
