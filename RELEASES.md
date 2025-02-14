@@ -6,12 +6,12 @@ Updates:
 * Added the ability to dismiss alarms with the reset measurement key.
 * Added configurable alarm signaling: sound, vibration, pulse LED and display flash.
 * Added an alarm enabled indicator.
-* Implemented a keyboard lock mode, accesible from Settings.
-* Display of dose counts below 10000 now uses standard notation.
-* Added rate and dose alarm options.
-* Added average timer options.
-* Added the ability to toggle pulse sounds from the measurement view (on selected devices).
-* Added pulses chirps sound option.
+* Implemented a keyboard lock mode, accessible from Settings.
+* Display of dose counts below 10000 now shown in standard notation.
+* Added new rate and dose alarm options.
+* Added new average timer options.
+* Added the ability to toggle pulse sounds from the measurement view on supported devices.
+* Added a new pulses chirps sound option.
 * Extended the duration of alarm sounds.
 * Enhanced the menu structure for more intuitive navigation.
 * Updated the UI font to Open Sans for enhanced readability.
