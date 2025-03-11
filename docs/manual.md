@@ -59,17 +59,19 @@ An example: Imagine measuring background radiation. A one-minute average yields 
 
 The cumulative dose is calculated from the number of pulses in the time period.
 
-The secondary view can be switched between a time view that displays the length of the time period, and a counts view.
+The secondary view can be toggled between a time view, showing the duration of the measurement period, and a counts view, showing the pulse count.
 
-To reset the cumulative dose or dismiss a dose alarm, read the device's installation instructions.
+To reset the cumulative dose or dismiss a dose alarm, refer to the device's installation instructions.
+
+**WARNING**: Accurate cumulative dose measurements require an energy-compensated Geiger tube. The default tubes in Geiger units supported by Rad Pro are **not** energy-compensated, resulting in significant measurement errors.
 
 ### History
 
-The history is calculated from the instantaneous rate, sampled once per second. The plot is [logarithmic](https://en.wikipedia.org/wiki/Logarithmic_scale), with each division representing a tenfold increase in radiation level. Alert zones at 1 µSv/h and 10 µSv/h are displayed.
+The history is calculated from the instantaneous rate, sampled once per second. The plot uses a [logarithmic scale](https://en.wikipedia.org/wiki/Logarithmic_scale), where each division represents a tenfold increase in radiation level. Alert zones at 1 µSv/h and 10 µSv/h are visually indicated.
 
-The view can be switched between a 10-minute view, a 60-minute view and a 24-hours view.
+The view can be toggled between a 10-minute view, 60-minute view or 24-hour view.
 
-To reset the history, read the device's installation instructions.
+To reset the history, consult the device's installation instructions.
 
 ## Conversion factor
 
@@ -198,30 +200,34 @@ To communicate with Rad Pro through a USB serial port, read the [communications 
 
 ## FAQ
 
+**Q: How can I reset the average and cumulative measurements?**
+
+**A:** Refer to the keyboard mapping section of your device's installation instructions for guidane on resetting measurements.
+
 **Q: Why does my device's date and time reset every time I turn it on?**
 
-**A:** Your device's date and time reset because its real-time clock (RTC) loses power when you turn it off. On the FNIRSI GC-01, this is likely due to a failing backup battery (a CR1220). Replacing this battery should resolve the issue.
+**A:** Your device's date and time reset because its real-time clock (RTC) loses power when turned off. On the FNIRSI GC-01, this is likely due to a failing backup battery (a CR1220). Replacing this battery should fix the issue.
 
-**Q: When I power on my device, Rad Pro stays quite some time (up to 60 seconds) on the splash screen.**
+**Q: When I power on my device, why does Rad Pro stay on the splash screen for so long (up to 60 seconds)?**
 
-**A:** A splash screen delay of up to 60 seconds during startup can be caused by your device's microprocessor taking time to initialize the real-time clock. If this happens consistently, please refer to the previous question for troubleshooting.
+**A:** The extended splash screen time could be due to the microprocessor initializing the real-time clock. If this delay persists, check the previous answer for troubleshooting steps.
 
-**Q: Why are the instantaneous rate measurements so noisy?**
+**Q: Why are my instantaneous rate measurements so noisy?**
 
-**A:** Measuring instantaneous rate presents a trade-off between low noise and fast response. To minimize noise, you can select an averaging option that increases the measurement period. However, this comes at the cost of a slower response.
+**A:** There's a balance between noise and response speed in instantaneous rate measurements. To reduce noise, choose an averaging option that extends the measurement period, though this will slow the response time.
 
-**Q: I enabled clicks but am not hearing any.**
+**Q: I enabled clicks but I'm not hearing any.**
 
-**A:** If you've enabled a pulse threshold, pulse indication will only occur above a certain radiation level threshold. Check if this feature is activated.
+**A:** If a pulse threshold is set, you'll only hear clicks when radiation levels exceed this threshold. Make sure this setting isn't active if you expect to hear clicks for all counts.
 
 **Q: Why isn’t the rate alarm triggering?**
 
-**A:** To minimize false alarms, the rate alarm triggers only when the confidence interval falls below 75%.
+**A:** The rate alarm is designed to avoid false alarms by only triggering when the confidence interval drops below 75%.
 
-**Q: My device is missing counts.**
+**Q: My device seems to be missing counts.**
 
-**A:** Background compensation, if enabled, removes counts. Check if this feature is activated.
+**A:** If background compensation is turned on, it subtracts counts from the total. Verify whether this feature is active.
 
-**Q: My device is not clicking on every count.**
+**Q: My device is not clicking for every count.**
 
-**A:** When you select a conversion factor above 600 cpm/µSv/h, Rad Pro caps the pulse indication at 600 cpm/µSv/h. 
+**A:** If a conversion factor over 600 cpm/µSv/h is selected, Rad Pro limits pulse indication to 600 cpm/µSv/h to prevent excessive audio feedback.

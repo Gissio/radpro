@@ -52,7 +52,7 @@ Last, read the [user's manual](../../manual.md) for learning how to use Rad Pro,
 
 ## Step 4: Get involved
 
-If you like Rad Pro, consider watching the project to get notified when new releases are out. Also, show your support by starring the project on GitHub.
+If you like Rad Pro, consider watching the project to get notified when new releases are out. Also, show your support by starring the project on GitHub. And don't forget to read the keyboard mapping table below!
 
 ## Hardware-specific notes
 
@@ -62,12 +62,13 @@ The keys are mapped as follows:
   * Switch measurement mode: the up and down keys.
   * Switch measurement secondary view: the ok/power or left/back key.
   * Reset measurement/dismiss alarm: long hold of the left/back key.
-  * Toggle pulses sound in measurement view: long hold of the right/settings key.
+  * Put display to sleep (measurement view only): the ok/power key.
   * Enter settings: the right/settings key.
   * Go up/down: the up and down keys.
   * Select option: the ok/power or right/settings key.
   * Go back: the left/back key.
-  * Leave lock mode: long hold of the ok/power and left/back key.
+  * Toggle pulses sound: long hold of the right/settings key.
+  * Toggle lock mode: long hold of the ok/power and left/back key.
 
 To establish a USB data connection, connect your FNIRSI GC-01/JOY-IT JT-RAD01 to a computer using a USB data cable.
 

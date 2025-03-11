@@ -80,7 +80,7 @@ Last, read the [user's manual](../../manual.md) for learning how to use Rad Pro,
 
 ## Step 6: Get involved
 
-If you like Rad Pro, consider watching the project to get notified when new releases are out. Also, show your support by starring the project on GitHub.
+If you like Rad Pro, consider watching the project to get notified when new releases are out. Also, show your support by starring the project on GitHub. And don't forget to read the keyboard mapping table below!
 
 ## Hardware-specific notes
 
@@ -88,14 +88,16 @@ The keys are mapped as follows:
 
   * Power on/off: long hold of the power key.
   * Switch measurement mode: the up and down keys.
-  * Switch measurement secondary view: the play/pause or power key.
+  * Switch measurement secondary view: the play/pause key.
   * Reset measurement/dismiss alarm: long hold of the play/pause key.
-  * Toggle pulses sound in measurement view: long hold of the menu/ok key.
+  * Put display to sleep (measurement view only): the power key.
   * Enter settings: the menu/ok key.
   * Go up/down: the up and down keys.
   * Select option: the menu/ok or power key.
   * Go back: the play/pause key.
-  * Leave lock mode: long hold of the power and play/pause key.
+  * Toggle pulses sound: long hold of the menu/ok key.
+  * Toggle lock mode: long hold of the power and play/pause key.
+
 <!-- Calculated as follows:
 
 * With 1-byte differential values: [25 pages * (1 timestamp entry/page [10 bytes] + 1012 differential entries/page [1 byte each])] = 25325 entries

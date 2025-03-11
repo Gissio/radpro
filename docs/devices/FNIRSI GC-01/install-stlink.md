@@ -6,8 +6,6 @@ These instructions let you install Rad Pro on an FNIRSI GC-01/JOY-IT JT-RAD01 wi
 * want to install Rad Pro from macOS or Linux.
 * your FNIRSI GC-01/JOY-IT JT-RAD01 became unresponsive and you need to recover your device.
 
-**WARNING:** Rad Pro is incompatible with the FNIRSI GC-01 with a CACHIP microprocessor. Installing Rad Pro on such a device WILL BREAK IT.
-
 ## Supplies
 
 To install Rad Pro on your FNIRSI GC-01/JOY-IT JT-RAD01 Geiger counter with an ST-LINK USB dongle, you will need the following tools and components:
@@ -28,8 +26,7 @@ Follow these steps to start installing Rad Pro:
 * Remove the screws holding the back case and open the device.
 * Disconnect the large battery.
 * Take note of the MCU (microprocessor) installed in your device: CH32F103R8T6 (WCH) or APM32F103RBT6 (Geehy). The picture above should help you identify the MCU.
-* Take note of the type of Geiger tube: the markings on the glass should be either J321 (as in the picture above), J305, M4011 or J614. If you have an unmarked tube measuring 55 or 65 mm long, you probably have a J614 or J613 tube, respectively.
-* Also, take note of the type of LCD display: the marking on the ribbon cable should be “CL24CG1045-40B”, “ENH-TV0240b026” or “GMT024-05 V2.0”. If it does not match any of these, please create an [issue](https://github.com/Gissio/radpro/issues).
+* Take note of the type of Geiger tube: the markings on the glass should be either J321 (as in the picture above), J305, M4011, J614 or J613. If you have an unmarked tube measuring 55 or 65 mm long, you probably have a J614 or J613 tube, respectively.
 
 The board should look like in the photo above. If it does not, you may have a different hardware revision. In this case, Rad Pro may not function properly.
 

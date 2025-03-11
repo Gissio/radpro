@@ -1018,7 +1018,7 @@ void mr_draw_string_textbuffer(mr_t *mr,
             int16_t buffer_next_width = pen.x + glyph_boundingbox_right;
             buffer_width_increment = buffer_next_width - buffer_rectangle.width;
 
-            draw_buffer = (buffer_next_width > buffer_pitch);
+            draw_buffer = (buffer_next_width >= buffer_pitch);
         }
 
         if (draw_buffer)

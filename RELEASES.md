@@ -1,6 +1,17 @@
 # Releases
 
-## 2.1 Delicious trifles
+## 2.1.1 "The dot mender"
+
+Updates:
+* On 3-key and 5-key devices, a short press of the power key now puts the display to sleep.
+* Lock mode is now directly accessible without navigating to the settings.
+* Dice rolls and coin flips now generate a single outcome.
+* Added 100 and 10-sided die rolls and binary random number generation.
+
+Fixes:
+* On devices with color displays, fixed an issue where the dot was occasionally missing in the measurement view.
+
+## 2.1 "Delicious trifles"
 
 Updates:
 * Added the ability to dismiss alarms with the reset measurement key.
@@ -10,6 +21,7 @@ Updates:
 * Display of dose counts below 10000 now shown in standard notation.
 * Added new rate and dose alarm options.
 * Added new average timer options.
+* Extended the dead-time compensation range to 20-320 µs.
 * Added the ability to toggle pulse sounds from the measurement view on supported devices.
 * Added a new pulses chirps sound option.
 * Extended the duration of alarm sounds.
@@ -24,20 +36,20 @@ Fixes:
 * Resolved an issue where the device state wasn't reset after a quick power cycle.
 * Corrected a problem where 1 minute instantaneous averaging at high radiation levels didn't average correctly.
 
-## 2.0.3 The sensitive update
+## 2.0.3 "The sensitive update"
 
 * Extended conversion factor range to 25-12800 cpm/µSv/h.
 * When using sensitive detectors with a conversion factor of 600 cpm/µSv/h or higher, pulse indication is now capped at 600 cpm/µSv/h to provide approximately one pulse per second at background levels of radiation. This does not impact the actual measurements.
 * Minor UI and performance refinements.
 
-## 2.0.2 The precise release
+## 2.0.2 "The precise release"
 
 * Improved the instantaneous rate averaging algorithm.
 * Simplified the instantaneous rate averaging response curves, resulting in improved precision when using J613/J614 tubes.
 * Disabled instantaneous rate alarms in situations where the confidence interval is high, such as immediately after device startup.
 * Minor UI improvements.
 
-## 2.0.1 Nobody's perfect
+## 2.0.1 "Nobody's perfect"
 
 * Added data log reset.
 * Reverted the default conversion factor for J613/J614 tubes to 60.0 cpm/µSv/h.
@@ -47,7 +59,7 @@ Fixes:
 * Resolved issues with new history data log download.
 * Minor refinements.
 
-## 2.0 Grand première 
+## 2.0 "Grand première"
 
 * First 2.0 release.
 * Updated the UI design system to [OpenBridge 5.0](https://www.openbridge.no/), improving legibility under sunlight.
@@ -55,7 +67,7 @@ Fixes:
 * Removed the FNIRSI GC-01 display panel settings.
 * Increased the granularity and range of the "SET tubeHVFrequency" and "SET tubeHVDutyCycle" data connection requests to CPU clock resolution and 100 Hz-100 kHz and 0%-100%, respectively (not stored on power-off).
 
-## 2.0rc5 The final countdown
+## 2.0rc5 "The final countdown"
 
 * Added Bosean FS-5000 support.
 * Added display panel menu for selecting the display panel (on supported devices).
@@ -71,7 +83,7 @@ Fixes:
 * Changed USB data connection end of line to "\r\n".
 * Minor refinements.
 
-## 2.0rc4 The "little" update
+## 2.0rc4 "The little update"
 
 * Added instantaneous rate averaging options: adaptive fast, adaptive precision, 1 minute, 30 seconds and 10 seconds.
 * Added secondary CPM and count displays in measurement views.
@@ -82,7 +94,7 @@ Fixes:
 
 * Fixed History (24 h) bug.
 
-## 2.0rc3 The "BIG" update
+## 2.0rc3 "The BIG update"
 
 * UI update with big digits in measurement view.
 * Instantaneous rate bar with alert zones (1 µSv, 10 µSv).

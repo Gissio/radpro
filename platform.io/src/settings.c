@@ -191,7 +191,6 @@ static const OptionView settingsMenuOptions[] = {
 #if defined(DATA_MODE)
     {"Data mode", &dataModeMenuView},
 #endif
-    {"Lock mode", &lockView},
     {NULL},
 };
 

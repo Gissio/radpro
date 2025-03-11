@@ -833,6 +833,8 @@ static void onInstantaneousRateViewEvent(const View *view,
     case EVENT_KEY_RESET:
         if (!isLockMode())
         {
+            triggerVibration();
+
             if (measurements.instantaneous.alarm)
                 measurements.instantaneous.alarm = false;
             else
@@ -996,6 +998,8 @@ static void onAverageRateViewEvent(const View *view,
     case EVENT_KEY_RESET:
         if (!isLockMode())
         {
+            triggerVibration();
+
             resetAverageRate();
 
             updateView();
@@ -1164,6 +1168,8 @@ static void onCumulativeDoseViewEvent(const View *view,
     case EVENT_KEY_RESET:
         if (!isLockMode())
         {
+            triggerVibration();
+
             if (measurements.cumulativeDose.alarm)
                 measurements.cumulativeDose.alarm = false;
             else
@@ -1324,6 +1330,8 @@ static void onHistoryViewEvent(const View *view, Event event)
     case EVENT_KEY_RESET:
         if (!isLockMode())
         {
+            triggerVibration();
+
             resetHistory();
 
             updateView();

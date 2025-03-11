@@ -11,6 +11,7 @@
 #include "events.h"
 #include "init.h"
 #include "keyboard.h"
+#include "measurements.h"
 #include "power.h"
 #include "settings.h"
 #include "system.h"
@@ -42,9 +43,6 @@ void dispatchViewEvents(void)
         if (event == EVENT_NONE)
             break;
 
-        if (event == EVENT_KEY_UNLOCK)
-            setLockMode(false);
-
         if (isPowerOffViewActive())
         {
             if (event == EVENT_KEY_POWER)
@@ -53,10 +51,23 @@ void dispatchViewEvents(void)
         else
         {
             if (event == EVENT_KEY_POWER)
-                setPowerOffView();
+            {
+                if (!isLockMode())
+                    setPowerOffView();
+            }
             else
             {
-                if (event == EVENT_KEY_TOGGLEPULSECLICKS)
+                if (event == EVENT_KEY_TOGGLELOCK)
+                {
+                    if (!isLockMode())
+                    {
+                        setMeasurementView(-1);
+                        setLockMode(true);
+                    }
+                    else
+                        setLockMode(false);
+                }
+                else if (event == EVENT_KEY_TOGGLEPULSECLICKS)
                 {
                     togglePulseClicks();
 
@@ -65,7 +76,11 @@ void dispatchViewEvents(void)
                 else
                     view.currentView->onEvent(view.currentView, event);
 
-                requestDisplayBacklightTrigger();
+                if ((event == EVENT_KEY_TOGGLEBACKLIGHT) &&
+                    isDisplayBacklightActive())
+                    cancelDisplayBacklight();
+                else
+                    requestDisplayBacklightTrigger();
             }
         }
     }

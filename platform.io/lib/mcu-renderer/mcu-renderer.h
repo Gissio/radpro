@@ -216,7 +216,6 @@ struct mr_t_
 
     void *buffer;
     uint32_t buffer_size;
-    uint32_t buffer_pitch;
 
     mr_color_t stroke_color;
     mr_color_t fill_color;

@@ -16,6 +16,7 @@
 #include <SDL.h>
 
 #include <mcu-renderer-sdl.h>
+#include <mcu-renderer-st7789.h>
 
 #include "../cstring.h"
 #include "../datalog.h"
@@ -23,6 +24,8 @@
 #include "../events.h"
 #include "../settings.h"
 #include "../system.h"
+
+static void updateDisplayTitle(void);
 
 // Display
 
@@ -36,9 +39,112 @@ bool alertLEDOn;
 static uint8_t displayBrightnessValues[] = {
     0x3f, 0x7f, 0xbf, 0xff};
 
-extern float tubeCPS;
+#if defined(ST7789_DEBUG)
 
-void updateDisplayTitle(void);
+mr_t mr_sdl;
+char textbuffer[88 * 88];
+uint32_t st7789Index;
+bool st7789Command;
+uint8_t st7789Instruction;
+
+uint32_t st7789x0;
+uint32_t st7789x1;
+uint32_t st7789y0;
+uint32_t st7789y1;
+
+uint32_t st7789x;
+uint32_t st7789y;
+
+void onSleep(uint32_t value)
+{
+}
+
+static void onSetReset(bool value)
+{
+}
+
+static void onChipSelect(bool value)
+{
+}
+
+static void onCommand(bool value)
+{
+    if (st7789Command != value)
+        st7789Index = 0;
+
+    st7789Command = value;
+}
+
+static void onSend(uint16_t value)
+{
+    if (st7789Command)
+    {
+        if (st7789Index == 0)
+            st7789Instruction = value;
+
+        switch (st7789Instruction)
+        {
+        case MR_ST7789_RAMWR:
+            st7789x = st7789x0;
+            st7789y = st7789y0;
+
+            break;
+        }
+    }
+    else
+    {
+        switch (st7789Instruction)
+        {
+        case MR_ST7789_CASET:
+            if (st7789Index == 0)
+                st7789x0 = (st7789x0 & ~0xff00) | (value << 8);
+            else if (st7789Index == 1)
+                st7789x0 = (st7789x0 & ~0x00ff) | (value << 0);
+            else if (st7789Index == 2)
+                st7789x1 = (st7789x1 & ~0xff00) | (value << 8);
+            else if (st7789Index == 3)
+                st7789x1 = (st7789x1 & ~0x00ff) | (value << 0);
+
+            break;
+
+        case MR_ST7789_RASET:
+            if (st7789Index == 0)
+                st7789y0 = (st7789y0 & ~0xff00) | (value << 8);
+            else if (st7789Index == 1)
+                st7789y0 = (st7789y0 & ~0x00ff) | (value << 0);
+            else if (st7789Index == 2)
+                st7789y1 = (st7789y1 & ~0xff00) | (value << 8);
+            else if (st7789Index == 3)
+                st7789y1 = (st7789y1 & ~0x00ff) | (value << 0);
+
+            break;
+
+        case MR_ST7789_RAMWR:
+        {
+            mr_color_t *framebuffer = (mr_color_t *)mr_sdl.buffer;
+            framebuffer[st7789y * mr_sdl.display_width + st7789x] = value;
+            st7789x += 1;
+            if (st7789x > st7789x1)
+            {
+                st7789x = st7789x0;
+                st7789y += 1;
+            }
+
+            break;
+        }
+        }
+
+        st7789Index++;
+    }
+}
+
+#else
+
+#define mr_sdl mr
+
+#endif
+
+extern float tubeCPS;
 
 void initDisplayController(void)
 {
@@ -50,8 +156,23 @@ void initDisplayController(void)
                 MR_SDL_DISPLAY_TYPE_MONOCHROME,
                 DISPLAY_UPSCALE,
                 FIRMWARE_NAME);
+    mr_sdl = mr;
 #elif defined(DISPLAY_COLOR)
-    mr_sdl_init(&mr,
+#if defined(ST7789_DEBUG)
+    mr_st7789_init(&mr,
+                   DISPLAY_HEIGHT,
+                   DISPLAY_WIDTH,
+                   MR_DISPLAY_ROTATION_270,
+                   &textbuffer,
+                   sizeof(textbuffer),
+                   onSleep,
+                   onSetReset,
+                   onChipSelect,
+                   onCommand,
+                   onSend,
+                   onSend);
+#endif
+    mr_sdl_init(&mr_sdl,
                 DISPLAY_WIDTH,
                 DISPLAY_HEIGHT,
                 MR_SDL_DISPLAY_TYPE_COLOR,
@@ -63,7 +184,7 @@ void initDisplayController(void)
 
 void enableDisplay(bool value)
 {
-    mr_sdl_set_display(&mr, value);
+    mr_sdl_set_display(&mr_sdl, value);
 
     displayEnabled = value;
 }
@@ -83,7 +204,7 @@ void refreshDisplay(void)
 
 void updateDisplay(void)
 {
-    mr_sdl_refresh_display(&mr);
+    mr_sdl_refresh_display(&mr_sdl);
 
     SDL_Event event;
     if (SDL_PollEvent(&event))
@@ -139,7 +260,7 @@ bool updateSDLTicks()
     return true;
 }
 
-void updateDisplayTitle(void)
+static void updateDisplayTitle(void)
 {
     char buffer[256];
 
@@ -159,7 +280,7 @@ void updateDisplayTitle(void)
             strcat(buffer, "⚠️");
     }
 
-    mr_sdl_set_title(&mr, buffer);
+    mr_sdl_set_title(&mr_sdl, buffer);
 }
 
 // Display backlight
@@ -171,7 +292,7 @@ void initDisplayBacklight(void)
 void setDisplayBacklight(bool value)
 {
     mr_sdl_set_backlight(
-        &mr,
+        &mr_sdl,
         value
             ? displayBrightnessValues[settings.displayBrightness]
             : 0);

@@ -9,6 +9,7 @@
 
 #include "cstring.h"
 #include "display.h"
+#include "events.h"
 #include "menu.h"
 #include "rng.h"
 #include "settings.h"
@@ -18,34 +19,44 @@
 #define RNG_BITQUEUE_MAX_SIZE (RNG_BITQUEUE_SIZE - 1)
 #define RNG_BITQUEUE_BYTE_NUM (RNG_BITQUEUE_SIZE / 8)
 
-#define RNG_TEXT_MAX_SIZE 16
+#define RNG_SYMBOLS_MAX 16
 
 typedef enum
 {
-    RNG_MODE_ALPHANUMERIC,
     RNG_MODE_FULL_ASCII,
+    RNG_MODE_ALPHANUMERIC,
     RNG_MODE_HEXADECIMAL,
     RNG_MODE_DECIMAL,
-    RNG_MODE_20SIDED_DICE,
-    RNG_MODE_12SIDED_DICE,
-    RNG_MODE_8SIDED_DICE,
-    RNG_MODE_6SIDED_DICE,
-    RNG_MODE_4SIDED_DICE,
+    RNG_MODE_BINARY,
+
+    RNG_MODE_100SIDED_DIE,
+    RNG_MODE_20SIDED_DIE,
+    RNG_MODE_12SIDED_DIE,
+    RNG_MODE_10SIDED_DIE,
+    RNG_MODE_8SIDED_DIE,
+    RNG_MODE_6SIDED_DIE,
+    RNG_MODE_4SIDED_DIE,
+
     RNG_MODE_COIN_FLIP,
+
+    RNG_MODE_THROW = RNG_MODE_100SIDED_DIE,
 } RNGMode;
 
-static const uint8_t rngModeRanges[] = {62, 94, 16, 10, 20, 12, 8, 6, 4, 2};
+static const uint8_t rngModeRanges[] = {94, 62, 16, 10, 2, 100, 20, 12, 10, 8, 6, 4, 2};
 
 static const char *const rngModeMenuOptions[] = {
-    "Alphanumeric",
     "Full ASCII",
+    "Alphanumeric",
     "Hexadecimal",
     "Decimal",
-    "20-sided dice",
-    "12-sided dice",
-    "8-sided dice",
-    "6-sided dice",
-    "4-sided dice",
+    "Binary",
+    "100-sided die (0-99)",
+    "20-sided die",
+    "12-sided die",
+    "10-sided die (0-9)",
+    "8-sided die",
+    "6-sided die",
+    "4-sided die",
     "Coin flip",
     NULL,
 };
@@ -68,11 +79,11 @@ static struct
     bool bitFlip;
 
     RNGMode mode;
-    uint32_t fdrN;
-    uint32_t fdrV;
-    uint32_t fdrC;
+    uint32_t fastDiceRollerN;
+    uint32_t fastDiceRollerV;
+    uint32_t fastDiceRollerC;
 
-    char text[RNG_TEXT_MAX_SIZE + 1];
+    char text[RNG_SYMBOLS_MAX + 1];
     uint8_t activityIndicator;
 } rng;
 
@@ -187,22 +198,22 @@ static int32_t getFastDiceRollerInt(void)
         if (bit == -1)
             return -1;
 
-        rng.fdrV = rng.fdrV << 1;
-        rng.fdrC = (rng.fdrC << 1) + bit;
+        rng.fastDiceRollerV = rng.fastDiceRollerV << 1;
+        rng.fastDiceRollerC = (rng.fastDiceRollerC << 1) + bit;
 
-        if (rng.fdrV >= rng.fdrN)
+        if (rng.fastDiceRollerV >= rng.fastDiceRollerN)
         {
-            if (rng.fdrC < rng.fdrN)
+            if (rng.fastDiceRollerC < rng.fastDiceRollerN)
             {
-                uint32_t c = rng.fdrC;
-                rng.fdrV = 1;
-                rng.fdrC = 0;
+                uint32_t c = rng.fastDiceRollerC;
+                rng.fastDiceRollerV = 1;
+                rng.fastDiceRollerC = 0;
                 return c;
             }
             else
             {
-                rng.fdrV = rng.fdrV - rng.fdrN;
-                rng.fdrC = rng.fdrC - rng.fdrN;
+                rng.fastDiceRollerV = rng.fastDiceRollerV - rng.fastDiceRollerN;
+                rng.fastDiceRollerC = rng.fastDiceRollerC - rng.fastDiceRollerN;
             }
         }
     }
@@ -211,75 +222,53 @@ static int32_t getFastDiceRollerInt(void)
 static void initFastDiceRoller(RNGMode mode)
 {
     rng.mode = mode;
-    rng.fdrN = rngModeRanges[mode];
-    rng.fdrV = 1;
-    rng.fdrC = 0;
+    rng.fastDiceRollerN = rngModeRanges[mode];
+    rng.fastDiceRollerV = 1;
+    rng.fastDiceRollerC = 0;
 
     strclr(rng.text);
     rng.activityIndicator = 1;
 }
 
-static char getFastDiceRollerChar(int32_t digit)
-{
-    if (digit < 10)
-        return '0' + digit;
-    else if (digit < (10 + 26))
-        return 'a' + digit - 10;
-    else
-        return 'A' + digit - (10 + 26);
-}
-
 static void updateFastDiceRollerText(void)
 {
-    uint32_t index = (uint32_t)strlen(rng.text);
-
-    while (true)
+    while (rng.activityIndicator)
     {
-        if (index >= RNG_TEXT_MAX_SIZE)
+        int32_t digit = getFastDiceRollerInt();
+        if (digit < 0)
+            return;
+
+        if (rng.mode == RNG_MODE_FULL_ASCII)
+            strcatChar(rng.text, '!' + digit);
+        else if (rng.mode < RNG_MODE_THROW)
+        {
+            char c;
+            if (digit < 10)
+                c = '0' + digit;
+            else if (digit < (10 + 26))
+                c = 'a' + digit - 10;
+            else
+                c = 'A' + digit - (10 + 26);
+
+            strcatChar(rng.text, c);
+        }
+        else if (rng.mode != RNG_MODE_COIN_FLIP)
+        {
+            if ((rng.mode != RNG_MODE_100SIDED_DIE) &&
+                (rng.mode != RNG_MODE_10SIDED_DIE))
+                digit++;
+
+            strcatUInt32(rng.text, digit, 0);
+        }
+        else
+            strcpy(rng.text, digit ? "Head" : "Tail");
+
+        if ((rng.mode >= RNG_MODE_THROW) ||
+            (strlen(rng.text) >= RNG_SYMBOLS_MAX))
         {
             rng.activityIndicator = 0;
-            return;
+            triggerAlarm();
         }
-
-        int32_t digit = getFastDiceRollerInt();
-        if (digit == -1)
-            return;
-
-        char c;
-        switch (rng.mode)
-        {
-        case RNG_MODE_ALPHANUMERIC:
-        case RNG_MODE_HEXADECIMAL:
-        case RNG_MODE_DECIMAL:
-        case RNG_MODE_COIN_FLIP:
-            c = getFastDiceRollerChar(digit);
-
-            break;
-
-        case RNG_MODE_FULL_ASCII:
-            c = '!' + digit;
-
-            break;
-
-        case RNG_MODE_4SIDED_DICE:
-        case RNG_MODE_6SIDED_DICE:
-        case RNG_MODE_8SIDED_DICE:
-        case RNG_MODE_12SIDED_DICE:
-        case RNG_MODE_20SIDED_DICE:
-            c = getFastDiceRollerChar(digit + 1);
-
-            break;
-
-        default:
-            c = '?';
-
-            break;
-        }
-
-        rng.text[index] = c;
-        rng.text[index + 1] = '\0';
-
-        index++;
     }
 }
 

@@ -61,22 +61,23 @@ Last, read the [user's manual](../../manual.md) for learning how to use Rad Pro,
 
 ## Step 5: Get involved
 
-If you like Rad Pro, consider watching the project to get notified when new releases are out. Also, show your support by starring the project on GitHub.
+If you like Rad Pro, consider watching the project to get notified when new releases are out. Also, show your support by starring the project on GitHub. And don't forget to read the keyboard mapping table below!
 
 ## Hardware-specific notes
 
 On the FS-5000, the keys are mapped as follows:
 
   * Power on/off: long hold of the ok/power key.
-  * Switch measurement mode: the up/back or down/settings keys.
-  * Switch measurement secondary view: the ok/power key.
+  * Switch measurement mode: the down/settings keys.
+  * Switch measurement secondary view: the up/back key.
   * Reset measurement/dismiss alarm: long hold of the up/back key.
-  * Toggle pulses sound in measurement view: the up/back and down/settings key simultaneously.
+  * Put display to sleep (measurement view only): the ok/power key.
   * Enter settings: short hold of the down/settings key.
   * Go up/down: the up/back and down/settings keys.
   * Select option: short hold of the right/settings key, or the ok/power key.
   * Go back: short hold of the up/back key.
-  * Leave lock mode: long hold of the ok/power and up/back keys.
+  * Toggle pulses sound in measurement view: the up/back and down/settings key simultaneously.
+  * Toggle lock mode: long hold of the ok/power and up/back keys.
 
 To establish a USB data connection, connect your FS-5000 to a computer using a USB data cable.
 
