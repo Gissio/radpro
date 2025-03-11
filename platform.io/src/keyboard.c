@@ -145,7 +145,7 @@ void onKeyboardTick(void)
                 {
                     if (i == KEY_LEFT)
                         event = EVENT_KEY_UP;
-                    else
+                    else if (i == KEY_RIGHT)
                         event = EVENT_KEY_DOWN;
                 }
                 if (keyboard.pressedTicks < KEY_PRESSED_EXTENDED)
@@ -271,28 +271,18 @@ void onKeyboardTick(void)
             }
         }
 
-        if (keyboard.mode == KEYBOARD_MODE_MEASUREMENT)
+        if (keyboard.pressedTicks == KEY_PRESSED_LONG)
         {
-            if (keyboard.pressedTicks == KEY_PRESSED_LONG)
+            if (isKeyDown[KEY_LEFT] && isKeyDown[KEY_OK])
+                event = EVENT_KEY_TOGGLELOCK;
+            else if (keyboard.pressedKey == KEY_OK)
+                event = EVENT_KEY_POWER;
+            else if (keyboard.mode == KEYBOARD_MODE_MEASUREMENT)
             {
-                if (isKeyDown[KEY_LEFT] && isKeyDown[KEY_OK])
-                    event = EVENT_KEY_TOGGLELOCK;
-                else if (keyboard.pressedKey == KEY_LEFT)
+                if (keyboard.pressedKey == KEY_LEFT)
                     event = EVENT_KEY_RESET;
-                else if (keyboard.pressedKey == KEY_OK)
-                    event = EVENT_KEY_POWER;
                 else if (keyboard.pressedKey == KEY_RIGHT)
                     event = EVENT_KEY_TOGGLEPULSECLICKS;
-            }
-        }
-        else
-        {
-            if (keyboard.pressedTicks == KEY_PRESSED_LONG)
-            {
-                if (isKeyDown[KEY_LEFT] && isKeyDown[KEY_OK])
-                    event = EVENT_KEY_TOGGLELOCK;
-                else if (keyboard.pressedKey == KEY_OK)
-                    event = EVENT_KEY_POWER;
             }
         }
 #endif
