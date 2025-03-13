@@ -256,9 +256,7 @@ void dispatchEvents(void)
 {
     sleep(0);
 
-    dispatchViewEvents();
     dispatchCommEvents();
-    updateDatalog();
 
     uint32_t periodUpdate = events.periodUpdate;
     if (events.lastPeriodUpdate != periodUpdate)
@@ -269,6 +267,9 @@ void dispatchEvents(void)
         updateADC();
         updateViewPeriod();
     }
+
+    updateDatalog();
+    dispatchViewEvents();
 }
 
 // Dead time

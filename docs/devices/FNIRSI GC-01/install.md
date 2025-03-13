@@ -40,13 +40,13 @@ If you are unable to install Rad Pro on your device, or your device becomes unre
 
 ## Step 3: Configure your device
 
-Go to Rad Pro's settings, select “Geiger tube”, “Conversion factor”, and select the option that matches the Geiger-Müller tube installed in your device.
+Go to Rad Pro's settings, select "Geiger tube", "Conversion factor", and select the option that matches the Geiger-Müller tube installed in your device.
 
-Within the “Geiger tube” settings, select “HV Profile” and choose an appropriate HV profile: “Energy-saving” is best for measuring background levels of radiation; “Factory default” is the profile from the original firmware and consumes considerably more power.
+Within the "Geiger tube" settings, select "HV Profile" and choose an appropriate HV profile: "Energy-saving" is best for measuring background levels of radiation; "Factory default" is the profile from the original firmware and consumes considerably more power.
 
-If the “Energy-saving” does not produce any tube counts, you will need to setup a custom HV profile to reduce power consumption.
+If the "Energy-saving" does not produce any tube counts, you will need to setup a custom HV profile to reduce power consumption.
 
-If your device produces spontaneous key presses by itself, select the “Energy-saving” HV profile or use a custom HV profile to fix this problem.
+If your device produces spontaneous key presses by itself, select the "Energy-saving" HV profile or use a custom HV profile to fix this problem.
 
 Last, read the [user's manual](../../manual.md) for learning how to use Rad Pro, and the [ionizing radiation field guide](../../field-guide.md) for learning more about ionizing radiation.
 
@@ -74,7 +74,7 @@ To establish a USB data connection, connect your FNIRSI GC-01/JOY-IT JT-RAD01 to
 
 ### FNIRSI GC-01/JOY-IT JT-RAD01 with a CH32F103R8 (WCH) microprocessor
 
-On the FNIRSI GC-01/JOY-IT JT-RAD01 with a CH32F103R8 microprocessor, you must enable “Data mode” in the settings to establish a USB data connection. To save power, disable “Data mode” when you are finished.
+On the FNIRSI GC-01/JOY-IT JT-RAD01 with a CH32F103R8 microprocessor, you must enable "Data mode" in the settings to establish a USB data connection. To save power, disable "Data mode" when you are finished.
 
 <!-- Calculated as follows:
 

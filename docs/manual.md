@@ -39,7 +39,7 @@ The [confidence interval](https://en.wikipedia.org/wiki/Confidence_interval) est
 
 An example: Imagine measuring an instantaneous radiation rate of 1.000 µSv/h with a confidence interval of ±40%. This means there's a 95% probability that the true radiation level lies between 0.600 µSv/h and 1.400 µSv/h. In other words, there's a 5% chance the true level falls outside this range. As the confidence interval narrows (becomes smaller), the measurement becomes more precise and certain.
 
-To reset the instantaeous rate or dismiss a rate alarm, read the device's installation instructions.
+To reset the instantaneous rate or dismiss a rate alarm, read the device's installation instructions.
 
 ### Average rate
 
@@ -86,7 +86,7 @@ Rad Pro comes with default conversion factors for various Geiger-Müller tubes:
 * M4011: 153.8 cpm/µSv/h
 * SBM-20: 153.8 cpm/µSv/h
 
-You can also set a custom conversion factor by going to the settings, selecting “Geiger tube”, “Conversion Factor”, and choosing an appropriate value from the list.
+You can also set a custom conversion factor by going to the settings, selecting "Geiger tube", "Conversion Factor", and choosing an appropriate value from the list.
 
 When using sensitive detectors with a conversion factor of 600 cpm/µSv/h or higher, Rad Pro caps the pulse indication at 600 cpm/µSv/h to provide approximately one pulse per second at background levels of radiation. This does not impact the actual measurement.
 
@@ -96,9 +96,9 @@ Rad Pro lets you log cumulative dose count, from which both rate and dose can be
 
 To start logging, ensure that the time zone, date and time of your device are correctly set, and enable data logging in the settings. Data is automatically logged in the background. When the memory becomes full, older data is overwritten.
 
-To establish a USB data connection, some devices require enabling “Data mode” in the settings. To save power, disable “Data mode” when you are finished.
+To establish a USB data connection, some devices require enabling "Data mode" in the settings. To save power, disable "Data mode" when you are finished.
 
-To download the data logs or log data live to a computer, use the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software. “CPS” data is the low-level counts per second value. To average the data, use the “MvAvg” function.
+To download the data logs or log data live to a computer, use the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software. "CPS" data is the low-level counts per second value. To average the data, use the "MvAvg" function.
 
 Please note that data is not logged during the download process.
 
@@ -106,9 +106,9 @@ Please note that data is not logged during the download process.
 
 Rad Pro offers several options for adjusting the instantaneous rate averaging period:
 
-* “Adaptive fast” averages the last 20 pulses, providing a confidence interval of ±50%. It is best for users who need quick radiation alerts. You can view the “adaptive fast” response curves (radiation level vs. response time) here: [instantaneousaveraging-adaptivefast.ipynb](../tests/instantaneousaveraging-adaptivefast.ipynb)
-* “Adaptive precision” is similar to “Adaptive fast”, but also sets a minimum averaging time of 5 seconds. This ensures higher precision when more than 20 pulses occur within the last 5 seconds. Otherwise it functions identically to "Adaptive fast". It is best for users who deem precision more important than fast response. You can view the “adaptive precision” response curves (radiation level vs. response time) here: [instantaneousaveraging-adaptiveprecision.ipynb](../tests/instantaneousaveraging-adaptiveprecision.ipynb)
-* “1 minute”, “30 seconds” and “10 seconds” use fixed averaging periods. They can produce higher precision than the adaptive options, but have a much slower response.
+* "Adaptive fast" averages the last 20 pulses, providing a confidence interval of ±50%. It is best for users who need quick radiation alerts. You can view the "adaptive fast" response curves (radiation level vs. response time) here: [instantaneousaveraging-adaptivefast.ipynb](../tests/instantaneousaveraging-adaptivefast.ipynb)
+* "Adaptive precision" is similar to "Adaptive fast", but also sets a minimum averaging time of 5 seconds. This ensures higher precision when more than 20 pulses occur within the last 5 seconds. Otherwise it functions identically to "Adaptive fast". It is best for users who deem precision more important than fast response. You can view the "adaptive precision" response curves (radiation level vs. response time) here: [instantaneousaveraging-adaptiveprecision.ipynb](../tests/instantaneousaveraging-adaptiveprecision.ipynb)
+* "1 minute", "30 seconds" and "10 seconds" use fixed averaging periods. They can produce higher precision than the adaptive options, but have a much slower response.
 
 ## Instantaneous rate alarm
 
@@ -120,7 +120,7 @@ To minimize false alarms, the instantaneous rate alarm triggers only when the co
 
 Rad Pro lets you add these missed counts by applying dead-time compensation.
 
-To use dead-time compensation you need to measure the dead time first. You can do this by going to Rad Pro's settings, selecting “Statistics” and monitoring the “Dead time” value. Dead time is estimated by measuring the shortest time interval between pulses. Obtaining an accurate result requires several hours under normal levels of radiation. To accelerate this process, use a radioactive source.
+To use dead-time compensation you need to measure the dead time first. You can do this by going to Rad Pro's settings, selecting "Statistics" and monitoring the "Dead time" value. Dead time is estimated by measuring the shortest time interval between pulses. Obtaining an accurate result requires several hours under normal levels of radiation. To accelerate this process, use a radioactive source.
 
 Rad Pro employs the non-paralyzable model for dead-time compensation:
 
@@ -158,13 +158,13 @@ Rad Pro also triggers a fault alarm if the Geiger-Müller tube becomes saturated
 
 ## Random generator
 
-The [random generator](https://en.wikipedia.org/wiki/Hardware_random_number_generator) produces 16 symbols per run. If additional symbols are required, simply return to the menu and initiate a new run.
+The [random generator](https://en.wikipedia.org/wiki/Hardware_random_number_generator) offers multiple output formats, including "Full ASCII", "Alphanumeric", "Hexadecimal", "Decimal" and "Binary", each generating 16 outcomes per run. In contrast, the "Die roll" and "Coin flip" options produce a single outcome per run. To obtain additional outcomes, simply return to the menu and start a new run.
 
-The generator produces random bits by comparing the time interval between two successive pulses. To avoid bias, every second bit is flipped. The generator stores random data in a 128-bit buffer.
+The generator produces random bits by measuring the time interval between two consecutive pulses and comparing the results. To eliminate bias, every second bit is inverted. Random data is then stored in a 128-bit buffer.
 
-Random symbols are generated from the bits using the [Fast Dice Roller](https://arxiv.org/abs/1304.1916) algorithm. “Alphanumeric” uses approximately 6 bits per symbol, “Full ASCII” uses 7 bits, “20-sided dice” uses 5 bits, “Hexadecimal”, “Decimal” and “12-sided dice” use 4 bits, “8-sided dice” and “6-sided dice” use 3 bits, “4-sided dice” uses 2 bits, and “Coin flip” uses 1 bit.
-
-For faster bit generation, use a radioactive source.
+Random outcomes are derived from these bits using the [Fast Dice Roller](https://arxiv.org/abs/1304.1916) algorithm. The bit usage per outcome varies by format: "Full ASCII" consumes approximately 7 bits per outcome, "Alphanumeric" uses about 6 bits, "Hexadecimal" and "Decimal" each require around 4 bits, and "Binary" uses 1 bit. For die rolls, a "20-sided die" takes approximately 5 bits, "12-sided die" and "10-sided die" each use about 4 bits, "8-sided die" and "6-sided die" each require around 3 bits, "4-sided die" uses about 2 bits, and "Coin Flip" uses 1 bit.
+  
+For accelerated bit generation, consider using a radioactive source.
 
 ## radpro-tool
 

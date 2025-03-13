@@ -55,9 +55,9 @@ int main(void)
     initFlash();
     initSettings();
     initPower();
-    initComm();
     initADC();
     initTube();
+    initComm();
     initKeyboard();
     initDisplay();
     initBuzzer();

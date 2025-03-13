@@ -5,7 +5,7 @@
 Updates:
 * On 3-key and 5-key devices, a short press of the power key now puts the display to sleep.
 * Lock mode is now directly accessible without navigating to the settings.
-* Dice rolls and coin flips now generate a single outcome.
+* Die rolls and coin flips now generate a single outcome.
 * Added 100 and 10-sided die rolls and binary random number generation.
 
 Fixes:

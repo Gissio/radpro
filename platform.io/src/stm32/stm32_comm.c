@@ -22,13 +22,13 @@
 
 static struct
 {
-    bool commStarted;
+    bool enabled;
     char lastChar;
 } commController;
 
 void openComm(void)
 {
-    if (commController.commStarted)
+    if (commController.enabled)
         return;
 
     // GPIO
@@ -62,12 +62,12 @@ void openComm(void)
     NVIC_SetPriority(USART_IRQ, 0x80);
     NVIC_EnableIRQ(USART_IRQ);
 
-    commController.commStarted = true;
+    commController.enabled = true;
 }
 
 void closeComm(void)
 {
-    if (!commController.commStarted)
+    if (!commController.enabled)
         return;
 
     // USART
@@ -93,12 +93,12 @@ void closeComm(void)
                GPIO_MODE_INPUT_ANALOG);
 #endif
 
-    commController.commStarted = false;
+    commController.enabled = false;
 }
 
 bool isCommOpen(void)
 {
-    return commController.commStarted;
+    return commController.enabled;
 }
 
 void transmitComm(void)
@@ -204,7 +204,7 @@ void updateCommController(void)
 
 static struct
 {
-    bool commStarted;
+    bool enabled;
     char lastChar;
 } commController;
 
@@ -554,7 +554,7 @@ void USB_IRQ_HANDLER(void)
 
 void openComm(void)
 {
-    if (commController.commStarted)
+    if (commController.enabled)
         return;
 
     // Force USB device reenumeration
@@ -579,12 +579,12 @@ void openComm(void)
     usbd_enable(&usbdDevice, true);
     usbd_connect(&usbdDevice, true);
 
-    commController.commStarted = true;
+    commController.enabled = true;
 }
 
 void closeComm(void)
 {
-    if (!commController.commStarted)
+    if (!commController.enabled)
         return;
 
     NVIC_DisableIRQ(USB_IRQ);
@@ -592,12 +592,12 @@ void closeComm(void)
     usbd_connect(&usbdDevice, false);
     usbd_enable(&usbdDevice, false);
 
-    commController.commStarted = false;
+    commController.enabled = false;
 }
 
 bool isCommOpen(void)
 {
-    return commController.commStarted;
+    return commController.enabled;
 }
 
 void updateCommController(void)

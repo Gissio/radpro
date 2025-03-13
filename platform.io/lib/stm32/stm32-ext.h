@@ -701,7 +701,6 @@ __STATIC_INLINE void exti_clear_pending_interrupt(uint8_t pin)
 #define ADC_VREF_CHANNEL 0
 #define ADC_TEMP_CHANNEL 17
 #define ADC_VBAT_CHANNEL 18
-#define ADC_VREF_CHANNEL 0
 #endif
 
 #if defined(STM32F0) && defined(GD32)

@@ -9,6 +9,7 @@
 
 #include <stdint.h>
 
+#include "cmath.h"
 #include "events.h"
 #include "keyboard.h"
 #include "settings.h"

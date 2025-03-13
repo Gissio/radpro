@@ -57,9 +57,9 @@ Before closing the device, take note of the type of Geiger tube: the markings on
 
 ## Step 4: Configure your device
 
-Start your device and go to Rad Pro's settings, select “Geiger tube”, “Conversion factor”, and select the option that matches the Geiger-Müller tube installed in your device.
+Start your device and go to Rad Pro's settings, select "Geiger tube", "Conversion factor", and select the option that matches the Geiger-Müller tube installed in your device.
 
-Within the “Geiger tube” settings, select “HV Profile” and choose an appropriate HV profile: “Energy-saving” is best for measuring background levels of radiation, while “Accuracy” consumes more power but allows measurement of higher radiation levels; “Factory default” is the profile from the original firmware and consumes considerably more power.
+Within the "Geiger tube" settings, select "HV Profile" and choose an appropriate HV profile: "Energy-saving" is best for measuring background levels of radiation, while "Accuracy" consumes more power but allows measurement of higher radiation levels; "Factory default" is the profile from the original firmware and consumes considerably more power.
 
 Last, read the [user's manual](../../manual.md) for learning how to use Rad Pro, and the [ionizing radiation field guide](../../field-guide.md) for learning more about ionizing radiation.
 
