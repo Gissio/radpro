@@ -41,17 +41,17 @@ void initADC(void)
 
     rcc_enable_adc(ADC1);
 
-#if defined(STM32L4)
-    adc_disable_deep_power_down(ADC1);
-#endif
-
 #if (defined(STM32F0) && defined(GD32)) || defined(STM32F1)
     adc_enable(ADC1);
     sleep(1);
 
     adc_reset_calibration(ADC1);
     sleep(1);
-#elif defined(STM32G0) || defined(STM32L4)
+#elif defined(STM32G0)
+    adc_enable_vreg(ADC1);
+    sleep(1);
+#elif defined(STM32L4)
+    adc_disable_deep_power_down(ADC1);
     adc_enable_vreg(ADC1);
     sleep(1);
 #endif
@@ -62,8 +62,6 @@ void initADC(void)
 #if (defined(STM32F0) && defined(GD32)) || defined(STM32F1)
     adc_disable(ADC1);
     sleep(1);
-#elif defined(STM32G0) || defined(STM32L4)
-    adc_disable_vreg(ADC1);
 #endif
 
     adc.enabled = true;
@@ -75,30 +73,11 @@ static void startADC(void)
 {
     syncTimerThread();
 
-#if (defined(STM32F0) && !defined(GD32))
+#if (defined(STM32F0) && !defined(GD32)) || defined(STM32G0) || defined(STM32L4)
     adc_enable_vref_channel(ADC1);
-    sleep(1);
-#elif defined(STM32G0) || defined(STM32L4)
-    adc_enable_vreg(ADC1);
-    adc_enable_vref_channel(ADC1);
-    sleep(1);
 #endif
-
     adc_enable(ADC1);
     sleep(1);
-}
-
-static void stopADC(void)
-{
-    adc_disable(ADC1);
-    sleep(1);
-
-#if defined(STM32F0) && !defined(GD32)
-    adc_disable_vref_channel(ADC1);
-#elif defined(STM32G0) || defined(STM32L4)
-    adc_disable_vref_channel(ADC1);
-    adc_disable_vreg(ADC1);
-#endif
 }
 
 static uint32_t readADC(uint8_t channel)
@@ -107,6 +86,15 @@ static uint32_t readADC(uint8_t channel)
     sleep(1);
 
     return adc_get_conversion_oneshot(ADC1);
+}
+
+static void stopADC(void)
+{
+    adc_disable(ADC1);
+#if (defined(STM32F0) && !defined(GD32)) || defined(STM32G0) || defined(STM32L4)
+    adc_disable_vref_channel(ADC1);
+#endif
+    sleep(1);
 }
 
 static float readBatteryVoltage(void)

@@ -4,12 +4,15 @@
 
 Updates:
 * On 3-key and 5-key devices, a short press of the power key now puts the display to sleep.
-* Lock mode is now directly accessible without navigating to the settings.
-* Die rolls and coin flips now generate a single outcome.
-* Added 100 and 10-sided die rolls and binary random number generation.
+* On 3-key devices, the left key now switches the secondary view.
+* Lock mode is now accessed directly, without the settings menu.
+* Die rolls and coin flips now produce a single outcome per run.
+* Added support for 100-sided and 10-sided die rolls, and binary random number generation.
+* History is now calculated only for instantaneous rate values with a confidence interval below 75%.
 
 Fixes:
-* On devices with color displays, fixed an issue where the dot was occasionally missing in the measurement view.
+* On devices with a color display, resolved an issue where the dot occasionally disappeared in the measurement view.
+* Fixed battery voltage measurement.
 
 ## 2.1 "Delicious trifles"
 

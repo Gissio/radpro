@@ -685,32 +685,35 @@ void updateMeasurements(void)
     }
 
     // History
-    for (uint32_t i = 0; i < HISTORY_NUM; i++)
+    if (measurements.instantaneous.rate.confidence < 0.75)
     {
-        const History *history = &histories[i];
-        HistoryState *historyState = &measurements.history.states[i];
-
-        historyState->sampleIndex++;
-        if (historyState->sampleIndex >=
-            history->samplesPerDataPoint)
-            historyState->sampleIndex = 0;
-
-        historyState->averageSum += measurements.instantaneous.rate.value;
-        historyState->averageCount++;
-
-        if (historyState->sampleIndex == 0)
+        for (uint32_t i = 0; i < HISTORY_NUM; i++)
         {
-            float averageRate = historyState->averageSum /
-                                historyState->averageCount;
-            historyState->buffer[historyState->bufferIndex] =
-                getHistoryValue(averageRate);
+            const History *history = &histories[i];
+            HistoryState *historyState = &measurements.history.states[i];
 
-            historyState->averageSum = 0;
-            historyState->averageCount = 0;
+            historyState->sampleIndex++;
+            if (historyState->sampleIndex >=
+                history->samplesPerDataPoint)
+                historyState->sampleIndex = 0;
 
-            historyState->bufferIndex++;
-            if (historyState->bufferIndex >= HISTORY_BUFFER_SIZE)
-                historyState->bufferIndex = 0;
+            historyState->averageSum += measurements.instantaneous.rate.value;
+            historyState->averageCount++;
+
+            if (historyState->sampleIndex == 0)
+            {
+                float averageRate = historyState->averageSum /
+                                    historyState->averageCount;
+                historyState->buffer[historyState->bufferIndex] =
+                    getHistoryValue(averageRate);
+
+                historyState->averageSum = 0;
+                historyState->averageCount = 0;
+
+                historyState->bufferIndex++;
+                if (historyState->bufferIndex >= HISTORY_BUFFER_SIZE)
+                    historyState->bufferIndex = 0;
+            }
         }
     }
 

@@ -1016,8 +1016,8 @@ __STATIC_INLINE void adc_start_conversion_oneshot(ADC_TypeDef *base,
     else
         base->SMPR2 = sample_time << (3 * (channel - 10));
 
-    set_bits(base->CFGR,
-             ADC_CFGR_OVRMOD);
+    set_bits(base->ISR,
+             ADC_ISR_OVR);
 
     set_bits(base->CR,
              ADC_CR_ADSTART);
