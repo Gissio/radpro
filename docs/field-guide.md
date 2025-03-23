@@ -1,26 +1,26 @@
 ![Title](img/field-guide-title.jpg)
 
-# The Ionizing Radiation Field Guide
+# The ionizing radiation field guide
 
-© 2024 Gissio
+© 2024-2025 Gissio (last update: 2025-03-23)
 
-Are you thinking about buying a Geiger counter or a scintillation detector, or maybe you've already got one and want to make the most of it? In this brief guide we'll give you a glimpse of how to operate these fascinating devices.
+Welcome to the fascinating world of Geiger counters! Whether you're considering buying one or already own one and want to unlock its potential, this guide is your starting point. We'll explore the essentials of ionizing radiation, how Geiger counters work, and fun ways to explore this invisible energy around us. Let's dive in!
 
-## What Do Geiger Counters Measure?
+## What do Geiger counters measure?
 
-Geiger counters are instruments capable of detecting and measuring **ionizing radiation**, which consists of subatomic particles that carry enough energy to remove electrons from atoms, thus ionizing them. This radiation is particularly hazardous to biological tissues, as it can disrupt chemical bonds, damage DNA, cause cellular damage and produce free radicals which in turn can cause further damage.
+Geiger counters measure **ionizing radiation**—tiny, super-energetic particles that can knock electrons off atoms. This process, called **ionization**, is particularly hazardous to biological tissues, as it can break chemical bonds, harm DNA, and generate free radicals which in turn can cause further damage.
 
-## What Is a Radioactive Substance?
+## What is a radioactive substance?
 
-A **radioactive substance** is any material with unstable atoms that spontaneously disintegrate, emitting ionizing radiation.
+A **radioactive substance** contains unstable atoms that spontaneously break apart, releasing ionizing radiation. As they decay, these atoms transform into different **isotopes**—variations of elements with different numbers of neutrons.
 
-As the atoms disintegrate, they transform into different **isotopes**, often at a predictable rate known as the **half-life**. The half-life is the time it takes for half of the radioactive atoms in a sample to decay.
+This decay happens at a predictable rate called the **half-life**, the time it takes for half the radioactive atoms in a sample to decay. Picture a bag with 100 popping popcorn kernels. If half pop every minute, you'd have 50 left after 1 minute, 25 after 2 minutes, and so on. That's half-life in action!
 
-Examples of radioactive materials include uranium glass, uranium-glazed ceramics, naturally occurring potassium, and isotopes like Iodine-131 used in medical treatment.
+Examples of radioactive materials include granite tabletops (with traces of uranium), old uranium-glazed ceramics, potassium chloride (natural potassium has a radioactive isotope), and isotopes like Iodine-131 used in medical treatment.
 
 ![Radioactive contamination](img/field-guide-contamination.jpg)
 
-## What Is Radioactive Contamination?
+## What is radioactive contamination?
 
 Radioactive contamination occurs when radioactive substances spread to places where they are neither intended nor desired.
 
@@ -33,25 +33,25 @@ Decontamination is the process of removing radioactive particles from external s
 
 For internal contamination, specific treatments are used. If contaminated with Iodine-131, one might take potassium iodide to saturate the thyroid, thus blocking the uptake of the radioactive iodine. For contamination with Cesium-137, Prussian blue can be administered to bind with the radioactive particles, which then exit the body through natural means.
 
-## What Types of Ionizing Radiation Are There?
+## What types of ionizing radiation are there?
 
 Ionizing radiation includes several types, each varying in energy, penetration ability, and interaction with matter:
 
-* **Gamma rays (γ)**  are high-energy photons produced during nuclear decay. They are highly penetrating and require significant shielding, such as several centimeters of lead or meters of concrete. Their energy levels span from 100 keV to 8 MeV.
-* **X-Rays** are similar to gamma rays but of lower energy, X-rays are less penetrating but still require substantial shielding. Their energy ranges from 100 eV to 100 keV.
-* **Beta particles (β)** comprise fast-moving electrons or positrons, these particles have moderate penetration. They can be stopped by a few millimeters of aluminum or several meters of air. Energy levels are from a few keV to tens of MeV.
-* **Alpha particles (α)** are composed of helium nuclei (two protons and two neutrons), alpha particles have low penetration but high ionization capacity. They can be blocked by just a few centimeters of air, a sheet of paper, or even the outer layer of human skin. Their energy typically falls between 3 and 7 MeV.
+* **Gamma rays (γ)** are high-energy photons produced during nuclear reactions. They are highly penetrating and require significant shielding, such as several centimeters of lead or meters of concrete. Their energy levels span from 100 keV to 8 MeV.
+* **X-Rays** are similar to gamma rays but of lower energy. They are less penetrating but still require substantial shielding. Their energy ranges from 100 eV to 100 keV.
+* **Beta particles (β)** comprise fast-moving electrons or positrons and have moderate penetration. They can be stopped by a few millimeters of aluminum or several meters of air. Energy levels are from a few keV to tens of MeV.
+* **Alpha particles (α)** are composed of helium nuclei (two protons and two neutrons). Alpha particles have low penetration but high ionization capacity. They can be blocked by just a few centimeters of air, a sheet of paper, or even the outer layer of human skin. Their energy typically falls between 3 and 7 MeV.
 * **Neutrons (n)**  pose a unique danger as they can make other materials radioactive upon collision. Effective shielding for neutrons involves hydrogen-rich materials like water or plastic. Neutron energies vary from less than 1 eV for slow neutrons to over 1 MeV for fast ones.
 
 In general, the higher the energy of the radiation, the more potential damage it can inflict.
 
 ![Radioactive decay](img/field-guide-decay.jpg)
 
-## How Is Ionizing Radiation Measured?
+## How is ionizing radiation measured?
 
 Ionizing radiation is measured using several metrics:
 
-### Absorbed Dose and Rate
+### Absorbed dose and rate
 
 **Absorbed dose** refers to the amount of energy deposited by ionizing radiation per unit mass of any material. It is measured in grays (Gy) in the SI system, where 1 gray equals 1 joule of energy absorbed per kilogram of matter. In older units, it's measured in rads, where 1 rad equals 0.01 gray.
 
@@ -59,79 +59,101 @@ Ionizing radiation is measured using several metrics:
 
 This measurement quantifies the **physical impact** of radiation but does not directly account for the biological effects, which depend on the type of radiation.
 
-### Equivalent Dose and Rate
+### Equivalent dose and rate
 
-**Equivalent dose** is a measure that reflects the **biological damage** to human tissue from exposure to ionizing radiation. It takes into account not only the absorbed dose (energy deposited per unit mass) but also the biological effectiveness (W<sup>R</sup>) of the radiation type. It's measured in sieverts (Sv) in the SI system, where 1 sievert equals the amount of radiation that would have the same biological effect as 1 gray of gamma rays or X-rays. In older units, it's measured in rems, where 1 rem equals 0.01 sievert.
+**Equivalent dose** is a measure that reflects the **biological damage** to human tissue from exposure to ionizing radiation. It takes into account not only the absorbed dose (energy deposited per unit mass) but also the biological effectiveness (W<sup>R</sup>) of the radiation type, known as the radiation weighting factor. It's measured in sieverts (Sv) in the SI system, where 1 sievert equals the amount of radiation that would have the same biological effect as 1 gray of gamma rays or X-rays. In older units, it's measured in rems, where 1 rem equals 0.01 sievert.
+
+The W<sup>R</sup> value varies depending on the type and energy of the radiation, reflecting its potential to cause biological harm. Common W<sup>R</sup> values include:
+
+* **Gamma rays and X-rays:** W<sup>R</sup> = 1 (used as the reference standard).
+* **Beta particles:** W<sup>R</sup> = 1 (similar biological effect to gamma rays).
+* **Alpha particles:** W<sup>R</sup> = 20 (highly damaging due to their high ionization capacity over a short range).
+* **Neutrons:** W<sup>R</sup> varies with energy:
+  * < 10 keV: W<sup>R</sup> = 5
+  * 10 keV to 100 keV: W<sup>R</sup> = 10
+  * 100 keV to 2 MeV: W<sup>R</sup> = 20 (peak effectiveness)
+  * 2 MeV to 20 MeV: W<sup>R</sup> = 10
+  * 20 MeV: W<sup>R</sup> = 5
 
 **Equivalent rate** is equivalent dose per unit of time.
 
-This measurement allows for a more accurate assessment of radiation risk to biological tissues.
+This measurement allows for a more accurate assessment of radiation risk to biological tissues by factoring in how different types of radiation interact with living matter. For example, an absorbed dose of 1 gray from alpha particles (W<sup>R</sup> = 20) would result in an equivalent dose of 20 sieverts, indicating significantly greater biological damage than the same absorbed dose from gamma rays (W<sup>R</sup> = 1), which would be 1 sievert.
 
-### How Dangerous Is Ionizing Radiation?
+### Activity
+
+**Activity** refers to the rate at which a radioactive substance decays, or in other words, how many unstable atoms break apart per unit of time, releasing ionizing radiation. It's a measure of the source's strength and is quantified in becquerels (Bq) in the SI system, where 1 becquerel equals 1 decay per second. In older units, activity is measured in curies (Ci), where 1 curie equals 3.7 × 10¹⁰ decays per second (a value originally based on the activity of 1 gram of radium-226).
+
+For example, a sample with an activity of 1 MBq (1 million becquerels) means 1 million atoms are decaying each second, emitting radiation in the process. The activity decreases over time as the radioactive material decays, following the half-life of the isotope. High-activity sources can produce significant radiation levels, making them detectable by Geiger counters even at a distance, while low-activity sources might only register above background levels when very close to the detector.
+
+Activity is a key concept when using Geiger counters because it directly influences the count rate you observe. However, the actual counts per minute (CPM) recorded also depend on the detector's efficiency and the type of radiation emitted, so activity alone doesn't tell the whole story—it's the starting point for understanding how “hot” a radioactive source is.
+
+## How dangerous is ionizing radiation?
 
 Ionizing radiation can be harmful in a way that's largely analogous to how UV radiation from the sun causes sunburns, but with effects that are more severe and can occur internally.
 
 Here's a brief breakdown of doses considered safe:
 
-* **Natural Background Radiation:** The natural background radiation is on average 2.4 mSv per year, which translates to about 0.27 μSv per hour.
+* **Natural background radiation:** The natural background radiation is on average 2.4 mSv per year, which translates to about 0.27 μSv per hour.
 
-* **Public Exposure Limits:** The International Commission on Radiological Protection (ICRP) suggests an annual effective dose limit for the general public of 1 mSv, in addition to natural background radiation.
+* **Public exposure limits:** The International Commission on Radiological Protection (ICRP) suggests an annual effective dose limit for the general public of 1 mSv, in addition to natural background radiation.
 
-* **Occupational Exposure Limits:** For workers in fields involving radiation exposure (like nuclear power or medical imaging), the ICRP recommends an average of 20 mSv per year over 5 years, with no single year exceeding 50 mSv.
+* **Occupational exposure limits:** For workers in fields involving radiation exposure (like nuclear power or medical imaging), the ICRP recommends an average of 20 mSv per year over 5 years, with no single year exceeding 50 mSv.
 
 Here's how higher radiation doses can impact health:
 
 * **Low Dose (<100 mSv):** This is somewhat akin to a mild sunburn. Effects might not be immediately visible; cells can repair most of the damage. However, there's an increased risk of cancer over time, much like frequent mild sunburns might lead to skin cancer.
 
-* **Moderate Dose (100-1000 mSv):** Similar to a moderate to severe sunburn, this dose might lead to temporary changes in blood chemistry. Symptoms could include nausea, with a more pronounced long-term cancer risk. This is comparable to when a severe sunburn causes skin peeling, swelling, and pain.
+* **Moderate dose (100-1000 mSv):** Similar to a moderate to severe sunburn, this dose might lead to temporary changes in blood chemistry. Symptoms could include nausea, with a more pronounced long-term cancer risk. This is comparable to when a severe sunburn causes skin peeling, swelling, and pain.
 
-* **High Dose (1-5 Sv):** Analogous to a severe burn, this level can cause acute radiation syndrome (ARS), with symptoms like severe nausea, vomiting, hair loss, and bone marrow damage, weakening the immune system. Survival is possible with medical intervention, but with lasting health effects. This is like dealing with severe, deep burns that require medical treatment.
+* **High dose (1-5 Sv):** Analogous to a severe burn, this level can cause acute radiation syndrome (ARS), with symptoms like severe nausea, vomiting, hair loss, and bone marrow damage, weakening the immune system. Survival is possible with medical intervention, but with lasting health effects. This is like dealing with severe, deep burns that require medical treatment.
 
-* **Very High Dose (>5 Sv):** This is catastrophic, akin to third-degree burns. Radiation at this level can impair the central nervous system, leading to disorientation, loss of consciousness, and death within days or weeks without immediate medical intervention. The damage is so extensive that it can be fatal or cause severe disfigurement.
+* **Very high dose (>5 Sv):** This is catastrophic, akin to third-degree burns. Radiation at this level can impair the central nervous system, leading to disorientation, loss of consciousness, and death within days or weeks without immediate medical intervention. The damage is so extensive that it can be fatal or cause severe disfigurement.
 
 This analogy helps in understanding the severity of radiation effects, but it's crucial to remember that ionizing radiation affects the entire body, not just the skin, and its effects can be cumulative and delayed, unlike the immediate feedback from UV radiation exposure.
 
 ![Geiger counter](img/field-guide-counter.jpg)
 
-## How Does a Geiger Counter Work?
+## How does a Geiger counter work?
 
 A Geiger counter detects ionizing radiation using a gas-filled tube called a Geiger-Müller tube.
 
 Here's a brief overview of how it works:
 
-* **Radiation Interaction:** When ionizing radiation (like alpha, beta, or gamma rays) enters the tube, it ionizes some of the gas atoms inside, creating ion pairs (ions and electrons).
+* **Radiation interaction:** When ionizing radiation (like alpha, beta, or gamma rays) enters the tube, it ionizes some of the gas atoms inside, creating ion pairs (ions and electrons).
 
 * **Amplification:** The tube has a high voltage applied across it. The electrons from the ion pairs are accelerated towards the anode (positive electrode), gaining enough energy to ionize more gas atoms in a chain reaction, which amplifies the initial ionization event.
 
-* **Pulse Generation:** This avalanche of ions results in a sudden surge of electrical current, creating a detectable electrical pulse. Each pulse corresponds to a single ionizing event.
+* **Pulse generation:** This avalanche of ions results in a sudden surge of electrical current, creating a detectable electrical pulse. Each pulse corresponds to a single ionizing event.
 
 * **Counting:** The pulses are counted by electronic circuits, often converting the count into an audible click or visual display, giving an indication of radiation levels. The number of clicks or counts per minute (CPM) reflects the intensity of the radiation.
 
-## How Do Geiger Counters Respond To Different Types of Radiation?
+## How do Geiger counters respond to different types of radiation?
 
 Geiger tubes respond differently to various types of ionizing radiation due to their unique interaction characteristics:
 
-* **Gamma Radiation:** Gamma rays, being high-energy photons, can penetrate the walls of a Geiger tube. However, standard Geiger tubes are less efficient at detecting low-energy gamma rays than their high-energy counterparts.
+* **Gamma radiation:** Gamma rays, being high-energy photons, can penetrate the walls of a Geiger tube. However, standard Geiger tubes are less efficient at detecting low-energy gamma rays than their high-energy counterparts.
 
-* **Beta Radiation:** Beta particles can enter the Geiger tube if its walls are thin enough. The detection depends on the energy of the beta particles; low-energy betas might not penetrate the walls, whereas high-energy ones will.
+* **Beta radiation:** Beta particles can enter the Geiger tube if its walls are thin enough. The detection depends on the energy of the beta particles; low-energy betas might not penetrate the walls, whereas high-energy ones will.
 
-* **Alpha Radiation:** Most Geiger tubes cannot detect alpha particles because these particles cannot pass through the tube's walls. However, "Pancake" Geiger tubes, equipped with a very thin window made of mica or thin metal, can detect alpha particles, but only if the source is very close due to their limited range.
+* **Alpha radiation:** Most Geiger tubes cannot detect alpha particles because these particles cannot pass through the tube's walls. However, "Pancake" Geiger tubes, equipped with a very thin window made of mica or thin metal, can detect alpha particles, but only if the source is very close due to their limited range.
 
-* **Neutron Radiation:** Standard Geiger tubes are not directly sensitive to neutrons since neutrons, being uncharged, don't ionize gas directly. Specialized tubes exist that convert neutrons into detectable particles.
+* **Neutron radiation:** Standard Geiger tubes are not directly sensitive to neutrons since neutrons, being uncharged, don't ionize gas directly. Specialized tubes exist that convert neutrons into detectable particles.
 
-Converting a Geiger counter's counts into an equivalent dose requires multiplying the raw counts by a conversion factor. This factor depends on the Geiger tube's design, the type of radiation (alpha, beta, gamma, neutron), the energy of the radiation particles, and the radiation's intensity.
+Converting a Geiger counter's counts into an equivalent dose requires multiplying the raw counts by a **conversion factor**. This factor depends on the Geiger tube's design, the type of radiation (alpha, beta, gamma, neutron), the energy of the radiation particles, and the radiation's intensity.
+
+For common Geiger tubes, the conversion factor often varies with energy because the tube’s sensitivity changes across the energy spectrum. Typically, tubes are most efficient at detecting gamma rays in the mid-energy range (around 100 keV to 1 MeV), with sensitivity decreasing for both lower and higher energies due to reduced interaction probability or over-saturation effects. For beta radiation, the conversion factor may increase with energy as higher-energy particles are more likely to penetrate the tube’s window, while for alpha particles (if detectable), the factor is generally constant due to their consistent ionization strength over a short range.
 
 Manufacturers typically provide a conversion factor under standard conditions, and it can be further calibrated using a known radioactive source.
 
-## What Is an Energy-Compensated Geiger Tube?
+## What is an energy-compensated Geiger tube?
 
 An energy-compensated Geiger tube is a type of Geiger-Müller tube designed to measure radiation more accurately across different energy levels of ionizing radiation. It includes additional materials or structures, like filters or windows, that adjust the response of the tube so that it detects radiation with a sensitivity that is more uniform across various energies. This compensation helps to ensure that the readings are not disproportionately influenced by either low-energy or high-energy particles, providing a more accurate measure of total radiation exposure.
 
 ![Applications](img/field-guide-applications.jpg)
 
-## Applications of Geiger Counters
+## Applications of Geiger counters and scintillation detectors
 
-### Mineral Exploration
+### Mineral exploration
 
 Geologists use Geiger counters to detect uranium, thorium, and other radioactive minerals, aiding in the mapping of geological structures.
 
@@ -139,7 +161,7 @@ Although Uranium-238, the most common uranium isotope, decays into Thorium-234 v
 
 Likewise, Thorium-232, the primary isotope of thorium, undergoes a decay sequence that results in the emission of detectable beta radiation from its daughter products.
 
-### Radiation Monitoring
+### Radiation monitoring
 
 Geiger counters are essential for monitoring radiation levels in areas affected by nuclear accidents or at sites of radioactive waste disposal. They help in assessing contamination levels in soil, water, and air.
 
@@ -155,11 +177,11 @@ These isotopes emit beta and gamma radiation, which can be detected by standard 
 
 Due to their biological effects, persistence in the environment, and the volume released during nuclear accidents, these isotopes are primary concerns. Additionally, other isotopes like carbon-14, tritium (hydrogen-3), and various plutonium isotopes can also be released, though they are either less common or pose less immediate danger in the context of nuclear accidents.
 
-### Food Safety
+### Food safety
 
 Countries use Geiger counters to screen imported food items for isotopes, especially from regions with known nuclear incidents or high background radiation levels. This ensures that imported foods do not exceed safe radiation levels.
 
-### Radiation Therapy Oversight
+### Radiation therapy oversight
 
 In healthcare settings, Geiger counters are used to monitor for radiation leaks from equipment such as X-ray machines and radiotherapy units, ensuring the safety of both patients and staff.
 
@@ -185,7 +207,7 @@ These isotopes emit beta and gamma radiation, which can be detected by standard 
 
 Each isotope is chosen for its unique characteristics that allow for targeted radiation delivery to cancer cells while minimizing impact on surrounding healthy tissue.
 
-### SHTF (Shit Hits The Fan)
+### SHTF (Shit hits the fan)
 
 In the aftermath of a nuclear incident, Geiger counters become essential survival tools. They help individuals safely navigate through contaminated landscapes by pinpointing safe zones and steering clear of areas with high radiation levels. Additionally, these devices are crucial for testing food and water supplies for radioactive contamination.
 
@@ -195,13 +217,13 @@ In the aftermath of a nuclear incident, Geiger counters become essential surviva
 
 **WARNING:** The authors of Rad Pro are not responsible or liable for any claims, damages, losses, expenses, costs, or liabilities whatsoever resulting or arising directly or indirectly from performing these experiments.
 
-### Background Radiation Mapping
+### Background radiation mapping
 
 * **Objective:** Measure natural background radiation levels in different locations.
 
 * **Method:** Use the Geiger counter to take readings in various environments (indoors, outdoors, at different altitudes, near geological formations, etc.). Compare these readings to understand how background radiation varies.
 
-### Radiation From Household Items
+### Radiation from household items
 
 * **Objective:** Identify items in your home that emit radiation.
 
@@ -209,7 +231,7 @@ In the aftermath of a nuclear incident, Geiger counters become essential surviva
 
 * **WARNING:** To prevent internal contamination, always wear gloves when handling radioactive objects such as uranium rocks. Also, keep these objects in sealed plastic bags to reduce the risk of external contamination.
 
-### Radiation Shielding Experiment
+### Radiation shielding experiment
 
 * **Objective:** Understand how different materials shield against radiation.
 
@@ -217,7 +239,7 @@ In the aftermath of a nuclear incident, Geiger counters become essential surviva
 
 * **WARNING:** To prevent internal contamination, always wear gloves when handling radioactive objects such as uranium rocks. Also, keep these objects in sealed plastic bags to reduce the risk of external contamination.
 
-### Experiment With Distance (Inverse Square Law)
+### Experiment with distance (inverse square law)
 
 * **Objective:** Demonstrate how radiation decreases with distance from the source.
 
@@ -225,13 +247,13 @@ In the aftermath of a nuclear incident, Geiger counters become essential surviva
 
 * **WARNING:** To prevent internal contamination, always wear gloves when handling radioactive objects such as uranium rocks. Also, keep these objects in sealed plastic bags to reduce the risk of external contamination.
 
-### Altitude Effects On Radiation
+### Altitude effects on radiation
 
 * **Objective:** Study how background radiation changes with altitude.
 
 * **Method:** If possible, take the Geiger counter on a trip up a mountain, in an airplane, or use a weather balloon. Record the radiation levels at different altitudes to see the increase in background radiation exposure.
 
-### Radon Gas Detection
+### Radon gas detection
 
 * **Objective:** Measure radon levels in homes or buildings.
 
