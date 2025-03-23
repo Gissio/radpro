@@ -34,7 +34,7 @@ if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
 endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-    add_compile_options(-sUSE_SDL=2)
+    add_compile_options(-O3 -sUSE_SDL=2)
     link_libraries(SDL2)
 else()
     add_link_options(/NODEFAULTLIB:libcmt /NODEFAULTLIB:libcmtd)
