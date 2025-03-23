@@ -6,9 +6,9 @@
 
 Are you thinking about buying a Geiger counter or a scintillation detector, or maybe you've already got one and want to make the most of it? In this brief guide we'll give you a glimpse of how to operate these fascinating devices.
 
-## What Do Geiger Counters and Scintillation Detectors Measure?
+## What Do Geiger Counters Measure?
 
-Geiger counters and scintillation detectors are instruments capable of detecting and measuring **ionizing radiation**, which consists of subatomic particles that carry enough energy to remove electrons from atoms, thus ionizing them. This radiation is particularly hazardous to biological tissues, as it can disrupt chemical bonds, damage DNA, cause cellular damage and produce free radicals which in turn can cause further damage.
+Geiger counters are instruments capable of detecting and measuring **ionizing radiation**, which consists of subatomic particles that carry enough energy to remove electrons from atoms, thus ionizing them. This radiation is particularly hazardous to biological tissues, as it can disrupt chemical bonds, damage DNA, cause cellular damage and produce free radicals which in turn can cause further damage.
 
 ## What Is a Radioactive Substance?
 
@@ -127,21 +127,9 @@ Manufacturers typically provide a conversion factor under standard conditions, a
 
 An energy-compensated Geiger tube is a type of Geiger-Müller tube designed to measure radiation more accurately across different energy levels of ionizing radiation. It includes additional materials or structures, like filters or windows, that adjust the response of the tube so that it detects radiation with a sensitivity that is more uniform across various energies. This compensation helps to ensure that the readings are not disproportionately influenced by either low-energy or high-energy particles, providing a more accurate measure of total radiation exposure.
 
-## What Is a Scintillation Detector?
-
-A scintillation detector is a type of radiation detector that uses a material, known as a scintillator, which emits light (scintillates) when struck by ionizing radiation. This light is then converted into an electrical signal by a photomultiplier tube or a photodiode. The key components include:
-
-* **Scintillator Material:** This can be organic (like plastics) or inorganic (like sodium iodide doped with thallium, NaI(Tl)). The choice of material depends on the type of radiation to detect (alpha, beta, gamma, or neutrons) and the energy range.
-
-* **Photodetector:** Converts the light photons into an electrical signal. Photomultiplier tubes (PMTs) are commonly used for their high sensitivity, but photodiodes are also used, especially where space or power consumption is a concern.
-
-* **Signal Processing:** The electrical signal is then amplified, shaped, and can be analyzed to determine the energy, type, and intensity of the radiation.
-
-Scintillation detectors are valued for their fast response times and the ability to determine the energy levels of the radiation (also known as spectroscopy), which allows to identify the source of radiation.
-
 ![Applications](img/field-guide-applications.jpg)
 
-## Applications of Geiger Counters and Scintillation Detectors
+## Applications of Geiger Counters
 
 ### Mineral Exploration
 

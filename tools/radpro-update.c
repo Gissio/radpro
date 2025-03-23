@@ -7,7 +7,7 @@
  * License: MIT
  */
 
- #include <fcntl.h>
+#include <fcntl.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdint.h>
