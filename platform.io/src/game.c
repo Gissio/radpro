@@ -71,13 +71,10 @@ static const Menu gameStrengthMenu;
 
 static void onGameCallback(void *userdata);
 
-void initGame(void)
+void resetGame(void)
 {
     memset(&game, 0, sizeof(game));
-}
 
-void initGameMenus(void)
-{
     selectMenuItem(&gameMenu,
                    0,
                    0);
@@ -180,7 +177,7 @@ static void updateValidMoves(void)
     game.validMovesIndex = game.playerIndex ? (game.validMovesNum - 1) : 0;
 }
 
-static void resetGame(uint32_t playerIndex)
+static void startGame(uint32_t playerIndex)
 {
     mcumax_init();
 
@@ -513,7 +510,7 @@ static void onGameMenuSelect(const Menu *menu)
                 game.state = GAME_SEARCHING;
         }
         else
-            resetGame(0);
+            startGame(0);
 
         setView(&gameView);
 
@@ -526,13 +523,13 @@ static void onGameMenuSelect(const Menu *menu)
 
         if (!game.moveIndex)
         {
-            resetGame(1);
+            startGame(1);
 
             setView(&gameView);
         }
         else
         {
-            resetGame(0);
+            startGame(0);
 
             setView(&gameMenuView);
         }

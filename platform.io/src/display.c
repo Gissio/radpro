@@ -763,7 +763,7 @@ void initDisplay(void)
     initDisplayBacklight();
 }
 
-void initDisplayMenus(void)
+void resetDisplay(void)
 {
     selectMenuItem(&displayMenu,
                    0,
@@ -995,7 +995,7 @@ void drawTitleBar(const char *title,
     setFont(FONT_SYMBOLS);
     buffer[1] = '\0';
 
-    buffer[0] = '0' + getDeviceBatteryLevel();
+    buffer[0] = '0' + getBatteryLevel();
     rectangle.width = TITLEBAR_BATTERYICON_WIDTH + TITLEBAR_PADDING;
     rectangle.x -= rectangle.width;
     static mr_point_t titlebarBatteryOffset = {
@@ -2086,7 +2086,7 @@ void drawStatistics(void)
 #else
             strcpy(key, "Voltage");
 #endif
-            strcatFloat(valueString, getDeviceBatteryVoltage(), 3);
+            strcatFloat(valueString, getBatteryVoltage(), 3);
             strcpy(unitString, " V");
 
             break;

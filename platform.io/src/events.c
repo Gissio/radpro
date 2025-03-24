@@ -104,7 +104,7 @@ static uint32_t pulseSoundTicks[] = {
     PULSE_SOUND_BEEPS_TICKS,
 };
 
-void initEventsMenus(void)
+void resetEvents(void)
 {
     selectMenuItem(&pulsesMenu,
                    0,
@@ -266,6 +266,7 @@ void dispatchEvents(void)
         updateMeasurements();
         updateADC();
         updateViewPeriod();
+        updateSettingsPeriod();
     }
 
     updateDatalog();

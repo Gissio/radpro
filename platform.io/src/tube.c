@@ -18,7 +18,7 @@
 #include "vibration.h"
 
 static const Menu tubeMenu;
-static const Menu tubeConversionFactorMenu;
+static const Menu tubeSensitivityMenu;
 static const Menu tubeDeadTimeCompensationMenu;
 static const Menu tubeBackgroundCompensationMenu;
 
@@ -64,14 +64,14 @@ void initTube(void)
     initTubeController();
 }
 
-void initTubeMenus(void)
+void resetTube(void)
 {
     selectMenuItem(&tubeMenu,
                    0,
                    0);
-    selectMenuItem(&tubeConversionFactorMenu,
-                   settings.tubeConversionFactor,
-                   TUBE_CONVERSIONFACTOR_NUM);
+    selectMenuItem(&tubeSensitivityMenu,
+                   settings.tubeSensitivity,
+                   TUBE_SENSITIVITY_NUM);
     selectMenuItem(&tubeDeadTimeCompensationMenu,
                    settings.tubeDeadTimeCompensation,
                    TUBE_DEADTIMECOMPENSATION_NUM);
@@ -446,9 +446,9 @@ static void onTubeHVGeneratorSubMenuBack(const Menu *menu)
 
 #endif
 
-// Tube conversion factor menu
+// Tube sensitivity menu
 
-static const float tubeConversionFactorMenuPresets[] = {
+static const float tubeSensitivityMenuPresets[] = {
     153.8F,
     153.8F,
     60.0F,
@@ -457,7 +457,7 @@ static const float tubeConversionFactorMenuPresets[] = {
     153.8F,
 };
 
-static const char *const tubeConversionFactorMenuOptions[] = {
+static const char *const tubeSensitivityMenuOptions[] = {
     "J305",
     "J321",
     "J613",
@@ -466,41 +466,41 @@ static const char *const tubeConversionFactorMenuOptions[] = {
     "SBM-20",
 };
 
-static float getTubeConversionFactorForIndex(uint32_t index)
+static float getTubeSensitivityForIndex(uint32_t index)
 {
-    if (index < TUBE_CONVERSIONFACTOR_PRESETS_NUM)
-        return tubeConversionFactorMenuPresets[index];
+    if (index < TUBE_SENSITIVITY_PRESETS_NUM)
+        return tubeSensitivityMenuPresets[index];
 
-    return TUBE_CONVERSIONFACTOR_VALUE_MIN *
-           exp2f((index - TUBE_CONVERSIONFACTOR_PRESETS_NUM) *
-                 (TUBE_CONVERSIONFACTOR_VALUE_LOG_MAX_MIN /
-                  (TUBE_CONVERSIONFACTOR_VALUE_NUM - 1)));
+    return TUBE_SENSITIVITY_VALUE_MIN *
+           exp2f((index - TUBE_SENSITIVITY_PRESETS_NUM) *
+                 (TUBE_SENSITIVITY_VALUE_LOG_MAX_MIN /
+                  (TUBE_SENSITIVITY_VALUE_NUM - 1)));
 }
 
-float getTubeConversionFactor(void)
+float getTubeSensitivity(void)
 {
-    return getTubeConversionFactorForIndex(settings.tubeConversionFactor);
+    return getTubeSensitivityForIndex(settings.tubeSensitivity);
 }
 
-static const char *onTubeConversionFactorMenuGetOption(const Menu *menu,
+static const char *onTubeSensitivityMenuGetOption(const Menu *menu,
                                                        uint32_t index,
                                                        MenuStyle *menuStyle)
 {
-    *menuStyle = (index == settings.tubeConversionFactor);
+    *menuStyle = (index == settings.tubeSensitivity);
 
-    if (index < TUBE_CONVERSIONFACTOR_PRESETS_NUM)
+    if (index < TUBE_SENSITIVITY_PRESETS_NUM)
     {
-        strcpy(menuOption, tubeConversionFactorMenuOptions[index]);
+        strcpy(menuOption, tubeSensitivityMenuOptions[index]);
 
-        if (index == TUBE_CONVERSIONFACTOR_DEFAULT)
+        if (index == TUBE_SENSITIVITY_DEFAULT)
             strcat(menuOption, " (default)");
 
         return menuOption;
     }
-    else if (index < TUBE_CONVERSIONFACTOR_NUM)
+    else if (index < TUBE_SENSITIVITY_NUM)
     {
         strclr(menuOption);
-        strcatFloat(menuOption, getTubeConversionFactorForIndex(index), 1);
+        strcatFloat(menuOption, getTubeSensitivityForIndex(index), 1);
         strcat(menuOption, " cpm/\xb5Sv/h");
     }
     else
@@ -509,26 +509,26 @@ static const char *onTubeConversionFactorMenuGetOption(const Menu *menu,
     return menuOption;
 }
 
-static void onTubeConversionFactorMenuSelect(const Menu *menu)
+static void onTubeSensitivityMenuSelect(const Menu *menu)
 {
-    settings.tubeConversionFactor = menu->state->selectedIndex;
+    settings.tubeSensitivity = menu->state->selectedIndex;
 
     updateMeasurementUnits();
 }
 
-static MenuState tubeConversionFactorMenuState;
+static MenuState tubeSensitivityMenuState;
 
-static const Menu tubeConversionFactorMenu = {
-    "Conversion factor",
-    &tubeConversionFactorMenuState,
-    onTubeConversionFactorMenuGetOption,
-    onTubeConversionFactorMenuSelect,
+static const Menu tubeSensitivityMenu = {
+    "Sensitivity",
+    &tubeSensitivityMenuState,
+    onTubeSensitivityMenuGetOption,
+    onTubeSensitivityMenuSelect,
     onTubeSubMenuBack,
 };
 
-static const View tubeConversionFactorMenuView = {
+static const View tubeSensitivityMenuView = {
     onMenuEvent,
-    &tubeConversionFactorMenu,
+    &tubeSensitivityMenu,
 };
 
 // Tube dead-time compensation menu
@@ -655,7 +655,7 @@ static const View tubeBackgroundCompensationMenuView = {
 // Tube menu
 
 static const char *const tubeMenuOptions[] = {
-    "Conversion factor",
+    "Sensitivity",
     "Dead-time compensation",
     "Background compensation",
 #if defined(TUBE_HV_PWM)
@@ -665,7 +665,7 @@ static const char *const tubeMenuOptions[] = {
 };
 
 static const View *tubeMenuOptionViews[] = {
-    &tubeConversionFactorMenuView,
+    &tubeSensitivityMenuView,
     &tubeDeadTimeCompensationMenuView,
     &tubeBackgroundCompensationMenuView,
 #if defined(TUBE_HV_PWM)

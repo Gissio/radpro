@@ -15,7 +15,7 @@
 static const Menu rtcMenu;
 static const Menu rtcTimeZoneMenu;
 
-void initRTCMenus(void)
+void resetRTC(void)
 {
     selectMenuItem(&rtcMenu,
                    0,

@@ -67,7 +67,7 @@ static const Menu datalogIntervalMenu;
 
 static bool decodeDatalogEntry(DatalogState *state);
 
-void initDatalog(void)
+void resetDatalog(void)
 {
     datalog.writeState.iterator.region = &flashDatalogRegion;
 
@@ -85,10 +85,7 @@ void initDatalog(void)
             break;
         }
     }
-}
 
-void initDatalogMenus(void)
-{
     selectMenuItem(&datalogMenu,
                    0,
                    0);

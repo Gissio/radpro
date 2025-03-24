@@ -2,9 +2,9 @@
 
 # The ionizing radiation field guide
 
-© 2024-2025 Gissio (last update: 2025-03-23)
+© 2024-2025 Gissio (v2025-03-24)
 
-Welcome to the fascinating world of Geiger counters! Whether you're considering buying one or already own one and want to unlock its potential, this guide is your starting point. We'll explore the essentials of ionizing radiation, how Geiger counters work, and fun ways to explore this invisible energy around us. Let's dive in!
+Welcome to the fascinating world of Geiger counters! Whether you're considering buying one or already own one and want to unlock its potential, this guide will teach you the essentials of ionizing radiation, how Geiger counters work, and practical ways to explore this invisible energy around us. Let's dive in!
 
 ## What do Geiger counters measure?
 
@@ -14,9 +14,9 @@ Geiger counters measure **ionizing radiation**—tiny, super-energetic particles
 
 A **radioactive substance** contains unstable atoms that spontaneously break apart, releasing ionizing radiation. As they decay, these atoms transform into different **isotopes**—variations of elements with different numbers of neutrons.
 
-This decay happens at a predictable rate called the **half-life**, the time it takes for half the radioactive atoms in a sample to decay. Picture a bag with 100 popping popcorn kernels. If half pop every minute, you'd have 50 left after 1 minute, 25 after 2 minutes, and so on. That's half-life in action!
+This decay happens at a predictable rate called the **half-life**, the time it takes for half the radioactive atoms in a sample to decay. Picture a bag with 100 popping popcorn kernels. If half pop every minute, you'd have 50 left after 1 minute, 25 after 2 minutes, and so on. That's half-life at work!
 
-Examples of radioactive materials include granite tabletops (with traces of uranium), old uranium-glazed ceramics, potassium chloride (natural potassium has a radioactive isotope), and isotopes like Iodine-131 used in medical treatment.
+Examples of radioactive materials include granite tabletops (which may contain traces of uranium), old uranium-glazed ceramics, potassium chloride (containing a naturally radioactive potassium isotope), and medical isotopes like Iodine-131, used in treatments such as thyroid therapy.
 
 ![Radioactive contamination](img/field-guide-contamination.jpg)
 
@@ -61,7 +61,7 @@ This measurement quantifies the **physical impact** of radiation but does not di
 
 ### Equivalent dose and rate
 
-**Equivalent dose** is a measure that reflects the **biological damage** to human tissue from exposure to ionizing radiation. It takes into account not only the absorbed dose (energy deposited per unit mass) but also the biological effectiveness (W<sup>R</sup>) of the radiation type, known as the radiation weighting factor. It's measured in sieverts (Sv) in the SI system, where 1 sievert equals the amount of radiation that would have the same biological effect as 1 gray of gamma rays or X-rays. In older units, it's measured in rems, where 1 rem equals 0.01 sievert.
+**Equivalent dose** is a measure that reflects the **biological damage** to human tissue from exposure to ionizing radiation. It takes into account not only the absorbed dose (energy deposited per unit mass) but also the biological effectiveness W<sup>R</sup> of the radiation type, known as the radiation weighting factor. Equivalent dose is measured in sieverts (Sv) in the SI system, where 1 sievert equals the amount of radiation that would have the same biological effect as 1 gray of gamma rays or X-rays. In older units, it's measured in rems, where 1 rem equals 0.01 sievert.
 
 The W<sup>R</sup> value varies depending on the type and energy of the radiation, reflecting its potential to cause biological harm. Common W<sup>R</sup> values include:
 
@@ -81,11 +81,13 @@ This measurement allows for a more accurate assessment of radiation risk to biol
 
 ### Activity
 
-**Activity** refers to the rate at which a radioactive substance decays, or in other words, how many unstable atoms break apart per unit of time, releasing ionizing radiation. It's a measure of the source's strength and is quantified in becquerels (Bq) in the SI system, where 1 becquerel equals 1 decay per second. In older units, activity is measured in curies (Ci), where 1 curie equals 3.7 × 10¹⁰ decays per second (a value originally based on the activity of 1 gram of radium-226).
+**Activity** refers to the rate at which a radioactive substance decays, or in other words, how many unstable atoms break apart per unit of time, releasing ionizing radiation. It's a measure of a source's strength—how active or "hot" a radioactive material is— and is quantified in becquerels (Bq) in the SI system, where 1 becquerel equals 1 decay per second. In older units, it's measured in curies (Ci), where 1 curie equals 3.7 × 10¹⁰ decays per second.
 
-For example, a sample with an activity of 1 MBq (1 million becquerels) means 1 million atoms are decaying each second, emitting radiation in the process. The activity decreases over time as the radioactive material decays, following the half-life of the isotope. High-activity sources can produce significant radiation levels, making them detectable by Geiger counters even at a distance, while low-activity sources might only register above background levels when very close to the detector.
+For example, in a sample with an activity of 1 MBq (1 million becquerels), 1 million atoms are decaying every second, emitting radiation in the process.
 
-Activity is a key concept when using Geiger counters because it directly influences the count rate you observe. However, the actual counts per minute (CPM) recorded also depend on the detector's efficiency and the type of radiation emitted, so activity alone doesn't tell the whole story—it's the starting point for understanding how “hot” a radioactive source is.
+It's important to note that Geiger counters measure dose and rate—properties related to the radiation absorbed by a target—rather than activity, which is a characteristic of the source itself. Nevertheless, understanding activity is crucial for assessing the potential hazard of a radioactive material, as it directly influences the intensity of radiation emitted and, consequently, the precautions needed for safe handling or disposal.
+
+![Radioactive danger](img/field-guide-danger.jpg)
 
 ## How dangerous is ionizing radiation?
 
@@ -125,11 +127,11 @@ Here's a brief overview of how it works:
 
 * **Pulse generation:** This avalanche of ions results in a sudden surge of electrical current, creating a detectable electrical pulse. Each pulse corresponds to a single ionizing event.
 
-* **Counting:** The pulses are counted by electronic circuits, often converting the count into an audible click or visual display, giving an indication of radiation levels. The number of clicks or counts per minute (CPM) reflects the intensity of the radiation.
+* **Counting:** The pulses are counted by electronic circuits, often converting the count into an audible click or visual display, giving an indication of radiation levels. The number of clicks or counts per minute (cpm) reflects the intensity of the radiation.
 
 ## How do Geiger counters respond to different types of radiation?
 
-Geiger tubes respond differently to various types of ionizing radiation due to their unique interaction characteristics:
+Geiger tubes respond differently to various types of ionizing radiation:
 
 * **Gamma radiation:** Gamma rays, being high-energy photons, can penetrate the walls of a Geiger tube. However, standard Geiger tubes are less efficient at detecting low-energy gamma rays than their high-energy counterparts.
 
@@ -139,15 +141,31 @@ Geiger tubes respond differently to various types of ionizing radiation due to t
 
 * **Neutron radiation:** Standard Geiger tubes are not directly sensitive to neutrons since neutrons, being uncharged, don't ionize gas directly. Specialized tubes exist that convert neutrons into detectable particles.
 
-Converting a Geiger counter's counts into an equivalent dose requires multiplying the raw counts by a **conversion factor**. This factor depends on the Geiger tube's design, the type of radiation (alpha, beta, gamma, neutron), the energy of the radiation particles, and the radiation's intensity.
+A Geiger tube's **sensitivity** measures how effectively it detects and responds to ionizing radiation. It is typically expressed as counts per minute (cpm) per unit of radiation rate, such as microsieverts per hour (µSv/h). Sensitivity depends on factors like:
 
-For common Geiger tubes, the conversion factor often varies with energy because the tube’s sensitivity changes across the energy spectrum. Typically, tubes are most efficient at detecting gamma rays in the mid-energy range (around 100 keV to 1 MeV), with sensitivity decreasing for both lower and higher energies due to reduced interaction probability or over-saturation effects. For beta radiation, the conversion factor may increase with energy as higher-energy particles are more likely to penetrate the tube’s window, while for alpha particles (if detectable), the factor is generally constant due to their consistent ionization strength over a short range.
+* **Tube design:** Size, wall material, wall thickness and gas composition.
+* *Radiation type:* Alpha, beta, gamma or neutron.
+* **Radiation energy:** Higher-energy particles are usually easier to detect.
+* **Radiation intensity:** The rate of incoming particles can affect the count rate.
 
-Manufacturers typically provide a conversion factor under standard conditions, and it can be further calibrated using a known radioactive source.
+For most Geiger tubes, sensitivity peaks for gamma rays in the mid-energy range (approximately 100 keV to 1 MeV). For beta radiation, sensitivity increases with energy, as higher-energy particles are more likely to penetrate the tube’s window. For alpha particles (when detectable), sensitivity remains relatively constant due to their strong ionization over a short range.
+
+The Soviet-era SBM-20, for example, a metal-cased Geiger tube, is designed primarily for detecting gamma and beta radiation. Its sensitivity varies by source:
+
+
+* **Cesium-137 (662 keV gamma):** Approximately 120 cpm per µSv/h.
+* **Radium-226 (mixed emissions):** Around 200 cpm per µSv/h.
+* **Cobalt-60 (1.17 and 1.33 MeV gamma):**: About 150 cpm per µSv/h.
+
+Manufacturers typically provide sensitivity values under standardized conditionss, but calibration with known radioactive sources can refine accuracy.
+
+It is important to note that for common Geiger tubes, count rates and dose estimates are accurate only if the radiation source is known and the tube's sensitivity is adjusted accordingly. Without this calibration, measurements can be significantly inaccurate, as sensitivity varies with radiation type and energy.
 
 ## What is an energy-compensated Geiger tube?
 
-An energy-compensated Geiger tube is a type of Geiger-Müller tube designed to measure radiation more accurately across different energy levels of ionizing radiation. It includes additional materials or structures, like filters or windows, that adjust the response of the tube so that it detects radiation with a sensitivity that is more uniform across various energies. This compensation helps to ensure that the readings are not disproportionately influenced by either low-energy or high-energy particles, providing a more accurate measure of total radiation exposure.
+An energy-compensated Geiger tube is a type of Geiger-Müller tube designed to measure radiation more accurately across different energy levels of ionizing radiation. It includes additional materials or structures, like filters or windows, that adjust the response of the tube so that it detects radiation with a sensitivity that is more uniform across various energies.
+
+This compensation helps to ensure that the readings are not disproportionately influenced by either low-energy or high-energy particles, providing a more accurate measure of total radiation exposure.
 
 ![Applications](img/field-guide-applications.jpg)
 

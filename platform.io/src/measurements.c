@@ -32,7 +32,7 @@
 #define INSTANTANEOUS_RATE_AVERAGING_PULSE_COUNT 19 // For 50% confidence interval
 #define INSTANTANEOUS_RATE_MAX_PULSE_COUNT 10
 
-#define PULSE_INDICATION_CONVERSION_FACTOR_MAX 600.0F
+#define PULSE_INDICATION_SENSITIVITY_MAX 600.0F
 #define PULSE_INDICATION_FACTOR_UNIT 0x10000
 #define PULSE_INDICATION_FACTOR_MASK 0xffff
 
@@ -264,7 +264,7 @@ const View *const measurementViews[] = {
 
 #define MEASUREMENT_VIEWS_NUM (sizeof(measurementViews) / sizeof(View *))
 
-void initMeasurements(void)
+void resetMeasurements(void)
 {
     Dose tubeDose = measurements.tube.dose;
     Dose cumulativeDose = measurements.cumulativeDose.dose;
@@ -272,10 +272,7 @@ void initMeasurements(void)
     measurements.tube.dose = tubeDose;
     measurements.cumulativeDose.dose = cumulativeDose;
     updateMeasurementUnits();
-}
 
-void initMeasurementsMenus(void)
-{
     selectMenuItem(&alarmsMenu,
                    0,
                    0);
@@ -326,19 +323,19 @@ static const int8_t unitsMeasurementBarMinExponent[] = {
 
 void updateMeasurementUnits(void)
 {
-    float conversionFactor = getTubeConversionFactor();
+    float sensitivity = getTubeSensitivity();
 
-    units[UNITS_SIEVERTS].rate.scale = (60 * 1E-6F) / conversionFactor;
-    units[UNITS_SIEVERTS].dose.scale = (60 * 1E-6F / 3600) / conversionFactor;
-    units[UNITS_REM].rate.scale = (60 * 1E-4F) / conversionFactor;
-    units[UNITS_REM].dose.scale = (60 * 1E-4F / 3600) / conversionFactor;
+    units[UNITS_SIEVERTS].rate.scale = (60 * 1E-6F) / sensitivity;
+    units[UNITS_SIEVERTS].dose.scale = (60 * 1E-6F / 3600) / sensitivity;
+    units[UNITS_REM].rate.scale = (60 * 1E-4F) / sensitivity;
+    units[UNITS_REM].dose.scale = (60 * 1E-4F / 3600) / sensitivity;
 
-    if (conversionFactor < PULSE_INDICATION_CONVERSION_FACTOR_MAX)
+    if (sensitivity < PULSE_INDICATION_SENSITIVITY_MAX)
         measurements.instantaneous.pulseIndicationFactor = PULSE_INDICATION_FACTOR_UNIT;
     else
         measurements.instantaneous.pulseIndicationFactor =
-            (PULSE_INDICATION_FACTOR_UNIT * PULSE_INDICATION_CONVERSION_FACTOR_MAX) /
-            conversionFactor;
+            (PULSE_INDICATION_FACTOR_UNIT * PULSE_INDICATION_SENSITIVITY_MAX) /
+            sensitivity;
 }
 
 void updateDeadTimeCompensation(void)

@@ -76,7 +76,7 @@ On the FS-5000, the keys are mapped as follows:
   * Go up/down: the up/back and down/settings keys.
   * Select option: short hold of the right/settings key, or the ok/power key.
   * Go back: short hold of the up/back key.
-  * Toggle pulses sound in measurement view: the up/back and down/settings key simultaneously.
+  * Toggle pulses sound in measurement view: long hold of the the up/back and down/settings keys.
   * Toggle lock mode: long hold of the ok/power and up/back keys.
 
 To establish a USB data connection, connect your FS-5000 to a computer using a USB data cable.

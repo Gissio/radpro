@@ -25,7 +25,7 @@ extern const View pulsesMenuView;
 
 extern float timerCountToSeconds;
 
-void initEventsMenus(void);
+void resetEvents(void);
 
 void initEvents(void);
 void startEvents(void);

@@ -51,6 +51,7 @@ void initKeyboard(void)
     getKeyboardState(keyboard.wasKeyDown);
 
     keyboard.pressedKey = KEY_NONE;
+    keyboard.pressedTicks = ((uint32_t)(10.0 * SYSTICK_FREQUENCY / KEY_TICKS));
     keyboard.isInitialized = true;
 }
 
@@ -132,12 +133,11 @@ void onKeyboardTick(void)
                 if (keyboard.pressedTicks < KEY_PRESSED_EXTENDED)
                 {
                     if (i == KEY_LEFT)
-                        event = EVENT_KEY_BACK;
+                        event = EVENT_KEY_UP;
+                    else if (i == KEY_RIGHT)
+                        event = EVENT_KEY_DOWN;
                     else if (i == KEY_OK)
-                    {
-                        if (!keyboard.isBacklightWake)
-                            event = EVENT_KEY_TOGGLEBACKLIGHT;
-                    }
+                        event = EVENT_KEY_BACK;
                 }
             }
             else
@@ -226,16 +226,16 @@ void onKeyboardTick(void)
         {
             if (keyboard.pressedTicks == KEY_PRESSED_LONG)
             {
-                if (isKeyDown[KEY_LEFT] && isKeyDown[KEY_RIGHT])
-                    event = EVENT_KEY_TOGGLEPULSECLICKS;
-                else if (isKeyDown[KEY_RIGHT])
+                if (isKeyDown[KEY_RIGHT] && !isKeyDown[KEY_LEFT])
                     event = EVENT_KEY_SELECT;
             }
             else if (keyboard.pressedTicks == KEY_PRESSED_EXTENDED)
             {
                 if (isKeyDown[KEY_LEFT] && isKeyDown[KEY_OK])
                     event = EVENT_KEY_TOGGLELOCK;
-                else if (isKeyDown[KEY_LEFT] && !isKeyDown[KEY_RIGHT])
+                else if (isKeyDown[KEY_LEFT] && isKeyDown[KEY_RIGHT])
+                    event = EVENT_KEY_TOGGLEPULSECLICKS;
+                else if (isKeyDown[KEY_LEFT])
                     event = EVENT_KEY_RESET;
                 else if (isKeyDown[KEY_OK])
                     event = EVENT_KEY_POWER;
@@ -335,10 +335,4 @@ Event getKeyboardEvent(void)
     }
 
     return EVENT_NONE;
-}
-
-void clearKeyboardEvents(void)
-{
-    while (getKeyboardEvent() != EVENT_NONE)
-        ;
 }

@@ -16,7 +16,7 @@
 
 extern const View rngMenuView;
 
-void initRNGMenus(void);
+void resetRNG(void);
 
 int32_t getRandomData(void);
 

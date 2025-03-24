@@ -29,6 +29,8 @@
 #include "system.h"
 #include "tube.h"
 
+#define SETTINGS_LOWBATTERY_PERIOD 3600
+
 static const Menu settingsMenu;
 
 typedef struct
@@ -39,6 +41,8 @@ typedef struct
 } FlashState;
 
 Settings settings;
+
+static uint32_t settingsLowBatteryTimer;
 
 static FlashState *getFlashState(FlashIterator *iterator);
 
@@ -61,7 +65,7 @@ void initSettings(void)
         (1 << ALARMSIGNALING_DISPLAY_FLASH);
 
 #if defined(TUBE_HV_PWM)
-    settings.tubeConversionFactor = TUBE_CONVERSIONFACTOR_DEFAULT;
+    settings.tubeSensitivity = TUBE_SENSITIVITY_DEFAULT;
 #endif
 
 #if defined(DISPLAY_MONOCHROME)
@@ -100,8 +104,8 @@ void initSettings(void)
             settings.averaging = AVERAGING_UNLIMITED;
         if (settings.instantaneousAveraging >= INSTANTANEOUSAVERAGING_NUM)
             settings.instantaneousAveraging = INSTANTANEOUSAVERAGING_ADAPTIVEFAST;
-        if (settings.tubeConversionFactor >= TUBE_CONVERSIONFACTOR_NUM)
-            settings.tubeConversionFactor = TUBE_CONVERSIONFACTOR_DEFAULT;
+        if (settings.tubeSensitivity >= TUBE_SENSITIVITY_NUM)
+            settings.tubeSensitivity = TUBE_SENSITIVITY_DEFAULT;
 #if defined(TUBE_HV_PWM)
         if ((settings.tubeHVFrequency >= TUBE_HVFREQUENCY_NUM) ||
             (settings.tubeHVDutyCycle >= TUBE_HVDUTYCYCLE_NUM))
@@ -123,11 +127,13 @@ void initSettings(void)
     }
 }
 
-void initSettingsMenus(void)
+void resetSettings(void)
 {
     selectMenuItem(&settingsMenu,
                    0,
                    0);
+
+    settingsLowBatteryTimer = 0;
 }
 
 static FlashState *getFlashState(FlashIterator *iterator)
@@ -151,6 +157,20 @@ static FlashState *getFlashState(FlashIterator *iterator)
     }
 
     return flashState;
+}
+
+void updateSettingsPeriod(void)
+{
+    if (getBatteryLevel() == 0)
+    {
+        if (settingsLowBatteryTimer == 0) {
+            settingsLowBatteryTimer = SETTINGS_LOWBATTERY_PERIOD;
+
+            writeSettings();
+        }
+
+        settingsLowBatteryTimer--;
+    }
 }
 
 void writeSettings(void)

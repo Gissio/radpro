@@ -20,9 +20,9 @@ extern const View tubeMenuView;
 
 void initTube(void);
 void initTubeController(void);
-void initTubeMenus(void);
+void resetTube(void);
 
-float getTubeConversionFactor(void);
+float getTubeSensitivity(void);
 float getTubeDeadTimeCompensation(void);
 float getTubeBackgroundCompensation(void);
 float getTubeHVFrequency(void);

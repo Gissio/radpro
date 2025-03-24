@@ -57,7 +57,7 @@ extern uint16_t displayBrightnessValue[];
 void initDisplay(void);
 void initDisplayController(void);
 void initDisplayBacklight(void);
-void initDisplayMenus(void);
+void resetDisplay(void);
 
 void enableDisplay(bool value);
 bool isDisplayEnabled(void);

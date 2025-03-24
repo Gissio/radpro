@@ -18,11 +18,11 @@
 extern const View batteryTypeMenuView;
 
 void initPower(void);
-void initPowerMenus(void);
+void resetPower(void);
 
 void setPower(bool value);
 
-int8_t getDeviceBatteryLevel(void);
+int8_t getBatteryLevel(void);
 
 bool isDevicePowered(void);
 bool isBatteryCharging(void);

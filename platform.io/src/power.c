@@ -35,7 +35,7 @@ static const float batteryLevelThresholds[BATTERY_LEVEL_NUM - 1] =
 static const Menu batteryTypeMenu;
 #endif
 
-void initPowerMenus()
+void resetPower()
 {
 #if defined(BATTERY_REMOVABLE)
     selectMenuItem(&batteryTypeMenu,
@@ -44,7 +44,7 @@ void initPowerMenus()
 #endif
 }
 
-int8_t getDeviceBatteryLevel(void)
+int8_t getBatteryLevel(void)
 {
 #if defined(BATTERY_REMOVABLE)
     const float *selectedBatteryLevelThresholds = batteryLevelThresholds[settings.batteryType];
@@ -52,7 +52,7 @@ int8_t getDeviceBatteryLevel(void)
     const float *selectedBatteryLevelThresholds = batteryLevelThresholds;
 #endif
 
-    float voltage = getDeviceBatteryVoltage();
+    float voltage = getFilteredBatteryVoltage();
     int8_t level = (BATTERY_LEVEL_NUM - 1);
 
     for (uint32_t i = 0; i < (BATTERY_LEVEL_NUM - 1); i++)

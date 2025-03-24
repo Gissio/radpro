@@ -39,8 +39,7 @@ extern const View historyView;
 extern const View alarmsMenuView;
 extern const View measurementsMenuView;
 
-void initMeasurements(void);
-void initMeasurementsMenus(void);
+void resetMeasurements(void);
 
 void updateMeasurementUnits(void);
 void updateDeadTimeCompensation(void);

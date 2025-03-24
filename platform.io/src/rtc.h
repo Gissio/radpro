@@ -32,7 +32,7 @@ typedef struct
 extern const View rtcMenuView;
 
 void initRTC(void);
-void initRTCMenus(void);
+void resetRTC(void);
 
 uint32_t getTimeFromDateTime(const RTCDateTime *dateTime);
 void getDateTimeFromTime(uint32_t value, RTCDateTime *dateTime);

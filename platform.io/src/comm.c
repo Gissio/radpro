@@ -38,7 +38,7 @@ void initComm(void)
 #endif
 }
 
-void initCommMenus(void)
+void resetComm(void)
 {
 #if defined(DATA_MODE)
     selectMenuItem(&dataModeMenu,
@@ -149,7 +149,7 @@ void dispatchCommEvents(void)
             strcatUInt32Hex(comm.buffer, getDeviceId());
         }
         else if (matchCommCommand("GET deviceBatteryVoltage"))
-            sendCommOkWithFloat(getDeviceBatteryVoltage(), 3);
+            sendCommOkWithFloat(getBatteryVoltage(), 3);
         else if (matchCommCommand("GET deviceTime"))
             sendCommOkWithUInt32(getDeviceTime());
         else if (matchCommCommandWithNumber("SET deviceTime",
@@ -184,8 +184,8 @@ void dispatchCommEvents(void)
             sendCommOkWithFloat(60.0F * getInstantaneousRate(), 3);
         else if (matchCommCommand("GET tubeDeadTime"))
             sendCommOkWithFloat(getTubeDeadTime(), 7);
-        else if (matchCommCommand("GET tubeConversionFactor"))
-            sendCommOkWithFloat(getTubeConversionFactor(), 3);
+        else if (matchCommCommand("GET tubeSensitivity"))
+            sendCommOkWithFloat(getTubeSensitivity(), 3);
         else if (matchCommCommand("GET tubeDeadTimeCompensation"))
             sendCommOkWithFloat(getTubeDeadTimeCompensation(), 7);
         else if (matchCommCommand("GET tubeBackgroundCompensation"))

@@ -91,7 +91,7 @@ extern const View rngView;
 
 extern const Menu rngMenu;
 
-void initRNGMenus(void)
+void resetRNG(void)
 {
     selectMenuItem(&rngMenu,
                    0,
@@ -283,18 +283,23 @@ static void onRNGEvent(const View *view, Event event)
 
         break;
 
+    case EVENT_PERIOD:
+        if (rng.activityIndicator)
+        {
+            rng.activityIndicator++;
+            if (rng.activityIndicator > 3)
+                rng.activityIndicator = 1;
+        }
+
+        break;
+
     case EVENT_DRAW:
     {
         updateFastDiceRollerText();
 
         const char *stateString;
         if (rng.activityIndicator)
-        {
             stateString = rngActivitySubtitles[rng.activityIndicator - 1];
-            rng.activityIndicator++;
-            if (rng.activityIndicator > 3)
-                rng.activityIndicator = 1;
-        }
         else
             stateString = "";
 

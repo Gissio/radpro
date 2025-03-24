@@ -16,6 +16,7 @@ void initADC(void);
 
 void updateADC(void);
 
-float getDeviceBatteryVoltage(void);
+float getBatteryVoltage(void);
+float getFilteredBatteryVoltage(void);
 
 #endif

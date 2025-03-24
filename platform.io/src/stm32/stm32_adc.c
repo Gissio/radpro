@@ -10,11 +10,6 @@
 #if defined(STM32)
 
 #include "../adc.h"
-#include "../buzzer.h"
-#include "../display.h"
-#include "../events.h"
-#include "../system.h"
-#include "../tube.h"
 
 #include "device.h"
 
@@ -31,61 +26,40 @@
 
 static struct
 {
-    bool enabled;
+    bool initialized;
+    float batteryVoltage;
     float filteredBatteryVoltage;
 } adc;
 
 void initADC(void)
 {
-    syncTimerThread();
-
     rcc_enable_adc(ADC1);
 
-#if (defined(STM32F0) && defined(GD32)) || defined(STM32F1)
-    adc_enable(ADC1);
-    sleep(1);
-
-    adc_reset_calibration(ADC1);
-    sleep(1);
-#elif defined(STM32G0)
+#if defined(STM32G0)
     adc_enable_vreg(ADC1);
-    sleep(1);
 #elif defined(STM32L4)
     adc_disable_deep_power_down(ADC1);
     adc_enable_vreg(ADC1);
-    sleep(1);
 #endif
 
-    adc_start_calibration(ADC1);
-    sleep(1);
+    adc_calibrate(ADC1);
 
-#if (defined(STM32F0) && defined(GD32)) || defined(STM32F1)
-    adc_disable(ADC1);
-    sleep(1);
-#endif
-
-    adc.enabled = true;
+    adc.initialized = true;
 
     updateADC();
 }
 
 static void startADC(void)
 {
-    syncTimerThread();
-
 #if (defined(STM32F0) && !defined(GD32)) || defined(STM32G0) || defined(STM32L4)
     adc_enable_vref_channel(ADC1);
 #endif
     adc_enable(ADC1);
-    sleep(1);
 }
 
 static uint32_t readADC(uint8_t channel)
 {
-    adc_start_conversion_oneshot(ADC1, channel, 0x7);
-    sleep(1);
-
-    return adc_get_conversion_oneshot(ADC1);
+    return adc_convert_oneshot(ADC1, channel, 0x7);
 }
 
 static void stopADC(void)
@@ -94,7 +68,6 @@ static void stopADC(void)
 #if (defined(STM32F0) && !defined(GD32)) || defined(STM32G0) || defined(STM32L4)
     adc_disable_vref_channel(ADC1);
 #endif
-    sleep(1);
 }
 
 static float readBatteryVoltage(void)
@@ -124,23 +97,25 @@ static float readBatteryVoltage(void)
 
 void updateADC(void)
 {
-    if (!adc.enabled)
+    if (!adc.initialized)
         return;
 
-    float value;
+    adc.batteryVoltage = readBatteryVoltage();
 
-    value = readBatteryVoltage();
-    // +++ TEST
-    // adc.filteredBatteryVoltage =
-    //     (adc.filteredBatteryVoltage == 0.0F)
-    //         ? value
-    //         : value + BATTERY_VOLTAGE_FILTER_CONSTANT *
-    //                       (adc.filteredBatteryVoltage - value);
-    adc.filteredBatteryVoltage = value;
-    // +++ TEST
+    if (adc.filteredBatteryVoltage == 0.0F)
+        adc.filteredBatteryVoltage = adc.batteryVoltage;
+    else
+        adc.filteredBatteryVoltage =
+            adc.batteryVoltage + BATTERY_VOLTAGE_FILTER_CONSTANT *
+                                     (adc.filteredBatteryVoltage - adc.batteryVoltage);
 }
 
-float getDeviceBatteryVoltage(void)
+float getBatteryVoltage(void)
+{
+    return adc.batteryVoltage;
+}
+
+float getFilteredBatteryVoltage(void)
 {
     return adc.filteredBatteryVoltage;
 }

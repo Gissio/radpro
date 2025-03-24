@@ -21,9 +21,14 @@ void updateADC(void)
 {
 }
 
-float getDeviceBatteryVoltage(void)
+float getBatteryVoltage(void)
 {
     return 3.854F;
+}
+
+float getFilteredBatteryVoltage(void)
+{
+    return getBatteryVoltage();
 }
 
 #endif
