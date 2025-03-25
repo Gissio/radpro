@@ -128,16 +128,16 @@ Example:
 
 For improved precision, perform two `GET tubePulseCount` measurements over a time period and divide the pulse count difference by the time period (in minutes).
 
-### Get tube conversion factor
+### Get tube sensitivity
 
-* Request: `GET tubeConversionFactor\r\n`
+* Request: `GET tubeSensitivity\r\n`
 * Response: `OK [value]\r\n`
 
-Returns the tube's conversion factor in cpm/µSv/h, provided in decimal format with three decimal places.
+Returns the tube's sensitivity in cpm/µSv/h, provided in decimal format with three decimal places.
 
 Example:
 
-    GET tubeConversionFactor
+    GET tubeSensitivity
     OK 153.800
 
 ### Get tube dead-time measurement

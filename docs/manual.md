@@ -10,7 +10,7 @@
 * Multiple measurement units: Sievert, rem, cpm (counts per minute), cps (counts per second).
 * Configurable instantaneous rate averaging (adaptive fast, adaptive precision, 1 minute, 30 seconds and 10 seconds), 
 * Configurable average timer for performing surveys.
-* Customizable Geiger-Müller tube settings: conversion factor, dead-time compensation, background compensation, high voltage generator PWM frequency and duty cycle (on supported devices).
+* Customizable Geiger-Müller tube settings: sensitivity, dead-time compensation, background compensation, high voltage generator PWM frequency and duty cycle (on supported devices).
 * Preconfigured high voltage profiles (on supported devices).
 * Offline and live data logging with data compression.
 * Compatibility with the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software.
@@ -73,11 +73,11 @@ The view can be toggled between a 10-minute view, 60-minute view or 24-hour view
 
 To reset the history, consult the device's installation instructions.
 
-## Conversion factor
+## Sensitivity
 
-The conversion factor specifies the relationship between cpm (counts per minute) and the level of radiation in µSv/h. It is specific to the type of radiation being detected and the particular characteristics of the tube.
+A Geiger tube's **sensitivity** measures how effectively it detects and responds to ionizing radiation. It is typically expressed as counts per minute (cpm) per unit of radiation rate, such as counts per minute per microsieverts per hour (cpm/µSv/h).
 
-Rad Pro comes with default conversion factors for various Geiger-Müller tubes:
+Rad Pro includes default sensitivity settings for various Geiger-Müller tubes, suitable for most general applications:
 
 * J305: 153.8 cpm/µSv/h
 * J321: 153.8 cpm/µSv/h
@@ -86,9 +86,9 @@ Rad Pro comes with default conversion factors for various Geiger-Müller tubes:
 * M4011: 153.8 cpm/µSv/h
 * SBM-20: 153.8 cpm/µSv/h
 
-You can also set a custom conversion factor by going to the settings, selecting "Geiger tube", "Conversion Factor", and choosing an appropriate value from the list.
+You can also set a custom sensitivity by going to the settings, selecting "Geiger tube", "Sensitivity", and choosing an appropriate value from the list.
 
-When using sensitive detectors with a conversion factor of 600 cpm/µSv/h or higher, Rad Pro caps the pulse indication at 600 cpm/µSv/h to provide approximately one pulse per second at background levels of radiation. This does not impact the actual measurement.
+When using tubes with a sensitivity of 600 cpm/µSv/h or higher, Rad Pro caps the sensitivity for pulse indication at 600 cpm/µSv/h to provide approximately one pulse per second at background levels of radiation and prevent excessive audio feedback. This does not impact the actual measurement.
 
 ## Data logging
 
@@ -230,4 +230,4 @@ To communicate with Rad Pro through a USB serial port, read the [communications 
 
 **Q: My device is not clicking for every count.**
 
-**A:** If a conversion factor over 600 cpm/µSv/h is selected, Rad Pro limits pulse indication to 600 cpm/µSv/h to prevent excessive audio feedback.
+**A:** If you select a Geiger tube sensitivity exceeding 600 cpm/µSv/h, Rad Pro caps the sensitivity for pulse indication at 600 cpm/µSv/h to prevent excessive audio feedback.

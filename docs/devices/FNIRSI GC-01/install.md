@@ -40,7 +40,7 @@ If you are unable to install Rad Pro on your device, or your device becomes unre
 
 ## Step 3: Configure your device
 
-Go to Rad Pro's settings, select "Geiger tube", "Conversion factor", and select the option that matches the Geiger-Müller tube installed in your device.
+Go to Rad Pro's settings, select "Geiger tube", "Sensitivity", and select the option that matches the Geiger-Müller tube installed in your device.
 
 Within the "Geiger tube" settings, select "HV Profile" and choose an appropriate HV profile: "Energy-saving" is best for measuring background levels of radiation; "Factory default" is the profile from the original firmware and consumes considerably more power.
 

@@ -53,7 +53,7 @@ Also take note of the type of LCD display: the marking on the ribbon cable shoul
 
 ## Step 4: Configure your device
 
-Start your device and go to Rad Pro's settings, select "Geiger tube", "Conversion factor", and select the option that matches the Geiger-Müller tube installed in your device.
+Start your device and go to Rad Pro's settings, select "Geiger tube", "Sensitivity", and select the option that matches the Geiger-Müller tube installed in your device.
 
 To establish a USB data connection under Windows, install the [CH340 driver](https://www.catalog.update.microsoft.com/Search.aspx?q=USB%5CVID_1A86%26PID_7523).
 

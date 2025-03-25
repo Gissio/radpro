@@ -3,18 +3,19 @@
 ## 2.1.1 "The dot mender"
 
 Updates:
-* Corrected "Conversion factor" to "Sensitivity".
-* On devices with 5 keys, a short press of the power key in the measurement view now puts the display to sleep.
-* On devices with 3 keys, a **hold** of the left and right keys in the measurement view now toggles pulse sounds.
-* Lock mode is now accessible from everywhere, without requiring to go to the settings menu.
-* Die rolls and coin flips now produce a single outcome per run.
-* Added support for 100-sided and 10-sided die rolls, and binary random number generation.
-* History is now calculated only when the instantaneous rate confidence interval is below 75%.
-* When the battery level is low (0 bars), Rad Pro now automatically saves the dose every 60 minutes.
+* Renamed "Conversion factor" to "Sensitivity" as the former term was incorrect.
+* Renamed the "GET tubeConversionFactor" data command to "GET tubeSensitivity".
+* On 5-key devices, a short press of the power key in the measurement view now puts the display to sleep.
+* On 3-key devices, **holding** the left and right keys in the measurement view now toggles pulse sounds.
+* Lock mode can now be accessed from any screen without needing to navigate to the settings menu.
+* Die rolls and coin flips now generate a single outcome per run.
+* Added support for 100-sided and 10-sided die rolls, as well as binary random number generation.
+* History is now calculated only when the instantaneous rate confidence interval falls below 75%.
+* When the battery level is critically low (0 bars), Rad Pro now automatically saves the dose every 60 minutes.
 
 Fixes:
-* On devices with a color display, resolved an issue in the measurement view where the measurement's dot occasionally missed.
-* Fixed battery voltage measurement on the Bosean FS-5000.
+* On devices with a color display, fixed an issue where the measurement dot occasionally failed to appear in the measurement view.
+* Corrected battery voltage measurement issues on the Bosean FS-5000.
 
 ## 2.1 "Delicious trifles"
 

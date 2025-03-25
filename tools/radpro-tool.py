@@ -161,13 +161,13 @@ def sync_time(device):
 
 
 def download_datalog(device, path, start_datetime):
-    success, response = device.query('GET tubeConversionFactor')
+    success, response = device.query('GET tubeSensitivity')
 
     if not success:
-        print('Error: while getting tube conversion factor.')
+        print('Error: while getting tube sensitivity.')
         return
 
-    conversion_factor = float(response)
+    sensitivity = float(response)
 
     if (start_datetime != None):
         start_time = int(datetime.fromisoformat(
@@ -201,7 +201,7 @@ def download_datalog(device, path, start_datetime):
                     delta_pulse_count = pulse_count - last_pulse_count
 
                     cpm = delta_pulse_count * 60 / delta_time
-                    uSvH = cpm / conversion_factor
+                    uSvH = cpm / sensitivity
 
                     lines.append(
                         f'{record_datetime},{pulse_count},{cpm:.1f},{uSvH:.3f}\n')
@@ -233,13 +233,13 @@ def submit_data(url, method='get', json=None):
 
 
 def log_live(device, args):
-    success, response = device.query('GET tubeConversionFactor')
+    success, response = device.query('GET tubeSensitivity')
 
     if not success:
-        print('Error: while getting tube conversion factor.')
+        print('Error: while getting tube sensitivity.')
         return
 
-    conversion_factor = float(response)
+    sensitivity = float(response)
 
     last_time = time.time()
     last_pulse_count = None
@@ -277,7 +277,7 @@ def log_live(device, args):
                     last_pulse_count = pulse_count
 
                     cpm = delta_pulse_count * 60 / args.period
-                    uSvH = cpm / conversion_factor
+                    uSvH = cpm / sensitivity
 
                     if args.datalog_file != None:
                         open(args.datalog_file, 'at').write(
@@ -408,9 +408,9 @@ parser.add_argument('--reset-tube-life-stats',
 parser.add_argument('--get-tube-rate',
                     action='store_true',
                     help='get tube instantaneous rate (in cpm)')
-parser.add_argument('--get-tube-conversion-factor',
+parser.add_argument('--get-tube-sensitivity',
                     action='store_true',
-                    help='get tube conversion factor')
+                    help='get tube sensitivity')
 parser.add_argument('--get-tube-dead-time',
                     action='store_true',
                     help='get measurement of the tube\'s dead time')
@@ -459,7 +459,7 @@ if not args.no_sync_time:
             not args.get_tube_rate and\
             not args.get_tube_hv_duty_cycle and\
             not args.get_tube_hv_frequency and\
-            not args.get_tube_conversion_factor and\
+            not args.get_tube_sensitivity and\
             not args.get_tube_dead_time and\
             not args.get_tube_dead_time_compensation:
         print('Syncing time...')
@@ -480,8 +480,8 @@ if args.reset_tube_life_stats:
 if args.get_tube_rate:
     show_property(device, 'tubeRate')
 
-if args.get_tube_conversion_factor:
-    show_property(device, 'tubeConversionFactor')
+if args.get_tube_sensitivity:
+    show_property(device, 'tubeSensitivity')
 
 if args.get_tube_dead_time:
     show_property(device, 'tubeDeadTime')
