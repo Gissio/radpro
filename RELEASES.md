@@ -6,7 +6,7 @@ Updates:
 * Renamed "Conversion factor" to "Sensitivity".
 * Renamed the "GET tubeConversionFactor" data command to "GET tubeSensitivity".
 * On 5-key devices, a short press of the power key in the measurement view now puts the display to sleep.
-* On 3-key devices, holdingthe left and right keys in the measurement view now toggles pulse sounds.
+* On 3-key devices, holding the left and right keys in the measurement view now toggles pulse sounds.
 * Lock mode can now be accessed from any screen without needing to navigate to the settings menu.
 * Die rolls and coin flips now generate a single outcome per run.
 * Added support for 100-sided and 10-sided die rolls, as well as binary random number generation.
