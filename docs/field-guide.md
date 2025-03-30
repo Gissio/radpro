@@ -4,7 +4,7 @@
 
 © 2024-2025 Gissio (v2025-03-24)
 
-Welcome to the fascinating world of Geiger counters! Whether you're considering buying one or already own one and want to unlock its potential, this guide will teach you the essentials of ionizing radiation, how Geiger counters work, and practical ways to explore this invisible energy around us. Let's dive in!
+Welcome to the fascinating world of Geiger counters! Whether you're considering buying one or already own one and want to unlock its potential, this guide is for you. We'll explore the essentials of ionizing radiation, how Geiger counters work, and practical ways to explore this invisible energy around us. Let's dive in!
 
 ## What do Geiger counters measure?
 
@@ -38,7 +38,7 @@ For internal contamination, specific treatments are used. If contaminated with I
 Ionizing radiation includes several types, each varying in energy, penetration ability, and interaction with matter:
 
 * **Gamma rays (γ)** are high-energy photons produced during nuclear reactions. They are highly penetrating and require significant shielding, such as several centimeters of lead or meters of concrete. Their energy levels span from 100 keV to 8 MeV.
-* **X-Rays** are similar to gamma rays but of lower energy. They are less penetrating but still require substantial shielding. Their energy ranges from 100 eV to 100 keV.
+* **X-rays** are similar to gamma rays but of lower energy. They are less penetrating but still require substantial shielding. Their energy ranges from 100 eV to 100 keV.
 * **Beta particles (β)** comprise fast-moving electrons or positrons and have moderate penetration. They can be stopped by a few millimeters of aluminum or several meters of air. Energy levels are from a few keV to tens of MeV.
 * **Alpha particles (α)** are composed of helium nuclei (two protons and two neutrons). Alpha particles have low penetration but high ionization capacity. They can be blocked by just a few centimeters of air, a sheet of paper, or even the outer layer of human skin. Their energy typically falls between 3 and 7 MeV.
 * **Neutrons (n)**  pose a unique danger as they can make other materials radioactive upon collision. Effective shielding for neutrons involves hydrogen-rich materials like water or plastic. Neutron energies vary from less than 1 eV for slow neutrons to over 1 MeV for fast ones.
@@ -121,7 +121,7 @@ A Geiger counter detects ionizing radiation using a gas-filled tube called a Gei
 
 Here's a brief overview of how it works:
 
-* **Radiation interaction:** When ionizing radiation (like alpha, beta, or gamma rays) enters the tube, it ionizes some of the gas atoms inside, creating ion pairs (ions and electrons).
+* **Radiation interaction:** When ionizing radiation enters the tube, it ionizes some of the gas atoms inside, creating ion pairs (ions and electrons).
 
 * **Amplification:** The tube has a high voltage applied across it. The electrons from the ion pairs are accelerated towards the anode (positive electrode), gaining enough energy to ionize more gas atoms in a chain reaction, which amplifies the initial ionization event.
 
@@ -133,39 +133,34 @@ Here's a brief overview of how it works:
 
 Geiger tubes respond differently to various types of ionizing radiation:
 
-* **Gamma radiation:** Gamma rays, being high-energy photons, can penetrate the walls of a Geiger tube. However, standard Geiger tubes are less efficient at detecting low-energy gamma rays than their high-energy counterparts.
+* **Gamma rays and X-rays:** Being high-energy photons, Gamma and X-rays can easily penetrate the walls of a Geiger tube. Detection efficiency typically peaks in the mid-energy range, roughly between 100 keV to 1 MeV.
 
-* **Beta radiation:** Beta particles can enter the Geiger tube if its walls are thin enough. The detection depends on the energy of the beta particles; low-energy betas might not penetrate the walls, whereas high-energy ones will.
+* **Beta particles:** Beta particles can enter the Geiger tube if its walls are thin enough. Detection efficiency generally increases with energy.
 
-* **Alpha radiation:** Most Geiger tubes cannot detect alpha particles because these particles cannot pass through the tube's walls. However, "Pancake" Geiger tubes, equipped with a very thin window made of mica or thin metal, can detect alpha particles, but only if the source is very close due to their limited range.
+* **Alpha particles:** Most Geiger tubes cannot detect alpha particles because these particles cannot pass through the tube's walls. However, "Pancake" Geiger tubes, equipped with a very thin window made of mica or thin metal, can detect alpha particles, but only if the source is very close due to their limited range.
 
-* **Neutron radiation:** Standard Geiger tubes are not directly sensitive to neutrons since neutrons, being uncharged, don't ionize gas directly. Specialized tubes exist that convert neutrons into detectable particles.
+* **Neutrons:** Standard Geiger tubes are not directly sensitive to neutrons since neutrons, being uncharged, don't ionize gas directly. However, specialized tubes exist that convert neutrons into other particles that can be detected.
 
-A Geiger tube's **sensitivity** measures how effectively it detects and responds to ionizing radiation. It is typically expressed as counts per minute (cpm) per unit of radiation rate, such as microsieverts per hour (µSv/h). Sensitivity depends on factors like:
+A Geiger tube's **sensitivity** measures how effectively it detects and responds to ionizing radiation. It is typically expressed as counts per minute (cpm) per unit of radiation rate (for instance, in microsieverts per hour). Sensitivity depends on factors like:
 
-* **Tube design:** Size, wall material, wall thickness and gas composition.
-* *Radiation type:* Alpha, beta, gamma or neutron.
+* **Tube design:** Size, wall material, thickness and gas composition.
+* **Radiation type:** Alpha, beta, gamma or neutron.
 * **Radiation energy:** Higher-energy particles are usually easier to detect.
 * **Radiation intensity:** The rate of incoming particles can affect the count rate.
 
-For most Geiger tubes, sensitivity peaks for gamma rays in the mid-energy range (approximately 100 keV to 1 MeV). For beta radiation, sensitivity increases with energy, as higher-energy particles are more likely to penetrate the tube’s window. For alpha particles (when detectable), sensitivity remains relatively constant due to their strong ionization over a short range.
-
-The Soviet-era SBM-20, for example, a metal-cased Geiger tube, is designed primarily for detecting gamma and beta radiation. Its sensitivity varies by source:
-
+The Soviet-era SBM-20, for example, is a metal-cased Geiger tube designed primarily for detecting gamma and beta radiation. Its sensitivity varies by source as follows:
 
 * **Cesium-137 (662 keV gamma):** Approximately 120 cpm per µSv/h.
 * **Radium-226 (mixed emissions):** Around 200 cpm per µSv/h.
 * **Cobalt-60 (1.17 and 1.33 MeV gamma):**: About 150 cpm per µSv/h.
 
-Manufacturers typically provide sensitivity values under standardized conditionss, but calibration with known radioactive sources can refine accuracy.
+Manufacturers typically provide sensitivity values under standardized conditions, but calibration with known radioactive sources can refine accuracy.
 
-It is important to note that for common Geiger tubes, count rates and dose estimates are accurate only if the radiation source is known and the tube's sensitivity is adjusted accordingly. Without this calibration, measurements can be significantly inaccurate, as sensitivity varies with radiation type and energy.
+It is important to note that for common Geiger tubes, count rates and dose estimates are accurate only if the radiation source is known and the correct sensitivity value is used. Without this, measurements can be significantly inaccurate, as sensitivity varies with radiation type.
 
 ## What is an energy-compensated Geiger tube?
 
-An energy-compensated Geiger tube is a type of Geiger-Müller tube designed to measure radiation more accurately across different energy levels of ionizing radiation. It includes additional materials or structures, like filters or windows, that adjust the response of the tube so that it detects radiation with a sensitivity that is more uniform across various energies.
-
-This compensation helps to ensure that the readings are not disproportionately influenced by either low-energy or high-energy particles, providing a more accurate measure of total radiation exposure.
+An energy-compensated Geiger tube is a type of Geiger-Müller tube designed to measure radiation more accurately across different energy levels of ionizing radiation. It includes additional materials or structures, like filters or windows, that adjust the response of the tube so that it detects radiation with a sensitivity that is more uniform across various energies. This compensation helps to ensure that the readings are not disproportionately influenced by either low-energy or high-energy particles, providing a more accurate measure of total radiation exposure.
 
 ![Applications](img/field-guide-applications.jpg)
 

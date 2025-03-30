@@ -36,7 +36,9 @@ Now, follow these steps:
   * GND
   * SWCLK
   * SWDIO
-  * +3.3V
+  * 3.3V
+
+![ST-LINK V2 programmer](../../img/ST-LINK-V2.png)
 
 Make sure the electrical connections are correct. You may break your device if the connections are not correct.
 
@@ -78,7 +80,7 @@ Last, read the [user's manual](../../manual.md) for learning how to use Rad Pro,
 * Some AA rechargeable batteries have low-profile caps that don't make electrical contact with the battery holder. Fix this problem by applying solder on the battery holder's pads.
 * To increase the buzzer's volume, drill holes on the back case, in front of the buzzer.
 
-## Step 6: Get involved
+## Step 6: Last steps
 
 If you like Rad Pro, consider watching the project to get notified when new releases are out. Also, show your support by starring the project on GitHub. And don't forget to read the keyboard mapping table below!
 

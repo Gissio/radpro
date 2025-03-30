@@ -63,8 +63,6 @@ The secondary view can be toggled between a time view, showing the duration of t
 
 To reset the cumulative dose or dismiss a dose alarm, refer to the device's installation instructions.
 
-**WARNING**: Accurate cumulative dose measurements require an energy-compensated Geiger tube. The default tubes in Geiger units supported by Rad Pro are **not** energy-compensated, resulting in significant measurement errors.
-
 ### History
 
 The history is calculated from the instantaneous rate, sampled once per second. The plot uses a [logarithmic scale](https://en.wikipedia.org/wiki/Logarithmic_scale), where each division represents a tenfold increase in radiation level. Alert zones at 1 µSv/h and 10 µSv/h are visually indicated.
@@ -87,6 +85,8 @@ Rad Pro includes default sensitivity settings for various Geiger-Müller tubes, 
 * SBM-20: 153.8 cpm/µSv/h
 
 You can also set a custom sensitivity by going to the settings, selecting "Geiger tube", "Sensitivity", and choosing an appropriate value from the list.
+
+It is important to note that for common Geiger tubes, count rates and dose estimates are accurate only if the radiation source is known and the correct sensitivity value is used. Without this, measurements can be significantly inaccurate, as sensitivity varies with radiation type.
 
 When using tubes with a sensitivity of 600 cpm/µSv/h or higher, Rad Pro caps the sensitivity for pulse indication at 600 cpm/µSv/h to provide approximately one pulse per second at background levels of radiation and prevent excessive audio feedback. This does not impact the actual measurement.
 

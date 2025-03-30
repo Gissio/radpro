@@ -33,10 +33,12 @@ Now, follow these steps:
 * Optional: Solder the 4-pin header to the SWD pads of the board.
 * If you use Windows, install the [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html).
 * Connect the ST-LINK V2 device to the SWD pads. The pins, from left to right, are:
-  * +3.3V
+  * 3.3V
   * SWDIO
   * SWCLK
   * GND
+
+![ST-LINK V2 programmer](../../img/ST-LINK-V2.png)
 
 Make sure the electrical connections are correct. You may break your device if the connections are not correct.
 
@@ -61,7 +63,7 @@ To establish a USB data connection under Windows, install the [CH340 driver](htt
 
 Last, read the [user's manual](../../manual.md) for learning how to use Rad Pro, and the [ionizing radiation field guide](../../field-guide.md) for learning more about ionizing radiation.
 
-## Step 5: Get involved
+## Step 5: Last steps
 
 If you like Rad Pro, consider watching the project to get notified when new releases are out. Also, show your support by starring the project on GitHub. And don't forget to read the keyboard mapping table below!
 

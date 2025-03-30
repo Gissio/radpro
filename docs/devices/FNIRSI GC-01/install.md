@@ -50,7 +50,7 @@ If your device produces spontaneous key presses by itself, select the "Energy-sa
 
 Last, read the [user's manual](../../manual.md) for learning how to use Rad Pro, and the [ionizing radiation field guide](../../field-guide.md) for learning more about ionizing radiation.
 
-## Step 4: Get involved
+## Step 4: Last steps
 
 If you like Rad Pro, consider watching the project to get notified when new releases are out. Also, show your support by starring the project on GitHub. And don't forget to read the keyboard mapping table below!
 

@@ -29,10 +29,12 @@ Now, follow these steps:
 * Optional: Solder the 4-pin header to the SWD pads of the board.
 * If you use Windows, install the [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html).
 * Connect the ST-LINK V2 device to the SWD pads. The pins, from top to bottom, are:
-  * +3.3V
+  * 3.3V
   * SWDIO
   * SWCLK
   * GND
+
+![ST-LINK V2 programmer](../../img/ST-LINK-V2.png)
 
 Make sure the electrical connections are correct. You may break your device if the connections are not correct.
 
@@ -49,8 +51,6 @@ The installation will automatically create a backup of the original firmware in 
 
 Before closing the device, take note of the type of Geiger tube: the markings on the glass should be either J321, J305, M4011 or J614. If you have an unmarked tube measuring 55 or 65 mm long, you probably have a J614 or J613 tube, respectively.
 
-Also take note of the type of LCD display: the marking on the ribbon cable should be "FPC1-H24C159-01W". If it is not, please create an [issue](https://github.com/Gissio/radpro/issues).
-
 ## Step 4: Configure your device
 
 Start your device and go to Rad Pro's settings, select "Geiger tube", "Sensitivity", and select the option that matches the Geiger-Müller tube installed in your device.
@@ -59,7 +59,7 @@ To establish a USB data connection under Windows, install the [CH340 driver](htt
 
 Last, read the [user's manual](../../manual.md) for learning how to use Rad Pro, and the [ionizing radiation field guide](../../field-guide.md) for learning more about ionizing radiation.
 
-## Step 5: Get involved
+## Step 5: Last steps
 
 If you like Rad Pro, consider watching the project to get notified when new releases are out. Also, show your support by starring the project on GitHub. And don't forget to read the keyboard mapping table below!
 
@@ -68,10 +68,9 @@ If you like Rad Pro, consider watching the project to get notified when new rele
 On the FS-5000, the keys are mapped as follows:
 
   * Power on/off: long hold of the ok/power key.
-  * Switch measurement mode: the down/settings keys.
-  * Switch measurement secondary view: the up/back key.
+  * Switch measurement mode: the up/back and down/settings keys.
+  * Switch measurement secondary view: the ok/power key.
   * Reset measurement/dismiss alarm: long hold of the up/back key.
-  * Put display to sleep (measurement view only): the ok/power key.
   * Enter settings: short hold of the down/settings key.
   * Go up/down: the up/back and down/settings keys.
   * Select option: short hold of the right/settings key, or the ok/power key.
