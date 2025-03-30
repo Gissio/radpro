@@ -3,7 +3,7 @@
 ## 2.1.1 "The dot mender"
 
 Updates:
-* Renamed "Conversion factor" to "Sensitivity".
+* Renamed "Conversion factor" to "Sensitivity" (as sensitivity is cpm/radiation rate, while conversion factor is radiation rate/cpm).
 * Renamed the "GET tubeConversionFactor" data command to "GET tubeSensitivity".
 * On 5-key devices, a short press of the power key in the measurement view now puts the display to sleep.
 * On 3-key devices, holding the left and right keys in the measurement view now toggles pulse sounds.
