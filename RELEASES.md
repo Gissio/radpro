@@ -3,15 +3,15 @@
 ## 2.1.2 "Minor fixes"
 
 Updates:
-* Added the "SET deviceTimeZone" and "GET deviceTimeZone" data commands.
-* Added the "RESET datalog" data commands.
-* Removed background compensation (as common Geiger tubes' intrinsic activity is negligible).
-* Removed the "GET tubeBackgroundCompensation" data commands.
-* Adjusted the sensitivity of the SBM-20 Geiger tube to 150.5 cpm/µSv/h.
+* Added "SET deviceTimeZone" and "GET deviceTimeZone" data commands for timezone management.
+* Added "RESET datalog" data command to clear data logs.
+* Removed background compensation (intrinsic activity in common Geiger tubes is negligible).
+* Removed "GET tubeBackgroundCompensation" data command.
+* Refined SBM-20 Geiger tube sensitivity to 150.5 cpm/µSv/h.
 
 Fixes:
-* The statistics battery voltage now displays the voltage across all battery cells.
-* Fixed an issue where the history and instantaneous rate max value was not updated correctly with 60-second, 30-second and 10-second instantaneous rate averaging intervals.
+* Updated statistics to display battery voltage across all cells.
+* Resolved an issue where the history and instantaneous rate maximum value failed to update properly with 60-second, 30-second and 10-second instantaneous rate averaging intervals.
 
 ## 2.1.1 "The dot mender"
 
