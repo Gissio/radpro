@@ -12,6 +12,7 @@ Updates:
 Fixes:
 * Updated statistics to display battery voltage across all cells.
 * Resolved an issue where the history and instantaneous rate maximum value failed to update properly with 60-second, 30-second and 10-second instantaneous rate averaging intervals.
+* With 12-hour format, the hour options are now displayed in am/pm format.
 
 ## 2.1.1 "The dot mender"
 

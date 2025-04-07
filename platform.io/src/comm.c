@@ -276,7 +276,7 @@ void dispatchCommEvents(void)
         {
             sendCommOk();
 
-            for (int i = 0; i < 16; i++)
+            for (uint32_t i = 0; i < 16; i++)
             {
                 int32_t randomData = getRandomData();
                 if (randomData < 0)

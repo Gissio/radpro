@@ -940,7 +940,7 @@ static void drawText(const char *str,
         char buffer[32];
         strcpy(buffer, str);
 
-        for (int i = (strlen(str) - 2); i > 0; i--)
+        for (int32_t i = (strlen(str) - 2); i > 0; i--)
         {
             strcpy(buffer + i, "...");
             if (getTextWidth(buffer) <= availableWidth)
@@ -1045,7 +1045,7 @@ void drawTitleBar(const char *title,
             strcatUInt32(buffer, dateTime.hour, 2);
         else
         {
-            int hour = dateTime.hour % 12;
+            uint32_t hour = dateTime.hour % 12;
             strcatUInt32(buffer, (hour == 0) ? 12 : hour, 1);
         }
         strcatChar(buffer, ':');
@@ -1922,7 +1922,7 @@ void drawHistory(float scale,
 #endif
             // Render to imagebuffer
             mr_color_t fillColor = getFillColor(color);
-            for (int i = y; i < yNext; i++)
+            for (int32_t i = y; i < yNext; i++)
                 imageBuffer[(HISTORY_DATA_HEIGHT - 1) - i] = fillColor;
 
             y = yNext;

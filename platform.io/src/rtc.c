@@ -198,13 +198,22 @@ static const char *onRTCSubMenuGetOption(const Menu *menu,
     const RTCMenuOptionSetting *rtcMenuOptionSetting = &rtcMenuOptionSettings[rtcMenuState.selectedIndex - 1];
 
     uint32_t maxIndex = rtcMenuOptionSetting->maxIndex;
-    if (rtcMenuState.selectedIndex == 3)
+    if (rtcMenuState.selectedIndex == DATETIME_DAY)
         maxIndex = getDaysInMonth(rtcCurrentDateTime.year, rtcCurrentDateTime.month);
 
     if (index < maxIndex)
     {
         strclr(menuOption);
-        strcatUInt32(menuOption, rtcMenuOptionSetting->offset + index, 0);
+
+        if ((rtcMenuState.selectedIndex == DATETIME_HOUR) &&
+            (settings.rtcTimeFormat == RTC_TIMEFORMAT_12HOUR))
+        {
+            uint32_t hour = index % 12;
+            strcatUInt32(menuOption, (hour == 0) ? 12 : hour, 1);
+            strcat(menuOption, index < 12 ? " AM" : " PM");
+        }
+        else
+            strcatUInt32(menuOption, rtcMenuOptionSetting->offset + index, 0);
 
         return menuOption;
     }

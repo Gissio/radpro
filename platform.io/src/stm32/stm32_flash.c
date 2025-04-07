@@ -41,7 +41,7 @@ bool verifyFlash(void)
 
     crc_reset();
 
-    for (int i = 0; i < (FIRMWARE_SIZE - 0x4) / 4; i++)
+    for (uint32_t i = 0; i < (FIRMWARE_SIZE - 0x4) / 4; i++)
         crc_write(((uint32_t *)FIRMWARE_BASE)[i]);
     uint32_t crc = crc_read();
 

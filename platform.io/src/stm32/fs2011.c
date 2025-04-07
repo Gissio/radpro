@@ -198,7 +198,7 @@ void initDisplayController(void)
     gpio_set(DISPLAY_RSTB_PORT,
              DISPLAY_RSTB_PIN);
 
-    for (int i = 0; i < sizeof(displayPinSetup); i++)
+    for (uint32_t i = 0; i < sizeof(displayPinSetup); i++)
     {
 #if defined(STM32F0)
         gpio_setup_output(displayPortSetup[i],

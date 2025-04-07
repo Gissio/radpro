@@ -42,7 +42,7 @@ Ionizing radiation includes several types, each varying in energy, penetration a
 * **Gamma rays (γ)** are high-energy photons produced during nuclear reactions. They are highly penetrating and require significant shielding, such as several centimeters of lead or meters of concrete. Their energy levels span from 100 keV to 8 MeV.
 * **X-rays** are similar to gamma rays but of lower energy. They are less penetrating but still require substantial shielding. Their energy ranges from 100 eV to 100 keV.
 * **Beta particles (β)** comprise fast-moving electrons or positrons and have moderate penetration. They can be stopped by a few millimeters of aluminum or several meters of air. Energy levels are from a few keV to tens of MeV.
-* **Alpha particles (α)** are composed of helium nuclei (two protons and two neutrons). Alpha particles have low penetration but high ionization capacity. They can be blocked by just a few centimeters of air, a sheet of paper, or even the outer layer of human skin. Their energy typically falls between 3 and 7 MeV.
+* **Alpha particles (α)** are composed of helium nuclei (two protons and two neutrons). They have low penetration but high ionization capacity, and can be blocked by just a few centimeters of air, a sheet of paper, or even the outer layer of human skin. Their energy typically falls between 3 and 7 MeV.
 * **Neutrons (n)**  pose a unique danger as they can make other materials radioactive upon collision. Effective shielding for neutrons involves hydrogen-rich materials like water or plastic. Neutron energies vary from less than 1 eV for slow neutrons to over 1 MeV for fast ones.
 
 In general, the higher the energy of the radiation, the more potential damage it can inflict.

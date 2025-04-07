@@ -111,7 +111,7 @@ static void updateGameBoard(void)
     switch (game.state)
     {
     case GAME_SHOWING_LAST_MOVE:
-        for (int i = 0; i < GAME_HISTORY_MOVE_NUM; i++)
+        for (uint32_t i = 0; i < GAME_HISTORY_MOVE_NUM; i++)
             if (game.history[i].from != MCUMAX_SQUARE_INVALID)
                 move = game.history[i];
 
