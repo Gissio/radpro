@@ -16,7 +16,7 @@ A **radioactive substance** contains unstable atoms that spontaneously break apa
 
 This decay happens at a predictable rate called the **half-life**, the time it takes for half the radioactive atoms in a sample to decay. Picture a bag with 100 popping popcorn kernels. If half pop every minute, you'd have 50 left after 1 minute, 25 after 2 minutes, and so on. That's half-life at work!
 
-Examples of radioactive materials include granite tabletops (which may contain traces of uranium), old uranium-glazed ceramics, potassium chloride (containing a naturally radioactive potassium isotope), and medical isotopes like iodine-131, used in treatments such as thyroid therapy.
+Examples of radioactive materials include granite tabletops (which may contain traces of uranium), old uranium-glazed ceramics, low-sodium salt (containing a naturally radioactive potassium isotope), and medical isotopes like iodine-131, used in treatments such as thyroid therapy.
 
 ![Radioactive contamination](img/field-guide-contamination.jpg)
 
@@ -42,7 +42,7 @@ Ionizing radiation includes several types, each varying in energy, penetration a
 * **Gamma rays (γ)** are high-energy photons produced during nuclear reactions. They are highly penetrating and require significant shielding, such as several centimeters of lead or meters of concrete. Their energy levels span from 100 keV to 8 MeV.
 * **X-rays** are similar to gamma rays but of lower energy. They are less penetrating but still require substantial shielding. Their energy ranges from 100 eV to 100 keV.
 * **Beta particles (β)** comprise fast-moving electrons or positrons and have moderate penetration. They can be stopped by a few millimeters of aluminum or several meters of air. Energy levels are from a few keV to tens of MeV.
-* **Alpha particles (α)** are composed of helium nuclei (two protons and two neutrons). They have low penetration but high ionization capacity, and can be blocked by just a few centimeters of air, a sheet of paper, or even the outer layer of human skin. Their energy typically falls between 3 and 7 MeV.
+* **Alpha particles (α)** are composed of helium nuclei (two protons and two neutrons) and have low penetration but high ionization capacity. They can be blocked by just a few centimeters of air, a sheet of paper, or even the outer layer of human skin. Their energy typically falls between 3 and 7 MeV.
 * **Neutrons (n)**  pose a unique danger as they can make other materials radioactive upon collision. Effective shielding for neutrons involves hydrogen-rich materials like water or plastic. Neutron energies vary from less than 1 eV for slow neutrons to over 1 MeV for fast ones.
 
 In general, the higher the energy of the radiation, the more potential damage it can inflict.
@@ -63,7 +63,7 @@ This measurement quantifies the **physical impact** of radiation but does not di
 
 ### Equivalent dose and rate
 
-**Equivalent dose** is a measure that reflects the **biological damage** to human tissue from exposure to ionizing radiation. It takes into account not only the absorbed dose (energy deposited per unit mass) but also the biological effectiveness W<sup>R</sup> of the radiation type, known as the radiation weighting factor. Equivalent dose is measured in sieverts (Sv) in the SI system, where 1 sievert equals the amount of radiation that would have the same biological effect as 1 gray of gamma rays or X-rays. In older units, it's measured in rems, where 1 rem equals 0.01 sievert.
+**Equivalent dose** is a measure that reflects the **biological damage** to human tissue from exposure to ionizing radiation. It takes into account not only the absorbed dose (energy deposited per unit mass) but also the biological effectiveness W<sup>R</sup> of the radiation type, also known as the radiation weighting factor. Equivalent dose is measured in sieverts (Sv) in the SI system, where 1 sievert equals the amount of radiation that would have the same biological effect as 1 gray of gamma rays or X-rays. In older units, it's measured in rems, where 1 rem equals 0.01 sievert.
 
 The W<sup>R</sup> value varies depending on the type and energy of the radiation, reflecting its potential to cause biological harm. Common W<sup>R</sup> values include:
 
@@ -85,7 +85,7 @@ This measurement allows for a more accurate assessment of radiation risk to biol
 
 **Activity** refers to the rate at which a radioactive substance decays, or in other words, how many unstable atoms break apart per unit of time, releasing ionizing radiation. It's a measure of a source's strength—how active or "hot" a radioactive material is— and is quantified in becquerels (Bq) in the SI system, where 1 becquerel equals 1 decay per second. In older units, it's measured in curies (Ci), where 1 curie equals 3.7 × 10¹⁰ decays per second.
 
-For example, in a sample with an activity of 1 MBq (1 million becquerels), 1 million atoms are decaying every second, emitting radiation in the process.
+For example, in a sample with an activity of 1 MBq (1 megabecquerels), 1 million atoms are decaying every second, emitting radiation in the process.
 
 It's important to note that Geiger counters measure dose and rate—properties related to the radiation absorbed by a target—rather than activity, which is a characteristic of the source itself. Nevertheless, understanding activity is crucial for assessing the potential hazard of a radioactive material, as it directly influences the intensity of radiation emitted and, consequently, the precautions needed for safe handling or disposal.
 
