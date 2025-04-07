@@ -409,8 +409,7 @@ static usbd_respond onUSBControl(usbd_device *dev,
                                  usbd_ctlreq *req,
                                  usbd_rqc_callback *callback)
 {
-    if (((USB_REQ_RECIPIENT | USB_REQ_TYPE) & req->bmRequestType) ==
-            (USB_REQ_INTERFACE | USB_REQ_CLASS) &&
+    if (((USB_REQ_RECIPIENT | USB_REQ_TYPE) & req->bmRequestType) == (USB_REQ_INTERFACE | USB_REQ_CLASS) &&
         req->wIndex == 0)
     {
         switch (req->bRequest)

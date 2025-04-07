@@ -409,8 +409,7 @@ static void onGameViewEvent(const View *view, Event event)
         if (game.state != GAME_OVER)
         {
             uint32_t side = (game.moveIndex & 0x1);
-            game.playerTime[side] =
-                game.playerTime[side] + 1;
+            game.playerTime[side] = game.playerTime[side] + 1;
         }
 
         break;

@@ -55,42 +55,6 @@ void strcatUInt32(char *str,
     str[minLength] = '\0';
 }
 
-bool parseNumber(char *str,
-                 uint32_t *mantissa,
-                 uint32_t *factor)
-{
-    uint32_t localMantissa = 0;
-    uint32_t localFactor = 1;
-    bool decimalPoint = false;
-
-    while (true)
-    {
-        char c = *str++;
-
-        if (c < 0x20)
-            break;
-        else if (c == '.')
-            decimalPoint = true;
-        else if ((c >= '0') && (c <= '9') &&
-                 ((localMantissa < (UINT32_MAX / 10)) ||
-                  ((localMantissa == (UINT32_MAX / 10)) &&
-                   (c <= '5'))) &&
-                 (localFactor < (UINT32_MAX / 10)))
-        {
-            localMantissa = 10 * localMantissa + (c - '0');
-            if (decimalPoint)
-                localFactor = 10 * localFactor;
-        }
-        else
-            return false;
-    }
-
-    *mantissa = localMantissa;
-    *factor = localFactor;
-
-    return true;
-}
-
 void strcatTime(char *str,
                 uint32_t time)
 {
@@ -236,18 +200,6 @@ static char getHexDigit(uint32_t value)
     return (value < 10) ? value + '0' : value + ('a' - 10);
 }
 
-static int32_t parseHexDigit(char c)
-{
-    if ((c >= '0') && (c <= '9'))
-        return c - '0';
-    else if ((c >= 'A') && (c <= 'F'))
-        return c - 'A';
-    else if ((c >= 'a') && (c <= 'f'))
-        return c - 'a';
-    else
-        return -1;
-}
-
 void strcatUInt8Hex(char *str,
                     uint8_t value)
 {
@@ -289,27 +241,60 @@ void strcatDataHex(char *str,
     *str++ = '\0';
 }
 
-bool parseHexString(char *str,
-                    char *dest)
+bool parseUInt32(char *str,
+                 uint32_t *value)
 {
+    uint32_t mantissa = 0;
+
     while (true)
     {
-        char c1, c2;
+        char c = *str++;
 
-        c1 = *str++;
-        if (c1 == '\0')
-            return true;
-
-        c2 = *str++;
-
-        int32_t v1 = parseHexDigit(c1);
-        if (v1 < 0)
+        if (c < 0x20)
+            break;
+        else if ((c >= '0') && (c <= '9'))
+            mantissa = 10 * mantissa + (c - '0');
+        else
             return false;
-
-        int32_t v2 = parseHexDigit(c2);
-        if (v2 < 0)
-            return false;
-
-        *dest++ = (v1 << 4) | v2;
     }
+
+    *value = mantissa;
+
+    return true;
+}
+
+bool parseFloat(char *str,
+                float *value)
+{
+    float mantissa = 0;
+    float divisor = 1;
+    bool pastDecimalPoint = false;
+
+    if (*str == '-')
+    {
+        str++;
+        divisor = -1;
+    }
+
+    while (true)
+    {
+        char c = *str++;
+
+        if (c < 0x20)
+            break;
+        else if (c == '.')
+            pastDecimalPoint = true;
+        else if ((c >= '0') && (c <= '9'))
+        {
+            mantissa = 10 * mantissa + (c - '0');
+            if (pastDecimalPoint)
+                divisor = 10 * divisor;
+        }
+        else
+            return false;
+    }
+
+    *value = mantissa / divisor;
+
+    return true;
 }

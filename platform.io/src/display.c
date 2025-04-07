@@ -1472,13 +1472,10 @@ void drawMeasurementBar(float value,
     mr_color_t color;
 
     float minValue = powf(10.0F, minExponent);
-    uint32_t instrumentValue =
-        getMeasurementBarInstrumentValue(value, minValue);
+    uint32_t instrumentValue = getMeasurementBarInstrumentValue(value, minValue);
 #if defined(DISPLAY_COLOR)
-    uint32_t instrumentAlertZone1Value =
-        getMeasurementBarInstrumentValue(alertZone1Value, minValue);
-    uint32_t instrumentAlertZone2Value =
-        getMeasurementBarInstrumentValue(alertZone2Value, minValue);
+    uint32_t instrumentAlertZone1Value = getMeasurementBarInstrumentValue(alertZone1Value, minValue);
+    uint32_t instrumentAlertZone2Value = getMeasurementBarInstrumentValue(alertZone2Value, minValue);
 #endif
 
     // Labels & ticks
@@ -1711,22 +1708,12 @@ void drawHistory(float scale,
 
     if (dataMax > 0)
     {
-        uint32_t cpsToRateUnit =
-            (uint32_t)(HISTORY_DECADE *
-                       (16 + log10f(scale * HISTORY_VALUE_MIN))) +
-            1;
+        uint32_t cpsToRateUnit = (uint32_t)(HISTORY_DECADE * (16 + log10f(scale * HISTORY_VALUE_MIN))) + 1;
 
-        int32_t exponentMax =
-            (int32_t)((cpsToRateUnit + dataMax) /
-                          HISTORY_DECADE -
-                      16 + 1);
-        int32_t exponentMin =
-            (int32_t)((cpsToRateUnit + dataMin) /
-                          HISTORY_DECADE -
-                      16);
+        int32_t exponentMax = (int32_t)((cpsToRateUnit + dataMax) / HISTORY_DECADE - 16 + 1);
+        int32_t exponentMin = (int32_t)((cpsToRateUnit + dataMin) / HISTORY_DECADE - 16);
 
-        dataExponentMinValue = (int32_t)((exponentMin + 16) * HISTORY_DECADE -
-                                         cpsToRateUnit);
+        dataExponentMinValue = (int32_t)((exponentMin + 16) * HISTORY_DECADE - cpsToRateUnit);
         dataTickNum = exponentMax - exponentMin;
 
         strcatDecimalPowerWithMetricPrefix(topLabelString, exponentMax, -2);

@@ -70,22 +70,45 @@ static bool matchCommCommand(const char *command)
     }
 }
 
-static bool matchCommCommandWithNumber(const char *command,
-                                       uint32_t *mantissa,
-                                       uint32_t *factor)
+static char *matchCommCommandWithParameter(const char *command)
 {
     if (!matchCommCommand(command))
+        return NULL;
+
+    if (strlen(comm.buffer) <= (strlen(command) + 1))
+        return NULL;
+
+    return comm.buffer + strlen(command) + 1;
+}
+
+static bool matchCommCommandWithUint32(const char *command,
+                                       uint32_t *value)
+{
+    char *parameter = matchCommCommandWithParameter(command);
+    if (!parameter)
         return false;
 
-    return (strlen(comm.buffer) > (strlen(command) + 1)) &&
-           parseNumber(comm.buffer + strlen(command) + 1,
-                       mantissa,
-                       factor);
+    return parseUInt32(parameter, value);
+}
+
+static bool matchCommCommandWithFloat(const char *command,
+                                      float *value)
+{
+    char *parameter = matchCommCommandWithParameter(command);
+    if (!parameter)
+        return false;
+
+    return parseFloat(parameter, value);
+}
+
+static void sendCommResponse(bool success)
+{
+    strcpy(comm.buffer, success ? "OK" : "ERROR");
 }
 
 static void sendCommOk(void)
 {
-    strcpy(comm.buffer, "OK");
+    sendCommResponse(true);
 }
 
 static void sendCommOkWithString(const char *value)
@@ -93,6 +116,18 @@ static void sendCommOkWithString(const char *value)
     sendCommOk();
     strcatChar(comm.buffer, ' ');
     strcat(comm.buffer, value);
+}
+
+static void sendCommOkWithInt32(int32_t value)
+{
+    sendCommOk();
+    strcatChar(comm.buffer, ' ');
+    if (value < 0)
+    {
+        strcatChar(comm.buffer, '-');
+        value = -value;
+    }
+    strcatUInt32(comm.buffer, (uint32_t)value, 0);
 }
 
 static void sendCommOkWithUInt32(uint32_t value)
@@ -111,7 +146,7 @@ static void sendCommOkWithFloat(float value, uint32_t fractionalDecimals)
 
 static void sendCommError(void)
 {
-    strcpy(comm.buffer, "ERROR");
+    sendCommResponse(false);
 }
 
 static void strcatDatalogEntry(char *buffer, const Dose *entry)
@@ -139,8 +174,8 @@ void dispatchCommEvents(void)
 
     if (comm.state == COMM_RX_READY)
     {
-        uint32_t mantissa;
-        uint32_t factor;
+        uint32_t uint32Value;
+        float floatValue;
 
         if (matchCommCommand("GET deviceId"))
         {
@@ -152,31 +187,37 @@ void dispatchCommEvents(void)
             sendCommOkWithFloat(getBatteryVoltage(), 3);
         else if (matchCommCommand("GET deviceTime"))
             sendCommOkWithUInt32(getDeviceTime());
-        else if (matchCommCommandWithNumber("SET deviceTime",
-                                            &mantissa,
-                                            &factor))
+        else if (matchCommCommandWithUint32("SET deviceTime",
+                                            &uint32Value))
         {
-            setDeviceTime(mantissa / factor);
+            setDeviceTime(uint32Value);
 
             sendCommOk();
         }
+        else if (matchCommCommand("GET deviceTimeZone"))
+            sendCommOkWithFloat(getDeviceTimeZone(), 1);
+        else if (matchCommCommandWithFloat("SET deviceTimeZone",
+                                           &floatValue))
+        {
+            bool success = setDeviceTimeZone(floatValue);
+
+            sendCommResponse(success);
+        }
         else if (matchCommCommand("GET tubeTime"))
             sendCommOkWithUInt32(getTubeTime());
-        else if (matchCommCommandWithNumber("SET tubeTime",
-                                            &mantissa,
-                                            &factor))
+        else if (matchCommCommandWithUint32("SET tubeTime",
+                                            &uint32Value))
         {
-            setTubeTime(mantissa / factor);
+            setTubeTime(uint32Value);
 
             sendCommOk();
         }
         else if (matchCommCommand("GET tubePulseCount"))
             sendCommOkWithUInt32(getTubePulseCount());
-        else if (matchCommCommandWithNumber("SET tubePulseCount",
-                                            &mantissa,
-                                            &factor))
+        else if (matchCommCommandWithUint32("SET tubePulseCount",
+                                            &uint32Value))
         {
-            setTubePulseCount(mantissa / factor);
+            setTubePulseCount(uint32Value);
 
             sendCommOk();
         }
@@ -188,35 +229,30 @@ void dispatchCommEvents(void)
             sendCommOkWithFloat(getTubeSensitivity(), 3);
         else if (matchCommCommand("GET tubeDeadTimeCompensation"))
             sendCommOkWithFloat(getTubeDeadTimeCompensation(), 7);
-        else if (matchCommCommand("GET tubeBackgroundCompensation"))
-            sendCommOkWithFloat(60.0F * getTubeBackgroundCompensation(), 3);
 #if defined(TUBE_HV_PWM)
         else if (matchCommCommand("GET tubeHVFrequency"))
             sendCommOkWithFloat(getTubeHVFrequency(), 2);
-        else if (matchCommCommandWithNumber("SET tubeHVFrequency",
-                                            &mantissa,
-                                            &factor))
+        else if (matchCommCommandWithFloat("SET tubeHVFrequency",
+                                           &floatValue))
         {
-            setTubeHVFrequency((float)mantissa / (float)factor);
+            bool success = setTubeHVFrequency(floatValue);
 
-            sendCommOk();
+            sendCommResponse(success);
         }
         else if (matchCommCommand("GET tubeHVDutyCycle"))
             sendCommOkWithFloat(getTubeHVDutyCycle(), 5);
-        else if (matchCommCommandWithNumber("SET tubeHVDutyCycle",
-                                            &mantissa,
-                                            &factor))
+        else if (matchCommCommandWithFloat("SET tubeHVDutyCycle",
+                                           &floatValue))
         {
-            setTubeHVDutyCycle((float)mantissa / (float)factor);
+            bool success = setTubeHVDutyCycle(floatValue);
 
-            sendCommOk();
+            sendCommResponse(success);
         }
 #endif
-        else if (matchCommCommandWithNumber("GET datalog",
-                                            &mantissa,
-                                            &factor))
+        else if (matchCommCommandWithUint32("GET datalog",
+                                            &uint32Value))
         {
-            comm.datalogTimeLimit = mantissa / factor;
+            comm.datalogTimeLimit = uint32Value;
 
             startDatalogDump();
 
@@ -229,6 +265,12 @@ void dispatchCommEvents(void)
             startDatalogDump();
 
             return;
+        }
+        else if (matchCommCommand("RESET datalog"))
+        {
+            writeDatalogReset();
+
+            sendCommOk();
         }
         else if (matchCommCommand("GET randomData"))
         {

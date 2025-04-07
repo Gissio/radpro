@@ -101,14 +101,12 @@ void updateADC(void)
     if (adc.filteredBatteryVoltage == 0.0F)
         adc.filteredBatteryVoltage = adc.batteryVoltage;
     else
-        adc.filteredBatteryVoltage =
-            adc.batteryVoltage + BATTERY_VOLTAGE_FILTER_CONSTANT *
-                                     (adc.filteredBatteryVoltage - adc.batteryVoltage);
+        adc.filteredBatteryVoltage = adc.batteryVoltage + BATTERY_VOLTAGE_FILTER_CONSTANT * (adc.filteredBatteryVoltage - adc.batteryVoltage);
 }
 
 float getBatteryVoltage(void)
 {
-    return adc.batteryVoltage;
+    return PWR_BAT_NUM * adc.batteryVoltage;
 }
 
 float getFilteredBatteryVoltage(void)

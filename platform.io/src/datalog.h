@@ -22,6 +22,7 @@ void resetDatalog(void);
 
 void openDatalog(void);
 void updateDatalog(void);
+void writeDatalogReset(void);
 void closeDatalog(void);
 
 void startDatalogDownload(void);

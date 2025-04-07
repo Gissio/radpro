@@ -24,11 +24,10 @@ void resetTube(void);
 
 float getTubeSensitivity(void);
 float getTubeDeadTimeCompensation(void);
-float getTubeBackgroundCompensation(void);
 float getTubeHVFrequency(void);
-void setTubeHVFrequency(float value);
+bool setTubeHVFrequency(float value);
 float getTubeHVDutyCycle(void);
-void setTubeHVDutyCycle(float value);
+bool setTubeHVDutyCycle(float value);
 
 void setTubeHV(bool value);
 bool getTubeHV(void);

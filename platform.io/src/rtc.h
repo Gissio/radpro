@@ -10,6 +10,7 @@
 #if !defined(RTC_H)
 #define RTC_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include "view.h"
@@ -43,7 +44,9 @@ void getDeviceDateTime(RTCDateTime *dateTime);
 
 void setDeviceTime(uint32_t value);
 uint32_t getDeviceTime(void);
-
 uint32_t getDeviceTimeFast(void);
+
+bool setDeviceTimeZone(float value);
+float getDeviceTimeZone(void);
 
 #endif

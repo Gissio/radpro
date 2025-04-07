@@ -261,9 +261,7 @@ void onKeyboardTick(void)
 #elif defined(KEYBOARD_5KEYS)
         if (keyboard.pressedTicks >= KEY_REPEAT_START)
         {
-            uint32_t repeatTicks =
-                (keyboard.pressedTicks - KEY_REPEAT_START) %
-                KEY_REPEAT_PERIOD;
+            uint32_t repeatTicks = (keyboard.pressedTicks - KEY_REPEAT_START) % KEY_REPEAT_PERIOD;
             if (repeatTicks == 0)
             {
                 if ((keyboard.pressedKey == KEY_UP) ||

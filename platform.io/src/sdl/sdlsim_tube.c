@@ -87,10 +87,7 @@ bool getTubePulse(uint32_t *pulseTime)
 
     tube.pulseIndex++;
 
-    *pulseTime =
-        tube.pulseTime +
-        (uint32_t)(8000 * (tube.pulseIndex + getUniformRandomValue()) /
-                   tube.pulseCount);
+    *pulseTime = tube.pulseTime + (uint32_t)(8000 * (tube.pulseIndex + getUniformRandomValue()) / tube.pulseCount);
 
     return true;
 }

@@ -76,8 +76,7 @@ void resetDatalog(void)
     while (decodeDatalogEntry(&datalog.writeState))
     {
         // Avoid deadlock
-        if ((datalog.writeState.iterator.pageIndex ==
-             datalog.writeState.iterator.region->beginPageIndex) &&
+        if ((datalog.writeState.iterator.pageIndex == datalog.writeState.iterator.region->beginPageIndex) &&
             datalog.writeState.iterator.index == 0)
         {
             eraseFlashPage(datalog.writeState.iterator.region->beginPageIndex);
@@ -132,11 +131,9 @@ static bool isDatalogSpaceAvailable(uint32_t entrySize)
     uint32_t requiredSpace = datalog.bufferSize + entrySize;
 
     if (requiredSpace > flashWordSize)
-        requiredSpace =
-            flashWordSize + getFlashPaddedSize(entrySize);
+        requiredSpace = flashWordSize + getFlashPaddedSize(entrySize);
 
-    return (datalog.writeState.iterator.index + requiredSpace) <=
-           flashPageDataSize;
+    return (datalog.writeState.iterator.index + requiredSpace) <= flashPageDataSize;
 }
 
 static void writeDatalogBuffer(void)
@@ -263,14 +260,6 @@ static void writeDatalogValue(bool forceWrite)
     writeDatalogEntry(entry, entrySize);
 }
 
-static void writeDatalogReset(void)
-{
-    writeDatalogBuffer();
-
-    setFlashPageState(&datalog.writeState.iterator,
-                      FLASHPAGE_RESET);
-}
-
 void openDatalog(void)
 {
     writeDatalogValue(true);
@@ -279,6 +268,14 @@ void openDatalog(void)
 void updateDatalog(void)
 {
     writeDatalogValue(false);
+}
+
+void writeDatalogReset(void)
+{
+    writeDatalogBuffer();
+
+    setFlashPageState(&datalog.writeState.iterator,
+                      FLASHPAGE_RESET);
 }
 
 void closeDatalog(void)
@@ -326,10 +323,9 @@ static bool decodeDatalogEntry(DatalogState *state)
                 entrySize = 4;
 
             state->dose.time += state->timeInterval;
-            state->dose.pulseCount +=
-                decodeDatalogValue(entry,
-                                   entrySize,
-                                   8 - entrySize);
+            state->dose.pulseCount += decodeDatalogValue(entry,
+                                                         entrySize,
+                                                         8 - entrySize);
         }
         else if (value == 0xf0)
         {
@@ -337,10 +333,9 @@ static bool decodeDatalogEntry(DatalogState *state)
             entrySize = 5;
 
             state->dose.time += state->timeInterval;
-            state->dose.pulseCount +=
-                decodeDatalogValue(entry + 1,
-                                   4,
-                                   8);
+            state->dose.pulseCount += decodeDatalogValue(entry + 1,
+                                                         4,
+                                                         8);
         }
         else if (value < ((0xf1 - 1) + DATALOG_INTERVAL_NUM))
         {
@@ -348,14 +343,12 @@ static bool decodeDatalogEntry(DatalogState *state)
             entrySize = 9;
 
             state->timeInterval = datalogIntervalTime[value - 0xf1 + 1];
-            state->dose.time =
-                decodeDatalogValue(entry + 1,
-                                   4,
-                                   8);
-            state->dose.pulseCount =
-                decodeDatalogValue(entry + 5,
-                                   4,
-                                   8);
+            state->dose.time = decodeDatalogValue(entry + 1,
+                                                  4,
+                                                  8);
+            state->dose.pulseCount = decodeDatalogValue(entry + 5,
+                                                        4,
+                                                        8);
         }
         else if (value < 0xff)
         {

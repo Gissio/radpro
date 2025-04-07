@@ -134,11 +134,8 @@ static void onDisplaySend(uint16_t value)
     uint32_t data = 0x1ff << (16 + 11 - 7) |
                     (value << (12 - 7));
 
-    const uint32_t mask =
-        ((get_bitvalue(DISPLAY_SCLK_PIN) |
-          get_bitvalue(DISPLAY_SDA_PIN))
-         << 16) |
-        get_bitvalue(DISPLAY_SDA_PIN);
+    const uint32_t mask = ((get_bitvalue(DISPLAY_SCLK_PIN) | get_bitvalue(DISPLAY_SDA_PIN)) << 16) |
+                          get_bitvalue(DISPLAY_SDA_PIN);
 
     GPIOB->BSRR = data & mask;
     GPIOB->BSRR = get_bitvalue(DISPLAY_SCLK_PIN);

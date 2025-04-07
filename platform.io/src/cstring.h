@@ -32,13 +32,8 @@ void strcatChar(char *str,
 
 void strcatUInt32(char *str,
                   uint32_t value, uint32_t length);
-bool parseNumber(char *str,
-                 uint32_t *mantissa,
-                 uint32_t *factor);
-
 void strcatTime(char *str,
                 uint32_t time);
-
 void strcatFloat(char *str,
                  float value,
                  uint32_t fractionalDecimals);
@@ -61,7 +56,10 @@ void strcatUInt32Hex(char *str,
 void strcatDataHex(char *str,
                    uint8_t *data,
                    uint32_t size);
-bool parseHexString(char *str,
-                    char *dest);
+
+bool parseUInt32(char *str,
+                 uint32_t *value);
+bool parseFloat(char *str,
+                float *value);
 
 #endif

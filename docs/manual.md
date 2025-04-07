@@ -10,7 +10,7 @@
 * Multiple measurement units: Sievert, rem, cpm (counts per minute), cps (counts per second).
 * Configurable instantaneous rate averaging (adaptive fast, adaptive precision, 1 minute, 30 seconds and 10 seconds), 
 * Configurable average timer for performing surveys.
-* Customizable Geiger-Müller tube settings: sensitivity, dead-time compensation, background compensation, high voltage generator PWM frequency and duty cycle (on supported devices).
+* Customizable Geiger-Müller tube settings: sensitivity, dead-time compensation, high voltage generator PWM frequency and duty cycle (on supported devices).
 * Preconfigured high voltage profiles (on supported devices).
 * Offline and live data logging with data compression.
 * Compatibility with the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software.
@@ -73,7 +73,7 @@ To reset the history, consult the device's installation instructions.
 
 ## Sensitivity
 
-A Geiger tube's **sensitivity** measures how effectively it detects and responds to ionizing radiation. It is typically expressed as counts per minute (cpm) per unit of radiation rate, such as counts per minute per microsieverts per hour (cpm/µSv/h).
+A Geiger tube's **sensitivity** measures how effectively it detects and responds to ionizing radiation. It is typically expressed as counts per minute (cpm) per unit of radiation rate (for instance, microsieverts per hour).
 
 Rad Pro includes default sensitivity settings for various Geiger-Müller tubes, suitable for most general applications:
 
@@ -82,11 +82,11 @@ Rad Pro includes default sensitivity settings for various Geiger-Müller tubes, 
 * J613: 60.0 cpm/µSv/h
 * J614: 60.0 cpm/µSv/h
 * M4011: 153.8 cpm/µSv/h
-* SBM-20: 153.8 cpm/µSv/h
+* SBM-20: 150.5 cpm/µSv/h
 
-You can also set a custom sensitivity by going to the settings, selecting "Geiger tube", "Sensitivity", and choosing an appropriate value from the list.
+You can also set a custom sensitivity value by going to the settings, selecting "Geiger tube", "Sensitivity", and choosing an appropriate value from the list.
 
-It is important to note that for common Geiger tubes, count rates and dose estimates are accurate only if the radiation source is known and the correct sensitivity value is used. Without this, measurements can be significantly inaccurate, as sensitivity varies with radiation type.
+It is important to note that for common Geiger tubes, radiation rate and dose estimates are accurate only if the radiation source is known and the correct sensitivity value is used. Without this, measurements can be significantly inaccurate, as sensitivity varies with radiation type.
 
 When using tubes with a sensitivity of 600 cpm/µSv/h or higher, Rad Pro caps the sensitivity for pulse indication at 600 cpm/µSv/h to provide approximately one pulse per second at background levels of radiation and prevent excessive audio feedback. This does not impact the actual measurement.
 
@@ -106,9 +106,13 @@ Please note that data is not logged during the download process.
 
 Rad Pro offers several options for adjusting the instantaneous rate averaging period:
 
-* "Adaptive fast" averages the last 20 pulses, providing a confidence interval of ±50%. It is best for users who need quick radiation alerts. You can view the "adaptive fast" response curves (radiation level vs. response time) here: [instantaneousaveraging-adaptivefast.ipynb](../tests/instantaneousaveraging-adaptivefast.ipynb)
-* "Adaptive precision" is similar to "Adaptive fast", but also sets a minimum averaging time of 5 seconds. This ensures higher precision when more than 20 pulses occur within the last 5 seconds. Otherwise it functions identically to "Adaptive fast". It is best for users who deem precision more important than fast response. You can view the "adaptive precision" response curves (radiation level vs. response time) here: [instantaneousaveraging-adaptiveprecision.ipynb](../tests/instantaneousaveraging-adaptiveprecision.ipynb)
-* "1 minute", "30 seconds" and "10 seconds" use fixed averaging periods. They can produce higher precision than the adaptive options, but have a much slower response.
+* **Adaptive fast:** Averages the last 20 pulses, aiming for a confidence interval of ±50%. This option is ideal for users prioritizing rapid radiation alerts. Explore the "Adaptive fast" response curves (radiation level vs. response time) here: [instantaneousaveraging-adaptivefast.ipynb](../tests/instantaneousaveraging-adaptivefast.ipynb)
+* **Adaptive precision:** Builds on "Adaptive fast" by adding a minimum averaging time of 5 seconds. When more than 20 pulses occur within the averaging window, it increases precision; otherwise it mirrors "Adaptive fast". This option is best for users who value accuracy over speed. View the "Adaptive precision" response curves here: [instantaneousaveraging-adaptiveprecision.ipynb](../tests/instantaneousaveraging-adaptiveprecision.ipynb)
+* **Fixed periods (1 minute, 30 seconds and 10 seconds):** These options use a fixed averaging period. Note that if zero or one pulse is detected during the averaging period, the instantaneous rate will register as zero.
+
+At low radiation levels, "Fixed periods" may produce noisier results but respond faster to changes.
+
+At high radiation levels, "Fixed periods" offer reduced noise but respond more slowly to changes.
 
 ## Instantaneous rate alarm
 
@@ -130,14 +134,6 @@ Here, $m$ is the uncompensated rate in counts per seconds, $\tau$ is the tube's 
 
 Dead-time compensation is applied to instantaneous rate, average rate, cumulative dose and history. It is not applied to tube life pulse count nor data logs.
 
-## Background compensation
-
-Geiger-Müller tubes, being composed of matter, inherently contain atoms prone to radioactive decay. Consequently, the tubes themselves emit radiation. This intrinsic radiation will depend on factors such as tube type, size, and production batch.
-
-Rad Pro lets you remove these extra counts by applying background compensation.
-
-Background compensation is applied to instantaneous rate, average rate, cumulative dose and history. It is not applied to tube life pulse count nor data logs.
-
 ## HV profiles
 
 (on supported devices)
@@ -158,13 +154,13 @@ Rad Pro also triggers a fault alarm if the Geiger-Müller tube becomes saturated
 
 ## Random generator
 
-The [random generator](https://en.wikipedia.org/wiki/Hardware_random_number_generator) offers multiple output formats, including "Full ASCII", "Alphanumeric", "Hexadecimal", "Decimal" and "Binary", each generating 16 outcomes per run. In contrast, the "Die roll" and "Coin flip" options produce a single outcome per run. To obtain additional outcomes, simply return to the menu and start a new run.
+The [random generator](https://en.wikipedia.org/wiki/Hardware_random_number_generator) offers multiple output formats. "Full ASCII", "Alphanumeric", "Hexadecimal", "Decimal" and "Binary" produce up to 16 outcomes per run, while die rolls and coin flips yield a single outcome per run. To generate additional outcomes, simply return to the menu and start a new run.
 
-The generator produces random bits by measuring the time interval between two consecutive pulses and comparing the results. To eliminate bias, every second bit is inverted. Random data is then stored in a 128-bit buffer.
+The generator produces random bits by measuring the time interval between consecutive pulses and comparing the results. To eliminate bias, every second bit is inverted. Random data is then stored in a 128-bit buffer.
 
-Random outcomes are derived from these bits using the [Fast Dice Roller](https://arxiv.org/abs/1304.1916) algorithm. The bit usage per outcome varies by format: "Full ASCII" consumes approximately 7 bits per outcome, "Alphanumeric" uses about 6 bits, "Hexadecimal" and "Decimal" each require around 4 bits, and "Binary" uses 1 bit. For die rolls, a "20-sided die" takes approximately 5 bits, "12-sided die" and "10-sided die" each use about 4 bits, "8-sided die" and "6-sided die" each require around 3 bits, "4-sided die" uses about 2 bits, and "Coin Flip" uses 1 bit.
+These bits are then processed with the [Fast Dice Roller](https://arxiv.org/abs/1304.1916) algorithm to produce random outcomes. Bit consumption varies by format: "Full ASCII" uses approximately 7 bits per outcome, "Alphanumeric" requires about 6 bits, "Hexadecimal" and "Decimal" each take around 4 bits, and "Binary" uses just 1 bit. For die rolls, "100-sided die" consumes about 7 bits, "20-sided die" uses roughly 5 bits, "12-sided die" and "10-sided die" each need around 4 bits, "8-sided die" and "6-sided die" require about 3 bits and "4-sided die" uses 2 bits. A "Coin flip" takes only 1 bit.
   
-For accelerated bit generation, consider using a radioactive source.
+For faster bit generation, consider using a radioactive source.
 
 ## radpro-tool
 
@@ -200,13 +196,13 @@ To communicate with Rad Pro through a USB serial port, read the [communications 
 
 ## FAQ
 
-**Q: How can I reset the average and cumulative measurements?**
+**Q: How can I reset the average rate and cumulative dose measurements?**
 
-**A:** Refer to the keyboard mapping section of your device's installation instructions for guidane on resetting measurements.
+**A:** Refer to the keyboard mapping section of your device's installation instructions for guidance on resetting measurements.
 
 **Q: Why does my device's date and time reset every time I turn it on?**
 
-**A:** Your device's date and time reset because its real-time clock (RTC) loses power when turned off. On the FNIRSI GC-01, this is likely due to a failing backup battery (a CR1220). Replacing this battery should fix the issue.
+**A:** Most likely your device's date and time reset because its real-time clock (RTC) loses power when turned off. On the FNIRSI GC-01, this might be due to a failing backup battery (a CR1220). Replacing this battery should fix the issue.
 
 **Q: When I power on my device, why does Rad Pro stay on the splash screen for so long (up to 60 seconds)?**
 
@@ -223,10 +219,6 @@ To communicate with Rad Pro through a USB serial port, read the [communications 
 **Q: Why isn’t the rate alarm triggering?**
 
 **A:** The rate alarm is designed to avoid false alarms by only triggering when the confidence interval drops below 75%.
-
-**Q: My device seems to be missing counts.**
-
-**A:** If background compensation is turned on, it subtracts counts from the total. Verify whether this feature is active.
 
 **Q: My device is not clicking for every count.**
 

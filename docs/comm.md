@@ -63,7 +63,31 @@ Sets the device's current date and time as a UNIX timestamp (number of seconds s
 
 Example:
 
-    SET deviceTime 1690000000
+    SET deviceTime 1690000300
+    OK
+
+### Get device time zone
+
+* Request: `GET deviceTimeZone\r\n`
+* Response: `OK [value]\r\n`
+
+Returns the device's time zone (in hours relative to UTC).
+
+Example:
+
+    GET deviceTimeZone
+    OK 1.0
+
+### Set device time zone
+
+* Request: `SET deviceTimeZone [value]\r\n`
+* Response: `OK\r\n`
+
+Sets the device's time zone (in hours relative to UTC).
+
+Example:
+
+    SET deviceTimeZone -5.0
     OK
 
 ### Get tube's life time
@@ -87,7 +111,7 @@ Sets the tube's life time in seconds, provided in decimal format.
 
 Example:
 
-    SET tubeTime 16000
+    SET tubeTime 17000
     OK
 
 ### Get tube's life pulse count
@@ -111,7 +135,7 @@ Sets the tube's life pulse count, provided in decimal format.
 
 Example:
 
-    SET tubePulseCount 1500
+    SET tubePulseCount 1600
     OK
 
 ### Get tube rate value
@@ -163,18 +187,6 @@ Example:
 
     GET tubeDeadTimeCompensation
     OK 0.0002500
-
-### Get tube background compensation
-
-* Request: `GET tubeBackgroundCompensation\r\n`
-* Response: `OK [value]\r\n`
-
-Returns the tube's background compensation in cpm, provided in decimal format with three decimal places. Returns `0.000` if background compensation is turned off.
-
-Example:
-
-    GET tubeBackgroundCompensation
-    OK 1.230
 
 ### Get tube PWM frequency
 
@@ -248,6 +260,18 @@ Example:
 
     GET datalog 1690000000
     OK time,tubePulseCount;1690000000,1542;1690000060,1618;1690000120,1693
+
+### Reset data log
+
+* Request: `RESET datalog\r\n`
+* Response: `OK\r\n`
+
+Resets the data log stored in the device's flash memory.
+
+Example:
+
+    RESET datalog
+    OK
 
 ### Get random data from the random generator
 

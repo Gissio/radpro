@@ -25,16 +25,13 @@
 
 #define TUBE_FAULT_TIMEOUT 300
 
-#define REMAINING_PULSE_COUNT_LOWER_LIMIT 10
-
 #define INSTANTANEOUS_RATE_QUEUE_SIZE 64
 #define INSTANTANEOUS_RATE_QUEUE_MASK (INSTANTANEOUS_RATE_QUEUE_SIZE - 1)
 #define INSTANTANEOUS_RATE_AVERAGING_PULSE_COUNT 19 // For 50% confidence interval
-#define INSTANTANEOUS_RATE_MAX_PULSE_COUNT 10
 
 #define PULSE_INDICATION_SENSITIVITY_MAX 600.0F
 #define PULSE_INDICATION_FACTOR_UNIT 0x10000
-#define PULSE_INDICATION_FACTOR_MASK 0xffff
+#define PULSE_INDICATION_FACTOR_MASK (PULSE_INDICATION_FACTOR_UNIT - 1)
 
 enum
 {
@@ -268,9 +265,12 @@ void resetMeasurements(void)
 {
     Dose tubeDose = measurements.tube.dose;
     Dose cumulativeDose = measurements.cumulativeDose.dose;
+
     memset(&measurements, 0, sizeof(measurements));
+
     measurements.tube.dose = tubeDose;
     measurements.cumulativeDose.dose = cumulativeDose;
+
     updateMeasurementUnits();
 
     selectMenuItem(&alarmsMenu,
@@ -333,15 +333,7 @@ void updateMeasurementUnits(void)
     if (sensitivity < PULSE_INDICATION_SENSITIVITY_MAX)
         measurements.instantaneous.pulseIndicationFactor = PULSE_INDICATION_FACTOR_UNIT;
     else
-        measurements.instantaneous.pulseIndicationFactor =
-            (PULSE_INDICATION_FACTOR_UNIT * PULSE_INDICATION_SENSITIVITY_MAX) /
-            sensitivity;
-}
-
-void updateDeadTimeCompensation(void)
-{
-    if (measurements.period.deadTimeCompensationRemainder < 0)
-        measurements.period.deadTimeCompensationRemainder = 0;
+        measurements.instantaneous.pulseIndicationFactor = (PULSE_INDICATION_FACTOR_UNIT * PULSE_INDICATION_SENSITIVITY_MAX) / sensitivity;
 }
 
 static float getDeadTimeCompensationFactor(float value)
@@ -379,8 +371,7 @@ static void calculateRate(uint32_t pulseCount, uint32_t ticks, Rate *rate)
     // Value and confidence intervals
     float value = ((float)(pulseCount - 1) * SYSTICK_FREQUENCY) / ticks;
 
-    float confidenceInterval =
-        getConfidenceInterval(pulseCount - 1);
+    float confidenceInterval = getConfidenceInterval(pulseCount - 1);
 
     // Dead-time compensation
     // float absConfidenceInterval = value * (1 + confidenceInterval);
@@ -388,14 +379,10 @@ static void calculateRate(uint32_t pulseCount, uint32_t ticks, Rate *rate)
     // float compAbsConfidenceInterval = absConfidenceInterval * confidenceIntervalFactor;
     // float compConfidenceInterval = (compAbsConfidenceInterval - compValue) / compValue;
     float valueFactor = getDeadTimeCompensationFactor(value);
-    float confidenceIntervalFactor =
-        getDeadTimeCompensationFactor(value * (1 + confidenceInterval));
+    float confidenceIntervalFactor = getDeadTimeCompensationFactor(value * (1 + confidenceInterval));
 
     rate->value = valueFactor * value;
-    rate->confidence =
-        confidenceIntervalFactor / valueFactor *
-            (1 + confidenceInterval) -
-        1;
+    rate->confidence = confidenceIntervalFactor / valueFactor * (1 + confidenceInterval) - 1;
 }
 
 void enableMeasurements(void)
@@ -420,14 +407,11 @@ void onMeasurementTick(uint32_t pulseCount)
         measurements.period.measurement.pulseCount += pulseCount;
 
         // Pulse indication divider
-        measurements.instantaneous.pulseIndicationRemainder +=
-            pulseCount * measurements.instantaneous.pulseIndicationFactor;
+        measurements.instantaneous.pulseIndicationRemainder += pulseCount * measurements.instantaneous.pulseIndicationFactor;
 
-        if (measurements.instantaneous.pulseIndicationRemainder >=
-            PULSE_INDICATION_FACTOR_UNIT)
+        if (measurements.instantaneous.pulseIndicationRemainder >= PULSE_INDICATION_FACTOR_UNIT)
         {
-            measurements.instantaneous.pulseIndicationRemainder &=
-                PULSE_INDICATION_FACTOR_MASK;
+            measurements.instantaneous.pulseIndicationRemainder &= PULSE_INDICATION_FACTOR_MASK;
 
             triggerPulse();
         }
@@ -456,6 +440,12 @@ uint8_t getHistoryValue(float value)
     return historyValue;
 }
 
+bool isInstantaneousRateConfidenceAcceptable(void)
+{
+    return (settings.instantaneousAveraging >= INSTANTANEOUSAVERAGING_60SECONDS) ||
+           (measurements.instantaneous.rate.confidence < 0.75F);
+}
+
 void updateMeasurements(void)
 {
     if (!measurements.enabled)
@@ -470,59 +460,35 @@ void updateMeasurements(void)
     else
         measurements.period.faultTimer++;
 
-    bool isTubeShortCircuit =
-        (!measurements.period.snapshotMeasurement.pulseCount && getTubeDet());
+    bool isTubeShortCircuit = (!measurements.period.snapshotMeasurement.pulseCount && getTubeDet());
     if (measurements.period.lastShortCircuit && isTubeShortCircuit)
         measurements.period.faultTimer = TUBE_FAULT_TIMEOUT;
     measurements.period.lastShortCircuit = isTubeShortCircuit;
 
     measurements.period.faultAlarm = (measurements.period.faultTimer >= TUBE_FAULT_TIMEOUT);
 
-    // Compensations
+    // Dear-time Compensation
     Measurement compensatedMeasurement;
 
-    compensatedMeasurement.firstPulseTick =
-        measurements.period.snapshotMeasurement.firstPulseTick;
-    compensatedMeasurement.lastPulseTick =
-        measurements.period.snapshotMeasurement.lastPulseTick;
+    compensatedMeasurement.firstPulseTick = measurements.period.snapshotMeasurement.firstPulseTick;
+    compensatedMeasurement.lastPulseTick = measurements.period.snapshotMeasurement.lastPulseTick;
 
-    measurements.period.deadTimeCompensationRemainder +=
-        measurements.period.snapshotMeasurement.pulseCount *
-        getDeadTimeCompensationFactor(measurements.instantaneous.rate.value);
-    float tubeBackgroundCompensation = getTubeBackgroundCompensation();
-    measurements.period.deadTimeCompensationRemainder -= tubeBackgroundCompensation;
+    measurements.period.deadTimeCompensationRemainder += measurements.period.snapshotMeasurement.pulseCount *
+                                                         getDeadTimeCompensationFactor(measurements.instantaneous.rate.value);
 
+    compensatedMeasurement.pulseCount = (uint32_t)measurements.period.deadTimeCompensationRemainder;
     if (measurements.period.deadTimeCompensationRemainder >= 1)
-    {
-        compensatedMeasurement.pulseCount =
-            (uint32_t)measurements.period.deadTimeCompensationRemainder;
         measurements.period.deadTimeCompensationRemainder -= compensatedMeasurement.pulseCount;
-    }
-    else
-    {
-        compensatedMeasurement.pulseCount = 0;
-
-        if (measurements.period.deadTimeCompensationRemainder <
-            -REMAINING_PULSE_COUNT_LOWER_LIMIT)
-            measurements.period.deadTimeCompensationRemainder =
-                -REMAINING_PULSE_COUNT_LOWER_LIMIT;
-    }
 
     // Instantaneous rate
     if (compensatedMeasurement.pulseCount)
     {
         // Enqueue
-        measurements.instantaneous.queue[measurements.instantaneous.queueTail] =
-            compensatedMeasurement;
-        measurements.instantaneous.queueTail =
-            (measurements.instantaneous.queueTail + 1) & INSTANTANEOUS_RATE_QUEUE_MASK;
+        measurements.instantaneous.queue[measurements.instantaneous.queueTail] = compensatedMeasurement;
+        measurements.instantaneous.queueTail = (measurements.instantaneous.queueTail + 1) & INSTANTANEOUS_RATE_QUEUE_MASK;
 
-        if (measurements.instantaneous.queueTail ==
-            measurements.instantaneous.queueHead)
-        {
-            measurements.instantaneous.queueHead =
-                (measurements.instantaneous.queueTail + 1) & INSTANTANEOUS_RATE_QUEUE_MASK;
-        }
+        if (measurements.instantaneous.queueTail == measurements.instantaneous.queueHead)
+            measurements.instantaneous.queueHead = (measurements.instantaneous.queueTail + 1) & INSTANTANEOUS_RATE_QUEUE_MASK;
     }
 
     Measurement instantaneousMeasurement;
@@ -532,47 +498,33 @@ void updateMeasurements(void)
 
     measurements.instantaneous.rate.time = 0;
 
-    uint32_t averagingPeriod =
-        instantaneousAveragingPeriods[settings.instantaneousAveraging];
-    uint32_t averagingPulseCount =
-        (settings.instantaneousAveraging <=
-         INSTANTANEOUSAVERAGING_ADAPTIVEPRECISION)
-            ? INSTANTANEOUS_RATE_AVERAGING_PULSE_COUNT
-            : 0;
+    uint32_t averagingPeriod = instantaneousAveragingPeriods[settings.instantaneousAveraging];
+    uint32_t averagingPulseCount = (settings.instantaneousAveraging <= INSTANTANEOUSAVERAGING_ADAPTIVEPRECISION)
+                                       ? INSTANTANEOUS_RATE_AVERAGING_PULSE_COUNT
+                                       : 0;
 
-    uint32_t queueSize = (measurements.instantaneous.queueTail -
-                          measurements.instantaneous.queueHead) &
+    uint32_t queueSize = (measurements.instantaneous.queueTail - measurements.instantaneous.queueHead) &
                          INSTANTANEOUS_RATE_QUEUE_MASK;
     for (uint32_t i = 0; i < queueSize; i++)
     {
-        uint32_t queueIndex =
-            (measurements.instantaneous.queueTail - 1 - i) & INSTANTANEOUS_RATE_QUEUE_MASK;
+        uint32_t queueIndex = (measurements.instantaneous.queueTail - 1 - i) & INSTANTANEOUS_RATE_QUEUE_MASK;
 
-        uint32_t timePeriod =
-            1 +
-            (measurements.period.snapshotTick -
-             measurements.instantaneous.queue[queueIndex].firstPulseTick) /
-                SYSTICK_FREQUENCY;
+        uint32_t timePeriod = 1 + (measurements.period.snapshotTick - measurements.instantaneous.queue[queueIndex].firstPulseTick) / SYSTICK_FREQUENCY;
 
         if (timePeriod > averagingPeriod)
         {
-            if (instantaneousMeasurement.pulseCount >
-                averagingPulseCount)
+            if (instantaneousMeasurement.pulseCount > averagingPulseCount)
             {
-                measurements.instantaneous.queueHead =
-                    (queueIndex + 1) & INSTANTANEOUS_RATE_QUEUE_MASK;
+                measurements.instantaneous.queueHead = (queueIndex + 1) & INSTANTANEOUS_RATE_QUEUE_MASK;
 
                 break;
             }
         }
 
-        instantaneousMeasurement.firstPulseTick =
-            measurements.instantaneous.queue[queueIndex].firstPulseTick;
+        instantaneousMeasurement.firstPulseTick = measurements.instantaneous.queue[queueIndex].firstPulseTick;
         if (!instantaneousMeasurement.pulseCount)
-            instantaneousMeasurement.lastPulseTick =
-                measurements.instantaneous.queue[queueIndex].lastPulseTick;
-        instantaneousMeasurement.pulseCount +=
-            measurements.instantaneous.queue[queueIndex].pulseCount;
+            instantaneousMeasurement.lastPulseTick = measurements.instantaneous.queue[queueIndex].lastPulseTick;
+        instantaneousMeasurement.pulseCount += measurements.instantaneous.queue[queueIndex].pulseCount;
         measurements.instantaneous.rate.time = timePeriod;
     }
 
@@ -581,21 +533,17 @@ void updateMeasurements(void)
                       instantaneousMeasurement.firstPulseTick,
                   &measurements.instantaneous.rate);
 
-    if ((instantaneousMeasurement.pulseCount >
-         INSTANTANEOUS_RATE_MAX_PULSE_COUNT) &&
-        (measurements.instantaneous.rate.value >
-         measurements.instantaneous.maxValue))
-        measurements.instantaneous.maxValue =
-            measurements.instantaneous.rate.value;
+    if (isInstantaneousRateConfidenceAcceptable() &&
+        (measurements.instantaneous.rate.value > measurements.instantaneous.maxValue))
+        measurements.instantaneous.maxValue = measurements.instantaneous.rate.value;
 
-    float svH = units[UNITS_SIEVERTS].rate.scale *
-                measurements.instantaneous.rate.value;
+    float svH = units[UNITS_SIEVERTS].rate.scale * measurements.instantaneous.rate.value;
 
     setPulseThreshold(svH < rateAlarmsSvH[settings.pulseThreshold]);
 
     bool instantaneousRateAlarm = false;
-    // Trigger alarm if alarm enabled and confidence interval is below 75%
-    if (settings.rateAlarm && (measurements.instantaneous.rate.confidence < 0.75))
+    // Trigger alarm
+    if (settings.rateAlarm && isInstantaneousRateConfidenceAcceptable())
         instantaneousRateAlarm = (svH >= rateAlarmsSvH[settings.rateAlarm]);
 
     if (measurements.instantaneous.lastAlarm != instantaneousRateAlarm)
@@ -611,11 +559,9 @@ void updateMeasurements(void)
         if (compensatedMeasurement.pulseCount)
         {
             if (!measurements.average.pulseCount)
-                measurements.average.firstPulseTick =
-                    compensatedMeasurement.firstPulseTick;
+                measurements.average.firstPulseTick = compensatedMeasurement.firstPulseTick;
 
-            measurements.average.lastPulseTick =
-                compensatedMeasurement.lastPulseTick;
+            measurements.average.lastPulseTick = compensatedMeasurement.lastPulseTick;
 
             addClamped(&measurements.average.pulseCount,
                        compensatedMeasurement.pulseCount);
@@ -631,13 +577,10 @@ void updateMeasurements(void)
             measurements.average.rate.time++;
 
         // Average timer
-        bool timerExpired =
-            (settings.averaging < AVERAGING_TIME_NUM)
-                ? (measurements.average.rate.time >=
-                   averagingTimes[settings.averaging])
-                : (measurements.average.rate.confidence != 0.0F) &&
-                      (measurements.average.rate.confidence <
-                       averagingConfidences[settings.averaging - AVERAGING_TIME_NUM]);
+        bool timerExpired = (settings.averaging < AVERAGING_TIME_NUM)
+                                ? (measurements.average.rate.time >= averagingTimes[settings.averaging])
+                                : (measurements.average.rate.confidence != 0.0F) &&
+                                      (measurements.average.rate.confidence < averagingConfidences[settings.averaging - AVERAGING_TIME_NUM]);
 
         if (!timerExpired)
         {
@@ -682,35 +625,31 @@ void updateMeasurements(void)
     }
 
     // History
-    if (measurements.instantaneous.rate.confidence < 0.75)
+    for (uint32_t i = 0; i < HISTORY_NUM; i++)
     {
-        for (uint32_t i = 0; i < HISTORY_NUM; i++)
-        {
-            const History *history = &histories[i];
-            HistoryState *historyState = &measurements.history.states[i];
+        const History *history = &histories[i];
+        HistoryState *historyState = &measurements.history.states[i];
 
-            historyState->sampleIndex++;
-            if (historyState->sampleIndex >=
-                history->samplesPerDataPoint)
-                historyState->sampleIndex = 0;
+        historyState->sampleIndex++;
+        if (historyState->sampleIndex >= history->samplesPerDataPoint)
+            historyState->sampleIndex = 0;
 
+        if (isInstantaneousRateConfidenceAcceptable() &&
+            (measurements.instantaneous.rate.value >= 0))
             historyState->averageSum += measurements.instantaneous.rate.value;
-            historyState->averageCount++;
+        historyState->averageCount++;
 
-            if (historyState->sampleIndex == 0)
-            {
-                float averageRate = historyState->averageSum /
-                                    historyState->averageCount;
-                historyState->buffer[historyState->bufferIndex] =
-                    getHistoryValue(averageRate);
+        if (historyState->sampleIndex == 0)
+        {
+            float averageRate = historyState->averageSum / historyState->averageCount;
+            historyState->buffer[historyState->bufferIndex] = getHistoryValue(averageRate);
 
-                historyState->averageSum = 0;
-                historyState->averageCount = 0;
+            historyState->averageSum = 0;
+            historyState->averageCount = 0;
 
-                historyState->bufferIndex++;
-                if (historyState->bufferIndex >= HISTORY_BUFFER_SIZE)
-                    historyState->bufferIndex = 0;
-            }
+            historyState->bufferIndex++;
+            if (historyState->bufferIndex >= HISTORY_BUFFER_SIZE)
+                historyState->bufferIndex = 0;
         }
     }
 
@@ -797,7 +736,7 @@ static void onMeasurementEvent(const View *view, Event event)
     }
 }
 
-// Instantaneous
+// Instantaneous rate
 
 static void resetInstantaneousRate(void)
 {
@@ -950,8 +889,7 @@ static void onInstantaneousRateViewEvent(const View *view,
             break;
         }
 
-        if (measurements.instantaneousTabIndex !=
-            INSTANTANEOUS_TAB_BAR)
+        if (measurements.instantaneousTabIndex != INSTANTANEOUS_TAB_BAR)
             drawMeasurementInfo(keyString,
                                 valueString,
                                 unitString,
@@ -969,7 +907,7 @@ const View instantaneousRateView = {
     NULL,
 };
 
-// Average
+// Average rate
 
 static void resetAverageRate(void)
 {
@@ -1119,7 +1057,7 @@ const View averageRateView = {
     NULL,
 };
 
-// Dose
+// Cumulative dose
 
 void setCumulativeDoseTime(uint32_t value)
 {
@@ -1341,8 +1279,7 @@ static void onHistoryViewEvent(const View *view, Event event)
 
     case EVENT_DRAW:
     {
-        HistoryState *historyState =
-            &measurements.history.states[measurements.history.tabIndex];
+        HistoryState *historyState = &measurements.history.states[measurements.history.tabIndex];
         const Unit *rateUnit = &units[settings.units].rate;
 
         uint8_t data[HISTORY_BUFFER_SIZE];
@@ -1381,8 +1318,7 @@ const View historyView = {
 char *buildRateAlarmMenuOption(uint32_t index)
 {
     const Unit *rateUnit = &units[settings.units].rate;
-    float value = rateAlarmsSvH[index] /
-                  units[UNITS_SIEVERTS].rate.scale;
+    float value = rateAlarmsSvH[index] / units[UNITS_SIEVERTS].rate.scale;
 
     strclr(menuOption);
     strcatFloatAsMetricValueWithPrefix(menuOption,

@@ -69,10 +69,7 @@ void writeFlash(uint8_t pageIndex,
                 uint8_t *source,
                 uint32_t size)
 {
-    uint8_t *dest =
-        (uint8_t *)(FLASH_BASE +
-                    pageIndex * FLASH_PAGE_SIZE +
-                    index);
+    uint8_t *dest = (uint8_t *)(FLASH_BASE + pageIndex * FLASH_PAGE_SIZE + index);
 
     flash_unlock();
 

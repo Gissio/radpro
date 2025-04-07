@@ -46,12 +46,11 @@ void initSystem(void)
     );
 
     // Configure PLL
-    RCC->PLLCFGR =
-        (0b01 << RCC_PLLCFGR_PLLR_Pos) |  // Set main PLL PLLCLK division factor: /4
-        RCC_PLLCFGR_PLLREN |              // Enable main PLL PLLCLK output
-        (12 << RCC_PLLCFGR_PLLN_Pos) |    // Set main PLL VCO multiplication factor: 12x
-        (0b000 << RCC_PLLCFGR_PLLM_Pos) | // Set PLL division factor: /1
-        RCC_PLLCFGR_PLLSRC_HSI;           // Set PLL source: HSI16
+    RCC->PLLCFGR = (0b01 << RCC_PLLCFGR_PLLR_Pos) |  // Set main PLL PLLCLK division factor: /4
+                   RCC_PLLCFGR_PLLREN |              // Enable main PLL PLLCLK output
+                   (12 << RCC_PLLCFGR_PLLN_Pos) |    // Set main PLL VCO multiplication factor: 12x
+                   (0b000 << RCC_PLLCFGR_PLLM_Pos) | // Set PLL division factor: /1
+                   RCC_PLLCFGR_PLLSRC_HSI;           // Set PLL source: HSI16
 
     // Enable PLL
     set_bits(RCC->CR,

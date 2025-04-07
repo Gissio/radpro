@@ -20,7 +20,6 @@
 static const Menu tubeMenu;
 static const Menu tubeSensitivityMenu;
 static const Menu tubeDeadTimeCompensationMenu;
-static const Menu tubeBackgroundCompensationMenu;
 
 #if defined(TUBE_HV_PWM)
 static const Menu tubeHVProfileMenu;
@@ -75,9 +74,6 @@ void resetTube(void)
     selectMenuItem(&tubeDeadTimeCompensationMenu,
                    settings.tubeDeadTimeCompensation,
                    TUBE_DEADTIMECOMPENSATION_NUM);
-    selectMenuItem(&tubeBackgroundCompensationMenu,
-                   settings.tubeBackgroundCompensation,
-                   TUBE_BACKGROUNDCOMPENSATION_NUM);
 
 #if defined(TUBE_HV_PWM)
     selectMenuItem(&tubeHVProfileMenu,
@@ -141,12 +137,10 @@ float getTubeHVFrequency(void)
     }
 }
 
-void setTubeHVFrequency(float value)
+bool setTubeHVFrequency(float value)
 {
-    if (value > 100000.0F)
-        value = 100000.0F;
-    else if (value < 100.0F)
-        value = 100.0F;
+    if ((value > 100000.0F) || (value < 100.0F))
+        return false;
 
     tube.hvFrequency = value;
 
@@ -155,6 +149,8 @@ void setTubeHVFrequency(float value)
     settings.tubeHVFrequency = tubeHVFrequency;
 
     updateTubeHV();
+
+    return true;
 }
 
 static const char *onTubeHVFrequencyMenuGetOption(const Menu *menu,
@@ -225,12 +221,10 @@ float getTubeHVDutyCycle(void)
     }
 }
 
-void setTubeHVDutyCycle(float value)
+bool setTubeHVDutyCycle(float value)
 {
-    if (value > 1)
-        value = 1;
-    else if (value < 0)
-        value = 0;
+    if ((value > 1) || (value < 0))
+        return false;
 
     tube.hvDutyCycle = value;
 
@@ -245,6 +239,8 @@ void setTubeHVDutyCycle(float value)
     settings.tubeHVDutyCycle = tubeHVDutyCycle;
 
     updateTubeHV();
+
+    return true;
 }
 
 static const char *onTubeHVDutyCycleMenuGetOption(const Menu *menu,
@@ -454,7 +450,7 @@ static const float tubeSensitivityMenuPresets[] = {
     60.0F,
     60.0F,
     153.8F,
-    153.8F,
+    150.5F,
 };
 
 static const char *const tubeSensitivityMenuOptions[] = {
@@ -571,8 +567,6 @@ static const char *onTubeDeadTimeCompensationMenuGetOption(const Menu *menu,
 static void onTubeDeadTimeCompensationMenuSelect(const Menu *menu)
 {
     settings.tubeDeadTimeCompensation = menu->state->selectedIndex;
-
-    updateDeadTimeCompensation();
 }
 
 static MenuState tubeDeadTimeCompensationMenuState;
@@ -590,74 +584,11 @@ static const View tubeDeadTimeCompensationMenuView = {
     &tubeDeadTimeCompensationMenu,
 };
 
-// Tube background compensation menu
-
-static float getTubeBackgroundCompensationFromIndex(uint32_t index)
-{
-    if (index == 0)
-        return 0;
-
-    return 1E-9F * index / units[UNITS_SIEVERTS].rate.scale;
-}
-
-float getTubeBackgroundCompensation(void)
-{
-    return getTubeBackgroundCompensationFromIndex(settings.tubeBackgroundCompensation);
-}
-
-static const char *onTubeBackgroundCompensationMenuGetOption(const Menu *menu,
-                                                             uint32_t index,
-                                                             MenuStyle *menuStyle)
-{
-    *menuStyle = (index == settings.tubeBackgroundCompensation);
-
-    if (index == 0)
-        return "Off";
-    else if (index < TUBE_BACKGROUNDCOMPENSATION_NUM)
-    {
-        const Unit *rateUnit = &units[settings.units].rate;
-
-        strclr(menuOption);
-        strcatFloatAsMetricValueWithPrefix(menuOption,
-                                           rateUnit->scale *
-                                               getTubeBackgroundCompensationFromIndex(index),
-                                           unitsMinMetricPrefixIndex[settings.units]);
-        strcat(menuOption, rateUnit->name);
-
-        return menuOption;
-    }
-    else
-        return NULL;
-}
-
-static void onTubeBackgroundCompensationMenuSelect(const Menu *menu)
-{
-    settings.tubeBackgroundCompensation = menu->state->selectedIndex;
-
-    updateDeadTimeCompensation();
-}
-
-static MenuState tubeBackgroundCompensationMenuState;
-
-static const Menu tubeBackgroundCompensationMenu = {
-    "Background compensation",
-    &tubeBackgroundCompensationMenuState,
-    onTubeBackgroundCompensationMenuGetOption,
-    onTubeBackgroundCompensationMenuSelect,
-    onTubeSubMenuBack,
-};
-
-static const View tubeBackgroundCompensationMenuView = {
-    onMenuEvent,
-    &tubeBackgroundCompensationMenu,
-};
-
 // Tube menu
 
 static const char *const tubeMenuOptions[] = {
     "Sensitivity",
     "Dead-time compensation",
-    "Background compensation",
 #if defined(TUBE_HV_PWM)
     "HV profile",
 #endif
@@ -667,7 +598,6 @@ static const char *const tubeMenuOptions[] = {
 static const View *tubeMenuOptionViews[] = {
     &tubeSensitivityMenuView,
     &tubeDeadTimeCompensationMenuView,
-    &tubeBackgroundCompensationMenuView,
 #if defined(TUBE_HV_PWM)
     &tubeHVProfileMenuView,
 #endif

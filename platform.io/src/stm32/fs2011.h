@@ -35,6 +35,7 @@
 #elif defined(STM32F1)
 #define PWR_BAT_SCALE_FACTOR 1.0F
 #endif
+#define PWR_BAT_NUM 2.0F
 #define PWR_CHRG_PORT GPIOA
 #define PWR_CHRG_PIN 5
 #define PWR_CHRG_PULLUP

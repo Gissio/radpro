@@ -66,9 +66,7 @@ void initBuzzer(void)
 
 static void onAudioBuffer(void *userdata, Uint8 *stream, int len)
 {
-    uint32_t pulseTicksAvailable =
-        (buzzer.pulseTicksHead - buzzer.pulseTicksTail) &
-        PULSE_BUFFER_MASK;
+    uint32_t pulseTicksAvailable = (buzzer.pulseTicksHead - buzzer.pulseTicksTail) & PULSE_BUFFER_MASK;
 
     if (pulseTicksAvailable < SYS_TICKS_PER_BUFFER)
         memset(stream,
@@ -98,18 +96,14 @@ static void onAudioBuffer(void *userdata, Uint8 *stream, int len)
                               sinf(3 * buzzer.audioPhase) / 3 +
                               sinf(5 * buzzer.audioPhase) / 5;
 
-            uint32_t pulseTicksIndex =
-                (buzzer.pulseTicksTail +
-                 i * pulseTicksSize / AUDIO_BUFFER_SIZE) &
-                PULSE_BUFFER_MASK;
+            uint32_t pulseTicksIndex = (buzzer.pulseTicksTail + i * pulseTicksSize / AUDIO_BUFFER_SIZE) & PULSE_BUFFER_MASK;
 
             float gain = 0.25F * buzzer.pulseTicks[pulseTicksIndex];
 
             samples[i] = (int16_t)((INT16_MAX * gain) * amplitude);
         }
 
-        buzzer.pulseTicksTail =
-            (buzzer.pulseTicksTail + pulseTicksSize) & PULSE_BUFFER_MASK;
+        buzzer.pulseTicksTail = (buzzer.pulseTicksTail + pulseTicksSize) & PULSE_BUFFER_MASK;
     }
 }
 

@@ -2,7 +2,7 @@
 
 # The ionizing radiation field guide
 
-© 2024-2025 Gissio (v2025-03-24)
+© 2024-2025 Gissio (v2025-04-06)
 
 Welcome to the fascinating world of Geiger counters! Whether you're considering buying one or already own one and want to unlock its potential, this guide is for you. We'll explore the essentials of ionizing radiation, how Geiger counters work, and practical ways to explore this invisible energy around us. Let's dive in!
 
@@ -16,7 +16,7 @@ A **radioactive substance** contains unstable atoms that spontaneously break apa
 
 This decay happens at a predictable rate called the **half-life**, the time it takes for half the radioactive atoms in a sample to decay. Picture a bag with 100 popping popcorn kernels. If half pop every minute, you'd have 50 left after 1 minute, 25 after 2 minutes, and so on. That's half-life at work!
 
-Examples of radioactive materials include granite tabletops (which may contain traces of uranium), old uranium-glazed ceramics, potassium chloride (containing a naturally radioactive potassium isotope), and medical isotopes like Iodine-131, used in treatments such as thyroid therapy.
+Examples of radioactive materials include granite tabletops (which may contain traces of uranium), old uranium-glazed ceramics, potassium chloride (containing a naturally radioactive potassium isotope), and medical isotopes like iodine-131, used in treatments such as thyroid therapy.
 
 ![Radioactive contamination](img/field-guide-contamination.jpg)
 
@@ -31,7 +31,9 @@ This contamination can be divided into two types:
 
 Decontamination is the process of removing radioactive particles from external surfaces. By simply removing clothing and shoes, one can eliminate about 90% of external contamination. A gentle wash with soap and water further removes radiation particles from the skin, preventing the spread of radioactive substances and reducing the risk of internal contamination.
 
-For internal contamination, specific treatments are used. If contaminated with Iodine-131, one might take potassium iodide to saturate the thyroid, thus blocking the uptake of the radioactive iodine. For contamination with Cesium-137, Prussian blue can be administered to bind with the radioactive particles, which then exit the body through natural means.
+For internal contamination, specific treatments are used. If contaminated with iodine-131, one might take potassium iodide to saturate the thyroid, thus blocking the uptake of the radioactive iodine. For contamination with cesium-137, Prussian blue can be administered to bind with the radioactive particles, which then exit the body through natural means.
+
+![Radioactive decay](img/field-guide-decay.jpg)
 
 ## What types of ionizing radiation are there?
 
@@ -45,7 +47,7 @@ Ionizing radiation includes several types, each varying in energy, penetration a
 
 In general, the higher the energy of the radiation, the more potential damage it can inflict.
 
-![Radioactive decay](img/field-guide-decay.jpg)
+![Applications](img/field-guide-applications.jpg)
 
 ## How is ionizing radiation measured?
 
@@ -141,7 +143,7 @@ Geiger tubes respond differently to various types of ionizing radiation:
 
 * **Neutrons:** Standard Geiger tubes are not directly sensitive to neutrons since neutrons, being uncharged, don't ionize gas directly. However, specialized tubes exist that convert neutrons into other particles that can be detected.
 
-A Geiger tube's **sensitivity** measures how effectively it detects and responds to ionizing radiation. It is typically expressed as counts per minute (cpm) per unit of radiation rate (for instance, in microsieverts per hour). Sensitivity depends on factors like:
+A Geiger tube's **sensitivity** measures how effectively it detects and responds to ionizing radiation. It is typically expressed as counts per minute (cpm) per unit of radiation rate (for instance, microsieverts per hour). Sensitivity depends on factors like:
 
 * **Tube design:** Size, wall material, thickness and gas composition.
 * **Radiation type:** Alpha, beta, gamma or neutron.
@@ -150,49 +152,45 @@ A Geiger tube's **sensitivity** measures how effectively it detects and responds
 
 The Soviet-era SBM-20, for example, is a metal-cased Geiger tube designed primarily for detecting gamma and beta radiation. Its sensitivity varies by source as follows:
 
-* **Cesium-137 (662 keV gamma):** Approximately 120 cpm per µSv/h.
-* **Radium-226 (mixed emissions):** Around 200 cpm per µSv/h.
-* **Cobalt-60 (1.17 and 1.33 MeV gamma):**: About 150 cpm per µSv/h.
+* **Cesium-137 (662 keV gamma):** Approximately 120 cpm/µSv/h.
+* **Radium-226 (mixed emissions):** Around 200 cpm/µSv/h.
+* **Cobalt-60 (1.17 and 1.33 MeV gamma):**: About 150 cpm/µSv/h.
 
 Manufacturers typically provide sensitivity values under standardized conditions, but calibration with known radioactive sources can refine accuracy.
 
-It is important to note that for common Geiger tubes, count rates and dose estimates are accurate only if the radiation source is known and the correct sensitivity value is used. Without this, measurements can be significantly inaccurate, as sensitivity varies with radiation type.
+It is important to note that for common Geiger tubes, radiation rate and dose estimates are accurate only if the radiation source is known and the correct sensitivity value is used. Without this, measurements can be significantly inaccurate, as sensitivity varies with radiation type.
 
 ## What is an energy-compensated Geiger tube?
 
 An energy-compensated Geiger tube is a type of Geiger-Müller tube designed to measure radiation more accurately across different energy levels of ionizing radiation. It includes additional materials or structures, like filters or windows, that adjust the response of the tube so that it detects radiation with a sensitivity that is more uniform across various energies. This compensation helps to ensure that the readings are not disproportionately influenced by either low-energy or high-energy particles, providing a more accurate measure of total radiation exposure.
 
-![Applications](img/field-guide-applications.jpg)
+![Radioactive decay](img/field-guide-mineral.jpg)
 
-## Applications of Geiger counters and scintillation detectors
+## Applications of Geiger counters
 
 ### Mineral exploration
 
 Geologists use Geiger counters to detect uranium, thorium, and other radioactive minerals, aiding in the mapping of geological structures.
 
-Although Uranium-238, the most common uranium isotope, decays into Thorium-234 via alpha emission (which is typically not detectable by standard Geiger counters unless they have a mica window), the decay chain continues, with subsequent daughter products emitting detectable beta radiation.
+Although Uranium-238, the most common uranium isotope, decays into Thorium-234 via alpha emission (which is typically not detectable by standard Geiger counters unless they have a mica window), the [decay chain](https://en.wikipedia.org/wiki/Decay_chain#Radium_series) continues, with subsequent daughter products emitting detectable beta radiation.
 
-Likewise, Thorium-232, the primary isotope of thorium, undergoes a decay sequence that results in the emission of detectable beta radiation from its daughter products.
+Likewise, Thorium-232, the primary isotope of thorium, undergoes a [decay sequence](https://en.wikipedia.org/wiki/Decay_chain#Thorium_series) that results in the emission of detectable beta radiation from its daughter products.
 
 ### Radiation monitoring
 
 Geiger counters are essential for monitoring radiation levels in areas affected by nuclear accidents or at sites of radioactive waste disposal. They help in assessing contamination levels in soil, water, and air.
 
-The most prevalent isotopes released during nuclear accidents are:
+Due to their biological effects, persistence in the environment, and the volume released during nuclear accidents, the following isotopes are primary concerns during nuclear accidents:
 
-* **Iodine-131:** With a half-life of approximately 8 days, this isotope is particularly hazardous due to its uptake by the thyroid gland, which can lead to thyroid cancer with significant exposure. It was notably released during the Chernobyl and Fukushima disasters.
+* **Iodine-131:** A gamma emitter with a half-life of approximately 8 days, this isotope is particularly hazardous due to its uptake by the thyroid gland, which can lead to thyroid cancer with significant exposure. It was notably released during the Chernobyl and Fukushima disasters.
 
-* **Cesium-137:** Its half-life is around 30 years, making it a significant long-term environmental pollutant. Cesium-137 contaminates soil and water, leading to prolonged radiation exposure. It played a critical role in both the Chernobyl and Fukushima incidents.
+* **Cesium-137:** A gamma emitter with a half-life of around 30 years, it makes a significant long-term environmental pollutant. Cesium-137 contaminates soil and water, leading to prolonged radiation exposure. It played a critical role in both the Chernobyl and Fukushima incidents.
 
-* **Strontium-90:** This isotope, with a half-life of about 29 years, has a tendency to accumulate in bones, where it mimics calcium. It was significantly released during the Chernobyl disaster and remains a concern in other nuclear events.
+* **Strontium-90:** This beta emitter, with a half-life of about 29 years, has a tendency to accumulate in bones, where it mimics calcium. It was significantly released during the Chernobyl disaster and remains a concern in other nuclear events.
 
-These isotopes emit beta and gamma radiation, which can be detected by standard Geiger counters.
+Additionally, other isotopes like cesium-134, strontium-89 and various plutonium isotopes can also be released, though they are either less abundant or pose less immediate danger in the context of nuclear accidents.
 
-Due to their biological effects, persistence in the environment, and the volume released during nuclear accidents, these isotopes are primary concerns. Additionally, other isotopes like carbon-14, tritium (hydrogen-3), and various plutonium isotopes can also be released, though they are either less common or pose less immediate danger in the context of nuclear accidents.
-
-### Food safety
-
-Countries use Geiger counters to screen imported food items for isotopes, especially from regions with known nuclear incidents or high background radiation levels. This ensures that imported foods do not exceed safe radiation levels.
+![Experiments](img/field-guide-radiotherapy.jpg)
 
 ### Radiation therapy oversight
 
@@ -216,13 +214,63 @@ In the field of radiation therapy, several isotopes are employed for both diagno
 
 * **Lutetium-177:** Increasingly used in peptide receptor radionuclide therapy (PRRT) for neuroendocrine tumors, where it is linked to peptides that target tumor cells.
 
-These isotopes emit beta and gamma radiation, which can be detected by standard Geiger counters.
+All these isotopes emit beta and gamma radiation, which can be detected by standard Geiger counters.
 
-Each isotope is chosen for its unique characteristics that allow for targeted radiation delivery to cancer cells while minimizing impact on surrounding healthy tissue.
+![Foond safety](img/field-guide-food-safety.jpg)
 
-### SHTF (Shit hits the fan)
+### Food and water safety
 
-In the aftermath of a nuclear incident, Geiger counters become essential survival tools. They help individuals safely navigate through contaminated landscapes by pinpointing safe zones and steering clear of areas with high radiation levels. Additionally, these devices are crucial for testing food and water supplies for radioactive contamination.
+To ensure the safety of imported food, many countries use Geiger counters to screen for radioactive isotopes, particularly from regions impacted by nuclear incidents or elevated background radiation. This ensures imports stay within acceptable radiation limits.
+
+Geiger counters are also valuable for testing food and water after nuclear event. The Codex Alimentarius, developed by the FAO and WHO, provide post-emergency guidelines, setting **activity concentration** limits in food at 1,000 Bq/kg for cesium-134 and cesium-137, and 100 Bq/kg for strontium-90 and iodine-131. For drinking water, many governments adopt an emergency limit of 10 Bq/kg for cesium-134, cesium-137 and stronium-90.
+
+Since Geiger counters measure counts per minute (cpm) rather than Bq/kg, a conversion is necessary to compare readings against safety standards. Here's a practical step-by-step guide:
+
+1. **Measure background radiation:** Record the background cpm over an extended averaging period for precision.
+
+2. **Measure sample radiation:** Place the Geiger counter at certain distance (e.g., 10 cm) from the sample (e.g., 1 kg of grain, vegetables or meat) and record the sample cpm, again using a long averaging period.
+
+3. **Calculate net cpm:** Subtract the background cpm from the sample cpm to isolate the sample's radiation.
+
+4. **Calibrate the counter:** Determine the cpm-to-Bq conversion factor.
+   * *With a [check source](https://ludlums.com/documents/technical-articles/417-check-sources-2)*: Use a known source (e.g., 1 μCi or 37,000 Bq of cesium-137), measure its cpm above background under the same conditions as the sample, and calculate the factor. For example, if 37,000 Bq at 5 cm yields 160 cpm, the factor is 37,000 Bq ÷ 160 cpm ≈ 231 Bq/cpm.
+   * *Without a check source*: Estimate the factor using an [activity-rate calculator](http://www.radprocalculator.com/Gamma.aspx). For example, if 37,000 Bq at 5 cm produces 1.132 µSv/h and the tube's sensitivity is 130 cpm/µSv/h, the factor is 37,000 Bq ÷ (1.132 µSv/h × 130 cpm/µSv/h) ≈ 251 Bq/cpm.
+
+5. **Estimate activity:** Multiply the net cpm by the conversion factor. For example, a net cpm of 20 with a factor of 250 Bq/cpm results in an activity of 5,000 Bq.
+
+6. **Check against limits:** Divide the activity (Bq) by the sample weight (kg) to get the activity concentration (Bq/kg). Compare this to Codex or local standards. If it exceeds the threshold, the sample may be unsafe.
+
+**Key considerations:**
+
+* **Check source decay:** A check source's activity decreases over time following the exponential law: $A = A_0 \left(\frac{1}{2}\right)^\frac{t}{T_{1/2}}$. Here, A is the current activity, $A_0$ is the initial activity (from the label), $T_{1/2}$ is the half-life, and $t$ is the time elapsed since the label date (in matching units).
+* **Tube sensitivity:** Most Geiger tubes are quite insensitive to the low radiation levels deemed safe, requiring extended averaging periods to minimize measurement error.
+* **Isotope sensitivity:** Geiger counters measure radiation but cannot distinguish between isotopes. Codex limits are isotope-specific, so elevated readings might stem from harmless sources (e.g., potassium-40) rather than regulated isotopes like cesium-137.
+* **Energy sensitivity:** A Geiger tube’s response varies with radiation energy, affecting accuracy unless calibrated for the specific isotopes of concern.
+
+![Experiments](img/field-guide-bravo-fallout.png)
+
+### Nuclear strike
+
+Surviving a nuclear strike requires quick action to minimize exposure to radiation, secure basic needs, and monitor your environment. Here's a step-by-step guide:
+
+1. **Seek shelter immediately**
+   * If you're not already in a safe spot, move to a sturdy building, preferably underground (e.g., a basement). The goal is to put as much mass—concrete, earth, or brick—between you and the radioactive fallout.
+   * Stay indoors for at least 48-96 hours, as fallout radiation decreases significantly after the first day or two.
+2. **Seal your environment**
+   * Close all windows, doors, and vents. Use duct tape or plastic sheeting to seal gaps and prevent contaminated air from entering.
+3. **Decontaminate uourself**
+   * If you were outside during or after the blast, remove outer clothing and seal it in a plastic bag. Store it away from living areas.
+   * Wash your skin with soap and water to remove radioactive particles. Avoid scrubbing too hard, which could damage skin and increase absorption.
+4. **Monitor radiation levels**
+   * Use a Geiger counter to assess your surroundings periodically:
+      * Below 10 µSv/h: Safe background radiation.
+      * 0.5-1 mSv/h: Elevated but manageable for brief exposure (e.g., quick outdoor tasks). 
+      * 5-10 mSv/h: Dangerous—limit exposure to minutes and stay sheltered.
+      * Above 10 mSv/h: Extremely risky—most Geiger counters max out here. Assume higher levels, reinforce shelter, or evacuate if possible.
+5. **Secure supplies**
+   * Stock at least two weeks of sealed, non-perishable food and water.
+   * Use only bottled or covered water; avoid local sources until confirmed uncontaminated.
+   * Stay informed with a battery-powered radio.
 
 ![Experiments](img/field-guide-experiments.jpg)
 
@@ -240,37 +288,37 @@ In the aftermath of a nuclear incident, Geiger counters become essential surviva
 
 * **Objective:** Identify items in your home that emit radiation.
 
-* **Method:** Measure radiation from items like smoke detectors (which contain small amounts of Americium-241), old watches with radium dials, ceramic pottery with uranium glaze, or Brazilian granite countertops. Document the radiation levels and compare them to background levels to see if they're significantly above normal.
+* **Method:** Measure radiation from items like smoke detectors (which contain small amounts of Americium-241), old watches with radium dials, ceramic pottery with uranium glaze, or Brazilian granite countertops. Document the radiation levels and compare them to baseline background readings to see if they exceed typical values.
 
-* **WARNING:** To prevent internal contamination, always wear gloves when handling radioactive objects such as uranium rocks. Also, keep these objects in sealed plastic bags to reduce the risk of external contamination.
+* **WARNING:** To prevent internal contamination, wear gloves when handling radioactive objects such as uranium rocks. Also, keep these objects in sealed plastic bags to reduce the risk of external contamination.
 
 ### Radiation shielding experiment
 
 * **Objective:** Understand how different materials shield against radiation.
 
-* **Method:** Place a known radioactive source (like a small piece of uranium ore or a radioactive check source) beside the Geiger counter. Measure the count rate. Then, introduce various materials (lead, aluminum, paper, wood, water) between the source and the counter, noting the reduction in counts for each material.
+* **Method:** Place a known radioactive source (like a small piece of uranium ore or a radioactive check source) beside the Geiger counter and measure the count rate. Then, insert various materials (lead, aluminum, paper, wood, water) between the source and the counter, measuring the reduction in count rate for each material.
 
-* **WARNING:** To prevent internal contamination, always wear gloves when handling radioactive objects such as uranium rocks. Also, keep these objects in sealed plastic bags to reduce the risk of external contamination.
+* **WARNING:** To prevent internal contamination, wear gloves when handling radioactive objects such as uranium rocks. Also, keep these objects in sealed plastic bags to reduce the risk of external contamination.
 
-### Experiment with distance (inverse square law)
+### Experiment with distance
 
 * **Objective:** Demonstrate how radiation decreases with distance from the source.
 
-* **Method:** Place a radioactive source at a fixed position and take measurements at increasing distances from the source. Plot the count rate vs. distance to verify the inverse square law of radiation.
+* **Method:** Place a radioactive source at a fixed position and measure radiation levels at increasing distances from the source. Plot the count rate versus distance to confirm the [inverse square law](https://en.wikipedia.org/wiki/Inverse-square_law) (intensity ∝ 1/d²).
 
-* **WARNING:** To prevent internal contamination, always wear gloves when handling radioactive objects such as uranium rocks. Also, keep these objects in sealed plastic bags to reduce the risk of external contamination.
+* **WARNING:** To prevent internal contamination, wear gloves when handling radioactive objects such as uranium rocks. Also, keep these objects in sealed plastic bags to reduce the risk of external contamination.
 
 ### Altitude effects on radiation
 
-* **Objective:** Study how background radiation changes with altitude.
+* **Objective:** Explore how background radiation changes with altitude.
 
-* **Method:** If possible, take the Geiger counter on a trip up a mountain, in an airplane, or use a weather balloon. Record the radiation levels at different altitudes to see the increase in background radiation exposure.
+* **Method:** Take the Geiger counter to higher altitudes—e.g., during a mountain hike, in an airplane flight, or on a weather balloon. Record radiation levels at different heights to see the increase in background radiation due to cosmic ray exposure.
 
-### Radon gas detection
+### Radon gas decay
 
-* **Objective:** Measure radon levels in homes or buildings.
+* **Objective:** Measure the half-life of radon gas decay products.
 
-* **Method:** Use the Geiger counter in areas where radon might accumulate (like basements). Note that this might require a specialized radon detector, but you can start by checking general radiation levels.
+* **Method:** After rainfall, wipe a paper towel over the exterior of your car left outside to collect radon decay products. Squeeze out excess water, then measure the towel's cpm with a Geiger counter. Re-measure every 4 hours to track the decay in radiation levels over time.
 
 ## Links
 

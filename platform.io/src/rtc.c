@@ -102,6 +102,25 @@ void getDeviceDateTime(RTCDateTime *dateTime)
     getDateTimeFromTime(getDeviceTime() + getTimeZoneOffset(), dateTime);
 }
 
+bool setDeviceTimeZone(float value)
+{
+    value += RTC_TIMEZONE_P0000;
+
+    if ((value < 0) || (value >= RTC_TIMEZONE_NUM))
+        return false;
+
+    settings.rtcTimeZone = value;
+
+    return true;
+}
+
+float getDeviceTimeZone(void)
+{
+    float value = settings.rtcTimeZone;
+
+    return value - RTC_TIMEZONE_P0000;
+}
+
 // RTC menu common
 
 enum
@@ -176,8 +195,7 @@ static const char *onRTCSubMenuGetOption(const Menu *menu,
         break;
     }
 
-    const RTCMenuOptionSetting *rtcMenuOptionSetting =
-        &rtcMenuOptionSettings[rtcMenuState.selectedIndex - 1];
+    const RTCMenuOptionSetting *rtcMenuOptionSetting = &rtcMenuOptionSettings[rtcMenuState.selectedIndex - 1];
 
     uint32_t maxIndex = rtcMenuOptionSetting->maxIndex;
     if (rtcMenuState.selectedIndex == 3)

@@ -42,17 +42,16 @@ void initSystem(void)
                 FLASH_ACR_LATENCY_2WS);
 
     // Configure AHB, APB1, APB2, ADC, PLL
-    RCC->CFGR =
-        RCC_CFGR_SW_HSI |        // Select HSI as system clock
-        RCC_CFGR_HPRE_DIV1 |     // Set AHB clock: 72 MHz / 1 = 72 MHz
-        RCC_CFGR_PPRE1_DIV2 |    // Set APB1 clock: 72 MHz / 2 = 36 MHz
-        RCC_CFGR_PPRE2_DIV1 |    // Set APB2 clock: 72 MHz / 1 = 72 MHz
-        RCC_CFGR_ADCPRE_DIV8 |   // Set ADC clock: 72 MHz / 8 = 9 MHz
-        RCC_CFGR_PLLSRC_HSE |    // Set PLL source: HSE
-        RCC_CFGR_PLLXTPRE_HSE |  // Set PLL HSE predivision factor: /1
-        RCC_CFGR_PLLMULL9 |      // Set PLL multiplier: 9x
-        RCC_CFGR_USBPRE_DIV1_5 | // Set USB prescaler: 1.5x
-        RCC_CFGR_MCO_NOCLOCK;    // Disable MCO
+    RCC->CFGR = RCC_CFGR_SW_HSI |        // Select HSI as system clock
+                RCC_CFGR_HPRE_DIV1 |     // Set AHB clock: 72 MHz / 1 = 72 MHz
+                RCC_CFGR_PPRE1_DIV2 |    // Set APB1 clock: 72 MHz / 2 = 36 MHz
+                RCC_CFGR_PPRE2_DIV1 |    // Set APB2 clock: 72 MHz / 1 = 72 MHz
+                RCC_CFGR_ADCPRE_DIV8 |   // Set ADC clock: 72 MHz / 8 = 9 MHz
+                RCC_CFGR_PLLSRC_HSE |    // Set PLL source: HSE
+                RCC_CFGR_PLLXTPRE_HSE |  // Set PLL HSE predivision factor: /1
+                RCC_CFGR_PLLMULL9 |      // Set PLL multiplier: 9x
+                RCC_CFGR_USBPRE_DIV1_5 | // Set USB prescaler: 1.5x
+                RCC_CFGR_MCO_NOCLOCK;    // Disable MCO
 
     // Enable PLL
     set_bits(RCC->CR,
@@ -246,24 +245,22 @@ void initDisplayController(void)
                DISPLAY_WRX_PIN,
                GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
 
-    DISPLAY_DATA_PORT->CRL =
-        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 0) |
-        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 4) |
-        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 8) |
-        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 12) |
-        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 16) |
-        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 20) |
-        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 24) |
-        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 28);
-    DISPLAY_DATA_PORT->CRH =
-        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 0) |
-        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 4) |
-        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 8) |
-        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 12) |
-        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 16) |
-        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 20) |
-        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 24) |
-        (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 28);
+    DISPLAY_DATA_PORT->CRL = (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 0) |
+                             (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 4) |
+                             (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 8) |
+                             (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 12) |
+                             (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 16) |
+                             (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 20) |
+                             (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 24) |
+                             (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 28);
+    DISPLAY_DATA_PORT->CRH = (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 0) |
+                             (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 4) |
+                             (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 8) |
+                             (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 12) |
+                             (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 16) |
+                             (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 20) |
+                             (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 24) |
+                             (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 28);
 
     // mcu-renderer
     mr_st7789_init(&mr,

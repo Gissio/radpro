@@ -189,8 +189,6 @@ enum
 #define TUBE_DEADTIMECOMPENSATION_LOG_MAX_MIN 4.0F
 #define TUBE_DEADTIMECOMPENSATION_NUM 64
 
-#define TUBE_BACKGROUNDCOMPENSATION_NUM 16
-
 #if defined(SIMULATOR)
 #define TUBE_SENSITIVITY_DEFAULT TUBE_SENSITIVITY_M4011
 #define TUBE_HVPROFILE_FACTORYDEFAULT_FREQUENCY 40000
@@ -407,7 +405,6 @@ typedef struct
 
     unsigned int tubeSensitivity : 8;
     unsigned int tubeDeadTimeCompensation : 6;
-    unsigned int tubeBackgroundCompensation : 4;
 #if defined(TUBE_HV_PWM)
     unsigned int tubeHVProfile : 2;
     unsigned int tubeHVFrequency : 3;

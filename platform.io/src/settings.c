@@ -54,15 +54,14 @@ void initSettings(void)
 #endif
     settings.pulseSound = PULSE_SOUND_ON_CLICKS;
 
-    settings.alarmSignaling =
-        (1 << ALARMSIGNALING_SOUND) |
+    settings.alarmSignaling = (1 << ALARMSIGNALING_SOUND) |
 #if defined(VIBRATION)
-        (1 << ALARMSIGNALING_VIBRATION) |
+                              (1 << ALARMSIGNALING_VIBRATION) |
 #endif
 #if defined(PULSE_LED) || defined(ALERT_LED)
-        (1 << ALARMSIGNALING_ALERT_LED) |
+                              (1 << ALARMSIGNALING_ALERT_LED) |
 #endif
-        (1 << ALARMSIGNALING_DISPLAY_FLASH);
+                              (1 << ALARMSIGNALING_DISPLAY_FLASH);
 
 #if defined(TUBE_HV_PWM)
     settings.tubeSensitivity = TUBE_SENSITIVITY_DEFAULT;
@@ -163,7 +162,8 @@ void updateSettingsPeriod(void)
 {
     if (getBatteryLevel() == 0)
     {
-        if (settingsLowBatteryTimer == 0) {
+        if (settingsLowBatteryTimer == 0)
+        {
             settingsLowBatteryTimer = SETTINGS_LOWBATTERY_PERIOD;
 
             writeSettings();

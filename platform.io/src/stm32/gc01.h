@@ -32,6 +32,7 @@
 #define PWR_BAT_PIN 0
 #define PWR_BAT_CHANNEL 0
 #define PWR_BAT_SCALE_FACTOR 2.0F
+#define PWR_BAT_NUM 1.0F
 #define PWR_CHRG_PORT GPIOA
 #define PWR_CHRG_PIN 4
 #define PWR_CHRG_PULLUP

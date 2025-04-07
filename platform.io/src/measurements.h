@@ -42,7 +42,6 @@ extern const View measurementsMenuView;
 void resetMeasurements(void);
 
 void updateMeasurementUnits(void);
-void updateDeadTimeCompensation(void);
 
 void enableMeasurements(void);
 void disableMeasurements(void);

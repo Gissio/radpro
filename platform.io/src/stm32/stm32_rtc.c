@@ -53,14 +53,12 @@ void setDeviceTime(uint32_t value)
     getDateTimeFromTime(value, &dateTime);
 
     // Set RTC dateTime
-    uint32_t dr =
-        convertToBCD(dateTime.year % 100) << RTC_DR_YU_Pos |
-        convertToBCD(dateTime.month) << RTC_DR_MU_Pos |
-        convertToBCD(dateTime.day) << RTC_DR_DU_Pos;
-    uint32_t tr =
-        convertToBCD(dateTime.hour) << RTC_TR_HU_Pos |
-        convertToBCD(dateTime.minute) << RTC_TR_MNU_Pos |
-        convertToBCD(dateTime.second) << RTC_TR_SU_Pos;
+    uint32_t dr = convertToBCD(dateTime.year % 100) << RTC_DR_YU_Pos |
+                  convertToBCD(dateTime.month) << RTC_DR_MU_Pos |
+                  convertToBCD(dateTime.day) << RTC_DR_DU_Pos;
+    uint32_t tr = convertToBCD(dateTime.hour) << RTC_TR_HU_Pos |
+                  convertToBCD(dateTime.minute) << RTC_TR_MNU_Pos |
+                  convertToBCD(dateTime.second) << RTC_TR_SU_Pos;
 
     rtc_enter_configuration_mode();
     rtc_set_date_time(dr, tr);
