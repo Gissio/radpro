@@ -16,7 +16,7 @@ A **radioactive substance** contains unstable atoms that spontaneously break apa
 
 This decay happens at a predictable rate called the **half-life**, the time it takes for half the radioactive atoms in a sample to decay. Picture a bag with 100 popping popcorn kernels. If half pop every minute, you'd have 50 left after 1 minute, 25 after 2 minutes, and so on. That's half-life at work!
 
-Examples of radioactive materials include granite tabletops (which may contain traces of uranium), old uranium-glazed ceramics, low-sodium salt (containing a naturally radioactive potassium isotope), and medical isotopes like iodine-131, used in treatments such as thyroid therapy.
+Examples of radioactive materials include granite tabletops (which may contain traces of uranium), low-sodium salt (containing a naturally radioactive potassium isotope), old uranium-glazed ceramics, and medical isotopes like iodine-131, used in treatments such as thyroid therapy.
 
 ![Radioactive contamination](img/field-guide-contamination.jpg)
 
