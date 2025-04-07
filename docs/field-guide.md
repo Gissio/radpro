@@ -154,7 +154,7 @@ The Soviet-era SBM-20, for example, is a metal-cased Geiger tube designed primar
 
 * **Cesium-137 (662 keV gamma):** Approximately 120 cpm/µSv/h.
 * **Radium-226 (mixed emissions):** Around 200 cpm/µSv/h.
-* **Cobalt-60 (1.17 and 1.33 MeV gamma):**: About 150 cpm/µSv/h.
+* **Cobalt-60 (1.17 and 1.33 MeV gamma):** About 150 cpm/µSv/h.
 
 Manufacturers typically provide sensitivity values under standardized conditions, but calibration with known radioactive sources can refine accuracy.
 
@@ -222,13 +222,13 @@ All these isotopes emit beta and gamma radiation, which can be detected by stand
 
 To ensure the safety of imported food, many countries use Geiger counters to screen for radioactive isotopes, particularly from regions impacted by nuclear incidents or elevated background radiation. This ensures imports stay within acceptable radiation limits.
 
-Geiger counters are also valuable for testing food and water after nuclear event. The Codex Alimentarius, developed by the FAO and WHO, provide post-emergency guidelines, setting **activity concentration** limits in food at 1,000 Bq/kg for cesium-134 and cesium-137, and 100 Bq/kg for strontium-90 and iodine-131. For drinking water, many governments adopt an emergency limit of 10 Bq/kg for cesium-134, cesium-137 and stronium-90.
+Geiger counters are also valuable for testing food and water after nuclear event. The Codex Alimentarius, developed by the FAO and WHO, provide post-emergency guidelines, setting **activity concentration** limits in food at 1,000 Bq/kg for cesium-134 and cesium-137, and 100 Bq/kg for strontium-90 and iodine-131. For drinking water, many governments adopt an emergency limit of 10 Bq/kg for cesium-134, cesium-137 and strontium-90.
 
 Since Geiger counters measure counts per minute (cpm) rather than Bq/kg, a conversion is necessary to compare readings against safety standards. Here's a practical step-by-step guide:
 
 1. **Measure background radiation:** Record the background cpm over an extended averaging period for precision.
 
-2. **Measure sample radiation:** Place the Geiger counter at certain distance (e.g., 10 cm) from the sample (e.g., 1 kg of grain, vegetables or meat) and record the sample cpm, again using a long averaging period.
+2. **Measure sample radiation:** Place the Geiger counter at a certain distance (e.g., 10 cm) from the sample (e.g., 1 kg of grain, vegetables or meat) and record the sample cpm, again using a long averaging period.
 
 3. **Calculate net cpm:** Subtract the background cpm from the sample cpm to isolate the sample's radiation.
 
@@ -243,7 +243,7 @@ Since Geiger counters measure counts per minute (cpm) rather than Bq/kg, a conve
 **Key considerations:**
 
 * **Check source decay:** A check source's activity decreases over time following the exponential law: $A = A_0 \left(\frac{1}{2}\right)^\frac{t}{T_{1/2}}$. Here, A is the current activity, $A_0$ is the initial activity (from the label), $T_{1/2}$ is the half-life, and $t$ is the time elapsed since the label date (in matching units).
-* **Tube sensitivity:** Most Geiger tubes are quite insensitive to the low radiation levels deemed safe, requiring extended averaging periods to minimize measurement error.
+* **Tube sensitivity:** Common Geiger tubes are quite insensitive to the low radiation levels deemed safe, requiring extended averaging periods to minimize measurement error.
 * **Isotope sensitivity:** Geiger counters measure radiation but cannot distinguish between isotopes. Codex limits are isotope-specific, so elevated readings might stem from harmless sources (e.g., potassium-40) rather than regulated isotopes like cesium-137.
 * **Energy sensitivity:** A Geiger tube’s response varies with radiation energy, affecting accuracy unless calibrated for the specific isotopes of concern.
 
@@ -258,15 +258,15 @@ Surviving a nuclear strike requires quick action to minimize exposure to radiati
    * Stay indoors for at least 48-96 hours, as fallout radiation decreases significantly after the first day or two.
 2. **Seal your environment**
    * Close all windows, doors, and vents. Use duct tape or plastic sheeting to seal gaps and prevent contaminated air from entering.
-3. **Decontaminate uourself**
+3. **Decontaminate yourself**
    * If you were outside during or after the blast, remove outer clothing and seal it in a plastic bag. Store it away from living areas.
    * Wash your skin with soap and water to remove radioactive particles. Avoid scrubbing too hard, which could damage skin and increase absorption.
 4. **Monitor radiation levels**
    * Use a Geiger counter to assess your surroundings periodically:
       * Below 10 µSv/h: Safe background radiation.
-      * 0.5-1 mSv/h: Elevated but manageable for brief exposure (e.g., quick outdoor tasks). 
+      * 0.5-1 mSv/h: Elevated but manageable for brief exposure (e.g., quick outdoor tasks with a breathing mask to avoid internal contamination).
       * 5-10 mSv/h: Dangerous—limit exposure to minutes and stay sheltered.
-      * Above 10 mSv/h: Extremely risky—most Geiger counters max out here. Assume higher levels, reinforce shelter, or evacuate if possible.
+      * Above 10 mSv/h: Extremely risky—common Geiger counters max out here. Assume higher levels, reinforce shelter, or evacuate if possible.
 5. **Secure supplies**
    * Stock at least two weeks of sealed, non-perishable food and water.
    * Use only bottled or covered water; avoid local sources until confirmed uncontaminated.
@@ -288,7 +288,7 @@ Surviving a nuclear strike requires quick action to minimize exposure to radiati
 
 * **Objective:** Identify items in your home that emit radiation.
 
-* **Method:** Measure radiation from items like smoke detectors (which contain small amounts of Americium-241), old watches with radium dials, ceramic pottery with uranium glaze, or Brazilian granite countertops. Document the radiation levels and compare them to baseline background readings to see if they exceed typical values.
+* **Method:** Measure radiation from items like Brazilian granite countertops, smoke detectors (which contain small amounts of Americium-241), or ceramic pottery with uranium glaze. Document the radiation levels and compare them to baseline background readings to see if they exceed typical values.
 
 * **WARNING:** To prevent internal contamination, wear gloves when handling radioactive objects such as uranium rocks. Also, keep these objects in sealed plastic bags to reduce the risk of external contamination.
 

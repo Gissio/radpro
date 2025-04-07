@@ -82,7 +82,7 @@ On the FS-600, the keys are mapped as follows:
   * Go back: the left/back key.
   * Toggle pulses sound: long hold of the menu/ok key.
   * Toggle lock mode: long hold of the ok/power and left/back keys.
- 
+
 On the FS-1000, the keys are mapped as follows:
 
   * Power on/off: long hold of the set/power key.

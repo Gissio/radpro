@@ -8,7 +8,7 @@
 * Ability to dismiss alarms.
 * Tube fault alarm.
 * Multiple measurement units: Sievert, rem, cpm (counts per minute), cps (counts per second).
-* Configurable instantaneous rate averaging (adaptive fast, adaptive precision, 1 minute, 30 seconds and 10 seconds), 
+* Configurable instantaneous rate averaging (adaptive fast, adaptive precision, 1 minute, 30 seconds and 10 seconds),
 * Configurable average timer for performing surveys.
 * Customizable Geiger-Müller tube settings: sensitivity, dead-time compensation, high voltage generator PWM frequency and duty cycle (on supported devices).
 * Preconfigured high voltage profiles (on supported devices).
@@ -159,7 +159,7 @@ The [random generator](https://en.wikipedia.org/wiki/Hardware_random_number_gene
 The generator produces random bits by measuring the time interval between consecutive pulses and comparing the results. To eliminate bias, every second bit is inverted. Random data is then stored in a 128-bit buffer.
 
 These bits are then processed with the [Fast Dice Roller](https://arxiv.org/abs/1304.1916) algorithm to produce random outcomes. Bit consumption varies by format: "Full ASCII" uses approximately 7 bits per outcome, "Alphanumeric" requires about 6 bits, "Hexadecimal" and "Decimal" each take around 4 bits, and "Binary" uses just 1 bit. For die rolls, "100-sided die" consumes about 7 bits, "20-sided die" uses roughly 5 bits, "12-sided die" and "10-sided die" each need around 4 bits, "8-sided die" and "6-sided die" require about 3 bits and "4-sided die" uses 2 bits. A "Coin flip" takes only 1 bit.
-  
+
 For faster bit generation, consider using a radioactive source.
 
 ## radpro-tool

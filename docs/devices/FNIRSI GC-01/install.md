@@ -85,8 +85,8 @@ On the FNIRSI GC-01/JOY-IT JT-RAD01 with a CH32F103R8 microprocessor, you must e
 * 1-minute intervals and less require 1-byte differential values.
 
  -->
- 
- Data logging can store up to 6078 data points. At normal radiation levels (20 cpm), this allows for 126 days of data at 60-minute intervals, 21 days at 10-minute intervals, 4 days at 1-minute intervals, 16 hours at 10-second intervals and almost 2 hours at 1-second intervals.
+
+Data logging can store up to 6078 data points. At normal radiation levels (20 cpm), this allows for 126 days of data at 60-minute intervals, 21 days at 10-minute intervals, 4 days at 1-minute intervals, 16 hours at 10-second intervals and almost 2 hours at 1-second intervals.
 
 The HV profile settings are:
 
