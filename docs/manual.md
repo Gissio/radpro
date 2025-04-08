@@ -106,13 +106,9 @@ Please note that data is not logged during the download process.
 
 Rad Pro offers several options for adjusting the instantaneous rate averaging period:
 
-* **Adaptive fast:** Averages the last 20 pulses, aiming for a confidence interval of ±50%. This option is ideal for users prioritizing rapid radiation alerts. Explore the "Adaptive fast" response curves (radiation level vs. response time) here: [instantaneousaveraging-adaptivefast.ipynb](../tests/instantaneousaveraging-adaptivefast.ipynb)
-* **Adaptive precision:** Builds on "Adaptive fast" by adding a minimum averaging time of 5 seconds. When more than 20 pulses occur within the averaging window, it increases precision; otherwise it mirrors "Adaptive fast". This option is best for users who value accuracy over speed. View the "Adaptive precision" response curves here: [instantaneousaveraging-adaptiveprecision.ipynb](../tests/instantaneousaveraging-adaptiveprecision.ipynb)
-* **Fixed periods (1 minute, 30 seconds and 10 seconds):** These options use a fixed averaging period. Note that if zero or one pulse is detected during the averaging period, the instantaneous rate will register as zero.
-
-At low radiation levels, "Fixed periods" may produce noisier results but respond faster to changes.
-
-At high radiation levels, "Fixed periods" offer reduced noise but respond more slowly to changes.
+* **Adaptive fast:** Averages the last 20 pulses, aiming for a confidence interval of ±50%. This option is well-suited for general users. You can view the "Adaptive fast" response curves (radiation level vs. response time) here: [instantaneousaveraging-adaptivefast.ipynb](../tests/instantaneousaveraging-adaptivefast.ipynb)
+* **Adaptive precision:** Builds on "Adaptive fast", adding a minimum averaging time of 5 seconds. With high levels of radiation, it delivers greater precision than "Adaptive fast". You can view the "Adaptive precision" response curves here: [instantaneousaveraging-adaptiveprecision.ipynb](../tests/instantaneousaveraging-adaptiveprecision.ipynb)
+* **Fixed periods (1 minute, 30 seconds and 10 seconds):** These options use a fixed averaging period and are only useful for specific use cases. Note that if zero or one pulse is detected during the averaging period, the instantaneous rate will register as zero.
 
 ## Instantaneous rate alarm
 

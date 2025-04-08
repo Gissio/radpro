@@ -85,7 +85,7 @@ This measurement allows for a more accurate assessment of radiation risk to biol
 
 **Activity** refers to the rate at which a radioactive substance decays, or in other words, how many unstable atoms break apart per unit of time, releasing ionizing radiation. It's a measure of a source's strength—how active or "hot" a radioactive material is— and is quantified in becquerels (Bq) in the SI system, where 1 becquerel equals 1 decay per second. In older units, it's measured in curies (Ci), where 1 curie equals 3.7 × 10¹⁰ decays per second.
 
-For example, in a sample with an activity of 1 MBq (1 megabecquerels), 1 million atoms are decaying every second, emitting radiation in the process.
+For example, in a sample with an activity of 1 MBq (1 megabecquerel), 1 million atoms are decaying every second, emitting radiation in the process.
 
 It's important to note that Geiger counters measure dose and rate—properties related to the radiation absorbed by a target—rather than activity, which is a characteristic of the source itself. Nevertheless, understanding activity is crucial for assessing the potential hazard of a radioactive material, as it directly influences the intensity of radiation emitted and, consequently, the precautions needed for safe handling or disposal.
 
@@ -135,7 +135,7 @@ Here's a brief overview of how it works:
 
 Geiger tubes respond differently to various types of ionizing radiation:
 
-* **Gamma rays and X-rays:** Being high-energy photons, Gamma and X-rays can easily penetrate the walls of a Geiger tube. Detection efficiency typically peaks in the mid-energy range, roughly between 100 keV to 1 MeV.
+* **Gamma rays and X-rays:** Being high-energy photons, gamma and X-rays can easily penetrate the walls of a Geiger tube. Detection efficiency typically peaks in the mid-energy range, roughly between 100 keV to 1 MeV.
 
 * **Beta particles:** Beta particles can enter the Geiger tube if its walls are thin enough. Detection efficiency generally increases with energy.
 
@@ -288,7 +288,7 @@ Surviving a nuclear strike requires quick action to minimize exposure to radiati
 
 * **Objective:** Identify items in your home that emit radiation.
 
-* **Method:** Measure radiation from items like Brazilian granite countertops, smoke detectors (which contain small amounts of Americium-241), or ceramic pottery with uranium glaze. Document the radiation levels and compare them to baseline background readings to see if they exceed typical values.
+* **Method:** Measure radiation from items like Brazilian granite countertops, smoke detectors (which contain small amounts of Americium-241), or old ceramic pottery with uranium glaze. Document the radiation levels and compare them to baseline background readings to see if they exceed typical values.
 
 * **WARNING:** To prevent internal contamination, wear gloves when handling radioactive objects such as uranium rocks. Also, keep these objects in sealed plastic bags to reduce the risk of external contamination.
 
