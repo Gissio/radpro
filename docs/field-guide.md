@@ -220,9 +220,9 @@ All these isotopes emit beta and gamma radiation, which can be detected by stand
 
 ### Food and water safety
 
-To ensure the safety of imported food, many countries use Geiger counters to screen for radioactive isotopes, particularly from regions impacted by nuclear incidents or elevated background radiation. This ensures imports stay within acceptable radiation limits.
+To ensure the safety of imported food, many countries use radiation detectors to screen for radioactive isotopes, particularly from regions impacted by nuclear incidents or elevated background radiation. This ensures imports stay within acceptable radiation limits.
 
-Geiger counters are also valuable for testing food and water after nuclear event. The Codex Alimentarius, developed by the FAO and WHO, provide post-emergency guidelines, setting **activity concentration** limits in food at 1,000 Bq/kg for cesium-134 and cesium-137, and 100 Bq/kg for strontium-90 and iodine-131. For drinking water, many governments adopt an emergency limit of 10 Bq/kg for cesium-134, cesium-137 and strontium-90.
+Radiation detectors are also valuable for testing food and water after nuclear event. T he Codex Alimentarius, developed by the FAO and WHO, provides post-emergency guidelines, setting **activity concentration** limits in food at 1,000 Bq/kg for cesium-134 and cesium-137, and 100 Bq/kg for strontium-90 and iodine-131. For drinking water, many governments adopt an emergency limit of 10 Bq/kg for cesium-134, cesium-137 and strontium-90.
 
 Since Geiger counters measure counts per minute (cpm) rather than Bq/kg, a conversion is necessary to compare readings against safety standards. Here's a practical step-by-step guide:
 

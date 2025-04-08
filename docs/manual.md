@@ -8,7 +8,7 @@
 * Ability to dismiss alarms.
 * Tube fault alarm.
 * Multiple measurement units: Sievert, rem, cpm (counts per minute), cps (counts per second).
-* Configurable instantaneous rate averaging (adaptive fast, adaptive precision, 1 minute, 30 seconds and 10 seconds),
+* Configurable instantaneous rate averaging (adaptive fast, adaptive precision, 1 minute, 30 seconds and 10 seconds).
 * Configurable average timer for performing surveys.
 * Customizable Geiger-Müller tube settings: sensitivity, dead-time compensation, high voltage generator PWM frequency and duty cycle (on supported devices).
 * Preconfigured high voltage profiles (on supported devices).
@@ -107,7 +107,7 @@ Please note that data is not logged during the download process.
 Rad Pro offers several options for adjusting the instantaneous rate averaging period:
 
 * **Adaptive fast:** Averages the last 20 pulses, aiming for a confidence interval of ±50%. This option is well-suited for general users. You can view the "Adaptive fast" response curves (radiation level vs. response time) here: [instantaneousaveraging-adaptivefast.ipynb](../tests/instantaneousaveraging-adaptivefast.ipynb)
-* **Adaptive precision:** Builds on "Adaptive fast", adding a minimum averaging time of 5 seconds. With high levels of radiation, it delivers greater precision than "Adaptive fast". You can view the "Adaptive precision" response curves here: [instantaneousaveraging-adaptiveprecision.ipynb](../tests/instantaneousaveraging-adaptiveprecision.ipynb)
+* **Adaptive precision:** Builds on "Adaptive fast", adding a minimum averaging time of 5 seconds. With high levels of radiation, it delivers greater precision than "Adaptive fast" at the expense of slower response. You can view the "Adaptive precision" response curves here: [instantaneousaveraging-adaptiveprecision.ipynb](../tests/instantaneousaveraging-adaptiveprecision.ipynb)
 * **Fixed periods (1 minute, 30 seconds and 10 seconds):** These options use a fixed averaging period and are only useful for specific use cases. Note that if zero or one pulse is detected during the averaging period, the instantaneous rate will register as zero.
 
 ## Instantaneous rate alarm
@@ -152,7 +152,7 @@ Rad Pro also triggers a fault alarm if the Geiger-Müller tube becomes saturated
 
 The [random generator](https://en.wikipedia.org/wiki/Hardware_random_number_generator) offers multiple output formats. "Full ASCII", "Alphanumeric", "Hexadecimal", "Decimal" and "Binary" produce up to 16 outcomes per run, while die rolls and coin flips yield a single outcome per run. To generate additional outcomes, simply return to the menu and start a new run.
 
-The generator produces random bits by measuring the time interval between consecutive pulses and comparing the results. To eliminate bias, every second bit is inverted. Random data is then stored in a 128-bit buffer.
+The generator produces random bits by measuring the time interval between consecutive pulses and comparing the results. To eliminate bias, every second bit is inverted. Random data is stored in a 128-bit buffer.
 
 These bits are then processed with the [Fast Dice Roller](https://arxiv.org/abs/1304.1916) algorithm to produce random outcomes. Bit consumption varies by format: "Full ASCII" uses approximately 7 bits per outcome, "Alphanumeric" requires about 6 bits, "Hexadecimal" and "Decimal" each take around 4 bits, and "Binary" uses just 1 bit. For die rolls, "100-sided die" consumes about 7 bits, "20-sided die" uses roughly 5 bits, "12-sided die" and "10-sided die" each need around 4 bits, "8-sided die" and "6-sided die" require about 3 bits and "4-sided die" uses 2 bits. A "Coin flip" takes only 1 bit.
 
