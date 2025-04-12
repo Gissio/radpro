@@ -3,6 +3,7 @@
 ## 2.1.2 "Minor fixes"
 
 Updates:
+* Added "6 hours" and "24 hours" averaging periods.
 * Added "SET deviceTimeZone" and "GET deviceTimeZone" data commands for timezone management.
 * Added "RESET datalog" data command to clear data logs.
 * Removed background compensation (intrinsic activity in common Geiger tubes is negligible).

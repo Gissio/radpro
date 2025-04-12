@@ -218,6 +218,8 @@ uint8_t instantaneousAveragingPeriods[] = {
 
 static const int32_t averagingTimes[] = {
     30 * 24 * 60 * 60, // Off (actually 30 days)
+    24 * 60 * 60,      // 24 hours
+    6 * 60 * 60,       // 6 hours
     60 * 60,           // 1 hour
     30 * 60,           // 30 minutes
     10 * 60,           // 10 minutes
@@ -1594,6 +1596,8 @@ static const View instantaneousMenuView = {
 
 static const char *const averageMenuOptions[] = {
     "Unlimited",
+    "24 hours",
+    "6 hours",
     "1 hour",
     "30 minutes",
     "10 minutes",
