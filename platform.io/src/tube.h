@@ -23,7 +23,9 @@ void initTubeController(void);
 void resetTube(void);
 
 float getTubeSensitivity(void);
+uint32_t getLossOfCountTime(void);
 float getTubeDeadTimeCompensation(void);
+float getOverrangeRate(void);
 float getTubeHVFrequency(void);
 bool setTubeHVFrequency(float value);
 float getTubeHVDutyCycle(void);

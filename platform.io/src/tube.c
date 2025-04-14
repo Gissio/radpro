@@ -17,6 +17,8 @@
 #include "tube.h"
 #include "vibration.h"
 
+#define OVERRANGE_FACTOR 1.1F
+
 static const Menu tubeMenu;
 static const Menu tubeSensitivityMenu;
 static const Menu tubeDeadTimeCompensationMenu;
@@ -478,6 +480,12 @@ float getTubeSensitivity(void)
     return getTubeSensitivityForIndex(settings.tubeSensitivity);
 }
 
+uint32_t getLossOfCountTime(void)
+{
+    // 60 s/min * [number of periods] * [lowest expected radiation in uSv/h]
+    return (uint32_t) ((60.0F * 10.0F / 0.05F) / getTubeSensitivity()) + 1;
+}
+
 static const char *onTubeSensitivityMenuGetOption(const Menu *menu,
                                                        uint32_t index,
                                                        MenuStyle *menuStyle)
@@ -496,7 +504,7 @@ static const char *onTubeSensitivityMenuGetOption(const Menu *menu,
     else if (index < TUBE_SENSITIVITY_NUM)
     {
         strclr(menuOption);
-        strcatFloat(menuOption, getTubeSensitivityForIndex(index), 1);
+        strcatFloat(menuOption, getTubeSensitivityForIndex(index), 2);
         strcat(menuOption, " cpm/\xb5Sv/h");
     }
     else
@@ -542,6 +550,16 @@ static float getTubeDeadTimeCompensationFromIndex(uint32_t index)
 float getTubeDeadTimeCompensation(void)
 {
     return getTubeDeadTimeCompensationFromIndex(settings.tubeDeadTimeCompensation);
+}
+
+float getOverrangeRate(void)
+{
+    float deadTimeCompensation = getTubeDeadTimeCompensation();
+
+    if (deadTimeCompensation < TUBE_DEADTIMECOMPENSATION_MIN)
+        return 1E6;
+    else 
+        return ((OVERRANGE_FACTOR - 1.0F) / OVERRANGE_FACTOR) / deadTimeCompensation;
 }
 
 static const char *onTubeDeadTimeCompensationMenuGetOption(const Menu *menu,

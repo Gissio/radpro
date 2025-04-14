@@ -79,7 +79,9 @@ enum
 {
     AVERAGING_UNLIMITED,
     AVERAGING_24H,
+    AVERAGING_12H,
     AVERAGING_6H,
+    AVERAGING_3H,
     AVERAGING_1H,
     AVERAGING_30M,
     AVERAGING_10M,
@@ -180,10 +182,10 @@ enum
     TUBE_SENSITIVITY_PRESETS_NUM,
 };
 
-#define TUBE_SENSITIVITY_VALUE_MIN 25.0F
-#define TUBE_SENSITIVITY_VALUE_MAX 12800.01F
-#define TUBE_SENSITIVITY_VALUE_LOG_MAX_MIN 9.0F
-#define TUBE_SENSITIVITY_VALUE_NUM 145
+#define TUBE_SENSITIVITY_VALUE_MIN 1.0F
+#define TUBE_SENSITIVITY_VALUE_MAX 16384.01F
+#define TUBE_SENSITIVITY_VALUE_LOG_MAX_MIN 14.0F
+#define TUBE_SENSITIVITY_VALUE_NUM 225
 #define TUBE_SENSITIVITY_NUM (TUBE_SENSITIVITY_PRESETS_NUM + TUBE_SENSITIVITY_VALUE_NUM)
 
 #define TUBE_DEADTIMECOMPENSATION_MIN 0.000020F
@@ -398,11 +400,12 @@ typedef struct
     unsigned int pulseThreshold : 4;
 
     unsigned int units : 2;
-    unsigned int averaging : 4;
+    unsigned int averaging : 5;
     unsigned int instantaneousAveraging : 3;
 
     unsigned int rateAlarm : 4;
     unsigned int doseAlarm : 4;
+    unsigned int overrangeAlarm : 1;
     unsigned int alarmSignaling : 4;
 
     unsigned int tubeSensitivity : 8;

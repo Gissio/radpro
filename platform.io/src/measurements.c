@@ -23,11 +23,14 @@
 #define ALERTZONE1_USVH 1.0E-6F
 #define ALERTZONE2_USVH 1.0E-5F
 
-#define TUBE_FAULT_TIMEOUT 300
-
 #define INSTANTANEOUS_RATE_QUEUE_SIZE 64
 #define INSTANTANEOUS_RATE_QUEUE_MASK (INSTANTANEOUS_RATE_QUEUE_SIZE - 1)
 #define INSTANTANEOUS_RATE_AVERAGING_PULSE_COUNT 19 // For 50% confidence interval
+
+#define INSTANTANEOUS_RATE_ALARM_RATE 0
+#define INSTANTANEOUS_RATE_ALARM_RATE_MASK (1 << INSTANTANEOUS_RATE_ALARM_RATE)
+#define INSTANTANEOUS_RATE_ALARM_OVERRANGE 1
+#define INSTANTANEOUS_RATE_ALARM_OVERRANGE_MASK (1 << INSTANTANEOUS_RATE_ALARM_OVERRANGE)
 
 #define PULSE_INDICATION_SENSITIVITY_MAX 600.0F
 #define PULSE_INDICATION_FACTOR_UNIT 0x10000
@@ -157,7 +160,7 @@ static struct
 
         float deadTimeCompensationRemainder;
 
-        uint32_t faultTimer;
+        uint32_t lossOfCountTimer;
         bool faultAlarm;
         bool lastShortCircuit;
     } period;
@@ -173,7 +176,7 @@ static struct
 
         Rate rate;
         float maxValue;
-        bool lastAlarm;
+        uint8_t alarmsState;
         bool alarm;
     } instantaneous;
 
@@ -196,7 +199,7 @@ static struct
     struct
     {
         Dose dose;
-        bool lastAlarm;
+        bool alarmsState;
         bool alarm;
     } cumulativeDose;
 
@@ -219,7 +222,9 @@ uint8_t instantaneousAveragingPeriods[] = {
 static const int32_t averagingTimes[] = {
     30 * 24 * 60 * 60, // Off (actually 30 days)
     24 * 60 * 60,      // 24 hours
+    12 * 60 * 60,      // 12 hours
     6 * 60 * 60,       // 6 hours
+    3 * 60 * 60,       // 3 hours
     60 * 60,           // 1 hour
     30 * 60,           // 30 minutes
     10 * 60,           // 10 minutes
@@ -401,7 +406,7 @@ void onMeasurementTick(uint32_t pulseCount)
 {
     if (measurements.enabled && pulseCount)
     {
-        measurements.tube.dose.pulseCount += pulseCount;
+        addClamped(&measurements.tube.dose.pulseCount, pulseCount);
 
         if (!measurements.period.measurement.pulseCount)
             measurements.period.measurement.firstPulseTick = getTick();
@@ -454,20 +459,20 @@ void updateMeasurements(void)
         return;
 
     // Tube life
-    measurements.tube.dose.time++;
+    addClamped(&measurements.tube.dose.time, 1);
 
-    // Fault detection
+    // Loss-of-count detection
     if (measurements.period.snapshotMeasurement.pulseCount)
-        measurements.period.faultTimer = 0;
+        measurements.period.lossOfCountTimer = 0;
     else
-        measurements.period.faultTimer++;
+        measurements.period.lossOfCountTimer++;
+    measurements.period.faultAlarm = (measurements.period.lossOfCountTimer >= getLossOfCountTime());
 
+    // Shortcircuit detection
     bool isTubeShortCircuit = (!measurements.period.snapshotMeasurement.pulseCount && getTubeDet());
     if (measurements.period.lastShortCircuit && isTubeShortCircuit)
-        measurements.period.faultTimer = TUBE_FAULT_TIMEOUT;
+        measurements.period.faultAlarm = true;
     measurements.period.lastShortCircuit = isTubeShortCircuit;
-
-    measurements.period.faultAlarm = (measurements.period.faultTimer >= TUBE_FAULT_TIMEOUT);
 
     // Dear-time Compensation
     Measurement compensatedMeasurement;
@@ -543,16 +548,23 @@ void updateMeasurements(void)
 
     setPulseThreshold(svH < rateAlarmsSvH[settings.pulseThreshold]);
 
-    bool instantaneousRateAlarm = false;
     // Trigger alarm
-    if (settings.rateAlarm && isInstantaneousRateConfidenceAcceptable())
-        instantaneousRateAlarm = (svH >= rateAlarmsSvH[settings.rateAlarm]);
-
-    if (measurements.instantaneous.lastAlarm != instantaneousRateAlarm)
+    uint8_t instantaneousRateAlarmsState = 0;
+    if (isInstantaneousRateConfidenceAcceptable())
     {
-        measurements.instantaneous.lastAlarm = instantaneousRateAlarm;
-        measurements.instantaneous.alarm = instantaneousRateAlarm;
+        if (settings.rateAlarm)
+            instantaneousRateAlarmsState |= (svH >= rateAlarmsSvH[settings.rateAlarm]) << INSTANTANEOUS_RATE_ALARM_RATE;
+        if (settings.overrangeAlarm)
+            instantaneousRateAlarmsState |= (measurements.period.snapshotMeasurement.pulseCount >= getOverrangeRate()) << INSTANTANEOUS_RATE_ALARM_OVERRANGE;
     }
+
+    uint8_t instantanteousRateAlarmsActivated = (instantaneousRateAlarmsState ^ measurements.instantaneous.alarmsState) &
+                                               instantaneousRateAlarmsState;
+    if (instantanteousRateAlarmsActivated)
+        measurements.instantaneous.alarm = true;
+    else if (!instantaneousRateAlarmsState)
+        measurements.instantaneous.alarm = false;
+    measurements.instantaneous.alarmsState = instantaneousRateAlarmsState;
 
     // Average rate
     if ((measurements.average.rate.time < UINT32_MAX) &&
@@ -612,18 +624,18 @@ void updateMeasurements(void)
                    compensatedMeasurement.pulseCount);
     }
 
-    float cumulativeDoseAlarm = false;
+    float cumulativeDoseAlarmsState = false;
     if (settings.doseAlarm)
     {
         float doseSv = units[UNITS_SIEVERTS].dose.scale *
                        measurements.cumulativeDose.dose.pulseCount;
-        cumulativeDoseAlarm = (doseSv >= doseAlarmsSv[settings.doseAlarm]);
+        cumulativeDoseAlarmsState = (doseSv >= doseAlarmsSv[settings.doseAlarm]);
     }
 
-    if (measurements.cumulativeDose.lastAlarm != cumulativeDoseAlarm)
+    if (measurements.cumulativeDose.alarmsState != cumulativeDoseAlarmsState)
     {
-        measurements.cumulativeDose.lastAlarm = cumulativeDoseAlarm;
-        measurements.cumulativeDose.alarm = cumulativeDoseAlarm;
+        measurements.cumulativeDose.alarmsState = cumulativeDoseAlarmsState;
+        measurements.cumulativeDose.alarm = cumulativeDoseAlarmsState;
     }
 
     // History
@@ -811,7 +823,9 @@ static void onInstantaneousRateViewEvent(const View *view,
         }
         else if (measurements.instantaneous.alarm)
         {
-            stateString = "ALARM";
+            stateString = (measurements.instantaneous.alarmsState & INSTANTANEOUS_RATE_ALARM_OVERRANGE_MASK)
+                              ? "OVER"
+                              : "ALARM";
 
             style = MEASUREMENTSTYLE_ALARM;
         }
@@ -972,7 +986,7 @@ static void onAverageRateViewEvent(const View *view,
         }
         else if (measurements.average.pulseCount == UINT32_MAX)
         {
-            stateString = "OVER";
+            stateString = "MAX";
 
             style = MEASUREMENTSTYLE_HOLD;
         }
@@ -1151,7 +1165,7 @@ static void onCumulativeDoseViewEvent(const View *view,
         }
         else if (measurements.cumulativeDose.dose.pulseCount == UINT32_MAX)
         {
-            stateString = "OVER";
+            stateString = "MAX";
 
             style = MEASUREMENTSTYLE_HOLD;
         }
@@ -1475,6 +1489,7 @@ bool isAlarm(void)
 static const OptionView alarmsMenuOptions[] = {
     {"Rate alarm", &rateAlarmMenuView},
     {"Dose alarm", &doseAlarmMenuView},
+    {"Overrange alarm", NULL},
     {"Signaling", &alarmSignalingMenuView},
     {NULL},
 };
@@ -1483,14 +1498,24 @@ static const char *onAlarmsMenuGetOption(const Menu *menu,
                                          uint32_t index,
                                          MenuStyle *menuStyle)
 {
-    *menuStyle = MENUSTYLE_SUBMENU;
+    const OptionView *optionView = &alarmsMenuOptions[index];
 
-    return alarmsMenuOptions[index].option;
+    if (optionView->view)
+        *menuStyle = MENUSTYLE_SUBMENU;
+    else
+        *menuStyle = settings.overrangeAlarm;
+
+    return optionView->option;
 }
 
 static void onAlarmsMenuSelect(const Menu *menu)
 {
-    setView(alarmsMenuOptions[menu->state->selectedIndex].view);
+    const OptionView *optionView = &alarmsMenuOptions[menu->state->selectedIndex];
+
+    if (optionView->view)
+        setView(optionView->view);
+    else
+        settings.overrangeAlarm = !settings.overrangeAlarm;
 }
 
 static MenuState alarmsMenuState;
@@ -1597,7 +1622,9 @@ static const View instantaneousMenuView = {
 static const char *const averageMenuOptions[] = {
     "Unlimited",
     "24 hours",
+    "12 hours",
     "6 hours",
+    "3 hours",
     "1 hour",
     "30 minutes",
     "10 minutes",
