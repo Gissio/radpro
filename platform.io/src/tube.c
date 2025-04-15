@@ -471,7 +471,7 @@ static float getTubeSensitivityForIndex(uint32_t index)
 
     return TUBE_SENSITIVITY_VALUE_MIN *
            exp2f((index - TUBE_SENSITIVITY_PRESETS_NUM) *
-                 (TUBE_SENSITIVITY_VALUE_LOG_MAX_MIN /
+                 (TUBE_SENSITIVITY_VALUE_LOG2_MAX_MIN /
                   (TUBE_SENSITIVITY_VALUE_NUM - 1)));
 }
 

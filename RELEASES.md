@@ -4,7 +4,7 @@
 
 Updates:
 * Introduced averaging periods of 3, 6, 12, and 24 hours.
-* Expanded sensitivity range to 1-16,384 cpm/µSv/h to accommodate low-sensitivity Geiger tubes (such as the SI-3BG).
+* Expanded sensitivity range to 1-10,000 cpm/µSv/h to accommodate low-sensitivity Geiger tubes (such as the SI-3BG).
 * Introduced overrange alarm, triggered when dead-time compensation exceeds 10%.
 * Improved loss-of-count detection, now dynamically based on the selected sensitivity value.
 * Added "SET deviceTimeZone" and "GET deviceTimeZone" data commands for timezone configuration.
