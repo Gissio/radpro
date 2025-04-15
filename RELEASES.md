@@ -5,10 +5,10 @@
 Updates:
 * Introduced averaging periods of 3, 6, 12, and 24 hours.
 * Expanded sensitivity range to 1–16,384 cpm/µSv/h to accommodate low-sensitivity Geiger tubes (such as the SI-3BG).
-* Introduced optional overrange alarm, triggered when dead-time correction exceeds 10%.
+* Introduced overrange alarm, triggered when dead-time compensation exceeds 10%.
 * Improved loss-of-count detection, now dynamically based on the selected sensitivity value.
-* Added "SET deviceTimeZone" and "GET deviceTimeZone" data commands for remote timezone configuration.
-* Implemented "RESET datalog" data command to clear data logs remotely.
+* Added "SET deviceTimeZone" and "GET deviceTimeZone" data commands for timezone configuration.
+* Implemented "RESET datalog" data command to clear data logs.
 * Removed background compensation, as intrinsic activity in common Geiger tubes is negligible.
 * Removed "GET tubeBackgroundCompensation" data command to reflect the above change.
 * Refined SBM-20 Geiger tube sensitivity to 150.5 cpm/µSv/h.
