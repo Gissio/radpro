@@ -188,10 +188,10 @@ enum
 #define TUBE_SENSITIVITY_VALUE_NUM 241
 #define TUBE_SENSITIVITY_NUM (TUBE_SENSITIVITY_PRESETS_NUM + TUBE_SENSITIVITY_VALUE_NUM)
 
-#define TUBE_DEADTIMECOMPENSATION_MIN 0.000020F
-#define TUBE_DEADTIMECOMPENSATION_MAX 0.000320F
-#define TUBE_DEADTIMECOMPENSATION_LOG_MAX_MIN 4.0F
-#define TUBE_DEADTIMECOMPENSATION_NUM 64
+#define TUBE_DEADTIMECOMPENSATION_MIN 0.000005F
+#define TUBE_DEADTIMECOMPENSATION_MAX 0.000500F
+#define TUBE_DEADTIMECOMPENSATION_LOG2_MAX_MIN 6.643856189F
+#define TUBE_DEADTIMECOMPENSATION_NUM 121
 
 #if defined(SIMULATOR)
 #define TUBE_SENSITIVITY_DEFAULT TUBE_SENSITIVITY_M4011
@@ -409,7 +409,7 @@ typedef struct
     unsigned int alarmSignaling : 4;
 
     unsigned int tubeSensitivity : 8;
-    unsigned int tubeDeadTimeCompensation : 6;
+    unsigned int tubeDeadTimeCompensation : 7;
 #if defined(TUBE_HV_PWM)
     unsigned int tubeHVProfile : 2;
     unsigned int tubeHVFrequency : 3;

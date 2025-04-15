@@ -543,7 +543,7 @@ static float getTubeDeadTimeCompensationFromIndex(uint32_t index)
         return 0;
 
     return TUBE_DEADTIMECOMPENSATION_MIN * exp2f((index - 1) *
-                                                 (TUBE_DEADTIMECOMPENSATION_LOG_MAX_MIN /
+                                                 (TUBE_DEADTIMECOMPENSATION_LOG2_MAX_MIN /
                                                   (TUBE_DEADTIMECOMPENSATION_NUM - 2)));
 }
 
@@ -573,7 +573,7 @@ static const char *onTubeDeadTimeCompensationMenuGetOption(const Menu *menu,
     else if (index < TUBE_DEADTIMECOMPENSATION_NUM)
     {
         strclr(menuOption);
-        strcatFloat(menuOption, 1000000 * getTubeDeadTimeCompensationFromIndex(index), 1);
+        strcatFloat(menuOption, 1000000 * getTubeDeadTimeCompensationFromIndex(index), 2);
         strcat(menuOption, " \xb5s");
 
         return menuOption;
