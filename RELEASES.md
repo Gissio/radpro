@@ -4,7 +4,7 @@
 
 Updates:
 * Introduced averaging periods of 3, 6, 12, and 24 hours.
-* Expanded sensitivity range to 1–16,384 cpm/µSv/h to accommodate low-sensitivity Geiger tubes (such as the SI-3BG).
+* Expanded sensitivity range to 1-16,384 cpm/µSv/h to accommodate low-sensitivity Geiger tubes (such as the SI-3BG).
 * Introduced overrange alarm, triggered when dead-time compensation exceeds 10%.
 * Improved loss-of-count detection, now dynamically based on the selected sensitivity value.
 * Added "SET deviceTimeZone" and "GET deviceTimeZone" data commands for timezone configuration.
@@ -42,7 +42,7 @@ Updates:
 * Added configurable alarm signaling: sound, vibration, pulse LED and display flash.
 * Added an alarm enabled indicator.
 * Implemented a keyboard lock mode, accessible from Settings.
-* Display of dose counts below 10000 now shown in standard notation.
+* Display of dose counts below 10,000 now shown in standard notation.
 * Added new rate and dose alarm options.
 * Added new average timer options.
 * Extended the dead-time compensation range to 20-320 µs.
@@ -62,7 +62,7 @@ Fixes:
 
 ## 2.0.3 "The sensitive update"
 
-* Extended conversion factor range to 25-12800 cpm/µSv/h.
+* Extended conversion factor range to 25-12,800 cpm/µSv/h.
 * When using sensitive detectors with a conversion factor of 600 cpm/µSv/h or higher, pulse indication is now capped at 600 cpm/µSv/h to provide approximately one pulse per second at background levels of radiation. This does not impact the actual measurements.
 * Minor UI and performance refinements.
 

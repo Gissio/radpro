@@ -172,9 +172,9 @@ An energy-compensated Geiger tube is a type of Geiger-Müller tube designed to m
 
 Geologists use Geiger counters to detect uranium, thorium, and other radioactive minerals, aiding in the mapping of geological structures.
 
-Although Uranium-238, the most common uranium isotope, decays into Thorium-234 via alpha emission (which is typically not detectable by standard Geiger counters unless they have a mica window), the [decay chain](https://en.wikipedia.org/wiki/Decay_chain#Radium_series) continues, with subsequent daughter products emitting detectable beta radiation.
+Although uranium-238, the most common uranium isotope, decays into thorium-234 via alpha emission (which is typically not detectable by standard Geiger counters unless they have a mica window), the [decay chain](https://en.wikipedia.org/wiki/Decay_chain#Radium_series) continues, with subsequent daughter products emitting detectable beta radiation.
 
-Likewise, Thorium-232, the primary isotope of thorium, undergoes a [decay sequence](https://en.wikipedia.org/wiki/Decay_chain#Thorium_series) that results in the emission of detectable beta radiation from its daughter products.
+Likewise, thorium-232, the primary isotope of thorium, undergoes a [decay sequence](https://en.wikipedia.org/wiki/Decay_chain#Thorium_series) that results in the emission of detectable beta radiation from its daughter products.
 
 ### Radiation monitoring
 
@@ -288,7 +288,7 @@ Surviving a nuclear strike requires quick action to minimize exposure to radiati
 
 * **Objective:** Identify items in your home that emit radiation.
 
-* **Method:** Measure radiation from items like Brazilian granite countertops, smoke detectors (which contain small amounts of Americium-241), or old ceramic pottery with uranium glaze. Document the radiation levels and compare them to baseline background readings to see if they exceed typical values.
+* **Method:** Measure radiation from items like Brazilian granite countertops, smoke detectors (which contain small amounts of americium-241), or old ceramic pottery with uranium glaze. Document the radiation levels and compare them to baseline background readings to see if they exceed typical values.
 
 * **WARNING:** To prevent internal contamination, wear gloves when handling radioactive objects such as uranium rocks. Also, keep these objects in sealed plastic bags to reduce the risk of external contamination.
 

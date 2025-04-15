@@ -11,6 +11,7 @@
 * Configurable instantaneous rate averaging (adaptive fast, adaptive precision, 1 minute, 30 seconds and 10 seconds).
 * Configurable average timer for performing surveys.
 * Customizable Geiger-Müller tube settings: sensitivity, dead-time compensation, high voltage generator PWM frequency and duty cycle (on supported devices).
+* Optional overrange alarm when dead-time compensation exceeds 10%.
 * Preconfigured high voltage profiles (on supported devices).
 * Offline and live data logging with data compression.
 * Compatibility with the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software.
@@ -140,7 +141,7 @@ HV profiles let you control the high voltage supplied to the Geiger-Müller tube
 
 You can also define your own HV profile. **WARNING:** Wrong profile settings may damage the tube from overvoltage, as well as the switching transistor from overcurrent.
 
-Setting up a custom HV profile requires measuring the high voltage at the tube. To accomplish this, connect a 1 GΩ resistor in series to the positive terminal of a high-quality multimeter (with a 10 MΩ input impedance). Ensure the resistor is clean to prevent spurious currents. Set the multimeter to the 20 V range. Connect the negative terminal of the multimeter to ground, and the free end of the resistor to the tube's anode. The high voltage corresponds approximately to the multimeter reading multiplied by a factor of (1000 MΩ + 10 MΩ) / 10 MΩ = 101. **WARNING:** High voltage can be lethal.
+Setting up a custom HV profile requires measuring the high voltage at the tube. To accomplish this, connect a 1 GΩ resistor in series to the positive terminal of a high-quality multimeter (with a 10 MΩ input impedance). Ensure the resistor is clean to prevent spurious currents. Set the multimeter to the 20 V range. Connect the negative terminal of the multimeter to ground, and the free end of the resistor to the tube's anode. The high voltage corresponds approximately to the multimeter reading multiplied by a factor of (1,000 MΩ + 10 MΩ) / 10 MΩ = 101. **WARNING:** High voltage can be lethal.
 
 An HV profile consists of a [PWM](https://en.wikipedia.org/wiki/Pulse-width_modulation) frequency and duty cycle. Typically, higher frequency values produce lower voltage ripple (voltage variations in time) but consume more power. Conversely, lower frequency values require less power, but may sacrifice measurement accuracy.
 
