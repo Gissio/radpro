@@ -3,7 +3,7 @@
 ## 2.1.2 "Sundry"
 
 Updates:
-* Introduced averaging periods of 3, 6, 12, and 24 hours.
+* Added averaging periods of 3, 6, 12, and 24 hours, and ±50%, ±20%, ±10%, ±5%, ±2% and ±1% confidence.
 * Expanded sensitivity range to 1-10,000 cpm/µSv/h to accommodate low-sensitivity Geiger tubes (such as the SI-3BG).
 * Expanded dead-time compensation range to 5-500 µs to accommodate scintillation detectors.
 * Introduced overrange alarm, triggered when dead-time compensation exceeds 10%.
