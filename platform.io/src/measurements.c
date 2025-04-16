@@ -237,10 +237,12 @@ static const int32_t averagingTimes[] = {
 };
 
 static const float averagingConfidences[] = {
-    0.405F,  // ±40% confidence
+    0.505F,  // ±50% confidence
     0.205F,  // ±20% confidence
     0.105F,  // ±10% confidence
     0.0505F, // ±5% confidence
+    0.0205F, // ±2% confidence
+    0.0105F, // ±1% confidence
 };
 
 static const Menu alarmsMenu;
@@ -1635,13 +1637,17 @@ static const char *const averageMenuOptions[] = {
     "5 seconds",
     "1 second",
     "\xb1"
-    "40% confidence",
+    "50% confidence",
     "\xb1"
     "20% confidence",
     "\xb1"
     "10% confidence",
     "\xb1"
     "5% confidence",
+    "\xb1"
+    "2% confidence",
+    "\xb1"
+    "1% confidence",
     NULL,
 };
 
