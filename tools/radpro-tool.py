@@ -190,11 +190,17 @@ def download_datalog(device, path, start_datetime):
             values = record.split(',')
 
             if (len(values) != 2):
-                print('Warning: invalid data log format in line ' + str(index) + ' is skipped: ' + record);
+                print('Warning: invalid data log format in line ' +
+                      str(index) + ' is skipped: ' + record);
                 continue
 
-            record_time = int(values[0])
-            pulse_count = int(values[1])
+            try:
+                record_time = int(values[0])
+                pulse_count = int(values[1])
+            except:
+                print('Warning: invalid data log format in line ' +
+                      str(index) + ' is skipped: ' + record)
+                continue
 
             try:
                 record_datetime = str(datetime.fromtimestamp(record_time))
