@@ -25,98 +25,10 @@
 
 // Fonts
 
-#if defined(DISPLAY_128X64)
-
-#include "fonts/font_Tiny5.h"
-#define FONT_SMALL font_Tiny5
-#define FONT_SMALL_LINE_HEIGHT FONT_TINY5_LINE_HEIGHT
-
-#include "fonts/font_RadProSans8.h"
-#define FONT_MEDIUM font_RadProSans8
-#define FONT_MEDIUM_LINE_HEIGHT FONT_RADPROSANS8_LINE_HEIGHT
-
-#include "fonts/font_OpenSansSemiBold33_digits.h"
-#define FONT_LARGE font_OpenSansSemiBold33_digits
-#define FONT_LARGE_LINE_HEIGHT FONT_OPENSANSSEMIBOLD33_DIGITS_LINE_HEIGHT
-
-#include "fonts/font_RadProSymbols8.h"
-#define FONT_SYMBOLS font_RadProSymbols8
-#define FONT_SYMBOLS_LINE_HEIGHT FONT_RADPROSYMBOLS8_LINE_HEIGHT
-
-#include "fonts/font_RadProChess8.h"
-#define FONT_GAME font_RadProChess8
-
-#elif defined(DISPLAY_320X240) || defined(DISPLAY_240X320)
-
-#if defined(FONT_2BPP)
-
-#include "fonts/font_OpenSansMedium12_2.h"
-#define FONT_SMALL font_OpenSansMedium12_2
-#define FONT_SMALL_LINE_HEIGHT FONT_OPENSANSMEDIUM12_2_LINE_HEIGHT
-
-#include "fonts/font_OpenSansMedium18_2.h"
-#define FONT_MEDIUM font_OpenSansMedium18_2
-#define FONT_MEDIUM_LINE_HEIGHT FONT_OPENSANSMEDIUM18_2_LINE_HEIGHT
-
-#if defined(DISPLAY_320X240)
-#include "fonts/font_OpenSansSemiBold86_digits_2.h"
-#define FONT_LARGE font_OpenSansSemiBold86_digits_2
-#define FONT_LARGE_LINE_HEIGHT FONT_OPENSANSSEMIBOLD86_DIGITS_2_LINE_HEIGHT
-#else
-#include "fonts/font_OpenSansSemiBold63_digits_2.h"
-#define FONT_LARGE font_OpenSansSemiBold63_digits_2
-#define FONT_LARGE_LINE_HEIGHT FONT_OPENSANSSEMIBOLD63_DIGITS_2_LINE_HEIGHT
-#endif
-
-#if !defined(FONT_SYMBOLS_NOCHARGING)
-#include "fonts/font_MaterialSymbols_RadPro_2.h"
-#define FONT_SYMBOLS font_MaterialSymbols_RadPro_2
-#define FONT_SYMBOLS_LINE_HEIGHT FONT_MATERIALSYMBOLS_RADPRO_2_LINE_HEIGHT
-#else
-#include "fonts/font_MaterialSymbols_RadPro_nocharging_2.h"
-#define FONT_SYMBOLS font_MaterialSymbols_RadPro_nocharging_2
-#define FONT_SYMBOLS_LINE_HEIGHT FONT_MATERIALSYMBOLS_RADPRO_NOCHARGING_2_LINE_HEIGHT
-#endif
-
-#include "fonts/font_FreeSansChess25_2.h"
-#define FONT_GAME font_FreeSansChess25_2
-
-#else
-
-#include "fonts/font_OpenSansMedium12.h"
-#define FONT_SMALL font_OpenSansMedium12
-#define FONT_SMALL_LINE_HEIGHT FONT_OPENSANSMEDIUM12_LINE_HEIGHT
-
-#include "fonts/font_OpenSansMedium18.h"
-#define FONT_MEDIUM font_OpenSansMedium18
-#define FONT_MEDIUM_LINE_HEIGHT FONT_OPENSANSMEDIUM18_LINE_HEIGHT
-
-#if defined(DISPLAY_320X240)
-#include "fonts/font_OpenSansSemiBold86_digits.h"
-#define FONT_LARGE font_OpenSansSemiBold86_digits
-#define FONT_LARGE_LINE_HEIGHT FONT_OPENSANSSEMIBOLD86_DIGITS_LINE_HEIGHT
-#else
-#include "fonts/font_OpenSansSemiBold63_digits.h"
-#define FONT_LARGE font_OpenSansSemiBold63_digits
-#define FONT_LARGE_LINE_HEIGHT FONT_OPENSANSSEMIBOLD63_DIGITS_LINE_HEIGHT
-#endif
-
-#if !defined(FONT_SYMBOLS_NOCHARGING)
-#include "fonts/font_MaterialSymbols_RadPro.h"
-#define FONT_SYMBOLS font_MaterialSymbols_RadPro
-#define FONT_SYMBOLS_LINE_HEIGHT FONT_MATERIALSYMBOLS_RADPRO_LINE_HEIGHT
-#else
-#include "fonts/font_MaterialSymbols_RadPro_nocharging.h"
-#define FONT_SYMBOLS font_MaterialSymbols_RadPro_nocharging
-#define FONT_SYMBOLS_LINE_HEIGHT FONT_MATERIALSYMBOLS_RADPRO_NOCHARGING_LINE_HEIGHT
-#endif
-
-#include "fonts/font_FreeSansChess25.h"
-#define FONT_GAME font_FreeSansChess25
-
-#endif
-
-#endif
+#include FONT_SMALL
+#include FONT_MEDIUM
+#include FONT_LARGE
+#include FONT_SYMBOLS
 
 // Display metrics
 
@@ -131,18 +43,16 @@
 #define TITLEBAR_TIME_WIDTH (20 + 2)
 #define TITLEBAR_TIME_PADDING 1
 #define TITLEBAR_NOTIFICATIONICON_WIDTH 9
-#define TITLEBAR_NOTIFICATIONICON_HEIGHT 7
 #define TITLEBAR_NOTIFICATIONICON_PADDING 2
 #define TITLEBAR_BATTERYICON_WIDTH 9
-#define TITLEBAR_BATTERYICON_HEIGHT 7
-#define TITLEBAR_SHADOW_HEIGHT 1
+#define TITLEBAR_SHADOW_HEIGHT 0
 
 #define MENU_LINE_HEIGHT 14
 #define MENU_SUBMENU_WIDTH 5
 #define MENU_CHECKED_WIDTH 8
 
 #define MEASUREMENT_PADDING 7
-#define MEASUREMENT_VALUE_HEIGHT 35
+#define MEASUREMENT_VALUE_HEIGHT 36
 #define MEASUREMENT_VALUE_OFFSET_X (CONTENT_WIDTH - 6)
 #define MEASUREMENT_VALUE_OFFSET_Y 2
 #define MEASUREMENT_UNIT_X 78
@@ -154,7 +64,7 @@
 #define MEASUREMENT_INFO_VALUE_HEIGHT MEASUREMENT_CONFIDENCE_HEIGHT
 #define MEASUREMENT_STATE_X 32
 #define MEASUREMENT_BAR_LABEL_Y MEASUREMENT_VALUE_BOTTOM
-#define MEASUREMENT_BAR_LABEL_HEIGHT (FONT_SMALL_LINE_HEIGHT + 2)
+#define MEASUREMENT_BAR_LABEL_HEIGHT (FONT_SMALL_LINE_HEIGHT + 1)
 #define MEASUREMENT_BAR_TICKS_HEIGHT 2
 #define MEASUREMENT_BAR_TICKS_UPPER_HEIGHT 1
 #define MEASUREMENT_BAR_TICKS_LOWERMARGIN_HEIGHT 0
@@ -164,9 +74,9 @@
 #define HISTORY_WIDTH 122
 #define HISTORY_HEIGHT 42
 #define HISTORY_TOP_LABEL_OFFSET_X (HISTORY_WIDTH - 1)
-#define HISTORY_TOP_LABEL_OFFSET_Y (HISTORY_Y - CONTENT_Y - FONT_SMALL_LINE_HEIGHT + 1)
+#define HISTORY_TOP_LABEL_OFFSET_Y (HISTORY_Y - CONTENT_Y - FONT_SMALL_LINE_HEIGHT)
 #define HISTORY_BOTTOM_LABEL_OFFSET_X (HISTORY_WIDTH - 1)
-#define HISTORY_BOTTOM_LABEL_OFFSET_Y 0
+#define HISTORY_BOTTOM_LABEL_OFFSET_Y -1
 
 #define GAME_BOARD_X 0
 #define GAME_BOARD_Y 0
@@ -186,10 +96,8 @@
 #define TITLEBAR_TIME_WIDTH (53 + 12)
 #define TITLEBAR_TIME_PADDING 12
 #define TITLEBAR_NOTIFICATIONICON_WIDTH 24
-#define TITLEBAR_NOTIFICATIONICON_HEIGHT 24
 #define TITLEBAR_NOTIFICATIONICON_PADDING 12
 #define TITLEBAR_BATTERYICON_WIDTH 24
-#define TITLEBAR_BATTERYICON_HEIGHT 24
 #define TITLEBAR_SHADOW_HEIGHT 2
 
 #define MENU_LINE_HEIGHT 50
@@ -241,10 +149,8 @@
 #define TITLEBAR_TIME_WIDTH (53 + 8)
 #define TITLEBAR_TIME_PADDING 8
 #define TITLEBAR_NOTIFICATIONICON_WIDTH 24
-#define TITLEBAR_NOTIFICATIONICON_HEIGHT 24
 #define TITLEBAR_NOTIFICATIONICON_PADDING 8
 #define TITLEBAR_BATTERYICON_WIDTH 24
-#define TITLEBAR_BATTERYICON_HEIGHT 24
 #define TITLEBAR_SHADOW_HEIGHT 2
 
 #define MENU_LINE_HEIGHT 46
@@ -298,8 +204,10 @@
 #define TITLEBAR_TITLE_OFFSET_Y ((TITLEBAR_CONTENT_HEIGHT - FONT_SMALL_LINE_HEIGHT) / 2)
 #define TITLEBAR_TIME_OFFSET_X (TITLEBAR_TIME_WIDTH - TITLEBAR_TIME_PADDING)
 #define TITLEBAR_TIME_OFFSET_Y ((TITLEBAR_CONTENT_HEIGHT - FONT_SMALL_LINE_HEIGHT) / 2)
+#define TITLEBAR_NOTIFICATIONICON_HEIGHT FONT_SYMBOLS_LINE_HEIGHT
 #define TITLEBAR_NOTIFICATIONICON_OFFSET_X 0
 #define TITLEBAR_NOTIFICATIONICON_OFFSET_Y ((TITLEBAR_CONTENT_HEIGHT - TITLEBAR_NOTIFICATIONICON_HEIGHT) / 2)
+#define TITLEBAR_BATTERYICON_HEIGHT FONT_SYMBOLS_LINE_HEIGHT
 #define TITLEBAR_BATTERYICON_OFFSET_X 0
 #define TITLEBAR_BATTERYICON_OFFSET_Y ((TITLEBAR_CONTENT_HEIGHT - TITLEBAR_BATTERYICON_HEIGHT) / 2)
 
@@ -438,13 +346,6 @@ enum
     STATISTICS_ENTRY_DEVICE_VOLTAGE,
     STATISTICS_ENTRY_NUM,
 };
-
-#define DATA_MODE_X CONTENT_X
-#define DATA_MODE_Y CONTENT_Y
-#define DATA_MODE_WIDTH CONTENT_WIDTH
-#define DATA_MODE_HEIGHT CONTENT_HEIGHT
-#define DATA_MODE_OFFSET_X (CONTENT_WIDTH / 2)
-#define DATA_MODE_OFFSET_Y ((DATA_MODE_HEIGHT - FONT_SMALL_LINE_HEIGHT) / 2)
 
 #define GAME_BOARD_WIDTH (8 * GAME_SQUARE_WIDTH)
 #define GAME_BOARD_HEIGHT (8 * GAME_SQUARE_HEIGHT)
@@ -734,7 +635,7 @@ void onDisplaySubMenuBack(const Menu *menu);
 
 // Gamma-corrected linear brightness values
 
-// value = 8000 * [0.25, 0.5, 0.75, 1] ^ 2.2
+// value = 1000 * [0.25, 0.5, 0.75, 1] ^ 2.2
 uint16_t displayBrightnessValue[] = {
     47, 218, 531, 1000};
 
@@ -896,9 +797,9 @@ static void setFont(const uint8_t *font)
     mr_set_font(&mr, font);
 }
 
-static int16_t getTextWidth(const char *str)
+static uint16_t getTextWidth(const char *str)
 {
-    return mr_get_text_width(&mr, str);
+    return mr_get_utf8_text_width(&mr, (const uint8_t *)str);
 }
 
 #if defined(DISPLAY_MONOCHROME)
@@ -934,18 +835,18 @@ static void drawText(const char *str,
     uint32_t availableWidth = rectangle->width - offset->x;
 
     if (getTextWidth(str) <= availableWidth)
-        mr_draw_text(&mr, str, rectangle, offset);
+        mr_draw_utf8_text(&mr, (const uint8_t *)str, rectangle, offset);
     else
     {
-        char buffer[32];
+        char buffer[64];
         strcpy(buffer, str);
 
         for (int32_t i = (strlen(str) - 2); i > 0; i--)
         {
-            strcpy(buffer + i, "...");
+            strcpy(buffer + i, getString(STRING_ELLIPSIS));
             if (getTextWidth(buffer) <= availableWidth)
             {
-                mr_draw_text(&mr, buffer, rectangle, offset);
+                mr_draw_utf8_text(&mr, (const uint8_t *)buffer, rectangle, offset);
 
                 break;
             }
@@ -992,10 +893,11 @@ void drawTitleBar(const char *title,
     setFillColor(COLOR_CONTAINER_GLOBAL);
 
     // Icons
-    setFont(FONT_SYMBOLS);
-    buffer[1] = '\0';
+    setFont(font_symbols);
 
-    buffer[0] = '0' + getBatteryLevel();
+    strclr(buffer);
+    strcatChar(buffer, '0' + getBatteryLevel());
+
     rectangle.width = TITLEBAR_BATTERYICON_WIDTH + TITLEBAR_PADDING;
     rectangle.x -= rectangle.width;
     static mr_point_t titlebarBatteryOffset = {
@@ -1009,17 +911,17 @@ void drawTitleBar(const char *title,
 
     strclr(buffer);
     if (isLockMode())
-        buffer[0] = '<';
+        strcatChar(buffer, '<');
     else if (isAlarm())
     {
-        buffer[0] = ';';
+        strcatChar(buffer, ';');
 
 #if DISPLAY_COLOR
         setStrokeColor(COLOR_ALARM);
 #endif
     }
     else if (isAlarmEnabled())
-        buffer[0] = ':';
+        strcatChar(buffer, ':');
 
     if (buffer[0])
     {
@@ -1058,7 +960,7 @@ void drawTitleBar(const char *title,
         TITLEBAR_TIME_OFFSET_X,
         TITLEBAR_TIME_OFFSET_Y,
     };
-    setFont(FONT_SMALL);
+    setFont(font_small);
     setStrokeColor(COLOR_ELEMENT_ACTIVE);
     drawRightAlignedText(buffer,
                          &rectangle,
@@ -1149,10 +1051,9 @@ void drawNotification(const char *title,
 
     const mr_point_t topOffset = {
         DISPLAY_WIDTH / 2,
-        DISPLAY_HEIGHT / 2 -
-            FONT_MEDIUM_LINE_HEIGHT};
+        DISPLAY_HEIGHT / 2 - FONT_MEDIUM_LINE_HEIGHT};
 
-    setFont(FONT_MEDIUM);
+    setFont(font_medium);
     setStrokeColor(COLOR_ELEMENT_ACTIVE);
     setFillColor(COLOR_CONTAINER_GLOBAL);
     drawCenteredText(title,
@@ -1170,7 +1071,7 @@ void drawNotification(const char *title,
         DISPLAY_WIDTH / 2,
         FONT_MEDIUM_LINE_HEIGHT - FONT_SMALL_LINE_HEIGHT};
 
-    setFont(FONT_SMALL);
+    setFont(font_small);
     setStrokeColor(COLOR_ELEMENT_NEUTRAL);
     drawCenteredText(subtitle,
                      &bottomRectangle,
@@ -1180,8 +1081,6 @@ void drawNotification(const char *title,
 void drawMenu(const Menu *menu)
 {
     drawTitleBar(menu->title, true);
-
-    setFont(FONT_MEDIUM);
 
     uint32_t startIndex = menu->state->startIndex;
     uint32_t selectedIndex = menu->state->selectedIndex;
@@ -1196,7 +1095,7 @@ void drawMenu(const Menu *menu)
 
     const mr_point_t menuGadgetOffset = {
         MENU_PADDING,
-        (MENU_LINE_HEIGHT - FONT_MEDIUM_LINE_HEIGHT) / 2};
+        (MENU_LINE_HEIGHT - FONT_SYMBOLS_LINE_HEIGHT) / 2};
 
     for (uint32_t i = 0; i < MENU_LINE_NUM; i++)
     {
@@ -1212,6 +1111,8 @@ void drawMenu(const Menu *menu)
 
         rectangle.x = CONTENT_WIDTH;
 
+        setFont(font_symbols);
+
         setFillColor((index == selectedIndex)
                          ? COLOR_FLAT_CHECKED_BACKGROUND
                          : COLOR_NORMAL_ENABLED_BACKGROUND);
@@ -1223,7 +1124,7 @@ void drawMenu(const Menu *menu)
             rectangle.x -= rectangle.width;
 
             setStrokeColor(COLOR_ON_FLAT_NEUTRAL);
-            drawText("\x80",
+            drawText("=",
                      &rectangle,
                      &menuGadgetOffset);
         }
@@ -1235,7 +1136,7 @@ void drawMenu(const Menu *menu)
             rectangle.x -= rectangle.width;
 
             setStrokeColor(COLOR_INSTRUMENT_ENHANCED_PRIMARY);
-            drawText("\x81",
+            drawText(">",
                      &rectangle,
                      &menuGadgetOffset);
         }
@@ -1243,6 +1144,8 @@ void drawMenu(const Menu *menu)
         // Text
         rectangle.width = rectangle.x;
         rectangle.x = 0;
+
+        setFont(font_medium);
 
         setStrokeColor(COLOR_ON_FLAT_ACTIVE);
         drawText(menuItem,
@@ -1263,7 +1166,7 @@ void drawMenu(const Menu *menu)
 
 void drawTestMode(const char lines[8][32])
 {
-    setFont(FONT_SMALL);
+    setFont(font_small);
     setStrokeColor(COLOR_ELEMENT_ACTIVE);
     setFillColor(COLOR_NORMAL_ENABLED_BACKGROUND);
 
@@ -1310,7 +1213,7 @@ void drawMeasurementValue(const char *valueString,
         MEASUREMENT_VALUE_OFFSET_X,
         MEASUREMENT_VALUE_OFFSET_Y};
 
-    setFont(FONT_LARGE);
+    setFont(font_large);
     setStrokeColor(
         (style == MEASUREMENTSTYLE_ALARM)
             ? COLOR_ALARM
@@ -1337,7 +1240,7 @@ void drawMeasurementValue(const char *valueString,
         MEASUREMENT_UNIT_OFFSET_X,
         MEASUREMENT_UNIT_OFFSET_Y};
 
-    setFont(FONT_MEDIUM);
+    setFont(font_medium);
     setStrokeColor(COLOR_ELEMENT_NEUTRAL);
     drawRightAlignedText(unitString,
                          &unitRectangle,
@@ -1349,11 +1252,11 @@ void drawMeasurementValue(const char *valueString,
 
     if (confidence != 0)
     {
-        strcpy(confidenceString, "\xb1");
+        strcpy(confidenceString, getString(STRING_PLUSMINUS));
         strcatFloat(confidenceString,
                     100 * confidence,
                     confidence < 0.1F ? 1 : 0);
-        strcpy(confidenceUnit, "%");
+        strcpy(confidenceUnit, getString(STRING_PERCENT));
     }
     else
     {
@@ -1361,7 +1264,7 @@ void drawMeasurementValue(const char *valueString,
         strclr(confidenceUnit);
     }
 
-    setFont(FONT_SMALL);
+    setFont(font_small);
 
     const mr_rectangle_t confidenceRectangle = {
         MEASUREMENT_CONFIDENCE_X,
@@ -1398,7 +1301,7 @@ void drawMeasurementInfo(const char *infoKeyString,
         MEASUREMENT_INFO_KEY_OFFSET_X,
         MEASUREMENT_INFO_KEY_OFFSET_Y};
 
-    setFont(FONT_SMALL);
+    setFont(font_small);
     setStrokeColor(COLOR_ELEMENT_NEUTRAL);
     drawText(infoKeyString,
              &infoKeyRectangle,
@@ -1736,7 +1639,7 @@ void drawHistory(float scale,
         HISTORY_TOP_LABEL_OFFSET_X,
         HISTORY_TOP_LABEL_OFFSET_Y};
 
-    setFont(FONT_SMALL);
+    setFont(font_small);
     setStrokeColor(COLOR_ELEMENT_ACTIVE);
     drawRightAlignedText(topLabelString,
                          &topLabelRectangle,
@@ -1957,7 +1860,7 @@ void drawRNG(const char *title,
         RNG_DATA_OFFSET_X,
         RNG_DATA_OFFSET_Y};
 
-    setFont(FONT_SMALL);
+    setFont(font_small);
     setStrokeColor(COLOR_INSTRUMENT_ENHANCED_PRIMARY);
     drawText(rngString,
              &rngDataRectangle,
@@ -1974,7 +1877,7 @@ void drawRNG(const char *title,
         RNG_STATE_OFFSET_X,
         RNG_STATE_OFFSET_Y};
 
-    setFont(FONT_MEDIUM);
+    setFont(font_medium);
     setStrokeColor(COLOR_ELEMENT_ACTIVE);
     drawCenteredText(stateString,
                      &rngStateRectangle,
@@ -1983,9 +1886,9 @@ void drawRNG(const char *title,
 
 void drawStatistics(void)
 {
-    drawTitleBar("Statistics", false);
+    drawTitleBar(getString(STRING_STATISTICS), false);
 
-    setFont(FONT_SMALL);
+    setFont(font_small);
 
     char key[32];
     char valueString[32];
@@ -2006,16 +1909,16 @@ void drawStatistics(void)
         {
 #if defined(DISPLAY_PORTRAIT)
         case STATISTICS_ENTRY_TUBE_TITLE:
-            strcpy(key, "Tube");
+            strcpy(key, getString(STRING_TUBE));
 
             break;
 #endif
 
         case STATISTICS_ENTRY_TUBE_LIFE_TIME:
 #if !defined(DISPLAY_PORTRAIT)
-            strcpy(key, "Tube life time");
+            strcpy(key, getString(STRING_TUBE_LIFE_TIME));
 #else
-            strcpy(key, "Life time");
+            strcpy(key, getString(STRING_LIFE_TIME));
 #endif
             strcatTime(valueString, getTubeTime());
 
@@ -2023,9 +1926,9 @@ void drawStatistics(void)
 
         case STATISTICS_ENTRY_TUBE_LIFE_PULSES:
 #if !defined(DISPLAY_PORTRAIT)
-            strcpy(key, "Tube life pulses");
+            strcpy(key, getString(STRING_TUBE_LIFE_PULSES));
 #else
-            strcpy(key, "Life pulses");
+            strcpy(key, getString(STRING_LIFE_PULSES));
 #endif
             strcatUInt32(valueString, getTubePulseCount(), 0);
 
@@ -2033,35 +1936,36 @@ void drawStatistics(void)
 
         case STATISTICS_ENTRY_TUBE_DEAD_TIME:
 #if !defined(DISPLAY_PORTRAIT)
-            strcpy(key, "Tube dead time");
+            strcpy(key, getString(STRING_TUBE_DEAD_TIME));
 #else
-            strcpy(key, "Dead time");
+            strcpy(key, getString(STRING_DEAD_TIME));
 #endif
             float deadTime = getTubeDeadTime();
             if (deadTime >= 1)
-                strcpy(valueString, "-");
+                strcpy(valueString, getString(STRING_NONE));
             else
             {
-                strcpy(valueString, "< ");
+                strcpy(valueString, getString(STRING_LESSTHAN));
                 strcatFloat(valueString, 1000000 * deadTime, 1);
-                strcpy(unitString, " \xb5"
-                                   "s");
+                strclr(unitString);
+                strcatChar(unitString, ' ');
+                strcat(unitString, getString(STRING_MICROSECONDS));
             }
 
             break;
 
 #if defined(DISPLAY_PORTRAIT)
         case STATISTICS_ENTRY_DEVICE_TITLE:
-            strcpy(key, "Device");
+            strcpy(key, getString(STRING_DEVICE));
 
             break;
 #endif
 
         case STATISTICS_ENTRY_DEVICE_ID:
 #if !defined(DISPLAY_PORTRAIT)
-            strcpy(key, "Device ID");
+            strcpy(key, getString(STRING_DEVICE_ID));
 #else
-            strcpy(key, "ID");
+            strcpy(key, getString(STRING_ID));
 #endif
             strcatUInt32Hex(unitString, getDeviceId());
 
@@ -2069,12 +1973,14 @@ void drawStatistics(void)
 
         case STATISTICS_ENTRY_DEVICE_VOLTAGE:
 #if !defined(DISPLAY_PORTRAIT)
-            strcpy(key, "Device voltage");
+            strcpy(key, getString(STRING_DEVICE_VOLTAGE));
 #else
-            strcpy(key, "Voltage");
+            strcpy(key, getString(STRING_VOLTAGE));
 #endif
             strcatFloat(valueString, getBatteryVoltage(), 3);
-            strcpy(unitString, " V");
+            strclr(unitString);
+            strcatChar(unitString, ' ');
+            strcat(unitString, getString(STRING_VOLTS));
 
             break;
         };
@@ -2129,13 +2035,13 @@ void drawGame(const uint8_t board[8][8],
     mr_point_t offset;
 
 #if defined(DISPLAY_COLOR)
-    drawTitleBar("Game", false);
+    drawTitleBar(getString(STRING_GAME), false);
 #endif
 
     // Board
     static const char *const gamePieceMap = "@AACFBDE";
 
-    setFont(FONT_GAME);
+    setFont(font_symbols);
 
     rectangle.width = GAME_SQUARE_WIDTH;
     rectangle.height = GAME_SQUARE_HEIGHT;
@@ -2184,8 +2090,9 @@ void drawGame(const uint8_t board[8][8],
 #endif
 
             char pieceString[2];
-            pieceString[0] = pieceChar;
-            pieceString[1] = '\0';
+
+            strclr(pieceString);
+            strcatChar(pieceString, pieceChar);
 
             rectangle.x = GAME_BOARD_X + GAME_SQUARE_WIDTH * x;
             rectangle.y = GAME_BOARD_Y + GAME_SQUARE_HEIGHT * y;
@@ -2197,7 +2104,7 @@ void drawGame(const uint8_t board[8][8],
     }
 
     // Top timer
-    setFont(FONT_SMALL);
+    setFont(font_small);
     setStrokeColor(COLOR_ELEMENT_NEUTRAL);
     setFillColor(COLOR_CONTAINER_BACKGROUND);
 
@@ -2306,7 +2213,8 @@ static const char *onDisplayContrastMenuGetOption(const Menu *menu,
 
     *menuStyle = (index == settings.displayContrast);
 
-    strcpy(menuOption, "Level ");
+    strcpy(menuOption, getString(STRING_CONTRAST_LEVEL));
+    strcatChar(menuOption, ' ');
     strcatUInt32(menuOption, index + 1, 0);
 
     return menuOption;
@@ -2322,7 +2230,7 @@ static void onDisplayContrastMenuSelect(const Menu *menu)
 static MenuState displayContrastMenuState;
 
 static const Menu displayContrastMenu = {
-    "Contrast",
+    getString(STRING_CONTRAST),
     &displayContrastMenuState,
     onDisplayContrastMenuGetOption,
     onDisplayContrastMenuSelect,
@@ -2341,9 +2249,9 @@ const View displayContrastMenuView = {
 #if defined(DISPLAY_COLOR)
 
 static const char *const displayThemeMenuOptions[] = {
-    "Day",
-    "Dusk",
-    "Night",
+    getString(STRING_THEME_DAY),
+    getString(STRING_THEME_DUSK),
+    getString(STRING_THEME_NIGHT),
     NULL,
 };
 
@@ -2366,7 +2274,7 @@ static void onDisplayThemeMenuSelect(const Menu *menu)
 static MenuState displayThemeMenuState;
 
 static const Menu displayThemeMenu = {
-    "Theme",
+    getString(STRING_THEME),
     &displayThemeMenuState,
     onDisplayThemeMenuGetOption,
     onDisplayThemeMenuSelect,
@@ -2383,10 +2291,10 @@ const View displayThemeMenuView = {
 // Display brightness level menu
 
 static const char *const displayBrightnessMenuOptions[] = {
-    "Very low",
-    "Low",
-    "Medium",
-    "High",
+    getString(STRING_VERY_LOW),
+    getString(STRING_LOW),
+    getString(STRING_MEDIUM),
+    getString(STRING_HIGH),
     NULL,
 };
 
@@ -2407,7 +2315,7 @@ static void onDisplayBrightnessMenuSelect(const Menu *menu)
 static MenuState displayBrightnessMenuState;
 
 static const Menu displayBrightnessMenu = {
-    "Brightness",
+    getString(STRING_BRIGHTNESS),
     &displayBrightnessMenuState,
     onDisplayBrightnessMenuGetOption,
     onDisplayBrightnessMenuSelect,
@@ -2423,14 +2331,14 @@ const View displayBrightnessMenuView = {
 
 static const char *const displaySleepMenuOptions[] = {
 #if defined(DISPLAY_MONOCHROME)
-    "Always",
+    getString(STRING_ALWAYS_OFF),
 #endif
-    "10 seconds",
-    "30 seconds",
-    "1 minute",
-    "2 minutes",
-    "5 minutes",
-    "Never",
+    getString(STRING_10_SECONDS),
+    getString(STRING_30_SECONDS),
+    getString(STRING_1_MINUTE),
+    getString(STRING_2_MINUTES),
+    getString(STRING_5_MINUTES),
+    getString(STRING_ALWAYS_ON),
     NULL,
 };
 
@@ -2451,7 +2359,7 @@ static void onDisplaySleepMenuSelect(const Menu *menu)
 static MenuState displaySleepMenuState;
 
 static const Menu displaySleepMenu = {
-    "Sleep",
+    getString(STRING_SLEEP),
     &displaySleepMenuState,
     onDisplaySleepMenuGetOption,
     onDisplaySleepMenuSelect,
@@ -2467,13 +2375,13 @@ const View displaySleepMenuView = {
 
 static const OptionView displayMenuOptions[] = {
 #if defined(DISPLAY_COLOR)
-    {"Theme", &displayThemeMenuView},
+    {getString(STRING_THEME), &displayThemeMenuView},
 #endif
-    {"Brightness", &displayBrightnessMenuView},
+    {getString(STRING_BRIGHTNESS), &displayBrightnessMenuView},
 #if defined(DISPLAY_MONOCHROME)
-    {"Contrast", &displayContrastMenuView},
+    {getString(STRING_CONTRAST), &displayContrastMenuView},
 #endif
-    {"Sleep", &displaySleepMenuView},
+    {getString(STRING_SLEEP), &displaySleepMenuView},
     {NULL},
 };
 
@@ -2499,7 +2407,7 @@ void onDisplaySubMenuBack(const Menu *menu)
 static MenuState displayMenuState;
 
 static const Menu displayMenu = {
-    "Display",
+    getString(STRING_DISPLAY),
     &displayMenuState,
     onDisplayMenuGetOption,
     onDisplayMenuSelect,

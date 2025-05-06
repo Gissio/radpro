@@ -20,10 +20,8 @@
 #define FIRMWARE_BASE 0x08004000
 #if defined(CH32)
 #define FLASH_SIZE 0x10000
-#define FIRMWARE_SIZE 0xa400
 #elif defined(APM32)
 #define FLASH_SIZE 0x20000
-#define FIRMWARE_SIZE 0xd000
 #endif
 
 #define PWR_EN_PORT GPIOA

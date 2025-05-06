@@ -42,10 +42,10 @@ Make sure the electrical connections are correct. You may break your device if t
 
 Now, download the latest `radpro-flashtool` from the [Rad Pro releases](https://github.com/Gissio/radpro/releases).
 
-* To install from Windows, go to the `bosean` folder, keep the ok/power button pressed during the flash process, and start `bosean-fs5000-[type].bat`.
-* To install from macOS or Linux, go to the `bosean` folder, keep the ok/power button pressed during the flash process, and start `bosean-fs5000-[type].sh`.
+* To install from Windows, go to the `bosean` folder, keep the ok/power button pressed during the flash process, and double click `bosean-fs5000-[type].bat`.
+* To install from macOS or Linux, go to the `bosean` folder, keep the ok/power button pressed during the flash process, and double click `bosean-fs5000-[type].sh`.
 
-`[type]` is the type of installation: `install` or `update` (note that not all releases support updating). For larger digits, you can also start the `landscape-install` or the `landscape-update` installation types.
+`[type]` is the type of installation: `install` or `update` (note that not all releases support updating). For larger digits, you can also double click the `landscape-install` or the `landscape-update` installation types.
 
 The installation will automatically create a backup of the original firmware in the `backup` folder, so you can recover your device if something goes wrong. Make sure you keep the backups safe, so you can always return to the original firmware. To flash a backup, drag it onto `bosean-fs5000-install.bat` (Windows) or `bosean-fs5000-install.sh` (macOS/Linux).
 

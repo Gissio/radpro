@@ -46,8 +46,8 @@ Make sure the electrical connections are correct. You may break your device if t
 
 Now, download the latest `radpro-flashtool` from the [Rad Pro releases](https://github.com/Gissio/radpro/releases).
 
-* To install from Windows, go to the `fs2011` folder and start `fs2011-[mcu]-[type].bat`.
-* To install from macOS or Linux, go to the `fs2011` folder and start `fs2011-[mcu]-[type].sh`.
+* To install from Windows, go to the `fs2011` folder and double click `fs2011-[mcu]-[type].bat`.
+* To install from macOS or Linux, go to the `fs2011` folder and double click `fs2011-[mcu]-[type].sh`.
 
 `[mcu]` is the type of microprocessor on your board: `stm32f051c8`, `gd32f150c8` or `gd32f103c8`.
 
@@ -69,7 +69,7 @@ Last, read the [user's manual](../../manual.md) for learning how to use Rad Pro,
 
 ![FS2011 FTDI connection](img/fs2011-ftdi.jpg)
 
-* Add USB connectivity. You'll need: an [3.3 V USB serial converter](https://www.amazon.com/s?k=ftdi+board) and [wire-wrap](https://www.amazon.com/s?k=wirewrap+30). Important: do not use batteries when powering from USB. Follow these instructions:
+* Add USB connectivity. You'll need: a [3.3 V USB serial converter](https://www.amazon.com/s?k=ftdi+board) and [wire-wrap](https://www.amazon.com/s?k=wirewrap+30). Important: do not use batteries when powering from USB. Follow these instructions:
   * Set up the serial converter for 3.3 V.
   * Connect the serial converter's GND and 5V pins to the FS2011 board's 0V and 5V pads, respectively.
   * Connect the PA2 pin of the microprocessor to the serial converter's RX pin.

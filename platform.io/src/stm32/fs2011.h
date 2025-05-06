@@ -19,11 +19,6 @@
 
 #define FLASH_SIZE 0x10000
 #define FIRMWARE_BASE 0x08000000
-#if defined(DEBUG)
-#define FIRMWARE_SIZE 0xc000
-#else
-#define FIRMWARE_SIZE 0x9800
-#endif
 
 #define PWR_EN_PORT GPIOB
 #define PWR_EN_PIN 10

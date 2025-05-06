@@ -61,8 +61,8 @@ Make sure the electrical connections are correct. You may break your device if t
 
 Now, download the latest `radpro-flashtool` from the [Rad Pro releases](https://github.com/Gissio/radpro/releases).
 
-* To install from Windows, go to the `fnirsi-gc01` folder and start `fnirsi-gc01-[mcu]-[type].bat`.
-* To install from macOS or Linux, go to the `fnirsi-gc01` folder and start `fnirsi-gc01-[mcu]-[type].sh`.
+* To install from Windows, go to the `fnirsi-gc01` folder and double click `fnirsi-gc01-[mcu]-[type].bat`.
+* To install from macOS or Linux, go to the `fnirsi-gc01` folder and double click `fnirsi-gc01-[mcu]-[type].sh`.
 
 `[mcu]` is the type of microprocessor of your board: `ch32f103r8t6` or `apm32f103rbt6`. **NOTE:** Flashing the CH32F103R8T6 takes a couple of minutes.
 

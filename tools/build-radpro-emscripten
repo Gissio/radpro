@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 emcmake cmake -B build ..
 cd build
 emmake make -j 4

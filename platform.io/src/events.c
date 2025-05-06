@@ -13,6 +13,7 @@
 #include "buzzer.h"
 #include "cmath.h"
 #include "comm.h"
+#include "cstring.h"
 #include "datalog.h"
 #include "display.h"
 #include "events.h"
@@ -448,10 +449,10 @@ void triggerVibration(void)
 // Pulses sound menu
 
 static const char *const pulsesSoundMenuOptions[] = {
-    "Off",
-    "Clicks",
-    "Chirps",
-    "Beeps",
+    getString(STRING_OFF),
+    getString(STRING_CLICKS),
+    getString(STRING_CHIRPS),
+    getString(STRING_BEEPS),
     NULL,
 };
 
@@ -488,7 +489,7 @@ static void onPulsesSoundMenuSelect(const Menu *menu)
 static MenuState pulsesSoundMenuState;
 
 static const Menu pulsesSoundMenu = {
-    "Sound",
+    getString(STRING_SOUND),
     &pulsesSoundMenuState,
     onPulsesSoundMenuGetOption,
     onPulsesSoundMenuSelect,
@@ -509,7 +510,7 @@ static const char *onPulseThresholdMenuGetOption(const Menu *menu,
     *menuStyle = (index == settings.pulseThreshold);
 
     if (index == 0)
-        return "Off";
+        return getString(STRING_OFF);
     else if (index < RATEALARM_NUM)
         return buildRateAlarmMenuOption(index);
     else
@@ -524,7 +525,7 @@ static void onPulseThresholdMenuSelect(const Menu *menu)
 static MenuState pulseThresholdMenuState;
 
 static const Menu pulsesThresholdMenu = {
-    "Threshold",
+    getString(STRING_THRESHOLD),
     &pulseThresholdMenuState,
     onPulseThresholdMenuGetOption,
     onPulseThresholdMenuSelect,
@@ -552,15 +553,15 @@ enum
 };
 
 static const char *const pulsesMenuOptions[] = {
-    "Sound",
+    getString(STRING_SOUND),
 #if defined(VIBRATION)
-    "Vibration",
+    getString(STRING_VIBRATION),
 #endif
 #if defined(PULSE_LED)
-    "Pulse LED",
+    getString(STRING_PULSE_LED),
 #endif
-    "Display flash",
-    "Threshold",
+    getString(STRING_DISPLAY_FLASH),
+    getString(STRING_THRESHOLD),
     NULL,
 };
 
@@ -637,7 +638,7 @@ static void onPulsesMenuSelect(const Menu *menu)
 static MenuState pulsesMenuState;
 
 static const Menu pulsesMenu = {
-    "Pulses",
+    getString(STRING_PULSES),
     &pulsesMenuState,
     onPulsesMenuGetOption,
     onPulsesMenuSelect,

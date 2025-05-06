@@ -54,7 +54,6 @@ extern Comm comm;
 extern const View dataModeMenuView;
 
 void initComm(void);
-void resetComm(void);
 
 void openComm(void);
 void closeComm(void);

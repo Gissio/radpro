@@ -14,6 +14,10 @@
 #include <stdint.h>
 #include <string.h>
 
+#include I18N
+
+#define getString(string) string
+
 #ifdef __EMSCRIPTEN__
 
 void strclr(char *str);

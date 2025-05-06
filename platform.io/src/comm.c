@@ -24,10 +24,6 @@
 
 Comm comm;
 
-#if defined(DATA_MODE)
-static const Menu dataModeMenu;
-#endif
-
 void initComm(void)
 {
 #if !defined(DATA_MODE)
@@ -35,15 +31,6 @@ void initComm(void)
 #else
     if (settings.dataMode)
         openComm();
-#endif
-}
-
-void resetComm(void)
-{
-#if defined(DATA_MODE)
-    selectMenuItem(&dataModeMenu,
-                   settings.dataMode,
-                   DATAMODE_NUM);
 #endif
 }
 
@@ -116,18 +103,6 @@ static void sendCommOkWithString(const char *value)
     sendCommOk();
     strcatChar(comm.buffer, ' ');
     strcat(comm.buffer, value);
-}
-
-static void sendCommOkWithInt32(int32_t value)
-{
-    sendCommOk();
-    strcatChar(comm.buffer, ' ');
-    if (value < 0)
-    {
-        strcatChar(comm.buffer, '-');
-        value = -value;
-    }
-    strcatUInt32(comm.buffer, (uint32_t)value, 0);
 }
 
 static void sendCommOkWithUInt32(uint32_t value)
@@ -337,51 +312,3 @@ void dispatchCommEvents(void)
         }
     }
 }
-
-// Communications mode
-
-#if defined(DATA_MODE)
-
-static const char *const dataModeMenuOptions[] = {
-    "Off",
-    "On",
-    NULL,
-};
-
-static const char *onDataModeMenuGetOption(const Menu *menu,
-                                           uint32_t index,
-                                           MenuStyle *menuStyle)
-{
-    *menuStyle = (index == isCommOpen());
-
-    return dataModeMenuOptions[index];
-}
-
-static void onDataModeMenuSelect(const Menu *menu)
-{
-    uint32_t selectedIndex = menu->state->selectedIndex;
-
-    settings.dataMode = selectedIndex;
-
-    if (selectedIndex)
-        openComm();
-    else
-        closeComm();
-}
-
-static MenuState dataModeMenuState;
-
-static const Menu dataModeMenu = {
-    "Data mode",
-    &dataModeMenuState,
-    onDataModeMenuGetOption,
-    onDataModeMenuSelect,
-    onSettingsSubMenuBack,
-};
-
-const View dataModeMenuView = {
-    onMenuEvent,
-    &dataModeMenu,
-};
-
-#endif

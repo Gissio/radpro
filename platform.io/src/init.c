@@ -8,6 +8,7 @@
  */
 
 #include "comm.h"
+#include "cstring.h"
 #include "datalog.h"
 #include "display.h"
 #include "events.h"
@@ -42,10 +43,10 @@ static void onPowerOnViewEvent(const View *view, Event event)
     {
     case EVENT_DRAW:
         if (powerOnViewState == POWERON_VIEW_FLASHFAILURE)
-            drawNotification("WARNING",
-                             "Firmware checksum failure.");
+            drawNotification(getString(STRING_NOTIFICATION_WARNING),
+                             getString(STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE));
         else
-            drawNotification(FIRMWARE_NAME,
+            drawNotification(getString(STRING_APP_NAME),
                              FIRMWARE_VERSION);
 
         break;
@@ -109,7 +110,6 @@ void setPowerOnView(void)
     resetSettings();
     resetEvents();
     resetPower();
-    resetComm();
     resetTube();
     resetDisplay();
     resetDatalog();

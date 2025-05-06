@@ -45,26 +45,20 @@ typedef enum
 static const uint8_t rngModeRanges[] = {94, 62, 16, 10, 2, 100, 20, 12, 10, 8, 6, 4, 2};
 
 static const char *const rngModeMenuOptions[] = {
-    "Full ASCII",
-    "Alphanumeric",
-    "Hexadecimal",
-    "Decimal",
-    "Binary",
-    "100-sided die (0-99)",
-    "20-sided die",
-    "12-sided die",
-    "10-sided die (0-9)",
-    "8-sided die",
-    "6-sided die",
-    "4-sided die",
-    "Coin flip",
+    getString(STRING_FULL_ASCII),
+    getString(STRING_ALPHANUMERIC),
+    getString(STRING_HEXADECIMAL),
+    getString(STRING_DECIMAL),
+    getString(STRING_BINARY),
+    getString(STRING_100_SIDED_DIE),
+    getString(STRING_20_SIDED_DIE),
+    getString(STRING_12_SIDED_DIE),
+    getString(STRING_10_SIDED_DIE),
+    getString(STRING_8_SIDED_DIE),
+    getString(STRING_6_SIDED_DIE),
+    getString(STRING_4_SIDED_DIE),
+    getString(STRING_COIN_FLIP),
     NULL,
-};
-
-static const char *const rngActivitySubtitles[] = {
-    ".",
-    "..",
-    "...",
 };
 
 static struct
@@ -261,7 +255,7 @@ static void updateFastDiceRollerText(void)
             strcatUInt32(rng.text, digit, 0);
         }
         else
-            strcpy(rng.text, digit ? "Head" : "Tail");
+            strcpy(rng.text, digit ? getString(STRING_COIN_HEAD) : getString(STRING_COIN_TAIL));
 
         if ((rng.mode >= RNG_MODE_THROW) ||
             (strlen(rng.text) >= RNG_SYMBOLS_MAX))
@@ -299,7 +293,7 @@ static void onRNGEvent(const View *view, Event event)
 
         const char *stateString;
         if (rng.activityIndicator)
-            stateString = rngActivitySubtitles[rng.activityIndicator - 1];
+            stateString = getString(STRING_ELLIPSIS) + 3 - rng.activityIndicator;
         else
             stateString = "";
 
@@ -341,7 +335,7 @@ static void onRNGMenuSelect(const Menu *menu)
 static MenuState rngMenuState;
 
 const Menu rngMenu = {
-    "Random generator",
+    getString(STRING_RANDOM_GENERATOR),
     &rngMenuState,
     onRNGMenuGetOption,
     onRNGMenuSelect,

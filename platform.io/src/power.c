@@ -8,6 +8,7 @@
  */
 
 #include "adc.h"
+#include "cstring.h"
 #include "datalog.h"
 #include "display.h"
 #include "events.h"
@@ -78,8 +79,8 @@ int8_t getBatteryLevel(void)
 #if defined(BATTERY_REMOVABLE)
 
 static const char *const batteryTypeMenuOptions[] = {
-    "Ni-MH",
-    "Alkaline",
+    getString(STRING_NI_MH),
+    getString(STRING_ALKALINE),
     NULL,
 };
 
@@ -100,7 +101,7 @@ static void onBatteryTypeMenuSelect(const Menu *menu)
 static MenuState batteryTypeMenuState;
 
 static const Menu batteryTypeMenu = {
-    "Battery type",
+    getString(STRING_BATTERY_TYPE),
     &batteryTypeMenuState,
     onBatteryTypeMenuGetOption,
     onBatteryTypeMenuSelect,

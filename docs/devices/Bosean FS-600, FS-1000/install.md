@@ -46,8 +46,8 @@ Make sure the electrical connections are correct. You may break your device if t
 
 Now, download the latest `radpro-flashtool` from the [Rad Pro releases](https://github.com/Gissio/radpro/releases).
 
-* To install from Windows, go to the `bosean` folder and start `bosean-[device]-[type].bat`.
-* To install from macOS or Linux, go to the `bosean` folder and start `bosean-[device]-[type].sh`.
+* To install from Windows, go to the `bosean` folder and double click `bosean-[device]-[type].bat`.
+* To install from macOS or Linux, go to the `bosean` folder and double click `bosean-[device]-[type].sh`.
 
 `[device]` is the type of your device: `fs600` or `fs1000`.
 

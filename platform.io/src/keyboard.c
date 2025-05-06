@@ -276,13 +276,10 @@ void onKeyboardTick(void)
                 event = EVENT_KEY_TOGGLELOCK;
             else if (keyboard.pressedKey == KEY_OK)
                 event = EVENT_KEY_POWER;
-            else if (keyboard.mode == KEYBOARD_MODE_MEASUREMENT)
-            {
-                if (keyboard.pressedKey == KEY_LEFT)
-                    event = EVENT_KEY_RESET;
-                else if (keyboard.pressedKey == KEY_RIGHT)
-                    event = EVENT_KEY_TOGGLEPULSECLICKS;
-            }
+            else if (keyboard.pressedKey == KEY_LEFT)
+                event = EVENT_KEY_RESET;
+            else if (keyboard.pressedKey == KEY_RIGHT)
+                event = EVENT_KEY_TOGGLEPULSECLICKS;
         }
 #endif
     }

@@ -109,15 +109,23 @@ void strcatFloat(char *str,
     }
 }
 
-const char metricPrefixes[] = "n\xb5m\0kMG";
+const char *metricPrefixes[8] = {
+    getString(STRING_NANO),
+    getString(STRING_MICRO),
+    getString(STRING_MILLI),
+    "",
+    getString(STRING_KILO),
+    getString(STRING_MEGA),
+    getString(STRING_GIGA),
+};
 
 static void strcatMetricPrefix(char *str,
                                int32_t index)
 {
-    if ((index < -3) || (index > 3))
-        strcatChar(str, '?');
-    else
-        strcatChar(str, metricPrefixes[index + 3]);
+    uint32_t metricIndex = index + 3;
+    if (metricIndex > 6)
+        metricIndex = 3;
+    strcat(str, metricPrefixes[metricIndex]);
 }
 
 void strcatFloatAsMetricValueAndPrefix(char *str,
@@ -138,7 +146,7 @@ void strcatFloatAsMetricValueAndPrefix(char *str,
         fractionalDecimals = 3;
 
     if (value == 0.0F)
-        strcat(str, "\x7f.\x7f\x7f\x7f");
+        strcat(str, "‒.‒‒‒"); // Note: uses figure dash! (U+2012)
     else
     {
         float metricValue = powf(10.0F, decimalPower - metricPower);
@@ -152,7 +160,7 @@ void strcatFloatAsMetricValueWithPrefix(char *str,
                                         float value,
                                         int32_t minMetricPrefixIndex)
 {
-    char metricPrefix[2];
+    char metricPrefix[4];
     strclr(metricPrefix);
 
     strcatFloatAsMetricValueAndPrefix(str,

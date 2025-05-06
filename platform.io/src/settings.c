@@ -193,23 +193,23 @@ void writeSettings(void)
 // Settings menu
 
 static const OptionView settingsMenuOptions[] = {
-    {"Pulses", &pulsesMenuView},
-    {"Alarms", &alarmsMenuView},
-    {"Measurements", &measurementsMenuView},
-    {"Geiger tube", &tubeMenuView},
-    {"Data log", &datalogMenuView},
-    {"Display", &displayMenuView},
-    {"Date and time", &rtcMenuView},
+    {getString(STRING_PULSES), &pulsesMenuView},
+    {getString(STRING_ALARMS), &alarmsMenuView},
+    {getString(STRING_MEASUREMENTS), &measurementsMenuView},
+    {getString(STRING_GEIGER_TUBE), &tubeMenuView},
+    {getString(STRING_DATA_LOG), &datalogMenuView},
+    {getString(STRING_DISPLAY), &displayMenuView},
+    {getString(STRING_DATE_AND_TIME), &rtcMenuView},
 #if defined(BATTERY_REMOVABLE)
-    {"Battery type", &batteryTypeMenuView},
+    {getString(STRING_BATTERY_TYPE), &batteryTypeMenuView},
 #endif
-    {"Random generator", &rngMenuView},
+    {getString(STRING_RANDOM_GENERATOR), &rngMenuView},
 #if defined(GAME)
-    {"Game", &gameMenuView},
+    {getString(STRING_GAME), &gameMenuView},
 #endif
-    {"Statistics", &statisticsView},
+    {getString(STRING_STATISTICS), &statisticsView},
 #if defined(DATA_MODE)
-    {"Data mode", &dataModeMenuView},
+    {getString(STRING_DATA_MODE), NULL},
 #endif
     {NULL},
 };
@@ -218,14 +218,35 @@ static const char *onSettingsMenuGetOption(const Menu *menu,
                                            uint32_t index,
                                            MenuStyle *menuStyle)
 {
+#if !defined(DATA_MODE)
     *menuStyle = MENUSTYLE_SUBMENU;
+#else
+    if (index < ((sizeof(settingsMenuOptions) / sizeof(OptionView)) - 2))
+        *menuStyle = MENUSTYLE_SUBMENU;
+    else
+        *menuStyle = isCommOpen();
+#endif
 
     return settingsMenuOptions[index].option;
 }
 
 static void onSettingsMenuSelect(const Menu *menu)
 {
+#if !defined(DATA_MODE)
     setView(settingsMenuOptions[menu->state->selectedIndex].view);
+#else
+    uint32_t selectedIndex = menu->state->selectedIndex;
+
+    if (selectedIndex < ((sizeof(settingsMenuOptions) / sizeof(OptionView)) - 2))
+        setView(settingsMenuOptions[selectedIndex].view);
+    else
+    {
+        if (!isCommOpen())
+            openComm();
+        else
+            closeComm();
+    }
+#endif
 }
 
 static void onSettingsMenuBack(const Menu *menu)
@@ -241,7 +262,7 @@ void onSettingsSubMenuBack(const Menu *menu)
 static MenuState settingsMenuState;
 
 static const Menu settingsMenu = {
-    "Settings",
+    getString(STRING_SETTINGS),
     &settingsMenuState,
     onSettingsMenuGetOption,
     onSettingsMenuSelect,

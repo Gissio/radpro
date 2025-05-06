@@ -1,0 +1,144 @@
+[base]
+platform = ststm32
+framework = cmsis
+build_flags =
+    -DQFP
+    -DMCURENDERER_WITHOUT_BITMAP_SUPPORT
+debug_build_flags =
+	-Og -g2 -ggdb2
+    -DDEBUG
+
+[fs2011]
+extends = base
+build_flags =
+    ${base.build_flags}
+    -DFS2011
+    -DQFP
+    -DMCURENDERER_WITHOUT_BITMAP_SUPPORT
+    -DBATTERY_REMOVABLE
+    -DTUBE_HV_PWM
+    -DKEYBOARD_5KEYS
+    -DDISPLAY_128X64
+    -DDISPLAY_MONOCHROME
+    -DFONT_LARGE='"fonts/font_mono_large.h"'
+    -DFONT_SYMBOLS='"fonts/font_mono_symbols.h"'
+    -DVIBRATION
+    -DDATA_MODE
+    -DGAME
+lib_ignore = libusb_stm32
+
+[bosean-fs600-1000]
+extends = base
+board = stm32g070cb
+build_flags =
+    ${base.build_flags}
+    -DBATTERY_REMOVABLE
+    -DTUBE_HV_PWM
+    -DDISPLAY_128X64
+    -DDISPLAY_MONOCHROME
+    -DFONT_LARGE='"fonts/font_mono_large.h"'
+    -DFONT_SYMBOLS='"fonts/font_mono_symbols.h"'
+    -DPULSE_LED
+    -DGAME
+lib_ignore = libusb_stm32
+
+[bosean-fs5000]
+extends = base
+board = stm32l431rc
+; extra_scripts = pre:scripts/hardfloat.py
+build_flags =
+    ${base.build_flags}
+    -DFS5000
+    -DKEYBOARD_3KEYS
+    -DDISPLAY_COLOR
+    -DFONT_SYMBOLS='"fonts/font_color_symbols.h"'
+    -DPULSE_LED
+    -DALERT_LED
+    -DVIBRATION
+    -DGAME
+lib_ignore = libusb_stm32
+
+[fnirsi-gc01]
+extends = base
+build_flags =
+    ${base.build_flags}
+    -DGC01
+    -DUSBD_ASM_DRIVER
+    -DTUBE_HV_PWM
+    -DKEYBOARD_5KEYS
+    -DKEYBOARD_POWERON_NOSLEEP
+    -DDISPLAY_320X240
+    -DDISPLAY_COLOR
+    -DFONT_SYMBOLS_NOCHARGING
+    -DPULSE_LED
+    -DVIBRATION
+board_build.ldscript = scripts/gc01.ld
+board_upload.offset_address = 0x08004000
+upload_flags = -c set CPUTAPID 0x2ba01477
+
+[fs2011-stm32f051c8]
+extends = fs2011
+board = stm32f051c8
+
+[fs2011-gd32f150c8]
+extends = fs2011
+board = gd32f150c8
+
+[fs2011-gd32f103c8]
+extends = fs2011
+board = gd32f103c8
+
+[bosean-fs600]
+extends = bosean-fs600-1000
+build_flags =
+    ${bosean-fs600-1000.build_flags}
+    -DFS600
+    -DKEYBOARD_5KEYS
+
+[bosean-fs1000]
+extends = bosean-fs600-1000
+build_flags =
+    ${bosean-fs600-1000.build_flags}
+    -DFS1000
+    -DKEYBOARD_2KEYS
+
+[bosean-fs5000-portrait]
+extends = bosean-fs5000
+build_flags =
+    ${bosean-fs5000.build_flags}
+    -DDISPLAY_240X320
+    -DFONT_LARGE='"fonts/font_color_large_portrait.h"'
+
+[bosean-fs5000-landscape]
+extends = bosean-fs5000
+build_flags =
+    ${bosean-fs5000.build_flags}
+    -DDISPLAY_320X240
+    -DFONT_LARGE='"fonts/font_color_large.h"'
+
+[fnirsi-gc01-dev]
+extends = fnirsi-gc01
+board = apm32f103rb
+build_flags =
+    ${fnirsi-gc01.build_flags}
+    -DGC01_DISPLAY_SPI
+	; -D GC01_USART
+    -DGAME
+
+[fnirsi-gc01-ch32f103r8]
+extends = fnirsi-gc01
+board = ch32f103r8
+build_flags =
+    ${fnirsi-gc01.build_flags}
+    -DFONT_LARGE='"fonts/font_color_low_large.h"'
+    -DFONT_SYMBOLS='"fonts/font_color_low_symbols.h"'
+    -DDATA_MODE
+
+[fnirsi-gc01-apm32f103rb]
+extends = fnirsi-gc01
+board = apm32f103rb
+build_flags =
+    ${fnirsi-gc01.build_flags}
+    -DFONT_LARGE='"fonts/font_color_large.h"'
+    -DFONT_SYMBOLS='"fonts/font_color_nocharging_symbols.h"'
+    -DGAME

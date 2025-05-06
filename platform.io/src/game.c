@@ -434,7 +434,8 @@ static const char *onGameStrengthMenuGetOption(const Menu *menu,
 
     if (index < GAMESTRENGTH_NUM)
     {
-        strcpy(menuOption, "Level ");
+        strcpy(menuOption, getString(STRING_GAME_LEVEL));
+        strcatChar(menuOption, ' ');
         strcatUInt32(menuOption, index + 1, 0);
 
         return menuOption;
@@ -456,7 +457,7 @@ static void onGameStrengthMenuBack(const Menu *menu)
 static MenuState gameStrengthMenuState;
 
 static const Menu gameStrengthMenu = {
-    "Strength",
+    getString(STRING_STRENGTH),
     &gameStrengthMenuState,
     onGameStrengthMenuGetOption,
     onGameStrengthMenuSelect,
@@ -473,16 +474,16 @@ static const View gameStrengthMenuView = {
 static const View gameStrengthMenuView;
 
 static const char *const gameStartMenuOptions[] = {
-    "Play white",
-    "Play black",
-    "Strength",
+    getString(STRING_PLAY_WHITE),
+    getString(STRING_PLAY_BLACK),
+    getString(STRING_STRENGTH),
     NULL,
 };
 
 static const char *const gameContinueMenuOptions[] = {
-    "Continue game",
-    "New game",
-    "Strength",
+    getString(STRING_CONTINUE_GAME),
+    getString(STRING_NEW_GAME),
+    getString(STRING_STRENGTH),
     NULL,
 };
 
@@ -545,7 +546,7 @@ static void onGameMenuSelect(const Menu *menu)
 static MenuState gameMenuState;
 
 static const Menu gameMenu = {
-    "Game",
+    getString(STRING_GAME),
     &gameMenuState,
     onGameMenuGetOption,
     onGameMenuSelect,

@@ -20,7 +20,6 @@
 #undef FLASH_SIZE
 #define FLASH_SIZE 0x40000
 #define FIRMWARE_BASE 0x08000000
-#define FIRMWARE_SIZE 0xc000
 
 #define PWR_EN_PORT GPIOB
 #define PWR_EN_PIN 5

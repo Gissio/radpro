@@ -1,23 +1,24 @@
 # Releases
 
-## 2.1.2 "Sundry"
+## 2.2 "Sundry"
 
 Updates:
-* Added averaging periods of 3, 6, 12, and 24 hours, and ±50%, ±20%, ±10%, ±5%, ±2% and ±1% confidence.
-* Expanded sensitivity range to 1-10,000 cpm/µSv/h to accommodate low-sensitivity Geiger tubes (such as the SI-3BG).
-* Expanded dead-time compensation range to 5-500 µs to accommodate scintillation detectors.
-* Introduced overrange alarm, triggered when dead-time compensation exceeds 10%.
-* Improved loss-of-count detection, now dynamically based on the selected sensitivity value.
-* Added "SET deviceTimeZone" and "GET deviceTimeZone" data commands for timezone configuration.
-* Implemented "RESET datalog" data command to clear data logs.
+* Added language support for: Bulgarian, Chinese, Croatian, Czech, Danish, Dutch, English, Spanish, Finnish, French, Greek, Hungarian, Italian, Japanese, Korean, Polish, Portuguese, Romanian, Russian, Slovakian, Swedish, Turkish, Ukranian, Vietnamese.
+* Introduced new averaging periods: 3, 6, 12, 24 hours, and ±50%, ±20%, ±10%, ±5%, ±2% and ±1% confidence.
+* Expanded sensitivity range to 1-10,000 cpm/µSv/h to support low-sensitivity Geiger tubes (such as the SI-3BG).
+* Expanded dead-time compensation range to 5-500 µs for compatibility with scintillation detectors.
+* Added optional overrange alarm, triggered when dead-time compensation exceeds 10%.
+* Improved loss-of-count detection, now dynamically adjusted based on selected sensitivity.
+* Added timezone configuration data commands: "SET deviceTimeZone" and "GET deviceTimeZone".
+* Added "RESET datalog" data command to clear data logs.
 * Removed background compensation, as intrinsic activity in common Geiger tubes is negligible.
 * Removed "GET tubeBackgroundCompensation" data command to reflect the above change.
 * Refined SBM-20 Geiger tube sensitivity to 150.5 cpm/µSv/h.
 
 Fixes:
-* Updated statistics to display battery voltage across all cells.
-* Resolved an issue where the history and instantaneous rate maximum value failed to update properly with 60-second, 30-second and 10-second instantaneous rate averaging intervals.
-* With 12-hour format, the hour options are now displayed in am/pm format.
+* Updated statistics to display battery voltage for all cells.
+* Fixed an issue prventing proper updated to history and instantaneous rate maximum values for 10-second, 30-second and 60-second instantaneous rate averaging intervals.
+* Corrected settings to display hours in AN/PM format when 12-hour format is selected.
 
 ## 2.1.1 "The dot mender"
 

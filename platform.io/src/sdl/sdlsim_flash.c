@@ -53,7 +53,7 @@ void initFlash(void)
 
 bool verifyFlash(void)
 {
-    return true;
+    return false;
 }
 
 static void writeFlashImage(void)

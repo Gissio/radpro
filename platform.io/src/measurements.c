@@ -90,18 +90,15 @@ typedef struct
 
 typedef struct
 {
-    char *const name;
+    const char *name;
     uint16_t samplesPerDataPoint;
     uint8_t timeTickNum;
 } History;
 
-static void onAlarmsSubMenuBack(const Menu *menu);
-static void onMeasurementsSubMenuBack(const Menu *menu);
-
 static const History histories[] = {
-    {"History (10 min)", 10 * 60 / HISTORY_BUFFER_SIZE, 10},
-    {"History (1 h)", 60 * 60 / HISTORY_BUFFER_SIZE, 6},
-    {"History (24 h)", 24 * 60 * 60 / HISTORY_BUFFER_SIZE, 8},
+    {getString(STRING_HISTORY10_MIN), 10 * 60 / HISTORY_BUFFER_SIZE, 10},
+    {getString(STRING_HISTORY1_H), 60 * 60 / HISTORY_BUFFER_SIZE, 6},
+    {getString(STRING_HISTORY24_H), 24 * 60 * 60 / HISTORY_BUFFER_SIZE, 8},
 };
 
 #define HISTORY_NUM (sizeof(histories) / sizeof(History))
@@ -254,6 +251,11 @@ static const Menu unitsMenu;
 static const Menu instantaneousMenu;
 static const Menu averageMenu;
 
+static const char stringCounts[] = getString(STRING_COUNTS);
+
+static void onAlarmsSubMenuBack(const Menu *menu);
+static void onMeasurementsSubMenuBack(const Menu *menu);
+
 static void resetInstantaneousRate(void);
 static void resetAverageRate(void);
 static void resetCumulativeDose(void);
@@ -311,17 +313,15 @@ void resetMeasurements(void)
 
 // Measurement events
 
-const char countsString[] = "counts";
-
 Units units[] = {
-    {{"Sv/h", (60 * 1E-6F)},
-     {"Sv", (60 * 1E-6F / 3600)}},
-    {{"rem/h", (60 * 1E-4F)},
-     {"rem", (60 * 1E-4F / 3600)}},
-    {{"cpm", 60},
-     {countsString, 1}},
-    {{"cps", 1},
-     {countsString, 1}},
+    {{getString(STRING_SVH), (60 * 1E-6F)},
+     {getString(STRING_SV), (60 * 1E-6F / 3600)}},
+    {{getString(STRING_REMH), (60 * 1E-4F)},
+     {getString(STRING_REM), (60 * 1E-4F / 3600)}},
+    {{getString(STRING_CPM), 60},
+     {stringCounts, 1}},
+    {{getString(STRING_CPS), 1},
+     {stringCounts, 1}},
 };
 
 const int8_t unitsMinMetricPrefixIndex[] = {
@@ -561,7 +561,7 @@ void updateMeasurements(void)
     }
 
     uint8_t instantanteousRateAlarmsActivated = (instantaneousRateAlarmsState ^ measurements.instantaneous.alarmsState) &
-                                               instantaneousRateAlarmsState;
+                                                instantaneousRateAlarmsState;
     if (instantanteousRateAlarmsActivated)
         measurements.instantaneous.alarm = true;
     else if (!instantaneousRateAlarmsState)
@@ -682,7 +682,7 @@ static void buildValueString(char *valueString,
                              const Unit *unit,
                              int32_t minMetricPrefixIndex)
 {
-    if ((unit->name == countsString) &&
+    if ((unit->name == stringCounts) &&
         (value < 10000))
     {
         uint32_t intValue = (uint32_t)value;
@@ -690,9 +690,9 @@ static void buildValueString(char *valueString,
         strcatUInt32(valueString, intValue, 0);
         strcpy(unitString, " ");
         if (intValue == 1)
-            strcat(unitString, "count");
+            strcat(unitString, getString(STRING_COUNT));
         else
-            strcat(unitString, countsString);
+            strcat(unitString, stringCounts);
 
         return;
     }
@@ -804,8 +804,8 @@ static void onInstantaneousRateViewEvent(const View *view,
     {
         char valueString[16];
         char unitString[16];
-        char *stateString;
-        char *keyString = NULL;
+        const char *stateString;
+        const char *keyString = NULL;
         MeasurementStyle style;
 
         strclr(valueString);
@@ -819,15 +819,15 @@ static void onInstantaneousRateViewEvent(const View *view,
 
         if (measurements.period.faultAlarm)
         {
-            stateString = "FAULT";
+            stateString = getString(STRING_INFO_FAULT);
 
             style = MEASUREMENTSTYLE_NORMAL;
         }
         else if (measurements.instantaneous.alarm)
         {
             stateString = (measurements.instantaneous.alarmsState & INSTANTANEOUS_RATE_ALARM_OVERRANGE_MASK)
-                              ? "OVER"
-                              : "ALARM";
+                              ? getString(STRING_INFO_OVER)
+                              : getString(STRING_INFO_ALARM);
 
             style = MEASUREMENTSTYLE_ALARM;
         }
@@ -838,7 +838,7 @@ static void onInstantaneousRateViewEvent(const View *view,
             style = MEASUREMENTSTYLE_NORMAL;
         }
 
-        drawTitleBar("Instantaneous", false);
+        drawTitleBar(getString(STRING_INSTANTANEOUS), false);
         drawMeasurementValue(valueString,
                              unitString,
                              measurements.instantaneous.rate.confidence,
@@ -867,7 +867,7 @@ static void onInstantaneousRateViewEvent(const View *view,
                 strcatTime(valueString,
                            measurements.instantaneous.rate.time);
 
-            keyString = "Time";
+            keyString = getString(STRING_TIME);
 
             break;
 
@@ -882,7 +882,7 @@ static void onInstantaneousRateViewEvent(const View *view,
                                  unitsMinMetricPrefixIndex[settings.units]);
             }
 
-            keyString = "Max";
+            keyString = getString(STRING_MAX);
 
             break;
         }
@@ -902,7 +902,7 @@ static void onInstantaneousRateViewEvent(const View *view,
                                  unitsMinMetricPrefixIndex[unitsIndex]);
             }
 
-            keyString = "Rate";
+            keyString = getString(STRING_RATE);
 
             break;
         }
@@ -967,8 +967,8 @@ static void onAverageRateViewEvent(const View *view,
     {
         char valueString[16];
         char unitString[16];
-        char *stateString;
-        char *keyString = NULL;
+        const char *stateString;
+        const char *keyString = NULL;
         MeasurementStyle style;
 
         strclr(valueString);
@@ -982,19 +982,19 @@ static void onAverageRateViewEvent(const View *view,
 
         if (measurements.period.faultAlarm)
         {
-            stateString = "FAULT";
+            stateString = getString(STRING_INFO_FAULT);
 
             style = MEASUREMENTSTYLE_NORMAL;
         }
         else if (measurements.average.pulseCount == UINT32_MAX)
         {
-            stateString = "MAX";
+            stateString = getString(STRING_INFO_MAX);
 
             style = MEASUREMENTSTYLE_HOLD;
         }
         else if (measurements.average.timerExpired)
         {
-            stateString = "DONE";
+            stateString = getString(STRING_INFO_DONE);
 
             style = MEASUREMENTSTYLE_HOLD;
         }
@@ -1005,7 +1005,7 @@ static void onAverageRateViewEvent(const View *view,
             style = MEASUREMENTSTYLE_NORMAL;
         }
 
-        drawTitleBar("Average", false);
+        drawTitleBar(getString(STRING_AVERAGE), false);
         drawMeasurementValue(valueString,
                              unitString,
                              measurements.average.timedRate.confidence,
@@ -1020,7 +1020,7 @@ static void onAverageRateViewEvent(const View *view,
             strcatTime(valueString,
                        measurements.average.timedRate.time);
 
-            keyString = "Time";
+            keyString = getString(STRING_TIME);
 
             break;
 
@@ -1039,7 +1039,7 @@ static void onAverageRateViewEvent(const View *view,
                                  unitsMinMetricPrefixIndex[unitsIndex]);
             }
 
-            keyString = "Rate";
+            keyString = getString(STRING_RATE);
 
             break;
 
@@ -1051,7 +1051,7 @@ static void onAverageRateViewEvent(const View *view,
                                  &units[UNITS_CPM].dose,
                                  unitsMinMetricPrefixIndex[UNITS_CPM]);
 
-            keyString = "Dose";
+            keyString = getString(STRING_DOSE);
 
             break;
         }
@@ -1140,8 +1140,8 @@ static void onCumulativeDoseViewEvent(const View *view,
     {
         char valueString[16];
         char unitString[16];
-        char *stateString;
-        char *keyString = NULL;
+        const char *stateString;
+        const char *keyString = NULL;
         MeasurementStyle style;
 
         strclr(valueString);
@@ -1155,19 +1155,19 @@ static void onCumulativeDoseViewEvent(const View *view,
 
         if (measurements.period.faultAlarm)
         {
-            stateString = "FAULT";
+            stateString = getString(STRING_INFO_FAULT);
 
             style = MEASUREMENTSTYLE_NORMAL;
         }
         else if (measurements.cumulativeDose.alarm)
         {
-            stateString = "ALARM";
+            stateString = getString(STRING_INFO_ALARM);
 
             style = MEASUREMENTSTYLE_ALARM;
         }
         else if (measurements.cumulativeDose.dose.pulseCount == UINT32_MAX)
         {
-            stateString = "MAX";
+            stateString = getString(STRING_INFO_MAX);
 
             style = MEASUREMENTSTYLE_HOLD;
         }
@@ -1178,7 +1178,7 @@ static void onCumulativeDoseViewEvent(const View *view,
             style = MEASUREMENTSTYLE_NORMAL;
         }
 
-        drawTitleBar("Cumulative", false);
+        drawTitleBar(getString(STRING_CUMULATIVE), false);
         drawMeasurementValue(valueString,
                              unitString,
                              0,
@@ -1193,7 +1193,7 @@ static void onCumulativeDoseViewEvent(const View *view,
             strcatTime(valueString,
                        measurements.cumulativeDose.dose.time);
 
-            keyString = "Time";
+            keyString = getString(STRING_TIME);
 
             break;
 
@@ -1212,7 +1212,7 @@ static void onCumulativeDoseViewEvent(const View *view,
                                  unitsMinMetricPrefixIndex[unitsIndex]);
             }
 
-            keyString = "Dose";
+            keyString = getString(STRING_DOSE);
 
             break;
         }
@@ -1354,7 +1354,7 @@ static const char *onRateAlarmMenuGetOption(const Menu *menu,
     *menuStyle = (index == settings.rateAlarm);
 
     if (index == 0)
-        return "Off";
+        return getString(STRING_OFF);
     else if (index < RATEALARM_NUM)
         return buildRateAlarmMenuOption(index);
     else
@@ -1369,7 +1369,7 @@ static void onRateAlarmMenuSelect(const Menu *menu)
 static MenuState rateAlarmMenuState;
 
 static const Menu rateAlarmMenu = {
-    "Rate alarm",
+    getString(STRING_RATE_ALARM),
     &rateAlarmMenuState,
     onRateAlarmMenuGetOption,
     onRateAlarmMenuSelect,
@@ -1390,7 +1390,7 @@ static const char *onDoseAlarmMenuGetOption(const Menu *menu,
     *menuStyle = (index == settings.doseAlarm);
 
     if (index == 0)
-        return "Off";
+        return getString(STRING_OFF);
     else if (index < DOSEALARM_NUM)
     {
         const Unit *doseUnit = &units[settings.units].dose;
@@ -1417,7 +1417,7 @@ static void onDoseAlarmMenuSelect(const Menu *menu)
 static MenuState doseAlarmMenuState;
 
 static const Menu doseAlarmMenu = {
-    "Dose alarm",
+    getString(STRING_DOSE_ALARM),
     &doseAlarmMenuState,
     onDoseAlarmMenuGetOption,
     onDoseAlarmMenuSelect,
@@ -1432,16 +1432,16 @@ static const View doseAlarmMenuView = {
 // Alarm signaling menu
 
 static const char *const alarmSignalingMenuOptions[] = {
-    "Sound",
+    getString(STRING_SOUND),
 #if defined(VIBRATION)
-    "Vibration",
+    getString(STRING_VIBRATION),
 #endif
 #if defined(ALERT_LED)
-    "Alert LED",
+    getString(STRING_ALERT_LED),
 #elif defined(PULSE_LED)
-    "Pulse LED",
+    getString(STRING_PULSE_LED),
 #endif
-    "Display flash",
+    getString(STRING_DISPLAY_FLASH),
     NULL,
 };
 
@@ -1462,7 +1462,7 @@ static void onAlarmSignalingMenuSelect(const Menu *menu)
 static MenuState alarmSignalingMenuState;
 
 static const Menu alarmSignalingMenu = {
-    "Signaling",
+    getString(STRING_SIGNALING),
     &alarmSignalingMenuState,
     onAlarmSignalingMenuGetOption,
     onAlarmSignalingMenuSelect,
@@ -1489,10 +1489,10 @@ bool isAlarm(void)
 }
 
 static const OptionView alarmsMenuOptions[] = {
-    {"Rate alarm", &rateAlarmMenuView},
-    {"Dose alarm", &doseAlarmMenuView},
-    {"Overrange alarm", NULL},
-    {"Signaling", &alarmSignalingMenuView},
+    {getString(STRING_RATE_ALARM), &rateAlarmMenuView},
+    {getString(STRING_DOSE_ALARM), &doseAlarmMenuView},
+    {getString(STRING_OVERRANGE_ALARM), NULL},
+    {getString(STRING_SIGNALING), &alarmSignalingMenuView},
     {NULL},
 };
 
@@ -1523,7 +1523,7 @@ static void onAlarmsMenuSelect(const Menu *menu)
 static MenuState alarmsMenuState;
 
 static const Menu alarmsMenu = {
-    "Alarms",
+    getString(STRING_ALARMS),
     &alarmsMenuState,
     onAlarmsMenuGetOption,
     onAlarmsMenuSelect,
@@ -1543,10 +1543,10 @@ static void onAlarmsSubMenuBack(const Menu *menu)
 // Units menu
 
 static const char *const unitsMenuOptions[] = {
-    "Sievert",
-    "rem",
-    "cpm",
-    "cps",
+    getString(STRING_SIEVERT),
+    getString(STRING_REM),
+    getString(STRING_CPM),
+    getString(STRING_CPS),
     NULL,
 };
 
@@ -1567,7 +1567,7 @@ static void onUnitsMenuSelect(const Menu *menu)
 static MenuState unitsMenuState;
 
 static const Menu unitsMenu = {
-    "Units",
+    getString(STRING_UNITS),
     &unitsMenuState,
     onUnitsMenuGetOption,
     onUnitsMenuSelect,
@@ -1582,11 +1582,11 @@ static const View unitsMenuView = {
 // Instantaneous menu
 
 static const char *const instantaneousMenuOptions[] = {
-    "Adaptive fast",
-    "Adaptive precision",
-    "1 minute",
-    "30 seconds",
-    "10 seconds",
+    getString(STRING_ADAPTIVE_FAST),
+    getString(STRING_ADAPTIVE_PRECISION),
+    getString(STRING_1_MINUTE),
+    getString(STRING_30_SECONDS),
+    getString(STRING_10_SECONDS),
     NULL,
 };
 
@@ -1607,7 +1607,7 @@ static void onInstantaneousMenuSelect(const Menu *menu)
 static MenuState instantaneousMenuState;
 
 static const Menu instantaneousMenu = {
-    "Instantaneous",
+    getString(STRING_INSTANTANEOUS),
     &instantaneousMenuState,
     onInstantaneousMenuGetOption,
     onInstantaneousMenuSelect,
@@ -1622,32 +1622,26 @@ static const View instantaneousMenuView = {
 // Average menu
 
 static const char *const averageMenuOptions[] = {
-    "Unlimited",
-    "24 hours",
-    "12 hours",
-    "6 hours",
-    "3 hours",
-    "1 hour",
-    "30 minutes",
-    "10 minutes",
-    "5 minutes",
-    "1 minute",
-    "30 seconds",
-    "10 seconds",
-    "5 seconds",
-    "1 second",
-    "\xb1"
-    "50% confidence",
-    "\xb1"
-    "20% confidence",
-    "\xb1"
-    "10% confidence",
-    "\xb1"
-    "5% confidence",
-    "\xb1"
-    "2% confidence",
-    "\xb1"
-    "1% confidence",
+    getString(STRING_UNLIMITED),
+    getString(STRING_24_HOURS),
+    getString(STRING_12_HOURS),
+    getString(STRING_6_HOURS),
+    getString(STRING_3_HOURS),
+    getString(STRING_1_HOUR),
+    getString(STRING_30_MINUTES),
+    getString(STRING_10_MINUTES),
+    getString(STRING_5_MINUTES),
+    getString(STRING_1_MINUTE),
+    getString(STRING_30_SECONDS),
+    getString(STRING_10_SECONDS),
+    getString(STRING_5_SECONDS),
+    getString(STRING_1_SECOND),
+    getString(STRING_50_CONFIDENCE),
+    getString(STRING_20_CONFIDENCE),
+    getString(STRING_10_CONFIDENCE),
+    getString(STRING_5_CONFIDENCE),
+    getString(STRING_2_CONFIDENCE),
+    getString(STRING_1_CONFIDENCE),
     NULL,
 };
 
@@ -1668,7 +1662,7 @@ static void onAverageMenuSelect(const Menu *menu)
 static MenuState averageMenuState;
 
 static const Menu averageMenu = {
-    "Average",
+    getString(STRING_AVERAGE),
     &averageMenuState,
     onAverageMenuGetOption,
     onAverageMenuSelect,
@@ -1683,9 +1677,9 @@ static const View averageMenuView = {
 // Measurements menu
 
 static const OptionView measurementMenuOptions[] = {
-    {"Units", &unitsMenuView},
-    {"Instantaneous", &instantaneousMenuView},
-    {"Average", &averageMenuView},
+    {getString(STRING_UNITS), &unitsMenuView},
+    {getString(STRING_INSTANTANEOUS), &instantaneousMenuView},
+    {getString(STRING_AVERAGE), &averageMenuView},
     {NULL},
 };
 
@@ -1706,7 +1700,7 @@ static void onMeasurementsMenuSelect(const Menu *menu)
 static MenuState measurementsMenuState;
 
 static const Menu measurementsMenu = {
-    "Measurements",
+    getString(STRING_MEASUREMENTS),
     &measurementsMenuState,
     onMeasurementsMenuGetOption,
     onMeasurementsMenuSelect,

@@ -63,7 +63,7 @@ This measurement quantifies the **physical impact** of radiation but does not di
 
 ### Equivalent dose and rate
 
-**Equivalent dose** is a measure that reflects the **biological damage** to human tissue from exposure to ionizing radiation. It takes into account not only the absorbed dose (energy deposited per unit mass) but also the biological effectiveness W<sup>R</sup> of the radiation type, also known as the radiation weighting factor. Equivalent dose is measured in sieverts (Sv) in the SI system, where 1 sievert equals the amount of radiation that would have the same biological effect as 1 gray of gamma rays or X-rays. In older units, it's measured in rems, where 1 rem equals 0.01 sievert.
+**Equivalent dose** is a measure that reflects the biological damage to human tissue from exposure to ionizing radiation. It takes into account not only the absorbed dose (energy deposited per unit mass) but also the biological effectiveness W<sup>R</sup> of the radiation type, also known as the radiation weighting factor. Equivalent dose is measured in sieverts (Sv) in the SI system, where 1 sievert equals the amount of radiation that would have the same biological effect as 1 gray of gamma rays or X-rays. In older units, it's measured in rems, where 1 rem equals 0.01 sievert.
 
 The W<sup>R</sup> value varies depending on the type and energy of the radiation, reflecting its potential to cause biological harm. Common W<sup>R</sup> values include:
 
@@ -222,13 +222,13 @@ All these isotopes emit beta and gamma radiation, which can be detected by stand
 
 To ensure the safety of imported food, many countries use radiation detectors to screen for radioactive isotopes, particularly from regions impacted by nuclear incidents or elevated background radiation. This ensures imports stay within acceptable radiation limits.
 
-Radiation detectors are also valuable for testing food and water after nuclear event. T he Codex Alimentarius, developed by the FAO and WHO, provides post-emergency guidelines, setting **activity concentration** limits in food at 1,000 Bq/kg for cesium-134 and cesium-137, and 100 Bq/kg for strontium-90 and iodine-131. For drinking water, many governments adopt an emergency limit of 10 Bq/kg for cesium-134, cesium-137 and strontium-90.
+Radiation detectors are also valuable for testing food and water after nuclear event. The Codex Alimentarius, developed by the FAO and WHO, provides post-emergency guidelines, setting **activity concentration** limits in food at 1,000 Bq/kg for cesium-134 and cesium-137, and 100 Bq/kg for strontium-90 and iodine-131. For drinking water, many governments adopt an emergency limit of 10 Bq/kg for cesium-134, cesium-137 and strontium-90.
 
 Since Geiger counters measure counts per minute (cpm) rather than Bq/kg, a conversion is necessary to compare readings against safety standards. Here's a practical step-by-step guide:
 
 1. **Measure background radiation:** Record the background cpm over an extended averaging period for precision.
 
-2. **Measure sample radiation:** Place the Geiger counter at a certain distance (e.g., 10 cm) from the sample (e.g., 1 kg of grain, vegetables or meat) and record the sample cpm, again using a long averaging period.
+2. **Measure sample radiation:** Place the Geiger counter at a certain distance (e.g., 5 cm) from the sample (e.g., 500 g of grain, vegetables or meat) and record the sample cpm, again using a long averaging period.
 
 3. **Calculate net cpm:** Subtract the background cpm from the sample cpm to isolate the sample's radiation.
 

@@ -53,12 +53,12 @@ static const uint16_t datalogIntervalTime[] = {
 };
 
 static const char *const datalogIntervalMenuOptions[] = {
-    "Off",
-    "Every hour",
-    "Every 10 minutes",
-    "Every minute",
-    "Every 10 seconds",
-    "Every second",
+    getString(STRING_OFF),
+    getString(STRING_EVERY_HOUR),
+    getString(STRING_EVERY10_MINUTES),
+    getString(STRING_EVERY_MINUTE),
+    getString(STRING_EVERY10_SECONDS),
+    getString(STRING_EVERY_SECOND),
     NULL,
 };
 
@@ -424,7 +424,7 @@ static void onDatalogIntervalMenuSelect(const Menu *menu)
 static MenuState datalogIntervalMenuState;
 
 static const Menu datalogIntervalMenu = {
-    "Logging",
+    getString(STRING_LOGGING_MODE),
     &datalogIntervalMenuState,
     onDatalogIntervalMenuGetOption,
     onDatalogIntervalMenuSelect,
@@ -449,8 +449,8 @@ static void onDatalogResetConfirmationEvent(const View *view, Event event)
         break;
 
     case EVENT_DRAW:
-        drawNotification("SUCCESS",
-                         "Data log has been reset.");
+        drawNotification(getString(STRING_NOTIFICATION_SUCCESS),
+                         getString(STRING_NOTIFICATION_DATALOG_RESET_SUCCESS));
 
         break;
 
@@ -464,7 +464,7 @@ static const View datalogResetConfirmationView = {
     NULL,
 };
 
-// Data log reset alert view
+// Data log reset notification view
 
 static void onDatalogResetAlertEvent(const View *view, Event event)
 {
@@ -483,8 +483,8 @@ static void onDatalogResetAlertEvent(const View *view, Event event)
         break;
 
     case EVENT_DRAW:
-        drawNotification("Reset data log?",
-                         "All records will be deleted.");
+        drawNotification(getString(STRING_NOTIFICATION_DATALOG_RESET_TITLE),
+                         getString(STRING_NOTIFICATION_DATALOG_RESET_SUBTITLE));
 
         break;
 
@@ -501,8 +501,8 @@ static const View datalogResetAlertView = {
 // Data log menu
 
 static const char *const datalogMenuOptions[] = {
-    "Logging",
-    "Reset",
+    getString(STRING_LOGGING_MODE),
+    getString(STRING_RESET),
     NULL,
 };
 
@@ -530,7 +530,7 @@ void onDatalogSubMenuBack(const Menu *menu)
 static MenuState datalogMenuState;
 
 static const Menu datalogMenu = {
-    "Data log",
+    getString(STRING_DATA_LOG),
     &datalogMenuState,
     onDatalogMenuGetOption,
     onDatalogMenuSelect,
