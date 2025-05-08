@@ -80,12 +80,12 @@ def sign_firmware(env_name, flash_size, container_offset, container_size, contai
         if language in ['ja', 'ko', 'zh_CN']:
             container_size = container_size_cjk
 
+        print('Building ' + build_name + '...')
+
         # Read compiled firmware
         if not os.path.exists(elf_file):
-            print("File not found: " + bin_file)
-            return
-
-        print('Building ' + build_name + '...')
+            print("warning: file not found: " + bin_file)
+            continue
 
         firmware_version = get_firmware_version()
         swd_comm_address = get_swd_comm_address(elf_file)
@@ -101,8 +101,8 @@ def sign_firmware(env_name, flash_size, container_offset, container_size, contai
             firmware = bytearray(f.read())
 
             if len(firmware) > footer_index:
-                print('Input file too large.')
-                return
+                print('warning: input file too large')
+                continue
 
         # Sign
         flash[0:len(firmware)] = firmware
@@ -126,12 +126,17 @@ def sign_firmware(env_name, flash_size, container_offset, container_size, contai
 
 # Variables
 
-sign_firmware('fs2011-stm32f051c8', 0x10000, 0x0, 0xa000, 0xb800)
-sign_firmware('fs2011-gd32f150c8', 0x10000, 0x0, 0xa000, 0xb800)
-sign_firmware('fs2011-gd32f103c8', 0x10000, 0x0, 0xa000, 0xb800)
-sign_firmware('bosean-fs600', 0x20000, 0x0, 0xa000, 0xb800)
-sign_firmware('bosean-fs1000', 0x20000, 0x0, 0xa000, 0xb800)
-sign_firmware('bosean-fs5000-portrait', 0x40000, 0x0, 0xf000, 0x1a000)
-sign_firmware('bosean-fs5000-landscape', 0x40000, 0x0, 0xf000, 0x1a000)
-sign_firmware('fnirsi-gc01-ch32f103r8', 0x10000, 0x4000, 0xa400, 0xa400)
-sign_firmware('fnirsi-gc01-apm32f103rb', 0x20000, 0x4000, 0xf000, 0x1a000)
+def main():
+    sign_firmware('fs2011-stm32f051c8', 0x10000, 0x0, 0xa000, 0xb800)
+    sign_firmware('fs2011-gd32f150c8', 0x10000, 0x0, 0xa000, 0xb800)
+    sign_firmware('fs2011-gd32f103c8', 0x10000, 0x0, 0xa000, 0xb800)
+    sign_firmware('bosean-fs600', 0x20000, 0x0, 0xa000, 0xb800)
+    sign_firmware('bosean-fs1000', 0x20000, 0x0, 0xa000, 0xb800)
+    sign_firmware('bosean-fs5000-portrait', 0x40000, 0x0, 0xf000, 0x1a000)
+    sign_firmware('bosean-fs5000-landscape', 0x40000, 0x0, 0xf000, 0x1a000)
+    sign_firmware('fnirsi-gc01-ch32f103r8', 0x10000, 0x4000, 0xa400, 0xa400)
+    sign_firmware('fnirsi-gc01-apm32f103rb', 0x20000, 0x4000, 0xf000, 0x1a000)
+
+
+if __name__ == '__main__':
+    main()

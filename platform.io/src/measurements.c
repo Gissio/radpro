@@ -408,7 +408,7 @@ void onMeasurementTick(uint32_t pulseCount)
 {
     if (measurements.enabled && pulseCount)
     {
-        addClamped(&measurements.tube.dose.pulseCount, pulseCount);
+        measurements.tube.dose.pulseCount += pulseCount;
 
         if (!measurements.period.measurement.pulseCount)
             measurements.period.measurement.firstPulseTick = getTick();
@@ -461,7 +461,7 @@ void updateMeasurements(void)
         return;
 
     // Tube life
-    addClamped(&measurements.tube.dose.time, 1);
+    measurements.tube.dose.time += 1;
 
     // Loss-of-count detection
     if (measurements.period.snapshotMeasurement.pulseCount)

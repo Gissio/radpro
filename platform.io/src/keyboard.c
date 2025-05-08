@@ -183,7 +183,7 @@ void onKeyboardTick(void)
 
     if (keyboard.pressedKey != KEY_NONE)
     {
-        addClamped(&keyboard.pressedTicks, 1);
+        keyboard.pressedTicks += 1;
 
         // Key timeout
 #if defined(KEYBOARD_2KEYS)
