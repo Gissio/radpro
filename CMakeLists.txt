@@ -71,7 +71,7 @@ target_compile_definitions(radpro-color-landscape PUBLIC
     DISPLAY_COLOR
     FONT_SMALL="fonts/font_color_small_${LANGUAGE}.h"
     FONT_MEDIUM="fonts/font_color_medium_${LANGUAGE}.h"
-    FONT_LARGE="fonts/font_color_large_portrait.h"
+    FONT_LARGE="fonts/font_color_large.h"
     FONT_SYMBOLS="fonts/font_color_nocharging_symbols.h"
 )
 
