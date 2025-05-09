@@ -69,10 +69,10 @@ add_executable(radpro-color-landscape ${sources} ${display_sources} ${sdl_source
 target_compile_definitions(radpro-color-landscape PUBLIC
     DISPLAY_320X240
     DISPLAY_COLOR
-    FONT_SMALL="fonts/font_color_low_small_${LANGUAGE}.h"
-    FONT_MEDIUM="fonts/font_color_low_medium_${LANGUAGE}.h"
-    FONT_LARGE="fonts/font_color_low_large.h"
-    FONT_SYMBOLS="fonts/font_color_low_symbols.h"
+    FONT_SMALL="fonts/font_color_small_${LANGUAGE}.h"
+    FONT_MEDIUM="fonts/font_color_medium_${LANGUAGE}.h"
+    FONT_LARGE="fonts/font_color_large_portrait.h"
+    FONT_SYMBOLS="fonts/font_color_nocharging_symbols.h"
 )
 
 add_executable(radpro-color-portrait ${sources} ${display_sources} ${sdl_sources} ${mcurenderer_sources} ${mcumax_sources})
