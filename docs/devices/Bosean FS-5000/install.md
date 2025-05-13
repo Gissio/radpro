@@ -40,14 +40,17 @@ Make sure the electrical connections are correct. You may break your device if t
 
 ## Step 3: Flash the firmware
 
-Now, download the latest `radpro-flashtool` from the [Rad Pro releases](https://github.com/Gissio/radpro/releases).
+Now, download and unzip the latest `radpro-[version].zip` from the [Rad Pro releases](https://github.com/Gissio/radpro/releases).
 
 * To install from Windows, go to the `bosean` folder, keep the ok/power button pressed during the flash process, and double click `bosean-fs5000-[type].bat`.
-* To install from macOS or Linux, go to the `bosean` folder, keep the ok/power button pressed during the flash process, and double click `bosean-fs5000-[type].sh`.
+* To install from Linux, go to the `bosean` folder, keep the ok/power button pressed during the flash process, and double click `bosean-fs5000-[type].sh`.
+* To install from macOS, open `Terminal.app` (in `/Applications/Utilities`), go to the `bosean` folder and drag the `bosean-fs5000-[type].sh` install file onto the Terminal icon in the dock.
 
-`[type]` is the type of installation: `install` or `update` (note that not all releases support updating). For larger digits, you can also double click the `landscape-install` or the `landscape-update` installation types.
+`[type]` is the type of installation: `install` or `update` (note that not all releases support updating). For larger digits, you can also choose `landscape-install` or the `landscape-update`.
 
-The installation will automatically create a backup of the original firmware in the `backup` folder, so you can recover your device if something goes wrong. Make sure you keep the backups safe, so you can always return to the original firmware. To flash a backup, drag it onto `bosean-fs5000-install.bat` (Windows) or `bosean-fs5000-install.sh` (macOS/Linux).
+The installer will display a list of available languages as two-letter language codes. Select and enter the language code to proceed with the installation.
+
+The installer automatically creates a backup of the original firmware in the `backup` folder, ensuring you can restore your device if needed. Store these backups securely to enable reversion to the original firmware. To restore a backup, drag it onto `bosean-fs5000-install.bat` (Windows) or `bosean-fs5000-install.sh` (macOS/Linux).
 
 Before closing the device, take note of the type of Geiger tube: the markings on the glass should be either J321, J305, M4011 or J614. If you have an unmarked tube measuring 55 or 65 mm long, you probably have a J614 or J613 tube, respectively.
 
@@ -82,14 +85,14 @@ To establish a USB data connection, connect your FS-5000 to a computer using a U
 
 <!-- Calculated as follows:
 
-* With 1-byte differential values: [103 pages * (1 timestamp entry/page [16 bytes] + 2024 differential entries/page [1 byte each]) + page full indicator (2 bytes)] = 208575 entries
-* With 2-byte differential values: [103 pages * (1 timestamp entry/page [16 bytes] + 1012 differential entries/page [2 byte each])] = 104339 entries
+* With 1-byte differential values: [67 pages * (1 timestamp entry/page [16 bytes] + 2024 differential entries/page [1 byte each]) + page full indicator (2 bytes)] = 196425 entries
+* With 2-byte differential values: [67 pages * (1 timestamp entry/page [16 bytes] + 1012 differential entries/page [2 byte each])] = 98261 entries
 
 * 60-minute and 10-minute intervals require 2-byte differential values.
 * 1-minute intervals and less require 1-byte differential values.
 
  -->
 
-On the FS-5000, Rad Pro can store up to 208575 data points. At normal radiation levels (20 cpm), this allows for 4347 days of data at 60-minute intervals, 724 days at 10-minute intervals, 144 days at 1-minute intervals, 24 days at 10-second intervals and 57 hours at 1-second intervals.
+On the FS-5000, Rad Pro can store up to 208575 data points. At normal radiation levels (20 cpm), this allows for 4094 days of data at 60-minute intervals, 682 days at 10-minute intervals, 136 days at 1-minute intervals, 22 days at 10-second intervals and 54 hours at 1-second intervals.
 
 The FS-5000 does not support HV profiles.

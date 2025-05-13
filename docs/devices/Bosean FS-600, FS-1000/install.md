@@ -44,16 +44,19 @@ Make sure the electrical connections are correct. You may break your device if t
 
 ## Step 3: Flash the firmware
 
-Now, download the latest `radpro-flashtool` from the [Rad Pro releases](https://github.com/Gissio/radpro/releases).
+Now, download and unzip the latest `radpro-[version].zip` from the [Rad Pro releases](https://github.com/Gissio/radpro/releases).
 
 * To install from Windows, go to the `bosean` folder and double click `bosean-[device]-[type].bat`.
-* To install from macOS or Linux, go to the `bosean` folder and double click `bosean-[device]-[type].sh`.
+* To install from Linux, go to the `bosean` folder and double click `bosean-[device]-[type].sh`.
+* To install from macOS, open `Terminal.app` (in `/Applications/Utilities`), go to the `bosean` folder and drag the `bosean-[device]-[type].sh` install file onto the Terminal icon in the dock.
 
 `[device]` is the type of your device: `fs600` or `fs1000`.
 
 `[type]` is the type of installation: `install` or `update`. Note that not all releases support updating.
 
-The installation will automatically create a backup of the original firmware in the `backup` folder, so you can recover your device if something goes wrong. Make sure you keep the backups safe, so you can always return to the original firmware. To flash a backup, drag it onto `bosean-[device]-install.bat` (Windows) or `bosean-[device]-install.sh` (macOS/Linux).
+The installer will display a list of available languages as two-letter language codes. Select and enter the language code to proceed with the installation.
+
+The installer automatically creates a backup of the original firmware in the `backup` folder, ensuring you can restore your device if needed. Store these backups securely to enable reversion to the original firmware. To restore a backup, drag it onto `bosean-[device]-install.bat` (Windows) or `bosean-[device]-install.sh` (macOS/Linux).
 
 ## Step 4: Configure your device
 
@@ -101,15 +104,15 @@ To establish a USB data connection, connect your FS-600 or FS-1000 to a computer
 
 <!-- Calculated as follows:
 
-* With 1-byte differential values: [44 pages * (1 timestamp entry/page [16 bytes] + 2024 differential entries/page [1 byte each])] = 89100 entries
-* With 2-byte differential values: [44 pages * (1 timestamp entry/page [16 bytes] + 1012 differential entries/page [2 byte each])] = 44572 entries
+* With 1-byte differential values: [43 pages * (1 timestamp entry/page [16 bytes] + 2024 differential entries/page [1 byte each])] = 87075 entries
+* With 2-byte differential values: [43 pages * (1 timestamp entry/page [16 bytes] + 1012 differential entries/page [2 byte each])] = 43559 entries
 
 * 60-minute and 10-minute intervals require 2-byte differential values.
 * 1-minute intervals and less require 1-byte differential values.
 
  -->
 
-On the FS-600 and FS-1000, Rad Pro can store up to 89100 data points. At normal radiation levels (20 cpm), this allows for 1857 days of data at 60-minute intervals, 309 days at 10-minute intervals, 61 days at 1-minute intervals, 10 days at 10-second intervals and 24 hours at 1-second intervals.
+On the FS-600 and FS-1000, Rad Pro can store up to 89100 data points. At normal radiation levels (20 cpm), this allows for 1814 days of data at 60-minute intervals, 302 days at 10-minute intervals, 60 days at 1-minute intervals, 10 days at 10-second intervals and 24 hours at 1-second intervals.
 
 The FS-600 and FS-1000 include two Zener diodes that limit the maximum voltage to 440 V (nominal).
 

@@ -65,7 +65,7 @@
 #define STRING_NOTIFICATION_SUCCESS "成功"
 
 // Firmware checksum failure notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "ファームウェアチェックサム失敗"
+#define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "ファームウェアエラー"
 
 // HV profile menu items (shorter than 30 characters)
 #define STRING_NOTIFICATION_HVCUSTOM "誤値は機器を損傷"

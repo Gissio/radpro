@@ -59,16 +59,19 @@ Make sure the electrical connections are correct. You may break your device if t
 
 ## Step 3: Flash the firmware
 
-Now, download the latest `radpro-flashtool` from the [Rad Pro releases](https://github.com/Gissio/radpro/releases).
+Now, download and unzip the latest `radpro-[version].zip` from the [Rad Pro releases](https://github.com/Gissio/radpro/releases).
 
-* To install from Windows, go to the `fnirsi-gc01` folder and double click `fnirsi-gc01-[mcu]-[type].bat`.
-* To install from macOS or Linux, go to the `fnirsi-gc01` folder and double click `fnirsi-gc01-[mcu]-[type].sh`.
+* To install from Windows, go to the `fnirsi` folder and double click `fnirsi-gc01_[mcu]-[type].bat`.
+* To install from Linux, go to the `fnirsi` folder and double click `fnirsi-gc01_[mcu]-[type].sh`.
+* To install from macOS, open `Terminal.app` (in `/Applications/Utilities`), go to the `fnirsi` folder and drag the `fnirsi-gc01_[mcu]-[type].sh` install file onto the Terminal icon in the dock.
 
 `[mcu]` is the type of microprocessor of your board: `ch32f103r8t6` or `apm32f103rbt6`. **NOTE:** Flashing the CH32F103R8T6 takes a couple of minutes.
 
 `[type]` is the type of installation: `install` or `update`. Note that not all releases support updating.
 
-To flash the [original firmware](firmware), drag it onto `fnirsi-gc01-[device]-[type].bat` (Windows) or `fnirsi-gc01-[device]-[type].sh`.
+The installer will display a list of available languages as two-letter language codes. Select and enter the language code to proceed with the installation.
+
+To restore the [original firmware](firmware), drag it onto `fnirsi-gc01_[mcu]-[type].bat` (Windows) or `fnirsi-gc01_[mcu]-[type].sh`.
 
 If flashing does not work, try powering your device from USB.
 

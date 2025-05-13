@@ -36,7 +36,7 @@ build_env fs2011-gd32f150c8 mono 0xa000 0xb800
 build_env fs2011-gd32f103c8 mono 0xa000 0xb800
 build_env bosean-fs600 mono 0xa000 0xb800
 build_env bosean-fs1000 mono 0xa000 0xb800
-build_env bosean-fs5000-landscape color 0xf000 0x1a000
-build_env bosean-fs5000-portrait color 0xf000 0x1a000
-build_env fnirsi-gc01-ch32f103r8 color_low 0xa400 0xa400
-build_env fnirsi-gc01-apm32f103rb color 0xf000 0x1a000
+build_env bosean-fs5000_portrait color 0xf000 0x1a000
+build_env bosean-fs5000_landscape color 0xf000 0x1a000
+build_env fnirsi-gc01_ch32f103r8 color_low 0xa400 0xa400
+build_env fnirsi-gc01_apm32f103rb color 0xf000 0x1a000

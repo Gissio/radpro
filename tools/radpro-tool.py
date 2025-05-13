@@ -183,7 +183,8 @@ def get_sensitivity(io):
         try:
             return float(response)
         except:
-            log_error(f'could not decode tube sensitivity: response "f{response}"')
+            log_error(
+                f'could not decode tube sensitivity: response "f{response}"')
 
     log_error(f'could not get tube sensitivity')
 
@@ -326,7 +327,8 @@ def stream_datalog(io, args):
                 open(args.pulsedata_file, 'wt').write(
                     '# timestamp,date time,pulse count,cpm,uSvH\n')
             except Exception as e:
-                log_error(f'could not create file: "{args.pulsedata_file}": {e}')
+                log_error(
+                    f'could not create file: "{args.pulsedata_file}": {e}')
 
     next_event = int(time.time())
 
@@ -369,7 +371,8 @@ def stream_datalog(io, args):
                 try:
                     open(args.pulsedata_file, 'at').write(line)
                 except Exception as e:
-                    log_error(f'could not write file: "{args.pulsedata_file}": {e}')
+                    log_error(
+                        f'could not write file: "{args.pulsedata_file}": {e}')
 
             if args.submit_gmcmap != None and cpm != None:
                 url = 'https://www.gmcmap.com/log2.asp' + \

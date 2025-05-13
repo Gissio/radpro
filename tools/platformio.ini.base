@@ -27,7 +27,7 @@ build_flags =
     -DGAME
 lib_ignore = libusb_stm32
 
-[bosean-fs600-1000]
+[bosean-fs600_fs1000]
 extends = base
 board = stm32g070cb
 build_flags =
@@ -89,34 +89,34 @@ extends = fs2011
 board = gd32f103c8
 
 [bosean-fs600]
-extends = bosean-fs600-1000
+extends = bosean-fs600_fs1000
 build_flags =
-    ${bosean-fs600-1000.build_flags}
+    ${bosean-fs600_fs1000.build_flags}
     -DFS600
     -DKEYBOARD_5KEYS
 
 [bosean-fs1000]
-extends = bosean-fs600-1000
+extends = bosean-fs600_fs1000
 build_flags =
-    ${bosean-fs600-1000.build_flags}
+    ${bosean-fs600_fs1000.build_flags}
     -DFS1000
     -DKEYBOARD_2KEYS
 
-[bosean-fs5000-portrait]
+[bosean-fs5000_portrait]
 extends = bosean-fs5000
 build_flags =
     ${bosean-fs5000.build_flags}
     -DDISPLAY_240X320
     -DFONT_LARGE='"fonts/font_color_large_portrait.h"'
 
-[bosean-fs5000-landscape]
+[bosean-fs5000_landscape]
 extends = bosean-fs5000
 build_flags =
     ${bosean-fs5000.build_flags}
     -DDISPLAY_320X240
     -DFONT_LARGE='"fonts/font_color_large.h"'
 
-[fnirsi-gc01-dev]
+[fnirsi-gc01_dev]
 extends = fnirsi-gc01
 board = apm32f103rb
 build_flags =
@@ -125,7 +125,7 @@ build_flags =
 	; -D GC01_USART
     -DGAME
 
-[fnirsi-gc01-ch32f103r8]
+[fnirsi-gc01_ch32f103r8]
 extends = fnirsi-gc01
 board = ch32f103r8
 build_flags =
@@ -134,7 +134,7 @@ build_flags =
     -DFONT_SYMBOLS='"fonts/font_color_low_symbols.h"'
     -DDATA_MODE
 
-[fnirsi-gc01-apm32f103rb]
+[fnirsi-gc01_apm32f103rb]
 extends = fnirsi-gc01
 board = apm32f103rb
 build_flags =

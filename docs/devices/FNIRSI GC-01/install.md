@@ -22,9 +22,11 @@ Follow these steps to start installing Rad Pro on your FNIRSI GC-01/JOY-IT JT-RA
 
 ## Step 2: Flash the firmware
 
-Download the `radpro-fnirsi-gc01-[mcu]-x.y.z-install.bin` firmware file from the [Rad Pro releases](https://github.com/Gissio/radpro/releases).
+Now, download and unzip the latest `radpro-[version].zip` from the [Rad Pro releases](https://github.com/Gissio/radpro/releases). Go to the `fnirsi` folder, then to the `install` subfolder, and select the appropriate firmware file: `radpro-fnirsi-gc01_[mcu]-[language]-x.y.z-install.bin`.
 
-`[mcu]` is the type of microprocessor of your device: `ch32f103r8t6` or `apm32f103rbt6`.
+`[mcu]` is your device's microprocessor type: `ch32f103r8t6` or `apm32f103rbt6`.
+
+`[language]` is the two-letter code for your preferred firmware language (e.g. `en` for English).
 
 Next:
 
@@ -99,15 +101,15 @@ On the FNIRSI GC-01/JOY-IT JT-RAD01 with an APM32F103R8 (Geehy) processor, the U
 
 <!-- Calculated as follows:
 
-* With 1-byte differential values: [61 pages * (1 timestamp entry/page [10 bytes] + 1012 differential entries/page [1 byte each])] = 61793 entries
-* With 2-byte differential values: [61 pages * (1 timestamp entry/page [10 bytes] + 506 differential entries/page [2 byte each])] = 30927 entries
+* With 1-byte differential values: [51 pages * (1 timestamp entry/page [10 bytes] + 1012 differential entries/page [1 byte each])] = 51663 entries
+* With 2-byte differential values: [51 pages * (1 timestamp entry/page [10 bytes] + 506 differential entries/page [2 byte each])] = 25857 entries
 
 * 60-minute and 10-minute intervals require 2-byte differential values.
 * 1-minute intervals and less require 1-byte differential values.
 
  -->
 
-Data logging can store up to 61793 data points. At normal radiation levels (20 cpm), this allows for 1288 days of data at 60-minute intervals, 214 days at 10-minute intervals, 42 days at 1-minute intervals, 7 days at 10-second intervals and 17 hours at 1-second intervals.
+Data logging can store up to 61793 data points. At normal radiation levels (20 cpm), this allows for 1077 days of data at 60-minute intervals, 179 days at 10-minute intervals, 35 days at 1-minute intervals, almost 6 days at 10-second intervals and 14 hours at 1-second intervals.
 
 The HV profile settings are:
 

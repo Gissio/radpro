@@ -65,17 +65,17 @@
 #define STRING_NOTIFICATION_SUCCESS "ÚSPECH"
 
 // Firmware checksum failure notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "Chyba kontrolného súčtu firmvéru."
+#define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "Chyba firmvéru."
 
 // HV profile menu items (shorter than 30 characters)
-#define STRING_NOTIFICATION_HVCUSTOM "Nesprávne hodnoty poškodia zariadenie."
+#define STRING_NOTIFICATION_HVCUSTOM "Zlé hodnoty ničia zariadenie."
 
 // Data log reset notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_TITLE "Resetovať dátový záznam?"
-#define STRING_NOTIFICATION_DATALOG_RESET_SUBTITLE "Všetky záznamy budú vymazané."
+#define STRING_NOTIFICATION_DATALOG_RESET_TITLE "Resetovať záznam?"
+#define STRING_NOTIFICATION_DATALOG_RESET_SUBTITLE "Všetky záznamy zmazané."
 
 // Data log reset success notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "Dátový záznam bol resetovaný."
+#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "Dátový záznam vynulovaný."
 
 // Measurement view UI heading strings
 #define STRING_INSTANTANEOUS "Okamžité"
