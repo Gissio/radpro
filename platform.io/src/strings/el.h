@@ -130,7 +130,7 @@
 #define STRING_RATE_ALARM "Συναγερμός ρυθμού"
 #define STRING_DOSE_ALARM "Συναγερμός δόσης"
 #define STRING_OVERRANGE_ALARM "Συναγερμός υπέρβασης"
-#define STRING_SIGNALING "Σήμανση"
+#define STRING_INDICATION "Ένδειξη"
 
 // Measurements menu items
 #define STRING_UNITS "Μονάδες"

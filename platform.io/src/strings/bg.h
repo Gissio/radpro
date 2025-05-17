@@ -65,13 +65,13 @@
 #define STRING_NOTIFICATION_SUCCESS "УСПЕХ"
 
 // Firmware checksum failure notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "Неуспех на фърмуера."
+#define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "Грешка на фърмуера."
 
 // HV profile menu items (shorter than 30 characters)
 #define STRING_NOTIFICATION_HVCUSTOM "Грешни стойности вредят."
 
 // Data log reset notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_TITLE "Нулиране лог?"
+#define STRING_NOTIFICATION_DATALOG_RESET_TITLE "Нулиране журнал?"
 #define STRING_NOTIFICATION_DATALOG_RESET_SUBTITLE "Всички записи изтрити."
 
 // Data log reset success notification (shorter than 30 characters)
@@ -127,10 +127,10 @@
 #define STRING_BEEPS "Сигнали"
 
 // Alarms menu items
-#define STRING_RATE_ALARM "Аларма за честота"
+#define STRING_RATE_ALARM "Аларма за ниво"
 #define STRING_DOSE_ALARM "Аларма за доза"
 #define STRING_OVERRANGE_ALARM "Аларма за превишаване"
-#define STRING_SIGNALING "Сигнализация"
+#define STRING_INDICATION "Индикация"
 
 // Measurements menu items
 #define STRING_UNITS "Единици"
@@ -141,12 +141,12 @@
 
 // Average menu items
 #define STRING_UNLIMITED "Неограничено"
-#define STRING_50_CONFIDENCE "±50% доверие"
-#define STRING_20_CONFIDENCE "±20% доверие"
-#define STRING_10_CONFIDENCE "±10% доверие"
-#define STRING_5_CONFIDENCE "±5% доверие"
-#define STRING_2_CONFIDENCE "±2% доверие"
-#define STRING_1_CONFIDENCE "±1% доверие"
+#define STRING_50_CONFIDENCE "±50% достоверност"
+#define STRING_20_CONFIDENCE "±20% достоверност"
+#define STRING_10_CONFIDENCE "±10% достоверност"
+#define STRING_5_CONFIDENCE "±5% достоверност"
+#define STRING_2_CONFIDENCE "±2% достоверност"
+#define STRING_1_CONFIDENCE "±1% достоверност"
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "Чувствителност"
@@ -167,14 +167,14 @@
 #define STRING_SBM20 "СБМ-20"
 
 // HV profile menu items
-#define STRING_FACTORY_DEFAULT "Фабрично по подразбиране"
+#define STRING_FACTORY_DEFAULT "Фабрични по подразбиране"
 #define STRING_ACCURACY "Точност"
 #define STRING_ENERGY_SAVING "Енергоспестяващ"
 #define STRING_CUSTOM "Персонализиран"
 
 // HV profile - custom menu items
-#define STRING_PWMFREQUENCY "PWM честота"
-#define STRING_PWMDUTY_CYCLE "PWM работен цикъл"
+#define STRING_PWMFREQUENCY "ШИМ честота"
+#define STRING_PWMDUTY_CYCLE "ШИМ коеф. запълване"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Режим на запис"
@@ -238,17 +238,17 @@
 
 // Random generator menu items
 #define STRING_FULL_ASCII "Пълен ASCII"
-#define STRING_ALPHANUMERIC "Алфанумеричен"
+#define STRING_ALPHANUMERIC "Буквено-цифрен"
 #define STRING_HEXADECIMAL "Шестнадесетичен"
 #define STRING_DECIMAL "Десетичен"
 #define STRING_BINARY "Двоичен"
-#define STRING_100_SIDED_DIE "100-странен зар (0-99)"
-#define STRING_20_SIDED_DIE "20-странен зар"
-#define STRING_12_SIDED_DIE "12-странен зар"
-#define STRING_10_SIDED_DIE "10-странен зар (0-9)"
-#define STRING_8_SIDED_DIE "8-странен зар"
-#define STRING_6_SIDED_DIE "6-странен зар"
-#define STRING_4_SIDED_DIE "4-странен зар"
+#define STRING_100_SIDED_DIE "100-стенен зар (0-99)"
+#define STRING_20_SIDED_DIE "20-стенен зар"
+#define STRING_12_SIDED_DIE "12-стенен зар"
+#define STRING_10_SIDED_DIE "10-стенен зар (0-9)"
+#define STRING_8_SIDED_DIE "8-стенен зар"
+#define STRING_6_SIDED_DIE "6-стенен зар"
+#define STRING_4_SIDED_DIE "4-стенен зар"
 #define STRING_COIN_FLIP "Хвърляне на монета"
 
 // Random generator coin head/tail
@@ -260,7 +260,7 @@
 #define STRING_PLAY_BLACK "Играй с черните"
 #define STRING_CONTINUE_GAME "Продължи играта"
 #define STRING_NEW_GAME "Нова игра"
-#define STRING_STRENGTH "Сила"
+#define STRING_STRENGTH "Трудност"
 
 // Game strength menu items prefix (followed by a number from 1 to 8)
 #define STRING_GAME_LEVEL "Ниво"

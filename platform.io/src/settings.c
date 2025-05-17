@@ -54,18 +54,16 @@ void initSettings(void)
 #endif
     settings.pulseSound = PULSE_SOUND_ON_CLICKS;
 
-    settings.alarmSignaling = (1 << ALARMSIGNALING_SOUND) |
+    settings.alarmIndication = (1 << ALARMINDICATION_SOUND) |
 #if defined(VIBRATION)
-                              (1 << ALARMSIGNALING_VIBRATION) |
+                              (1 << ALARMINDICATION_VIBRATION) |
 #endif
 #if defined(PULSE_LED) || defined(ALERT_LED)
-                              (1 << ALARMSIGNALING_ALERT_LED) |
+                              (1 << ALARMINDICATION_ALERT_LED) |
 #endif
-                              (1 << ALARMSIGNALING_DISPLAY_FLASH);
+                              (1 << ALARMINDICATION_DISPLAY_FLASH);
 
-#if defined(TUBE_HV_PWM)
     settings.tubeSensitivity = TUBE_SENSITIVITY_DEFAULT;
-#endif
 
 #if defined(DISPLAY_MONOCHROME)
     settings.displayContrast = DISPLAY_CONTRAST_DEFAULT;

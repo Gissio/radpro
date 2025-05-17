@@ -130,7 +130,7 @@
 #define STRING_RATE_ALARM "Alarmă rată"
 #define STRING_DOSE_ALARM "Alarmă doză"
 #define STRING_OVERRANGE_ALARM "Alarmă depășire"
-#define STRING_SIGNALING "Semnalizare"
+#define STRING_INDICATION "Indicație"
 
 // Measurements menu items
 #define STRING_UNITS "Unități"

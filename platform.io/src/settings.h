@@ -160,16 +160,16 @@ enum
 
 enum
 {
-    ALARMSIGNALING_SOUND,
+    ALARMINDICATION_SOUND,
 #if defined(VIBRATION)
-    ALARMSIGNALING_VIBRATION,
+    ALARMINDICATION_VIBRATION,
 #endif
 #if defined(ALERT_LED) || defined(PULSE_LED)
-    ALARMSIGNALING_ALERT_LED,
+    ALARMINDICATION_ALERT_LED,
 #endif
-    ALARMSIGNALING_DISPLAY_FLASH,
+    ALARMINDICATION_DISPLAY_FLASH,
 
-    ALARMSIGNALING_NUM,
+    ALARMINDICATION_NUM,
 };
 
 enum
@@ -196,7 +196,7 @@ enum
 #define TUBE_DEADTIMECOMPENSATION_NUM 121
 
 #if defined(SIMULATOR)
-#define TUBE_SENSITIVITY_DEFAULT TUBE_SENSITIVITY_M4011
+#define TUBE_SENSITIVITY_DEFAULT TUBE_SENSITIVITY_J321
 #define TUBE_HVPROFILE_FACTORYDEFAULT_FREQUENCY 40000
 #define TUBE_HVPROFILE_FACTORYDEFAULT_DUTYCYCLE 0.5F
 #define TUBE_HVPROFILE_ACCURACY_FREQUENCY 10000
@@ -408,7 +408,7 @@ typedef struct
     unsigned int rateAlarm : 4;
     unsigned int doseAlarm : 4;
     unsigned int overrangeAlarm : 1;
-    unsigned int alarmSignaling : 4;
+    unsigned int alarmIndication : 4;
 
     unsigned int tubeSensitivity : 8;
     unsigned int tubeDeadTimeCompensation : 7;

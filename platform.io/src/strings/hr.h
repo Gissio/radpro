@@ -130,7 +130,7 @@
 #define STRING_RATE_ALARM "Alarm stope"
 #define STRING_DOSE_ALARM "Alarm doze"
 #define STRING_OVERRANGE_ALARM "Alarm prekoračenja"
-#define STRING_SIGNALING "Signalizacija"
+#define STRING_INDICATION "Indikacija"
 
 // Measurements menu items
 #define STRING_UNITS "Jedinice"

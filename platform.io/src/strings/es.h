@@ -130,7 +130,7 @@
 #define STRING_RATE_ALARM "Alarma de tasa"
 #define STRING_DOSE_ALARM "Alarma de dosis"
 #define STRING_OVERRANGE_ALARM "Alarma de rango"
-#define STRING_SIGNALING "Señalización"
+#define STRING_INDICATION "Indicación"
 
 // Measurements menu items
 #define STRING_UNITS "Unidades"

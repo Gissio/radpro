@@ -130,7 +130,7 @@
 #define STRING_RATE_ALARM "Сигнал швидкості"
 #define STRING_DOSE_ALARM "Сигнал дози"
 #define STRING_OVERRANGE_ALARM "Сигнал перевищення"
-#define STRING_SIGNALING "Сигналізація"
+#define STRING_INDICATION "Індикація"
 
 // Measurements menu items
 #define STRING_UNITS "Одиниці"

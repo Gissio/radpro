@@ -130,7 +130,7 @@
 #define STRING_RATE_ALARM "速率警报"
 #define STRING_DOSE_ALARM "剂量警报"
 #define STRING_OVERRANGE_ALARM "超范围警报"
-#define STRING_SIGNALING "信号"
+#define STRING_INDICATION "指示"
 
 // Measurements menu items
 #define STRING_UNITS "单位"

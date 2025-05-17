@@ -4,7 +4,7 @@
 
 * Measurement view with large digits, ideal for field application.
 * Configurable pulse indication with optional threshold: sound (off, clicks, chirps, beeps), vibration (on supported devices), pulse LED (on supported devices), display flashes (on display sleep).
-* Configurable alarm signaling: sound, vibration, pulse LED and display flashes.
+* Configurable alarm indication: sound, vibration, pulse LED and display flashes.
 * Ability to dismiss alarms.
 * Tube fault alarm.
 * Multiple measurement units: Sievert, rem, cpm (counts per minute), cps (counts per second).

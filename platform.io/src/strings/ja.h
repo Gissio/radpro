@@ -130,7 +130,7 @@
 #define STRING_RATE_ALARM "率アラーム"
 #define STRING_DOSE_ALARM "線量アラーム"
 #define STRING_OVERRANGE_ALARM "範囲外アラーム"
-#define STRING_SIGNALING "信号"
+#define STRING_INDICATION "表示"
 
 // Measurements menu items
 #define STRING_UNITS "単位"

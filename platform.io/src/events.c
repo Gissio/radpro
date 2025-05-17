@@ -417,23 +417,23 @@ void triggerAlarm(void)
 {
     syncTimerThread();
 
-    if (settings.alarmSignaling & (1 << ALARMSIGNALING_SOUND))
+    if (settings.alarmIndication & (1 << ALARMINDICATION_SOUND))
         setBuzzerTimer(ALARM_TICKS, 1);
 
 #if defined(VIBRATION)
-    if (settings.alarmSignaling & (1 << ALARMSIGNALING_VIBRATION))
+    if (settings.alarmIndication & (1 << ALARMINDICATION_VIBRATION))
         setVibrationTimer(ALARM_TICKS);
 #endif
 
 #if defined(ALERT_LED)
-    if (settings.alarmSignaling & (1 << ALARMSIGNALING_ALERT_LED))
+    if (settings.alarmIndication & (1 << ALARMINDICATION_ALERT_LED))
         setAlertLEDTimer(ALARM_TICKS);
 #elif defined(PULSE_LED)
-    if (settings.alarmSignaling & (1 << ALARMSIGNALING_ALERT_LED))
+    if (settings.alarmIndication & (1 << ALARMINDICATION_ALERT_LED))
         setPulseLEDTimer(ALARM_TICKS);
 #endif
 
-    if (settings.alarmSignaling & (1 << ALARMSIGNALING_DISPLAY_FLASH))
+    if (settings.alarmIndication & (1 << ALARMINDICATION_DISPLAY_FLASH))
         requestDisplayBacklightAlarm();
 }
 

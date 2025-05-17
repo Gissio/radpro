@@ -130,7 +130,7 @@
 #define STRING_RATE_ALARM "Hastighetslarm"
 #define STRING_DOSE_ALARM "Doslarm"
 #define STRING_OVERRANGE_ALARM "Överområdeslarm"
-#define STRING_SIGNALING "Signalering"
+#define STRING_INDICATION "Indikation"
 
 // Measurements menu items
 #define STRING_UNITS "Enheter"

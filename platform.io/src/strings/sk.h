@@ -130,7 +130,7 @@
 #define STRING_RATE_ALARM "Alarm rýchlosti"
 #define STRING_DOSE_ALARM "Alarm dávky"
 #define STRING_OVERRANGE_ALARM "Alarm prekročenia rozsahu"
-#define STRING_SIGNALING "Signalizácia"
+#define STRING_INDICATION "Indikácia"
 
 // Measurements menu items
 #define STRING_UNITS "Jednotky"

@@ -130,7 +130,7 @@
 #define STRING_RATE_ALARM "Snelheidsalarm"
 #define STRING_DOSE_ALARM "Dosisalarm"
 #define STRING_OVERRANGE_ALARM "Bereikalarm"
-#define STRING_SIGNALING "Signalering"
+#define STRING_INDICATION "Indicatie"
 
 // Measurements menu items
 #define STRING_UNITS "Eenheden"
@@ -184,7 +184,7 @@
 #define STRING_EVERY_HOUR "Elk uur"
 #define STRING_EVERY10_MINUTES "Elke 10 minuten"
 #define STRING_EVERY_MINUTE "Elke minuut"
-#define STRING_EVERY10_SECONDS "Elke Rubens"
+#define STRING_EVERY10_SECONDS "Elke 10 seconden"
 #define STRING_EVERY_SECOND "Elke seconde"
 
 // Display menu items

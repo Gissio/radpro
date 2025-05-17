@@ -18,8 +18,8 @@ Updates:
 
 Fixes:
 * Updated statistics to display battery voltage for all cells.
-* Fixed an issue preventing proper updated to history and instantaneous rate maximum values for 10-second, 30-second and 60-second instantaneous rate averaging intervals.
-* Corrected settings to display hours in AN/PM format when 12-hour format is selected.
+* Fixed an issue preventing proper updates to history and instantaneous rate maximum values for 10-second, 30-second and 60-second instantaneous rate averaging intervals.
+* Corrected settings to display hours in AM/PM format when 12-hour format is selected.
 
 ## 2.1.1 "The dot mender"
 
@@ -42,7 +42,7 @@ Fixes:
 
 Updates:
 * Added the ability to dismiss alarms with the reset measurement key.
-* Added configurable alarm signaling: sound, vibration, pulse LED and display flash.
+* Added configurable alarm indication: sound, vibration, pulse LED and display flash.
 * Added an alarm enabled indicator.
 * Implemented a keyboard lock mode, accessible from Settings.
 * Display of dose counts below 10,000 now shown in standard notation.

@@ -245,7 +245,7 @@ static const float averagingConfidences[] = {
 static const Menu alarmsMenu;
 static const Menu rateAlarmMenu;
 static const Menu doseAlarmMenu;
-static const Menu alarmSignalingMenu;
+static const Menu alarmIndicationMenu;
 static const Menu measurementsMenu;
 static const Menu unitsMenu;
 static const Menu instantaneousMenu;
@@ -293,7 +293,7 @@ void resetMeasurements(void)
     selectMenuItem(&doseAlarmMenu,
                    settings.doseAlarm,
                    DOSEALARM_NUM);
-    selectMenuItem(&alarmSignalingMenu,
+    selectMenuItem(&alarmIndicationMenu,
                    0,
                    0);
 
@@ -1429,9 +1429,9 @@ static const View doseAlarmMenuView = {
     &doseAlarmMenu,
 };
 
-// Alarm signaling menu
+// Alarm indication menu
 
-static const char *const alarmSignalingMenuOptions[] = {
+static const char *const alarmIndicationMenuOptions[] = {
     getString(STRING_SOUND),
 #if defined(VIBRATION)
     getString(STRING_VIBRATION),
@@ -1445,33 +1445,33 @@ static const char *const alarmSignalingMenuOptions[] = {
     NULL,
 };
 
-static const char *onAlarmSignalingMenuGetOption(const Menu *menu,
+static const char *onAlarmIndicationMenuGetOption(const Menu *menu,
                                                  uint32_t index,
                                                  MenuStyle *menuStyle)
 {
-    *menuStyle = (settings.alarmSignaling >> index) & 1;
+    *menuStyle = (settings.alarmIndication >> index) & 1;
 
-    return alarmSignalingMenuOptions[index];
+    return alarmIndicationMenuOptions[index];
 }
 
-static void onAlarmSignalingMenuSelect(const Menu *menu)
+static void onAlarmIndicationMenuSelect(const Menu *menu)
 {
-    settings.alarmSignaling ^= (1 << menu->state->selectedIndex);
+    settings.alarmIndication ^= (1 << menu->state->selectedIndex);
 }
 
-static MenuState alarmSignalingMenuState;
+static MenuState alarmIndicationMenuState;
 
-static const Menu alarmSignalingMenu = {
-    getString(STRING_SIGNALING),
-    &alarmSignalingMenuState,
-    onAlarmSignalingMenuGetOption,
-    onAlarmSignalingMenuSelect,
+static const Menu alarmIndicationMenu = {
+    getString(STRING_INDICATION),
+    &alarmIndicationMenuState,
+    onAlarmIndicationMenuGetOption,
+    onAlarmIndicationMenuSelect,
     onAlarmsSubMenuBack,
 };
 
-static const View alarmSignalingMenuView = {
+static const View alarmIndicationMenuView = {
     onMenuEvent,
-    &alarmSignalingMenu,
+    &alarmIndicationMenu,
 };
 
 // Alarms menu
@@ -1492,7 +1492,7 @@ static const OptionView alarmsMenuOptions[] = {
     {getString(STRING_RATE_ALARM), &rateAlarmMenuView},
     {getString(STRING_DOSE_ALARM), &doseAlarmMenuView},
     {getString(STRING_OVERRANGE_ALARM), NULL},
-    {getString(STRING_SIGNALING), &alarmSignalingMenuView},
+    {getString(STRING_INDICATION), &alarmIndicationMenuView},
     {NULL},
 };
 

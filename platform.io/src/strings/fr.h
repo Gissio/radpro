@@ -130,7 +130,7 @@
 #define STRING_RATE_ALARM "Alarme taux"
 #define STRING_DOSE_ALARM "Alarme dose"
 #define STRING_OVERRANGE_ALARM "Alarme sur-plage"
-#define STRING_SIGNALING "Signalisation"
+#define STRING_INDICATION "Indication"
 
 // Measurements menu items
 #define STRING_UNITS "Unités"

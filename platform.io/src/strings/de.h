@@ -130,7 +130,7 @@
 #define STRING_RATE_ALARM "Dosisratenalarm"
 #define STRING_DOSE_ALARM "Dosisalarm"
 #define STRING_OVERRANGE_ALARM "Überbereichsalarm"
-#define STRING_SIGNALING "Signalisierung"
+#define STRING_INDICATION "Anzeige"
 
 // Measurements menu items
 #define STRING_UNITS "Einheiten"
