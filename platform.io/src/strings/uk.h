@@ -87,7 +87,7 @@
 
 // Measurement view secondary view strings
 #define STRING_TIME "Час"
-#define STRING_MAX "Макс"
+#define STRING_MAX "Макс."
 #define STRING_RATE "Темп"
 #define STRING_DOSE "Доза"
 

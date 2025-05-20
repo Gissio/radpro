@@ -8,7 +8,7 @@
  */
 
 // Application name (transliterated for non-Latin scripts)
-#define STRING_APP_NAME "Ραδ Προ"
+#define STRING_APP_NAME "Rad Pro"
 
 // Styling characters (should not be translated)
 #define STRING_NUMBERS "0123456789.:"

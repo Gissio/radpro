@@ -87,7 +87,7 @@
 
 // Measurement view secondary view strings
 #define STRING_TIME "Время"
-#define STRING_MAX "Макс"
+#define STRING_MAX "Макс."
 #define STRING_RATE "Скор."
 #define STRING_DOSE "Доза"
 
@@ -278,4 +278,4 @@
 #define STRING_DEAD_TIME "Мёртвое в."
 #define STRING_DEVICE "Устройство"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE "Вольтаж"
+#define STRING_VOLTAGE "Напр."
