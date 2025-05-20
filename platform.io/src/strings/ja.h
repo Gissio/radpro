@@ -7,7 +7,7 @@
  * License: MIT
  */
 
-// Application name (should only be translated with non-latin scripts)
+// Application name (should not be translated)
 #define STRING_APP_NAME "ラドプロ"
 
 // Styling characters (should not be translated)

@@ -172,8 +172,14 @@ def reset_tube_life_stats(io):
 
 
 def sync_time(io):
-    io.set('deviceTime', int(time.time()))
-    io.set('deviceTimeZone', int(-time.timezone * 10 / 3600) / 10)
+    current_time = int(time.time())
+    if time.localtime().tm_isdst:
+        current_timezone = time.altzone
+    else:
+        current_timezone = time.timezone
+
+    io.set('deviceTime', current_time)
+    io.set('deviceTimeZone', int(-current_timezone * 10 / 3600) / 10)
 
 
 def get_sensitivity(io):
