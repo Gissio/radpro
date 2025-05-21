@@ -88,7 +88,7 @@
 // Measurement view secondary view strings
 #define STRING_TIME "Zeit"
 #define STRING_MAX "Max"
-#define STRING_RATE "Rate"
+#define STRING_RATE "Leis."
 #define STRING_DOSE "Dosis"
 
 // Measurement view info strings (upper case, up to 5 letters)
@@ -103,7 +103,7 @@
 #define STRING_PULSES "Impulse"
 #define STRING_ALARMS "Alarme"
 #define STRING_MEASUREMENTS "Messungen"
-#define STRING_GEIGER_TUBE "Zählröhre"
+#define STRING_GEIGER_TUBE "Zählrohr"
 #define STRING_DATA_LOG "Datenlog"
 #define STRING_DISPLAY "Anzeige"
 #define STRING_DATE_AND_TIME "Datum und Uhrzeit"
@@ -116,20 +116,20 @@
 // Pulses menu items
 #define STRING_SOUND "Ton"
 #define STRING_VIBRATION "Vibration"
-#define STRING_ALERT_LED "Warn-LED"
+#define STRING_ALERT_LED "Alarm-LED"
 #define STRING_PULSE_LED "Puls-LED"
-#define STRING_DISPLAY_FLASH "Anzeigeblitz"
+#define STRING_DISPLAY_FLASH "Anzeige blinken"
 #define STRING_THRESHOLD "Schwelle"
 
 // Sound menu items
-#define STRING_CLICKS "Klicks"
-#define STRING_CHIRPS "Chirps"
-#define STRING_BEEPS "Pieptöne"
+#define STRING_CLICKS "Knacken"
+#define STRING_CHIRPS "Zirpen"
+#define STRING_BEEPS "Piepsen"
 
 // Alarms menu items
-#define STRING_RATE_ALARM "Dosisratenalarm"
+#define STRING_RATE_ALARM "Dosisleistungsalarm"
 #define STRING_DOSE_ALARM "Dosisalarm"
-#define STRING_OVERRANGE_ALARM "Überbereichsalarm"
+#define STRING_OVERRANGE_ALARM "Überschreitungsalarm"
 #define STRING_INDICATION "Anzeige"
 
 // Measurements menu items
@@ -266,14 +266,14 @@
 #define STRING_GAME_LEVEL "Stufe"
 
 // Statistics view items
-#define STRING_TUBE_LIFE_TIME "Röhrenzeit"
+#define STRING_TUBE_LIFE_TIME "Laufzeit"
 #define STRING_TUBE_LIFE_PULSES "Impulse"
 #define STRING_TUBE_DEAD_TIME "Totzeit"
 #define STRING_DEVICE_ID "Geräte-ID"
 #define STRING_DEVICE_VOLTAGE "Spannung"
 
-#define STRING_TUBE "Zählröhre"
-#define STRING_LIFE_TIME "Lebenszeit"
+#define STRING_TUBE "Zählrohr"
+#define STRING_LIFE_TIME "Laufzeit"
 #define STRING_LIFE_PULSES "Impulse"
 #define STRING_DEAD_TIME "Totzeit"
 #define STRING_DEVICE "Gerät"

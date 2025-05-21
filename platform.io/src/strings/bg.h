@@ -68,10 +68,10 @@
 #define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "Грешка на фърмуера."
 
 // HV profile menu items (shorter than 30 characters)
-#define STRING_NOTIFICATION_HVCUSTOM "Грешни стойности -> повреда."
+#define STRING_NOTIFICATION_HVCUSTOM "а ваш риск."
 
 // Data log reset notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_TITLE "Нулиране?"
+#define STRING_NOTIFICATION_DATALOG_RESET_TITLE "Изтриване?"
 #define STRING_NOTIFICATION_DATALOG_RESET_SUBTITLE "Всичко ще бъде изтрито."
 
 // Data log reset success notification (shorter than 30 characters)
@@ -88,7 +88,7 @@
 // Measurement view secondary view strings
 #define STRING_TIME "Време"
 #define STRING_MAX "Макс."
-#define STRING_RATE "Чест."
+#define STRING_RATE "Скор."
 #define STRING_DOSE "Доза"
 
 // Measurement view info strings (upper case, up to 5 letters)
@@ -178,7 +178,7 @@
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Режим на запис"
-#define STRING_RESET "Нулиране"
+#define STRING_RESET "Изтриване"
 
 // Data log - Logging menu items
 #define STRING_EVERY_HOUR "На всеки час"
@@ -266,7 +266,7 @@
 #define STRING_GAME_LEVEL "Ниво"
 
 // Statistics view items
-#define STRING_TUBE_LIFE_TIME "Работа на брояча"
+#define STRING_TUBE_LIFE_TIME "Работа на дет."
 #define STRING_TUBE_LIFE_PULSES "Общо импулси"
 #define STRING_TUBE_DEAD_TIME "Мъртво време"
 #define STRING_DEVICE_ID "ID на устр."
