@@ -4,7 +4,7 @@ project(radpro)
 
 set(CMAKE_C_STANDARD 99)
 
-set(LANGUAGE "bg")
+set(LANGUAGE "de")
 
 FILE(GLOB sources platform.io/src/*.c)
 FILE(GLOB sdl_sources platform.io/src/sdl/*.c)

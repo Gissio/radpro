@@ -88,7 +88,7 @@
 // Measurement view secondary view strings
 #define STRING_TIME "Zeit"
 #define STRING_MAX "Max"
-#define STRING_RATE "Leis."
+#define STRING_RATE "Rate"
 #define STRING_DOSE "Dosis"
 
 // Measurement view info strings (upper case, up to 5 letters)
@@ -118,7 +118,7 @@
 #define STRING_VIBRATION "Vibration"
 #define STRING_ALERT_LED "Alarm-LED"
 #define STRING_PULSE_LED "Puls-LED"
-#define STRING_DISPLAY_FLASH "Anzeige blinken"
+#define STRING_DISPLAY_FLASH "Anzeigeblinken"
 #define STRING_THRESHOLD "Schwelle"
 
 // Sound menu items
@@ -266,7 +266,7 @@
 #define STRING_GAME_LEVEL "Stufe"
 
 // Statistics view items
-#define STRING_TUBE_LIFE_TIME "Laufzeit"
+#define STRING_TUBE_LIFE_TIME "Zählrohr-Laufzeit"
 #define STRING_TUBE_LIFE_PULSES "Impulse"
 #define STRING_TUBE_DEAD_TIME "Totzeit"
 #define STRING_DEVICE_ID "Geräte-ID"
