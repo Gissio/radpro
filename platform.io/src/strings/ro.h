@@ -38,8 +38,8 @@
 #define STRING_CPMUSVH "cpm/µSv/h"
 
 // Units for indicating Geiger tube pulse count, as in "1 count" or "14 counts"
-#define STRING_COUNT "puls."
-#define STRING_COUNTS "puls."
+#define STRING_COUNT "imp."
+#define STRING_COUNTS "imp."
 
 // Common time menu items
 #define STRING_24_HOURS "24 ore"
@@ -65,17 +65,17 @@
 #define STRING_NOTIFICATION_SUCCESS "SUCCES"
 
 // Firmware checksum failure notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "Eșec sumă control firmware."
+#define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "Eșec checksum firmware."
 
 // HV profile menu items (shorter than 30 characters)
-#define STRING_NOTIFICATION_HVCUSTOM "Valori greșite dăunează."
+#define STRING_NOTIFICATION_HVCUSTOM "Valori greșite afectează disp."
 
 // Data log reset notification (shorter than 30 characters)
 #define STRING_NOTIFICATION_DATALOG_RESET_TITLE "Resetare?"
-#define STRING_NOTIFICATION_DATALOG_RESET_SUBTITLE "Toate înregistrările șterse."
+#define STRING_NOTIFICATION_DATALOG_RESET_SUBTITLE "Toate înreg. vor fi șterse."
 
 // Data log reset success notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "Jurnal date resetat."
+#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "Înregistrări resetat."
 
 // Measurement view UI heading strings
 #define STRING_INSTANTANEOUS "Instantaneu"
@@ -100,11 +100,11 @@
 
 // Settings menu items
 #define STRING_SETTINGS "Setări"
-#define STRING_PULSES "Pulsuri"
+#define STRING_PULSES "Impulsuri"
 #define STRING_ALARMS "Alarme"
 #define STRING_MEASUREMENTS "Măsurători"
 #define STRING_GEIGER_TUBE "Tub Geiger"
-#define STRING_DATA_LOG "Jurnal date"
+#define STRING_DATA_LOG "Înregistrări"
 #define STRING_DISPLAY "Afișaj"
 #define STRING_DATE_AND_TIME "Dată și oră"
 #define STRING_BATTERY_TYPE "Tip baterie"
@@ -117,8 +117,8 @@
 #define STRING_SOUND "Sunet"
 #define STRING_VIBRATION "Vibrație"
 #define STRING_ALERT_LED "LED alertă"
-#define STRING_PULSE_LED "LED puls"
-#define STRING_DISPLAY_FLASH "Flash afișaj"
+#define STRING_PULSE_LED "LED impuls"
+#define STRING_DISPLAY_FLASH "Clipire ecran"
 #define STRING_THRESHOLD "Prag"
 
 // Sound menu items
@@ -137,7 +137,7 @@
 
 // Instantaneous menu items
 #define STRING_ADAPTIVE_FAST "Adaptiv rapid"
-#define STRING_ADAPTIVE_PRECISION "Adaptiv precizie"
+#define STRING_ADAPTIVE_PRECISION "Adaptiv cu precizie"
 
 // Average menu items
 #define STRING_UNLIMITED "Nelimitat"
@@ -168,7 +168,7 @@
 
 // HV profile menu items
 #define STRING_FACTORY_DEFAULT "Setare fabrică"
-#define STRING_ACCURACY "Precizie"
+#define STRING_ACCURACY "Acuratețe"
 #define STRING_ENERGY_SAVING "Economisire energie"
 #define STRING_CUSTOM "Personalizat"
 
@@ -266,15 +266,15 @@
 #define STRING_GAME_LEVEL "Nivel"
 
 // Statistics view items
-#define STRING_TUBE_LIFE_TIME "Durata tub"
-#define STRING_TUBE_LIFE_PULSES "Pulsuri"
+#define STRING_TUBE_LIFE_TIME "Viața tubului"
+#define STRING_TUBE_LIFE_PULSES "Impulsuri"
 #define STRING_TUBE_DEAD_TIME "Timp mort"
 #define STRING_DEVICE_ID "ID dispozitiv"
 #define STRING_DEVICE_VOLTAGE "Voltaj"
 
 #define STRING_TUBE "Tub"
 #define STRING_LIFE_TIME "Durată"
-#define STRING_LIFE_PULSES "Pulsuri"
+#define STRING_LIFE_PULSES "Impulsuri"
 #define STRING_DEAD_TIME "Timp mort"
 #define STRING_DEVICE "Dispozitiv"
 #define STRING_ID "ID"
