@@ -75,7 +75,7 @@
 #define STRING_NOTIFICATION_DATALOG_RESET_SUBTITLE "Toate înreg. vor fi șterse."
 
 // Data log reset success notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "Jurnal de date resetat."
+#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "Înregistrări resetate."
 
 // Measurement view UI heading strings
 #define STRING_INSTANTANEOUS "Instantaneu"
@@ -104,7 +104,7 @@
 #define STRING_ALARMS "Alarme"
 #define STRING_MEASUREMENTS "Măsurători"
 #define STRING_GEIGER_TUBE "Tub Geiger"
-#define STRING_DATA_LOG "Înregistrare"
+#define STRING_DATA_LOG "Înregistrări"
 #define STRING_DISPLAY "Afișaj"
 #define STRING_DATE_AND_TIME "Dată și oră"
 #define STRING_BATTERY_TYPE "Tip baterie"
