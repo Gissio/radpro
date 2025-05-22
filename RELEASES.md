@@ -3,7 +3,7 @@
 ## 2.2 "Sundry"
 
 Updates:
-* Added language support for: Bulgarian, Chinese, Croatian, Czech, Danish, Dutch, English, Finnish, French, German, Greek, Hungarian, Italian, Japanese, Korean, Polish, Portuguese, Romanian, Russian, Slovakian, Slovenian, Spanish, Swedish, Turkish, Ukranian, Vietnamese.
+* Added language support for: Bulgarian, Chinese, Croatian, Czech, Danish, Dutch, English, Finnish, French, German, Greek, Hungarian, Italian, Japanese, Korean, Norwegian, Polish, Portuguese, Romanian, Russian, Slovakian, Slovenian, Spanish, Swedish, Turkish, Ukrainian, Vietnamese.
 * Introduced new averaging periods: 3, 6, 12, 24-hour intervals, plus confidence intervals of ±50%, ±20%, ±10%, ±5%, ±2% and ±1%.
 * Extended sensitivity range to 1-10,000 cpm/µSv/h to support low-sensitivity Geiger tubes (e.g., SI-3BG).
 * Extended dead-time compensation range to 5-500 µs for compatibility with scintillation detectors.

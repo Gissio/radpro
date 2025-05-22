@@ -20,6 +20,7 @@
 * Geiger tube dead-time measurement.
 * Game: nuclear chess (on supported devices).
 * User interface based on the industry-standard [OpenBridge 5.0](https://www.openbridge.no/) design system.
+* Language support for: Bulgarian, Chinese, Croatian, Czech, Danish, Dutch, English, Finnish, French, German, Greek, Hungarian, Italian, Japanese, Korean, Norwegian, Polish, Portuguese, Romanian, Russian, Slovakian, Slovenian, Spanish, Swedish, Turkish, Ukrainian, Vietnamese.
 * Anti-aliased text rendering on color screens.
 * `radpro-tool` for low-level access to the device from a computer.
 * Power-on self-test and safety watchdog.

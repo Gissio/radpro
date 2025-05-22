@@ -25,14 +25,16 @@ With Rad Pro, you can:
 * [Installing on the FNIRSI GC-01/JOY-IT JT-RAD01](docs/devices/FNIRSI%20GC-01/install.md)
 * [Installing on other devices](docs/install-other.md)
 
-* [GeigerLog](https://sourceforge.net/projects/geigerlog/) data analysis software for PC.
-* [RadPro Log Viewer](https://github.com/mayrthom/RadPro-LogViewer) data analysis software for Android.
-
 ## Manuals
 
 * [Rad Pro user's manual](docs/manual.md)
 * [The ionizing radiation field guide](docs/field-guide.md) - Learn about ionizing radiation!
 * [Rad Pro developers's manual](docs/developers.md)
+
+## Tools
+
+* [GeigerLog](https://sourceforge.net/projects/geigerlog/) data analysis software for PC.
+* [RadPro Log Viewer](https://github.com/mayrthom/RadPro-LogViewer) data analysis software for Android.
 
 ## Acknowledgements
 
