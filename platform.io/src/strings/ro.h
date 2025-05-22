@@ -93,7 +93,7 @@
 
 // Measurement view info strings (upper case, up to 5 letters)
 #define STRING_INFO_ALARM "ALARMĂ"
-#define STRING_INFO_FAULT "EROARE"
+#define STRING_INFO_FAULT "DEFECT"
 #define STRING_INFO_MAX "MAX"
 #define STRING_INFO_OVER "DEPĂȘ"
 #define STRING_INFO_DONE "GATA"

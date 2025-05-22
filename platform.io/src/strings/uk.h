@@ -266,14 +266,14 @@
 #define STRING_GAME_LEVEL "Рівень"
 
 // Statistics view items
-#define STRING_TUBE_LIFE_TIME "Термін трубки"
+#define STRING_TUBE_LIFE_TIME "Робота детектора"
 #define STRING_TUBE_LIFE_PULSES "Імпульси"
 #define STRING_TUBE_DEAD_TIME "Мертвий час"
 #define STRING_DEVICE_ID "ID пристрою"
 #define STRING_DEVICE_VOLTAGE "Напруга"
 
-#define STRING_TUBE "Трубка"
-#define STRING_LIFE_TIME "Час роботи"
+#define STRING_TUBE "Детектор"
+#define STRING_LIFE_TIME "Життя"
 #define STRING_LIFE_PULSES "Імпульси"
 #define STRING_DEAD_TIME "Мертвий ч."
 #define STRING_DEVICE "Пристрій"

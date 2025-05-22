@@ -38,8 +38,8 @@
 #define STRING_CPMUSVH "cpm/µSv/h"
 
 // Units for indicating Geiger tube pulse count, as in "1 count" or "14 counts"
-#define STRING_COUNT "счёт"
-#define STRING_COUNTS "счёты"
+#define STRING_COUNT "имп."
+#define STRING_COUNTS "имп."
 
 // Common time menu items
 #define STRING_24_HOURS "24 часа"
@@ -62,20 +62,20 @@
 
 // Notification headings (upper case)
 #define STRING_NOTIFICATION_WARNING "ПРЕДУПРЕЖДЕНИЕ"
-#define STRING_NOTIFICATION_SUCCESS "УСПЕХ"
+#define STRING_NOTIFICATION_SUCCESS "УСПЕШНО"
 
 // Firmware checksum failure notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "Ошибка суммы прошивки."
+#define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "Ошибка прошивки."
 
 // HV profile menu items (shorter than 30 characters)
 #define STRING_NOTIFICATION_HVCUSTOM "Ошибки вредят устройству."
 
 // Data log reset notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_TITLE "Сброс журнала?"
+#define STRING_NOTIFICATION_DATALOG_RESET_TITLE "Очистка журнала?"
 #define STRING_NOTIFICATION_DATALOG_RESET_SUBTITLE "Все записи будут удалены."
 
 // Data log reset success notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "Журнал данных сброшен."
+#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "Журнал данных очищен."
 
 // Measurement view UI heading strings
 #define STRING_INSTANTANEOUS "Мгновенный"
@@ -119,7 +119,7 @@
 #define STRING_ALERT_LED "Светодиод тревоги"
 #define STRING_PULSE_LED "Светодиод импульса"
 #define STRING_DISPLAY_FLASH "Мигание дисплея"
-#define STRING_THRESHOLD "Порог"
+#define STRING_THRESHOLD "Порог тревоги"
 
 // Sound menu items
 #define STRING_CLICKS "Щелчки"
@@ -133,7 +133,7 @@
 #define STRING_INDICATION "Индикация"
 
 // Measurements menu items
-#define STRING_UNITS "Единицы"
+#define STRING_UNITS "Единицы измерения"
 
 // Instantaneous menu items
 #define STRING_ADAPTIVE_FAST "Адаптивный быстрый"
@@ -178,7 +178,7 @@
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Режим записи"
-#define STRING_RESET "Сброс"
+#define STRING_RESET "Очистить"
 
 // Data log - Logging menu items
 #define STRING_EVERY_HOUR "Каждый час"
@@ -263,19 +263,19 @@
 #define STRING_STRENGTH "Сила"
 
 // Game strength menu items prefix (followed by a number from 1 to 8)
-#define STRING_GAME_LEVEL "Уровень"
+#define STRING_GAME_LEVEL "Сложность"
 
 // Statistics view items
-#define STRING_TUBE_LIFE_TIME "Жизнь трубки"
+#define STRING_TUBE_LIFE_TIME "Работа детектора"
 #define STRING_TUBE_LIFE_PULSES "Импульсы"
 #define STRING_TUBE_DEAD_TIME "Мёртвое время"
 #define STRING_DEVICE_ID "ID устройства"
 #define STRING_DEVICE_VOLTAGE "Напряжение"
 
-#define STRING_TUBE "Трубка"
+#define STRING_TUBE "Детектор"
 #define STRING_LIFE_TIME "жизнь"
 #define STRING_LIFE_PULSES "Импульсы"
-#define STRING_DEAD_TIME "Мёртвое в."
+#define STRING_DEAD_TIME "Мёртвое вр."
 #define STRING_DEVICE "Устройство"
 #define STRING_ID "ID"
 #define STRING_VOLTAGE "Напр."
