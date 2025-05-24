@@ -68,7 +68,7 @@
 #define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "Грешка на фърмуера."
 
 // HV profile menu items (shorter than 30 characters)
-#define STRING_NOTIFICATION_HVCUSTOM "А ваш риск."
+#define STRING_NOTIFICATION_HVCUSTOM "На ваш риск."
 
 // Data log reset notification (shorter than 30 characters)
 #define STRING_NOTIFICATION_DATALOG_RESET_TITLE "Изтриване?"
