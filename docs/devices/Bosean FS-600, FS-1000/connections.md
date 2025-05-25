@@ -1,4 +1,4 @@
-# Bosean FS-600 (Board KL7.820.403A) connectors
+# Bosean FS-600 (Board KL7.820.403A) connections
 
 ## 4-pin SWD connector
 

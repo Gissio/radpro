@@ -1,4 +1,4 @@
-# FNIRSI GC-01 connectors
+# FNIRSI GC-01 connections
 
 ## 4-pin SWD connector
 

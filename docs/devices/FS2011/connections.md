@@ -1,4 +1,4 @@
-# FS2011 connectors
+# FS2011 connections
 
 ## 4-pin SWD connector
 
