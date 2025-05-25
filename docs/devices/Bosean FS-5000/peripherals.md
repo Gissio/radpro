@@ -18,10 +18,10 @@
 * PB7 (Output): TUBE_HV
 * PB10 (AF1): DISPLAY_BACKLIGHT
 * PB11 (Output): BUZZ
-* PB12 (Output): SPI2_CS
-* PB13 (AF5): SPI2_SCK
-* PB14 (AF5): SPI2_MISO
-* PB15 (AF5): SPI2_MOSI
+* PB12 (Output): FLASH_CS
+* PB13 (AF5): FLASH_SCK
+* PB14 (AF5): FLASH_MISO
+* PB15 (AF5): FLASH_MOSI
 
 * PC1 (Input, floating): PWR_BAT
 * PC4 (Output): DISPLAY_WRX
@@ -29,7 +29,7 @@
 * PC6 (Output): PWR_VCC
 * PC7 (Input, pull-down): PWR_STDBY
 * PC8 (Input, floating): KEY_POWER
-* PC9 (Output): VIBRATION
+* PC9 (Output): M_VIB
 * PC12 (Input, pull-up): KEY_RIGHT
 
 * PD2 (Input, pull-up): KEY_LEFT

@@ -28,7 +28,7 @@ With Rad Pro, you can:
 ## Manuals
 
 * [Rad Pro user's manual](docs/manual.md)
-* [The ionizing radiation field guide](docs/field-guide.md) - Learn about ionizing radiation!
+* [The ionizing radiation field guide](docs/field-guide/field-guide.md) - Learn about ionizing radiation!
 * [Rad Pro developers's manual](docs/developers.md)
 
 ## Tools

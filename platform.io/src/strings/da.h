@@ -65,7 +65,7 @@
 #define STRING_NOTIFICATION_SUCCESS "SUCCES"
 
 // Firmware checksum failure notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "Firmware kontrolsum fejl."
+#define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "Firmware checksum fejl."
 
 // HV profile menu items (shorter than 30 characters)
 #define STRING_NOTIFICATION_HVCUSTOM "Forkerte værdier skader enhed."
