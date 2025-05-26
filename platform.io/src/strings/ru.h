@@ -78,9 +78,9 @@
 #define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "Журнал данных очищен."
 
 // Measurement view UI heading strings
-#define STRING_INSTANTANEOUS "Мгновенный"
-#define STRING_AVERAGE "Средний"
-#define STRING_CUMULATIVE "Накопленный"
+#define STRING_INSTANTANEOUS "Мгновенное"
+#define STRING_AVERAGE "Среднее"
+#define STRING_CUMULATIVE "Накопленная"
 #define STRING_HISTORY10_MIN "История (10 мин)"
 #define STRING_HISTORY1_H "История (1 ч)"
 #define STRING_HISTORY24_H "История (24 ч)"
