@@ -260,10 +260,10 @@
 #define STRING_PLAY_BLACK "Играть чёрными"
 #define STRING_CONTINUE_GAME "Продолжить игру"
 #define STRING_NEW_GAME "Новая игра"
-#define STRING_STRENGTH "Сила"
+#define STRING_STRENGTH "Сложность"
 
 // Game strength menu items prefix (followed by a number from 1 to 8)
-#define STRING_GAME_LEVEL "Сложность"
+#define STRING_GAME_LEVEL "Уровень"
 
 // Statistics view items
 #define STRING_TUBE_LIFE_TIME "Работа детектора"
@@ -273,7 +273,7 @@
 #define STRING_DEVICE_VOLTAGE "Напряжение"
 
 #define STRING_TUBE "Детектор"
-#define STRING_LIFE_TIME "жизнь"
+#define STRING_LIFE_TIME "Наработка"
 #define STRING_LIFE_PULSES "Импульсы"
 #define STRING_DEAD_TIME "Мёртвое вр."
 #define STRING_DEVICE "Устройство"

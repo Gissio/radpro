@@ -15,4 +15,6 @@
 #include "fs5000.h"
 #elif defined(GC01)
 #include "gc01.h"
+#elif defined(GMC800)
+#include "gmc800.h"
 #endif

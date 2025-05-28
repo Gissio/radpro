@@ -33,8 +33,19 @@ typedef enum
 typedef enum
 {
     KEY_LEFT,
-    KEY_OK,
     KEY_RIGHT,
+    KEY_OK,
+
+    KEY_NUM,
+    KEY_NONE = KEY_NUM,
+} Key;
+#elif defined(KEYBOARD_4KEYS)
+typedef enum
+{
+    KEY_LEFT,
+    KEY_RIGHT,
+    KEY_UP,
+    KEY_DOWN,
 
     KEY_NUM,
     KEY_NONE = KEY_NUM,
