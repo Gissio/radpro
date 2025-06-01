@@ -150,7 +150,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "Hassasiyet"
-#define STRING_DEAD_TIME_COMPENSATION "Ölü zaman telafisi"
+#define STRING_DEAD_TIME_SHORT_COMPENSATION "Ölü zaman telafisi"
 #define STRING_HVPROFILE "HV profili"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
@@ -175,6 +175,9 @@
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "PWM frekansı"
 #define STRING_PWMDUTY_CYCLE "PWM görev döngüsü"
+
+// Tube/battery voltage
+#define STRING_VOLTAGE "Voltaj"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Kayıt modu"
@@ -267,15 +270,12 @@
 
 // Statistics view items
 #define STRING_TUBE_LIFE_TIME "Tüp ömrü"
-#define STRING_TUBE_LIFE_PULSES "Naberler"
-#define STRING_TUBE_DEAD_TIME "Ölü zaman"
+#define STRING_DEAD_TIME "Ölü zaman"
 #define STRING_DEVICE_ID "Cihaz kimliği"
-#define STRING_DEVICE_VOLTAGE "Voltaj"
 
 #define STRING_TUBE "Tüp"
 #define STRING_LIFE_TIME "Ömür"
-#define STRING_LIFE_PULSES "Naberler"
-#define STRING_DEAD_TIME "Ölü zaman"
+#define STRING_DEAD_TIME_SHORT "Ölü zaman"
 #define STRING_DEVICE "Cihaz"
 #define STRING_ID "Kimlik"
-#define STRING_VOLTAGE "Voltaj"
+#define STRING_VOLTAGE_SHORT "Voltaj"

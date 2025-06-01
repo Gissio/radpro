@@ -150,7 +150,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "Občutljivost"
-#define STRING_DEAD_TIME_COMPENSATION "Kompenzacija mrtvega časa"
+#define STRING_DEAD_TIME_SHORT_COMPENSATION "Kompenzacija mrtvega časa"
 #define STRING_HVPROFILE "HV profil"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
@@ -175,6 +175,9 @@
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "Frekvenca PWM"
 #define STRING_PWMDUTY_CYCLE "Delovni cikel PWM"
+
+// Tube/battery voltage
+#define STRING_VOLTAGE "Napetost"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Način beleženja"
@@ -267,15 +270,12 @@
 
 // Statistics view items
 #define STRING_TUBE_LIFE_TIME "Življenjska doba"
-#define STRING_TUBE_LIFE_PULSES "Impulzi"
-#define STRING_TUBE_DEAD_TIME "Mrtev čas"
+#define STRING_DEAD_TIME "Mrtev čas"
 #define STRING_DEVICE_ID "ID naprave"
-#define STRING_DEVICE_VOLTAGE "Napetost"
 
 #define STRING_TUBE "Cev"
 #define STRING_LIFE_TIME "Doba"
-#define STRING_LIFE_PULSES "Impulzi"
-#define STRING_DEAD_TIME "Mrtev čas"
+#define STRING_DEAD_TIME_SHORT "Mrtev čas"
 #define STRING_DEVICE "Naprava"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE "Napetost"
+#define STRING_VOLTAGE_SHORT "Napetost"

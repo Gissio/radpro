@@ -150,7 +150,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "Чувствительность"
-#define STRING_DEAD_TIME_COMPENSATION "Компенсация мёртвого времени"
+#define STRING_DEAD_TIME_SHORT_COMPENSATION "Компенсация мёртвого времени"
 #define STRING_HVPROFILE "Профиль HV"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
@@ -175,6 +175,9 @@
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "Частота ШИМ"
 #define STRING_PWMDUTY_CYCLE "Скважность ШИМ"
+
+// Tube/battery voltage
+#define STRING_VOLTAGE "Напряжение"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Режим записи"
@@ -267,15 +270,12 @@
 
 // Statistics view items
 #define STRING_TUBE_LIFE_TIME "Работа детектора"
-#define STRING_TUBE_LIFE_PULSES "Импульсы"
-#define STRING_TUBE_DEAD_TIME "Мёртвое время"
+#define STRING_DEAD_TIME "Мёртвое время"
 #define STRING_DEVICE_ID "ID устройства"
-#define STRING_DEVICE_VOLTAGE "Напряжение"
 
 #define STRING_TUBE "Детектор"
 #define STRING_LIFE_TIME "Наработка"
-#define STRING_LIFE_PULSES "Импульсы"
-#define STRING_DEAD_TIME "Мёртвое вр."
+#define STRING_DEAD_TIME_SHORT "Мёртвое вр."
 #define STRING_DEVICE "Устройство"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE "Напр."
+#define STRING_VOLTAGE_SHORT "Напр."

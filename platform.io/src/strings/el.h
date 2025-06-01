@@ -150,7 +150,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "Ευαισθησία"
-#define STRING_DEAD_TIME_COMPENSATION "Αντιστάθμιση νεκρού χρόνου"
+#define STRING_DEAD_TIME_SHORT_COMPENSATION "Αντιστάθμιση νεκρού χρόνου"
 #define STRING_HVPROFILE "Προφίλ HV"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
@@ -175,6 +175,9 @@
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "Συχνότητα PWM"
 #define STRING_PWMDUTY_CYCLE "Κύκλος εργασίας PWM"
+
+// Tube/battery voltage
+#define STRING_VOLTAGE "Τάση"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Λειτουργία καταγραφής"
@@ -267,15 +270,12 @@
 
 // Statistics view items
 #define STRING_TUBE_LIFE_TIME "Ζωή σωλήνα"
-#define STRING_TUBE_LIFE_PULSES "Παλμοί"
-#define STRING_TUBE_DEAD_TIME "Νεκρός χρόνος"
+#define STRING_DEAD_TIME "Νεκρός χρόνος"
 #define STRING_DEVICE_ID "ID συσκευής"
-#define STRING_DEVICE_VOLTAGE "Τάση"
 
 #define STRING_TUBE "Σωλήνας"
 #define STRING_LIFE_TIME "Ζωή"
-#define STRING_LIFE_PULSES "Παλμοί"
-#define STRING_DEAD_TIME "Νεκρός χ."
+#define STRING_DEAD_TIME_SHORT "Νεκρός χ."
 #define STRING_DEVICE "Συσκευή"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE "Τάση"
+#define STRING_VOLTAGE_SHORT "Τάση"

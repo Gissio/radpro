@@ -17,7 +17,7 @@
 
 #define FIRMWARE_AUTHOR "Gissio"
 #define FIRMWARE_NAME "Rad Pro"
-#define FIRMWARE_VERSION "2.2beta3"
+#define FIRMWARE_VERSION "2.2beta4"
 
 extern const View statisticsView;
 

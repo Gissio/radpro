@@ -150,7 +150,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "Sensibilitate"
-#define STRING_DEAD_TIME_COMPENSATION "Compensare timp mort"
+#define STRING_DEAD_TIME_SHORT_COMPENSATION "Compensare timp mort"
 #define STRING_HVPROFILE "Profil HV"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
@@ -175,6 +175,9 @@
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "Frecvență PWM"
 #define STRING_PWMDUTY_CYCLE "Ciclu de lucru PWM"
+
+// Tube/battery voltage
+#define STRING_VOLTAGE "Voltaj"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Mod înregistrare"
@@ -267,15 +270,12 @@
 
 // Statistics view items
 #define STRING_TUBE_LIFE_TIME "Viața tubului"
-#define STRING_TUBE_LIFE_PULSES "Impulsuri"
-#define STRING_TUBE_DEAD_TIME "Timp mort"
+#define STRING_DEAD_TIME "Timp mort"
 #define STRING_DEVICE_ID "ID dispozitiv"
-#define STRING_DEVICE_VOLTAGE "Voltaj"
 
 #define STRING_TUBE "Tub"
 #define STRING_LIFE_TIME "Durată"
-#define STRING_LIFE_PULSES "Impulsuri"
-#define STRING_DEAD_TIME "Timp mort"
+#define STRING_DEAD_TIME_SHORT "Timp mort"
 #define STRING_DEVICE "Dispozitiv"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE "Voltaj"
+#define STRING_VOLTAGE_SHORT "Voltaj"

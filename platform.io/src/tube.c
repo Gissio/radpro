@@ -589,7 +589,7 @@ static void onTubeDeadTimeCompensationMenuSelect(const Menu *menu)
 static MenuState tubeDeadTimeCompensationMenuState;
 
 static const Menu tubeDeadTimeCompensationMenu = {
-    getString(STRING_DEAD_TIME_COMPENSATION),
+    getString(STRING_DEAD_TIME_SHORT_COMPENSATION),
     &tubeDeadTimeCompensationMenuState,
     onTubeDeadTimeCompensationMenuGetOption,
     onTubeDeadTimeCompensationMenuSelect,
@@ -605,7 +605,7 @@ static const View tubeDeadTimeCompensationMenuView = {
 
 static const char *const tubeMenuOptions[] = {
     getString(STRING_SENSITIVITY),
-    getString(STRING_DEAD_TIME_COMPENSATION),
+    getString(STRING_DEAD_TIME_SHORT_COMPENSATION),
 #if defined(TUBE_HV_PWM)
     getString(STRING_HVPROFILE),
 #endif

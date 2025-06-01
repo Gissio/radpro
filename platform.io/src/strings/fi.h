@@ -150,7 +150,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "Herkkyys"
-#define STRING_DEAD_TIME_COMPENSATION "Kuolleen ajan kompensointi"
+#define STRING_DEAD_TIME_SHORT_COMPENSATION "Kuolleen ajan kompensointi"
 #define STRING_HVPROFILE "HV-profiili"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
@@ -175,6 +175,9 @@
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "PWM-taajuus"
 #define STRING_PWMDUTY_CYCLE "PWM-työsuhde"
+
+// Tube/battery voltage
+#define STRING_VOLTAGE "Jännite"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Lokitusmoodi"
@@ -267,15 +270,12 @@
 
 // Statistics view items
 #define STRING_TUBE_LIFE_TIME "Putken käyttöikä"
-#define STRING_TUBE_LIFE_PULSES "Pulssit"
-#define STRING_TUBE_DEAD_TIME "Kuollut aika"
+#define STRING_DEAD_TIME "Kuollut aika"
 #define STRING_DEVICE_ID "Laitteen tunnus"
-#define STRING_DEVICE_VOLTAGE "Jännite"
 
 #define STRING_TUBE "Putki"
 #define STRING_LIFE_TIME "Käyttöikä"
-#define STRING_LIFE_PULSES "Pulssit"
-#define STRING_DEAD_TIME "Kuollut aika"
+#define STRING_DEAD_TIME_SHORT "Kuollut aika"
 #define STRING_DEVICE "Laite"
 #define STRING_ID "Tunnus"
-#define STRING_VOLTAGE "Jännite"
+#define STRING_VOLTAGE_SHORT "Jännite"

@@ -1925,20 +1925,16 @@ void drawStatistics(void)
             break;
 
         case STATISTICS_ENTRY_TUBE_LIFE_PULSES:
-#if !defined(DISPLAY_PORTRAIT)
-            strcpy(key, getString(STRING_TUBE_LIFE_PULSES));
-#else
-            strcpy(key, getString(STRING_LIFE_PULSES));
-#endif
+            strcpy(key, getString(STRING_PULSES));
             strcatUInt32(valueString, getTubePulseCount(), 0);
 
             break;
 
         case STATISTICS_ENTRY_TUBE_DEAD_TIME:
 #if !defined(DISPLAY_PORTRAIT)
-            strcpy(key, getString(STRING_TUBE_DEAD_TIME));
-#else
             strcpy(key, getString(STRING_DEAD_TIME));
+#else
+            strcpy(key, getString(STRING_DEAD_TIME_SHORT));
 #endif
             float deadTime = getTubeDeadTime();
             if (deadTime >= 1)
@@ -1973,9 +1969,9 @@ void drawStatistics(void)
 
         case STATISTICS_ENTRY_DEVICE_VOLTAGE:
 #if !defined(DISPLAY_PORTRAIT)
-            strcpy(key, getString(STRING_DEVICE_VOLTAGE));
-#else
             strcpy(key, getString(STRING_VOLTAGE));
+#else
+            strcpy(key, getString(STRING_VOLTAGE_SHORT));
 #endif
             strcatFloat(valueString, getBatteryVoltage(), 3);
             strclr(unitString);

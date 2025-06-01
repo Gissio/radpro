@@ -150,7 +150,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "Érzékenység"
-#define STRING_DEAD_TIME_COMPENSATION "Holtidő-kompenzáció"
+#define STRING_DEAD_TIME_SHORT_COMPENSATION "Holtidő-kompenzáció"
 #define STRING_HVPROFILE "HV profil"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
@@ -175,6 +175,9 @@
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "PWM frekvencia"
 #define STRING_PWMDUTY_CYCLE "PWM kitöltési tényező"
+
+// Tube/battery voltage
+#define STRING_VOLTAGE "Feszültség"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Naplózási mód"
@@ -267,15 +270,12 @@
 
 // Statistics view items
 #define STRING_TUBE_LIFE_TIME "Cső élettartama"
-#define STRING_TUBE_LIFE_PULSES "Impulzusok"
-#define STRING_TUBE_DEAD_TIME "Holtidő"
+#define STRING_DEAD_TIME "Holtidő"
 #define STRING_DEVICE_ID "Eszköz ID"
-#define STRING_DEVICE_VOLTAGE "Feszültség"
 
 #define STRING_TUBE "Cső"
 #define STRING_LIFE_TIME "Élettartam"
-#define STRING_LIFE_PULSES "Impulzusok"
-#define STRING_DEAD_TIME "Holtidő"
+#define STRING_DEAD_TIME_SHORT "Holtidő"
 #define STRING_DEVICE "Eszköz"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE "Feszültség"
+#define STRING_VOLTAGE_SHORT "Feszültség"

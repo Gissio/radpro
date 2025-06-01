@@ -150,7 +150,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "Empfindlichkeit"
-#define STRING_DEAD_TIME_COMPENSATION "Totzeitkompensation"
+#define STRING_DEAD_TIME_SHORT_COMPENSATION "Totzeitkompensation"
 #define STRING_HVPROFILE "HV-Profil"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
@@ -175,6 +175,9 @@
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "PWM-Frequenz"
 #define STRING_PWMDUTY_CYCLE "PWM-Tastverhältnis"
+
+// Tube/battery voltage
+#define STRING_VOLTAGE "Spannung"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Logmodus"
@@ -267,15 +270,12 @@
 
 // Statistics view items
 #define STRING_TUBE_LIFE_TIME "Zählrohr-Laufzeit"
-#define STRING_TUBE_LIFE_PULSES "Impulse"
-#define STRING_TUBE_DEAD_TIME "Totzeit"
+#define STRING_DEAD_TIME "Totzeit"
 #define STRING_DEVICE_ID "Geräte-ID"
-#define STRING_DEVICE_VOLTAGE "Spannung"
 
 #define STRING_TUBE "Zählrohr"
 #define STRING_LIFE_TIME "Laufzeit"
-#define STRING_LIFE_PULSES "Impulse"
-#define STRING_DEAD_TIME "Totzeit"
+#define STRING_DEAD_TIME_SHORT "Totzeit"
 #define STRING_DEVICE "Gerät"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE "Spannung"
+#define STRING_VOLTAGE_SHORT "Spannung"

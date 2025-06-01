@@ -150,7 +150,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "Độ nhạy"
-#define STRING_DEAD_TIME_COMPENSATION "Bù thời gian chết"
+#define STRING_DEAD_TIME_SHORT_COMPENSATION "Bù thời gian chết"
 #define STRING_HVPROFILE "Hồ sơ HV"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
@@ -175,6 +175,9 @@
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "Tần số PWM"
 #define STRING_PWMDUTY_CYCLE "Chu kỳ nhiệm vụ PWM"
+
+// Tube/battery voltage
+#define STRING_VOLTAGE "Điện áp"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Chế độ ghi"
@@ -267,15 +270,12 @@
 
 // Statistics view items
 #define STRING_TUBE_LIFE_TIME "Thời gian ống"
-#define STRING_TUBE_LIFE_PULSES "Xung"
-#define STRING_TUBE_DEAD_TIME "Thời gian trễ"
+#define STRING_DEAD_TIME "Thời gian trễ"
 #define STRING_DEVICE_ID "ID thiết bị"
-#define STRING_DEVICE_VOLTAGE "Điện áp"
 
 #define STRING_TUBE "Ống"
 #define STRING_LIFE_TIME "Thời gian"
-#define STRING_LIFE_PULSES "Xung"
-#define STRING_DEAD_TIME "Thời gian trễ"
+#define STRING_DEAD_TIME_SHORT "Thời gian trễ"
 #define STRING_DEVICE "Thiết bị"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE "Điện áp"
+#define STRING_VOLTAGE_SHORT "Điện áp"

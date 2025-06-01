@@ -49,19 +49,22 @@ void SysTick_Handler(void)
 
 void sleep(uint32_t value)
 {
-    iwdg_reload();
+    uint32_t targetTick = eventsCurrentTick + value;
 
-    while (value--)
+    while (true)
     {
-#if defined(DATA_MODE) && defined(USB_INTERFACE)
+        iwdg_reload();
+
+        if (((int32_t)(eventsCurrentTick - targetTick)) >= 0)
+            break;
+
+#if defined(USB_INTERFACE) && defined(DATA_MODE)
         // CH32F103R8T6 does not wake USB on IRQ
         if (!isCommOpen())
             __asm volatile("wfi");
 #else
         __asm volatile("wfi");
 #endif
-
-        iwdg_reload();
     }
 }
 

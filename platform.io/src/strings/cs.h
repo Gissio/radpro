@@ -150,7 +150,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "Citlivost"
-#define STRING_DEAD_TIME_COMPENSATION "Komp. mrtvého času"
+#define STRING_DEAD_TIME_SHORT_COMPENSATION "Komp. mrtvého času"
 #define STRING_HVPROFILE "HV profil"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
@@ -175,6 +175,9 @@
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "Frekvence PWM"
 #define STRING_PWMDUTY_CYCLE "Pracovní cyklus PWM"
+
+// Tube/battery voltage
+#define STRING_VOLTAGE "Napětí"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Režim záznamu"
@@ -267,15 +270,12 @@
 
 // Statistics view items
 #define STRING_TUBE_LIFE_TIME "Životnost trubice"
-#define STRING_TUBE_LIFE_PULSES "Impulzy"
-#define STRING_TUBE_DEAD_TIME "Mrtvý čas"
+#define STRING_DEAD_TIME "Mrtvý čas"
 #define STRING_DEVICE_ID "ID zařízení"
-#define STRING_DEVICE_VOLTAGE "Napětí"
 
 #define STRING_TUBE "Trubice"
 #define STRING_LIFE_TIME "Životnost"
-#define STRING_LIFE_PULSES "Impulzy"
-#define STRING_DEAD_TIME "Mrtvý čas"
+#define STRING_DEAD_TIME_SHORT "Mrtvý čas"
 #define STRING_DEVICE "Zařízení"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE "Napětí"
+#define STRING_VOLTAGE_SHORT "Napětí"

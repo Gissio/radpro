@@ -150,7 +150,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "感度"
-#define STRING_DEAD_TIME_COMPENSATION "死時間補正"
+#define STRING_DEAD_TIME_SHORT_COMPENSATION "死時間補正"
 #define STRING_HVPROFILE "HVプロファイル"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
@@ -175,6 +175,9 @@
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "PWM周波数"
 #define STRING_PWMDUTY_CYCLE "PWMデューティ"
+
+// Tube/battery voltage
+#define STRING_VOLTAGE "電圧"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "ログモード"
@@ -267,15 +270,12 @@
 
 // Statistics view items
 #define STRING_TUBE_LIFE_TIME "チューブ寿命"
-#define STRING_TUBE_LIFE_PULSES "パルス"
-#define STRING_TUBE_DEAD_TIME "死時間"
+#define STRING_DEAD_TIME "死時間"
 #define STRING_DEVICE_ID "機器ID"
-#define STRING_DEVICE_VOLTAGE "電圧"
 
 #define STRING_TUBE "チューブ"
 #define STRING_LIFE_TIME "寿命"
-#define STRING_LIFE_PULSES "パルス"
-#define STRING_DEAD_TIME "死時間"
+#define STRING_DEAD_TIME_SHORT "死時間"
 #define STRING_DEVICE "機器"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE "電圧"
+#define STRING_VOLTAGE_SHORT "電圧"

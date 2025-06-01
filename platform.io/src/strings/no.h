@@ -150,7 +150,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "Følsomhet"
-#define STRING_DEAD_TIME_COMPENSATION "Dødtidskompensasjon"
+#define STRING_DEAD_TIME_SHORT_COMPENSATION "Dødtidskompensasjon"
 #define STRING_HVPROFILE "HV-profil"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
@@ -175,6 +175,9 @@
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "PWM-frekvens"
 #define STRING_PWMDUTY_CYCLE "PWM-arbeidssyklus"
+
+// Tube/battery voltage
+#define STRING_VOLTAGE "Spenning"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Loggingsmodus"
@@ -267,15 +270,12 @@
 
 // Statistics view items
 #define STRING_TUBE_LIFE_TIME "Rørets levetid"
-#define STRING_TUBE_LIFE_PULSES "Pulser"
-#define STRING_TUBE_DEAD_TIME "Dødtid"
+#define STRING_DEAD_TIME "Dødtid"
 #define STRING_DEVICE_ID "Enhets-ID"
-#define STRING_DEVICE_VOLTAGE "Spenning"
 
 #define STRING_TUBE "Rør"
 #define STRING_LIFE_TIME "Levetid"
-#define STRING_LIFE_PULSES "Pulser"
-#define STRING_DEAD_TIME "Dødtid"
+#define STRING_DEAD_TIME_SHORT "Dødtid"
 #define STRING_DEVICE "Enhet"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE "Spenning"
+#define STRING_VOLTAGE_SHORT "Spenning"

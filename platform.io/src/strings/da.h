@@ -100,7 +100,7 @@
 
 // Settings menu items
 #define STRING_SETTINGS "Indstillinger"
-#define STRING_PULSES "Pulser"
+#define STRING_PULSES "Impulser"
 #define STRING_ALARMS "Alarmer"
 #define STRING_MEASUREMENTS "Målinger"
 #define STRING_GEIGER_TUBE "Geiger-rør"
@@ -150,7 +150,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "Følsomhed"
-#define STRING_DEAD_TIME_COMPENSATION "Dødtidskompensation"
+#define STRING_DEAD_TIME_SHORT_COMPENSATION "Dødtidskompensation"
 #define STRING_HVPROFILE "HV-profil"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
@@ -175,6 +175,9 @@
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "PWM-frekvens"
 #define STRING_PWMDUTY_CYCLE "PWM-arbejdsforhold"
+
+// Tube/battery voltage
+#define STRING_VOLTAGE "Spænding"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Logtilstand"
@@ -267,15 +270,12 @@
 
 // Statistics view items
 #define STRING_TUBE_LIFE_TIME "Rørlevetid"
-#define STRING_TUBE_LIFE_PULSES "Impulser"
-#define STRING_TUBE_DEAD_TIME "Dødtid"
+#define STRING_DEAD_TIME "Dødtid"
 #define STRING_DEVICE_ID "Enheds-ID"
-#define STRING_DEVICE_VOLTAGE "Spænding"
 
 #define STRING_TUBE "Rør"
 #define STRING_LIFE_TIME "Levetid"
-#define STRING_LIFE_PULSES "Pulser"
-#define STRING_DEAD_TIME "Dødtid"
+#define STRING_DEAD_TIME_SHORT "Dødtid"
 #define STRING_DEVICE "Enhed"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE "Spænding"
+#define STRING_VOLTAGE_SHORT "Spænding"
