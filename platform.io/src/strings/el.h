@@ -240,7 +240,7 @@
 #define STRING_ALKALINE "Αλκαλική"
 
 // Random generator menu items
-#define STRING_FULL_ASCII "Πλήρες ASCII"
+#define STRING_ASCII "ASCII"
 #define STRING_ALPHANUMERIC "Αλφαριθμητικό"
 #define STRING_HEXADECIMAL "Εξαδεκαδικό"
 #define STRING_DECIMAL "Δεκαδικό"

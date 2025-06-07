@@ -240,7 +240,7 @@
 #define STRING_ALKALINE "Alkaliparisto"
 
 // Random generator menu items
-#define STRING_FULL_ASCII "Täysi ASCII"
+#define STRING_ASCII "ASCII"
 #define STRING_ALPHANUMERIC "Alfanumeerinen"
 #define STRING_HEXADECIMAL "Heksadesimaali"
 #define STRING_DECIMAL "Desimaali"

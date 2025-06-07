@@ -177,7 +177,7 @@
 #define STRING_PWMDUTY_CYCLE "Ciclo de trabalho PWM"
 
 // Tube/battery voltage
-#define STRING_VOLTAGE "Voltagem"
+#define STRING_VOLTAGE "Tensão"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Modo de registro"
@@ -240,7 +240,7 @@
 #define STRING_ALKALINE "Alcalina"
 
 // Random generator menu items
-#define STRING_FULL_ASCII "ASCII completo"
+#define STRING_ASCII "ASCII"
 #define STRING_ALPHANUMERIC "Alfanumérico"
 #define STRING_HEXADECIMAL "Hexadecimal"
 #define STRING_DECIMAL "Decimal"
@@ -278,4 +278,4 @@
 #define STRING_DEAD_TIME_SHORT "T. morto"
 #define STRING_DEVICE "Dispositivo"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE_SHORT "Voltagem"
+#define STRING_VOLTAGE_SHORT "Tensão"

@@ -240,7 +240,7 @@
 #define STRING_ALKALINE "Kiềm"
 
 // Random generator menu items
-#define STRING_FULL_ASCII "Toàn bộ ASCII"
+#define STRING_ASCII "ASCII"
 #define STRING_ALPHANUMERIC "Chữ và số"
 #define STRING_HEXADECIMAL "Thập lục phân"
 #define STRING_DECIMAL "Thập phân"

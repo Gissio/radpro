@@ -240,7 +240,7 @@
 #define STRING_ALKALINE "碱性"
 
 // Random generator menu items
-#define STRING_FULL_ASCII "全ASCII"
+#define STRING_ASCII "ASCII"
 #define STRING_ALPHANUMERIC "字母数字"
 #define STRING_HEXADECIMAL "十六进制"
 #define STRING_DECIMAL "十进制"

@@ -177,7 +177,7 @@
 #define STRING_PWMDUTY_CYCLE "Ciclu de lucru PWM"
 
 // Tube/battery voltage
-#define STRING_VOLTAGE "Voltaj"
+#define STRING_VOLTAGE "Tensiune"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Mod înregistrare"
@@ -240,7 +240,7 @@
 #define STRING_ALKALINE "Alcalină"
 
 // Random generator menu items
-#define STRING_FULL_ASCII "ASCII complet"
+#define STRING_ASCII "ASCII"
 #define STRING_ALPHANUMERIC "Alfanumeric"
 #define STRING_HEXADECIMAL "Hexazecimal"
 #define STRING_DECIMAL "Zecimal"
@@ -278,4 +278,4 @@
 #define STRING_DEAD_TIME_SHORT "Timp mort"
 #define STRING_DEVICE "Dispozitiv"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE_SHORT "Voltaj"
+#define STRING_VOLTAGE_SHORT "Tensiune"

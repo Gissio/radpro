@@ -240,7 +240,7 @@
 #define STRING_ALKALINE "Щелочная"
 
 // Random generator menu items
-#define STRING_FULL_ASCII "Полный ASCII"
+#define STRING_ASCII "ASCII"
 #define STRING_ALPHANUMERIC "Буквенно-цифровой"
 #define STRING_HEXADECIMAL "Шестнадцатеричный"
 #define STRING_DECIMAL "Десятичный"

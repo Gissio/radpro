@@ -95,7 +95,7 @@
 #define STRING_INFO_ALARM "ALLARME"
 #define STRING_INFO_FAULT "GUASTO"
 #define STRING_INFO_MAX "MAX"
-#define STRING_INFO_OVER "OLTRE"
+#define STRING_INFO_OVER "SOVR."
 #define STRING_INFO_DONE "PRONTO"
 
 // Settings menu items
@@ -118,7 +118,7 @@
 #define STRING_VIBRATION "Vibrazione"
 #define STRING_ALERT_LED "LED di allerta"
 #define STRING_PULSE_LED "LED impulso"
-#define STRING_DISPLAY_FLASH "Flash display"
+#define STRING_DISPLAY_FLASH "Lampeggio display"
 #define STRING_THRESHOLD "Soglia"
 
 // Sound menu items
@@ -137,7 +137,7 @@
 
 // Instantaneous menu items
 #define STRING_ADAPTIVE_FAST "Adattivo veloce"
-#define STRING_ADAPTIVE_PRECISION "Adattivo precisione"
+#define STRING_ADAPTIVE_PRECISION "Adattivo preciso"
 
 // Average menu items
 #define STRING_UNLIMITED "Illimitato"
@@ -151,7 +151,7 @@
 // Geiger tube menu items
 #define STRING_SENSITIVITY "Sensibilità"
 #define STRING_DEAD_TIME_SHORT_COMPENSATION "Comp. tempo morto"
-#define STRING_HVPROFILE "Profilo HV"
+#define STRING_HVPROFILE "Profilo alta tensione"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
 #define STRING_DEFAULT " (predef.)"
@@ -167,17 +167,17 @@
 #define STRING_SBM20 "SBM-20"
 
 // HV profile menu items
-#define STRING_FACTORY_DEFAULT "Predef. di fabbrica"
+#define STRING_FACTORY_DEFAULT "Valore di fabbrica"
 #define STRING_ACCURACY "Precisione"
 #define STRING_ENERGY_SAVING "Risparmio energetico"
 #define STRING_CUSTOM "Personalizzato"
 
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "Frequenza PWM"
-#define STRING_PWMDUTY_CYCLE "Ciclo di lavoro PWM"
+#define STRING_PWMDUTY_CYCLE "Duty cycle PWM"
 
 // Tube/battery voltage
-#define STRING_VOLTAGE "Voltaggio"
+#define STRING_VOLTAGE "Tensione"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Modalità registrazione"
@@ -240,7 +240,7 @@
 #define STRING_ALKALINE "Alcalina"
 
 // Random generator menu items
-#define STRING_FULL_ASCII "ASCII completo"
+#define STRING_ASCII "ASCII"
 #define STRING_ALPHANUMERIC "Alfanumerico"
 #define STRING_HEXADECIMAL "Esadecimale"
 #define STRING_DECIMAL "Decimale"
@@ -278,4 +278,4 @@
 #define STRING_DEAD_TIME_SHORT "T. morto"
 #define STRING_DEVICE "Dispositivo"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE_SHORT "Voltaggio"
+#define STRING_VOLTAGE_SHORT "Tensione"

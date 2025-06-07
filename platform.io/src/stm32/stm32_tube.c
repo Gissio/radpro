@@ -17,7 +17,7 @@
 #include "device.h"
 
 #define TUBE_HV_LOW_FREQUENCY 1250
-#define TUBE_HV_LOW_FREQUENCY_PERIOD (TIM_FREQUENCY / \
+#define TUBE_HV_LOW_FREQUENCY_PERIOD (TUBE_HV_FREQUENCY / \
                                       TUBE_HV_LOW_FREQUENCY)
 #define TUBE_HV_LOW_DUTYCYCLE_MULTIPLIER ((uint32_t)(TUBE_HVDUTYCYCLE_VALUE_STEP * \
                                                      TUBE_HV_LOW_FREQUENCY_PERIOD))
@@ -101,7 +101,7 @@ void initTubeController(void)
                      TUBE_DET_TIMER_SLAVE,
                      TUBE_DET_TIMER_TRIGGER_CONNECTION);
     tim_set_prescaler_factor(TUBE_DET_TIMER_MASTER,
-                             TIM_FREQUENCY / PULSE_MEASUREMENT_FREQUENCY);
+                             TUBE_DET_FREQUENCY / PULSE_MEASUREMENT_FREQUENCY);
 
     tim_enable(TUBE_DET_TIMER_SLAVE);
     tim_enable(TUBE_DET_TIMER_MASTER);
@@ -128,7 +128,7 @@ void setTubeHV(bool value)
 void updateTubeHV(void)
 {
 #if defined(TUBE_HV_PWM)
-    uint32_t hvPeriod = TIM_FREQUENCY / getTubeHVFrequency();
+    uint32_t hvPeriod = TUBE_HV_FREQUENCY / getTubeHVFrequency();
     uint32_t hvOnTime = tube.enabled
                             ? hvPeriod * getTubeHVDutyCycle() + 0.5F
                             : 0;

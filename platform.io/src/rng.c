@@ -45,7 +45,7 @@ typedef enum
 static const uint8_t rngModeRanges[] = {94, 62, 16, 10, 2, 100, 20, 12, 10, 8, 6, 4, 2};
 
 static const char *const rngModeMenuOptions[] = {
-    getString(STRING_FULL_ASCII),
+    getString(STRING_ASCII),
     getString(STRING_ALPHANUMERIC),
     getString(STRING_HEXADECIMAL),
     getString(STRING_DECIMAL),

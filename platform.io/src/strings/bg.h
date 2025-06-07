@@ -240,7 +240,7 @@
 #define STRING_ALKALINE "Алкална"
 
 // Random generator menu items
-#define STRING_FULL_ASCII "Пълен ASCII"
+#define STRING_ASCII "ASCII"
 #define STRING_ALPHANUMERIC "Буквено-цифрен"
 #define STRING_HEXADECIMAL "Шестнадесетичен"
 #define STRING_DECIMAL "Десетичен"

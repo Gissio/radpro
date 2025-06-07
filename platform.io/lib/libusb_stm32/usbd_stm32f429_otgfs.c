@@ -318,7 +318,7 @@ static void ep_deconfig(uint8_t ep) {
 }
 
 static int32_t ep_read(uint8_t ep, void* buf, uint16_t blen) {
-    uint32_t len, tmp;
+    uint32_t len, tmp = 0;
     volatile uint32_t *fifo = EPFIFO(0);
     /* no data in RX FIFO */
     if (!(OTG->GINTSTS & USB_OTG_GINTSTS_RXFLVL)) return -1;
@@ -335,26 +335,24 @@ static int32_t ep_read(uint8_t ep, void* buf, uint16_t blen) {
             tmp >>= 8;
         }
     }
+    _BST(EPOUT(ep)->DOEPCTL, USB_OTG_DOEPCTL_CNAK | USB_OTG_DOEPCTL_EPENA);
     return (len < blen) ? len : blen;
 }
 
 static int32_t ep_write(uint8_t ep, const void *buf, uint16_t blen) {
-    uint32_t len, tmp;
+    uint32_t len, tmp = 0;
     ep &= 0x7F;
     volatile uint32_t* fifo = EPFIFO(ep);
     USB_OTG_INEndpointTypeDef* epi = EPIN(ep);
+    /* check if EP enabled*/
+    if (ep != 0 && epi->DIEPCTL & USB_OTG_DIEPCTL_EPENA) return -1;
     /* transfer data size in 32-bit words */
     len = (blen + 3) >> 2;
     /* no enough space in TX fifo */
-    if (len > epi->DTXFSTS) return -1;
-    if (ep != 0 && epi->DIEPCTL & USB_OTG_DIEPCTL_EPENA) {
-        return -1;
-    }
-    epi->DIEPTSIZ = 0;
+    if (len > 0 && len > _FLD2VAL(USB_OTG_DTXFSTS_INEPTFSAV, epi->DTXFSTS)) return -1;
     epi->DIEPTSIZ = (1 << 19) + blen;
     _BMD(epi->DIEPCTL, USB_OTG_DIEPCTL_STALL, USB_OTG_DOEPCTL_EPENA | USB_OTG_DOEPCTL_CNAK);
     /* push data to FIFO */
-    tmp = 0;
     for (int idx = 0; idx < blen; idx++) {
         tmp |= (uint32_t)((const uint8_t*)buf)[idx] << ((idx & 0x03) << 3);
         if ((idx & 0x03) == 0x03 || (idx + 1) == blen) {
@@ -410,9 +408,6 @@ static void evt_poll(usbd_device *dev, usbd_evt_callback callback) {
                 }
                 evt = usbd_evt_epsetup;
                 break;
-            case 0x03:  /* OUT completed */
-            case 0x04:  /* SETUP completed */
-                _BST(EPOUT(ep)->DOEPCTL, USB_OTG_DOEPCTL_CNAK | USB_OTG_DOEPCTL_EPENA);
             default:
                 /* pop GRXSTSP */
                 OTG->GRXSTSP;
@@ -433,7 +428,7 @@ static void evt_poll(usbd_device *dev, usbd_evt_callback callback) {
             /* no more supported events */
             return;
         }
-        return callback(dev, evt, ep);
+        callback(dev, evt, ep);
     }
 }
 

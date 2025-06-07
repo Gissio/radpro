@@ -63,6 +63,7 @@ extends = base
 build_flags =
     ${base.build_flags}
     -DGC01
+    -DUSB_PMASIZE=0x200
     -DUSBD_ASM_DRIVER
     -DTUBE_HV_PWM
     -DKEYBOARD_5KEYS

@@ -240,7 +240,7 @@
 #define STRING_ALKALINE "Alkalická"
 
 // Random generator menu items
-#define STRING_FULL_ASCII "Plný ASCII"
+#define STRING_ASCII "ASCII"
 #define STRING_ALPHANUMERIC "Alfanumerický"
 #define STRING_HEXADECIMAL "Hexadecimální"
 #define STRING_DECIMAL "Desítkový"
