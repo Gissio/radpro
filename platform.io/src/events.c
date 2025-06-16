@@ -280,7 +280,9 @@ void dispatchEvents(void)
         updateMeasurements();
         updateADC();
         updateView();
+#if defined(VOIDE)
         updateVoice();
+#endif
     }
 
     updateDatalog();

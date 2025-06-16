@@ -7,7 +7,7 @@
  * License: MIT
  */
 
-#if defined(STM32)
+#if defined(STM32) && defined(DEBUG)
 
 #include "device.h"
 

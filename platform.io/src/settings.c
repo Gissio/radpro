@@ -54,7 +54,7 @@ void initSettings(void)
     settings.pulseSound = PULSE_SOUND_ON_CLICKS;
 #endif
 #if defined(PULSE_LED)
-    settings.pulseLED = PULSE_LED_ON;
+    settings.pulseLED = true;
 #endif
 
     settings.alarmIndication =

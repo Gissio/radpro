@@ -246,7 +246,9 @@ static const Menu alarmsMenu;
 static const Menu rateAlarmMenu;
 static const Menu doseAlarmMenu;
 static const Menu alarmIndicationMenu;
+#if defined(VOICE)
 static const Menu alarmVolumeMenu;
+#endif
 static const Menu measurementsMenu;
 static const Menu unitsMenu;
 static const Menu instantaneousMenu;
