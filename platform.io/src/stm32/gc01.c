@@ -101,7 +101,7 @@ const char *const commId = "FNIRSI GC-01 (APM32F103CB);" FIRMWARE_NAME " " FIRMW
 
 // Keyboard
 
-void initKeyboardController(void)
+void initKeyboardHardware(void)
 {
     // GPIO
     gpio_setup(KEY_LEFT_PORT,
@@ -198,6 +198,8 @@ static void onDisplaySetReset(bool value)
 
 static void onDisplaySetChipselect(bool value)
 {
+    spi_wait_while_bsy(SPI1);
+
     gpio_modify(DISPLAY_CSX_PORT,
                 DISPLAY_CSX_PIN,
                 !value);
@@ -205,6 +207,8 @@ static void onDisplaySetChipselect(bool value)
 
 static void onDisplaySetCommand(bool value)
 {
+    spi_wait_while_bsy(SPI1);
+
     gpio_modify(DISPLAY_DCX_PORT,
                 DISPLAY_DCX_PIN,
                 !value);
@@ -217,7 +221,7 @@ static void onDisplaySend(uint16_t value)
     DISPLAY_WRX_PORT->BSRR = get_bitvalue(DISPLAY_WRX_PIN);
 }
 
-void initDisplayController(void)
+void initDisplay(void)
 {
     // GPIO
     gpio_set(DISPLAY_RESX_PORT,
@@ -342,7 +346,7 @@ static void onDisplaySend16(uint16_t value)
     spi_send(SPI1, (value >> 0) & 0xff);
 }
 
-void initDisplayController(void)
+void initDisplay(void)
 {
     // GPIO
     gpio_set(DISPLAY_RESX_PORT,

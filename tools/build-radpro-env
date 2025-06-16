@@ -40,3 +40,5 @@ build_env bosean-fs5000_portrait color 0xf000 0x1a000
 build_env bosean-fs5000_landscape color 0xf000 0x1a000
 build_env fnirsi-gc01_ch32f103r8 color_low 0xa400 0xa400
 build_env fnirsi-gc01_apm32f103rb color 0xf000 0x1a000
+build_env gq-gmc800_portrait color 0xf000 0x1a000
+build_env gq-gmc800_landscape color 0xf000 0x1a000

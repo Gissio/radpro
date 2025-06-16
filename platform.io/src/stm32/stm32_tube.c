@@ -34,7 +34,7 @@ static struct
     volatile uint32_t pulseQueue[TUBE_PULSE_QUEUE_SIZE];
 } tube;
 
-void initTubeController(void)
+void initTubeHardware(void)
 {
     // GPIO
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
@@ -128,41 +128,41 @@ void setTubeHV(bool value)
 void updateTubeHV(void)
 {
 #if defined(TUBE_HV_PWM)
-    uint32_t hvPeriod = TUBE_HV_FREQUENCY / getTubeHVFrequency();
-    uint32_t hvOnTime = tube.enabled
-                            ? hvPeriod * getTubeHVDutyCycle() + 0.5F
+    uint32_t period = TUBE_HV_FREQUENCY / getTubeHVFrequency();
+    uint32_t onTime = tube.enabled
+                            ? period * getTubeHVDutyCycle() + 0.5F
                             : 0;
 
     // Get presacler factor
-    uint32_t hvPrescalerFactor = getGCD(hvPeriod, hvOnTime);
-    hvPeriod /= hvPrescalerFactor;
-    hvOnTime /= hvPrescalerFactor;
+    uint32_t prescalerFactor = getGCD(period, onTime);
+    period /= prescalerFactor;
+    onTime /= prescalerFactor;
 
     // Scale prescaler factor
-    while (hvPrescalerFactor >= 0x10000)
+    while (prescalerFactor >= 0x10000)
     {
-        hvPeriod <<= 1;
-        hvOnTime <<= 1;
-        hvPrescalerFactor >>= 1;
+        period <<= 1;
+        onTime <<= 1;
+        prescalerFactor >>= 1;
     }
 
     // Scale period
-    while (hvPeriod >= 0x10000)
+    while (period >= 0x10000)
     {
-        hvPeriod >>= 1;
-        hvOnTime >>= 1;
-        hvPrescalerFactor <<= 1;
+        period >>= 1;
+        onTime >>= 1;
+        prescalerFactor <<= 1;
     }
 
     tim_set_prescaler_factor(TUBE_HV_TIMER,
-                             hvPrescalerFactor);
+                             prescalerFactor);
 
     tim_set_period(TUBE_HV_TIMER,
-                   hvPeriod);
+                   period);
 
     tim_set_ontime(TUBE_HV_TIMER,
                    TUBE_HV_TIMER_CHANNEL,
-                   hvOnTime);
+                   onTime);
 
     tim_generate_update(TUBE_HV_TIMER);
 #else

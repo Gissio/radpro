@@ -28,7 +28,7 @@ Identifies the device's hardware and software. The response consists of these co
 Example:
 
     GET deviceId
-    OK FS2011 (STM32F051C8);Rad Pro 2.0;9748af1b
+    OK FS2011 (STM32F051C8);Rad Pro 2.0;b5706d937087f975b5812810
 
 ### Get device battery voltage
 
@@ -284,6 +284,18 @@ Example:
 
     GET randomData
     OK 9155facb75c00e331cf7fd625102f37a
+
+### Start bootloader
+
+* Request: `START bootloader\r\n`
+* Response: `OK\r\n`
+
+Starts the system bootloader for updating the device.
+
+Example:
+
+    START bootloader
+    OK
 
 ### Invalid or erroneous requests
 

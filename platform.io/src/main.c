@@ -24,6 +24,7 @@
 #include "led.h"
 #include "menu.h"
 #include "power.h"
+#include "pulsecontrol.h"
 #include "rng.h"
 #include "rtc.h"
 #include "settings.h"
@@ -31,6 +32,7 @@
 #include "tube.h"
 #include "vibration.h"
 #include "view.h"
+#include "voice.h"
 
 #if SIMULATOR
 bool updateSDLTicks();
@@ -57,10 +59,14 @@ int main(void)
     initPower();
     initADC();
     initTube();
-    initComm();
     initKeyboard();
     initDisplay();
+#if defined(PULSE_CONTROL)
+    initPulseControl();
+#endif
+#if defined(BUZZER)
     initBuzzer();
+#endif
 #if defined(VIBRATION)
     initVibration();
 #endif
@@ -77,7 +83,7 @@ int main(void)
     sleep(1000);
 #endif
 
-    setPowerOnView();
+    powerOn();
 
     // Main loop
 #if SIMULATOR

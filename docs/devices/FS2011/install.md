@@ -54,7 +54,7 @@ Now, download and unzip the latest `radpro-[version].zip` from the [Rad Pro rele
 
 `[type]` is the type of installation: `install` or `update`. Note that not all releases support updating.
 
-The installer will display a list of available languages as two-letter language codes. Select and enter the language code to proceed with the installation.
+<!-- The installer will display a list of available languages as two-letter language codes. Select and enter the language code to proceed with the installation. -->
 
 The installer automatically creates a backup of the original firmware in the `backup` folder, ensuring you can restore your device if needed. Store these backups securely to enable reversion to the original firmware. To restore a backup, drag it onto `fs2011-[mcu]-install.bat` (Windows) or `fs2011-[mcu]-install.sh` (macOS/Linux).
 

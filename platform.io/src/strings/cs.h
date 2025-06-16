@@ -116,7 +116,6 @@
 // Pulses menu items
 #define STRING_SOUND "Zvuk"
 #define STRING_VIBRATION "Vibrace"
-#define STRING_ALERT_LED "Výstražná LED"
 #define STRING_PULSE_LED "Pulsní LED"
 #define STRING_DISPLAY_FLASH "Blikání displeje"
 #define STRING_THRESHOLD "Práh"
@@ -129,8 +128,9 @@
 // Alarms menu items
 #define STRING_RATE_ALARM "Alarm toku"
 #define STRING_DOSE_ALARM "Alarm dávky"
-#define STRING_OVERRANGE_ALARM "Alarm rozsahu"
 #define STRING_INDICATION "Indikace"
+#define STRING_VOICE "Hlas"
+#define STRING_VOLUME "Hlasitost"
 
 // Measurements menu items
 #define STRING_UNITS "Jednotky"

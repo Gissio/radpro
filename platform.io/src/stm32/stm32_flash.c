@@ -50,12 +50,12 @@ bool verifyFlash(void)
     return (crc == FIRMWARE_CRC);
 }
 
-uint8_t *getFlashPage(uint8_t pageIndex)
+uint8_t *getFlashPage(PageIndex pageIndex)
 {
     return (uint8_t *)(FLASH_BASE + pageIndex * FLASH_PAGE_SIZE);
 }
 
-void eraseFlashPage(uint8_t pageIndex)
+void eraseFlashPage(PageIndex pageIndex)
 {
     flash_unlock();
 
@@ -64,7 +64,7 @@ void eraseFlashPage(uint8_t pageIndex)
     flash_lock();
 }
 
-void writeFlash(uint8_t pageIndex,
+void writeFlash(PageIndex pageIndex,
                 uint32_t index,
                 uint8_t *source,
                 uint32_t size)

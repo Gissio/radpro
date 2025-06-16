@@ -11,7 +11,6 @@
 * Configurable instantaneous rate averaging (adaptive fast, adaptive precision, 1 minute, 30 seconds and 10 seconds).
 * Configurable average timer for performing surveys.
 * Customizable Geiger-Müller tube settings: sensitivity, dead-time compensation, high voltage generator PWM frequency and duty cycle (on supported devices).
-* Optional overrange alarm when dead-time compensation exceeds 10%.
 * Preconfigured high voltage profiles (on supported devices).
 * Offline and live data logging with data compression.
 * Compatibility with the [GeigerLog](https://github.com/Gissio/geigerlog-radpro) data logging software.
@@ -131,8 +130,6 @@ $$n = \frac{m}{1 - m \tau}$$
 Here, $m$ is the uncompensated rate in counts per seconds, $\tau$ is the tube's dead time in seconds and $n$ is the compensated rate in counts per second. To prevent overflow, the compensation factor $1/(1 - m\tau)$ is limited to a maximum value of 10.
 
 Dead-time compensation is applied to instantaneous rate, average rate, cumulative dose and history. It is not applied to tube life pulse count nor data logs.
-
-An optional "Overrange" alarm can be set to trigger when dead-time correction exceeds 10%.
 
 ## HV profiles
 

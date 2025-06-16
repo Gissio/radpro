@@ -48,7 +48,7 @@ Now, download and unzip the latest `radpro-[version].zip` from the [Rad Pro rele
 
 `[type]` is the type of installation: `install` or `update` (note that not all releases support updating). For larger digits, you can also choose `landscape-install` or the `landscape-update`.
 
-The installer will display a list of available languages as two-letter language codes. Select and enter the language code to proceed with the installation.
+<!-- The installer will display a list of available languages as two-letter language codes. Select and enter the language code to proceed with the installation. -->
 
 The installer automatically creates a backup of the original firmware in the `backup` folder, ensuring you can restore your device if needed. Store these backups securely to enable reversion to the original firmware. To restore a backup, drag it onto `bosean-fs5000-install.bat` (Windows) or `bosean-fs5000-install.sh` (macOS/Linux).
 

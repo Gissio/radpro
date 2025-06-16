@@ -66,6 +66,8 @@ uint32_t getTubePulseCount(void);
 
 bool isAlarmEnabled(void);
 bool isAlarm(void);
+bool isInstantaneousRateAlarm(void);
+bool isCumulativeDoseAlarm(void);
 
 char *buildRateAlarmMenuOption(uint32_t index);
 

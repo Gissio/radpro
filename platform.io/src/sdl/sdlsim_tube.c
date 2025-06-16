@@ -35,7 +35,7 @@ static struct
     uint32_t pulseCount;
 } tube;
 
-void initTubeController(void)
+void initTubeHardware(void)
 {
     srand(time(NULL));
 

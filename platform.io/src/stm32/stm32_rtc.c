@@ -21,8 +21,7 @@ void initRTC(void)
     rcc_enable_rtc();
     rtc_disable_backup_domain_write_protection();
 
-    bool rtcEnabled = rtc_is_enabled();
-    if (!rtcEnabled)
+    if (!rtc_is_enabled())
     {
         rtc_enable_lse();
         while (!rtc_is_lse_ready())

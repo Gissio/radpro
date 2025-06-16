@@ -29,8 +29,6 @@
 #include "system.h"
 #include "tube.h"
 
-#define SETTINGS_LOWBATTERY_PERIOD 3600
-
 static const Menu settingsMenu;
 
 typedef struct
@@ -49,19 +47,33 @@ static FlashState *getFlashState(FlashIterator *iterator);
 void initSettings(void)
 {
     // Default values
+#if defined(PULSE_CONTROL)
+    settings.pulseSound = true;
+#endif
+#if defined(BUZZER)
+    settings.pulseSound = PULSE_SOUND_ON_CLICKS;
+#endif
 #if defined(PULSE_LED)
     settings.pulseLED = PULSE_LED_ON;
 #endif
-    settings.pulseSound = PULSE_SOUND_ON_CLICKS;
 
-    settings.alarmIndication = (1 << ALARMINDICATION_SOUND) |
+    settings.alarmIndication =
+#if defined(BUZZER) || defined(VOICE)
+        (1 << ALARMINDICATION_SOUND) |
+#endif
+#if defined(VOICE)
+        (1 << ALARMINDICATION_VOICE) |
+#endif
 #if defined(VIBRATION)
-                              (1 << ALARMINDICATION_VIBRATION) |
+        (1 << ALARMINDICATION_VIBRATION) |
 #endif
-#if defined(PULSE_LED) || defined(ALERT_LED)
-                              (1 << ALARMINDICATION_ALERT_LED) |
+#if defined(PULSE_LED) || defined(ALERT_LED) || defined(PULSE_CONTROL)
+        (1 << ALARMINDICATION_PULSE_LED) |
 #endif
-                              (1 << ALARMINDICATION_DISPLAY_FLASH);
+        (1 << ALARMINDICATION_DISPLAY_FLASH);
+#if defined(VOICE)
+    settings.alarmVolume = ALARM_VOLUME_VERYHIGH;
+#endif
 
     settings.tubeSensitivity = TUBE_SENSITIVITY_DEFAULT;
 
@@ -154,21 +166,6 @@ static FlashState *getFlashState(FlashIterator *iterator)
     }
 
     return flashState;
-}
-
-void updateSettingsPeriod(void)
-{
-    if (getBatteryLevel() == 0)
-    {
-        if (settingsLowBatteryTimer == 0)
-        {
-            settingsLowBatteryTimer = SETTINGS_LOWBATTERY_PERIOD;
-
-            writeSettings();
-        }
-
-        settingsLowBatteryTimer--;
-    }
 }
 
 void writeSettings(void)

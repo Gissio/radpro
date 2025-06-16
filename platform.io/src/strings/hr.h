@@ -116,7 +116,6 @@
 // Pulses menu items
 #define STRING_SOUND "Zvuk"
 #define STRING_VIBRATION "Vibracija"
-#define STRING_ALERT_LED "LED upozorenja"
 #define STRING_PULSE_LED "LED impulsa"
 #define STRING_DISPLAY_FLASH "Bljeskalica zaslona"
 #define STRING_THRESHOLD "Prag"
@@ -129,8 +128,9 @@
 // Alarms menu items
 #define STRING_RATE_ALARM "Alarm stope"
 #define STRING_DOSE_ALARM "Alarm doze"
-#define STRING_OVERRANGE_ALARM "Alarm prekoračenja"
 #define STRING_INDICATION "Indikacija"
+#define STRING_VOICE "Glas"
+#define STRING_VOLUME "Glasnoća"
 
 // Measurements menu items
 #define STRING_UNITS "Jedinice"

@@ -65,7 +65,12 @@ static void onPowerOnViewEvent(const View *view, Event event)
             // Start measurements
             setTubeHV(true);
             enableMeasurements();
-            enableComm(true);
+#if defined(DATA_MODE)
+            if (settings.dataMode)
+                openComm();
+#elif !defined(PWR_USB)
+            openComm();
+#endif
             openDatalog();
 
             setMeasurementView(0);
@@ -81,7 +86,7 @@ static const View powerOnView = {
     NULL,
 };
 
-void setPowerOnView(void)
+void powerOn(void)
 {
     // Power on
     setPower(true);
@@ -130,13 +135,13 @@ static const View powerOffView = {
     NULL,
 };
 
-void setPowerOffView(void)
+void powerOff(void)
 {
     // Stop measurements
     closeDatalog();
     writeSettings();
 
-    enableComm(false);
+    closeComm();
     disableMeasurements();
     setTubeHV(false);
     cancelDisplayBacklight();
@@ -146,7 +151,7 @@ void setPowerOffView(void)
     setPower(false);
 }
 
-bool isPowerOffViewActive(void)
+bool isPoweredOff(void)
 {
     return (getView() == &powerOffView);
 }

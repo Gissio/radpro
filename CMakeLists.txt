@@ -14,6 +14,7 @@ FILE(GLOB mcumax_sources platform.io/lib/mcu-max/*.c)
 include_directories(platform.io/lib/mcu-renderer platform.io/lib/mcu-max ${SERCOMM_INCLUDE_DIR})
 
 add_definitions(-DI18N="strings/${LANGUAGE}.h")
+add_definitions(-DSTART_BOOTLOADER)
 add_definitions(-DSIMULATOR)
 add_definitions(-DSIMULATE_PULSES)
 if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
@@ -21,17 +22,18 @@ if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
 endif()
 add_definitions(-DTUBE_HV_PWM)
 # add_definitions(-DBATTERY_REMOVABLE)
-# add_definitions(-DKEYBOARD_2KEYS)
-# add_definitions(-DKEYBOARD_3KEYS)
 add_definitions(-DKEYBOARD_4KEYS)
 add_definitions(-DKEYBOARD_POWERON_NOWAIT)
+add_definitions(-DMCURENDERER_SDL)
+# add_definitions(-DST7789_DEBUG)
+add_definitions(-DPULSE_CONTROL)
+add_definitions(-DVOICE)
+# add_definitions(-DBUZZER)
 add_definitions(-DVIBRATION)
 add_definitions(-DPULSE_LED)
 # add_definitions(-DALERT_LED)
 # add_definitions(-DDATA_MODE)
 add_definitions(-DGAME)
-add_definitions(-DMCURENDERER_SDL)
-# add_definitions(-DST7789_DEBUG)
 
 if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
@@ -72,7 +74,7 @@ target_compile_definitions(radpro-color-landscape PUBLIC
     FONT_SMALL="fonts/font_color_small_${LANGUAGE}.h"
     FONT_MEDIUM="fonts/font_color_medium_${LANGUAGE}.h"
     FONT_LARGE="fonts/font_color_large.h"
-    FONT_SYMBOLS="fonts/font_color_nocharging_symbols.h"
+    FONT_SYMBOLS="fonts/font_color_symbols.h"
 )
 
 add_executable(radpro-color-portrait ${sources} ${display_sources} ${sdl_sources} ${mcurenderer_sources} ${mcumax_sources})
@@ -82,5 +84,5 @@ target_compile_definitions(radpro-color-portrait PUBLIC
     FONT_SMALL="fonts/font_color_small_${LANGUAGE}.h"
     FONT_MEDIUM="fonts/font_color_medium_${LANGUAGE}.h"
     FONT_LARGE="fonts/font_color_large_portrait.h"
-    FONT_SYMBOLS="fonts/font_color_nocharging_symbols.h"
+    FONT_SYMBOLS="fonts/font_color_symbols.h"
 )

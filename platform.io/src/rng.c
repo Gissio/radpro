@@ -261,6 +261,7 @@ static void updateFastDiceRollerText(void)
             (strlen(rng.text) >= RNG_SYMBOLS_MAX))
         {
             rng.activityIndicator = 0;
+
             triggerAlarm();
         }
     }

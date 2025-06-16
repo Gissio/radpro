@@ -39,7 +39,6 @@
 #define CONTENT_PADDING 3
 
 #define TITLEBAR_HEIGHT 8
-#define TITLEBAR_PADDING 3
 #define TITLEBAR_TIME_WIDTH (20 + 2)
 #define TITLEBAR_TIME_PADDING 1
 #define TITLEBAR_NOTIFICATIONICON_WIDTH 9
@@ -85,6 +84,8 @@
 #define GAME_HISTORY_FIRST_WIDTH 32
 #define GAME_HISTORY_FIRST_OFFSET_X 8
 
+#define STATISTICS_KEY_WIDTH (CONTENT_WIDTH / 2)
+
 #elif defined(DISPLAY_320X240)
 
 #define DISPLAY_LANDSCAPE
@@ -92,7 +93,6 @@
 #define CONTENT_PADDING 12
 
 #define TITLEBAR_HEIGHT 40
-#define TITLEBAR_PADDING 12
 #define TITLEBAR_TIME_WIDTH (53 + 12)
 #define TITLEBAR_TIME_PADDING 12
 #define TITLEBAR_NOTIFICATIONICON_WIDTH 24
@@ -138,14 +138,15 @@
 #define GAME_HISTORY_FIRST_WIDTH 66
 #define GAME_HISTORY_FIRST_OFFSET_X 12
 
+#define STATISTICS_KEY_WIDTH (CONTENT_WIDTH / 2)
+
 #elif defined(DISPLAY_240X320)
 
 #define DISPLAY_PORTRAIT
 
-#define CONTENT_PADDING 12
+#define CONTENT_PADDING 8
 
 #define TITLEBAR_HEIGHT 40
-#define TITLEBAR_PADDING 8
 #define TITLEBAR_TIME_WIDTH (53 + 8)
 #define TITLEBAR_TIME_PADDING 8
 #define TITLEBAR_NOTIFICATIONICON_WIDTH 24
@@ -191,6 +192,8 @@
 #define GAME_HISTORY_FIRST_WIDTH 68
 #define GAME_HISTORY_FIRST_OFFSET_X 10
 
+#define STATISTICS_KEY_WIDTH 110
+
 #endif
 
 // Common metrics
@@ -199,6 +202,7 @@
 #define TITLEBAR_Y 0
 #define TITLEBAR_WIDTH DISPLAY_WIDTH
 #define TITLEBAR_BOTTOM (TITLEBAR_Y + TITLEBAR_HEIGHT)
+#define TITLEBAR_PADDING CONTENT_PADDING
 #define TITLEBAR_CONTENT_HEIGHT (TITLEBAR_HEIGHT - TITLEBAR_SHADOW_HEIGHT)
 #define TITLEBAR_TITLE_OFFSET_X TITLEBAR_PADDING
 #define TITLEBAR_TITLE_OFFSET_Y ((TITLEBAR_CONTENT_HEIGHT - FONT_SMALL_LINE_HEIGHT) / 2)
@@ -324,28 +328,10 @@
 #define STATISTICS_TOPMARGIN_HEIGHT ((CONTENT_HEIGHT - STATISTICS_ENTRIES_HEIGHT) / 2)
 #define STATISTICS_BOTTOMMARGIN_HEIGHT (CONTENT_HEIGHT - STATISTICS_TOPMARGIN_HEIGHT - STATISTICS_ENTRIES_HEIGHT)
 #define STATISTICS_KEY_X 0
-#define STATISTICS_KEY_WIDTH (CONTENT_WIDTH / 2)
 #define STATISTICS_KEY_OFFSET_X CONTENT_PADDING
-#define STATISTICS_VALUE_X (CONTENT_WIDTH / 2)
-#define STATISTICS_VALUE_WIDTH (CONTENT_WIDTH / 2)
+#define STATISTICS_VALUE_X STATISTICS_KEY_WIDTH
+#define STATISTICS_VALUE_WIDTH (CONTENT_WIDTH - STATISTICS_KEY_WIDTH)
 #define STATISTICS_VALUE_OFFSET_X 0
-
-enum
-{
-#if defined(DISPLAY_PORTRAIT)
-    STATISTICS_ENTRY_TUBE_TITLE,
-#endif
-    STATISTICS_ENTRY_TUBE_LIFE_TIME,
-    STATISTICS_ENTRY_TUBE_LIFE_PULSES,
-    STATISTICS_ENTRY_TUBE_DEAD_TIME,
-    STATISTICS_ENTRY_SPACE,
-#if defined(DISPLAY_PORTRAIT)
-    STATISTICS_ENTRY_DEVICE_TITLE,
-#endif
-    STATISTICS_ENTRY_DEVICE_ID,
-    STATISTICS_ENTRY_DEVICE_VOLTAGE,
-    STATISTICS_ENTRY_NUM,
-};
 
 #define GAME_BOARD_WIDTH (8 * GAME_SQUARE_WIDTH)
 #define GAME_BOARD_HEIGHT (8 * GAME_SQUARE_HEIGHT)
@@ -373,7 +359,7 @@ enum
 #define GAME_TOP_TIMER_X GAME_BOARD_X
 #define GAME_TOP_TIMER_Y CONTENT_Y
 #define GAME_TOP_TIMER_WIDTH GAME_BOARD_WIDTH
-#define GAME_TOP_TIMER_HEIGHT FONT_SMALL_LINE_HEIGHT
+#define GAME_TOP_TIMER_HEIGHT (GAME_BOARD_Y - GAME_TOP_TIMER_Y)
 #define GAME_TOP_TIMER_OFFSET_X (GAME_TOP_TIMER_WIDTH - FONT_SMALL_LINE_HEIGHT / 2)
 #define GAME_TOP_TIMER_OFFSET_Y 0
 #define GAME_HISTORY_X GAME_BOARD_X
@@ -431,6 +417,7 @@ typedef enum
     COLOR_INSTRUMENT_TICKMARK_PRIMARY,
     COLOR_INSTRUMENT_TICKMARK_SECONDARY,
 
+    COLOR_RUNNING,
     COLOR_ALARM,
 
     COLOR_NORMAL_ENABLED_BACKGROUND,
@@ -579,6 +566,11 @@ static const mr_color_t displayColors[][3] = {
      mr_get_color(0x333200)}, // 0x0x333300
 
     // Alarm
+    {mr_get_color(0x228722),
+     mr_get_color(0x138a00),
+     mr_get_color(0x173800)},
+
+    // Alarm
     {mr_get_color(0xdf1b1b),
      mr_get_color(0xe52626),
      mr_get_color(0x4d0005)},
@@ -633,12 +625,6 @@ static const mr_color_t displayColors[][3] = {
 
 void onDisplaySubMenuBack(const Menu *menu);
 
-// Gamma-corrected linear brightness values
-
-// value = 1000 * [0.25, 0.5, 0.75, 1] ^ 2.2
-uint16_t displayBrightnessValue[] = {
-    47, 218, 531, 1000};
-
 // Definitions
 
 const uint32_t menuLineNum = MENU_LINE_NUM;
@@ -657,12 +643,6 @@ static const Menu displaySleepMenu;
 mr_t mr;
 
 // Functions
-
-void initDisplay(void)
-{
-    initDisplayController();
-    initDisplayBacklight();
-}
 
 void resetDisplay(void)
 {
@@ -895,8 +875,25 @@ void drawTitleBar(const char *title,
     // Icons
     setFont(font_symbols);
 
+    bool usbPowered = isUSBPowered();
+    bool chargingBattery = isChargingBattery();
+    uint8_t level = getBatteryLevel();
+    mr_color_t color;
+
+    if (usbPowered || chargingBattery)
+        color = COLOR_RUNNING;
+    else if (!chargingBattery && (level == 0))
+        color = COLOR_ALARM;
+    else
+        color = COLOR_ELEMENT_NEUTRAL;
+
+#if !defined(FONT_SYMBOLS_NOCHARGING)
+    if (chargingBattery)
+        level += 5;
+#endif
+
     strclr(buffer);
-    strcatChar(buffer, '0' + getBatteryLevel());
+    strcatChar(buffer, '0' + level);
 
     rectangle.width = TITLEBAR_BATTERYICON_WIDTH + TITLEBAR_PADDING;
     rectangle.x -= rectangle.width;
@@ -904,24 +901,27 @@ void drawTitleBar(const char *title,
         TITLEBAR_BATTERYICON_OFFSET_X,
         TITLEBAR_BATTERYICON_OFFSET_Y,
     };
-    setStrokeColor(COLOR_ELEMENT_NEUTRAL);
+    setStrokeColor(color);
     drawText(buffer,
              &rectangle,
              &titlebarBatteryOffset);
 
     strclr(buffer);
     if (isLockMode())
+    {
         strcatChar(buffer, '<');
+        color = COLOR_ELEMENT_NEUTRAL;
+    }
     else if (isAlarm())
     {
         strcatChar(buffer, ';');
-
-#if DISPLAY_COLOR
-        setStrokeColor(COLOR_ALARM);
-#endif
+        color = COLOR_ALARM;
     }
     else if (isAlarmEnabled())
+    {
         strcatChar(buffer, ':');
+        color = COLOR_ELEMENT_NEUTRAL;
+    }
 
     if (buffer[0])
     {
@@ -931,6 +931,7 @@ void drawTitleBar(const char *title,
             TITLEBAR_NOTIFICATIONICON_OFFSET_X,
             TITLEBAR_NOTIFICATIONICON_OFFSET_Y,
         };
+        setStrokeColor(color);
         drawText(buffer,
                  &rectangle,
                  &titlebarNotificationOffset);
@@ -1884,13 +1885,53 @@ void drawRNG(const char *title,
                      &rngStateOffset);
 }
 
+enum
+{
+    STAT_TITLE,
+    STAT_TUBE_TIME,
+    STAT_TUBE_PULSES,
+    STAT_DEAD_TIME,
+    STAT_DEVICEID_1,
+    STAT_DEVICEID_2,
+    STAT_VOLTAGE,
+};
+
+struct StatisticsData
+{
+    const char *keyString;
+    uint8_t type;
+};
+
+static struct StatisticsData statisticsData[] = {
+#if defined(DISPLAY_LANDSCAPE)
+    {STRING_TUBE_LIFE_TIME, STAT_TUBE_TIME},
+    {STRING_PULSES, STAT_TUBE_PULSES},
+    {STRING_DEAD_TIME, STAT_DEAD_TIME},
+    {STRING_DEVICE_ID, STAT_DEVICEID_1},
+    {"", STAT_DEVICEID_2},
+    {STRING_VOLTAGE, STAT_VOLTAGE},
+#elif defined(DISPLAY_PORTRAIT)
+    {STRING_TUBE, STAT_TITLE},
+    {STRING_LIFE_TIME, STAT_TUBE_TIME},
+    {STRING_PULSES, STAT_TUBE_PULSES},
+    {STRING_DEAD_TIME_SHORT, STAT_DEAD_TIME},
+    {"", STAT_TITLE},
+    {STRING_DEVICE, STAT_TITLE},
+    {STRING_ID, STAT_DEVICEID_1},
+    {"", STAT_DEVICEID_2},
+    {STRING_VOLTAGE_SHORT, STAT_VOLTAGE},
+#endif
+};
+
+#define STATISTICS_ENTRY_NUM (sizeof(statisticsData) / sizeof(struct StatisticsData))
+
 void drawStatistics(void)
 {
     drawTitleBar(getString(STRING_STATISTICS), false);
 
     setFont(font_small);
 
-    char key[32];
+    char keyString[32];
     char valueString[32];
     char unitString[16];
 
@@ -1901,41 +1942,29 @@ void drawStatistics(void)
 
     for (uint32_t i = 0; i < STATISTICS_ENTRY_NUM; i++)
     {
-        strclr(key);
+        struct StatisticsData *entry = &statisticsData[i];
+
+        strcpy(keyString, entry->keyString);
         strclr(valueString);
         strclr(unitString);
 
-        switch (i)
+        switch (entry->type)
         {
-#if defined(DISPLAY_PORTRAIT)
-        case STATISTICS_ENTRY_TUBE_TITLE:
-            strcpy(key, getString(STRING_TUBE));
-
+        case STAT_TITLE:
             break;
-#endif
 
-        case STATISTICS_ENTRY_TUBE_LIFE_TIME:
-#if !defined(DISPLAY_PORTRAIT)
-            strcpy(key, getString(STRING_TUBE_LIFE_TIME));
-#else
-            strcpy(key, getString(STRING_LIFE_TIME));
-#endif
+        case STAT_TUBE_TIME:
             strcatTime(valueString, getTubeTime());
 
             break;
 
-        case STATISTICS_ENTRY_TUBE_LIFE_PULSES:
-            strcpy(key, getString(STRING_PULSES));
+        case STAT_TUBE_PULSES:
             strcatUInt32(valueString, getTubePulseCount(), 0);
 
             break;
 
-        case STATISTICS_ENTRY_TUBE_DEAD_TIME:
-#if !defined(DISPLAY_PORTRAIT)
-            strcpy(key, getString(STRING_DEAD_TIME));
-#else
-            strcpy(key, getString(STRING_DEAD_TIME_SHORT));
-#endif
+        case STAT_DEAD_TIME:
+        {
             float deadTime = getTubeDeadTime();
             if (deadTime >= 1)
                 strcpy(valueString, getString(STRING_NONE));
@@ -1943,43 +1972,33 @@ void drawStatistics(void)
             {
                 strcpy(valueString, getString(STRING_LESSTHAN));
                 strcatFloat(valueString, 1000000 * deadTime, 1);
-                strclr(unitString);
                 strcatChar(unitString, ' ');
                 strcat(unitString, getString(STRING_MICROSECONDS));
             }
 
             break;
+        }
 
-#if defined(DISPLAY_PORTRAIT)
-        case STATISTICS_ENTRY_DEVICE_TITLE:
-            strcpy(key, getString(STRING_DEVICE));
-
-            break;
-#endif
-
-        case STATISTICS_ENTRY_DEVICE_ID:
-#if !defined(DISPLAY_PORTRAIT)
-            strcpy(key, getString(STRING_DEVICE_ID));
-#else
-            strcpy(key, getString(STRING_ID));
-#endif
-            strcatUInt32Hex(unitString, getDeviceId());
+        case STAT_DEVICEID_1:
+            getDeviceId(valueString);
+            valueString[12] = '\0';
 
             break;
 
-        case STATISTICS_ENTRY_DEVICE_VOLTAGE:
-#if !defined(DISPLAY_PORTRAIT)
-            strcpy(key, getString(STRING_VOLTAGE));
-#else
-            strcpy(key, getString(STRING_VOLTAGE_SHORT));
-#endif
+        case STAT_DEVICEID_2:
+            getDeviceId(valueString);
+            strcpy(valueString, valueString + 12);
+
+            break;
+
+        case STAT_VOLTAGE:
             strcatFloat(valueString, getBatteryVoltage(), 3);
             strclr(unitString);
             strcatChar(unitString, ' ');
             strcat(unitString, getString(STRING_VOLTS));
 
             break;
-        };
+        }
 
         // Key
         rectangle = (mr_rectangle_t){
@@ -2005,12 +2024,13 @@ void drawStatistics(void)
             (!valueString[0] && !unitString[0])
                 ? COLOR_ELEMENT_ACTIVE
                 : COLOR_ELEMENT_NEUTRAL);
-        drawText(key,
+        drawText(keyString,
                  &rectangle,
                  &offset);
 
         // Value
         rectangle.x = STATISTICS_VALUE_X;
+        rectangle.width = STATISTICS_VALUE_WIDTH;
         offset.x = STATISTICS_VALUE_OFFSET_X;
 
         drawValueAndUnit(valueString,
@@ -2264,7 +2284,7 @@ static void onDisplayThemeMenuSelect(const Menu *menu)
 {
     settings.displayTheme = menu->state->selectedIndex;
 
-    updateView();
+    requestViewUpdate();
 }
 
 static MenuState displayThemeMenuState;

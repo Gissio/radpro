@@ -13,6 +13,7 @@
 #include "../events.h"
 #include "../flash.h"
 #include "../keyboard.h"
+#include "../measurements.h"
 #include "../settings.h"
 #include "../system.h"
 
@@ -24,33 +25,28 @@
 
 void initSystem(void)
 {
+    // Enable HSE
+    set_bits(RCC->CR,
+             RCC_CR_HSEON);
+    wait_until_bits_set(RCC->CR,
+                        RCC_CR_HSERDY);
+
     // Set 2 wait states for flash
     modify_bits(FLASH->ACR,
                 FLASH_ACR_LATENCY_Msk,
                 FLASH_ACR_LATENCY_2WS);
 
-    // Enable HSI16
-    set_bits(RCC->CR,
-             RCC_CR_HSION);
-    wait_until_bits_set(RCC->CR,
-                        RCC_CR_HSIRDY);
-
-    // Configure AHB, APB1, APB2
-    modify_bits(RCC->CFGR,
-                RCC_CFGR_HPRE_Msk |
-                    RCC_CFGR_PPRE1_Msk |
-                    RCC_CFGR_PPRE2_Msk,
-                RCC_CFGR_HPRE_DIV2 |      // Set AHB clock: 48 MHz / 2 = 24 MHz
-                    RCC_CFGR_PPRE1_DIV1 | // Set APB1 clock: 24 MHz / 1 = 24 MHz
-                    RCC_CFGR_PPRE2_DIV1   // Set APB2 clock: 24 MHz / 1 = 24 MHz
-    );
-
-    // Configure PLL
-    RCC->PLLCFGR = (0b01 << RCC_PLLCFGR_PLLR_Pos) |  // Set main PLL PLLCLK division factor: /4
-                   RCC_PLLCFGR_PLLREN |              // Enable main PLL PLLCLK output
-                   (12 << RCC_PLLCFGR_PLLN_Pos) |    // Set main PLL VCO multiplication factor: 12x
-                   (0b000 << RCC_PLLCFGR_PLLM_Pos) | // Set PLL division factor: /1
-                   RCC_PLLCFGR_PLLSRC_HSI;           // Set PLL source: HSI16
+    // Configure AHB, APB1, APB2, ADC, PLL
+    RCC->CFGR = RCC_CFGR_SW_HSI |        // Select HSI as system clock
+                RCC_CFGR_HPRE_DIV1 |     // Set AHB clock: 72 MHz / 1 = 72 MHz
+                RCC_CFGR_PPRE1_DIV2 |    // Set APB1 clock: 72 MHz / 2 = 36 MHz
+                RCC_CFGR_PPRE2_DIV1 |    // Set APB2 clock: 72 MHz / 1 = 72 MHz
+                RCC_CFGR_ADCPRE_DIV8 |   // Set ADC clock: 72 MHz / 8 = 9 MHz
+                RCC_CFGR_PLLSRC_HSE |    // Set PLL source: HSE
+                RCC_CFGR_PLLXTPRE_HSE |  // Set PLL HSE predivision factor: /1
+                RCC_CFGR_PLLMULL9 |      // Set PLL multiplier: 9x
+                RCC_CFGR_USBPRE_DIV1_5 | // Set USB prescaler: 1.5x
+                RCC_CFGR_MCO_NOCLOCK;    // Disable MCO
 
     // Enable PLL
     set_bits(RCC->CR,
@@ -66,48 +62,54 @@ void initSystem(void)
                           RCC_CFGR_SWS_Msk,
                           RCC_CFGR_SWS_PLL);
 
-    // Enable SYSCFG
+    // Disable JTAG
+    rcc_enable_afio();
+    modify_bits(AFIO->MAPR,
+                AFIO_MAPR_SWJ_CFG_Msk,
+                AFIO_MAPR_SWJ_CFG_JTAGDISABLE);
+
+    // Enable GPIOA, GPIOB, GPIOC
     set_bits(RCC->APB2ENR,
-             RCC_APB2ENR_SYSCFGEN);
+             RCC_APB2ENR_IOPAEN |
+                 RCC_APB2ENR_IOPBEN |
+                 RCC_APB2ENR_IOPCEN);
 
-    // Enable GPIOA, GPIOB, GPIOC, GPIOD, ADC
-    set_bits(RCC->AHB2ENR,
-             RCC_AHB2ENR_ADCEN |
-                 RCC_AHB2ENR_GPIOAEN |
-                 RCC_AHB2ENR_GPIOBEN |
-                 RCC_AHB2ENR_GPIOCEN |
-                 RCC_AHB2ENR_GPIODEN);
-
-    // ADC
-    RCC->CCIPR = (0b11 << RCC_CCIPR_ADCSEL_Pos); // Set system clock as ADC clock
-    set_bits(((ADC_Common_TypeDef *)((uint8_t *)ADC1 + 0x300))->CCR,
-             (0b0010 << ADC_CCR_PRESC_Pos)); // ADC clock divided by 4
+    // Disable USART reset
+    gpio_clear(USART_RESET_PORT,
+               USART_RESET_PIN);
+    gpio_setup(USART_RESET_PORT,
+               USART_RESET_PIN,
+               GPIO_MODE_OUTPUT_2MHZ_PUSHPULL);
 }
 
 // Communications
 
-const char *const commId = "Bosean FS-5000;" FIRMWARE_NAME " " FIRMWARE_VERSION;
+const char *const commId = "GQ GMC-800;" FIRMWARE_NAME " " FIRMWARE_VERSION;
 
 // Keyboard
 
-void initKeyboardController(void)
+void initKeyboardHardware(void)
 {
     // GPIO
-    gpio_setup_input(KEY_LEFT_PORT,
-                     KEY_LEFT_PIN,
-                     GPIO_PULL_UP);
-    gpio_setup_input(KEY_OK_PORT,
-                     KEY_OK_PIN,
-                     GPIO_PULL_FLOATING);
-    gpio_setup_input(KEY_RIGHT_PORT,
-                     KEY_RIGHT_PIN,
-                     GPIO_PULL_UP);
+    gpio_setup(KEY_LEFT_PORT,
+               KEY_LEFT_PIN,
+               GPIO_MODE_INPUT_PULLUP);
+    gpio_setup(KEY_UP_PORT,
+               KEY_UP_PIN,
+               GPIO_MODE_INPUT_PULLUP);
+    gpio_setup(KEY_DOWN_PORT,
+               KEY_DOWN_PIN,
+               GPIO_MODE_INPUT_PULLUP);
+    gpio_setup(KEY_RIGHT_PORT,
+               KEY_RIGHT_PIN,
+               GPIO_MODE_INPUT_PULLUP);
 }
 
 void getKeyboardState(bool *isKeyDown)
 {
     isKeyDown[KEY_LEFT] = !gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN);
-    isKeyDown[KEY_OK] = !gpio_get(KEY_OK_PORT, KEY_OK_PIN);
+    isKeyDown[KEY_UP] = !gpio_get(KEY_UP_PORT, KEY_UP_PIN);
+    isKeyDown[KEY_DOWN] = !gpio_get(KEY_DOWN_PORT, KEY_DOWN_PIN);
     isKeyDown[KEY_RIGHT] = !gpio_get(KEY_RIGHT_PORT, KEY_RIGHT_PIN);
 }
 
@@ -120,11 +122,10 @@ bool displayEnabled;
 static uint8_t displayTextbuffer[88 * 88];
 
 static const uint8_t displayInitSequence[] = {
-    MR_SEND_COMMAND(MR_ST7789_RAMCTRL),
-    MR_SEND_DATA(0x00),
-    MR_SEND_DATA(0xe0),
+    MR_SEND_COMMAND(MR_ST7789_GCTRL),
+    MR_SEND_DATA(0x74), // // VGH 14.97 V, VGL -9.6 V
     MR_SEND_COMMAND(MR_ST7789_VCOMS),
-    MR_SEND_DATA(0x36), // VCOM=1.45 V
+    MR_SEND_DATA(0x1f), // VCOM=0.875 V
     MR_SEND_COMMAND(MR_ST7789_VRHS),
     MR_SEND_DATA(0x12), // VRH=4.45 V
     MR_SEND_COMMAND(MR_ST7789_PWCTRL1),
@@ -132,34 +133,35 @@ static const uint8_t displayInitSequence[] = {
     MR_SEND_DATA(0xa1),
     MR_SEND_COMMAND(MR_ST7789_PVGAMCTRL),
     MR_SEND_DATA(0xd0),
-    MR_SEND_DATA(0x00),
-    MR_SEND_DATA(0x05),
-    MR_SEND_DATA(0x0e),
-    MR_SEND_DATA(0x15),
-    MR_SEND_DATA(0x0d),
-    MR_SEND_DATA(0x37),
-    MR_SEND_DATA(0x43),
-    MR_SEND_DATA(0x47),
-    MR_SEND_DATA(0x09),
-    MR_SEND_DATA(0x15),
-    MR_SEND_DATA(0x12),
-    MR_SEND_DATA(0x16),
-    MR_SEND_DATA(0x19),
+    MR_SEND_DATA(0x01),
+    MR_SEND_DATA(0x08),
+    MR_SEND_DATA(0x0f),
+    MR_SEND_DATA(0x11),
+    MR_SEND_DATA(0x2a),
+    MR_SEND_DATA(0x36),
+    MR_SEND_DATA(0x55),
+    MR_SEND_DATA(0x44),
+    MR_SEND_DATA(0x3a),
+    MR_SEND_DATA(0x0b),
+    MR_SEND_DATA(0x06),
+    MR_SEND_DATA(0x11),
+    MR_SEND_DATA(0x20),
     MR_SEND_COMMAND(MR_ST7789_NVGAMCTRL),
     MR_SEND_DATA(0xd0),
-    MR_SEND_DATA(0x00),
-    MR_SEND_DATA(0x05),
-    MR_SEND_DATA(0x0d),
-    MR_SEND_DATA(0x0c),
-    MR_SEND_DATA(0x06),
-    MR_SEND_DATA(0x2d),
-    MR_SEND_DATA(0x44),
-    MR_SEND_DATA(0x40),
-    MR_SEND_DATA(0x0e),
-    MR_SEND_DATA(0x1c),
+    MR_SEND_DATA(0x02),
+    MR_SEND_DATA(0x07),
+    MR_SEND_DATA(0x0a),
+    MR_SEND_DATA(0x0b),
     MR_SEND_DATA(0x18),
-    MR_SEND_DATA(0x16),
-    MR_SEND_DATA(0x19),
+    MR_SEND_DATA(0x34),
+    MR_SEND_DATA(0x43),
+    MR_SEND_DATA(0x4a),
+    MR_SEND_DATA(0x2b),
+    MR_SEND_DATA(0x1b),
+    MR_SEND_DATA(0x1c),
+    MR_SEND_DATA(0x22),
+    MR_SEND_DATA(0x1f),
+    MR_SEND_COMMAND(MR_ST7789_INVON),
     MR_END(),
 };
 
@@ -177,6 +179,8 @@ static void onDisplaySetReset(bool value)
 
 static void onDisplaySetChipselect(bool value)
 {
+    spi_wait_while_bsy(SPI1);
+
     gpio_modify(DISPLAY_CSX_PORT,
                 DISPLAY_CSX_PIN,
                 !value);
@@ -184,6 +188,8 @@ static void onDisplaySetChipselect(bool value)
 
 static void onDisplaySetCommand(bool value)
 {
+    spi_wait_while_bsy(SPI1);
+
     gpio_modify(DISPLAY_DCX_PORT,
                 DISPLAY_DCX_PIN,
                 !value);
@@ -191,80 +197,48 @@ static void onDisplaySetCommand(bool value)
 
 static void onDisplaySend(uint16_t value)
 {
-    DISPLAY_WRX_PORT->BRR = get_bitvalue(DISPLAY_WRX_PIN);
-    *((__IO uint8_t *)&DISPLAY_D0_PORT->ODR) = value;
-    DISPLAY_WRX_PORT->BSRR = get_bitvalue(DISPLAY_WRX_PIN);
+    spi_send(SPI1, value);
 }
 
 static void onDisplaySend16(uint16_t value)
 {
-    DISPLAY_WRX_PORT->BRR = get_bitvalue(DISPLAY_WRX_PIN);
-    *((__IO uint8_t *)&DISPLAY_D0_PORT->ODR) = (value >> 8) & 0xff;
-    DISPLAY_WRX_PORT->BSRR = get_bitvalue(DISPLAY_WRX_PIN);
-    DISPLAY_WRX_PORT->BRR = get_bitvalue(DISPLAY_WRX_PIN);
-    *((__IO uint8_t *)&DISPLAY_D0_PORT->ODR) = (value >> 0) & 0xff;
-    DISPLAY_WRX_PORT->BSRR = get_bitvalue(DISPLAY_WRX_PIN);
+    spi_send(SPI1, (value >> 8) & 0xff);
+    spi_send(SPI1, (value >> 0) & 0xff);
 }
 
-static GPIO_TypeDef *const displayPortSetup[] = {
-    DISPLAY_RESX_PORT,
-    DISPLAY_CSX_PORT,
-    DISPLAY_DCX_PORT,
-    DISPLAY_WRX_PORT,
-    DISPLAY_RDX_PORT,
-    DISPLAY_D0_PORT,
-    DISPLAY_D1_PORT,
-    DISPLAY_D2_PORT,
-    DISPLAY_D3_PORT,
-    DISPLAY_D4_PORT,
-    DISPLAY_D5_PORT,
-    DISPLAY_D6_PORT,
-    DISPLAY_D7_PORT,
-};
-
-static const uint8_t displayPinSetup[] = {
-    DISPLAY_RESX_PIN,
-    DISPLAY_CSX_PIN,
-    DISPLAY_DCX_PIN,
-    DISPLAY_WRX_PIN,
-    DISPLAY_RDX_PIN,
-    DISPLAY_D0_PIN,
-    DISPLAY_D1_PIN,
-    DISPLAY_D2_PIN,
-    DISPLAY_D3_PIN,
-    DISPLAY_D4_PIN,
-    DISPLAY_D5_PIN,
-    DISPLAY_D6_PIN,
-    DISPLAY_D7_PIN,
-};
-
-void initDisplayController(void)
+void initDisplay(void)
 {
     // GPIO
-    gpio_set(DISPLAY_POWER_PORT,
-             DISPLAY_POWER_PIN);
-
-    gpio_setup_output(DISPLAY_POWER_PORT,
-                      DISPLAY_POWER_PIN,
-                      GPIO_OUTPUTTYPE_PUSHPULL,
-                      GPIO_OUTPUTSPEED_2MHZ,
-                      GPIO_PULL_FLOATING);
-
     gpio_set(DISPLAY_RESX_PORT,
              DISPLAY_RESX_PIN);
     gpio_set(DISPLAY_CSX_PORT,
              DISPLAY_CSX_PIN);
-    gpio_set(DISPLAY_RDX_PORT,
-             DISPLAY_RDX_PIN);
-    gpio_set(DISPLAY_WRX_PORT,
-             DISPLAY_WRX_PIN);
 
-    for (uint32_t i = 0; i < sizeof(displayPinSetup); i++)
-        gpio_setup_output(displayPortSetup[i],
-                          displayPinSetup[i],
-                          GPIO_OUTPUTTYPE_PUSHPULL,
-                          GPIO_OUTPUTSPEED_50MHZ,
-                          GPIO_PULL_FLOATING);
+    gpio_setup(DISPLAY_RESX_PORT,
+               DISPLAY_RESX_PIN,
+               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+    gpio_setup(DISPLAY_CSX_PORT,
+               DISPLAY_CSX_PIN,
+               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+    gpio_setup(DISPLAY_DCX_PORT,
+               DISPLAY_DCX_PIN,
+               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+    gpio_setup(DISPLAY_SCL_PORT,
+               DISPLAY_SCL_PIN,
+               GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL);
+    gpio_setup(DISPLAY_SDA_PORT,
+               DISPLAY_SDA_PIN,
+               GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL);
+
+    set_bits(RCC->APB2ENR, RCC_APB2ENR_SPI1EN);
+
+    // SPI
+    SPI1->CR1 = SPI_CR1_CPHA |
+                SPI_CR1_CPOL |
+                SPI_CR1_MSTR |
+                SPI_CR1_SSI |
+                SPI_CR1_SSM;
+    set_bits(SPI1->CR1, SPI_CR1_SPE);
 
     // mcu-renderer
     mr_st7789_init(&mr,
@@ -302,6 +276,100 @@ bool isDisplayEnabled(void)
 }
 
 void refreshDisplay(void)
+{
+}
+
+// Pulse control
+
+void initPulseControl(void)
+{
+    gpio_modify(BUZZ_EN_PORT,
+                BUZZ_EN_PIN,
+                true);
+
+    gpio_setup(PULSE_GREEN_EN_PORT,
+               PULSE_GREEN_EN_PIN,
+               GPIO_MODE_OUTPUT_2MHZ_PUSHPULL);
+    gpio_setup(PULSE_RED_EN_PORT,
+               PULSE_RED_EN_PIN,
+               GPIO_MODE_OUTPUT_2MHZ_PUSHPULL);
+}
+
+void updatePulseControl()
+{
+    if (settings.pulseSound)
+        gpio_setup(BUZZ_EN_PORT,
+                   BUZZ_EN_PIN,
+                   GPIO_MODE_INPUT_PULLUP);
+    else
+        gpio_setup(BUZZ_EN_PORT,
+                   BUZZ_EN_PIN,
+                   GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+
+    gpio_modify(PULSE_GREEN_EN_PORT,
+                PULSE_GREEN_EN_PIN,
+                settings.pulseLED && !isAlarm());
+    gpio_modify(PULSE_RED_EN_PORT,
+                PULSE_RED_EN_PIN,
+                settings.pulseLED && isAlarm());
+}
+
+// Voice
+
+uint32_t voiceBuffer[128];
+
+void initVoice(void)
+{
+    gpio_setup(VOICE_TX_PORT,
+               VOICE_TX_PIN,
+               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+    gpio_setup(VOICE_BUSY_PORT,
+               VOICE_BUSY_PIN,
+               GPIO_MODE_INPUT_PULLUP);
+}
+
+static void startVoice(void)
+{
+    tim_setup_dma(VOICE_TX_TIMER);
+    tim_set_period(VOICE_TX_TIMER,
+                   VOICE_TX_TIMER_PERIOD);
+    tim_enable(VOICE_TX_TIMER);
+
+    uint32_t count = 1;
+    dma_setup_mem32_to_peripheral(VOICE_TX_DMA,
+                                  VOICE_TX_DMA_CHANNEL,
+                                  VOICE_TX_PORT->BSRR,
+                                  &voiceBuffer,
+                                  count);
+    dma_enable(VOICE_TX_DMA_CHANNEL);
+}
+
+static void stopVoice(void)
+{
+    dma_disable(VOICE_TX_DMA_CHANNEL);
+    rcc_disable_dma(VOICE_TX_DMA);
+
+    tim_disable(VOICE_TX_TIMER);
+    rcc_disable_tim(VOICE_TX_TIMER);
+}
+
+void updateVoice(void)
+{
+}
+
+void playVoiceInstantaneousRate(void)
+{
+}
+
+void playVoiceAverageRate(void)
+{
+}
+
+void playVoiceCumulativeDose(void)
+{
+}
+
+void playVoiceAlarm(void)
 {
 }
 

@@ -116,7 +116,6 @@
 // Pulses menu items
 #define STRING_SOUND "Sunet"
 #define STRING_VIBRATION "Vibrație"
-#define STRING_ALERT_LED "LED alertă"
 #define STRING_PULSE_LED "LED impuls"
 #define STRING_DISPLAY_FLASH "Clipire ecran"
 #define STRING_THRESHOLD "Prag"
@@ -129,8 +128,9 @@
 // Alarms menu items
 #define STRING_RATE_ALARM "Alarmă rată"
 #define STRING_DOSE_ALARM "Alarmă doză"
-#define STRING_OVERRANGE_ALARM "Alarmă depășire"
 #define STRING_INDICATION "Indicație"
+#define STRING_VOICE "Voce"
+#define STRING_VOLUME "Volum"
 
 // Measurements menu items
 #define STRING_UNITS "Unități"

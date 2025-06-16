@@ -13,10 +13,12 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+typedef uint16_t PageIndex;
+
 typedef struct
 {
-    uint8_t beginPageIndex;
-    uint8_t endPageIndex;
+    PageIndex beginPageIndex;
+    PageIndex endPageIndex;
 } FlashRegion;
 
 extern const FlashRegion flashSettingsRegion;
@@ -29,7 +31,7 @@ typedef struct
 {
     const FlashRegion *region;
 
-    uint8_t pageIndex;
+    PageIndex pageIndex;
 
     uint32_t index;
 } FlashIterator;
@@ -45,9 +47,9 @@ void initFlash(void);
 
 bool verifyFlash(void);
 
-uint8_t *getFlashPage(uint8_t pageIndex);
-void eraseFlashPage(uint8_t pageIndex);
-void writeFlash(uint8_t pageIndex,
+uint8_t *getFlashPage(PageIndex pageIndex);
+void eraseFlashPage(PageIndex pageIndex);
+void writeFlash(PageIndex pageIndex,
                 uint32_t index,
                 uint8_t *source,
                 uint32_t size);

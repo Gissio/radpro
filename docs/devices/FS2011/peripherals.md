@@ -1,9 +1,9 @@
 # FS2011 MCU Pinout
 
-* PA1 (Input, floating): TUBE_DET2
-* PA2 (AF1): USART2_TX
-* PA3 (AF1): USART2_RX
-* PA4 (Analog, floating): PWR_BAT
+* PA1 (Input): TUBE_DET2
+* PA2 (AF): USART2_TX
+* PA3 (AF): USART2_RX
+* PA4 (Analog): PWR_BAT
 * PA5 (Input, pull-up): PWR_CHRG
 * PA6 (Input, pull-up): TUBE_DET
 * PA7 (Input, pull-up): KEY_UP

@@ -2,24 +2,29 @@
 
 ## 2.2 "Sundry"
 
-Updates:
-* Added language support for: Bulgarian, Chinese, Croatian, Czech, Danish, Dutch, English, Finnish, French, German, Greek, Hungarian, Italian, Japanese, Korean, Norwegian, Polish, Portuguese, Romanian, Russian, Slovakian, Slovenian, Spanish, Swedish, Turkish, Ukrainian, Vietnamese.
-* Introduced new averaging periods: 3, 6, 12, 24-hour intervals, plus confidence intervals of ±50%, ±20%, ±10%, ±5%, ±2% and ±1%.
-* Extended sensitivity range to 1-10,000 cpm/µSv/h to support low-sensitivity Geiger tubes (e.g., SI-3BG).
-* Extended dead-time compensation range to 5-500 µs for compatibility with scintillation detectors.
-* Added optional overrange alarm, triggered when dead-time compensation exceeds 10%.
-* Improved loss-of-count detection, now dynamically adjusted based on selected sensitivity.
-* Added timezone configuration data commands: "SET deviceTimeZone" and "GET deviceTimeZone".
-* Enhanced radpro-tool, now synchronizing timezone alongside time, and improving error handling.
-* Added "RESET datalog" data command to clear data logs.
-* Removed background compensation, as intrinsic activity in common Geiger tubes is negligible.
-* Removed "GET tubeBackgroundCompensation" data command to reflect the above change.
-* Refined SBM-20 Geiger tube sensitivity to 150.5 cpm/µSv/h.
+New features:
+* Added GC-GMC-800 Geiger counter support.
+* Added multilingual support for 27 languages: Bulgarian, Chinese, Croatian, Czech, Danish, Dutch, English, Finnish, French, German, Greek, Hungarian, Italian, Japanese, Korean, Norwegian, Polish, Portuguese, Romanian, Russian, Slovakian, Slovenian, Spanish, Swedish, Turkish, Ukrainian, Vietnamese.
+* Auto power-off: Device now automatically shuts down at critically low battery levels.
+* Averaging periods: Introduced 3, 6, 12, 24-hour averaging intervals, plus confidence intervals of ±50%, ±20%, ±10%, ±5%, ±2% and ±1%.
+* Timezone commands: Added "SET deviceTimeZone" and "GET deviceTimeZone" data commands.
+* Datalog reset: Added "RESET datalog" data command to clear data logs.
+
+Improvements:
+* GQ GMC-800 clicks improvement: Fixes a hardware issue, ensuring consistent pulse clicks at high levels of radiation.
+* Power management: The device turns now on when the battery falls critically low.
+* Sensitivity range: Extended to 1-10,000 cpm/µSv/h to support low-sensitivity Geiger tubes (e.g., SI-3BG).
+* Dead-time compensation: Extended range to 5-500 µs for compatibility with scintillation detectors.
+* Loss-of-count detection: Now dynamically adjusts based on selected sensitivity.
+* radpro-tool enhancements: Improved timezone synchronization and error handling.
+* SBM-20 sensitivity: Refined to 150.5 cpm/µSv/h for improved accuracy.
+* Voltage measurement: Improved on the FS2011 (GD32F150R8/GD32F103R8) and FNIRSI GC-01.
+* Background compensation: Removed due to negligible intrinsic activity in common Geiger tubes; corresponding "GET tubeBackgroundCompensation" data command also removed.
 
 Fixes:
-* Updated statistics to display battery voltage for all cells.
-* Fixed an issue preventing proper updates to history and instantaneous rate maximum values for 10-second, 30-second and 60-second instantaneous rate averaging intervals.
-* Corrected settings to display hours in AM/PM format when 12-hour format is selected.
+* Battery statistics: Updated to display battery voltage for all cells.
+* Instantaneous rate updates: Fixed issue preventing proper updates to history and maximum values for 10-second, 30-second and 60-second averaging intervals.
+* Time format: Corrected settings to display hours in AM/PM format when 12-hour format is selected.
 
 ## 2.1.1 "The dot mender"
 

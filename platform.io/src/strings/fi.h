@@ -116,7 +116,6 @@
 // Pulses menu items
 #define STRING_SOUND "Ääni"
 #define STRING_VIBRATION "Tärinä"
-#define STRING_ALERT_LED "Hälytys-LED"
 #define STRING_PULSE_LED "Pulssi-LED"
 #define STRING_DISPLAY_FLASH "Näytön vilkkuminen"
 #define STRING_THRESHOLD "Kynnys"
@@ -129,8 +128,9 @@
 // Alarms menu items
 #define STRING_RATE_ALARM "Nopeushälytys"
 #define STRING_DOSE_ALARM "Annoshälytys"
-#define STRING_OVERRANGE_ALARM "Ylialuehälytys"
 #define STRING_INDICATION "Ilmoitus"
+#define STRING_VOICE "Ääni"
+#define STRING_VOLUME "Äänenvoimakkuus"
 
 // Measurements menu items
 #define STRING_UNITS "Yksiköt"

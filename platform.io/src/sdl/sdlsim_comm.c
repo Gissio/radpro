@@ -21,21 +21,16 @@ const char *const commId = "Rad Pro simulator;Rad Pro " FIRMWARE_VERSION;
 #include <sercomm/sercomm.h>
 
 #define COMM_SERIAL_BAUDRATE 115200
-#define COMM_BUFFER_SIZE 64
 
-static struct
-{
-    ser_t *sercomm;
-    char lastChar;
-} commController;
+static ser_t *sercomm;
 
 void openComm(void)
 {
-    if (commController.sercomm)
+    if (comm.enabled)
         return;
 
-    commController.sercomm = ser_create();
-    if (commController.sercomm == NULL)
+    sercomm = ser_create();
+    if (sercomm == NULL)
     {
         printf("Could not create serial port instance.\n");
 
@@ -51,29 +46,32 @@ void openComm(void)
         {0, 0},
     };
 
-    int32_t result = ser_open(commController.sercomm, &options);
+    int32_t result = ser_open(sercomm, &options);
     if (result)
     {
         printf("Could not open serial port: %s\n", sererr_last());
 
-        ser_destroy(commController.sercomm);
-        commController.sercomm = NULL;
+        ser_destroy(sercomm);
+        sercomm = NULL;
 
         return;
     }
+
+    comm.state = COMM_RX;
+    comm.bufferIndex = 0;
+    comm.sendingDatalog = false;
+    comm.enabled = true;
 }
 
 void closeComm(void)
 {
-    ser_close(commController.sercomm);
-    ser_destroy(commController.sercomm);
+    if (!comm.enabled)
+        return;
 
-    commController.sercomm = NULL;
-}
+    ser_close(sercomm);
+    ser_destroy(sercomm);
 
-bool isCommOpen(void)
-{
-    return (commController.sercomm != NULL);
+    comm.enabled = true;
 }
 
 void transmitComm(void)
@@ -81,21 +79,20 @@ void transmitComm(void)
     comm.state = COMM_TX;
 }
 
-void updateCommController(void)
+void updateComm(void)
 {
-    if (commController.sercomm == NULL)
+    if (!comm.enabled)
         return;
 
     char receiveBuffer[COMM_BUFFER_SIZE];
     size_t receivedBytes = 0;
 
-    ser_read(commController.sercomm,
+    ser_read(sercomm,
              receiveBuffer,
              COMM_BUFFER_SIZE,
              &receivedBytes);
 
-    if (comm.enabled &&
-        (comm.state == COMM_RX))
+    if (comm.state == COMM_RX)
     {
         for (int32_t i = 0;
              i < receivedBytes;
@@ -108,7 +105,7 @@ void updateCommController(void)
                 comm.buffer[comm.bufferIndex++] = c;
             else if ((c == '\r') ||
                      ((c == '\n') &&
-                      (commController.lastChar != '\r')))
+                      (comm.lastChar != '\r')))
             {
                 comm.buffer[comm.bufferIndex] = '\0';
 
@@ -116,7 +113,7 @@ void updateCommController(void)
                 comm.state = COMM_RX_READY;
             }
 
-            commController.lastChar = c;
+            comm.lastChar = c;
         }
     }
 
@@ -125,7 +122,7 @@ void updateCommController(void)
         char *sendBuffer = comm.buffer + comm.bufferIndex;
         size_t sentBytes = 0;
 
-        ser_write(commController.sercomm,
+        ser_write(sercomm,
                   sendBuffer,
                   strlen(sendBuffer),
                   &sentBytes);
@@ -148,30 +145,22 @@ void updateCommController(void)
 
 #else
 
-#include <stdbool.h>
-
-static bool commControllerStarted = false;
-
 void openComm(void)
 {
-    commControllerStarted = true;
+    comm.enabled = true;
 }
 
 void closeComm(void)
 {
-    commControllerStarted = false;
-}
-
-bool isCommOpen(void)
-{
-    return commControllerStarted;
+    comm.enabled = false;
 }
 
 void transmitComm(void)
 {
+    comm.state = COMM_RX;
 }
 
-void updateCommController(void)
+void updateComm(void)
 {
 }
 

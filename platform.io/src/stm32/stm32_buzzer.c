@@ -7,7 +7,7 @@
  * License: MIT
  */
 
-#if defined(STM32)
+#if defined(STM32) && defined(BUZZER)
 
 #include "../buzzer.h"
 #include "../events.h"

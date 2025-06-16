@@ -86,8 +86,8 @@ bool setFlashPageTail(FlashIterator *iterator)
     if (!setFlashPageHead(iterator))
         return false;
 
-    uint8_t headPageIndex = iterator->pageIndex;
-    uint8_t tailPageIndex = iterator->pageIndex;
+    PageIndex headPageIndex = iterator->pageIndex;
+    PageIndex tailPageIndex = iterator->pageIndex;
 
     while (true)
     {

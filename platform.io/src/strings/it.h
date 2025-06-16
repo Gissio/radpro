@@ -116,7 +116,6 @@
 // Pulses menu items
 #define STRING_SOUND "Suono"
 #define STRING_VIBRATION "Vibrazione"
-#define STRING_ALERT_LED "LED di allerta"
 #define STRING_PULSE_LED "LED impulso"
 #define STRING_DISPLAY_FLASH "Lampeggio display"
 #define STRING_THRESHOLD "Soglia"
@@ -129,8 +128,9 @@
 // Alarms menu items
 #define STRING_RATE_ALARM "Allarme tasso"
 #define STRING_DOSE_ALARM "Allarme dose"
-#define STRING_OVERRANGE_ALARM "Allarme sovraccarico"
 #define STRING_INDICATION "Indicazione"
+#define STRING_VOICE "Voce"
+#define STRING_VOLUME "Volume"
 
 // Measurements menu items
 #define STRING_UNITS "Unità"

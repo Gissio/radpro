@@ -45,7 +45,7 @@ void resetPower()
 #endif
 }
 
-int8_t getBatteryLevel(void)
+uint8_t getBatteryLevel(void)
 {
 #if defined(BATTERY_REMOVABLE)
     const float *selectedBatteryLevelThresholds = batteryLevelThresholds[settings.batteryType];
@@ -54,24 +54,14 @@ int8_t getBatteryLevel(void)
 #endif
 
     float voltage = getFilteredBatteryVoltage();
-    int8_t level = (BATTERY_LEVEL_NUM - 1);
 
     for (uint32_t i = 0; i < (BATTERY_LEVEL_NUM - 1); i++)
     {
         if (voltage < selectedBatteryLevelThresholds[i])
-        {
-            level = i;
-
-            break;
-        }
+            return i;
     }
 
-#if !defined(FONT_SYMBOLS_NOCHARGING)
-    if (isDevicePowered() || isBatteryCharging())
-        level += BATTERY_LEVEL_NUM;
-#endif
-
-    return level;
+    return (BATTERY_LEVEL_NUM - 1);
 }
 
 // Battery type menu

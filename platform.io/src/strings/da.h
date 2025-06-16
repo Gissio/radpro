@@ -116,7 +116,6 @@
 // Pulses menu items
 #define STRING_SOUND "Lyd"
 #define STRING_VIBRATION "Vibration"
-#define STRING_ALERT_LED "Alarm-LED"
 #define STRING_PULSE_LED "Puls-LED"
 #define STRING_DISPLAY_FLASH "Skærmblink"
 #define STRING_THRESHOLD "Tærskel"
@@ -129,8 +128,9 @@
 // Alarms menu items
 #define STRING_RATE_ALARM "Ratealarm"
 #define STRING_DOSE_ALARM "Dosisalarm"
-#define STRING_OVERRANGE_ALARM "Overområde-alarm"
 #define STRING_INDICATION "Indikation"
+#define STRING_VOICE "Stemme"
+#define STRING_VOLUME "Lydstyrke"
 
 // Measurements menu items
 #define STRING_UNITS "Enheder"

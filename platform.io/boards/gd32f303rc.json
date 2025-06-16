@@ -1,28 +1,28 @@
 {
     "build": {
         "core": "stm32",
-        "cpu": "cortex-m3",
-        "extra_flags": "-D STM32 -D STM32F0 -D STM32F051x8 -D GD32 -D SRAM_SIZE=8192",
-        "f_cpu": "48000000L",
-        "mcu": "stm32f051c8t6",
-        "product_line": "STM32F051x8"
+        "cpu": "cortex-m4",
+        "extra_flags": "-D STM32 -D STM32F1 -D STM32F103xE -D GD32 -D SRAM_SIZE=49152",
+        "f_cpu": "72000000L",
+        "mcu": "stm32f103rct6",
+        "product_line": "STM32F103xE"
     },
     "debug": {
         "default_tools": [
             "stlink"
         ],
-        "jlink_device": "STM32F051C8",
-        "openocd_target": "stm32f0x",
-        "svd_path": "STM32F0x1.svd"
+        "jlink_device": "STM32F103RC",
+        "openocd_target": "stm32f1x",
+        "svd_path": "STM32F103xx.svd"
     },
     "frameworks": [
         "cmsis",
         "libopencm3"
     ],
-    "name": "GD32F051C8",
+    "name": "GD32F303RC",
     "upload": {
-        "maximum_ram_size": 8192,
-        "maximum_size": 65536,
+        "maximum_ram_size": 49152,
+        "maximum_size": 262144,
         "protocol": "stlink",
         "protocols": [
             "jlink",

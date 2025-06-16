@@ -58,7 +58,7 @@ const char *const commId = "FS2011 (GD32F103C8);" FIRMWARE_NAME " " FIRMWARE_VER
 
 // Keyboard
 
-void initKeyboardController(void)
+void initKeyboardHardware(void)
 {
     // GPIO
 #if defined(STM32F0)
@@ -192,7 +192,7 @@ static const uint8_t displayPinSetup[] = {
     DISPLAY_D7_PIN,
 };
 
-void initDisplayController(void)
+void initDisplay(void)
 {
     // GPIO
     gpio_set(DISPLAY_RSTB_PORT,

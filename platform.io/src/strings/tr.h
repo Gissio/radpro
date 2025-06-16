@@ -116,7 +116,6 @@
 // Pulses menu items
 #define STRING_SOUND "Ses"
 #define STRING_VIBRATION "Titreşim"
-#define STRING_ALERT_LED "Uyarı LED'i"
 #define STRING_PULSE_LED "Naber LED'i"
 #define STRING_DISPLAY_FLASH "Ekran flaşı"
 #define STRING_THRESHOLD "Eşik"
@@ -129,8 +128,9 @@
 // Alarms menu items
 #define STRING_RATE_ALARM "Oran alarmı"
 #define STRING_DOSE_ALARM "Doz alarmı"
-#define STRING_OVERRANGE_ALARM "Aşırı menzil alarmı"
 #define STRING_INDICATION "Gösterge"
+#define STRING_VOICE "Ses"
+#define STRING_VOLUME "Ses seviyesi"
 
 // Measurements menu items
 #define STRING_UNITS "Birimler"

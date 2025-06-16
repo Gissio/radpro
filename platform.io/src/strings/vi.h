@@ -116,7 +116,6 @@
 // Pulses menu items
 #define STRING_SOUND "Âm thanh"
 #define STRING_VIBRATION "Rung"
-#define STRING_ALERT_LED "LED cảnh báo"
 #define STRING_PULSE_LED "LED xung"
 #define STRING_DISPLAY_FLASH "Nhấp nháy màn hình"
 #define STRING_THRESHOLD "Ngưỡng"
@@ -129,8 +128,9 @@
 // Alarms menu items
 #define STRING_RATE_ALARM "Cảnh báo tốc độ"
 #define STRING_DOSE_ALARM "Cảnh báo liều lượng"
-#define STRING_OVERRANGE_ALARM "Cảnh báo vượt phạm vi"
 #define STRING_INDICATION "Chỉ báo"
+#define STRING_VOICE "Giọng nói"
+#define STRING_VOLUME "Âm lượng"
 
 // Measurements menu items
 #define STRING_UNITS "Đơn vị"

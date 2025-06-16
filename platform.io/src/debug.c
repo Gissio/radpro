@@ -24,13 +24,17 @@
 
 void debugBeep(void)
 {
+#if defined(BUZZER)
     setBuzzer(true);
+#endif
 #if defined(PULSE_LED)
     setPulseLED(true);
 #endif
     sleep(100);
 
+#if defined(BUZZER)
     setBuzzer(false);
+#endif
 #if defined(PULSE_LED)
     setPulseLED(false);
 #endif
@@ -39,7 +43,9 @@ void debugBeep(void)
 
 void debugBit(bool value)
 {
+#if defined(BUZZER)
     setBuzzer(true);
+#endif
 #if defined(PULSE_LED)
     setPulseLED(true);
 #endif
@@ -48,7 +54,9 @@ void debugBit(bool value)
     else
         debugWait(DEBUG_BIT1_LENGTH);
 
+#if defined(BUZZER)
     setBuzzer(false);
+#endif
 #if defined(PULSE_LED)
     setPulseLED(false);
 #endif

@@ -46,7 +46,7 @@ void onMenuEvent(const View *view, Event event)
         if (menu->onSelect)
             menu->onSelect(menu);
 
-        updateView();
+        requestViewUpdate();
 
         break;
 
@@ -90,7 +90,7 @@ void onMenuEvent(const View *view, Event event)
             }
         }
 
-        updateView();
+        requestViewUpdate();
 
         break;
 

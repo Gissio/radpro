@@ -116,7 +116,6 @@
 // Pulses menu items
 #define STRING_SOUND "Ήχος"
 #define STRING_VIBRATION "Δόνηση"
-#define STRING_ALERT_LED "LED ειδοποίησης"
 #define STRING_PULSE_LED "LED παλμού"
 #define STRING_DISPLAY_FLASH "Αναβόσβηση οθόνης"
 #define STRING_THRESHOLD "Κατώφλι"
@@ -129,8 +128,9 @@
 // Alarms menu items
 #define STRING_RATE_ALARM "Συναγερμός ρυθμού"
 #define STRING_DOSE_ALARM "Συναγερμός δόσης"
-#define STRING_OVERRANGE_ALARM "Συναγερμός υπέρβασης"
 #define STRING_INDICATION "Ένδειξη"
+#define STRING_VOICE "Φωνή"
+#define STRING_VOLUME "Ένταση"
 
 // Measurements menu items
 #define STRING_UNITS "Μονάδες"

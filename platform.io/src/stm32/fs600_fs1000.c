@@ -54,7 +54,7 @@ const char *const commId = "Bosean FS-1000;" FIRMWARE_NAME " " FIRMWARE_VERSION;
 
 // Keyboard
 
-void initKeyboardController(void)
+void initKeyboardHardware(void)
 {
     // GPIO
     gpio_setup_input(KEY_LEFT_PORT,
@@ -178,7 +178,7 @@ static void onDisplaySend(uint16_t value)
     GPIOB->BSRR = get_bitvalue(DISPLAY_CSB_PIN);
 }
 
-void initDisplayController(void)
+void initDisplay(void)
 {
     // GPIO
     gpio_set(DISPLAY_RSTB_PORT,

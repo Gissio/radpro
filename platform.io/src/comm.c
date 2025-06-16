@@ -24,19 +24,9 @@
 
 Comm comm;
 
-void initComm(void)
+bool isCommOpen(void)
 {
-#if !defined(DATA_MODE)
-    openComm();
-#else
-    if (settings.dataMode)
-        openComm();
-#endif
-}
-
-void enableComm(bool value)
-{
-    comm.enabled = value;
+    return comm.enabled;
 }
 
 static bool matchCommCommand(const char *command)
@@ -145,7 +135,7 @@ static void startDatalogDump(void)
 
 void dispatchCommEvents(void)
 {
-    updateCommController();
+    updateComm();
 
     if (comm.state == COMM_RX_READY)
     {
@@ -154,9 +144,12 @@ void dispatchCommEvents(void)
 
         if (matchCommCommand("GET deviceId"))
         {
+            char deviceId[32];
+            getDeviceId(deviceId);
+
             sendCommOkWithString(commId);
             strcatChar(comm.buffer, ';');
-            strcatUInt32Hex(comm.buffer, getDeviceId());
+            strcat(comm.buffer, deviceId);
         }
         else if (matchCommCommand("GET deviceBatteryVoltage"))
             sendCommOkWithFloat(getBatteryVoltage(), 3);
@@ -263,6 +256,14 @@ void dispatchCommEvents(void)
                 strcatUInt8Hex(comm.buffer, randomData);
             }
         }
+#if defined(START_BOOTLOADER)
+        else if (matchCommCommand("START bootloader"))
+        {
+            comm.startBootloader = true;
+
+            sendCommOk();
+        }
+#endif
         else
             sendCommError();
 
@@ -279,7 +280,7 @@ void dispatchCommEvents(void)
             uint32_t sentEntriesNum = 0;
             uint32_t checkedEntriesNum = 0;
 
-            while ((sentEntriesNum < 2) &&
+            while ((sentEntriesNum < 5) &&
                    (checkedEntriesNum < 1000))
             {
                 Dose dose;
@@ -308,6 +309,11 @@ void dispatchCommEvents(void)
         }
         else
         {
+#if defined(START_BOOTLOADER)
+            if (comm.startBootloader)
+                startBootloader();
+#endif
+
             comm.state = COMM_RX;
         }
     }

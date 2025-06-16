@@ -43,17 +43,17 @@ void dispatchViewEvents(void)
         if (event == EVENT_NONE)
             break;
 
-        if (isPowerOffViewActive())
+        if (isPoweredOff())
         {
             if (event == EVENT_KEY_POWER)
-                setPowerOnView();
+                powerOn();
         }
         else
         {
             if (event == EVENT_KEY_POWER)
             {
                 if (!isLockMode())
-                    setPowerOffView();
+                    powerOff();
             }
             else
             {
@@ -91,11 +91,11 @@ void dispatchViewEvents(void)
     else
     {
 #if defined(DISPLAY_MONOCHROME)
-        bool isDisplayActive = !isPowerOffViewActive();
+        bool isDisplayActive = !isPoweredOff();
 #elif defined(DISPLAY_COLOR)
         bool isPulseFlashesActive = settings.pulseDisplayFlash &&
                                     !isPulseThresholdEnabled();
-        bool isDisplayActive = !isPowerOffViewActive() &&
+        bool isDisplayActive = !isPoweredOff() &&
                                (isDisplayBacklightActive() ||
                                 isPulseFlashesActive);
 #endif
@@ -132,7 +132,7 @@ void setView(const View *newView)
 {
     view.currentView = newView;
 
-    updateView();
+    requestViewUpdate();
 }
 
 const View *getView(void)
@@ -140,12 +140,12 @@ const View *getView(void)
     return view.currentView;
 }
 
-void updateView(void)
+void requestViewUpdate(void)
 {
     view.drawUpdate = true;
 }
 
-void updateViewPeriod(void)
+void updateView(void)
 {
     view.periodUpdate = true;
     view.drawUpdate = true;

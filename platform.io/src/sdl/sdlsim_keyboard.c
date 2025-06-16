@@ -13,7 +13,7 @@
 
 #include "../keyboard.h"
 
-void initKeyboardController(void)
+void initKeyboardHardware(void)
 {
 }
 

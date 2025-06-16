@@ -38,15 +38,10 @@ void initPower(void)
                       GPIO_PULL_FLOATING);
 #endif
 
-#if defined(PWR_EXTERNAL_PORT)
-    gpio_setup_input(PWR_EXTERNAL_PORT,
-                     PWR_EXTERNAL_PIN,
-#if defined(PWR_EXTERNAL_PULLUP)
-                     GPIO_PULL_UP
-#else
-                     GPIO_PULL_FLOATING
-#endif
-    );
+#if defined(PWR_USB_PORT)
+    gpio_setup_input(PWR_USB_PORT,
+                     PWR_USB_PIN,
+                     GPIO_PULL_FLOATING);
 #endif
 
 #if defined(PWR_CHRG_PORT)
@@ -63,12 +58,7 @@ void initPower(void)
 #if defined(PWR_STDBY_PORT)
     gpio_setup_input(PWR_STDBY_PORT,
                      PWR_STDBY_PIN,
-#if defined(PWR_STDBY_PULLUP)
-                     GPIO_PULL_UP
-#else
-                     GPIO_PULL_FLOATING
-#endif
-    );
+                     GPIO_PULL_FLOATING);
 #endif
 
 #elif defined(STM32F1)
@@ -89,15 +79,10 @@ void initPower(void)
                GPIO_MODE_INPUT_ANALOG);
 #endif
 
-#if defined(PWR_EXTERNAL_PORT)
-    gpio_setup(PWR_EXTERNAL_PORT,
-               PWR_EXTERNAL_PIN,
-#if defined(PWR_EXTERNAL_PULLUP)
-               GPIO_MODE_INPUT_PULLUP
-#else
-               GPIO_MODE_INPUT_FLOATING
-#endif
-    );
+#if defined(PWR_USB_PORT)
+    gpio_setup(PWR_USB_PORT,
+               PWR_USB_PIN,
+               GPIO_MODE_INPUT_FLOATING);
 #endif
 
 #if defined(PWR_CHRG_PORT)
@@ -130,39 +115,28 @@ void setPower(bool value)
     gpio_modify(PWR_EN_PORT,
                 PWR_EN_PIN,
 #if defined(PWR_EN_ACTIVE_LOW)
-                !value
-#else
-                value
+                !
 #endif
-    );
+                value);
 
 #if defined(PWR_VCC_PORT)
     gpio_modify(PWR_VCC_PORT,
                 PWR_VCC_PIN,
-#if defined(PWR_VCC_ACTIVE_LOW)
-                !value
-#else
-                value
-#endif
-    );
+                value);
 #endif
 }
 
-bool isDevicePowered(void)
+bool isUSBPowered(void)
 {
-#if defined(PWR_EXTERNAL_PORT)
-    return
-#if defined(PWR_EXTERNAL_ACTIVE_LOW)
-        !
-#endif
-        gpio_get(PWR_EXTERNAL_PORT,
-                 PWR_EXTERNAL_PIN);
+#if defined(PWR_USB_PORT)
+    return gpio_get(PWR_USB_PORT,
+                    PWR_USB_PIN);
 #else
-    return isBatteryCharging();
+    return false;
 #endif
 }
 
-bool isBatteryCharging(void)
+bool isChargingBattery(void)
 {
 #if defined(PWR_CHRG_PORT)
     return

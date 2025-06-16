@@ -116,7 +116,6 @@
 // Pulses menu items
 #define STRING_SOUND "Hang"
 #define STRING_VIBRATION "Rezgés"
-#define STRING_ALERT_LED "Riasztó LED"
 #define STRING_PULSE_LED "Impulzus LED"
 #define STRING_DISPLAY_FLASH "Kijelző villogás"
 #define STRING_THRESHOLD "Küszöb"
@@ -129,8 +128,9 @@
 // Alarms menu items
 #define STRING_RATE_ALARM "Arány riasztás"
 #define STRING_DOSE_ALARM "Dózis riasztás"
-#define STRING_OVERRANGE_ALARM "Túlterhelés riasztás"
 #define STRING_INDICATION "Jelzés"
+#define STRING_VOICE "Hang"
+#define STRING_VOLUME "Hangerő"
 
 // Measurements menu items
 #define STRING_UNITS "Mértékegységek"

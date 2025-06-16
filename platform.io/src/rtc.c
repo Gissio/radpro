@@ -440,7 +440,7 @@ static void onRTCMenuSelect(const Menu *menu)
 
     const View *view = NULL;
     uint32_t menuIndex = 0;
-    uint32_t optionsNum;
+    uint32_t optionsNum = 0;
 
     switch (rtcMenuState.selectedIndex)
     {

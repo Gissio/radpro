@@ -116,7 +116,6 @@
 // Pulses menu items
 #define STRING_SOUND "Sonido"
 #define STRING_VIBRATION "Vibración"
-#define STRING_ALERT_LED "LED de alerta"
 #define STRING_PULSE_LED "LED de pulso"
 #define STRING_DISPLAY_FLASH "Destello de pantalla"
 #define STRING_THRESHOLD "Umbral"
@@ -129,8 +128,9 @@
 // Alarms menu items
 #define STRING_RATE_ALARM "Alarma de tasa"
 #define STRING_DOSE_ALARM "Alarma de dosis"
-#define STRING_OVERRANGE_ALARM "Alarma de rango"
 #define STRING_INDICATION "Indicación"
+#define STRING_VOICE "Voz"
+#define STRING_VOLUME "Volumen"
 
 // Measurements menu items
 #define STRING_UNITS "Unidades"
@@ -177,7 +177,7 @@
 #define STRING_PWMDUTY_CYCLE "Ciclo de trabajo PWM"
 
 // Tube/battery voltage
-#define STRING_VOLTAGE "Tensión"
+#define STRING_VOLTAGE "Voltaje"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Modo de registro"
@@ -278,4 +278,4 @@
 #define STRING_DEAD_TIME_SHORT "T. muerto"
 #define STRING_DEVICE "Dispositivo"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE_SHORT "Tensión"
+#define STRING_VOLTAGE_SHORT "Voltaje"

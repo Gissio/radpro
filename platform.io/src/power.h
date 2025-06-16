@@ -22,9 +22,9 @@ void resetPower(void);
 
 void setPower(bool value);
 
-int8_t getBatteryLevel(void);
+uint8_t getBatteryLevel(void);
 
-bool isDevicePowered(void);
-bool isBatteryCharging(void);
+bool isUSBPowered(void);
+bool isChargingBattery(void);
 
 #endif

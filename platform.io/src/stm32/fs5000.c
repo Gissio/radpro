@@ -90,7 +90,7 @@ const char *const commId = "Bosean FS-5000;" FIRMWARE_NAME " " FIRMWARE_VERSION;
 
 // Keyboard
 
-void initKeyboardController(void)
+void initKeyboardHardware(void)
 {
     // GPIO
     gpio_setup_input(KEY_LEFT_PORT,
@@ -238,7 +238,7 @@ static const uint8_t displayPinSetup[] = {
     DISPLAY_D7_PIN,
 };
 
-void initDisplayController(void)
+void initDisplay(void)
 {
     // GPIO
     gpio_set(DISPLAY_POWER_PORT,

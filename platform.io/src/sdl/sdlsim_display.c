@@ -146,7 +146,7 @@ static void onSend(uint16_t value)
 
 extern float tubeCPS;
 
-void initDisplayController(void)
+void initDisplay(void)
 {
     // mcu-renderer
 #if defined(DISPLAY_MONOCHROME)
@@ -284,10 +284,6 @@ static void updateDisplayTitle(void)
 }
 
 // Display backlight
-
-void initDisplayBacklight(void)
-{
-}
 
 void setDisplayBacklight(bool value)
 {

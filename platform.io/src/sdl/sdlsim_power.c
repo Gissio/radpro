@@ -21,12 +21,12 @@ void setPower(bool value)
 {
 }
 
-bool isDevicePowered(void)
+bool isUSBPowered(void)
 {
     return false;
 }
 
-bool isBatteryCharging(void)
+bool isChargingBattery(void)
 {
     return false;
 }

@@ -116,7 +116,6 @@
 // Pulses menu items
 #define STRING_SOUND "音"
 #define STRING_VIBRATION "振動"
-#define STRING_ALERT_LED "警告LED"
 #define STRING_PULSE_LED "パルスLED"
 #define STRING_DISPLAY_FLASH "表示点滅"
 #define STRING_THRESHOLD "閾値"
@@ -129,8 +128,9 @@
 // Alarms menu items
 #define STRING_RATE_ALARM "率アラーム"
 #define STRING_DOSE_ALARM "線量アラーム"
-#define STRING_OVERRANGE_ALARM "範囲外アラーム"
 #define STRING_INDICATION "表示"
+#define STRING_VOICE "音声"
+#define STRING_VOLUME "音量"
 
 // Measurements menu items
 #define STRING_UNITS "単位"

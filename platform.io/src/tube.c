@@ -17,8 +17,6 @@
 #include "tube.h"
 #include "vibration.h"
 
-#define OVERRANGE_FACTOR 1.1F
-
 static const Menu tubeMenu;
 static const Menu tubeSensitivityMenu;
 static const Menu tubeDeadTimeCompensationMenu;
@@ -43,8 +41,8 @@ static void onTubeHVGeneratorSubMenuBack(const Menu *menu);
 
 static struct
 {
-    float hvFrequency;
-    float hvDutyCycle;
+    float pwmFrequency;
+    float pwmDutyCycle;
 } tube;
 
 #endif
@@ -52,17 +50,17 @@ static struct
 void initTube(void)
 {
 #if defined(TUBE_HV_PWM)
-    tube.hvFrequency = getTubeHVCustomProfileFrequency(
+    tube.pwmFrequency = getTubeHVCustomProfileFrequency(
         (settings.tubeHVFrequency >= TUBE_HVFREQUENCY_NUM)
             ? TUBE_HVFREQUENCY_NUM - 1
             : settings.tubeHVFrequency);
-    tube.hvDutyCycle = getTubeHVCustomProfileDutyCycle(
+    tube.pwmDutyCycle = getTubeHVCustomProfileDutyCycle(
         (settings.tubeHVDutyCycle >= TUBE_HVDUTYCYCLE_NUM)
             ? TUBE_HVDUTYCYCLE_NUM - 1
             : settings.tubeHVDutyCycle);
 #endif
 
-    initTubeController();
+    initTubeHardware();
 }
 
 void resetTube(void)
@@ -122,7 +120,7 @@ float getTubeHVFrequency(void)
 #endif
 
     case TUBE_HVPROFILE_CUSTOM:
-        return tube.hvFrequency;
+        return tube.pwmFrequency;
 
     default:
         return 1250;
@@ -134,7 +132,7 @@ bool setTubeHVFrequency(float value)
     if ((value > 100000.0F) || (value < 100.0F))
         return false;
 
-    tube.hvFrequency = value;
+    tube.pwmFrequency = value;
 
     int32_t tubeHVFrequency = log2f(value / 1250);
     settings.tubeHVProfile = TUBE_HVPROFILE_CUSTOM;
@@ -213,7 +211,7 @@ float getTubeHVDutyCycle(void)
 #endif
 
     case TUBE_HVPROFILE_CUSTOM:
-        return tube.hvDutyCycle;
+        return tube.pwmDutyCycle;
 
     default:
         return 0;
@@ -225,7 +223,7 @@ bool setTubeHVDutyCycle(float value)
     if ((value > 1) || (value < 0))
         return false;
 
-    tube.hvDutyCycle = value;
+    tube.pwmDutyCycle = value;
 
     int32_t tubeHVDutyCycle = (value - TUBE_HVDUTYCYCLE_MIN / 2) /
                               TUBE_HVDUTYCYCLE_STEP;
@@ -548,16 +546,6 @@ static float getTubeDeadTimeCompensationFromIndex(uint32_t index)
 float getTubeDeadTimeCompensation(void)
 {
     return getTubeDeadTimeCompensationFromIndex(settings.tubeDeadTimeCompensation);
-}
-
-float getOverrangeRate(void)
-{
-    float deadTimeCompensation = getTubeDeadTimeCompensation();
-
-    if (deadTimeCompensation < TUBE_DEADTIMECOMPENSATION_MIN)
-        return 1E6;
-    else 
-        return ((OVERRANGE_FACTOR - 1.0F) / OVERRANGE_FACTOR) / deadTimeCompensation;
 }
 
 static const char *onTubeDeadTimeCompensationMenuGetOption(const Menu *menu,

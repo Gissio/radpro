@@ -1,32 +1,42 @@
 # GQ GMC-800 MCU Pinout
 
-* PA0: Output
-* PA1: TUBE_DET
-* PA2: Output (used in voice download)
-* PA3: Input (used for waiting?)
-* PA4: SPI_NSS
-* PA5: SPI_SCK
-* PA6: SPI_MISO
-* PA7: SPI_MOSI
-* PA9: USART_TX
-* PA10: USART_RX
+* PA0 (Output): EXTFLASH_CS
+* PA1 (Input pull-up): TUBE_DET
+* PA2 (Output): VOICE_TX
+* PA3 (Input pull-up): VOICE_BUSY
+* PA4 (Output): DISPLAY_CSX
+* PA5 (AF): SPI_SCK
+* PA6 (AF): SPI_MISO
+* PA7 (AF): SPI_MOSI
+* PA9 (AF): USART_TX
+* PA10 (Input): USART_RX
+* PA13 (SWDIO): SWD data
+* PA14 (SWCLK): SWD clock
 
-* PB0: PWR_? Output
-* PB1: BUZZ
-* PB3: LED1 (Tick?)
-* PB4: LED2 (Alert?)
-* PB5: M_VIB 
-* PB6: AUDIO (Used in voice download)
-* PB10: KEY_POWER?
-* PB11: PWR_EN?
-* PB13: KEY_?
-* PB14: KEY_?
-* PB15: KEY_?
+* PB0 (AF): DISPLAY_BACKLIGHT (TIM3_CH3)
+* PB1 (Output): BUZZ_EN
+* PB3 (Output): LED_PULSE_EN
+* PB4 (Output): LED_ALERT_EN
+* PB5 (Output): M_VIB
+* PB6 (Output): VOICE_DOWNLOAD
+* PB8 (Output/AF): TUBE_HV (TIM4_CH3)
+* PB10 (Input pull-down): KEY_POWER
+* PB11 (Output): DISPLAY_DCX
+* PB12 (Input pull-up): PWR_CHRG
+* PB13 (Input pull-up): KEY_DOWN
+* PB14 (Input pull-up): KEY_UP
+* PB15 (Input pull-up): KEY_BACK
 
-* PC0: RESET
-* PC1: PWR_USB
-* PC3: ?
-* PC4: PWR_?
-* PC6: Output?
+* PC0 (Output): USART_RESET
+* PC1 (Input): PWR_USB
+* PC3 (Output): PWR_EN
+* PC4 (Analog): PWR_BAT
+* PC6 (Output): DISPLAY_RESET
+* PC7 (AF): ?
+* PC8 (AF): ?
+* PC9 (AF): ?
 
-* PD2: Assert BOOT0?
+* PD2 (Output): USART_BOOT0
+
+---
+* PA15 (Input pull-down): ?

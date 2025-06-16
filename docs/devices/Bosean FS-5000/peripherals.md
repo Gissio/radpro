@@ -1,7 +1,7 @@
 # Bosean FS-5000 MCU Pinout
 
 * PA0-PA7 (Output): DISPLAY_DATA
-* PA8 (Input, floating): PWR_CHRG
+* PA8 (Input): PWR_CHRG
 * PA9 (AF7): USART_TX
 * PA10 (AF7): USART_RX
 * PA12 (Output): DISPLAY_POWER
@@ -23,12 +23,12 @@
 * PB14 (AF5): FLASH_MISO
 * PB15 (AF5): FLASH_MOSI
 
-* PC1 (Input, floating): PWR_BAT
+* PC1 (Input): PWR_BAT
 * PC4 (Output): DISPLAY_WRX
 * PC5 (Output): DISPLAY_RDX
 * PC6 (Output): PWR_VCC
 * PC7 (Input, pull-down): PWR_STDBY
-* PC8 (Input, floating): KEY_POWER
+* PC8 (Input): KEY_POWER
 * PC9 (Output): M_VIB
 * PC12 (Input, pull-up): KEY_RIGHT
 

@@ -22,11 +22,15 @@ Follow these steps to start installing Rad Pro on your FNIRSI GC-01/JOY-IT JT-RA
 
 ## Step 2: Flash the firmware
 
-Now, download and unzip the latest `radpro-[version].zip` from the [Rad Pro releases](https://github.com/Gissio/radpro/releases). Go to the `fnirsi` folder, then to the `install` subfolder, and select the appropriate firmware file: `radpro-fnirsi-gc01_[mcu]-[language]-x.y.z-install.bin`.
+Download the `radpro-fnirsi-gc01-[mcu]-x.y.z-install.bin` firmware file from the [Rad Pro releases](https://github.com/Gissio/radpro/releases).
+
+`[mcu]` is the type of microprocessor of your device: `ch32f103r8t6` or `apm32f103rbt6`.
+
+<!-- Now, download and unzip the latest `radpro-[version].zip` from the [Rad Pro releases](https://github.com/Gissio/radpro/releases). Go to the `fnirsi` folder, then to the `install` subfolder, and select the appropriate firmware file: `radpro-fnirsi-gc01_[mcu]-[language]-x.y.z-install.bin`.
 
 `[mcu]` is your device's microprocessor type: `ch32f103r8t6` or `apm32f103rbt6`.
 
-`[language]` is the two-letter code for your preferred firmware language (e.g. `en` for English).
+`[language]` is the two-letter code for your preferred firmware language (e.g. `en` for English). -->
 
 Next:
 

@@ -14,21 +14,16 @@
 #include "../comm.h"
 #include "../cstring.h"
 #include "../events.h"
+#include "../power.h"
 #include "../system.h"
 
 #define COMM_SERIAL_BAUDRATE 115200
 
 #if defined(USART_INTERFACE)
 
-static struct
-{
-    bool enabled;
-    char lastChar;
-} commController;
-
 void openComm(void)
 {
-    if (commController.enabled)
+    if (comm.enabled)
         return;
 
     // GPIO
@@ -62,12 +57,15 @@ void openComm(void)
     NVIC_SetPriority(USART_IRQ, 0x80);
     NVIC_EnableIRQ(USART_IRQ);
 
-    commController.enabled = true;
+    comm.state = COMM_RX;
+    comm.bufferIndex = 0;
+    comm.sendingDatalog = false;
+    comm.enabled = true;
 }
 
 void closeComm(void)
 {
-    if (!commController.enabled)
+    if (!comm.enabled)
         return;
 
     // USART
@@ -75,6 +73,8 @@ void closeComm(void)
 
     usart_disable_receive_interrupt(USART_INTERFACE);
     usart_disable_transmit_interrupt(USART_INTERFACE);
+
+    rcc_disable_usart(USART_INTERFACE);
 
     // GPIO
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
@@ -87,18 +87,13 @@ void closeComm(void)
 #elif defined(STM32F1)
     gpio_setup(USART_RX_PORT,
                USART_RX_PIN,
-               GPIO_MODE_INPUT_ANALOG);
+               GPIO_MODE_INPUT_FLOATING);
     gpio_setup(USART_TX_PORT,
                USART_TX_PIN,
-               GPIO_MODE_INPUT_ANALOG);
+               GPIO_MODE_INPUT_FLOATING);
 #endif
 
-    commController.enabled = false;
-}
-
-bool isCommOpen(void)
-{
-    return commController.enabled;
+    comm.enabled = false;
 }
 
 void transmitComm(void)
@@ -111,6 +106,9 @@ void transmitComm(void)
 
 void USART_IRQ_HANDLER(void)
 {
+    if (!comm.enabled)
+        return;
+
     char c;
 
     if (usart_is_receive_ready(USART_INTERFACE))
@@ -119,15 +117,14 @@ void USART_IRQ_HANDLER(void)
 
         comm.port = COMM_SERIAL;
 
-        if (comm.enabled &&
-            (comm.state == COMM_RX))
+        if (comm.state == COMM_RX)
         {
             if ((c >= ' ') &&
                 (comm.bufferIndex < (COMM_BUFFER_SIZE - 1)))
                 comm.buffer[comm.bufferIndex++] = c;
             else if ((c == '\r') ||
                      ((c == '\n') &&
-                      (commController.lastChar != '\r')))
+                      (comm.lastChar != '\r')))
             {
                 comm.buffer[comm.bufferIndex] = '\0';
 
@@ -135,7 +132,7 @@ void USART_IRQ_HANDLER(void)
                 comm.state = COMM_RX_READY;
             }
 
-            commController.lastChar = c;
+            comm.lastChar = c;
         }
     }
 
@@ -143,8 +140,7 @@ void USART_IRQ_HANDLER(void)
     {
         usart_clear_overrun(USART_INTERFACE);
 
-        if (comm.enabled &&
-            (comm.state == COMM_RX))
+        if (comm.state == COMM_RX)
         {
             // Invalidate command
             comm.buffer[0] = ' ';
@@ -182,10 +178,6 @@ void USART_IRQ_HANDLER(void)
         usart_disable_transmit_interrupt(USART_INTERFACE);
 }
 
-void updateCommController(void)
-{
-}
-
 #elif defined(USB_INTERFACE)
 
 #include "usb.h"
@@ -201,12 +193,6 @@ void updateCommController(void)
 #define USB_EP0_PACKETSIZE_MAX 0x08
 #define USB_DATA_PACKETSIZE_MAX 0x40
 #define USB_CONTROL_PACKETSIZE_MAX 0x08
-
-static struct
-{
-    bool enabled;
-    char lastChar;
-} commController;
 
 // Declaration of the report descriptor
 
@@ -436,7 +422,7 @@ static usbd_respond onUSBControl(usbd_device *dev,
     return usbd_fail;
 }
 
-static void onUsbData(usbd_device *dev,
+static void onUSBData(usbd_device *dev,
                       uint8_t event,
                       uint8_t ep)
 {
@@ -451,8 +437,7 @@ static void onUsbData(usbd_device *dev,
     else
         receivedBytes = 0;
 
-    if (comm.enabled &&
-        (comm.state == COMM_RX))
+    if (comm.state == COMM_RX)
     {
         for (int32_t i = 0;
              i < receivedBytes;
@@ -465,7 +450,7 @@ static void onUsbData(usbd_device *dev,
                 comm.buffer[comm.bufferIndex++] = c;
             else if ((c == '\r') ||
                      ((c == '\n') &&
-                      (commController.lastChar != '\r')))
+                      (comm.lastChar != '\r')))
             {
                 comm.buffer[comm.bufferIndex] = '\0';
 
@@ -473,7 +458,7 @@ static void onUsbData(usbd_device *dev,
                 comm.state = COMM_RX_READY;
             }
 
-            commController.lastChar = c;
+            comm.lastChar = c;
         }
     }
 
@@ -531,8 +516,8 @@ static usbd_respond onUSBConfigure(usbd_device *dev,
         usbd_ep_config(dev, USB_DATA_TRANSMIT_ENDPOINT, USB_EPTYPE_BULK, USB_DATA_PACKETSIZE_MAX);
         usbd_ep_config(dev, USB_CONTROL_ENDPOINT, USB_EPTYPE_INTERRUPT, USB_CONTROL_PACKETSIZE_MAX);
 
-        usbd_reg_endpoint(dev, USB_DATA_RECEIVE_ENDPOINT, onUsbData);
-        usbd_reg_endpoint(dev, USB_DATA_TRANSMIT_ENDPOINT, onUsbData);
+        usbd_reg_endpoint(dev, USB_DATA_RECEIVE_ENDPOINT, onUSBData);
+        usbd_reg_endpoint(dev, USB_DATA_TRANSMIT_ENDPOINT, onUSBData);
 
         return usbd_ack;
 
@@ -553,7 +538,7 @@ void USB_IRQ_HANDLER(void)
 
 void openComm(void)
 {
-    if (commController.enabled)
+    if (comm.enabled)
         return;
 
     // Force USB device reenumeration
@@ -578,12 +563,15 @@ void openComm(void)
     usbd_enable(&usbdDevice, true);
     usbd_connect(&usbdDevice, true);
 
-    commController.enabled = true;
+    comm.state = COMM_RX;
+    comm.bufferIndex = 0;
+    comm.sendingDatalog = false;
+    comm.enabled = true;
 }
 
 void closeComm(void)
 {
-    if (!commController.enabled)
+    if (!comm.enabled)
         return;
 
     NVIC_DisableIRQ(USB_IRQ);
@@ -591,31 +579,19 @@ void closeComm(void)
     usbd_connect(&usbdDevice, false);
     usbd_enable(&usbdDevice, false);
 
-    commController.enabled = false;
-}
-
-bool isCommOpen(void)
-{
-    return commController.enabled;
-}
-
-void updateCommController(void)
-{
+    comm.enabled = false;
 }
 
 #else
 
 void openComm(void)
 {
+    comm.enabled = true;
 }
 
 void closeComm(void)
 {
-}
-
-bool isCommOpen(void)
-{
-    return false;
+    comm.enabled = false;
 }
 
 void transmitComm(void)
@@ -623,10 +599,20 @@ void transmitComm(void)
     comm.state = COMM_RX;
 }
 
-void updateCommController(void)
-{
-}
-
 #endif
+
+void updateComm(void)
+{
+#if !defined(DATA_MODE) && defined(PWR_USB)
+    bool commShouldBeEnabled = isUSBPowered() && !isPoweredOff();
+    if (commShouldBeEnabled != comm.enabled)
+    {
+        if (comm.enabled)
+            openComm();
+        else
+            closeComm();
+    }
+#endif
+}
 
 #endif

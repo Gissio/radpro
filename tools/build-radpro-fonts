@@ -27,9 +27,8 @@ fi
 # Codepoint sets
 
 CODEPOINT_SET_LARGE=0x2e,0x30-0x39,0x2012
-CODEPOINT_SET_MONO_SYMBOLS=0x30-0x3e,0x41-0x46,0x49-0x4e,0x51-0x56
+CODEPOINT_SET_MONO_SYMBOLS=0x30-0x3e,0x41-0x46,0x49-0x4e,0x50-0x56
 CODEPOINT_SET_COLOR_SYMBOLS=0x30-0x3e,0x41-0x46
-CODEPOINT_SET_COLOR_NOCHARGING_SYMBOLS=0x30-0x34,0x3a-0x3e,0x41-0x46
 CODEPOINT_SET_COLOR_LOW_SYMBOLS=0x30-0x34,0x3a-0x3e
 
 # Common
@@ -41,7 +40,6 @@ python fontconv.py -s $CODEPOINT_SET_LARGE -p 118 -b 2 -a 113 -c 86 -n font_larg
 
 python fontconv.py -s $CODEPOINT_SET_MONO_SYMBOLS -n font_symbols "../fonts/RadPro-Symbols8.bdf" "../platform.io/src/fonts/font_mono_symbols.h"
 python fontconv.py -s $CODEPOINT_SET_COLOR_SYMBOLS -p 24 -b 4 -n font_symbols "../fonts/RadPro-Symbols.ttf" "../platform.io/src/fonts/font_color_symbols.h"
-python fontconv.py -s $CODEPOINT_SET_COLOR_NOCHARGING_SYMBOLS -p 24 -b 4 -n font_symbols "../fonts/RadPro-Symbols.ttf" "../platform.io/src/fonts/font_color_nocharging_symbols.h"
 python fontconv.py -s $CODEPOINT_SET_COLOR_LOW_SYMBOLS -p 24 -b 2 -n font_symbols "../fonts/RadPro-Symbols.ttf" "../platform.io/src/fonts/font_color_low_symbols.h"
 
 # Languages

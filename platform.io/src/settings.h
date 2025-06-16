@@ -21,6 +21,7 @@ typedef struct
     uint32_t pulseCount;
 } Dose;
 
+#if defined(BUZZER)
 enum
 {
     PULSE_SOUND_OFF,
@@ -36,34 +37,7 @@ enum
     PULSE_SOUND_ON_MASK = PULSE_SOUND_ON,
     PULSE_SOUND_TYPE_MASK = PULSE_SOUND_OFF_BEEPS,
 };
-
-#if defined(VIBRATION)
-enum
-{
-    PULSE_VIBRATION_OFF,
-    PULSE_VIBRATION_ON,
-
-    PULSE_VIBRATION_NUM,
-};
 #endif
-
-#if defined(PULSE_LED)
-enum
-{
-    PULSE_LED_OFF,
-    PULSE_LED_ON,
-
-    PULSE_LED_NUM,
-};
-#endif
-
-enum
-{
-    PULSE_DISPLAY_FLASH_OFF,
-    PULSE_DISPLAY_FLASH_ON,
-
-    PULSE_DISPLAY_FLASH_NUM,
-};
 
 enum
 {
@@ -160,16 +134,31 @@ enum
 
 enum
 {
+#if defined(BUZZER) || defined(VOICE)
     ALARMINDICATION_SOUND,
+#endif
+#if defined(VOICE)
+    ALARMINDICATION_VOICE,
+#endif
 #if defined(VIBRATION)
     ALARMINDICATION_VIBRATION,
 #endif
-#if defined(ALERT_LED) || defined(PULSE_LED)
-    ALARMINDICATION_ALERT_LED,
+#if defined(PULSE_LED) || defined(ALERT_LED) || defined(PULSE_CONTROL)
+    ALARMINDICATION_PULSE_LED,
 #endif
     ALARMINDICATION_DISPLAY_FLASH,
 
     ALARMINDICATION_NUM,
+};
+
+enum 
+{
+    ALARM_VOLUME_LOW,
+    ALARM_VOLUME_MEDIUM,
+    ALARM_VOLUME_HIGH,
+    ALARM_VOLUME_VERYHIGH,
+
+    ALARM_VOLUME_NUM,
 };
 
 enum
@@ -225,6 +214,12 @@ enum
 #endif
 #define TUBE_HVPROFILE_ENERGYSAVING_FREQUENCY 5000
 #define TUBE_HVPROFILE_ENERGYSAVING_DUTYCYCLE 0.015F
+#elif defined(GMC800)
+#define TUBE_SENSITIVITY_DEFAULT TUBE_SENSITIVITY_J321
+#define TUBE_HVPROFILE_FACTORYDEFAULT_FREQUENCY 2500
+#define TUBE_HVPROFILE_FACTORYDEFAULT_DUTYCYCLE 0.163F
+#define TUBE_HVPROFILE_ENERGYSAVING_FREQUENCY 2500
+#define TUBE_HVPROFILE_ENERGYSAVING_DUTYCYCLE 0.1F
 #endif
 
 enum
@@ -363,15 +358,6 @@ enum
 };
 #endif
 
-#if defined(DATA_MODE)
-enum
-{
-    DATAMODE_OFF,
-    DATAMODE_ON,
-
-    DATAMODE_NUM,
-};
-#endif
 
 enum
 {
@@ -391,11 +377,16 @@ typedef struct
 {
     unsigned int entryEmpty : 1;
 
+#if defined(PULSE_CONTROL)
+    unsigned int pulseSound : 1;
+#endif
+#if defined(BUZZER)
     unsigned int pulseSound : 3;
+#endif
 #if defined(VIBRATION)
     unsigned int pulseVibration : 1;
 #endif
-#if defined(PULSE_LED)
+#if defined(PULSE_LED) || defined(PULSE_CONTROL)
     unsigned int pulseLED : 1;
 #endif
     unsigned int pulseDisplayFlash : 1;
@@ -407,8 +398,10 @@ typedef struct
 
     unsigned int rateAlarm : 4;
     unsigned int doseAlarm : 4;
-    unsigned int overrangeAlarm : 1;
-    unsigned int alarmIndication : 4;
+    unsigned int alarmIndication : 5;
+#if defined(VOICE)
+    unsigned int alarmVolume : 2;
+#endif
 
     unsigned int tubeSensitivity : 8;
     unsigned int tubeDeadTimeCompensation : 7;
@@ -452,8 +445,6 @@ extern const View settingsMenuView;
 
 void initSettings(void);
 void resetSettings(void);
-
-void updateSettingsPeriod(void);
 
 void writeSettings(void);
 

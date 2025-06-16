@@ -116,7 +116,6 @@
 // Pulses menu items
 #define STRING_SOUND "Звук"
 #define STRING_VIBRATION "Вибрация"
-#define STRING_ALERT_LED "Светодиод за аларма"
 #define STRING_PULSE_LED "Светодиод за импулс"
 #define STRING_DISPLAY_FLASH "Мигане на дисплея"
 #define STRING_THRESHOLD "Праг"
@@ -129,8 +128,9 @@
 // Alarms menu items
 #define STRING_RATE_ALARM "Аларма за ниво"
 #define STRING_DOSE_ALARM "Аларма за доза"
-#define STRING_OVERRANGE_ALARM "Аларма за превишаване"
 #define STRING_INDICATION "Индикация"
+#define STRING_VOICE "Глас"
+#define STRING_VOLUME "Сила на звука"
 
 // Measurements menu items
 #define STRING_UNITS "Единици"
@@ -275,7 +275,7 @@
 
 #define STRING_TUBE "Детектор"
 #define STRING_LIFE_TIME "Живот"
-#define STRING_DEAD_TIME_SHORT "Мъртво вр."
+#define STRING_DEAD_TIME_SHORT "Мъртво в."
 #define STRING_DEVICE "Устройство"
 #define STRING_ID "ID"
 #define STRING_VOLTAGE_SHORT "Напр."

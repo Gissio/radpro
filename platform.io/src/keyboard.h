@@ -65,7 +65,7 @@ typedef enum
 #endif
 
 void initKeyboard(void);
-void initKeyboardController(void);
+void initKeyboardHardware(void);
 
 void getKeyboardState(bool *);
 

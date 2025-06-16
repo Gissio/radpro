@@ -161,7 +161,7 @@ static void updateGameBoard(void)
         }
     }
 
-    updateView();
+    requestViewUpdate();
 }
 
 static void onGameCallback(void *userdata)

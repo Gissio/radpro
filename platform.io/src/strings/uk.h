@@ -116,7 +116,6 @@
 // Pulses menu items
 #define STRING_SOUND "Звук"
 #define STRING_VIBRATION "Вібрація"
-#define STRING_ALERT_LED "Світлодіод тривоги"
 #define STRING_PULSE_LED "Світлодіод імпульсу"
 #define STRING_DISPLAY_FLASH "Спалах дисплея"
 #define STRING_THRESHOLD "Поріг"
@@ -129,8 +128,9 @@
 // Alarms menu items
 #define STRING_RATE_ALARM "Сигнал швидкості"
 #define STRING_DOSE_ALARM "Сигнал дози"
-#define STRING_OVERRANGE_ALARM "Сигнал перевищення"
 #define STRING_INDICATION "Індикація"
+#define STRING_VOICE "Голос"
+#define STRING_VOLUME "Гучність"
 
 // Measurements menu items
 #define STRING_UNITS "Одиниці"

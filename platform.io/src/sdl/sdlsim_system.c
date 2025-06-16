@@ -12,14 +12,51 @@
 #include <stdio.h>
 
 #include "../system.h"
+#include "../voice.h"
 
 void initSystem(void)
 {
 }
 
-uint32_t getDeviceId(void)
+void getDeviceId(char *str)
 {
-    return 0x08192A3B;
+    strcpy(str, "b5706d937087f975b5812810");
+}
+
+// Pulse control
+
+void initPulseControl(void)
+{
+}
+
+void updatePulseControl(void)
+{
+}
+
+// Voice
+
+void updateVoice(void)
+{
+}
+
+void startBootloader(void)
+{
+}
+
+void playVoiceInstantaneousRate(void)
+{
+}
+
+void playVoiceAverageRate(void)
+{
+}
+
+void playVoiceCumulativeDose(void)
+{
+}
+
+void playVoiceAlarm(void)
+{
 }
 
 #endif

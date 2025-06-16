@@ -116,7 +116,6 @@
 // Pulses menu items
 #define STRING_SOUND "Geluid"
 #define STRING_VIBRATION "Trilling"
-#define STRING_ALERT_LED "Waarschuwings-LED"
 #define STRING_PULSE_LED "Puls-LED"
 #define STRING_DISPLAY_FLASH "Schermflits"
 #define STRING_THRESHOLD "Drempel"
@@ -129,8 +128,9 @@
 // Alarms menu items
 #define STRING_RATE_ALARM "Snelheidsalarm"
 #define STRING_DOSE_ALARM "Dosisalarm"
-#define STRING_OVERRANGE_ALARM "Bereikalarm"
 #define STRING_INDICATION "Indicatie"
+#define STRING_VOICE "Stem"
+#define STRING_VOLUME "Volume"
 
 // Measurements menu items
 #define STRING_UNITS "Eenheden"

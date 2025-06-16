@@ -69,12 +69,12 @@ static void writeFlashImage(void)
     }
 }
 
-uint8_t *getFlashPage(uint8_t pageIndex)
+uint8_t *getFlashPage(PageIndex pageIndex)
 {
     return flashImage + pageIndex * FLASH_PAGE_SIZE;
 }
 
-void eraseFlashPage(uint8_t pageIndex)
+void eraseFlashPage(PageIndex pageIndex)
 {
     uint32_t address = pageIndex * FLASH_PAGE_SIZE;
 
@@ -85,7 +85,7 @@ void eraseFlashPage(uint8_t pageIndex)
     writeFlashImage();
 }
 
-void writeFlash(uint8_t pageIndex,
+void writeFlash(PageIndex pageIndex,
                 uint32_t index,
                 uint8_t *source,
                 uint32_t size)

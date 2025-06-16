@@ -21,6 +21,7 @@ typedef enum
     EVENT_KEY_TOGGLELOCK,
     EVENT_KEY_TOGGLEPULSECLICKS,
     EVENT_KEY_TOGGLEBACKLIGHT,
+    EVENT_KEY_PLAY,
 
     EVENT_DRAW,
     EVENT_POST_DRAW,
@@ -51,7 +52,7 @@ void dispatchViewEvents(void);
 void setView(const View *view);
 const View *getView(void);
 
+void requestViewUpdate(void);
 void updateView(void);
-void updateViewPeriod(void);
 
 #endif

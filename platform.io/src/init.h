@@ -14,9 +14,8 @@
 
 #include "view.h"
 
-void setPowerOnView(void);
-
-void setPowerOffView(void);
-bool isPowerOffViewActive(void);
+void powerOn(void);
+void powerOff(void);
+bool isPoweredOff(void);
 
 #endif
