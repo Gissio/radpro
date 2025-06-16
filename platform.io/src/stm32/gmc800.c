@@ -316,17 +316,14 @@ void updatePulseControl()
 
 // Voice
 
-uint32_t voiceBuffer[128];
+#define VOICE_BYTESHORT_TIME (0.005F + 0.0002F * 8 + 0.002F)
+#define VOICE_BYTELONG_TIME (0.005F + 0.0002F * 8 + 0.005F)
+#define VOICE_ENDMARK_TIME 0.005F
+#define VOICE_SAMPLE_PERIOD 0.0002F
+#define VOICE_BUFFER_TIME ((VOICE_BYTESHORT_TIME + VOICE_BYTELONG_TIME) * 8 + VOICE_ENDMARK_TIME)
+#define VOICE_BUFFER_SIZE (uint32_t)(VOICE_BUFFER_TIME / VOICE_SAMPLE_PERIOD)
 
-void initVoice(void)
-{
-    gpio_setup(VOICE_TX_PORT,
-               VOICE_TX_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(VOICE_BUSY_PORT,
-               VOICE_BUSY_PIN,
-               GPIO_MODE_INPUT_PULLUP);
-}
+uint32_t voiceBuffer[VOICE_BUFFER_SIZE];
 
 static void startVoice(void)
 {
@@ -353,6 +350,16 @@ static void stopVoice(void)
     rcc_disable_tim(VOICE_TX_TIMER);
 }
 
+void initVoice(void)
+{
+    gpio_setup(VOICE_TX_PORT,
+               VOICE_TX_PIN,
+               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+    gpio_setup(VOICE_BUSY_PORT,
+               VOICE_BUSY_PIN,
+               GPIO_MODE_INPUT_PULLUP);
+}
+
 void updateVoice(void)
 {
 }
@@ -370,6 +377,10 @@ void playVoiceCumulativeDose(void)
 }
 
 void playVoiceAlarm(void)
+{
+}
+
+void playVoiceTest(void)
 {
 }
 

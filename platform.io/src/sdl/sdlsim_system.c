@@ -23,6 +23,10 @@ void getDeviceId(char *str)
     strcpy(str, "b5706d937087f975b5812810");
 }
 
+void startBootloader(void)
+{
+}
+
 // Pulse control
 
 void initPulseControl(void)
@@ -35,11 +39,11 @@ void updatePulseControl(void)
 
 // Voice
 
-void updateVoice(void)
+void initVoice(void)
 {
 }
 
-void startBootloader(void)
+void updateVoice(void)
 {
 }
 
@@ -56,6 +60,10 @@ void playVoiceCumulativeDose(void)
 }
 
 void playVoiceAlarm(void)
+{
+}
+
+void playVoiceTest(void)
 {
 }
 
