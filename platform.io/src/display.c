@@ -889,7 +889,7 @@ void drawTitleBar(const char *title,
 
 #if !defined(FONT_SYMBOLS_NOCHARGING)
     if (chargingBattery)
-        level += 5;
+        level += BATTERY_LEVEL_NUM;
 #endif
 
     strclr(buffer);

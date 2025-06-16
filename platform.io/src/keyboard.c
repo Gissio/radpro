@@ -11,8 +11,8 @@
 
 #include "cmath.h"
 #include "events.h"
-#include "init.h"
 #include "keyboard.h"
+#include "power.h"
 #include "settings.h"
 
 #if defined(KEYBOARD_2KEYS) || defined(KEYBOARD_3KEYS)

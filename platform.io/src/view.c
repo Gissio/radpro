@@ -9,7 +9,6 @@
 
 #include "display.h"
 #include "events.h"
-#include "init.h"
 #include "keyboard.h"
 #include "measurements.h"
 #include "power.h"

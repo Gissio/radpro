@@ -19,7 +19,6 @@
 #include "events.h"
 #include "flash.h"
 #include "game.h"
-#include "init.h"
 #include "keyboard.h"
 #include "led.h"
 #include "menu.h"

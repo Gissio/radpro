@@ -316,12 +316,12 @@ void updatePulseControl()
 
 // Voice
 
-#define VOICE_BYTESHORT_TIME (0.005F + 0.0002F * 8 + 0.002F)
-#define VOICE_BYTELONG_TIME (0.005F + 0.0002F * 8 + 0.005F)
-#define VOICE_ENDMARK_TIME 0.005F
-#define VOICE_SAMPLE_PERIOD 0.0002F
+#define VOICE_BYTESHORT_TIME (5000 + 800 * 8 + 2000)
+#define VOICE_BYTELONG_TIME (5000 + 800 * 8 + 5000)
+#define VOICE_ENDMARK_TIME 5000
+#define VOICE_SAMPLE_PERIOD 200
 #define VOICE_BUFFER_TIME ((VOICE_BYTESHORT_TIME + VOICE_BYTELONG_TIME) * 8 + VOICE_ENDMARK_TIME)
-#define VOICE_BUFFER_SIZE (uint32_t)(VOICE_BUFFER_TIME / VOICE_SAMPLE_PERIOD)
+#define VOICE_BUFFER_SIZE (VOICE_BUFFER_TIME / VOICE_SAMPLE_PERIOD)
 
 uint32_t voiceBuffer[VOICE_BUFFER_SIZE];
 
@@ -335,8 +335,8 @@ static void startVoice(void)
     uint32_t count = 1;
     dma_setup_mem32_to_peripheral(VOICE_TX_DMA,
                                   VOICE_TX_DMA_CHANNEL,
-                                  VOICE_TX_PORT->BSRR,
-                                  &voiceBuffer,
+                                  (uint32_t *)VOICE_TX_PORT->BSRR,
+                                  voiceBuffer,
                                   count);
     dma_enable(VOICE_TX_DMA_CHANNEL);
 }

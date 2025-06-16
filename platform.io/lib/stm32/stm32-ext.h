@@ -1782,11 +1782,11 @@ __STATIC_INLINE void dma_setup_mem32_to_peripheral(DMA_TypeDef *base,
                    (0b10 << DMA_CCR_PSIZE_Pos) |
                    (0b10 << DMA_CCR_MSIZE_Pos);
     channel->CNDTR = count;
-    channel->CMAR = source;
-    channel->CPAR = dest;
+    channel->CMAR = (uint32_t)source;
+    channel->CPAR = (uint32_t)dest;
 }
 
-__STATIC_INLINE void dma_is_active(DMA_Channel_TypeDef *channel)
+__STATIC_INLINE bool dma_is_active(DMA_Channel_TypeDef *channel)
 {
     return (channel->CNDTR != 0);
 }
