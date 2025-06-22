@@ -73,16 +73,6 @@ void strcatTime(char *str,
     strcatUInt32(str, seconds, 2);
 }
 
-static uint32_t getDecimalPower(uint32_t exponent)
-{
-    uint32_t value = 1;
-
-    for (; exponent > 0; exponent--)
-        value *= 10;
-
-    return value;
-}
-
 void strcatFloat(char *str,
                  float value,
                  uint32_t fractionalDecimals)

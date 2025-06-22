@@ -53,6 +53,8 @@ static void startADC(void)
 {
 #if (defined(STM32F0) && !defined(GD32)) || defined(STM32G0) || defined(STM32L4)
     adc_enable_vref_channel(ADC1);
+#elif (defined(STM32F0) && defined(GD32)) || defined(STM32F1)
+    adc_enable_temperature_vref_channel(ADC1);
 #endif
     adc_enable(ADC1);
 }
@@ -67,6 +69,8 @@ static void stopADC(void)
     adc_disable(ADC1);
 #if (defined(STM32F0) && !defined(GD32)) || defined(STM32G0) || defined(STM32L4)
     adc_disable_vref_channel(ADC1);
+#elif (defined(STM32F0) && defined(GD32)) || defined(STM32F1)
+    adc_disable_temperature_vref_channel(ADC1);
 #endif
 }
 

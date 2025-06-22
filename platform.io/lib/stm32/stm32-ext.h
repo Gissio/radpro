@@ -924,10 +924,13 @@ __STATIC_INLINE void exti_clear_pending_interrupt(uint8_t pin)
 
 // ADC
 
-#if defined(STM32F0)
+#if defined(STM32F0) && !defined(GD32)
 #define ADC_TEMP_CHANNEL 16
 #define ADC_VREF_CHANNEL 17
 #define ADC_VBAT_CHANNEL 18
+#elif defined(STM32F0) && defined(GD32)
+#define ADC_TEMP_CHANNEL 16
+#define ADC_VREF_CHANNEL 17
 #elif defined(STM32F1)
 #define ADC_TEMP_CHANNEL 16
 #define ADC_VREF_CHANNEL 17
@@ -1167,8 +1170,12 @@ __STATIC_INLINE void adc_enable_temperature_channel(ADC_TypeDef *base)
 {
 #if defined(STM32F0) || defined(STM32G0)
     set_bits(((ADC_Common_TypeDef *)((uint8_t *)base + 0x308))->CCR, ADC_CCR_TSEN);
+
+    STM32_EXT_USLEEP(0.000012);
 #elif defined(STM32L4)
     set_bits(((ADC_Common_TypeDef *)((uint8_t *)base + 0x300))->CCR, ADC_CCR_TSEN);
+
+    STM32_EXT_USLEEP(0.000012);
 #endif
 }
 
@@ -1185,8 +1192,12 @@ __STATIC_INLINE void adc_enable_temperature_vref_channel(ADC_TypeDef *base)
 {
 #if defined(STM32F0) && defined(GD32)
     set_bits(((ADC_GD32_TypeDef *)base)->CTL1, ADC_CTL1_TSVREN);
+
+    STM32_EXT_USLEEP(0.000012);
 #elif defined(STM32F1)
     set_bits(base->CR2, ADC_CR2_TSVREFE);
+
+    STM32_EXT_USLEEP(0.000012);
 #endif
 }
 
@@ -1359,8 +1370,6 @@ __STATIC_INLINE void tim_set_ontime(TIM_TypeDef *base,
 __STATIC_INLINE void tim_setup_pwm(TIM_TypeDef *base,
                                    uint32_t channel)
 {
-    rcc_enable_tim(base);
-
     switch (channel)
     {
     case TIM_CH1:
@@ -1404,11 +1413,9 @@ __STATIC_INLINE void tim_setup_linked(TIM_TypeDef *base_master,
                                       TIM_TypeDef *base_slave,
                                       uint8_t trigger_connection)
 {
-    rcc_enable_tim(base_master);
     set_bits(base_master->CR2, TIM_CR2_MMS_UPDATE);
     base_master->ARR = 0xffff;
 
-    rcc_enable_tim(base_slave);
     set_bits(base_slave->SMCR, (trigger_connection << TIM_SMCR_TS_Pos) | TIM_SMCR_SMS_ECM1);
     base_slave->ARR = 0xffff;
 
@@ -1417,8 +1424,6 @@ __STATIC_INLINE void tim_setup_linked(TIM_TypeDef *base_master,
 
 __STATIC_INLINE void tim_setup_dma(TIM_TypeDef *base)
 {
-    rcc_enable_tim(base);
-
     set_bits(base->DIER, TIM_DIER_UDE);
 }
 
@@ -1607,8 +1612,6 @@ __STATIC_INLINE void rtc_set_count(uint32_t value)
 __STATIC_INLINE void usart_setup_8n1(USART_TypeDef *base,
                                      uint32_t baud_rate)
 {
-    rcc_enable_usart(base);
-
     base->BRR = baud_rate;
     base->CR1 = USART_CR1_UE |       // Enable USART
                 USART_CR1_M_8BITS |  // 8 bits
@@ -1769,14 +1772,11 @@ __STATIC_INLINE void spi_send(SPI_TypeDef *base,
 
 // DMA
 
-__STATIC_INLINE void dma_setup_mem32_to_peripheral(DMA_TypeDef *base,
-                                                   DMA_Channel_TypeDef *channel,
-                                                   uint32_t *dest,
-                                                   uint32_t *source,
-                                                   uint32_t count)
+__STATIC_INLINE void dma_setup_memory32_to_peripheral32(DMA_Channel_TypeDef *channel,
+                                                        uint32_t *dest,
+                                                        uint32_t *source,
+                                                        uint32_t count)
 {
-    rcc_enable_dma(base);
-
     channel->CCR = DMA_CCR_DIR |
                    DMA_CCR_MINC |
                    (0b10 << DMA_CCR_PSIZE_Pos) |

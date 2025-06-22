@@ -53,15 +53,19 @@ int main(void)
     // System initialization
     initSystem();
     initEvents();
+    initPower();
     initFlash();
     initSettings();
-    initPower();
     initADC();
     initTube();
+    initComm();
     initKeyboard();
     initDisplay();
 #if defined(PULSE_CONTROL)
     initPulseControl();
+#endif
+#if defined(VOICE)
+    initVoice();
 #endif
 #if defined(BUZZER)
     initBuzzer();
@@ -78,11 +82,20 @@ int main(void)
     runTestMode();
 #endif
 
-#if !defined(KEYBOARD_POWERON_NOSLEEP)
-    sleep(1000);
-#endif
-
+#if defined(START_POWERON)
     powerOn();
+#else
+    // if (isPowerKeyDown())
+    // {
+        sleep(1000);
+        powerOn();
+    // }
+    // else
+    // {
+    //     setView(&powerOffView);
+    //     requestBacklightTrigger();
+    // }
+#endif
 
     // Main loop
 #if SIMULATOR

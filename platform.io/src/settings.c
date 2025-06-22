@@ -219,7 +219,7 @@ static const char *onSettingsMenuGetOption(const Menu *menu,
     if (index < ((sizeof(settingsMenuOptions) / sizeof(OptionView)) - 2))
         *menuStyle = MENUSTYLE_SUBMENU;
     else
-        *menuStyle = isCommOpen();
+        *menuStyle = settings.dataMode;
 #endif
 
     return settingsMenuOptions[index].option;
@@ -236,7 +236,8 @@ static void onSettingsMenuSelect(const Menu *menu)
         setView(settingsMenuOptions[selectedIndex].view);
     else
     {
-        if (!isCommOpen())
+        settings.dataMode = !settings.dataMode;
+        if (settings.dataMode)
             openComm();
         else
             closeComm();

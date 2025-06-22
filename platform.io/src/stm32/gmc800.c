@@ -14,6 +14,7 @@
 #include "../flash.h"
 #include "../keyboard.h"
 #include "../measurements.h"
+#include "../power.h"
 #include "../settings.h"
 #include "../system.h"
 
@@ -122,12 +123,11 @@ bool displayEnabled;
 static uint8_t displayTextbuffer[88 * 88];
 
 static const uint8_t displayInitSequence[] = {
+    MR_SEND_COMMAND(MR_ST7789_INVON),
     MR_SEND_COMMAND(MR_ST7789_GCTRL),
     MR_SEND_DATA(0x74), // // VGH 14.97 V, VGL -9.6 V
     MR_SEND_COMMAND(MR_ST7789_VCOMS),
     MR_SEND_DATA(0x1f), // VCOM=0.875 V
-    MR_SEND_COMMAND(MR_ST7789_VRHS),
-    MR_SEND_DATA(0x12), // VRH=4.45 V
     MR_SEND_COMMAND(MR_ST7789_PWCTRL1),
     MR_SEND_DATA(0xa4), // AVDD=6.8 V, AVCL=-4.8 V, VDDS=2.3 V
     MR_SEND_DATA(0xa1),
@@ -161,7 +161,6 @@ static const uint8_t displayInitSequence[] = {
     MR_SEND_DATA(0x1c),
     MR_SEND_DATA(0x22),
     MR_SEND_DATA(0x1f),
-    MR_SEND_COMMAND(MR_ST7789_INVON),
     MR_END(),
 };
 
@@ -283,9 +282,7 @@ void refreshDisplay(void)
 
 void initPulseControl(void)
 {
-    gpio_modify(BUZZ_EN_PORT,
-                BUZZ_EN_PIN,
-                true);
+    gpio_set(BUZZ_EN_PORT, BUZZ_EN_PIN);
 
     gpio_setup(PULSE_GREEN_EN_PORT,
                PULSE_GREEN_EN_PIN,
@@ -297,7 +294,7 @@ void initPulseControl(void)
 
 void updatePulseControl()
 {
-    if (settings.pulseSound)
+    if (settings.pulseSound && !isPoweredOff())
         gpio_setup(BUZZ_EN_PORT,
                    BUZZ_EN_PIN,
                    GPIO_MODE_INPUT_PULLUP);
@@ -308,80 +305,10 @@ void updatePulseControl()
 
     gpio_modify(PULSE_GREEN_EN_PORT,
                 PULSE_GREEN_EN_PIN,
-                settings.pulseLED && !isAlarm());
+                settings.pulseLED && !isAlarm() && !isPoweredOff());
     gpio_modify(PULSE_RED_EN_PORT,
                 PULSE_RED_EN_PIN,
-                settings.pulseLED && isAlarm());
-}
-
-// Voice
-
-#define VOICE_BYTESHORT_TIME (5000 + 800 * 8 + 2000)
-#define VOICE_BYTELONG_TIME (5000 + 800 * 8 + 5000)
-#define VOICE_ENDMARK_TIME 5000
-#define VOICE_SAMPLE_PERIOD 200
-#define VOICE_BUFFER_TIME ((VOICE_BYTESHORT_TIME + VOICE_BYTELONG_TIME) * 8 + VOICE_ENDMARK_TIME)
-#define VOICE_BUFFER_SIZE (VOICE_BUFFER_TIME / VOICE_SAMPLE_PERIOD)
-
-uint32_t voiceBuffer[VOICE_BUFFER_SIZE];
-
-static void startVoice(void)
-{
-    tim_setup_dma(VOICE_TX_TIMER);
-    tim_set_period(VOICE_TX_TIMER,
-                   VOICE_TX_TIMER_PERIOD);
-    tim_enable(VOICE_TX_TIMER);
-
-    uint32_t count = 1;
-    dma_setup_mem32_to_peripheral(VOICE_TX_DMA,
-                                  VOICE_TX_DMA_CHANNEL,
-                                  (uint32_t *)VOICE_TX_PORT->BSRR,
-                                  voiceBuffer,
-                                  count);
-    dma_enable(VOICE_TX_DMA_CHANNEL);
-}
-
-static void stopVoice(void)
-{
-    dma_disable(VOICE_TX_DMA_CHANNEL);
-    rcc_disable_dma(VOICE_TX_DMA);
-
-    tim_disable(VOICE_TX_TIMER);
-    rcc_disable_tim(VOICE_TX_TIMER);
-}
-
-void initVoice(void)
-{
-    gpio_setup(VOICE_TX_PORT,
-               VOICE_TX_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(VOICE_BUSY_PORT,
-               VOICE_BUSY_PIN,
-               GPIO_MODE_INPUT_PULLUP);
-}
-
-void updateVoice(void)
-{
-}
-
-void playVoiceInstantaneousRate(void)
-{
-}
-
-void playVoiceAverageRate(void)
-{
-}
-
-void playVoiceCumulativeDose(void)
-{
-}
-
-void playVoiceAlarm(void)
-{
-}
-
-void playVoiceTest(void)
-{
+                settings.pulseLED && isAlarm() && !isPoweredOff());
 }
 
 #endif

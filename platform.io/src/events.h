@@ -25,10 +25,9 @@ extern const View pulsesMenuView;
 
 extern float timerCountToSeconds;
 
-void resetEvents(void);
-
 void initEvents(void);
-void startEvents(void);
+void initEventsHardware(void);
+void resetEvents(void);
 
 void onTick(void);
 uint32_t getTick(void);
@@ -39,11 +38,11 @@ void dispatchEvents(void);
 
 float getTubeDeadTime(void);
 
-void requestDisplayBacklightTrigger(void);
-bool isDisplayBacklightTriggerRequested(void);
-void triggerDisplayBacklight(void);
-void cancelDisplayBacklight(void);
-bool isDisplayBacklightActive(void);
+void requestBacklightTrigger(void);
+bool isBacklightTriggerRequested(void);
+void triggerBacklight(void);
+void cancelBacklight(void);
+bool isBacklightActive(void);
 
 void setPulseThreshold(bool value);
 bool isPulseThresholdEnabled(void);

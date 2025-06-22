@@ -15,7 +15,7 @@
 
 float timerCountToSeconds = (1.0F / PULSE_MEASUREMENT_FREQUENCY);
 
-void initEvents(void)
+void initEventsHardware(void)
 {
 }
 

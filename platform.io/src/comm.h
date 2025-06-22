@@ -15,7 +15,7 @@
 
 #include "datalog.h"
 
-#define COMM_BUFFER_SIZE 128
+#define COMM_BUFFER_SIZE 64
 
 extern const char *const commId;
 
@@ -33,6 +33,14 @@ typedef enum
     COMM_TX_READY,
 } CommState;
 
+typedef enum
+{
+    TRANSMIT_DONE,
+    TRANSMIT_DEVICEID,
+    TRANSMIT_DATALOG,
+    TRANSMIT_BOOTLOADER,
+} TransmitState;
+
 typedef struct
 {
     // vvv These settings should remain fixed for SWD communications.
@@ -46,21 +54,19 @@ typedef struct
     volatile bool enabled;
     char lastChar;
 
-    bool sendingDatalog;
+    volatile TransmitState transmitState;
     uint32_t datalogTimeLimit;
-
-#if defined(START_BOOTLOADER)
-    bool startBootloader;
-#endif
 } Comm;
 
 extern Comm comm;
 
 extern const View dataModeMenuView;
 
+void initComm(void);
+
 void openComm(void);
 void closeComm(void);
-bool isCommOpen(void);
+void resetComm(bool enabled);
 
 void transmitComm(void);
 

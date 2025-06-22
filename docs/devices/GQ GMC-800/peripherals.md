@@ -18,7 +18,7 @@
 * PB3 (Output): LED_PULSE_EN
 * PB4 (Output): LED_ALERT_EN
 * PB5 (Output): M_VIB
-* PB6 (Output): VOICE_DOWNLOAD
+* PB6 (Output): VOICE_PROG
 * PB8 (Output/AF): TUBE_HV (TIM4_CH3)
 * PB10 (Input pull-down): KEY_POWER
 * PB11 (Output): DISPLAY_DCX
@@ -37,6 +37,3 @@
 * PC9 (AF): ?
 
 * PD2 (Output): USART_BOOT0
-
----
-* PA15 (Input pull-down): ?

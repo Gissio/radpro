@@ -36,6 +36,11 @@ static struct
 
 void initTubeHardware(void)
 {
+    // RCC
+    rcc_enable_tim(TUBE_HV_TIMER);
+    rcc_enable_tim(TUBE_DET_TIMER_MASTER);
+    rcc_enable_tim(TUBE_DET_TIMER_SLAVE);
+    
     // GPIO
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
 

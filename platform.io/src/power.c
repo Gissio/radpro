@@ -18,6 +18,7 @@
 #include "keyboard.h"
 #include "measurements.h"
 #include "power.h"
+#include "pulsecontrol.h"
 #include "rng.h"
 #include "rtc.h"
 #include "settings.h"
@@ -78,7 +79,7 @@ static void onPowerOnViewEvent(const View *view, Event event)
     }
 }
 
-static const View powerOnView = {
+const View powerOnView = {
     onPowerOnViewEvent,
     NULL,
 };
@@ -87,13 +88,6 @@ void powerOn(void)
 {
     // Power on
     setPower(true);
-
-    // Initialize modules
-    resetMeasurements();
-#if defined(GAME)
-    resetGame();
-#endif
-    resetDatalog();
 
     if (!verifyFlash())
     {
@@ -104,20 +98,27 @@ void powerOn(void)
     else
         powerOnViewState = POWERON_VIEW_SPLASH;
 
-    requestDisplayBacklightTrigger();
+    requestBacklightTrigger();
     triggerVibration();
-    startEvents();
+#if defined(PULSE_CONTROL)
+    updatePulseControl();
+#endif
 
-    // Reset modules
-    resetSettings();
+    // Reset
     resetEvents();
     resetPower();
+    resetSettings();
+    resetMeasurements();
     resetTube();
     resetDisplay();
     resetDatalog();
     resetRTC();
     resetRNG();
+#if defined(GAME)
+    resetGame();
+#endif
 
+    // Set view
     setView(&powerOnView);
 }
 
@@ -127,24 +128,27 @@ static void onPowerOffViewEvent(const View *view, Event event)
 {
 }
 
-static const View powerOffView = {
+const View powerOffView = {
     onPowerOffViewEvent,
     NULL,
 };
 
 void powerOff(void)
 {
-    // Stop measurements
-    closeDatalog();
-    writeSettings();
+    // Set view
+    setView(&powerOffView);
 
+    // Power off
+    writeSettings();
+    closeDatalog();
     closeComm();
     disableMeasurements();
     setTubeHV(false);
-    cancelDisplayBacklight();
+#if defined(PULSE_CONTROL)
+    updatePulseControl();
+#endif
+    cancelBacklight();
 
-    // Power off
-    setView(&powerOffView);
     setPower(false);
 }
 

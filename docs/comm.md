@@ -174,7 +174,7 @@ Returns a measured upper bound of the tube's dead time in seconds, provided in d
 Example:
 
     GET tubeDeadTime
-    OK 0.0002425
+    OK 0.0002420
 
 ### Get tube dead-time compensation
 

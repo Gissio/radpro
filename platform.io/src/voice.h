@@ -13,10 +13,12 @@
 void initVoice(void);
 void updateVoice(void);
 
+void updateVoiceVolume(void);
+
 void playVoiceInstantaneousRate(void);
 void playVoiceAverageRate(void);
 void playVoiceCumulativeDose(void);
+
 void playVoiceAlarm(void);
-void playVoiceTest(void);
 
 #endif

@@ -17,6 +17,9 @@
 
 #define BATTERY_LEVEL_NUM 5
 
+extern const View powerOnView;
+extern const View powerOffView;
+
 extern const View batteryTypeMenuView;
 
 void initPower(void);

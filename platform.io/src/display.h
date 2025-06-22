@@ -58,7 +58,7 @@ void resetDisplay(void);
 void enableDisplay(bool value);
 bool isDisplayEnabled(void);
 
-void setDisplayBacklight(bool value);
+void setBacklight(bool value);
 
 void updateDisplayContrast(void);
 

@@ -15,6 +15,7 @@
 
 void initVibration(void)
 {
+    // GPIO
     setVibration(false);
 
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)

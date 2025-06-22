@@ -16,32 +16,14 @@
 #include "settings.h"
 #include "view.h"
 
-typedef struct
-{
-    const char *name;
-    float scale;
-} Unit;
-
-typedef struct
-{
-    Unit rate;
-    Unit dose;
-} Units;
-
-extern Units units[];
-extern const int8_t unitsMinMetricPrefixIndex[];
-
-extern const View instantaneousRateView;
-extern const View averageRateView;
-extern const View cumulativeDoseView;
-extern const View historyView;
-
 extern const View alarmsMenuView;
 extern const View measurementsMenuView;
 
 void resetMeasurements(void);
 
 void updateMeasurementUnits(void);
+float getCurrentRateFactor(void);
+float getCurrentDoseFactor(void);
 
 void enableMeasurements(void);
 void disableMeasurements(void);
@@ -53,6 +35,8 @@ void updateMeasurements(void);
 void setMeasurementView(int32_t index);
 
 float getInstantaneousRate(void);
+
+float getAverageRate(void);
 
 void setCumulativeDoseTime(uint32_t value);
 uint32_t getCumulativeDoseTime(void);

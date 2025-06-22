@@ -21,10 +21,17 @@
 
 #if defined(USART_INTERFACE)
 
+void initComm(void)
+{
+}
+
 void openComm(void)
 {
     if (comm.enabled)
         return;
+
+    // RCC
+    rcc_enable_usart(USART_INTERFACE);
 
     // GPIO
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
@@ -51,16 +58,14 @@ void openComm(void)
 
     // USART
     usart_setup_8n1(USART_INTERFACE,
-                    (USART_APB_FREQUENCY + COMM_SERIAL_BAUDRATE / 2) / COMM_SERIAL_BAUDRATE);
+                    (USART_APB_FREQUENCY + COMM_SERIAL_BAUDRATE / 2) /
+                        COMM_SERIAL_BAUDRATE);
     usart_enable_receive_interrupt(USART_INTERFACE);
 
     NVIC_SetPriority(USART_IRQ, 0x80);
     NVIC_EnableIRQ(USART_IRQ);
 
-    comm.state = COMM_RX;
-    comm.bufferIndex = 0;
-    comm.sendingDatalog = false;
-    comm.enabled = true;
+    resetComm(true);
 }
 
 void closeComm(void)
@@ -73,8 +78,6 @@ void closeComm(void)
 
     usart_disable_receive_interrupt(USART_INTERFACE);
     usart_disable_transmit_interrupt(USART_INTERFACE);
-
-    rcc_disable_usart(USART_INTERFACE);
 
     // GPIO
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
@@ -93,7 +96,25 @@ void closeComm(void)
                GPIO_MODE_INPUT_FLOATING);
 #endif
 
-    comm.enabled = false;
+    // RCC
+    rcc_disable_usart(USART_INTERFACE);
+
+    resetComm(false);
+}
+
+void updateComm(void)
+{
+#if !defined(DATA_MODE) && defined(PWR_USB)
+    bool commShouldBeEnabled = isUSBPowered() &&
+                               !isPoweredOff();
+    if (commShouldBeEnabled != comm.enabled)
+    {
+        if (commShouldBeEnabled)
+            openComm();
+        else
+            closeComm();
+    }
+#endif
 }
 
 void transmitComm(void)
@@ -106,34 +127,13 @@ void transmitComm(void)
 
 void USART_IRQ_HANDLER(void)
 {
-    if (!comm.enabled)
-        return;
-
-    char c;
+    int16_t c = -1;
 
     if (usart_is_receive_ready(USART_INTERFACE))
     {
         c = usart_receive(USART_INTERFACE);
 
         comm.port = COMM_SERIAL;
-
-        if (comm.state == COMM_RX)
-        {
-            if ((c >= ' ') &&
-                (comm.bufferIndex < (COMM_BUFFER_SIZE - 1)))
-                comm.buffer[comm.bufferIndex++] = c;
-            else if ((c == '\r') ||
-                     ((c == '\n') &&
-                      (comm.lastChar != '\r')))
-            {
-                comm.buffer[comm.bufferIndex] = '\0';
-
-                comm.bufferIndex = 0;
-                comm.state = COMM_RX_READY;
-            }
-
-            comm.lastChar = c;
-        }
     }
 
     if (usart_is_overrun(USART_INTERFACE))
@@ -148,34 +148,51 @@ void USART_IRQ_HANDLER(void)
         }
     }
 
-    if (usart_is_send_ready(USART_INTERFACE) &&
-        (comm.state == COMM_TX))
+    switch (comm.state)
     {
-        c = comm.buffer[comm.bufferIndex];
-
-        if (c != '\0')
+    case COMM_RX:
+        if ((c >= ' ') &&
+            (comm.bufferIndex < (COMM_BUFFER_SIZE - 1)))
+            comm.buffer[comm.bufferIndex++] = c;
+        else if ((c == '\r') ||
+                 ((c == '\n') &&
+                  (comm.lastChar != '\r')))
         {
-            usart_send(USART_INTERFACE,
-                       c);
+            comm.buffer[comm.bufferIndex] = '\0';
 
-            comm.bufferIndex++;
+            comm.bufferIndex = 0;
+            comm.state = COMM_RX_READY;
+        }
+        else if (c > 0)
+            comm.lastChar = c;
 
-            if (c == '\n')
+        break;
+
+    case COMM_TX:
+        if (usart_is_send_ready(USART_INTERFACE))
+        {
+            c = comm.buffer[comm.bufferIndex++];
+            if (c != '\0')
+                usart_send(USART_INTERFACE, c);
+            else
             {
+                usart_disable_transmit_interrupt(USART_INTERFACE);
+
+                strclr(comm.buffer);
                 comm.bufferIndex = 0;
-                comm.state = COMM_RX;
+
+                if (comm.transmitState == TRANSMIT_DONE)
+                    comm.state = COMM_RX;
+                else
+                    comm.state = COMM_TX_READY;
             }
         }
-        else
-        {
-            comm.bufferIndex = 0;
-            comm.state = COMM_TX_READY;
-        }
-    }
 
-    if ((comm.state != COMM_TX) &&
-        usart_is_transmit_interrupt_enabled(USART_INTERFACE))
-        usart_disable_transmit_interrupt(USART_INTERFACE);
+        break;
+
+    default:
+        break;
+    }
 }
 
 #elif defined(USB_INTERFACE)
@@ -437,8 +454,12 @@ static void onUSBData(usbd_device *dev,
     else
         receivedBytes = 0;
 
-    if (comm.state == COMM_RX)
+    if (!comm.enabled)
+        return;
+
+    switch (comm.state)
     {
+    case COMM_RX:
         for (int32_t i = 0;
              i < receivedBytes;
              i++)
@@ -456,23 +477,23 @@ static void onUSBData(usbd_device *dev,
 
                 comm.bufferIndex = 0;
                 comm.state = COMM_RX_READY;
+
+                // Dummy write to generate write interrupts
+                usbd_ep_write(dev,
+                              USB_DATA_TRANSMIT_ENDPOINT,
+                              NULL,
+                              0);
             }
 
             comm.lastChar = c;
         }
-    }
 
-    if ((comm.state == COMM_RX_READY) ||
-        (comm.state == COMM_TX_READY))
-    {
-        usbd_ep_write(dev,
-                      USB_DATA_TRANSMIT_ENDPOINT,
-                      NULL,
-                      0);
-    }
-    else if (comm.state == COMM_TX)
+        break;
+
+    case COMM_TX:
     {
         const char *sendBuffer = comm.buffer + comm.bufferIndex;
+
         int32_t sentBytes = usbd_ep_write(dev,
                                           USB_DATA_TRANSMIT_ENDPOINT,
                                           sendBuffer,
@@ -480,17 +501,28 @@ static void onUSBData(usbd_device *dev,
 
         comm.bufferIndex += sentBytes;
 
-        if ((comm.bufferIndex > 0) &&
-            (comm.buffer[comm.bufferIndex - 1] == '\n'))
+        if (comm.buffer[comm.bufferIndex] == '\0')
         {
+            strclr(comm.buffer);
             comm.bufferIndex = 0;
-            comm.state = COMM_RX;
+
+            if (comm.transmitState == TRANSMIT_DONE)
+                comm.state = COMM_RX;
+            else
+                comm.state = COMM_TX_READY;
         }
-        else if (comm.buffer[comm.bufferIndex] == '\0')
-        {
-            comm.bufferIndex = 0;
-            comm.state = COMM_TX_READY;
-        }
+
+        break;
+    }
+
+    case COMM_RX_READY:
+    case COMM_TX_READY:
+        usbd_ep_write(dev,
+                      USB_DATA_TRANSMIT_ENDPOINT,
+                      NULL,
+                      0);
+
+        break;
     }
 }
 
@@ -536,11 +568,8 @@ void USB_IRQ_HANDLER(void)
     usbd_poll(&usbdDevice);
 }
 
-void openComm(void)
+void initComm(void)
 {
-    if (comm.enabled)
-        return;
-
     // Force USB device reenumeration
     gpio_setup(USB_DP_PORT,
                USB_DP_PIN,
@@ -563,10 +592,15 @@ void openComm(void)
     usbd_enable(&usbdDevice, true);
     usbd_connect(&usbdDevice, true);
 
-    comm.state = COMM_RX;
-    comm.bufferIndex = 0;
-    comm.sendingDatalog = false;
-    comm.enabled = true;
+    resetComm(false);
+}
+
+void openComm(void)
+{
+    if (comm.enabled)
+        return;
+
+    resetComm(true);
 }
 
 void closeComm(void)
@@ -574,45 +608,40 @@ void closeComm(void)
     if (!comm.enabled)
         return;
 
-    NVIC_DisableIRQ(USB_IRQ);
+    resetComm(false);
+}
 
-    usbd_connect(&usbdDevice, false);
-    usbd_enable(&usbdDevice, false);
-
-    comm.enabled = false;
+void updateComm(void)
+{
 }
 
 #else
 
 void openComm(void)
 {
-    comm.enabled = true;
+    resetComm(true);
 }
 
 void closeComm(void)
 {
-    comm.enabled = false;
+    resetComm(false);
 }
 
 void transmitComm(void)
 {
-    comm.state = COMM_RX;
-}
+    strclr(comm.buffer);
+    comm.bufferIndex = 0;
 
-#endif
+    if (comm.transmitState == TRANSMIT_DONE)
+        comm.state = COMM_RX;
+    else
+        comm.state = COMM_TX_READY;
+}
 
 void updateComm(void)
 {
-#if !defined(DATA_MODE) && defined(PWR_USB)
-    bool commShouldBeEnabled = isUSBPowered() && !isPoweredOff();
-    if (commShouldBeEnabled != comm.enabled)
-    {
-        if (comm.enabled)
-            openComm();
-        else
-            closeComm();
-    }
-#endif
 }
+
+#endif
 
 #endif

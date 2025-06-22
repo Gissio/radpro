@@ -12,7 +12,7 @@ New features:
 
 Improvements:
 * GQ GMC-800 clicks improvement: Fixes a hardware issue, ensuring consistent pulse clicks at high levels of radiation.
-* Power management: The device turns now on when the battery falls critically low.
+* Power management: connecting a device to USB now doesn't turn the device on; when the battery falls critically low, the device turns now off; the battery indicator is now colored green when charging and red when low on battery.
 * Sensitivity range: Extended to 1-10,000 cpm/µSv/h to support low-sensitivity Geiger tubes (e.g., SI-3BG).
 * Dead-time compensation: Extended range to 5-500 µs for compatibility with scintillation detectors.
 * Loss-of-count detection: Now dynamically adjusts based on selected sensitivity.

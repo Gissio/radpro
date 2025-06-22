@@ -37,19 +37,3 @@ const View statisticsView = {
     onStatisticsViewEvent,
     NULL,
 };
-
-// Lock view
-
-bool systemLockMode;
-
-void setLockMode(bool value)
-{
-    systemLockMode = value;
-
-    triggerVibration();
-}
-
-bool isLockMode(void)
-{
-    return systemLockMode;
-}

@@ -15,6 +15,7 @@
 
 void initLED(void)
 {
+    // GPIO
 #if defined(PULSE_LED)
     setPulseLED(false);
 #endif

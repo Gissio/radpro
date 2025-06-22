@@ -18,8 +18,8 @@
 #include "menu.h"
 #include "pulsecontrol.h"
 #include "settings.h"
-#include "system.h"
 #include "tube.h"
+#include "view.h"
 #include "voice.h"
 
 #define ALERTZONE1_USVH 1.0E-6F
@@ -242,6 +242,11 @@ static const float averagingConfidences[] = {
     0.0105F, // ±1% confidence
 };
 
+static const View instantaneousRateView;
+static const View averageRateView;
+static const View cumulativeDoseView;
+static const View historyView;
+
 static const Menu alarmsMenu;
 static const Menu rateAlarmMenu;
 static const Menu doseAlarmMenu;
@@ -266,7 +271,7 @@ static void resetHistory(void);
 
 // Measurements
 
-const View *const measurementViews[] = {
+static const View *const measurementViews[] = {
     &instantaneousRateView,
     &averageRateView,
     &cumulativeDoseView,
@@ -325,6 +330,18 @@ void resetMeasurements(void)
 
 // Measurement events
 
+typedef struct
+{
+    const char *name;
+    float scale;
+} Unit;
+
+typedef struct
+{
+    Unit rate;
+    Unit dose;
+} Units;
+
 Units units[] = {
     {{getString(STRING_SVH), (60 * 1E-6F)},
      {getString(STRING_SV), (60 * 1E-6F / 3600)}},
@@ -355,6 +372,16 @@ void updateMeasurementUnits(void)
         measurements.instantaneous.pulseIndicationFactor = PULSE_INDICATION_FACTOR_UNIT;
     else
         measurements.instantaneous.pulseIndicationFactor = (PULSE_INDICATION_FACTOR_UNIT * PULSE_INDICATION_SENSITIVITY_MAX) / sensitivity;
+}
+
+float getCurrentRateFactor(void)
+{
+    return units[settings.units].rate.scale;
+}
+
+float getCurrentDoseFactor(void)
+{
+    return units[settings.units].dose.scale;
 }
 
 static float getDeadTimeCompensationFactor(float value)
@@ -418,7 +445,10 @@ void disableMeasurements(void)
 
 void onMeasurementTick(uint32_t pulseCount)
 {
-    if (measurements.enabled && pulseCount)
+    if (!measurements.enabled)
+        return;
+
+    if (pulseCount)
     {
         measurements.tube.dose.pulseCount += pulseCount;
 
@@ -441,12 +471,12 @@ void onMeasurementTick(uint32_t pulseCount)
 
 void onMeasurementPeriod(void)
 {
-    if (measurements.enabled)
-    {
-        measurements.period.snapshotTick = getTick();
-        measurements.period.snapshotMeasurement = measurements.period.measurement;
-        measurements.period.measurement.pulseCount = 0;
-    }
+    if (!measurements.enabled)
+        return;
+
+    measurements.period.snapshotTick = getTick();
+    measurements.period.snapshotMeasurement = measurements.period.measurement;
+    measurements.period.measurement.pulseCount = 0;
 }
 
 uint8_t getHistoryValue(float value)
@@ -937,7 +967,7 @@ static void onInstantaneousRateViewEvent(const View *view,
     }
 }
 
-const View instantaneousRateView = {
+static const View instantaneousRateView = {
     onInstantaneousRateViewEvent,
     NULL,
 };
@@ -949,6 +979,11 @@ static void resetAverageRate(void)
     memset(&measurements.average,
            0,
            sizeof(measurements.average));
+}
+
+float getAverageRate(void)
+{
+    return measurements.average.timedRate.value;
 }
 
 static void onAverageRateViewEvent(const View *view,
@@ -1094,7 +1129,7 @@ static void onAverageRateViewEvent(const View *view,
     }
 }
 
-const View averageRateView = {
+static const View averageRateView = {
     onAverageRateViewEvent,
     NULL,
 };
@@ -1262,7 +1297,7 @@ static void onCumulativeDoseViewEvent(const View *view,
     }
 }
 
-const View cumulativeDoseView = {
+static const View cumulativeDoseView = {
     onCumulativeDoseViewEvent,
     NULL,
 };
@@ -1364,7 +1399,7 @@ static void onHistoryViewEvent(const View *view, Event event)
     }
 }
 
-const View historyView = {
+static const View historyView = {
     onHistoryViewEvent,
     NULL,
 };
@@ -1538,13 +1573,17 @@ static const char *onAlarmVolumeMenuGetOption(const Menu *menu,
 
 static void onAlarmVolumeMenuSelect(const Menu *menu)
 {
-    settings.alarmVolume = menu->state->selectedIndex;
+    uint32_t index = menu->state->selectedIndex;
+
+    settings.alarmVolume = index;
+
+    updateVoiceVolume();
 }
 
 static MenuState alarmVolumeMenuState;
 
 static const Menu alarmVolumeMenu = {
-    getString(STRING_BRIGHTNESS),
+    getString(STRING_VOLUME),
     &alarmVolumeMenuState,
     onAlarmVolumeMenuGetOption,
     onAlarmVolumeMenuSelect,

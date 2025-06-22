@@ -115,6 +115,6 @@ void runTestMode(void)
         refreshDisplay();
 
         enableDisplay(true);
-        setDisplayBacklight(true);
+        setBacklight(true);
     }
 }

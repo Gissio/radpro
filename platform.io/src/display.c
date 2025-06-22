@@ -22,6 +22,7 @@
 #include "settings.h"
 #include "system.h"
 #include "tube.h"
+#include "view.h"
 
 // Fonts
 

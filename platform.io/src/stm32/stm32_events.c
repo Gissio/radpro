@@ -19,7 +19,7 @@ extern volatile uint32_t eventsCurrentTick;
 
 float timerCountToSeconds = (1.0F / PULSE_MEASUREMENT_FREQUENCY);
 
-void initEvents(void)
+void initEventsHardware(void)
 {
     NVIC_SetPriority(SysTick_IRQn, 0xc0);
     SysTick->LOAD = AHB_FREQUENCY / SYSTICK_FREQUENCY - 1;
@@ -28,7 +28,7 @@ void initEvents(void)
                     SysTick_CTRL_TICKINT_Msk |
                     SysTick_CTRL_ENABLE_Msk;
 
-    // Set IWDG prescaler to divider /8
+    // Set IWDG prescaler to divider /256
     iwdg_unlock();
     wait_until_bits_clear(IWDG->SR, IWDG_SR_PVU);
     IWDG->PR = 0b110;
@@ -60,7 +60,7 @@ void sleep(uint32_t value)
 
 #if defined(USB_INTERFACE) && defined(DATA_MODE)
         // CH32F103R8T6 does not wake USB on IRQ
-        if (!isCommOpen())
+        if (!settings.dataMode)
             __asm volatile("wfi");
 #else
         __asm volatile("wfi");

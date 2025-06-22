@@ -9,8 +9,6 @@
 
 #if defined(STM32)
 
-#include "stm32.h"
-
 #include "../buzzer.h"
 #include "../display.h"
 #include "../events.h"

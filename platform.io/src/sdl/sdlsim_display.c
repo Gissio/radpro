@@ -285,7 +285,7 @@ static void updateDisplayTitle(void)
 
 // Display backlight
 
-void setDisplayBacklight(bool value)
+void setBacklight(bool value)
 {
     mr_sdl_set_backlight(
         &mr_sdl,

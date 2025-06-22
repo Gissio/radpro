@@ -21,6 +21,41 @@ void addClamped(uint32_t *px, uint32_t y)
         *px += y;
 }
 
+uint32_t getDecimalPower(int32_t exponent)
+{
+    uint32_t value = 1;
+
+    for (int32_t i = 0; i < exponent; i++)
+        value *= 10;
+
+    return value;
+}
+
+int32_t getDecimalExponent(uint32_t value)
+{
+    uint32_t powerOfTen = 1;
+    int32_t exponent = 0;
+
+    while (powerOfTen <= value)
+    {
+        powerOfTen *= 10;
+        exponent++;
+    }
+
+    return exponent;
+}
+
+uint32_t truncateMantissa(uint32_t value, int32_t mantissa)
+{
+    int32_t exponent = getDecimalExponent(value);
+    uint32_t decimalPower = getDecimalPower(exponent - mantissa);
+
+    // Round
+    value += 5 * decimalPower / 10;
+
+    return decimalPower * (value / decimalPower);
+}
+
 float getConfidenceInterval(uint32_t n)
 {
     // Patel, V. - Comparison of Confidence Intervals for the Poisson Mean: Some New Aspects (2012)

@@ -55,4 +55,7 @@ const View *getView(void);
 void requestViewUpdate(void);
 void updateView(void);
 
+void setLockMode(bool value);
+bool isLockMode(void);
+
 #endif

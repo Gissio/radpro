@@ -13,7 +13,6 @@
 #include "measurements.h"
 #include "power.h"
 #include "settings.h"
-#include "system.h"
 #include "view.h"
 
 static struct
@@ -76,16 +75,16 @@ void dispatchViewEvents(void)
                     view.currentView->onEvent(view.currentView, event);
 
                 if ((event == EVENT_KEY_TOGGLEBACKLIGHT) &&
-                    isDisplayBacklightActive())
-                    cancelDisplayBacklight();
+                    isBacklightActive())
+                    cancelBacklight();
                 else
-                    requestDisplayBacklightTrigger();
+                    requestBacklightTrigger();
             }
         }
     }
 
     // Pre-draw
-    if (isDisplayBacklightTriggerRequested())
+    if (isBacklightTriggerRequested())
         view.drawUpdate = true;
     else
     {
@@ -95,7 +94,7 @@ void dispatchViewEvents(void)
         bool isPulseFlashesActive = settings.pulseDisplayFlash &&
                                     !isPulseThresholdEnabled();
         bool isDisplayActive = !isPoweredOff() &&
-                               (isDisplayBacklightActive() ||
+                               (isBacklightActive() ||
                                 isPulseFlashesActive);
 #endif
 
@@ -120,8 +119,8 @@ void dispatchViewEvents(void)
         if (!isDisplayEnabled())
             enableDisplay(true);
 
-        if (isDisplayBacklightTriggerRequested())
-            triggerDisplayBacklight();
+        if (isBacklightTriggerRequested())
+            triggerBacklight();
 
         view.currentView->onEvent(view.currentView, EVENT_POST_DRAW);
     }
@@ -148,4 +147,20 @@ void updateView(void)
 {
     view.periodUpdate = true;
     view.drawUpdate = true;
+}
+
+// Lock view
+
+bool systemLockMode;
+
+void setLockMode(bool value)
+{
+    systemLockMode = value;
+
+    triggerVibration();
+}
+
+bool isLockMode(void)
+{
+    return systemLockMode;
 }

@@ -24,6 +24,10 @@ const char *const commId = "Rad Pro simulator;Rad Pro " FIRMWARE_VERSION;
 
 static ser_t *sercomm;
 
+void initComm(Void)
+{
+}
+
 void openComm(void)
 {
     if (comm.enabled)
@@ -57,10 +61,7 @@ void openComm(void)
         return;
     }
 
-    comm.state = COMM_RX;
-    comm.bufferIndex = 0;
-    comm.sendingDatalog = false;
-    comm.enabled = true;
+    resetComm(true);
 }
 
 void closeComm(void)
@@ -71,7 +72,7 @@ void closeComm(void)
     ser_close(sercomm);
     ser_destroy(sercomm);
 
-    comm.enabled = true;
+    resetComm(false);
 }
 
 void transmitComm(void)
@@ -81,9 +82,6 @@ void transmitComm(void)
 
 void updateComm(void)
 {
-    if (!comm.enabled)
-        return;
-
     char receiveBuffer[COMM_BUFFER_SIZE];
     size_t receivedBytes = 0;
 
@@ -92,8 +90,12 @@ void updateComm(void)
              COMM_BUFFER_SIZE,
              &receivedBytes);
 
-    if (comm.state == COMM_RX)
+    if (!comm.enabled)
+        return;
+
+    switch (comm.state)
     {
+    case COMM_RX:
         for (int32_t i = 0;
              i < receivedBytes;
              i++)
@@ -115,9 +117,10 @@ void updateComm(void)
 
             comm.lastChar = c;
         }
-    }
 
-    if (comm.state == COMM_TX)
+        break;
+
+    case COMM_TX:
     {
         char *sendBuffer = comm.buffer + comm.bufferIndex;
         size_t sentBytes = 0;
@@ -129,17 +132,19 @@ void updateComm(void)
 
         comm.bufferIndex += sentBytes;
 
-        if ((comm.bufferIndex > 0) &&
-            (comm.buffer[comm.bufferIndex - 1] == '\n'))
+        if (comm.buffer[comm.bufferIndex] == '\0')
         {
+            strclr(comm.buffer);
             comm.bufferIndex = 0;
-            comm.state = COMM_RX;
+
+            if (comm.transmitState == TRANSMIT_DONE)
+                comm.state = COMM_RX;
+            else
+                comm.state = COMM_TX_READY;
         }
-        else if (comm.buffer[comm.bufferIndex] == '\0')
-        {
-            comm.bufferIndex = 0;
-            comm.state = COMM_TX_READY;
-        }
+
+        break;
+    }
     }
 }
 
@@ -147,17 +152,23 @@ void updateComm(void)
 
 void openComm(void)
 {
-    comm.enabled = true;
+    resetComm(true);
 }
 
 void closeComm(void)
 {
-    comm.enabled = false;
+    resetComm(false);
 }
 
 void transmitComm(void)
 {
-    comm.state = COMM_RX;
+    strclr(comm.buffer);
+    comm.bufferIndex = 0;
+
+    if (comm.transmitState == TRANSMIT_DONE)
+        comm.state = COMM_RX;
+    else
+        comm.state = COMM_TX_READY;
 }
 
 void updateComm(void)

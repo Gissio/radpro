@@ -47,10 +47,12 @@ void initKeyboard(void)
 {
     initKeyboardHardware();
 
+#if defined(START_POWERON)
     getKeyboardState(keyboard.wasKeyPressed);
 
-    keyboard.pressedKey = KEY_NONE;
     keyboard.pressedTicks = ((uint32_t)(10.0 * SYSTICK_FREQUENCY / KEY_TICKS));
+#endif
+    keyboard.pressedKey = KEY_NONE;
     keyboard.isInitialized = true;
 }
 
@@ -72,10 +74,10 @@ void onKeyboardTick(void)
         {
 #if defined(DISPLAY_MONOCHROME)
             if ((settings.displaySleep != DISPLAY_SLEEP_ALWAYS_OFF) &&
-                !isDisplayBacklightActive() &&
+                !isBacklightActive() &&
                 !isPoweredOff())
 #elif defined(DISPLAY_COLOR)
-            if (!isDisplayBacklightActive() &&
+            if (!isBacklightActive() &&
                 !isPoweredOff())
 #endif
                 event = EVENT_KEY_TOGGLEBACKLIGHT;

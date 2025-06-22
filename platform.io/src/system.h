@@ -25,7 +25,6 @@ void initSystem(void);
 
 void getDeviceId(char *);
 
-void setLockMode(bool value);
-bool isLockMode(void);
+void startBootloader(void);
 
 #endif

@@ -24,6 +24,10 @@
 
 void initDebug(void)
 {
+    // RCC
+    rcc_enable_usart(DEBUG_USART_INTERFACE);
+
+    // GPIO
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
     gpio_setup_af(DEBUG_USART_TX_PORT,
                   DEBUG_USART_TX_PIN,
@@ -40,6 +44,7 @@ void initDebug(void)
                GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL);
 #endif
 
+    // USART
     usart_setup_8n1(DEBUG_USART_INTERFACE,
                     (DEBUG_USART_APB_FREQUENCY + DEBUG_USART_BAUDRATE / 2) / DEBUG_USART_BAUDRATE);
 }

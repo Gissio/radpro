@@ -31,6 +31,10 @@ float sqrtf(float x);
 
 void addClamped(uint32_t *x, uint32_t y);
 
+uint32_t getDecimalPower(int32_t exponent);
+int32_t getDecimalExponent(uint32_t value);
+uint32_t truncateMantissa(uint32_t value, int32_t mantissa);
+
 float getConfidenceInterval(uint32_t n);
 
 bool getRandomBit(void);

@@ -25,6 +25,7 @@ void getDeviceId(char *str)
 
 void startBootloader(void)
 {
+    printf("Starting bootloader...\n");
 }
 
 // Pulse control
@@ -47,6 +48,10 @@ void updateVoice(void)
 {
 }
 
+void updateVoiceVolume(uint32_t value)
+{
+}
+
 void playVoiceInstantaneousRate(void)
 {
 }
@@ -60,10 +65,6 @@ void playVoiceCumulativeDose(void)
 }
 
 void playVoiceAlarm(void)
-{
-}
-
-void playVoiceTest(void)
 {
 }
 
