@@ -29,9 +29,9 @@ static struct
 {
     bool enabled;
 
-    volatile uint32_t pulseQueueHead;
-    volatile uint32_t pulseQueueTail;
-    volatile uint32_t pulseQueue[TUBE_PULSE_QUEUE_SIZE];
+    volatile uint32_t pulseTimeQueueHead;
+    volatile uint32_t pulseTimeQueueTail;
+    volatile uint32_t pulseTimeQueue[TUBE_PULSE_QUEUE_SIZE];
 } tube;
 
 void initTubeHardware(void)
@@ -40,7 +40,7 @@ void initTubeHardware(void)
     rcc_enable_tim(TUBE_HV_TIMER);
     rcc_enable_tim(TUBE_DET_TIMER_MASTER);
     rcc_enable_tim(TUBE_DET_TIMER_SLAVE);
-    
+
     // GPIO
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
 
@@ -97,11 +97,13 @@ void initTubeHardware(void)
 #if defined(TUBE_HV_PWM)
     tim_setup_pwm(TUBE_HV_TIMER,
                   TUBE_HV_TIMER_CHANNEL);
+
     updateTubeHV();
+
     tim_enable(TUBE_HV_TIMER);
 #endif
 
-    // Pulse timer
+    // Pulse detection timer
     tim_setup_linked(TUBE_DET_TIMER_MASTER,
                      TUBE_DET_TIMER_SLAVE,
                      TUBE_DET_TIMER_TRIGGER_CONNECTION);
@@ -135,8 +137,8 @@ void updateTubeHV(void)
 #if defined(TUBE_HV_PWM)
     uint32_t period = TUBE_HV_FREQUENCY / getTubeHVFrequency();
     uint32_t onTime = tube.enabled
-                            ? period * getTubeHVDutyCycle() + 0.5F
-                            : 0;
+                          ? period * getTubeHVDutyCycle() + 0.5F
+                          : 0;
 
     // Get presacler factor
     uint32_t prescalerFactor = getGCD(period, onTime);
@@ -196,17 +198,17 @@ void TUBE_DET_IRQ_HANDLER(void)
             count |= countHigh2 << 16;
     }
 
-    tube.pulseQueue[tube.pulseQueueHead] = count;
-    tube.pulseQueueHead = (tube.pulseQueueHead + 1) & TUBE_PULSE_QUEUE_MASK;
+    tube.pulseTimeQueue[tube.pulseTimeQueueHead] = count;
+    tube.pulseTimeQueueHead = (tube.pulseTimeQueueHead + 1) & TUBE_PULSE_QUEUE_MASK;
 }
 
-bool getTubePulse(uint32_t *pulseTime)
+bool getTubePulseTime(uint32_t *pulseTime)
 {
-    if (tube.pulseQueueHead == tube.pulseQueueTail)
+    if (tube.pulseTimeQueueHead == tube.pulseTimeQueueTail)
         return false;
 
-    *pulseTime = tube.pulseQueue[tube.pulseQueueTail];
-    tube.pulseQueueTail = (tube.pulseQueueTail + 1) & TUBE_PULSE_QUEUE_MASK;
+    *pulseTime = tube.pulseTimeQueue[tube.pulseTimeQueueTail];
+    tube.pulseTimeQueueTail = (tube.pulseTimeQueueTail + 1) & TUBE_PULSE_QUEUE_MASK;
 
     return true;
 }

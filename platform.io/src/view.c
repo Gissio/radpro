@@ -19,20 +19,21 @@ static struct
 {
     const View *currentView;
 
-    bool periodUpdate;
     bool drawUpdate;
 } view;
 
+void initView(void)
+{
+    view.currentView = &powerOffView;
+
+#if defined(DISPLAY_MONOCHROME)
+    refreshDisplay();
+    enableDisplay(true);
+#endif
+}
+
 void dispatchViewEvents(void)
 {
-    // Period events
-    if (view.periodUpdate)
-    {
-        view.periodUpdate = false;
-
-        view.currentView->onEvent(view.currentView, EVENT_PERIOD);
-    }
-
     // Key events
     while (true)
     {
@@ -41,17 +42,19 @@ void dispatchViewEvents(void)
         if (event == EVENT_NONE)
             break;
 
-        if (isPoweredOff())
+        if (!isPowered())
         {
             if (event == EVENT_KEY_POWER)
                 powerOn();
+            else
+                view.currentView->onEvent(view.currentView, EVENT_KEY_TOGGLEBACKLIGHT);
         }
         else
         {
             if (event == EVENT_KEY_POWER)
             {
                 if (!isLockMode())
-                    powerOff();
+                    powerOff(false);
             }
             else
             {
@@ -88,15 +91,11 @@ void dispatchViewEvents(void)
         view.drawUpdate = true;
     else
     {
-#if defined(DISPLAY_MONOCHROME)
-        bool isDisplayActive = !isPoweredOff();
-#elif defined(DISPLAY_COLOR)
+#if defined(DISPLAY_COLOR)
         bool isPulseFlashesActive = settings.pulseDisplayFlash &&
                                     !isPulseThresholdEnabled();
-        bool isDisplayActive = !isPoweredOff() &&
-                               (isBacklightActive() ||
+        bool isDisplayActive = (isBacklightActive() ||
                                 isPulseFlashesActive);
-#endif
 
         if (!isDisplayActive)
         {
@@ -105,6 +104,7 @@ void dispatchViewEvents(void)
             if (isDisplayEnabled())
                 enableDisplay(false);
         }
+#endif
     }
 
     // Draw
@@ -114,10 +114,12 @@ void dispatchViewEvents(void)
 
         view.currentView->onEvent(view.currentView, EVENT_DRAW);
 
+#if defined(DISPLAY_MONOCHROME)
         refreshDisplay();
-
+#elif defined(DISPLAY_COLOR)
         if (!isDisplayEnabled())
             enableDisplay(true);
+#endif
 
         if (isBacklightTriggerRequested())
             triggerBacklight();
@@ -133,11 +135,6 @@ void setView(const View *newView)
     requestViewUpdate();
 }
 
-const View *getView(void)
-{
-    return view.currentView;
-}
-
 void requestViewUpdate(void)
 {
     view.drawUpdate = true;
@@ -145,22 +142,23 @@ void requestViewUpdate(void)
 
 void updateView(void)
 {
-    view.periodUpdate = true;
+    view.currentView->onEvent(view.currentView, EVENT_PERIOD);
+
     view.drawUpdate = true;
 }
 
-// Lock view
+// Lock mode
 
-bool systemLockMode;
+bool viewLockMode;
 
 void setLockMode(bool value)
 {
-    systemLockMode = value;
+    viewLockMode = value;
 
     triggerVibration();
 }
 
 bool isLockMode(void)
 {
-    return systemLockMode;
+    return viewLockMode;
 }

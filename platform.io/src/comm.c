@@ -9,12 +9,12 @@
 
 #include <stdio.h>
 
-#include "adc.h"
 #include "comm.h"
 #include "cstring.h"
 #include "display.h"
 #include "events.h"
 #include "measurements.h"
+#include "power.h"
 #include "rng.h"
 #include "rtc.h"
 #include "system.h"

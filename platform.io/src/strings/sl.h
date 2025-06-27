@@ -134,6 +134,7 @@
 
 // Measurements menu items
 #define STRING_UNITS "Enote"
+#define STRING_SECONDARY_UNITS "Sekundarne enote"
 
 // Instantaneous menu items
 #define STRING_ADAPTIVE_FAST "Prilagodljivo hitro"

@@ -7,7 +7,6 @@
  * License: MIT
  */
 
-#include "buzzer.h"
 #include "cmath.h"
 #include "cstring.h"
 #include "display.h"

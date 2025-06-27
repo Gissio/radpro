@@ -13,16 +13,8 @@
 
 #include "device.h"
 
-// ADC constants
-
 #define ADC_VDD 3.3F
 #define ADC_VALUE_MAX ((1 << 12) - 1)
-
-// Battery voltage
-
-// First order filter (n: time constant in taps): k = exp(-1 / n)
-// For n = 100 (seconds):
-#define BATTERY_VOLTAGE_FILTER_CONSTANT 0.99F
 
 static struct
 {
@@ -45,8 +37,6 @@ void initADC(void)
     adc_calibrate(ADC1);
 
     adc.initialized = true;
-
-    updateADC();
 }
 
 static void startADC(void)
@@ -74,8 +64,11 @@ static void stopADC(void)
 #endif
 }
 
-static float readBatteryVoltage(void)
+float readBatteryVoltage(void)
 {
+    if (!adc.initialized)
+        return 0.0F;
+
     float value;
 
     startADC();
@@ -96,29 +89,6 @@ static float readBatteryVoltage(void)
     stopADC();
 
     return value;
-}
-
-void updateADC(void)
-{
-    if (!adc.initialized)
-        return;
-
-    adc.batteryVoltage = readBatteryVoltage();
-
-    if (adc.filteredBatteryVoltage == 0.0F)
-        adc.filteredBatteryVoltage = adc.batteryVoltage;
-    else
-        adc.filteredBatteryVoltage = adc.batteryVoltage + BATTERY_VOLTAGE_FILTER_CONSTANT * (adc.filteredBatteryVoltage - adc.batteryVoltage);
-}
-
-float getBatteryVoltage(void)
-{
-    return PWR_BAT_NUM * adc.batteryVoltage;
-}
-
-float getFilteredBatteryVoltage(void)
-{
-    return adc.filteredBatteryVoltage;
 }
 
 #endif

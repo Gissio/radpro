@@ -73,7 +73,7 @@ static uint32_t getPoisson(double lambda)
     return n - 1;
 }
 
-bool getTubePulse(uint32_t *pulseTime)
+bool getTubePulseTime(uint32_t *pulseTime)
 {
     if (tube.pulseIndex == tube.pulseCount)
     {

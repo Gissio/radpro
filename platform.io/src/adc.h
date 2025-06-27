@@ -14,9 +14,6 @@
 
 void initADC(void);
 
-void updateADC(void);
-
-float getBatteryVoltage(void);
-float getFilteredBatteryVoltage(void);
+float readBatteryVoltage(void);
 
 #endif

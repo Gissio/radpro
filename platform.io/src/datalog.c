@@ -260,7 +260,7 @@ static void writeDatalogValue(bool forceWrite)
     writeDatalogEntry(entry, entrySize);
 }
 
-void openDatalog(void)
+void startDatalog(void)
 {
     writeDatalogValue(true);
 }
@@ -278,7 +278,7 @@ void writeDatalogReset(void)
                       FLASHPAGE_RESET);
 }
 
-void closeDatalog(void)
+void stopDatalog(void)
 {
     writeDatalogBuffer();
 }
@@ -416,9 +416,9 @@ static void onDatalogIntervalMenuSelect(const Menu *menu)
     settings.datalogInterval = datalogInterval;
 
     if (datalogInterval == DATALOG_INTERVAL_OFF)
-        closeDatalog();
+        stopDatalog();
     else
-        openDatalog();
+        startDatalog();
 }
 
 static MenuState datalogIntervalMenuState;

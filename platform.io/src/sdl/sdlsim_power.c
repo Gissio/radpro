@@ -17,16 +17,22 @@ void initPower(void)
 {
 }
 
-void setPower(bool value)
+uint32_t getBatteryNum(void)
 {
+    return 1;
 }
 
-bool isUSBPowered(void)
+void setPower(bool value)
+{
+    power.enabled = value;
+}
+
+bool isBatteryCharging(void)
 {
     return false;
 }
 
-bool isChargingBattery(void)
+bool isUSBPowered(void)
 {
     return false;
 }

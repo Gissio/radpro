@@ -2,29 +2,30 @@
 
 ## 2.2 "Sundry"
 
-New features:
-* Added GC-GMC-800 Geiger counter support.
-* Added multilingual support for 27 languages: Bulgarian, Chinese, Croatian, Czech, Danish, Dutch, English, Finnish, French, German, Greek, Hungarian, Italian, Japanese, Korean, Norwegian, Polish, Portuguese, Romanian, Russian, Slovakian, Slovenian, Spanish, Swedish, Turkish, Ukrainian, Vietnamese.
-* Auto power-off: Device now automatically shuts down at critically low battery levels.
-* Averaging periods: Introduced 3, 6, 12, 24-hour averaging intervals, plus confidence intervals of ±50%, ±20%, ±10%, ±5%, ±2% and ±1%.
-* Timezone commands: Added "SET deviceTimeZone" and "GET deviceTimeZone" data commands.
-* Datalog reset: Added "RESET datalog" data command to clear data logs.
-
-Improvements:
-* GQ GMC-800 clicks improvement: Fixes a hardware issue, ensuring consistent pulse clicks at high levels of radiation.
-* Power management: connecting a device to USB now doesn't turn the device on; when the battery falls critically low, the device turns now off; the battery indicator is now colored green when charging and red when low on battery.
-* Sensitivity range: Extended to 1-10,000 cpm/µSv/h to support low-sensitivity Geiger tubes (e.g., SI-3BG).
-* Dead-time compensation: Extended range to 5-500 µs for compatibility with scintillation detectors.
-* Loss-of-count detection: Now dynamically adjusts based on selected sensitivity.
-* radpro-tool enhancements: Improved timezone synchronization and error handling.
-* SBM-20 sensitivity: Refined to 150.5 cpm/µSv/h for improved accuracy.
-* Voltage measurement: Improved on the FS2011 (GD32F150R8/GD32F103R8) and FNIRSI GC-01.
-* Background compensation: Removed due to negligible intrinsic activity in common Geiger tubes; corresponding "GET tubeBackgroundCompensation" data command also removed.
+Updates:
+* Added support for the GC-GMC-800 Geiger counter, with software-improved pulse-stretching to ensure consistent pulse clicks at high levels of radiation.
+* Added multilingual support for 27 languages, including Bulgarian, Chinese, Croatian, Czech, Danish, Dutch, English, Finnish, French, German, Greek, Hungarian, Italian, Japanese, Korean, Norwegian, Polish, Portuguese, Romanian, Russian, Slovakian, Slovenian, Spanish, Swedish, Turkish, Ukrainian, Vietnamese.
+* Improved power management:
+  * Connecting a powered-off device to USB no longer powers it on.
+  * Device now shuts off at critically low battery levels.
+  * Battery indicator now displays green when charging and red when low.
+  * Statistics now display battery voltage for all cells.
+* Secondary units are now user-selectable.
+* Added 3, 6, 12, 24-hour averaging intervals, plus confidence intervals of ±50%, ±20%, ±10%, ±5%, ±2% and ±1%.
+* Extended the sensitivity range to 1-10,000 cpm/µSv/h to support low-sensitivity Geiger tubes (e.g., SI-3BG).
+* Expanded the dead-time compensation range to 5-500 µs for compatibility with scintillation detectors.
+* Adjusted the SBM-20 sensitivity to 150.5 cpm/µSv/h.
+* Loss-of-count detection is now dynamically adjusted based on selected sensitivity.
+* Enhanced voltage measurement accuracy for FS2011 (GD32F150R8/GD32F103R8) and FNIRSI GC-01.
+* Improved the radpro-tool timezone synchronization and error handling.
+* Introduced the "SET deviceTimeZone" and "GET deviceTimeZone" data commands.
+* Added the "RESET datalog" data command to clear data logs.
+* Removed background compensation due to negligible intrinsic activity in common Geiger tubes; removed corresponding "GET tubeBackgroundCompensation" data command.
 
 Fixes:
-* Battery statistics: Updated to display battery voltage for all cells.
-* Instantaneous rate updates: Fixed issue preventing proper updates to history and maximum values for 10-second, 30-second and 60-second averaging intervals.
-* Time format: Corrected settings to display hours in AM/PM format when 12-hour format is selected.
+* Fixed issue preventing proper updates to history and maximum values for 10-second, 30-second and 60-second averaging intervals.
+* Corrected settings to display hours in AM/PM format when 12-hour format is selected.
+* Fixed game flicker issue on portrait-oriented devices.
 
 ## 2.1.1 "The dot mender"
 

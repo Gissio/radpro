@@ -9,6 +9,7 @@
 
 #if defined(GMC800)
 
+#include "../cmath.h"
 #include "../display.h"
 #include "../events.h"
 #include "../flash.h"
@@ -280,6 +281,11 @@ void refreshDisplay(void)
 
 // Pulse control
 
+#define PULSE_LENGTH 0.0008F
+#define PULSESTRETCHERFIX_MINRATE (1.0F / PULSE_LENGTH)
+
+static volatile bool pulseStretcherFix;
+
 void initPulseControl(void)
 {
     gpio_set(BUZZ_EN_PORT, BUZZ_EN_PIN);
@@ -292,9 +298,9 @@ void initPulseControl(void)
                GPIO_MODE_OUTPUT_2MHZ_PUSHPULL);
 }
 
-void updatePulseControl()
+static void setPulseControlClicks(bool value)
 {
-    if (settings.pulseSound && !isPoweredOff())
+    if (value)
         gpio_setup(BUZZ_EN_PORT,
                    BUZZ_EN_PIN,
                    GPIO_MODE_INPUT_PULLUP);
@@ -302,13 +308,30 @@ void updatePulseControl()
         gpio_setup(BUZZ_EN_PORT,
                    BUZZ_EN_PIN,
                    GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+}
+
+void updatePulseControl(void)
+{
+    pulseStretcherFix =
+        isPowered() &&
+        settings.pulseSound &&
+        (getInstantaneousRate() >= PULSESTRETCHERFIX_MINRATE);
+
+    if (!pulseStretcherFix)
+        setPulseControlClicks(isPowered() && settings.pulseSound);
 
     gpio_modify(PULSE_GREEN_EN_PORT,
                 PULSE_GREEN_EN_PIN,
-                settings.pulseLED && !isAlarm() && !isPoweredOff());
+                isPowered() && settings.pulseLED && !isAlarm());
     gpio_modify(PULSE_RED_EN_PORT,
                 PULSE_RED_EN_PIN,
-                settings.pulseLED && isAlarm() && !isPoweredOff());
+                isPowered() && settings.pulseLED && isAlarm());
+}
+
+void onPulseControlTick(void)
+{
+    if (pulseStretcherFix)
+        setPulseControlClicks(getRandomBit());
 }
 
 #endif

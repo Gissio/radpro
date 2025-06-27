@@ -256,6 +256,7 @@ static const Menu alarmVolumeMenu;
 #endif
 static const Menu measurementsMenu;
 static const Menu unitsMenu;
+static const Menu secondaryUnitsMenu;
 static const Menu instantaneousMenu;
 static const Menu averageMenu;
 
@@ -319,6 +320,9 @@ void resetMeasurements(void)
                    0);
     selectMenuItem(&unitsMenu,
                    settings.units,
+                   UNITS_NUM);
+    selectMenuItem(&secondaryUnitsMenu,
+                   settings.secondaryUnits,
                    UNITS_NUM);
     selectMenuItem(&instantaneousMenu,
                    settings.instantaneousAveraging,
@@ -494,7 +498,8 @@ uint8_t getHistoryValue(float value)
 bool isInstantaneousRateConfidenceAcceptable(void)
 {
     return (settings.instantaneousAveraging >= INSTANTANEOUSAVERAGING_60SECONDS) ||
-           (measurements.instantaneous.rate.confidence < 0.75F);
+           ((measurements.instantaneous.rate.confidence > 0.0F) &&
+            (measurements.instantaneous.rate.confidence < 0.75F));
 }
 
 void updateMeasurements(void)
@@ -937,16 +942,11 @@ static void onInstantaneousRateViewEvent(const View *view,
         case INSTANTANEOUS_TAB_RATE:
             if (measurements.instantaneous.rate.value > 0)
             {
-                uint32_t unitsIndex = ((settings.units != UNITS_CPM) &&
-                                       (settings.units != UNITS_CPS))
-                                          ? UNITS_CPM
-                                          : UNITS_SIEVERTS;
-
                 buildValueString(valueString,
                                  unitString,
                                  measurements.instantaneous.rate.value,
-                                 &units[unitsIndex].rate,
-                                 unitsMinMetricPrefixIndex[unitsIndex]);
+                                 &units[settings.secondaryUnits].rate,
+                                 unitsMinMetricPrefixIndex[settings.secondaryUnits]);
             }
 
             keyString = getString(STRING_RATE);
@@ -1086,16 +1086,11 @@ static void onAverageRateViewEvent(const View *view,
         case AVERAGE_TAB_RATE:
             if (measurements.average.timedRate.value > 0)
             {
-                uint32_t unitsIndex = ((settings.units != UNITS_CPM) &&
-                                       (settings.units != UNITS_CPS))
-                                          ? UNITS_CPM
-                                          : UNITS_SIEVERTS;
-
                 buildValueString(valueString,
                                  unitString,
                                  measurements.average.timedRate.value,
-                                 &units[unitsIndex].rate,
-                                 unitsMinMetricPrefixIndex[unitsIndex]);
+                                 &units[settings.secondaryUnits].rate,
+                                 unitsMinMetricPrefixIndex[settings.secondaryUnits]);
             }
 
             keyString = getString(STRING_RATE);
@@ -1266,16 +1261,11 @@ static void onCumulativeDoseViewEvent(const View *view,
         case CUMULATIVE_TAB_DOSE:
             if (measurements.cumulativeDose.dose.pulseCount > 0)
             {
-                uint32_t unitsIndex = ((settings.units != UNITS_CPM) &&
-                                       (settings.units != UNITS_CPS))
-                                          ? UNITS_CPM
-                                          : UNITS_SIEVERTS;
-
                 buildValueString(valueString,
                                  unitString,
                                  measurements.cumulativeDose.dose.pulseCount,
-                                 &units[unitsIndex].dose,
-                                 unitsMinMetricPrefixIndex[unitsIndex]);
+                                 &units[settings.secondaryUnits].dose,
+                                 unitsMinMetricPrefixIndex[settings.secondaryUnits]);
             }
 
             keyString = getString(STRING_DOSE);
@@ -1708,6 +1698,37 @@ static const View unitsMenuView = {
     &unitsMenu,
 };
 
+// Secondary units menu
+
+static const char *onSecondaryUnitsMenuGetOption(const Menu *menu,
+                                                 uint32_t index,
+                                                 MenuStyle *menuStyle)
+{
+    *menuStyle = (index == settings.secondaryUnits);
+
+    return unitsMenuOptions[index];
+}
+
+static void onSecondaryUnitsMenuSelect(const Menu *menu)
+{
+    settings.secondaryUnits = menu->state->selectedIndex;
+}
+
+static MenuState secondaryUnitsMenuState;
+
+static const Menu secondaryUnitsMenu = {
+    getString(STRING_UNITS),
+    &secondaryUnitsMenuState,
+    onSecondaryUnitsMenuGetOption,
+    onSecondaryUnitsMenuSelect,
+    onMeasurementsSubMenuBack,
+};
+
+static const View secondaryUnitsMenuView = {
+    onMenuEvent,
+    &secondaryUnitsMenu,
+};
+
 // Instantaneous menu
 
 static const char *const instantaneousMenuOptions[] = {
@@ -1807,6 +1828,7 @@ static const View averageMenuView = {
 
 static const OptionView measurementMenuOptions[] = {
     {getString(STRING_UNITS), &unitsMenuView},
+    {getString(STRING_SECONDARY_UNITS), &secondaryUnitsMenuView},
     {getString(STRING_INSTANTANEOUS), &instantaneousMenuView},
     {getString(STRING_AVERAGE), &averageMenuView},
     {NULL},

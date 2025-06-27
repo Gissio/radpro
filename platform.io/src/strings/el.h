@@ -134,6 +134,7 @@
 
 // Measurements menu items
 #define STRING_UNITS "Μονάδες"
+#define STRING_SECONDARY_UNITS "Δευτερεύουσες μονάδες"
 
 // Instantaneous menu items
 #define STRING_ADAPTIVE_FAST "Προσαρμοστική γρήγορη"

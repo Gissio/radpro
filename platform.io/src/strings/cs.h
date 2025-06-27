@@ -134,6 +134,7 @@
 
 // Measurements menu items
 #define STRING_UNITS "Jednotky"
+#define STRING_SECONDARY_UNITS "Sekundární jednotky"
 
 // Instantaneous menu items
 #define STRING_ADAPTIVE_FAST "Adaptivní rychlý"

@@ -38,17 +38,21 @@ void updatePulseControl(void)
 {
 }
 
+void onPulseControlTick(void)
+{
+}
+
 // Voice
 
 void initVoice(void)
 {
 }
 
-void updateVoice(void)
+void onVoiceTick(void)
 {
 }
 
-void updateVoiceVolume(uint32_t value)
+void updateVoiceVolume(void)
 {
 }
 

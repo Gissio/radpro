@@ -105,15 +105,11 @@ void closeComm(void)
 void updateComm(void)
 {
 #if !defined(DATA_MODE) && defined(PWR_USB)
-    bool commShouldBeEnabled = isUSBPowered() &&
-                               !isPoweredOff();
-    if (commShouldBeEnabled != comm.enabled)
-    {
-        if (commShouldBeEnabled)
-            openComm();
-        else
-            closeComm();
-    }
+    bool commShouldBeEnabled = isPowered() && isUSBPowered();
+    if (!comm.enabled && commShouldBeEnabled)
+        openComm();
+    else if (comm.enabled && !commShouldBeEnabled)
+        closeComm();
 #endif
 }
 

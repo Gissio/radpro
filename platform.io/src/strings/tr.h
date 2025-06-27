@@ -134,6 +134,7 @@
 
 // Measurements menu items
 #define STRING_UNITS "Birimler"
+#define STRING_SECONDARY_UNITS "İkincil birimler"
 
 // Instantaneous menu items
 #define STRING_ADAPTIVE_FAST "Uyarlanabilir hızlı"

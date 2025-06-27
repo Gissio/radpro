@@ -64,6 +64,7 @@ void updateDisplayContrast(void);
 
 void refreshDisplay(void);
 
+void drawPowerOff(bool displayEnabled);
 void drawTitleBar(const char *title,
                   bool isMenu);
 void drawNotification(const char *title,

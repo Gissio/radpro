@@ -12,6 +12,8 @@
 
 void initPulseControl(void);
 
-void updatePulseControl();
+void updatePulseControl(void);
+
+void onPulseControlTick(void);
 
 #endif

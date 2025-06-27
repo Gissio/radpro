@@ -85,10 +85,11 @@ void updateComm(void)
     char receiveBuffer[COMM_BUFFER_SIZE];
     size_t receivedBytes = 0;
 
-    ser_read(sercomm,
-             receiveBuffer,
-             COMM_BUFFER_SIZE,
-             &receivedBytes);
+    if (sercomm)
+        ser_read(sercomm,
+                 receiveBuffer,
+                 COMM_BUFFER_SIZE,
+                 &receivedBytes);
 
     if (!comm.enabled)
         return;

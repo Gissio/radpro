@@ -17,7 +17,9 @@
 void initBuzzer(void)
 {
     // RCC
+#if defined(BUZZ_TIMER)
     rcc_enable_tim(BUZZ_TIMER);
+#endif
 
     // GPIO
     setBuzzer(false);

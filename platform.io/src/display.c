@@ -11,7 +11,6 @@
 
 #include <mcu-renderer.h>
 
-#include "adc.h"
 #include "cmath.h"
 #include "cstring.h"
 #include "display.h"
@@ -717,7 +716,7 @@ static void drawRectangle(const mr_rectangle_t *rectangle)
 static void drawMargin(const mr_rectangle_t *outerMargin,
                        const mr_rectangle_t *innerMargin)
 {
-    mr_rectangle_t r;
+    mr_rectangle_t rectangle;
 
     mr_point_t outerRectangleEnd = {
         outerMargin->x + outerMargin->width,
@@ -728,31 +727,31 @@ static void drawMargin(const mr_rectangle_t *outerMargin,
         innerMargin->y + innerMargin->height};
 
     // Top
-    r.x = outerMargin->x;
-    r.y = outerMargin->y;
-    r.width = outerMargin->width;
-    r.height = innerMargin->y - outerMargin->y;
+    rectangle.x = outerMargin->x;
+    rectangle.y = outerMargin->y;
+    rectangle.width = outerMargin->width;
+    rectangle.height = innerMargin->y - outerMargin->y;
 
-    mr_draw_rectangle(&mr, &r);
+    mr_draw_rectangle(&mr, &rectangle);
 
     // Bottom
-    r.y = innerRectangleEnd.y;
-    r.height = outerRectangleEnd.y - innerRectangleEnd.y;
+    rectangle.y = innerRectangleEnd.y;
+    rectangle.height = outerRectangleEnd.y - innerRectangleEnd.y;
 
-    mr_draw_rectangle(&mr, &r);
+    mr_draw_rectangle(&mr, &rectangle);
 
     // Left
-    r.y = innerMargin->y;
-    r.width = innerMargin->x - outerMargin->x;
-    r.height = innerMargin->height;
+    rectangle.y = innerMargin->y;
+    rectangle.width = innerMargin->x - outerMargin->x;
+    rectangle.height = innerMargin->height;
 
-    mr_draw_rectangle(&mr, &r);
+    mr_draw_rectangle(&mr, &rectangle);
 
     // Right
-    r.x = innerRectangleEnd.x;
-    r.width = outerRectangleEnd.y - innerRectangleEnd.y;
+    rectangle.x = innerRectangleEnd.x;
+    rectangle.width = outerRectangleEnd.y - innerRectangleEnd.y;
 
-    mr_draw_rectangle(&mr, &r);
+    mr_draw_rectangle(&mr, &rectangle);
 }
 
 static void drawFrame(const mr_rectangle_t *rectangle)
@@ -861,27 +860,15 @@ static void drawRightAlignedText(const char *str,
              &rightAlignedOffset);
 }
 
-void drawTitleBar(const char *title,
-                  bool isMenu)
+static void drawBatteryIcon(const mr_rectangle_t *rectangle,
+                            const mr_point_t *offset)
 {
-    char buffer[8];
-    mr_rectangle_t rectangle = {
-        TITLEBAR_WIDTH,
-        TITLEBAR_Y,
-        0,
-        TITLEBAR_CONTENT_HEIGHT};
+    bool chargingBattery = isBatteryCharging();
 
-    setFillColor(COLOR_CONTAINER_GLOBAL);
-
-    // Icons
-    setFont(font_symbols);
-
-    bool usbPowered = isUSBPowered();
-    bool chargingBattery = isChargingBattery();
-    uint8_t level = getBatteryLevel();
     mr_color_t color;
+    uint8_t level = getBatteryLevel();
 
-    if (usbPowered || chargingBattery)
+    if (isUSBPowered() || chargingBattery)
         color = COLOR_RUNNING;
     else if (!chargingBattery && (level == 0))
         color = COLOR_ALARM;
@@ -893,42 +880,76 @@ void drawTitleBar(const char *title,
         level += BATTERY_LEVEL_NUM;
 #endif
 
+    char buffer[8];
     strclr(buffer);
     strcatChar(buffer, '0' + level);
 
+    setFont(font_symbols);
+    setStrokeColor(color);
+    drawText(buffer,
+             rectangle,
+             offset);
+}
+
+void drawPowerOff(bool displayEnabled)
+{
+    setFillColor(COLOR_CONTAINER_BACKGROUND);
+
+    const mr_rectangle_t rectangle = {
+        0,
+        0,
+        DISPLAY_WIDTH,
+        DISPLAY_HEIGHT,
+    };
+    const mr_point_t offset = {
+        ((DISPLAY_WIDTH - TITLEBAR_BATTERYICON_WIDTH) / 2),
+        ((DISPLAY_HEIGHT - FONT_SMALL_LINE_HEIGHT) / 2),
+    };
+
+    if (displayEnabled)
+        drawBatteryIcon(&rectangle, &offset);
+    else
+        drawRectangle(&rectangle);
+}
+
+void drawTitleBar(const char *title,
+                  bool isMenu)
+{
+    mr_rectangle_t rectangle = {
+        TITLEBAR_WIDTH,
+        TITLEBAR_Y,
+        0,
+        TITLEBAR_CONTENT_HEIGHT};
+
+    setFillColor(COLOR_CONTAINER_GLOBAL);
+
+    // Icons
     rectangle.width = TITLEBAR_BATTERYICON_WIDTH + TITLEBAR_PADDING;
     rectangle.x -= rectangle.width;
-    static mr_point_t titlebarBatteryOffset = {
+    const mr_point_t titlebarBatteryOffset = {
         TITLEBAR_BATTERYICON_OFFSET_X,
         TITLEBAR_BATTERYICON_OFFSET_Y,
     };
-    setStrokeColor(color);
-    drawText(buffer,
-             &rectangle,
-             &titlebarBatteryOffset);
+    drawBatteryIcon(&rectangle, &titlebarBatteryOffset);
 
+    char buffer[8];
+    mr_color_t color = COLOR_ELEMENT_NEUTRAL;
     strclr(buffer);
     if (isLockMode())
-    {
         strcatChar(buffer, '<');
-        color = COLOR_ELEMENT_NEUTRAL;
-    }
     else if (isAlarm())
     {
         strcatChar(buffer, ';');
         color = COLOR_ALARM;
     }
     else if (isAlarmEnabled())
-    {
         strcatChar(buffer, ':');
-        color = COLOR_ELEMENT_NEUTRAL;
-    }
 
     if (buffer[0])
     {
         rectangle.width = TITLEBAR_NOTIFICATIONICON_WIDTH + TITLEBAR_NOTIFICATIONICON_PADDING;
         rectangle.x -= rectangle.width;
-        static mr_point_t titlebarNotificationOffset = {
+        const mr_point_t titlebarNotificationOffset = {
             TITLEBAR_NOTIFICATIONICON_OFFSET_X,
             TITLEBAR_NOTIFICATIONICON_OFFSET_Y,
         };
@@ -958,7 +979,7 @@ void drawTitleBar(const char *title,
 
     rectangle.width = TITLEBAR_TIME_WIDTH;
     rectangle.x -= rectangle.width;
-    static mr_point_t titlebarTimeOffset = {
+    const mr_point_t titlebarTimeOffset = {
         TITLEBAR_TIME_OFFSET_X,
         TITLEBAR_TIME_OFFSET_Y,
     };
@@ -971,7 +992,7 @@ void drawTitleBar(const char *title,
     // Title
     rectangle.width = rectangle.x - TITLEBAR_X;
     rectangle.x = TITLEBAR_X;
-    static mr_point_t titlebarTitleOffset = {
+    const mr_point_t titlebarTitleOffset = {
         TITLEBAR_TITLE_OFFSET_X,
         TITLEBAR_TITLE_OFFSET_Y,
     };
@@ -981,7 +1002,7 @@ void drawTitleBar(const char *title,
 
     // Shadow
 #if TITLEBAR_SHADOW_HEIGHT >= 2
-    static mr_rectangle_t titlebarShadow1Rectangle = {
+    const mr_rectangle_t titlebarShadow1Rectangle = {
         TITLEBAR_X,
         TITLEBAR_BOTTOM - 2,
         TITLEBAR_WIDTH,
@@ -994,7 +1015,7 @@ void drawTitleBar(const char *title,
 #endif
 
 #if TITLEBAR_SHADOW_HEIGHT >= 1
-    static mr_rectangle_t titlebarShadow2Rectangle = {
+    const mr_rectangle_t titlebarShadow2Rectangle = {
         TITLEBAR_X,
         TITLEBAR_BOTTOM - 1,
         TITLEBAR_WIDTH,

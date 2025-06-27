@@ -134,6 +134,7 @@
 
 // Measurements menu items
 #define STRING_UNITS "Единици"
+#define STRING_SECONDARY_UNITS "Вторични единици"
 
 // Instantaneous menu items
 #define STRING_ADAPTIVE_FAST "Адаптивно-бързо"

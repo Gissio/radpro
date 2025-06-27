@@ -47,10 +47,11 @@ typedef struct
     const View *view;
 } OptionView;
 
+void initView(void);
+
 void dispatchViewEvents(void);
 
 void setView(const View *view);
-const View *getView(void);
 
 void requestViewUpdate(void);
 void updateView(void);

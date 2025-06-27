@@ -134,6 +134,7 @@
 
 // Measurements menu items
 #define STRING_UNITS "Đơn vị"
+#define STRING_SECONDARY_UNITS "Đơn vị phụ"
 
 // Instantaneous menu items
 #define STRING_ADAPTIVE_FAST "Thích nghi nhanh"

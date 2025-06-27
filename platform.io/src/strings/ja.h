@@ -134,6 +134,7 @@
 
 // Measurements menu items
 #define STRING_UNITS "単位"
+#define STRING_SECONDARY_UNITS "副次単位"
 
 // Instantaneous menu items
 #define STRING_ADAPTIVE_FAST "適応高速"

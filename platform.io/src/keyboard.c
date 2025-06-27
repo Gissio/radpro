@@ -29,7 +29,7 @@
 
 static struct
 {
-    bool isInitialized;
+    volatile bool enabled;
 
     bool wasKeyPressed[KEY_NUM];
 
@@ -53,12 +53,25 @@ void initKeyboard(void)
     keyboard.pressedTicks = ((uint32_t)(10.0 * SYSTICK_FREQUENCY / KEY_TICKS));
 #endif
     keyboard.pressedKey = KEY_NONE;
-    keyboard.isInitialized = true;
+
+    keyboard.enabled = true;
+}
+
+bool isAnyKeyDown(void)
+{
+    bool isKeyPressed[KEY_NUM];
+    getKeyboardState(isKeyPressed);
+
+    for (uint32_t i = 0; i < KEY_NUM; i++)
+        if (isKeyPressed[i])
+            return true;
+
+    return false;
 }
 
 void onKeyboardTick(void)
 {
-    if (!keyboard.isInitialized)
+    if (!keyboard.enabled)
         return;
 
     bool isKeyPressed[KEY_NUM];
@@ -75,10 +88,10 @@ void onKeyboardTick(void)
 #if defined(DISPLAY_MONOCHROME)
             if ((settings.displaySleep != DISPLAY_SLEEP_ALWAYS_OFF) &&
                 !isBacklightActive() &&
-                !isPoweredOff())
+                isPowered())
 #elif defined(DISPLAY_COLOR)
             if (!isBacklightActive() &&
-                !isPoweredOff())
+                isPowered())
 #endif
                 event = EVENT_KEY_TOGGLEBACKLIGHT;
             else

@@ -61,6 +61,7 @@ int main(void)
     initComm();
     initKeyboard();
     initDisplay();
+    initView();
 #if defined(PULSE_CONTROL)
     initPulseControl();
 #endif
@@ -85,16 +86,7 @@ int main(void)
 #if defined(START_POWERON)
     powerOn();
 #else
-    // if (isPowerKeyDown())
-    // {
-        sleep(1000);
-        powerOn();
-    // }
-    // else
-    // {
-    //     setView(&powerOffView);
-    //     requestBacklightTrigger();
-    // }
+    powerOff(!isAnyKeyDown());
 #endif
 
     // Main loop

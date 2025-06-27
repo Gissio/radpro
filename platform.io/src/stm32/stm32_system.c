@@ -9,13 +9,10 @@
 
 #if defined(STM32)
 
-#include "../buzzer.h"
+#include "../cstring.h"
 #include "../display.h"
-#include "../events.h"
-#include "../system.h"
-#include "../tube.h"
+#include "../power.h"
 
-#include "cstring.h"
 #include "device.h"
 
 typedef struct
@@ -41,6 +38,9 @@ void getDeviceId(char *str)
 
 void startBootloader(void)
 {
+    powerOff(false);
+    setBacklight(false);    
+
     __disable_irq();
     NVIC_DisableAllIRQs();
 

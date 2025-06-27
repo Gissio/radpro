@@ -227,7 +227,7 @@ static bool isVoicePlaying(void)
     return !gpio_get(VOICE_BUSY_PORT, VOICE_BUSY_PIN);
 }
 
-void updateVoice(void)
+void onVoiceTick(void)
 {
     // Sequence update
     if (voice.requestedSequenceUpdate)
@@ -253,12 +253,16 @@ void updateVoice(void)
 
 // Sequence
 
+static void pushVoiceSequence(uint8_t value);
+
 static void clearVoiceSequence(void)
 {
     while (voice.requestedSequenceUpdate)
         sleep(1);
 
     voice.requestedSequence.size = 0;
+
+    pushVoiceSequence(VOICE_STOP);
 }
 
 static void pushVoiceSequence(uint8_t value)
@@ -400,13 +404,11 @@ static void pushVoiceDose(float value)
         if (voiceRateUnit != VOICE_NONE)
             pushVoiceSequence(voiceRateUnit);
     }
-
 }
 
 void updateVoiceVolume(void)
 {
     clearVoiceSequence();
-    pushVoiceSequence(VOICE_STOP);
     pushVoiceSequence(voiceVolume[settings.alarmVolume]);
     pushVoiceSequence(VOICE_ALARM);
     sendVoiceSequence();
@@ -438,13 +440,26 @@ void playVoiceAlarm(void)
     if (voice.enabled)
         return;
 
+    bool alarmSound = settings.alarmIndication & (1 << ALARMINDICATION_SOUND);
+    bool alarmVoice = settings.alarmIndication & (1 << ALARMINDICATION_VOICE);
+
     clearVoiceSequence();
-    if (settings.alarmIndication & (1 << ALARMINDICATION_SOUND))
+    if (alarmSound)
+    {
         pushVoiceSequence(VOICE_ALARM);
-    if (settings.alarmIndication & (1 << ALARMINDICATION_VOICE))
+        pushVoiceSequence(VOICE_ALARM);
+    }
+    if (alarmVoice)
     {
         if (isInstantaneousRateAlarm())
             pushVoiceRate(getInstantaneousRate());
+        if (alarmSound &&
+            isInstantaneousRateAlarm() &&
+            isCumulativeDoseAlarm())
+        {
+            pushVoiceSequence(VOICE_ALARM);
+            pushVoiceSequence(VOICE_ALARM);
+        }
         if (isCumulativeDoseAlarm())
             pushVoiceRate(getCumulativeDosePulseCount());
     }

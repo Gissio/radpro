@@ -111,6 +111,11 @@ void initPower(void)
 #endif
 }
 
+uint32_t getBatteryNum(void)
+{
+    return PWR_BAT_NUM;
+}
+
 void setPower(bool value)
 {
     gpio_modify(PWR_EN_PORT,
@@ -125,19 +130,11 @@ void setPower(bool value)
                 PWR_VCC_PIN,
                 value);
 #endif
+
+    power.enabled = value;
 }
 
-bool isUSBPowered(void)
-{
-#if defined(PWR_USB_PORT)
-    return gpio_get(PWR_USB_PORT,
-                    PWR_USB_PIN);
-#else
-    return false;
-#endif
-}
-
-bool isChargingBattery(void)
+bool isBatteryCharging(void)
 {
 #if defined(PWR_CHRG_PORT)
     return
@@ -146,6 +143,16 @@ bool isChargingBattery(void)
 #endif
         gpio_get(PWR_CHRG_PORT,
                  PWR_CHRG_PIN);
+#else
+    return false;
+#endif
+}
+
+bool isUSBPowered(void)
+{
+#if defined(PWR_USB_PORT)
+    return gpio_get(PWR_USB_PORT,
+                    PWR_USB_PIN);
 #else
     return false;
 #endif

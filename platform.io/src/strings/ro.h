@@ -134,6 +134,7 @@
 
 // Measurements menu items
 #define STRING_UNITS "Unități"
+#define STRING_SECONDARY_UNITS "Unități secundare"
 
 // Instantaneous menu items
 #define STRING_ADAPTIVE_FAST "Adaptiv rapid"

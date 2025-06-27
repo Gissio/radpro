@@ -218,8 +218,6 @@ enum
 #define TUBE_SENSITIVITY_DEFAULT TUBE_SENSITIVITY_J321
 #define TUBE_HVPROFILE_FACTORYDEFAULT_FREQUENCY 2500
 #define TUBE_HVPROFILE_FACTORYDEFAULT_DUTYCYCLE 0.163F
-#define TUBE_HVPROFILE_ENERGYSAVING_FREQUENCY 2500
-#define TUBE_HVPROFILE_ENERGYSAVING_DUTYCYCLE 0.12F
 #endif
 
 enum
@@ -393,6 +391,7 @@ typedef struct
     unsigned int pulseThreshold : 4;
 
     unsigned int units : 2;
+    unsigned int secondaryUnits : 2;
     unsigned int averaging : 5;
     unsigned int instantaneousAveraging : 3;
 

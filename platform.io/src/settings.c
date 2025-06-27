@@ -40,8 +40,6 @@ typedef struct
 
 Settings settings;
 
-static uint32_t settingsLowBatteryTimer;
-
 static FlashState *getFlashState(FlashIterator *iterator);
 
 void initSettings(void)
@@ -56,6 +54,8 @@ void initSettings(void)
 #if defined(PULSE_LED)
     settings.pulseLED = true;
 #endif
+
+    settings.secondaryUnits = UNITS_CPM;
 
     settings.alarmIndication =
 #if defined(BUZZER) || defined(VOICE)
@@ -141,8 +141,6 @@ void resetSettings(void)
     selectMenuItem(&settingsMenu,
                    0,
                    0);
-
-    settingsLowBatteryTimer = 0;
 }
 
 static FlashState *getFlashState(FlashIterator *iterator)
