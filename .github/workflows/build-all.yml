@@ -30,12 +30,13 @@ jobs:
 
       - name: Sign firmware
         run: |
-          cd tools
-          python radpro-sign.py
+          mkdir firmware
+          cd firmware
+          python ,,/tools/radpro-sign.py
 
       - name: Save artifacts
         uses: actions/upload-artifact@v4
         with:
           name: radpro-firmware-snapshot
           overwrite: true
-          path: tools/*.bin
+          path: firmware/*
