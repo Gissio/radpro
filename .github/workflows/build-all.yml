@@ -32,7 +32,7 @@ jobs:
         run: |
           mkdir firmware
           cd firmware
-          python ,,/tools/radpro-sign.py
+          python ../tools/radpro-sign.py
 
       - name: Save artifacts
         uses: actions/upload-artifact@v4
