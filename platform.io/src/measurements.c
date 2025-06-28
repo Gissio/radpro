@@ -1567,7 +1567,7 @@ static void onAlarmVolumeMenuSelect(const Menu *menu)
 
     settings.alarmVolume = index;
 
-    updateVoiceVolume();
+    setVoiceVolume();
 }
 
 static MenuState alarmVolumeMenuState;

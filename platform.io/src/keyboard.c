@@ -306,7 +306,7 @@ void onKeyboardTick(void)
                     event = EVENT_KEY_TOGGLELOCK;
                 else if (keyboard.pressedKey == KEY_LEFT)
                     event = EVENT_KEY_RESET;
-                else if (keyboard.pressedKey == KEY_RIGHT)
+                else if (keyboard.pressedKey == KEY_DOWN)
                     event = EVENT_KEY_TOGGLEPULSECLICKS;
                 else if (keyboard.pressedKey == KEY_OK)
                     event = EVENT_KEY_POWER;

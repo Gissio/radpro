@@ -37,7 +37,9 @@ static struct
 void initTubeHardware(void)
 {
     // RCC
+#if defined(TUBE_HV_PWM)
     rcc_enable_tim(TUBE_HV_TIMER);
+#endif
     rcc_enable_tim(TUBE_DET_TIMER_MASTER);
     rcc_enable_tim(TUBE_DET_TIMER_SLAVE);
 

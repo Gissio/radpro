@@ -52,7 +52,7 @@ void onVoiceTick(void)
 {
 }
 
-void updateVoiceVolume(void)
+void setVoiceVolume(void)
 {
 }
 

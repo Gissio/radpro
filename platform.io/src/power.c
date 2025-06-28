@@ -24,6 +24,7 @@
 #include "settings.h"
 #include "system.h"
 #include "tube.h"
+#include "voice.h"
 
 Power power;
 
@@ -84,21 +85,6 @@ void powerOn(void)
 {
     setPower(true);
 
-    if (!verifyFlash())
-    {
-        power.onViewState = POWERON_VIEW_FLASHFAILURE;
-
-        triggerAlarm();
-    }
-    else
-        power.onViewState = POWERON_VIEW_SPLASH;
-
-    requestBacklightTrigger();
-    triggerVibration();
-#if defined(PULSE_CONTROL)
-    updatePulseControl();
-#endif
-
     resetEvents();
     resetBattery();
     resetSettings();
@@ -111,6 +97,22 @@ void powerOn(void)
 #if defined(GAME)
     resetGame();
 #endif
+
+#if defined(PULSE_CONTROL)
+    updatePulseControl();
+#endif
+
+    if (!verifyFlash())
+    {
+        power.onViewState = POWERON_VIEW_FLASHFAILURE;
+
+        triggerAlarm();
+    }
+    else
+        power.onViewState = POWERON_VIEW_SPLASH;
+
+    requestBacklightTrigger();
+    triggerVibration();
 
     setView(&powerOnView);
 }
@@ -165,6 +167,9 @@ void powerOff(bool displayEnabled)
         stopDatalog();
         closeComm();
         setKeyboardMode(KEYBOARD_MODE_MEASUREMENT);
+#if defined(VOICE)
+        resetVoice();
+#endif
     }
     else
         updateBattery();

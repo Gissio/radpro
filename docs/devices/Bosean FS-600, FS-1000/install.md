@@ -1,38 +1,31 @@
-# Installing Rad Pro on the Bosean FS-600/FS-1000
+# Installing Rad Pro on Bosean FS-600/FS-1000 Geiger counters
 
-## Supplies
+This guide explains how to install the Rad Pro firmware on Bosean FS-600 and FS-1000 Geiger counters.
 
-To install Rad Pro on your Bosean FS-600 or FS-1000 Geiger counter, you will need the following tools and components:
+## Required supplies
 
-* An [ST-LINK V2 USB dongle (or clone)](https://www.amazon.com/s?k=st-link+v2)
-* A 4-pin header
-* A Philips screwdriver
-* Optional: A soldering iron and solder
-* If you use Windows, the [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html)
+To install Rad Pro, you'll need:
+
+* [ST-LINK V2 USB dongle (or compatible clone)](https://www.amazon.com/s?k=st-link+v2)
+* 4-pin header
+* Philips screwdriver
+* Optional: Soldering iron and solder
+* For Windows users: [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html)
 
 ## Step 1: Open the device
 
 ![Bosean FS-600 circuit board](img/fs600-board.jpg)
 
-Follow these steps to start installing Rad Pro:
-
-* Turn off the device.
-* Remove the battery cover and batteries.
-* Remove the screws holding the back case and open the device.
-
-The board should look like in the photo above. If it does not, you may have a different hardware revision. In this case, Rad Pro may not function properly.
-
-If your board looks different and Rad Pro does not work, create an [issue](https://github.com/Gissio/radpro/issues).
+1. Power off the device and remove the batteries.
+2. Unscrew the back case and carefully open the device.
+3. Verify that the circuit board matches the image above (the Geiger-Müller tube may vary). If the board differs, you may have a different hardware revision, and Rad Pro may not function correctly. If issues arise, report them on the [Rad Pro GitHub issues page](https://github.com/Gissio/radpro/issues).
 
 ## Step 2: Connect the programmer
 
 ![Bosean FS-600 connectors](img/fs600-swd.jpg)
 
-Now, follow these steps:
-
-* Optional: Solder the 4-pin header to the SWD pads of the board.
-* If you use Windows, install the [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html).
-* Connect the ST-LINK V2 device to the SWD pads. The pins, from left to right, are:
+1. Optional: Solder a 4-pin header to the SWD pads on the board for a secure connection.
+3. Connect the ST-LINK V2 to the SWD pads using the following pin configuration (left to right):
   * 3.3V
   * SWDIO
   * SWCLK
@@ -40,67 +33,72 @@ Now, follow these steps:
 
 ![ST-LINK V2 programmer](../../img/ST-LINK-V2.png)
 
-Make sure the electrical connections are correct. You may break your device if the connections are not correct.
+**WARNING:** Double-check electrical connections to prevent damage to the device.
 
 ## Step 3: Flash the firmware
 
-Now, download and unzip the latest `radpro-[version].zip` from the [Rad Pro releases](https://github.com/Gissio/radpro/releases).
+1. For Windows users, install the [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html).
+2. Download and extract the latest `radpro-[version].zip` from [Rad Pro releases](https://github.com/Gissio/radpro/releases).
+3. Navigate to the `bosean` folder and run the appropriate script based on your operating system:
+  * Windows: Double click `bosean-[device]-[type].bat`.
+  * Linux: Run `bosean-[device]-[type].sh` in a terminal.
+  * macOS: Open `Terminal.app` (in `/Applications/Utilities`), navigate to the `bosean` folder, and drag `bosean-[device]-[type].sh` onto the Terminal icon in the dock.
+  * `[device]`: Type of device (`fss600` or `fs1000`).
+  * `[type]`: Installation type (`install` or `update`). Note: Not all releases support updating.
+4. The installer will prompt you to select a language using two-letter language codes. Enter the desired code to proceed.
+5. The installer automatically backs up the original firmware to the `backup` folder. Store this securely to restore the original firmware if needed. To restore, drag the backup file onto `bosean-[device]-[type]-install.bat` (Windows) or `bosean-[device]-[type]-install.sh` (macOS/Linux).
+6. Close and reassemble the device.
 
-* To install from Windows, go to the `bosean` folder and double click `bosean-[device]-[type].bat`.
-* To install from Linux, go to the `bosean` folder and double click `bosean-[device]-[type].sh`.
-* To install from macOS, open `Terminal.app` (in `/Applications/Utilities`), go to the `bosean` folder and drag the `bosean-[device]-[type].sh` install file onto the Terminal icon in the dock.
+## Step 4: Configure the device
 
-`[device]` is the type of your device: `fs600` or `fs1000`.
+### FS-600 controls
 
-`[type]` is the type of installation: `install` or `update`. Note that not all releases support updating.
+  * **Power on/off:** Press and hold the OK/Power key.
+  * **Switch measurement mode:** Use the Up or Down key.
+  * **Switch secondary measurement view:** Press the Back key.
+  * **Reset measurement/dismiss alarm:** Press and hold the Back key.
+  * **Toggle pulse sound (measurement view only):** Press and hold the Down key.
+  * **Sleep display (measurement view only):** Press the OK/Power key.
+  * **Access settings:** Press the Right/Settings key.
+  * **Navigate options:** Use the Up or Down key.
+  * **Select option:** Press the Right/Settings or OK/Power key.
+  * **Go back:** Prses the Back key.
+  * **Toggle lock mode:** Press and hold both the OK/Power and Back keys.
 
-<!-- The installer will display a list of available languages as two-letter language codes. Select and enter the language code to proceed with the installation. -->
+### FS-1000 controls
 
-The installer automatically creates a backup of the original firmware in the `backup` folder, ensuring you can restore your device if needed. Store these backups securely to enable reversion to the original firmware. To restore a backup, drag it onto `bosean-[device]-install.bat` (Windows) or `bosean-[device]-install.sh` (macOS/Linux).
+  * **Power on/off:** Press and long hold the Set/Power key.
+  * **Switch measurement mode:** Press the Mode key.
+  * **Switch secondary measurement view:** Press the Set/Power key.
+  * **Reset measurement/dismiss alarm:** Press and long hold the Mode key.
+  * **Access settings:** Press and short hold the Set/Power key.
+  * **Navigate options:** Use the Mode or Set/Power key.
+  * **Select option:** Press and short hold the Set/Power key.
+  * **Go back:** Press and short hold the Mode key.
+  * **Toggle lock mode:** Press and long hold both the Set/Power and Mode keys.
 
-## Step 4: Configure your device
+### Configuration steps
 
-Start your device and go to Rad Pro's settings, select "Geiger tube", "HV Profile" and choose an appropriate HV profile: "Energy-saving" is best for measuring background levels of radiation, while "Accuracy" consumes more power but allows measurement of higher levels of radiation; "Factory default" is the profile from the original firmware and consumes considerably more power.
+1. In **Geiger tube > HV Profile**, choose an appropriate profile:
+  * **Energy-saving:** Lowest power consumption, ideal for background radiation level.
+  * **Accuracy:** Higher power consumption, suitable for elevated radiation levels.
+  * **Factory default:** Highest power consumption, uses the original firmware profile.
+2. For USB data connections under Windows, install the [CH340 driver](https://www.catalog.update.microsoft.com/Search.aspx?q=USB%5CVID_1A86%26PID_7523).
 
-To establish a USB data connection under Windows, install the [CH340 driver](https://www.catalog.update.microsoft.com/Search.aspx?q=USB%5CVID_1A86%26PID_7523).
+For detailed usage instructions, refer to the [Rad Pro User Manual](../../manual.md) and the [ionizing radiation field guide](../../field-guide/field-guide.md).
 
-Last, read the [user's manual](../../manual.md) for learning how to use Rad Pro, and the [ionizing radiation field guide](../../field-guide/field-guide.md) for learning more about ionizing radiation.
+## Step 5: Final steps
 
-## Step 5: Last steps
+If you find Rad Pro useful, consider:
 
-If you like Rad Pro, consider watching the project to get notified when new releases are out. Also, show your support by starring the project on GitHub. And don't forget to read the keyboard mapping table below!
+* Watching the [Rad Pro GitHub repository](https://github.com/Gissio/radpro) for release notifications.
+* Starring the project to show your support.
 
 ## Hardware-specific notes
 
-On the FS-600, the keys are mapped as follows:
+* **Pulse LED:** Not supported on all devices.
 
-  * Power on/off: long hold of the ok/power key.
-  * Switch measurement mode: the up and down keys.
-  * Switch measurement secondary view: the left/back.
-  * Reset measurement/dismiss alarm: long hold of the left/back key.
-  * Put display to sleep (measurement view only): the ok/power key.
-  * Enter settings: the right/settings key.
-  * Go up/down: the up and down keys.
-  * Select option: the ok/power or right/settings key.
-  * Go back: the left/back key.
-  * Toggle pulses sound: long hold of the menu/ok key.
-  * Toggle lock mode: long hold of the ok/power and left/back keys.
-
-On the FS-1000, the keys are mapped as follows:
-
-  * Power on/off: long hold of the set/power key.
-  * Switch measurement mode: the mode key.
-  * Switch measurement secondary view: the set/power key.
-  * Reset measurement/dismiss alarm: long hold of the mode key.
-  * Enter settings: short hold of the set/power key.
-  * Go up/down: the mode and set/power key.
-  * Select option: short hold of the set/power key.
-  * Go back: short hold of the mode key.
-  * Toggle lock mode: long hold of the set/power and mode keys.
-
-Not all devices support the pulse LED.
-
-To establish a USB data connection, connect your FS-600 or FS-1000 to a computer using a USB data cable.
+* **USB data connection:** Use a USB data cable to connect to a computer.
 
 <!-- Calculated as follows:
 
@@ -112,12 +110,16 @@ To establish a USB data connection, connect your FS-600 or FS-1000 to a computer
 
  -->
 
-On the FS-600 and FS-1000, Rad Pro can store up to 89100 data points. At normal radiation levels (20 cpm), this allows for 1814 days of data at 60-minute intervals, 302 days at 10-minute intervals, 60 days at 1-minute intervals, 10 days at 10-second intervals and 24 hours at 1-second intervals.
+* **Data storage:** Stores up to 89,100 data points. At 20 cpm (normal radiation levels), this supports:
+  * 1814 days at 60-minute intervals
+  * 302 days at 10-minute intervals
+  * 60 days at 1-minute intervals
+  * 10 days at 10-second intervals
+  * 24 hours at 1-second intervals
 
-The FS-600 and FS-1000 include two Zener diodes that limit the maximum voltage to 440 V (nominal).
+* **Voltage limitation:** Two Zener diodes limit the maximum voltage to 440 V (nominal).
 
-The FS-600 and FS-1000 HV profile settings are:
-
-* Factory default: 40 kHz frequency and 50% duty cycle.
-* Accuracy: 2.5 kHz frequency and 6.5% duty cycle.
-* Energy-saving: 2.5 kHz frequency and 3.0% duty cycle.
+* **HV profile settings:**
+  * Factory default: 40 kHz frequency, 50% duty cycle.
+  * Accuracy: 2.5 kHz frequency, 6.5% duty cycle.
+  * Energy-saving: 2.5 kHz frequency, 3.0% duty cycle.

@@ -69,9 +69,9 @@ float readBatteryVoltage(void)
     if (!adc.initialized)
         return 0.0F;
 
-    float value;
-
     startADC();
+
+    float value;
 
 #if (defined(STM32F0) && !defined(GD32)) || defined(STM32G0) || defined(STM32L4)
     value = (VREFINT_CAL_VOLTAGE * PWR_BAT_SCALE_FACTOR / ADC_VALUE_MAX) *
@@ -79,11 +79,11 @@ float readBatteryVoltage(void)
             readADC(PWR_BAT_CHANNEL) /
             readADC(ADC_VREF_CHANNEL);
 #else
-    value = (VREFINT_VOLTAGE * PWR_BAT_SCALE_FACTOR) *
-            readADC(PWR_BAT_CHANNEL) /
-            readADC(ADC_VREF_CHANNEL);
-    // value = ((ADC_VDD * PWR_BAT_SCALE_FACTOR / ADC_VALUE_MAX)) *
-    //         readADC(PWR_BAT_CHANNEL);
+    value = ((ADC_VDD * PWR_BAT_SCALE_FACTOR / ADC_VALUE_MAX)) *
+            readADC(PWR_BAT_CHANNEL);
+    // value = (VREFINT_VOLTAGE * PWR_BAT_SCALE_FACTOR) *
+    //         readADC(PWR_BAT_CHANNEL) /
+    //         readADC(ADC_VREF_CHANNEL);
 #endif
 
     stopADC();

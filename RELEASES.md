@@ -3,35 +3,40 @@
 ## 2.2 "Sundry"
 
 Updates:
-* Added support for the GC-GMC-800 Geiger counter, with software-improved pulse-stretching to ensure consistent pulse clicks at high levels of radiation.
-* Added multilingual support for 27 languages, including Bulgarian, Chinese, Croatian, Czech, Danish, Dutch, English, Finnish, French, German, Greek, Hungarian, Italian, Japanese, Korean, Norwegian, Polish, Portuguese, Romanian, Russian, Slovakian, Slovenian, Spanish, Swedish, Turkish, Ukrainian, Vietnamese.
-* Improved power management:
+* **Geiger counter support:** Added compatibility for the GQ GMC-800 Geiger counter with software-enhanced pulse-stretching for reliable pulse clicks at high radiation levels.
+* **Multilingual support:** Expanded to 27 languages, including Bulgarian, Chinese, Croatian, Czech, Danish, Dutch, English, Finnish, French, German, Greek, Hungarian, Italian, Japanese, Korean, Norwegian, Polish, Portuguese, Romanian, Russian, Slovakian, Slovenian, Spanish, Swedish, Turkish, Ukrainian, and Vietnamese.
+* **User interface improvements:**
+  * Changed pulse sound toggle to press-and-hold the Down key on FS2011, FS-600, and GC-01 devices.
+  * Added user-selectable secondary units.
+  * Added averaging intervals of 3, 6, 12, 24 hours, ±50%, ±20%, ±10%, ±5%, ±2% and ±1% confidence intervals.
+* **Power management enhancements:**
   * Connecting a powered-off device to USB no longer powers it on.
   * Device now shuts off at critically low battery levels.
-  * Battery indicator now displays green when charging and red when low.
+  * Battery indicator now shows green when charging and red when low.
   * Statistics now display battery voltage for all cells.
-* Secondary units are now user-selectable.
-* Added 3, 6, 12, 24-hour averaging intervals, plus confidence intervals of ±50%, ±20%, ±10%, ±5%, ±2% and ±1%.
-* Extended the sensitivity range to 1-10,000 cpm/µSv/h to support low-sensitivity Geiger tubes (e.g., SI-3BG).
-* Expanded the dead-time compensation range to 5-500 µs for compatibility with scintillation detectors.
-* Adjusted the SBM-20 sensitivity to 150.5 cpm/µSv/h.
-* Loss-of-count detection is now dynamically adjusted based on selected sensitivity.
-* Enhanced voltage measurement accuracy for FS2011 (GD32F150R8/GD32F103R8) and FNIRSI GC-01.
-* Improved the radpro-tool timezone synchronization and error handling.
-* Introduced the "SET deviceTimeZone" and "GET deviceTimeZone" data commands.
-* Added the "RESET datalog" data command to clear data logs.
-* Removed background compensation due to negligible intrinsic activity in common Geiger tubes; removed corresponding "GET tubeBackgroundCompensation" data command.
+* **Measurements:**
+  * Extended sensitivity range to 1–10,000 cpm/µSv/h for low-sensitivity Geiger tubes (e.g., SI-3BG).
+  * Expanded dead-time compensation range to 5-500 µs for scintillation detector compatibility.
+  * Adjusted SBM-20 sensitivity to 150.5 cpm/µSv/h.
+  * Loss-of-count detection is now dynamically adjusted based on selected sensitivity.
+* **Data and connectivity:**
+  * Improved `radpro-tool` timezone synchronization and error handling.
+  * Added `SET deviceTimeZone` and `GET deviceTimeZone` data commands.
+  * Introduced `RESET datalog` data command to clear data logs.
+* **Removed features:**
+  * Eliminated background compensation due to negligible intrinsic activity in common Geiger tubes
+  * Removed `GET tubeBackgroundCompensation` data command.
 
 Fixes:
 * Fixed issue preventing proper updates to history and maximum values for 10-second, 30-second and 60-second averaging intervals.
-* Corrected settings to display hours in AM/PM format when 12-hour format is selected.
+* Corrected 12-hour format to properly display AM/PM in Settings.
 * Fixed game flicker issue on portrait-oriented devices.
 
 ## 2.1.1 "The dot mender"
 
 Updates:
 * Renamed "Conversion factor" to "Sensitivity" (as sensitivity is cpm/radiation rate, while conversion factor is radiation rate/cpm).
-* Renamed the "GET tubeConversionFactor" data command to "GET tubeSensitivity".
+* Renamed the `GET tubeConversionFactor` data command to `GET tubeSensitivity`.
 * On 5-key devices, a short press of the power key in the measurement view now puts the display to sleep.
 * On 3-key devices, holding the left and right keys in the measurement view now toggles pulse sounds.
 * Lock mode can now be accessed from any screen without needing to navigate to the settings menu.
@@ -88,7 +93,7 @@ Fixes:
 * Reverted the default conversion factor for J613/J614 tubes to 60.0 cpm/µSv/h.
 
 * Resolved issues with custom HV profiles.
-* Resolved issues with the "SET tubeHVFrequency" and "SET tubeHVDutyCycle" data connection requests.
+* Resolved issues with the `SET tubeHVFrequency` and `SET tubeHVDutyCycle` data connection requests.
 * Resolved issues with new history data log download.
 * Minor refinements.
 
@@ -98,7 +103,7 @@ Fixes:
 * Updated the UI design system to [OpenBridge 5.0](https://www.openbridge.no/), improving legibility under sunlight.
 * Changed the default conversion factor for J613/J614 tubes to 30.0 cpm/µSv/h.
 * Removed the FNIRSI GC-01 display panel settings.
-* Increased the granularity and range of the "SET tubeHVFrequency" and "SET tubeHVDutyCycle" data connection requests to CPU clock resolution and 100 Hz-100 kHz and 0%-100%, respectively (not stored on power-off).
+* Increased the granularity and range of the `SET tubeHVFrequency` and `SET tubeHVDutyCycle` data connection requests to CPU clock resolution and 100 Hz-100 kHz and 0%-100%, respectively (not stored on power-off).
 
 ## 2.0rc5 "The final countdown"
 
@@ -107,11 +112,11 @@ Fixes:
 * Added secondary dose view in average measurement mode.
 * Extended conversion factor range to 25-1600 cpm/µSv/h.
 * Added 1 second data log interval options and removed 30 seconds and 30 minutes data log interval options.
-* Added "SET tubeHVFrequency" and "SET tubeHVDutyCycle" data connection commands.
+* Added `SET tubeHVFrequency` and `SET tubeHVDutyCycle` data connection commands.
 * Added 24/12-hour time format selection.
 * Devices with data mode allow using the device while data mode is active; data mode state is also preserved after powering off.
 * Improved battery level indicator of the Bosean FS-600/FS-1000.
-* Improved battery level readout of the FS2011(STM32F051), Bosean FS-600/FS-1000.
+* Improved battery level readout of the FS2011 (STM32F051), Bosean FS-600/FS-1000.
 * Improved keyboard control scheme of the Bosean FS-1000.
 * Changed USB data connection end of line to "\r\n".
 * Minor refinements.

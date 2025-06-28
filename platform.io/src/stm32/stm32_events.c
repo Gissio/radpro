@@ -37,9 +37,7 @@ void initEventsHardware(void)
     wait_until_bits_clear(IWDG->SR, IWDG_SR_RVU);
     IWDG->RLR = (LSI_FREQUENCY / 256) - 1;
     
-    // +++ TEST
-    // iwdg_start();
-    // +++ TEST
+    iwdg_start();
 }
 
 void SysTick_Handler(void)
