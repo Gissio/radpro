@@ -1,6 +1,6 @@
-[![Rad Pro Simulator - Try me!](docs/img/radpro-title-tryme.png)](https://gissio.github.io/radpro/simulator/)
+[![Rad Pro Simulator - Try me!](docs/img/radpro-title-tryme.png)](https://gissio.github.io/radpro-simulator/)
 
-Try the [Rad Pro simulator](https://gissio.github.io/radpro/simulator/)!
+Try the [Rad Pro simulator](https://gissio.github.io/radpro-simulator/)!
 
 ## Introduction
 
@@ -40,4 +40,4 @@ With Rad Pro, you can:
 
 * Rad Pro's user interface is based on the industry-standard [OpenBridge 5.0](https://www.openbridge.no/) design system.
 * Special thanks to `Alfred90`, `danielhahn76`, `felixsteghofer`, `DG0MG`, `murkle`, `cromagn`, `ivohar`,`mryndzionek`, `JantarX`,  `mizsha`, `Tig3rch3n`, `Arparela`, `w01fdev`, `martin-machacek`, `dsl71`, `Davegsm82`, `alfmck`, `jonwhite227`, `dc1rdb`, `ihrapsa`, `Montecri`, `boromix`, `maxobe`, `TheAsgard`, `ugopapetti`, `NuclearPhoenixx`, `technils`, `Ilja-code-art`, `ICantMakeThings`, `mayrthom`, `hackra76`, `plamenbe`, and many others for their valuable contributions to device testing and feedback.
-* Thanks to `pixitha` for the FS2011(GD32F150) board photos with a J305 Geiger tube, `felixsteghofer` for the FS2011(GD32F103) board photos, `DG0MG` for the Bosean FS-600 board photos, `murkle` for the Bosean FS-1000 board photos, `ivohar` for the FNIRSCI GC-01 schematics, and `oOblik` for the Bosean FS-5000 board photos.
+* Thanks to `pixitha` for the FS2011 (GD32F150) board photos with a J305 Geiger tube, `felixsteghofer` for the FS2011 (GD32F103) board photos, `DG0MG` for the Bosean FS-600 board photos, `murkle` for the Bosean FS-1000 board photos, `ivohar` for the FNIRSCI GC-01 schematics, and `oOblik` for the Bosean FS-5000 board photos.

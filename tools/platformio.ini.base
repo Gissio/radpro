@@ -135,8 +135,6 @@ extends = fnirsi-gc01
 board = ch32f103r8
 build_flags =
     ${fnirsi-gc01.build_flags}
-    -DFONT_LARGE='"fonts/font_color_low_large.h"'
-    -DFONT_SYMBOLS='"fonts/font_color_low_symbols.h"'
     -DFONT_SYMBOLS_NOCHARGING
     -DDATA_MODE
 

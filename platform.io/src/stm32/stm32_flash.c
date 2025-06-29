@@ -31,6 +31,8 @@ const uint32_t flashWordSize = FLASH_WORD_SIZE;
 
 // Flash
 
+const uint32_t flashFirmwareSize = FIRMWARE_SIZE;
+
 void initFlash(void)
 {
 }

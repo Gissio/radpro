@@ -1,7 +1,7 @@
 # Rad Pro
 # Signs the Rad Pro firmware
 #
-# (C) 2022-2023 Gissio
+# (C) 2022-2025 Gissio
 #
 # License: MIT
 #
@@ -68,6 +68,8 @@ def sign_firmware(env_name, flash_size, container_offset, container_size, contai
     """ Sign firmware
     """
 
+    env_manufacturer = env_name.split('-')[0]
+
     languages = get_languages()
 
     for language in languages:
@@ -100,9 +102,13 @@ def sign_firmware(env_name, flash_size, container_offset, container_size, contai
         with open(bin_file, 'rb') as f:
             firmware = bytearray(f.read())
 
-            if len(firmware) > footer_index:
-                print('warning: input file too large')
-                continue
+        remaining_space = footer_index - len(firmware)
+
+        if remaining_space < 0:
+            print(
+                f'warning: input file too large: remaining space {remaining_space}')
+
+            continue
 
         # Sign
         flash[0:len(firmware)] = firmware
@@ -111,32 +117,39 @@ def sign_firmware(env_name, flash_size, container_offset, container_size, contai
         store_word(flash, 0x24, swd_comm_address)
         store_word(flash, footer_index, get_crc(flash[0:footer_index]))
 
-        # Write signed binary
-        build_prefix = 'radpro-' + env_name + '-' + language + '-' + firmware_version
+        # Build firmware stem
+        build_stem = 'radpro-' + env_name + '-' + language + '-' + firmware_version
 
+        # Build install binary
         if container_offset != 0:
-            output_path = build_prefix + '-install.bin'
+            install_path = env_manufacturer + '/' + 'install' + '/'
+            output_path = install_path + build_stem + '-install.bin'
+
+            os.makedirs(install_path, exist_ok=True)
             with open(output_path, 'wb') as f:
                 f.write(flash)
 
-        output_path = build_prefix + '.bin'
+        # Build firmware binary
+        firmware_path = env_manufacturer + '/' + 'firmware' + '/'
+        output_path = firmware_path + build_stem + '.bin'
+
+        os.makedirs(firmware_path, exist_ok=True)
         with open(output_path, 'wb') as f:
             f.write(flash[0:container_size])
 
-
-# Variables
-
-def main():
-    sign_firmware('fs2011-stm32f051c8', 0x10000, 0x0, 0xa000, 0xb800)
-    sign_firmware('fs2011-gd32f150c8', 0x10000, 0x0, 0xa000, 0xb800)
-    sign_firmware('fs2011-gd32f103c8', 0x10000, 0x0, 0xa000, 0xb800)
-    sign_firmware('bosean-fs600', 0x20000, 0x0, 0xa000, 0xb800)
-    sign_firmware('bosean-fs1000', 0x20000, 0x0, 0xa000, 0xb800)
-    sign_firmware('bosean-fs5000_portrait', 0x40000, 0x0, 0xf000, 0x1a000)
-    sign_firmware('bosean-fs5000_landscape', 0x40000, 0x0, 0xf000, 0x1a000)
-    sign_firmware('fnirsi-gc01_ch32f103r8', 0x10000, 0x4000, 0xa400, 0xa400)
-    sign_firmware('fnirsi-gc01_apm32f103rb', 0x20000, 0x4000, 0xf000, 0x1a000)
+        print(
+            f'done: remaining space {remaining_space}')
 
 
-if __name__ == '__main__':
-    main()
+# Sign firmware
+sign_firmware('fs2011-stm32f051c8', 0x10000, 0x0, 0xa800, 0xb800)
+sign_firmware('fs2011-gd32f150c8', 0x10000, 0x0, 0xa800, 0xb800)
+sign_firmware('fs2011-gd32f103c8', 0x10000, 0x0, 0xa800, 0xb800)
+sign_firmware('bosean-fs600', 0x20000, 0x0, 0xa800, 0xb800)
+sign_firmware('bosean-fs1000', 0x20000, 0x0, 0xa800, 0xb800)
+sign_firmware('bosean-fs5000_portrait', 0x40000, 0x0, 0xf000, 0x1a000)
+sign_firmware('bosean-fs5000_landscape', 0x40000, 0x0, 0xf000, 0x1a000)
+sign_firmware('fnirsi-gc01_ch32f103r8', 0x10000, 0x4000, 0xa400, 0xa400)
+sign_firmware('fnirsi-gc01_apm32f103rb', 0x20000, 0x4000, 0xf000, 0x1a000)
+sign_firmware('gq-gmc800_portrait', 0x40000, 0x0, 0xf000, 0x1a000)
+sign_firmware('gq-gmc800_landscape', 0x40000, 0x0, 0xf000, 0x1a000)

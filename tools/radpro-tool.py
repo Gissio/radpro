@@ -1,7 +1,7 @@
 # Rad Pro
 # Python tool
 #
-# (C) 2022-2023 Gissio
+# (C) 2022-2025 Gissio
 #
 # License: MIT
 #

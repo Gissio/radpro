@@ -1,2 +1,0 @@
-#!/bin/bash
-pyinstaller.exe -F radpro-tool.py

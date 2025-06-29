@@ -10,11 +10,17 @@
 #if defined(SIMULATOR)
 
 #include <stdio.h>
+#include <string.h>
 
 #include "../comm.h"
+#include "../cstring.h"
 #include "../system.h"
 
 const char *const commId = "Rad Pro simulator;Rad Pro " FIRMWARE_VERSION;
+
+void initComm(void)
+{
+}
 
 #if defined(SIMULATE_COMM)
 
@@ -23,10 +29,6 @@ const char *const commId = "Rad Pro simulator;Rad Pro " FIRMWARE_VERSION;
 #define COMM_SERIAL_BAUDRATE 115200
 
 static ser_t *sercomm;
-
-void initComm(Void)
-{
-}
 
 void openComm(void)
 {
