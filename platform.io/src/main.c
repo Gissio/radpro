@@ -86,7 +86,13 @@ int main(void)
 #if defined(START_POWERON)
     powerOn();
 #else
-    powerOff(!isAnyKeyDown());
+    if (isPowerKeyDown())
+    {
+        waitLongKeyPress();
+        powerOn();
+    }
+    else
+        powerOff(true);
 #endif
 
     // Main loop

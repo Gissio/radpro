@@ -32,7 +32,7 @@ static ser_t *sercomm;
 
 void openComm(void)
 {
-    if (comm.enabled)
+    if (comm.open)
         return;
 
     sercomm = ser_create();
@@ -68,7 +68,7 @@ void openComm(void)
 
 void closeComm(void)
 {
-    if (!comm.enabled)
+    if (!comm.open)
         return;
 
     ser_close(sercomm);
@@ -93,7 +93,7 @@ void updateComm(void)
                  COMM_BUFFER_SIZE,
                  &receivedBytes);
 
-    if (!comm.enabled)
+    if (!comm.open)
         return;
 
     switch (comm.state)

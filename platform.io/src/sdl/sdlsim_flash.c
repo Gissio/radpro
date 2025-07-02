@@ -14,22 +14,24 @@
 
 #include "../flash.h"
 
+#define FLASH_BASE 0x08000000
 #define FLASH_PAGE_SIZE 0x400
 #define FLASH_WORD_SIZE 0x2
 #define FLASH_SIZE 0x10000
+#define FIRMWARE_BASE 0x08000000
+#define FIRMWARE_SIZE 0xa800
+
+#define SETTINGS_PAGE_BEGIN ((FIRMWARE_BASE - FLASH_BASE + FIRMWARE_SIZE) / FLASH_PAGE_SIZE)
+#define SETTINGS_PAGE_END (SETTINGS_PAGE_BEGIN + 1)
+#define DATALOG_PAGE_BEGIN SETTINGS_PAGE_END
+#define DATALOG_PAGE_END (FLASH_SIZE / FLASH_PAGE_SIZE)
 
 #define FLASH_FILENAME "radpro-simulator-settings.bin"
 
 uint8_t flashImage[FLASH_SIZE];
 
-const FlashRegion flashSettingsRegion = {
-    0x0,
-    0x1,
-};
-const FlashRegion flashDatalogRegion = {
-    0x1,
-    0x40,
-};
+const FlashRegion flashSettingsRegion = {SETTINGS_PAGE_BEGIN, SETTINGS_PAGE_END};
+const FlashRegion flashDatalogRegion = {DATALOG_PAGE_BEGIN, DATALOG_PAGE_END};
 
 const uint32_t flashPageDataSize = FLASH_PAGE_SIZE - FLASH_WORD_SIZE;
 const uint32_t flashWordSize = FLASH_WORD_SIZE;

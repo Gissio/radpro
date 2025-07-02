@@ -36,7 +36,7 @@ def get_firmware_version():
                 return tokens[1]
 
 
-def get_swd_comm_address(elf_file):
+def extract_elf_data(elf_file):
     """ Get SWD comm
     """
     with open(elf_file, 'rb') as f:
@@ -45,7 +45,20 @@ def get_swd_comm_address(elf_file):
         symtab = elf.get_section_by_name('.symtab')
         comm = symtab.get_symbol_by_name('comm')[0].entry['st_value']
 
-    return comm
+        comment_data = elf.get_section_by_name('.comment').data()
+        comments = {}
+        for line in comment_data.split(b'\x00')[:-1]:
+            decoded_string = line.decode('ascii')
+            pair = decoded_string.split(': ', 2)
+            comments[pair[0]] = pair[1]
+
+        flash_size = int(comments['FLASH_SIZE'], 16)
+        firmware_offset = int(comments['FIRMWARE_BASE'], 16) - 0x08000000
+        firmware_size = int(comments['FIRMWARE_SIZE'], 16)
+
+        return comm, flash_size, firmware_offset, firmware_size
+
+    return None
 
 
 def get_crc(buffer, crc=0xffffffff):
@@ -60,11 +73,15 @@ def get_crc(buffer, crc=0xffffffff):
     return crc
 
 
-def store_word(buffer, address, value):
+def read_word(buffer, address):
     buffer[address:address+4] = bytearray(struct.pack('<L', value))
 
 
-def sign_firmware(env_name, flash_size, container_offset, container_size, container_size_cjk):
+def write_word(buffer, address, value):
+    buffer[address:address+4] = bytearray(struct.pack('<L', value))
+
+
+def sign_firmware(env_name):
     """ Sign firmware
     """
 
@@ -79,9 +96,6 @@ def sign_firmware(env_name, flash_size, container_offset, container_size, contai
         bin_file = build_dir + 'firmware.bin'
         elf_file = build_dir + 'firmware.elf'
 
-        if language in ['ja', 'ko', 'zh_CN']:
-            container_size = container_size_cjk
-
         print('Building ' + build_name + '...')
 
         # Read compiled firmware
@@ -90,17 +104,17 @@ def sign_firmware(env_name, flash_size, container_offset, container_size, contai
             continue
 
         firmware_version = get_firmware_version()
-        swd_comm_address = get_swd_comm_address(elf_file)
-
-        footer_size = 0x4
-        footer_index = container_size - footer_size
-        file_size = flash_size - container_offset
-
-        flash = bytearray(b'\xff' * file_size)
+        swd_comm_address, flash_size, firmware_offset, firmware_size = extract_elf_data(elf_file)
 
         firmware = None
         with open(bin_file, 'rb') as f:
             firmware = bytearray(f.read())
+
+        footer_size = 0x4
+        footer_index = firmware_size - footer_size
+        file_size = flash_size - firmware_offset
+
+        flash = bytearray(b'\xff' * file_size)
 
         remaining_space = footer_index - len(firmware)
 
@@ -113,15 +127,15 @@ def sign_firmware(env_name, flash_size, container_offset, container_size, contai
         # Sign
         flash[0:len(firmware)] = firmware
 
-        store_word(flash, 0x20, 0x50444152)
-        store_word(flash, 0x24, swd_comm_address)
-        store_word(flash, footer_index, get_crc(flash[0:footer_index]))
+        write_word(flash, 0x20, 0x50444152)
+        write_word(flash, 0x24, swd_comm_address)
+        write_word(flash, footer_index, get_crc(flash[0:footer_index]))
 
         # Build firmware stem
         build_stem = 'radpro-' + env_name + '-' + language + '-' + firmware_version
 
         # Build install binary
-        if container_offset != 0:
+        if firmware_offset != 0:
             install_path = env_manufacturer + '/' + 'install' + '/'
             output_path = install_path + build_stem + '-install.bin'
 
@@ -135,21 +149,21 @@ def sign_firmware(env_name, flash_size, container_offset, container_size, contai
 
         os.makedirs(firmware_path, exist_ok=True)
         with open(output_path, 'wb') as f:
-            f.write(flash[0:container_size])
+            f.write(flash[0:firmware_size])
 
         print(
             f'done: remaining space {remaining_space}')
 
 
 # Sign firmware
-sign_firmware('fs2011-stm32f051c8', 0x10000, 0x0, 0xa800, 0xb800)
-sign_firmware('fs2011-gd32f150c8', 0x10000, 0x0, 0xa800, 0xb800)
-sign_firmware('fs2011-gd32f103c8', 0x10000, 0x0, 0xa800, 0xb800)
-sign_firmware('bosean-fs600', 0x20000, 0x0, 0xa800, 0xb800)
-sign_firmware('bosean-fs1000', 0x20000, 0x0, 0xa800, 0xb800)
-sign_firmware('bosean-fs5000_portrait', 0x40000, 0x0, 0xf000, 0x1a000)
-sign_firmware('bosean-fs5000_landscape', 0x40000, 0x0, 0xf000, 0x1a000)
-sign_firmware('fnirsi-gc01_ch32f103r8', 0x10000, 0x4000, 0xa400, 0xa400)
-sign_firmware('fnirsi-gc01_apm32f103rb', 0x20000, 0x4000, 0xf000, 0x1a000)
-sign_firmware('gq-gmc800_portrait', 0x40000, 0x0, 0xf000, 0x1a000)
-sign_firmware('gq-gmc800_landscape', 0x40000, 0x0, 0xf000, 0x1a000)
+sign_firmware('fs2011-stm32f051c8')
+sign_firmware('fs2011-gd32f150c8')
+sign_firmware('fs2011-gd32f103c8')
+sign_firmware('bosean-fs600')
+sign_firmware('bosean-fs1000')
+sign_firmware('bosean-fs5000_portrait')
+sign_firmware('bosean-fs5000_landscape')
+sign_firmware('fnirsi-gc01_ch32f103r8')
+sign_firmware('fnirsi-gc01_apm32f103rb')
+sign_firmware('gq-gmc800_portrait')
+sign_firmware('gq-gmc800_landscape')

@@ -148,14 +148,19 @@ static const char *onTubeHVFrequencyMenuGetOption(const Menu *menu,
 {
     *menuStyle = (index == settings.tubeHVFrequency);
 
-    float frequency = getTubeHVCustomProfileFrequency(index) / 1000;
+    if (index < TUBE_HVFREQUENCY_NUM)
+    {
+        float frequency = getTubeHVCustomProfileFrequency(index) / 1000;
 
-    strcpy(menuOption, "");
-    strcatFloat(menuOption, frequency, 2);
-    strcatChar(menuOption, ' ');
-    strcat(menuOption, getString(STRING_KHZ));
+        strclr(menuOption);
+        strcatFloat(menuOption, frequency, 2);
+        strcatChar(menuOption, ' ');
+        strcat(menuOption, getString(STRING_KHZ));
 
-    return menuOption;
+        return menuOption;
+    }
+    else
+        return NULL;
 }
 
 static void onTubeHVFrequencyMenuSelect(const Menu *menu)
@@ -477,12 +482,12 @@ float getTubeSensitivity(void)
 uint32_t getLossOfCountTime(void)
 {
     // 60 s/min * [number of periods] * [lowest expected radiation in uSv/h]
-    return (uint32_t) ((60.0F * 10.0F / 0.05F) / getTubeSensitivity()) + 1;
+    return (uint32_t)((60.0F * 10.0F / 0.05F) / getTubeSensitivity()) + 1;
 }
 
 static const char *onTubeSensitivityMenuGetOption(const Menu *menu,
-                                                       uint32_t index,
-                                                       MenuStyle *menuStyle)
+                                                  uint32_t index,
+                                                  MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.tubeSensitivity);
 

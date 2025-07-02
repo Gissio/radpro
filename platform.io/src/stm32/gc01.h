@@ -19,11 +19,11 @@
 #define LSI_FREQUENCY 40000
 
 #if defined(CH32)
-#define FLASH_SIZE 0x10000
+#define FLASH_SIZE 0x10000UL
 #elif defined(APM32)
-#define FLASH_SIZE 0x20000
+#define FLASH_SIZE 0x20000UL
 #endif
-#define FIRMWARE_BASE 0x08004000
+#define FIRMWARE_BASE 0x08004000UL
 
 #define PWR_EN_PORT GPIOA
 #define PWR_EN_PIN 2

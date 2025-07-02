@@ -2,23 +2,23 @@
 
 ## 2.2 "Sundry"
 
-Updates:
 * **Geiger counter support:** Added compatibility for the GQ GMC-800 Geiger counter with software-enhanced pulse-stretching for reliable pulse clicks at high radiation levels.
 * **Multilingual support:** Expanded to 27 languages, including Bulgarian, Chinese, Croatian, Czech, Danish, Dutch, English, Finnish, French, German, Greek, Hungarian, Italian, Japanese, Korean, Norwegian, Polish, Portuguese, Romanian, Russian, Slovakian, Slovenian, Spanish, Swedish, Turkish, Ukrainian, and Vietnamese.
 * **User interface improvements:**
   * Changed pulse sound toggle to press-and-hold the Down key on FS2011, FS-600, and GC-01 devices.
   * Added user-selectable secondary units.
-  * Added averaging intervals of 3, 6, 12, 24 hours, ±50%, ±20%, ±10%, ±5%, ±2% and ±1% confidence intervals.
 * **Power management enhancements:**
   * Connecting a powered-off device to USB no longer powers it on.
   * Device now shuts off at critically low battery levels.
   * Battery indicator now shows green when charging and red when low.
   * Statistics now display battery voltage for all cells.
 * **Measurements:**
+  * Added averaging intervals of 3, 6, 12, 24 hours, ±50%, ±20%, ±10%, ±5%, ±2% and ±1% confidence intervals.
   * Extended sensitivity range to 1–10,000 cpm/µSv/h for low-sensitivity Geiger tubes (e.g., SI-3BG).
   * Expanded dead-time compensation range to 5-500 µs for scintillation detector compatibility.
   * Adjusted SBM-20 sensitivity to 150.5 cpm/µSv/h.
   * Loss-of-count detection is now dynamically adjusted based on selected sensitivity.
+  * Enhanced voltage measurement accuracy for FS2011 (GD32F150R8/GD32F103R8) and FNIRSI GC-01.
 * **Data and connectivity:**
   * Improved `radpro-tool` timezone synchronization and error handling.
   * Added `SET deviceTimeZone` and `GET deviceTimeZone` data commands.
@@ -26,53 +26,52 @@ Updates:
 * **Removed features:**
   * Eliminated background compensation due to negligible intrinsic activity in common Geiger tubes
   * Removed `GET tubeBackgroundCompensation` data command.
-
-Fixes:
-* Fixed issue preventing proper updates to history and maximum values for 10-second, 30-second and 60-second averaging intervals.
-* Corrected 12-hour format to properly display AM/PM in Settings.
-* Fixed game flicker issue on portrait-oriented devices.
+* **Fixes:**
+  * Fixed issue preventing proper updates to history and maximum values for 10-second, 30-second and 60-second averaging intervals.
+  * Fixed issue causing datalog writing failures when the device was USB-powered but powered off.
+  * Corrected 12-hour format to properly display AM/PM in Settings.
+  * Fixed game flicker issue on portrait-oriented devices.
 
 ## 2.1.1 "The dot mender"
 
-Updates:
-* Renamed "Conversion factor" to "Sensitivity" (as sensitivity is cpm/radiation rate, while conversion factor is radiation rate/cpm).
-* Renamed the `GET tubeConversionFactor` data command to `GET tubeSensitivity`.
-* On 5-key devices, a short press of the power key in the measurement view now puts the display to sleep.
-* On 3-key devices, holding the left and right keys in the measurement view now toggles pulse sounds.
-* Lock mode can now be accessed from any screen without needing to navigate to the settings menu.
-* Die rolls and coin flips now generate a single outcome per run.
-* Added support for 100-sided and 10-sided die rolls, as well as binary random number generation.
-* History is now calculated only when the instantaneous rate confidence interval falls below 75%.
-* When the battery level is critically low (0 bars), Rad Pro now automatically saves the dose every 60 minutes.
-
-Fixes:
-* On devices with a color display, fixed an issue where the measurement dot occasionally failed to appear in the measurement view.
-* Corrected battery voltage measurement issues on the Bosean FS-5000.
+* **Updates:**
+  * Renamed "Conversion factor" to "Sensitivity" (as sensitivity is cpm/radiation rate, while conversion factor is radiation rate/cpm).
+  * Renamed the `GET tubeConversionFactor` data command to `GET tubeSensitivity`.
+  * On 5-key devices, a short press of the power key in the measurement view now puts the display to sleep.
+  * On 3-key devices, holding the left and right keys in the measurement view now toggles pulse sounds.
+  * Lock mode can now be accessed from any screen without needing to navigate to the settings menu.
+  * Die rolls and coin flips now generate a single outcome per run.
+  * Added support for 100-sided and 10-sided die rolls, as well as binary random number generation.
+  * History is now calculated only when the instantaneous rate confidence interval falls below 75%.
+  * When the battery level is critically low (0 bars), Rad Pro now automatically saves the dose every 60 minutes.
+* **Fixes:**
+  * On devices with a color display, fixed an issue where the measurement dot occasionally failed to appear in the measurement view.
+  * Corrected battery voltage measurement issues on the Bosean FS-5000.
 
 ## 2.1 "Delicious trifles"
 
-Updates:
-* Added the ability to dismiss alarms with the reset measurement key.
-* Added configurable alarm indication: sound, vibration, pulse LED and display flash.
-* Added an alarm enabled indicator.
-* Implemented a keyboard lock mode, accessible from Settings.
-* Display of dose counts below 10,000 now shown in standard notation.
-* Added new rate and dose alarm options.
-* Added new average timer options.
-* Extended the dead-time compensation range to 20-320 µs.
-* Added the ability to toggle pulse sounds from the measurement view on supported devices.
-* Added a new pulses chirps sound option.
-* Extended the duration of alarm sounds.
-* Enhanced the menu structure for more intuitive navigation.
-* Updated the UI font to Open Sans for enhanced readability.
-* Minor UI improvements.
+* **Updates:**
+  * Added the ability to dismiss alarms with the reset measurement key.
+  * Added configurable alarm indication: sound, vibration, pulse LED and display flash.
+  * Added an alarm enabled indicator.
+  * Implemented a keyboard lock mode, accessible from Settings.
+  * Display of dose counts below 10,000 now shown in standard notation.
+  * Added new rate and dose alarm options.
+  * Added new average timer options.
+  * Extended the dead-time compensation range to 20-320 µs.
+  * Added the ability to toggle pulse sounds from the measurement view on supported devices.
+  * Added a new pulses chirps sound option.
+  * Extended the duration of alarm sounds.
+  * Enhanced the menu structure for more intuitive navigation.
+  * Updated the UI font to Open Sans for enhanced readability.
+  * Minor UI improvements.
 
-Fixes:
-* On color displays, fixed an issue causing an unsightly flash when waking from sleep mode.
-* Fixed alarms continuing to sound after device shutdown while connected to external power.
-* Corrected the display of secondary rate and count views after the average timer expired.
-* Resolved an issue where the device state wasn't reset after a quick power cycle.
-* Corrected a problem where 1 minute instantaneous averaging at high radiation levels didn't average correctly.
+* **Fixes:**
+  * On color displays, fixed an issue causing an unsightly flash when waking from sleep mode.
+  * Fixed alarms continuing to sound after device shutdown while connected to external power.
+  * Corrected the display of secondary rate and count views after the average timer expired.
+  * Resolved an issue where the device state wasn't reset after a quick power cycle.
+  * Corrected a problem where 1 minute instantaneous averaging at high radiation levels didn't average correctly.
 
 ## 2.0.3 "The sensitive update"
 
@@ -137,7 +136,7 @@ Fixes:
 * UI update with big digits in measurement view.
 * Instantaneous rate bar with alert zones (1 µSv, 10 µSv).
 * History alert zones (1 µSv, 10 µSv).
-* Adde average timer expiration after reaching a configurable confidence interval.
+* Added average timer expiration after reaching a configurable confidence interval.
 * Added background compensation.
 * Added display flashes on the FNIRSI GC-01 (after display sleep).
 * Added vibration pulses on the FNIRSI GC-01 (off, weak or strong).

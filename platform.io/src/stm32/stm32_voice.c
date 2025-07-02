@@ -89,7 +89,14 @@ enum
     VOICE_DEVICECHARGING = 0x2f,
 };
 
-#define VOICE_SEQUENCE_MAX 64
+enum
+{
+    VOICE_ALARM_SOUND = 0,
+    VOICE_ALARM_VOICE = 4,
+    VOICE_ALARM_NUM = 5,
+};
+
+#define VOICE_SEQUENCE_MAX 32
 
 #define VOICE_BSRR(value) (1 << (VOICE_TX_PIN + 0x10 * (1 - value)))
 
@@ -103,7 +110,9 @@ typedef struct
 
 static struct
 {
-    volatile bool enabled;
+    volatile bool transmitting;
+
+    uint32_t alarmIndex;
 
     bool requestedSequenceUpdate;
     VoiceSequence requestedSequence;
@@ -116,7 +125,6 @@ static struct
 
 static void clearVoiceQueue(void);
 static void pushVoiceQueue(uint8_t value);
-static void pushVoiceQueueReset(void);
 static void sendVoiceQueue(void);
 
 void initVoice(void)
@@ -142,19 +150,15 @@ void initVoice(void)
         voice.buffer[VOICE_TX_DATA_INDEX + i * VOICE_TX_BIT_LENGTH] = VOICE_BSRR(1);
     voice.buffer[VOICE_TX_HIGH_INDEX] = VOICE_BSRR(1);
 
-    resetVoice();
-}
-
-static void pushVoiceQueueReset(void)
-{
-    pushVoiceQueue(VOICE_STOP);
+    clearVoiceQueue();
     pushVoiceQueue(voiceVolume[settings.alarmVolume]);
+    sendVoiceQueue();
 }
 
 void resetVoice(void)
 {
     clearVoiceQueue();
-    pushVoiceQueueReset();
+    pushVoiceQueue(VOICE_STOP);
     sendVoiceQueue();
 }
 
@@ -178,7 +182,7 @@ static void enableVoice(void)
                    VOICE_TX_TIMER_PERIOD);
     tim_enable(VOICE_TX_TIMER);
 
-    voice.enabled = true;
+    voice.transmitting = true;
 }
 
 static void disableVoice(void)
@@ -193,7 +197,7 @@ static void disableVoice(void)
     rcc_disable_dma(VOICE_TX_DMA);
     rcc_disable_tim(VOICE_TX_TIMER);
 
-    voice.enabled = false;
+    voice.transmitting = false;
 }
 
 static void sendVoiceData(uint8_t value)
@@ -243,13 +247,13 @@ void onVoiceTick(void)
         voice.sequence = voice.requestedSequence;
         voice.sequenceIndex = 0;
 
-        if (!voice.enabled)
+        if (!voice.transmitting)
             enableVoice();
 
         voice.requestedSequenceUpdate = false;
     }
 
-    if (voice.enabled && !isVoiceSending())
+    if (voice.transmitting && !isVoiceSending())
     {
         // Send
         if (voice.sequenceIndex < voice.sequence.size)
@@ -418,7 +422,8 @@ static void pushVoiceQueueDose(float value)
 void setVoiceVolume(void)
 {
     clearVoiceQueue();
-    pushVoiceQueueReset();
+    pushVoiceQueue(VOICE_STOP);
+    pushVoiceQueue(voiceVolume[settings.alarmVolume]);
     pushVoiceQueue(VOICE_ALARM);
     sendVoiceQueue();
 }
@@ -426,7 +431,7 @@ void setVoiceVolume(void)
 void playVoiceInstantaneousRate(void)
 {
     clearVoiceQueue();
-    pushVoiceQueueReset();
+    pushVoiceQueue(VOICE_STOP);
     pushVoiceQueueRate(getInstantaneousRate());
     sendVoiceQueue();
 }
@@ -434,7 +439,7 @@ void playVoiceInstantaneousRate(void)
 void playVoiceAverageRate(void)
 {
     clearVoiceQueue();
-    pushVoiceQueueReset();
+    pushVoiceQueue(VOICE_STOP);
     pushVoiceQueueRate(getAverageRate());
     sendVoiceQueue();
 }
@@ -442,14 +447,14 @@ void playVoiceAverageRate(void)
 void playVoiceCumulativeDose(void)
 {
     clearVoiceQueue();
-    pushVoiceQueueReset();
+    pushVoiceQueue(VOICE_STOP);
     pushVoiceQueueDose(getCumulativeDosePulseCount());
     sendVoiceQueue();
 }
 
 void playVoiceAlarm(void)
 {
-    if (voice.enabled || isVoicePlaying())
+    if (voice.transmitting || isVoicePlaying())
         return;
 
     bool playSound = settings.alarmIndication & (1 << ALARMINDICATION_SOUND);
@@ -459,36 +464,25 @@ void playVoiceAlarm(void)
 
     if (!playSound && !playVoice)
         return;
+    else if (playSound && !playVoice)
+        voice.alarmIndex = 0;
+    else if (!playSound && playVoice)
+        voice.alarmIndex = VOICE_ALARM_VOICE;
 
     clearVoiceQueue();
-    if (playSound)
+    if (voice.alarmIndex < VOICE_ALARM_VOICE)
     {
-        if (!playVoice)
-        {
-            pushVoiceQueue(VOICE_ALARM);
-            pushVoiceQueue(VOICE_ALARM);
-        }
-        else
-        {
-            for (uint32_t i = 0; i < 4; i++)
-            {
-                pushVoiceQueue(VOICE_ALARM);
-                pushVoiceQueue(VOICE_ALARM);
-                // Mute pulse
-                pushVoiceQueue(VOICE_VOLUME0);
-                pushVoiceQueue(VOICE_ALARM);
-                // Reset volume
-                pushVoiceQueue(voiceVolume[settings.alarmVolume]);
-            }
-        }
+        pushVoiceQueue(VOICE_ALARM);
+        pushVoiceQueue(VOICE_ALARM);
     }
-    if (playVoice)
+    else
     {
         if (isInstantaneousRateAlarm())
             pushVoiceQueueRate(getInstantaneousRate());
         if (isCumulativeDoseAlarm())
             pushVoiceQueueDose(getCumulativeDosePulseCount());
     }
+    voice.alarmIndex = (voice.alarmIndex + 1) % VOICE_ALARM_NUM;
     sendVoiceQueue();
 }
 

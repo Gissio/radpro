@@ -16,8 +16,8 @@
 #include "settings.h"
 
 #if defined(KEYBOARD_2KEYS) || defined(KEYBOARD_3KEYS)
-#define KEY_PRESSED_LONG ((uint32_t)(0.25 * SYSTICK_FREQUENCY / KEY_TICKS))
-#define KEY_PRESSED_EXTENDED ((uint32_t)(1.0 * SYSTICK_FREQUENCY / KEY_TICKS))
+#define KEY_PRESSED_SHORT ((uint32_t)(0.25 * SYSTICK_FREQUENCY / KEY_TICKS))
+#define KEY_PRESSED_LONG ((uint32_t)(1.0 * SYSTICK_FREQUENCY / KEY_TICKS))
 #elif defined(KEYBOARD_4KEYS) || defined(KEYBOARD_5KEYS)
 #define KEY_REPEAT_START ((uint32_t)(0.5 * SYSTICK_FREQUENCY / KEY_TICKS))
 #define KEY_REPEAT_PERIOD ((uint32_t)(0.05 * SYSTICK_FREQUENCY / KEY_TICKS))
@@ -47,26 +47,33 @@ void initKeyboard(void)
 {
     initKeyboardHardware();
 
-#if defined(START_POWERON)
     getKeyboardState(keyboard.wasKeyPressed);
 
     keyboard.pressedTicks = ((uint32_t)(10.0 * SYSTICK_FREQUENCY / KEY_TICKS));
-#endif
     keyboard.pressedKey = KEY_NONE;
 
     keyboard.enabled = true;
 }
 
-bool isAnyKeyDown(void)
+bool isPowerKeyDown(void)
 {
     bool isKeyPressed[KEY_NUM];
     getKeyboardState(isKeyPressed);
 
-    for (uint32_t i = 0; i < KEY_NUM; i++)
-        if (isKeyPressed[i])
-            return true;
+#if defined(KEYBOARD_2KEYS)
+    return isKeyPressed[KEY_RIGHT];
+#elif defined(KEYBOARD_3KEYS)
+    return isKeyPressed[KEY_OK];
+#elif defined(KEYBOARD_4KEYS)
+    return isKeyPressed[KEY_RIGHT];
+#elif defined(KEYBOARD_5KEYS)
+    return isKeyPressed[KEY_OK];
+#endif
+}
 
-    return false;
+void waitLongKeyPress(void)
+{
+    sleep(KEY_TICKS * KEY_PRESSED_LONG);
 }
 
 void onKeyboardTick(void)
@@ -115,12 +122,12 @@ void onKeyboardTick(void)
 #if defined(KEYBOARD_2KEYS)
             if (keyboard.mode == KEYBOARD_MODE_MEASUREMENT)
             {
-                if (keyboard.pressedTicks < KEY_PRESSED_LONG)
+                if (keyboard.pressedTicks < KEY_PRESSED_SHORT)
                 {
                     if (i == KEY_RIGHT)
                         event = EVENT_KEY_BACK;
                 }
-                if (keyboard.pressedTicks < KEY_PRESSED_EXTENDED)
+                if (keyboard.pressedTicks < KEY_PRESSED_LONG)
                 {
                     if (i == KEY_LEFT)
                         event = EVENT_KEY_DOWN;
@@ -128,7 +135,7 @@ void onKeyboardTick(void)
             }
             else
             {
-                if (keyboard.pressedTicks < KEY_PRESSED_LONG)
+                if (keyboard.pressedTicks < KEY_PRESSED_SHORT)
                 {
                     if (i == KEY_LEFT)
                         event = EVENT_KEY_UP;
@@ -139,12 +146,12 @@ void onKeyboardTick(void)
 #elif defined(KEYBOARD_3KEYS)
             if (keyboard.mode == KEYBOARD_MODE_MEASUREMENT)
             {
-                if (keyboard.pressedTicks < KEY_PRESSED_LONG)
+                if (keyboard.pressedTicks < KEY_PRESSED_SHORT)
                 {
                     if (i == KEY_RIGHT)
                         event = EVENT_KEY_DOWN;
                 }
-                if (keyboard.pressedTicks < KEY_PRESSED_EXTENDED)
+                if (keyboard.pressedTicks < KEY_PRESSED_LONG)
                 {
                     if (i == KEY_LEFT)
                         event = EVENT_KEY_UP;
@@ -154,14 +161,14 @@ void onKeyboardTick(void)
             }
             else
             {
-                if (keyboard.pressedTicks < KEY_PRESSED_LONG)
+                if (keyboard.pressedTicks < KEY_PRESSED_SHORT)
                 {
                     if (i == KEY_LEFT)
                         event = EVENT_KEY_UP;
                     else if (i == KEY_RIGHT)
                         event = EVENT_KEY_DOWN;
                 }
-                if (keyboard.pressedTicks < KEY_PRESSED_EXTENDED)
+                if (keyboard.pressedTicks < KEY_PRESSED_LONG)
                 {
                     if (i == KEY_OK)
                         event = EVENT_KEY_SELECT;
@@ -216,12 +223,12 @@ void onKeyboardTick(void)
 #if defined(KEYBOARD_2KEYS)
         if (keyboard.mode == KEYBOARD_MODE_MEASUREMENT)
         {
-            if (keyboard.pressedTicks == KEY_PRESSED_LONG)
+            if (keyboard.pressedTicks == KEY_PRESSED_SHORT)
             {
                 if (!isKeyPressed[KEY_LEFT] && isKeyPressed[KEY_RIGHT])
                     event = EVENT_KEY_SELECT;
             }
-            else if (keyboard.pressedTicks == KEY_PRESSED_EXTENDED)
+            else if (keyboard.pressedTicks == KEY_PRESSED_LONG)
             {
                 if (isKeyPressed[KEY_LEFT] && isKeyPressed[KEY_RIGHT])
                     event = EVENT_KEY_TOGGLELOCK;
@@ -233,14 +240,14 @@ void onKeyboardTick(void)
         }
         else
         {
-            if (keyboard.pressedTicks == KEY_PRESSED_LONG)
+            if (keyboard.pressedTicks == KEY_PRESSED_SHORT)
             {
                 if (isKeyPressed[KEY_LEFT] && !isKeyPressed[KEY_RIGHT])
                     event = EVENT_KEY_BACK;
                 else if (!isKeyPressed[KEY_LEFT] && isKeyPressed[KEY_RIGHT])
                     event = EVENT_KEY_SELECT;
             }
-            else if (keyboard.pressedTicks == KEY_PRESSED_EXTENDED)
+            else if (keyboard.pressedTicks == KEY_PRESSED_LONG)
             {
                 if (isKeyPressed[KEY_LEFT] && isKeyPressed[KEY_RIGHT])
                     event = EVENT_KEY_TOGGLELOCK;
@@ -251,12 +258,12 @@ void onKeyboardTick(void)
 #elif defined(KEYBOARD_3KEYS)
         if (keyboard.mode == KEYBOARD_MODE_MEASUREMENT)
         {
-            if (keyboard.pressedTicks == KEY_PRESSED_LONG)
+            if (keyboard.pressedTicks == KEY_PRESSED_SHORT)
             {
                 if (isKeyPressed[KEY_RIGHT] && !isKeyPressed[KEY_LEFT])
                     event = EVENT_KEY_SELECT;
             }
-            else if (keyboard.pressedTicks == KEY_PRESSED_EXTENDED)
+            else if (keyboard.pressedTicks == KEY_PRESSED_LONG)
             {
                 if (isKeyPressed[KEY_LEFT] && isKeyPressed[KEY_OK])
                     event = EVENT_KEY_TOGGLELOCK;
@@ -270,14 +277,14 @@ void onKeyboardTick(void)
         }
         else
         {
-            if (keyboard.pressedTicks == KEY_PRESSED_LONG)
+            if (keyboard.pressedTicks == KEY_PRESSED_SHORT)
             {
                 if (isKeyPressed[KEY_LEFT] && !isKeyPressed[KEY_OK])
                     event = EVENT_KEY_BACK;
                 else if (isKeyPressed[KEY_RIGHT])
                     event = EVENT_KEY_SELECT;
             }
-            else if (keyboard.pressedTicks == KEY_PRESSED_EXTENDED)
+            else if (keyboard.pressedTicks == KEY_PRESSED_LONG)
             {
                 if (isKeyPressed[KEY_LEFT] && isKeyPressed[KEY_OK])
                     event = EVENT_KEY_TOGGLELOCK;

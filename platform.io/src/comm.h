@@ -51,7 +51,7 @@ typedef struct
     char buffer[COMM_BUFFER_SIZE];
     // ^^^ These settings should remain fixed for SWD communications.
 
-    volatile bool enabled;
+    volatile bool open;
     char lastChar;
 
     volatile TransmitState transmitState;
@@ -66,7 +66,7 @@ void initComm(void);
 
 void openComm(void);
 void closeComm(void);
-void resetComm(bool enabled);
+void resetComm(bool open);
 
 void transmitComm(void);
 

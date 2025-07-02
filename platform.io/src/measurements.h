@@ -25,8 +25,7 @@ void updateMeasurementUnits(void);
 float getCurrentRateFactor(void);
 float getCurrentDoseFactor(void);
 
-void enableMeasurements(void);
-void disableMeasurements(void);
+void setMeasurements(bool value);
 
 void onMeasurementTick(uint32_t pulseCount);
 void onMeasurementPeriod(void);

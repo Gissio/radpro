@@ -59,14 +59,14 @@ static void onPowerOnViewEvent(const View *view, Event event)
         {
             // Start measurements
             setTubeHV(true);
-            enableMeasurements();
+            setMeasurements(true);
 #if defined(DATA_MODE)
             if (settings.dataMode)
                 openComm();
 #elif !defined(PWR_USB)
             openComm();
 #endif
-            startDatalog();
+            openDatalog();
 
             setMeasurementView(0);
         }
@@ -99,7 +99,7 @@ void powerOn(void)
 #endif
 
 #if defined(PULSE_CONTROL)
-    updatePulseControl();
+    setPulseControl(true);
 #endif
 
     if (!verifyFlash())
@@ -164,7 +164,7 @@ void powerOff(bool displayEnabled)
     {
         writeSettings();
         setTubeHV(false);
-        stopDatalog();
+        closeDatalog();
         closeComm();
         setKeyboardMode(KEYBOARD_MODE_MEASUREMENT);
 #if defined(VOICE)
@@ -183,9 +183,9 @@ void powerOff(bool displayEnabled)
         power.offDisplayTimer = 0;
         cancelBacklight();
     }
-    disableMeasurements();
+    setMeasurements(false);
 #if defined(PULSE_CONTROL)
-    updatePulseControl();
+    setPulseControl(false);
 #endif
 
     setView(&powerOffView);

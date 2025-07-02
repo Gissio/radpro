@@ -480,24 +480,24 @@ __STATIC_INLINE uint32_t crc_read(void)
 #endif
 
 #if defined(STM32F0)
-#define FLASH_PAGE_SIZE 0x400
-#define FLASH_WORD_SIZE 0x2
+#define FLASH_PAGE_SIZE 0x400UL
+#define FLASH_WORD_SIZE 0x2UL
 
 #define FLASH_SR_ERRORS FLASH_SR_WRPERR | \
                             FLASH_SR_PGERR
 #define FLASH_SR_CLEAR FLASH_SR_EOP | \
                            FLASH_SR_ERRORS
 #elif defined(STM32F1)
-#define FLASH_PAGE_SIZE 0x400
-#define FLASH_WORD_SIZE 0x2
+#define FLASH_PAGE_SIZE 0x400UL
+#define FLASH_WORD_SIZE 0x2UL
 
 #define FLASH_SR_ERRORS FLASH_SR_WRPRTERR | \
                             FLASH_SR_PGERR
 #define FLASH_SR_CLEAR FLASH_SR_EOP | \
                            FLASH_SR_ERRORS
 #elif defined(STM32G0)
-#define FLASH_PAGE_SIZE 0x800
-#define FLASH_WORD_SIZE 0x8
+#define FLASH_PAGE_SIZE 0x800UL
+#define FLASH_WORD_SIZE 0x8UL
 
 #define FLASH_KEY1 0x45670123UL
 #define FLASH_KEY2 0xCDEF89ABUL
@@ -514,8 +514,8 @@ __STATIC_INLINE uint32_t crc_read(void)
 #define FLASH_SR_CLEAR (FLASH_SR_ERRORS | \
                         FLASH_SR_EOP)
 #elif defined(STM32L4)
-#define FLASH_PAGE_SIZE 0x800
-#define FLASH_WORD_SIZE 0x8
+#define FLASH_PAGE_SIZE 0x800UL
+#define FLASH_WORD_SIZE 0x8UL
 
 #define FLASH_KEY1 0x45670123UL
 #define FLASH_KEY2 0xCDEF89ABUL

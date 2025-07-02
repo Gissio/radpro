@@ -212,7 +212,7 @@ void updateDisplay(void)
         switch (event.type)
         {
         case SDL_QUIT:
-            stopDatalog();
+            closeDatalog();
             writeSettings();
 
             exit(0);

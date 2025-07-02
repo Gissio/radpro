@@ -69,7 +69,8 @@ void initKeyboardHardware(void);
 
 void getKeyboardState(bool *);
 
-bool isAnyKeyDown(void);
+bool isPowerKeyDown(void);
+void waitLongKeyPress(void);
 
 void setKeyboardMode(KeyboardMode mode);
 

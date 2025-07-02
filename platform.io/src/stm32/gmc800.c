@@ -16,6 +16,7 @@
 #include "../keyboard.h"
 #include "../measurements.h"
 #include "../power.h"
+#include "../pulsecontrol.h"
 #include "../settings.h"
 #include "../system.h"
 
@@ -284,7 +285,11 @@ void refreshDisplay(void)
 #define PULSE_LENGTH 0.0008F
 #define PULSESTRETCHERFIX_MINRATE (1.0F / PULSE_LENGTH)
 
-static volatile bool pulseStretcherFix;
+static struct {
+    bool enabled;
+
+    volatile bool stretcherFix;
+} pulseControl;
 
 void initPulseControl(void)
 {
@@ -310,27 +315,34 @@ static void setPulseControlClicks(bool value)
                    GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
 }
 
+void setPulseControl(bool value)
+{
+    pulseControl.enabled = value;
+
+    updatePulseControl();
+}
+
 void updatePulseControl(void)
 {
-    pulseStretcherFix =
-        isPowered() &&
+    pulseControl.stretcherFix =
+        pulseControl.enabled &&
         settings.pulseSound &&
         (getInstantaneousRate() >= PULSESTRETCHERFIX_MINRATE);
 
-    if (!pulseStretcherFix)
-        setPulseControlClicks(isPowered() && settings.pulseSound);
+    if (!pulseControl.stretcherFix)
+        setPulseControlClicks(pulseControl.enabled && settings.pulseSound);
 
     gpio_modify(PULSE_GREEN_EN_PORT,
                 PULSE_GREEN_EN_PIN,
-                isPowered() && settings.pulseLED && !isAlarm());
+                pulseControl.enabled && settings.pulseLED && !isAlarm());
     gpio_modify(PULSE_RED_EN_PORT,
                 PULSE_RED_EN_PIN,
-                isPowered() && settings.pulseLED && isAlarm());
+                pulseControl.enabled && settings.pulseLED && isAlarm());
 }
 
 void onPulseControlTick(void)
 {
-    if (pulseStretcherFix)
+    if (pulseControl.stretcherFix)
         setPulseControlClicks(getRandomBit());
 }
 

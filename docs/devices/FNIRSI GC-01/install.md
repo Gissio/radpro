@@ -27,7 +27,7 @@ To install Rad Pro, you'll need:
 4. Power on the device. A USB drive should become available.
 5. Copy the firmware file onto the USB drive. The device should restart automatically with Rad Pro installed.
 
-**Note:** Some devices require holding the power button from power-on until the firmware is copied and the device restarts. Others may need the Right/Settings key pressed simultaneously with the power key to make the USB drive available.
+**Note:** Some devices require holding the power button from power-on until the firmware is copied and the device restarts. Others may need the Right/Settings key pressed simultaneously with the OK/Power key to make the USB drive available.
 
 **Troubleshooting:** If the installation fails, press the reset switch next to the USB connector and repeat the process. To restore the device, use the [original firmware](firmware). For persistent issues, refer to the [FNIRSI GC-01 alternative installation instructions](install-stlink.md).
 
@@ -44,7 +44,7 @@ Use the following controls to operate your device:
   * **Access settings:** Press the Right/Settings key.
   * **Navigate options:** Use the Up or Down key.
   * **Select option:** Press the OK/Power or Right/Settings key.
-  * **Go back:** Prses the Left/Back key.
+  * **Go back:** Press the Left/Back key.
   * **Toggle lock mode:** Press and hold both the OK/Power and Left/Back keys.
 
 To configure the device:
@@ -96,7 +96,7 @@ Use a USB data cable to connect the GC-01 to a computer.
 
 ### FNIRSI GC-01/JOY-IT JT-RAD01 with APM32F103R8 (Geehy) processor
 
-* The USB data connection is always available, no need to enable **Data Mode**.
+* The USB data connection is always available.
 
 <!-- Calculated as follows:
 

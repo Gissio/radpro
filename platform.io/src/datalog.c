@@ -30,15 +30,15 @@ typedef struct
 
 static struct
 {
+    bool open;
+    uint8_t lock;
+    uint32_t lastTimeFast;
+
     DatalogState writeState;
     DatalogState readState;
 
     uint32_t bufferSize;
     uint8_t buffer[DATALOG_BUFFER_SIZE];
-
-    uint8_t lock;
-
-    uint32_t lastTimeFast;
 } datalog;
 
 void onDatalogSubMenuBack(const Menu *menu);
@@ -170,6 +170,7 @@ static void writeDatalogEntry(const uint8_t *entry,
 static void writeDatalogValue(bool forceWrite)
 {
     if ((settings.datalogInterval == DATALOG_INTERVAL_OFF) ||
+        !datalog.open || 
         datalog.lock)
         return;
 
@@ -260,9 +261,18 @@ static void writeDatalogValue(bool forceWrite)
     writeDatalogEntry(entry, entrySize);
 }
 
-void startDatalog(void)
+void openDatalog(void)
 {
+    datalog.open = true;
+
     writeDatalogValue(true);
+}
+
+void closeDatalog(void)
+{
+    writeDatalogBuffer();
+
+    datalog.open = true;
 }
 
 void updateDatalog(void)
@@ -276,11 +286,6 @@ void writeDatalogReset(void)
 
     setFlashPageState(&datalog.writeState.iterator,
                       FLASHPAGE_RESET);
-}
-
-void stopDatalog(void)
-{
-    writeDatalogBuffer();
 }
 
 static void lockDatalog(void)
@@ -416,9 +421,9 @@ static void onDatalogIntervalMenuSelect(const Menu *menu)
     settings.datalogInterval = datalogInterval;
 
     if (datalogInterval == DATALOG_INTERVAL_OFF)
-        stopDatalog();
+        closeDatalog();
     else
-        startDatalog();
+        openDatalog();
 }
 
 static MenuState datalogIntervalMenuState;

@@ -437,14 +437,9 @@ static void calculateRate(uint32_t pulseCount, uint32_t ticks, Rate *rate)
     rate->confidence = confidenceIntervalFactor / valueFactor * (1 + confidenceInterval) - 1;
 }
 
-void enableMeasurements(void)
+void setMeasurements(bool value)
 {
-    measurements.enabled = true;
-}
-
-void disableMeasurements(void)
-{
-    measurements.enabled = false;
+    measurements.enabled = value;
 }
 
 void onMeasurementTick(uint32_t pulseCount)
