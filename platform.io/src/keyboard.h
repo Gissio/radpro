@@ -20,7 +20,7 @@ typedef enum
     KEYBOARD_MODE_MENU,
 } KeyboardMode;
 
-#if defined(KEYBOARD_2KEYS)
+#if defined(KEYBOARD_2_KEYS)
 typedef enum
 {
     KEY_LEFT,
@@ -29,7 +29,7 @@ typedef enum
     KEY_NUM,
     KEY_NONE = KEY_NUM,
 } Key;
-#elif defined(KEYBOARD_3KEYS)
+#elif defined(KEYBOARD_3_KEYS)
 typedef enum
 {
     KEY_LEFT,
@@ -39,7 +39,7 @@ typedef enum
     KEY_NUM,
     KEY_NONE = KEY_NUM,
 } Key;
-#elif defined(KEYBOARD_4KEYS)
+#elif defined(KEYBOARD_4_KEYS)
 typedef enum
 {
     KEY_LEFT,
@@ -50,7 +50,7 @@ typedef enum
     KEY_NUM,
     KEY_NONE = KEY_NUM,
 } Key;
-#elif defined(KEYBOARD_5KEYS)
+#elif defined(KEYBOARD_5_KEYS)
 typedef enum
 {
     KEY_LEFT,

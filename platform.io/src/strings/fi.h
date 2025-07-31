@@ -11,6 +11,7 @@
 #define STRING_APP_NAME "Rad Pro"
 
 // Styling characters (should not be translated)
+#define STRING_EMPTY ""
 #define STRING_NUMBERS "0123456789.:"
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
@@ -60,6 +61,12 @@
 // Common menu items
 #define STRING_OFF "Pois"
 
+// Sound volume and display brightness menu items
+#define STRING_VERY_LOW "Erittäin matala"
+#define STRING_LOW "Matala"
+#define STRING_MEDIUM "Keskitaso"
+#define STRING_HIGH "Korkea"
+
 // Notification headings (upper case)
 #define STRING_NOTIFICATION_WARNING "VAROITUS"
 #define STRING_NOTIFICATION_SUCCESS "ONNISTUI"
@@ -81,9 +88,12 @@
 #define STRING_INSTANTANEOUS "Hetkellinen"
 #define STRING_AVERAGE "Keskiarvo"
 #define STRING_CUMULATIVE "Kumulatiivinen"
-#define STRING_HISTORY10_MIN "Historia (10 min)"
-#define STRING_HISTORY1_H "Historia (1 h)"
-#define STRING_HISTORY24_H "Historia (24 h)"
+#define STRING_HISTORY_10_MINUTES "Historia (10 min)"
+#define STRING_HISTORY_1_HOUR "Historia (1 h)"
+#define STRING_HISTORY_1_DAY "Historia (1 pv)"
+#define STRING_HISTORY_1_WEEK "Historia (1 vk)"
+#define STRING_HISTORY_1_MONTH "Historia (1 kk)"
+#define STRING_HISTORY_1_YEAR "Historia (1 v)"
 
 // Measurement view secondary view strings
 #define STRING_TIME "Aika"
@@ -93,15 +103,16 @@
 
 // Measurement view info strings (upper case, up to 5 letters)
 #define STRING_INFO_ALARM "HÄLYT"
+#define STRING_INFO_WARNING "VAROITUS"
 #define STRING_INFO_FAULT "VIKA"
 #define STRING_INFO_MAX "MAKS"
-#define STRING_INFO_OVER "YLIT"
+#define STRING_INFO_OVERFLOW "YLIT"
 #define STRING_INFO_DONE "VAL"
 
 // Settings menu items
 #define STRING_SETTINGS "Asetukset"
 #define STRING_PULSES "Pulssit"
-#define STRING_ALARMS "Hälytykset"
+#define STRING_ALERTS "Hälytykset"
 #define STRING_MEASUREMENTS "Mittaukset"
 #define STRING_GEIGER_TUBE "Geiger-putki"
 #define STRING_DATA_LOG "Dataloki"
@@ -115,22 +126,18 @@
 
 // Pulses menu items
 #define STRING_SOUND "Ääni"
+#define STRING_VOICE "Puhe"
 #define STRING_VIBRATION "Tärinä"
 #define STRING_PULSE_LED "Pulssi-LED"
 #define STRING_DISPLAY_FLASH "Näytön vilkkuminen"
 #define STRING_THRESHOLD "Kynnys"
 
-// Sound menu items
-#define STRING_CLICKS "Naksahdukset"
-#define STRING_CHIRPS "Sirkutukset"
-#define STRING_BEEPS "Piippaukset"
-
 // Alarms menu items
+#define STRING_RATE_WARNING "Nopeusvaroitus"
+#define STRING_DOSE_WARNING "Annosvaroitus"
 #define STRING_RATE_ALARM "Nopeushälytys"
 #define STRING_DOSE_ALARM "Annoshälytys"
 #define STRING_INDICATION "Ilmoitus"
-#define STRING_VOICE "Ääni"
-#define STRING_VOLUME "Äänenvoimakkuus"
 
 // Measurements menu items
 #define STRING_UNITS "Yksiköt"
@@ -202,18 +209,26 @@
 #define STRING_THEME_DUSK "Hämärä"
 #define STRING_THEME_NIGHT "Yö"
 
-// Display - Brightness menu items
-#define STRING_VERY_LOW "Erittäin matala"
-#define STRING_LOW "Matala"
-#define STRING_MEDIUM "Keskitaso"
-#define STRING_HIGH "Korkea"
-
 // Display - Contrast menu items prefix (followed by a number from 1 to 8)
 #define STRING_CONTRAST_LEVEL "Taso"
 
 // Display - Sleep menu items
 #define STRING_ALWAYS_OFF "Aina pois"
 #define STRING_ALWAYS_ON "Aina päällä"
+
+// Sound menu items
+#define STRING_ALERTSTYLE "Hälytystyyli"
+#define STRING_ALERTVOLUME "Hälytysäänenvoimakkuus"
+#define STRING_VOICEVOLUME "Puheäänenvoimakkuus"
+
+// Sound Alarms length
+#define STRING_SHORT "Lyhyt"
+#define STRING_LONG "Pitkä"
+
+// Sound pulses menu items
+#define STRING_CLICKS "Naksahdukset"
+#define STRING_CHIRPS "Sirkutukset"
+#define STRING_BEEPS "Piippaukset"
 
 // Time and date menu items
 #define STRING_TIME_ZONE "Aikavyöhyke"
@@ -229,8 +244,8 @@
 #define STRING_UTCPLUS "UTC+"
 
 // Time and date > Hour menu items (should not be translated)
-#define STRING_AM " AM"
-#define STRING_PM " PM"
+#define STRING_AM "AM"
+#define STRING_PM "PM"
 
 // Time and date > Time format menu items
 #define STRING_24_HOUR "24-tuntinen"
@@ -253,11 +268,7 @@
 #define STRING_8_SIDED_DIE "8-tahkoinen noppa"
 #define STRING_6_SIDED_DIE "6-tahkoinen noppa"
 #define STRING_4_SIDED_DIE "4-tahkoinen noppa"
-#define STRING_COIN_FLIP "Kolikonheitto"
-
-// Random generator coin head/tail
-#define STRING_COIN_HEAD "Kruuna"
-#define STRING_COIN_TAIL "Klaava"
+#define STRING_COIN_FLIP "Kolikonheitto (0-1)"
 
 // Game menu items
 #define STRING_PLAY_WHITE "Pelaa valkeilla"

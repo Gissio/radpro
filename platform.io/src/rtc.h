@@ -30,7 +30,7 @@ typedef struct
     uint8_t second;
 } RTCDateTime;
 
-extern const View rtcMenuView;
+extern View rtcMenuView;
 
 void initRTC(void);
 void resetRTC(void);

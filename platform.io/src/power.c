@@ -8,8 +8,6 @@
  */
 
 #include "adc.h"
-#include "comm.h"
-#include "cstring.h"
 #include "datalog.h"
 #include "display.h"
 #include "events.h"
@@ -18,21 +16,33 @@
 #include "keyboard.h"
 #include "measurements.h"
 #include "power.h"
-#include "pulsecontrol.h"
 #include "rng.h"
 #include "rtc.h"
 #include "settings.h"
+#include "sound.h"
 #include "system.h"
 #include "tube.h"
-#include "voice.h"
 
-Power power;
+#define BATTERY_LEVEL_NUM 5
+
+typedef enum
+{
+    POWERON_VIEW_FLASHFAILURE,
+    POWERON_VIEW_SPLASH,
+} PowerOnViewState;
+
+static struct
+{
+    PowerOnViewState onViewState;
+
+    uint32_t displayTimer;
+} power;
 
 // Power on
 
 static void resetBattery();
 
-static void onPowerOnViewEvent(const View *view, Event event)
+static void onPowerOnViewEvent(Event event)
 {
     switch (event)
     {
@@ -60,13 +70,7 @@ static void onPowerOnViewEvent(const View *view, Event event)
             // Start measurements
             setTubeHV(true);
             setMeasurements(true);
-#if defined(DATA_MODE)
-            if (settings.dataMode)
-                openComm();
-#elif !defined(PWR_USB)
-            openComm();
-#endif
-            openDatalog();
+            openDatalogWrite();
 
             setMeasurementView(0);
         }
@@ -76,13 +80,31 @@ static void onPowerOnViewEvent(const View *view, Event event)
     }
 }
 
-const View powerOnView = {
+View powerOnView = {
     onPowerOnViewEvent,
     NULL,
 };
 
-void powerOn(void)
+void powerOn(bool isBoot)
 {
+#if !defined(START_POWERON)
+    if (isBoot)
+    {
+        bool powerKeyDown = isPowerKeyDown();
+
+        if (isPowerOnReset() &&
+            !powerKeyDown)
+        {
+            powerOff(true);
+
+            return;
+        }
+
+        if (powerKeyDown)
+            waitLongKeyPress();
+    }
+#endif
+
     setPower(true);
 
     resetEvents();
@@ -91,6 +113,7 @@ void powerOn(void)
     resetMeasurements();
     resetTube();
     resetDisplay();
+    resetSound();
     resetDatalog();
     resetRTC();
     resetRNG();
@@ -98,15 +121,11 @@ void powerOn(void)
     resetGame();
 #endif
 
-#if defined(PULSE_CONTROL)
-    setPulseControl(true);
-#endif
-
     if (!verifyFlash())
     {
         power.onViewState = POWERON_VIEW_FLASHFAILURE;
 
-        triggerAlarm();
+        triggerAlert();
     }
     else
         power.onViewState = POWERON_VIEW_SPLASH;
@@ -121,27 +140,30 @@ void powerOn(void)
 
 #define POWEROFF_DISPLAY_TIME 5
 
-static void onPowerOffViewEvent(const View *view, Event event)
+static void onPowerOffViewEvent(Event event)
 {
     switch (event)
     {
     case EVENT_KEY_TOGGLEBACKLIGHT:
-        power.offDisplayTimer = POWEROFF_DISPLAY_TIME;
+        power.displayTimer = POWEROFF_DISPLAY_TIME;
         resetEvents();
         requestBacklightTrigger();
 
         break;
 
     case EVENT_DRAW:
-        drawPowerOff(power.offDisplayTimer != 0);
+        drawPowerOff(power.displayTimer != 0);
 
         break;
 
     case EVENT_PERIOD:
-        if (power.offDisplayTimer)
+        if (!isBacklightActive())
+            setPower(false);
+
+        if (power.displayTimer)
         {
-            power.offDisplayTimer--;
-            if (!power.offDisplayTimer)
+            power.displayTimer--;
+            if (!power.displayTimer)
                 cancelBacklight();
         }
 
@@ -152,50 +174,48 @@ static void onPowerOffViewEvent(const View *view, Event event)
     }
 }
 
-const View powerOffView = {
+View powerOffView = {
     onPowerOffViewEvent,
     NULL,
 };
 
-void powerOff(bool displayEnabled)
+void powerOff(bool isBootOrLowBattery)
 {
     resetEvents();
+
     if (isPowered())
     {
         writeSettings();
         setTubeHV(false);
-        closeDatalog();
-        closeComm();
+        closeDatalogWrite();
         setKeyboardMode(KEYBOARD_MODE_MEASUREMENT);
 #if defined(VOICE)
-        resetVoice();
+        stopVoice();
 #endif
     }
     else
         updateBattery();
-    if (displayEnabled)
+
+    setMeasurements(false);
+
+    if (isBootOrLowBattery)
     {
-        power.offDisplayTimer = POWEROFF_DISPLAY_TIME;
+        power.displayTimer = POWEROFF_DISPLAY_TIME;
         requestBacklightTrigger();
     }
     else
     {
-        power.offDisplayTimer = 0;
+        power.displayTimer = 0;
         cancelBacklight();
+        setPower(false);
     }
-    setMeasurements(false);
-#if defined(PULSE_CONTROL)
-    setPulseControl(false);
-#endif
 
     setView(&powerOffView);
-
-    setPower(false);
 }
 
-bool isPowered(void)
+bool isDeviceOff(void)
 {
-    return power.enabled;
+    return (getView() == &powerOffView);
 }
 
 // Battery
@@ -207,7 +227,7 @@ bool isPowered(void)
 #define BATTERY_LEVEL_HYSTERESIS 0.01F
 
 #if defined(BATTERY_REMOVABLE)
-static const float batteryLevelThresholds[2][BATTERY_LEVEL_NUM - 1] = {
+static const float batteryLevels[2][BATTERY_LEVEL_NUM - 1] = {
     // Ni-MH
     {1.198F, 1.243F, 1.268F, 1.297F},
 
@@ -215,19 +235,21 @@ static const float batteryLevelThresholds[2][BATTERY_LEVEL_NUM - 1] = {
     {1.159F, 1.220F, 1.283F, 1.358F},
 };
 
-static const float batteryLowThreshold[2] = {
+static const float batteryLow[2] = {
     1.0F,
     0.8F,
 };
 
-static const Menu batteryTypeMenu;
+static Menu batteryTypeMenu;
 #else
-static const float batteryLevelThresholds[BATTERY_LEVEL_NUM - 1] =
+static const float batteryLevels[1][BATTERY_LEVEL_NUM - 1] = {
     // Li-Ion
-    {3.527F, 3.646F, 3.839F, 3.982F};
+    {3.527F, 3.646F, 3.839F, 3.982F},
+};
 
-static const float batteryLowThreshold =
-    3.0F;
+static const float batteryLow[1] = {
+    3.0F,
+};
 #endif
 
 struct
@@ -260,17 +282,13 @@ void updateBattery(void)
     else
         battery.filteredVoltage = battery.voltage + BATTERY_VOLTAGE_FILTER_CONSTANT * (battery.filteredVoltage - battery.voltage);
 
-#if defined(BATTERY_REMOVABLE)
-    const float *selectedBatteryLevelThresholds = batteryLevelThresholds[settings.batteryType];
-#else
-    const float *selectedBatteryLevelThresholds = batteryLevelThresholds;
-#endif
+    const float *batteryLevel = batteryLevels[settings.batteryType];
 
     uint8_t level = 0;
 
     for (uint32_t i = 0; i < (BATTERY_LEVEL_NUM - 1); i++)
     {
-        float thresholdVoltage = selectedBatteryLevelThresholds[i];
+        float thresholdVoltage = batteryLevel[i];
 
         if (i >= battery.level)
             thresholdVoltage += BATTERY_LEVEL_HYSTERESIS;
@@ -281,23 +299,24 @@ void updateBattery(void)
 
     battery.level = level;
 
-    // Low battery
-#if defined(BATTERY_REMOVABLE)
-    bool lowBattery = battery.filteredVoltage < batteryLowThreshold[settings.batteryType];
-#else
-    bool lowBattery = battery.filteredVoltage < batteryLowThreshold;
-#endif
-
-    if (lowBattery && isPowered())
-        powerOff(true);
-
-    // USB power state
+    // Power state
     bool usbPowered = isUSBPowered();
+
+    if (!usbPowered)
+    {
+        bool lowBattery = (battery.filteredVoltage < batteryLow[settings.batteryType]) &&
+                          (battery.filteredVoltage > 0.8F);
+
+        if (!isDeviceOff() && lowBattery)
+            powerOff(true);
+    }
+
     if (!battery.lastUSBPowered && usbPowered)
     {
         requestBacklightTrigger();
         triggerVibration();
     }
+
     battery.lastUSBPowered = usbPowered;
 }
 
@@ -311,39 +330,40 @@ float getBatteryVoltage(void)
     return getBatteryNum() * battery.voltage;
 }
 
+// Battery type menu
+
 #if defined(BATTERY_REMOVABLE)
 
-static const char *const batteryTypeMenuOptions[] = {
-    getString(STRING_NI_MH),
-    getString(STRING_ALKALINE),
+static cstring batteryTypeMenuOptions[] = {
+    STRING_NI_MH,
+    STRING_ALKALINE,
     NULL,
 };
 
-static const char *onBatteryTypeMenuGetOption(const Menu *menu,
-                                              uint32_t index,
+static const char *onBatteryTypeMenuGetOption(uint32_t index,
                                               MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.batteryType);
 
-    return batteryTypeMenuOptions[index];
+    return getString(batteryTypeMenuOptions[index]);
 }
 
-static void onBatteryTypeMenuSelect(const Menu *menu)
+static void onBatteryTypeMenuSelect(uint32_t index)
 {
-    settings.batteryType = menu->state->selectedIndex;
+    settings.batteryType = index;
 }
 
 static MenuState batteryTypeMenuState;
 
-static const Menu batteryTypeMenu = {
-    getString(STRING_BATTERY_TYPE),
+static Menu batteryTypeMenu = {
+    STRING_BATTERY_TYPE,
     &batteryTypeMenuState,
     onBatteryTypeMenuGetOption,
     onBatteryTypeMenuSelect,
     onSettingsSubMenuBack,
 };
 
-const View batteryTypeMenuView = {
+View batteryTypeMenuView = {
     onMenuEvent,
     &batteryTypeMenu,
 };

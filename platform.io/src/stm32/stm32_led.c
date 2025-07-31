@@ -7,54 +7,31 @@
  * License: MIT
  */
 
-#if defined(STM32) && defined(PULSE_LED)
+#if defined(STM32)
 
 #include "../led.h"
 
 #include "device.h"
 
-void initLED(void)
+#if defined(PULSE_LED) || defined(PULSE_LED_EN)
+
+void initPulseLED(void)
 {
     // GPIO
-#if defined(PULSE_LED)
     setPulseLED(false);
-#endif
-#if defined(ALERT_LED)
-    setAlertLED(false);
-#endif
 
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
-
-#if defined(PULSE_LED)
     gpio_setup_output(PULSE_LED_PORT,
                       PULSE_LED_PIN,
                       GPIO_OUTPUTTYPE_PUSHPULL,
                       GPIO_OUTPUTSPEED_2MHZ,
                       GPIO_PULL_FLOATING);
-#endif
-#if defined(ALERT_LED)
-    gpio_setup_output(ALERT_LED_PORT,
-                      ALERT_LED_PIN,
-                      GPIO_OUTPUTTYPE_PUSHPULL,
-                      GPIO_OUTPUTSPEED_2MHZ,
-                      GPIO_PULL_FLOATING);
-#endif
-
 #elif defined(STM32F1)
-#if defined(PULSE_LED)
     gpio_setup(PULSE_LED_PORT,
                PULSE_LED_PIN,
                GPIO_MODE_OUTPUT_2MHZ_PUSHPULL);
 #endif
-#if defined(ALERT_LED)
-    gpio_setup(ALERT_LED_PORT,
-               ALERT_LED_PIN,
-               GPIO_MODE_OUTPUT_2MHZ_PUSHPULL);
-#endif
-#endif
 }
-
-#if defined(PULSE_LED)
 
 void setPulseLED(bool value)
 {
@@ -68,7 +45,25 @@ void setPulseLED(bool value)
 
 #endif
 
-#if defined(ALERT_LED)
+#if defined(ALERT_LED) || defined(ALERT_LED_EN)
+
+void initAlertLED(void)
+{
+    // GPIO
+    setAlertLED(false);
+
+#if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
+    gpio_setup_output(ALERT_LED_PORT,
+                      ALERT_LED_PIN,
+                      GPIO_OUTPUTTYPE_PUSHPULL,
+                      GPIO_OUTPUTSPEED_2MHZ,
+                      GPIO_PULL_FLOATING);
+#elif defined(STM32F1)
+    gpio_setup(ALERT_LED_PORT,
+               ALERT_LED_PIN,
+               GPIO_MODE_OUTPUT_2MHZ_PUSHPULL);
+#endif
+}
 
 void setAlertLED(bool value)
 {

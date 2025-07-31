@@ -26,10 +26,11 @@
 #include "rng.h"
 #include "rtc.h"
 #include "settings.h"
+#include "sound.h"
 #include "system.h"
 #include "tube.h"
 
-static const Menu settingsMenu;
+static Menu settingsMenu;
 
 typedef struct
 {
@@ -45,37 +46,30 @@ static FlashState *getFlashState(FlashIterator *iterator);
 void initSettings(void)
 {
     // Default values
-#if defined(PULSE_CONTROL)
+#if defined(BUZZER) || defined(SOUND_EN)
     settings.pulseSound = true;
 #endif
-#if defined(BUZZER)
-    settings.pulseSound = PULSE_SOUND_ON_CLICKS;
-#endif
-#if defined(PULSE_LED)
+#if defined(PULSE_LED) || defined(PULSE_LED_EN)
     settings.pulseLED = true;
 #endif
 
     settings.secondaryUnits = UNITS_CPM;
 
-    settings.alarmIndication =
-#if defined(BUZZER) || defined(VOICE)
-        (1 << ALARMINDICATION_SOUND) |
-#endif
+    settings.alertSound = true;
 #if defined(VOICE)
-        (1 << ALARMINDICATION_VOICE) |
+    settings.alertVoice = true;
 #endif
 #if defined(VIBRATION)
-        (1 << ALARMINDICATION_VIBRATION) |
+    settings.alertVibration = true;
 #endif
-#if defined(PULSE_LED) || defined(ALERT_LED) || defined(PULSE_CONTROL)
-        (1 << ALARMINDICATION_PULSE_LED) |
+#if defined(PULSE_LED) || defined(ALERT_LED) || defined(PULSE_LED_EN) || defined(ALERT_LED_EN)
+    settings.alertPulseLED = true;
 #endif
-        (1 << ALARMINDICATION_DISPLAY_FLASH);
-#if defined(VOICE)
-    settings.alarmVolume = ALARM_VOLUME_VERYHIGH;
-#endif
+    settings.alertDisplayFlash = true;
 
     settings.tubeSensitivity = TUBE_SENSITIVITY_DEFAULT;
+
+    settings.datalogInterval = DATALOG_INTERVAL_10_MINUTES;
 
 #if defined(DISPLAY_MONOCHROME)
     settings.displayContrast = DISPLAY_CONTRAST_DEFAULT;
@@ -85,7 +79,13 @@ void initSettings(void)
 #else
     settings.displayBrightness = DISPLAY_BRIGHTNESS_HIGH;
 #endif
-    settings.displaySleep = DISPLAY_SLEEP_30S;
+    settings.displaySleep = DISPLAY_SLEEP_30_SECONDS;
+
+#if defined(VOICE)
+    settings.soundAlertStyle = SOUND_ALERTSTYLE_LONG;
+    settings.soundAlertVolume = SOUND_ALERTVOLUME_VERYHIGH;
+    settings.soundVoiceVolume = SOUND_VOICEVOLUME_VERYHIGH;
+#endif
 
 #if defined(SIMULATOR)
     time_t unixTime = time(NULL);
@@ -109,30 +109,41 @@ void initSettings(void)
         settings = flashState->settings;
 
         // Validate settings
-        if (settings.averaging >= AVERAGING_NUM)
-            settings.averaging = AVERAGING_UNLIMITED;
         if (settings.instantaneousAveraging >= INSTANTANEOUSAVERAGING_NUM)
             settings.instantaneousAveraging = INSTANTANEOUSAVERAGING_ADAPTIVEFAST;
+        if (settings.averaging >= AVERAGING_NUM)
+            settings.averaging = AVERAGING_UNLIMITED;
+
         if (settings.tubeSensitivity >= TUBE_SENSITIVITY_NUM)
             settings.tubeSensitivity = TUBE_SENSITIVITY_DEFAULT;
+        if (settings.tubeDeadTimeCompensation >= TUBE_DEADTIMECOMPENSATION_NUM)
+            settings.tubeDeadTimeCompensation = 0;
 #if defined(TUBE_HV_PWM)
+        if (settings.tubeHVProfile >= TUBE_HVPROFILE_NUM)
+            settings.tubeHVProfile = TUBE_HVPROFILE_FACTORYDEFAULT;
         if ((settings.tubeHVFrequency >= TUBE_HVFREQUENCY_NUM) ||
             (settings.tubeHVDutyCycle >= TUBE_HVDUTYCYCLE_NUM))
         {
-            settings.tubeHVFrequency = TUBE_HVFREQUENCY_1_25;
+            settings.tubeHVFrequency = TUBE_HVFREQUENCY_1_25_KHZ;
             settings.tubeHVDutyCycle = 0;
         }
 #endif
         if (settings.datalogInterval >= DATALOG_INTERVAL_NUM)
             settings.datalogInterval = DATALOG_INTERVAL_OFF;
+
 #if defined(DISPLAY_COLOR)
         if (settings.displayTheme >= DISPLAY_THEME_NUM)
             settings.displayTheme = DISPLAY_THEME_DAY;
 #endif
         if (settings.displaySleep >= DISPLAY_SLEEP_NUM)
-            settings.displaySleep = DISPLAY_SLEEP_30S;
+            settings.displaySleep = DISPLAY_SLEEP_30_SECONDS;
+
         if (settings.rtcTimeZone >= RTC_TIMEZONE_NUM)
             settings.rtcTimeZone = RTC_TIMEZONE_P0000;
+
+#if !defined(BATTERY_REMOVABLE)
+        settings.batteryType = BATTERYTYPE_LI_ION;
+#endif
     }
 }
 
@@ -185,85 +196,79 @@ void writeSettings(void)
 
 // Settings menu
 
-static const OptionView settingsMenuOptions[] = {
-    {getString(STRING_PULSES), &pulsesMenuView},
-    {getString(STRING_ALARMS), &alarmsMenuView},
-    {getString(STRING_MEASUREMENTS), &measurementsMenuView},
-    {getString(STRING_GEIGER_TUBE), &tubeMenuView},
-    {getString(STRING_DATA_LOG), &datalogMenuView},
-    {getString(STRING_DISPLAY), &displayMenuView},
-    {getString(STRING_DATE_AND_TIME), &rtcMenuView},
+static SubMenuOption settingsMenuOptions[] = {
+    {STRING_PULSES, &pulsesMenuView},
+    {STRING_ALERTS, &alertsMenuView},
+    {STRING_MEASUREMENTS, &measurementsMenuView},
+    {STRING_GEIGER_TUBE, &tubeMenuView},
+    {STRING_DATA_LOG, &datalogMenuView},
+    {STRING_DISPLAY, &displayMenuView},
+#if defined(BUZZER) || defined(VOICE)
+    {STRING_SOUND, &soundMenuView},
+#endif
+    {STRING_DATE_AND_TIME, &rtcMenuView},
 #if defined(BATTERY_REMOVABLE)
-    {getString(STRING_BATTERY_TYPE), &batteryTypeMenuView},
+    {STRING_BATTERY_TYPE, &batteryTypeMenuView},
 #endif
-    {getString(STRING_RANDOM_GENERATOR), &rngMenuView},
+    {STRING_RANDOM_GENERATOR, &rngMenuView},
 #if defined(GAME)
-    {getString(STRING_GAME), &gameMenuView},
+    {STRING_GAME, &gameMenuView},
 #endif
-    {getString(STRING_STATISTICS), &statisticsView},
+    {STRING_STATISTICS, &statisticsView},
 #if defined(DATA_MODE)
-    {getString(STRING_DATA_MODE), NULL},
+    {STRING_DATA_MODE, NULL},
 #endif
     {NULL},
 };
 
-static const char *onSettingsMenuGetOption(const Menu *menu,
-                                           uint32_t index,
+static const char *onSettingsMenuGetOption(uint32_t index,
                                            MenuStyle *menuStyle)
 {
 #if !defined(DATA_MODE)
     *menuStyle = MENUSTYLE_SUBMENU;
 #else
-    if (index < ((sizeof(settingsMenuOptions) / sizeof(OptionView)) - 2))
+    if (index < ((sizeof(settingsMenuOptions) / sizeof(SubMenuOption)) - 2))
         *menuStyle = MENUSTYLE_SUBMENU;
     else
         *menuStyle = settings.dataMode;
 #endif
 
-    return settingsMenuOptions[index].option;
+    return getString(settingsMenuOptions[index].title);
 }
 
-static void onSettingsMenuSelect(const Menu *menu)
+static void onSettingsMenuSelect(uint32_t index)
 {
 #if !defined(DATA_MODE)
-    setView(settingsMenuOptions[menu->state->selectedIndex].view);
+    setView(settingsMenuOptions[index].view);
 #else
-    uint32_t selectedIndex = menu->state->selectedIndex;
-
-    if (selectedIndex < ((sizeof(settingsMenuOptions) / sizeof(OptionView)) - 2))
-        setView(settingsMenuOptions[selectedIndex].view);
+    if (index < ((sizeof(settingsMenuOptions) / sizeof(SubMenuOption)) - 2))
+        setView(settingsMenuOptions[index].view);
     else
-    {
         settings.dataMode = !settings.dataMode;
-        if (settings.dataMode)
-            openComm();
-        else
-            closeComm();
-    }
 #endif
 }
 
-static void onSettingsMenuBack(const Menu *menu)
+static void onSettingsMenuBack(void)
 {
     setMeasurementView(-1);
 }
 
-void onSettingsSubMenuBack(const Menu *menu)
+void onSettingsSubMenuBack(void)
 {
     setView(&settingsMenuView);
 }
 
 static MenuState settingsMenuState;
 
-static const Menu settingsMenu = {
-    getString(STRING_SETTINGS),
+static Menu settingsMenu = {
+    STRING_SETTINGS,
     &settingsMenuState,
     onSettingsMenuGetOption,
     onSettingsMenuSelect,
     onSettingsMenuBack,
 };
 
-const View settingsMenuView = {
+View settingsMenuView = {
     onMenuEvent,
     &settingsMenu,
 };

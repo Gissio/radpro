@@ -2,34 +2,45 @@
 
 This guide explains how to install the Rad Pro firmware on FNIRSI GC-01 and JOY-IT JT-RAD01 Geiger counters.
 
-## Required supplies
+## What you'll need
 
 To install Rad Pro, you'll need:
 
-* USB data cable (ensure it supports data transfer, not just charging)
-* Philips screwdriver
+* **USB data cable:** Must support data transfer, not just charging.
+* **Philips screwdriver** to open the device.
 
-## Step 1: Inspect the device
+## Step 1: Open the device
 
 ![FNIRSI GC-01 circuit board types](img/gc-01-board-type.jpg)
 
-1. Power off the Geiger counter.
+1. Power off the device.
 2. Unscrew the back case and carefully open the device.
-3. Note the microprocessor type (square chip), which should be CH32F103R8T6 (WCH) or APM32F103RBT6 (Geehy). The picture above should help you identify the MCU. **WARNING:** Rad Pro is not compatible with devices using a CACHIP microprocessor.
-4. Note the Geiger-Müller tube type (marked on the glass as J614, J321, J305 or M4011). For unmarked tubes measuring 55 or 65 mm, assume J614 or J613, respectively.
-5. Close and reassemble the device.
+3. Identify the microprocessor type (square chip), which should be CH32F103R8T6 (WCH) or APM32F103RBT6 (Geehy). **Warning:** Rad Pro is not compatible with devices using unmarked chips.
+4. Identify the Geiger-Müller tube (marked on the glass as J305, J321, J613, J614, or M4011). For unmarked tubes:
+   * 55 mm tubes: Assume J614.
+   * 65 mm tubes: Assume J613.
+5. Reassemble the device.
 
 ## Step 2: Flash the firmware
 
-1. Download and extract the latest `radpro-[version].zip` from [Rad Pro releases](https://github.com/Gissio/radpro/releases).
-2. Navigate to the `fnirsi` folder, then to the `install` subfolder. Select the appropriate firmware file: `radpro-fnirsi-gc01_[mcu]-[language]-x.y.z-install.bin`. `[mcu]` is your device's microprocessor (`ch32f103r8t6` or `apm32f103rbt6`), and `[language]` is the two-letter code for your preferred language (e.g., `en` for English).
-3. Connect the device to a USB 2.0 port on a Windows computer using the USB data cable. **WARNING:** Installation may fail on macOS or Linux, or USB 3.0 ports.
-4. Power on the device. A USB drive should become available.
-5. Copy the firmware file onto the USB drive. The device should restart automatically with Rad Pro installed.
+1. Download and extract the latest `radpro-fnirsi-gc01_[microprocessor]-[version].zip` from [Rad Pro releases](https://github.com/Gissio/radpro/releases).
+2. Choose the correct firmware file: `radpro-fnirsi-gc01_[microprocessor]-[language]-x.y.z-install.bin`.
+   * `[microprocessor]`: `ch32f103r8t6` or `apm32f103rbt6`.
+   * `[language]` Two-letter code for your preferred language (e.g., `en` for English).
+3. Connect the device to a **Windows computer** using a **USB 2.0 port** and the USB data cable. **Warning:** Installation may fail on macOS, Linux, or USB 3.0 ports.
+4. Power on the device. A USB drive should appear on your computer.
+5. Copy the selected firmware file to the USB drive. The device should restart automatically, installing Rad Pro.
 
-**Note:** Some devices require holding the power button from power-on until the firmware is copied and the device restarts. Others may need the Right/Settings key pressed simultaneously with the OK/Power key to make the USB drive available.
+**Note:**
 
-**Troubleshooting:** If the installation fails, press the reset switch next to the USB connector and repeat the process. To restore the device, use the [original firmware](firmware). For persistent issues, refer to the [FNIRSI GC-01 alternative installation instructions](install-stlink.md).
+* Some devices require holding the **Power** button from power-on until the firmware is copied and the device restarts.
+* Others may need the **Right/Settings** and **OK/Power** keys pressed together to make the USB drive available.
+
+**Troubleshooting:**
+
+* If the installation fails, press the **reset switch** next to the USB connector and repeat the process.
+* To restore the original firmware, copy the [original firmware](firmware) to the USB drive.
+* For persistent issues, follow the [FNIRSI GC-01 alternative installation instructions](install-stlink.md).
 
 ## Step 3: Configure the device
 
@@ -40,43 +51,39 @@ Use the following controls to operate your device:
   * **Switch secondary measurement view:** Press the Left/Back key.
   * **Reset measurement/dismiss alarm:** Press and hold the Left/Back key.
   * **Toggle pulse sound (measurement view only):** Press and hold the Down key.
-  * **Sleep display (measurement view only):** Press the Ok/Power key.
+  * **Sleep display (measurement view only):** Press the OK/Power key.
   * **Access settings:** Press the Right/Settings key.
   * **Navigate options:** Use the Up or Down key.
   * **Select option:** Press the OK/Power or Right/Settings key.
   * **Go back:** Press the Left/Back key.
-  * **Toggle lock mode:** Press and hold both the OK/Power and Left/Back keys.
+  * **Toggle lock mode:** Press and hold both the Left/Back and OK/Power keys.
 
 To configure the device:
 
-1. Go to **Settings > Geiger tube > Sensitivity** and select the option matching your Geiger-Müller tube.
-2. In **Geiger tube > HV Profile**, choose an appropriate profile:
-  * **Energy-saving:** Lowest power consumption, ideal for background radiation level. If no tube counts are detected, configure a custom HV profile to optimize power usage.
-  * **Accuracy:** Higher power consumption, suitable for elevated radiation levels.
-  * **Factory default:** Highest power consumption, uses the original firmware profile.
-3. If the device registers spontaneous key presses, select the **Energy-saving** HV profile or configure a custom HV profile to resolve the issue.
+1. Go to **Settings > Geiger tube > Sensitivity** and select the option that matches your Geiger-Müller tube.
+2. Go to **Geiger tube > HV Profile** and select:
+  * **Energy-saving:** Lowest power use, best for background radiation.
+  * **Accuracy:** Higher power use, ideal for elevated radiation levels.
+  * **Factory default:** Highest power use, matches original firmware settings.
+3. If the device registers unintended key presses, select the **Energy-saving** HV profile or configure a custom HV profile to resolve the issue.
 
-## Step 4: Final steps
+## Step 4: Support Rad Pro
 
-If you find Rad Pro useful, consider:
+If you find Rad Pro useful:
 
-* Watching the [Rad Pro GitHub repository](https://github.com/Gissio/radpro) for release notifications.
-* Starring the project to show your support.
+* Watch the [Rad Pro GitHub repository](https://github.com/Gissio/radpro) for release updates.
+* Star the project to show your support.
 
 ## Hardware-specific notes
 
-### USB data connection
-
-Use a USB data cable to connect the GC-01 to a computer.
-
 ### FNIRSI GC-01/JOY-IT JT-RAD01 with CH32F103R8 (WCH) microprocessor
 
-* Enable **Data Mode** in the settings to establish a USB data connection. Disable it when not in use to save power.
+* Enable **Data Mode** in the settings to establish a USB data connection. Disable when not in use to save power.
 
 <!-- Calculated as follows:
 
-* With 1-byte differential values: [6 pages * (1 timestamp entry/page [10 bytes] + 1012 differential entries/page [1 byte each])] = 6078 entries
-* With 2-byte differential values: [6 pages * (1 timestamp entry/page [10 bytes] + 506 differential entries/page [2 byte each])] = 3042 entries
+* With 1-byte differential values: [5 pages * (1 timestamp entry/page [10 bytes] + 1012 differential entries/page [1 byte each])] = 5065 entries
+* With 2-byte differential values: [5 pages * (1 timestamp entry/page [10 bytes] + 506 differential entries/page [2 byte each])] = 2535 entries
 
 * 60-minute and 10-minute intervals require 2-byte differential values.
 * 1-minute intervals and less require 1-byte differential values.
@@ -84,11 +91,11 @@ Use a USB data cable to connect the GC-01 to a computer.
  -->
 
 * **Data storage:** Stores up to 6,078 data points. At 20 cpm (normal radiation levels), this supports:
-  * 126 days at 60-minute intervals
-  * 21 days at 10-minute intervals
-  * 4 days at 1-minute intervals
-  * 16 hours at 10-second intervals
-  * ~2 hours at 1-second intervals
+  * 105 days at 60-minute intervals
+  * 17 days at 10-minute intervals
+  * 84 hours at 1-minute intervals
+  * 14 hours at 10-second intervals
+  * 84 minutes at 1-second intervals
 
 * **HV profile settings:**
   * Factory default: 9.207 kHz frequency, 75% duty cycle.
@@ -100,20 +107,20 @@ Use a USB data cable to connect the GC-01 to a computer.
 
 <!-- Calculated as follows:
 
-* With 1-byte differential values: [51 pages * (1 timestamp entry/page [10 bytes] + 1012 differential entries/page [1 byte each])] = 51663 entries
-* With 2-byte differential values: [51 pages * (1 timestamp entry/page [10 bytes] + 506 differential entries/page [2 byte each])] = 25857 entries
+* With 1-byte differential values: [67 pages * (1 timestamp entry/page [10 bytes] + 1012 differential entries/page [1 byte each])] = 67871 entries
+* With 2-byte differential values: [67 pages * (1 timestamp entry/page [10 bytes] + 506 differential entries/page [2 byte each])] = 33969 entries
 
 * 60-minute and 10-minute intervals require 2-byte differential values.
 * 1-minute intervals and less require 1-byte differential values.
 
  -->
 
-* **Data storage:** Stores up to 61,793 data points. At 20 cpm (normal radiation levels), this supports:
-  * 1077 days at 60-minute intervals
-  * 179 days at 10-minute intervals
-  * 35 days at 1-minute intervals
-  * 6 days at 10-second intervals
-  * 14 hours at 1-second intervals
+* **Data storage:** Stores up to 67,871 data points. At 20 cpm (normal radiation levels), this supports:
+  * 1415 days at 60-minute intervals
+  * 235 days at 10-minute intervals
+  * 47 days at 1-minute intervals
+  * 7 days at 10-second intervals
+  * 18 hours at 1-second intervals
 
 * **HV profile settings:**
   * Factory default: 47.058 kHz frequency, 50% duty cycle.

@@ -11,6 +11,7 @@
 #define STRING_APP_NAME "Rad Pro"
 
 // Styling characters (should not be translated)
+#define STRING_EMPTY ""
 #define STRING_NUMBERS "0123456789.:"
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
@@ -60,6 +61,12 @@
 // Common menu items
 #define STRING_OFF "关"
 
+// Sound volume and display brightness menu items
+#define STRING_VERY_LOW "极低"
+#define STRING_LOW "低"
+#define STRING_MEDIUM "中"
+#define STRING_HIGH "高"
+
 // Notification headings (upper case)
 #define STRING_NOTIFICATION_WARNING "警告"
 #define STRING_NOTIFICATION_SUCCESS "成功"
@@ -81,9 +88,12 @@
 #define STRING_INSTANTANEOUS "瞬时"
 #define STRING_AVERAGE "平均"
 #define STRING_CUMULATIVE "累积"
-#define STRING_HISTORY10_MIN "历史(10分)"
-#define STRING_HISTORY1_H "历史(1小时)"
-#define STRING_HISTORY24_H "历史(24小时)"
+#define STRING_HISTORY_10_MINUTES "历史(10分钟)"
+#define STRING_HISTORY_1_HOUR "历史(1小时)"
+#define STRING_HISTORY_1_DAY "历史(1天)"
+#define STRING_HISTORY_1_WEEK "历史(1周)"
+#define STRING_HISTORY_1_MONTH "历史(1个月)"
+#define STRING_HISTORY_1_YEAR "历史(1年)"
 
 // Measurement view secondary view strings
 #define STRING_TIME "时间"
@@ -93,15 +103,16 @@
 
 // Measurement view info strings (upper case, up to 5 letters)
 #define STRING_INFO_ALARM "警报"
+#define STRING_INFO_WARNING "警告"
 #define STRING_INFO_FAULT "故障"
 #define STRING_INFO_MAX "最大"
-#define STRING_INFO_OVER "超限"
+#define STRING_INFO_OVERFLOW "超限"
 #define STRING_INFO_DONE "完成"
 
 // Settings menu items
 #define STRING_SETTINGS "设置"
 #define STRING_PULSES "脉冲"
-#define STRING_ALARMS "警报"
+#define STRING_ALERTS "警报"
 #define STRING_MEASUREMENTS "测量"
 #define STRING_GEIGER_TUBE "盖革管"
 #define STRING_DATA_LOG "数据记录"
@@ -115,22 +126,18 @@
 
 // Pulses menu items
 #define STRING_SOUND "声音"
+#define STRING_VOICE "语音"
 #define STRING_VIBRATION "振动"
 #define STRING_PULSE_LED "脉冲灯"
 #define STRING_DISPLAY_FLASH "屏幕闪烁"
 #define STRING_THRESHOLD "阈值"
 
-// Sound menu items
-#define STRING_CLICKS "点击"
-#define STRING_CHIRPS "啁啾"
-#define STRING_BEEPS "蜂鸣"
-
 // Alarms menu items
-#define STRING_RATE_ALARM "速率警报"
-#define STRING_DOSE_ALARM "剂量警报"
+#define STRING_RATE_WARNING "速率警告"
+#define STRING_DOSE_WARNING "剂量警告"
+#define STRING_RATE_ALARM "速率报警"
+#define STRING_DOSE_ALARM "剂量报警"
 #define STRING_INDICATION "指示"
-#define STRING_VOICE "语音"
-#define STRING_VOLUME "音量"
 
 // Measurements menu items
 #define STRING_UNITS "单位"
@@ -202,18 +209,26 @@
 #define STRING_THEME_DUSK "黄昏"
 #define STRING_THEME_NIGHT "夜间"
 
-// Display - Brightness menu items
-#define STRING_VERY_LOW "极低"
-#define STRING_LOW "低"
-#define STRING_MEDIUM "中"
-#define STRING_HIGH "高"
-
 // Display - Contrast menu items prefix (followed by a number from 1 to 8)
 #define STRING_CONTRAST_LEVEL "级别"
 
 // Display - Sleep menu items
 #define STRING_ALWAYS_OFF "始终关闭"
 #define STRING_ALWAYS_ON "始终开启"
+
+// Sound menu items
+#define STRING_ALERTSTYLE "警报样式"
+#define STRING_ALERTVOLUME "警报音量"
+#define STRING_VOICEVOLUME "语音音量"
+
+// Sound Alarms length
+#define STRING_SHORT "短"
+#define STRING_LONG "长"
+
+// Sound pulses menu items
+#define STRING_CLICKS "点击"
+#define STRING_CHIRPS "啁啾"
+#define STRING_BEEPS "蜂鸣"
 
 // Time and date menu items
 #define STRING_TIME_ZONE "时区"
@@ -229,8 +244,8 @@
 #define STRING_UTCPLUS "UTC+"
 
 // Time and date > Hour menu items (should not be translated)
-#define STRING_AM " AM"
-#define STRING_PM " PM"
+#define STRING_AM "AM"
+#define STRING_PM "PM"
 
 // Time and date > Time format menu items
 #define STRING_24_HOUR "24小时"
@@ -253,11 +268,7 @@
 #define STRING_8_SIDED_DIE "8面骰子"
 #define STRING_6_SIDED_DIE "6面骰子"
 #define STRING_4_SIDED_DIE "4面骰子"
-#define STRING_COIN_FLIP "抛硬币"
-
-// Random generator coin head/tail
-#define STRING_COIN_HEAD "正面"
-#define STRING_COIN_TAIL "反面"
+#define STRING_COIN_FLIP "抛硬币 (0-1)"
 
 // Game menu items
 #define STRING_PLAY_WHITE "执白"

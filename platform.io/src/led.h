@@ -14,7 +14,18 @@
 
 void initLED(void);
 
+#if defined(PULSE_LED) || defined(PULSE_LED_EN)
+void initPulseLED(void);
+
 void setPulseLED(bool value);
+#endif
+
+#if defined(ALERT_LED) || defined(ALERT_LED_EN)
+void initAlertLED(void);
+
 void setAlertLED(bool value);
+#endif
+
+void updateLED(void);
 
 #endif

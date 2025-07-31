@@ -10,18 +10,16 @@
 #if defined(SIMULATOR)
 
 #include <stdio.h>
-#include <string.h>
 
 #include "../system.h"
-#include "../voice.h"
 
 void initSystem(void)
 {
 }
 
-void getDeviceId(char *str)
+void getDeviceId(char *s)
 {
-    strcpy(str, "b5706d937087f975b5812810");
+    strcpy(s, "b5706d937087f975b5812810");
 }
 
 void startBootloader(void)
@@ -39,37 +37,11 @@ void updatePulseControl(void)
 {
 }
 
+void setPulseControlEnabled(bool value)
+{
+}
+
 void onPulseControlTick(void)
-{
-}
-
-// Voice
-
-void initVoice(void)
-{
-}
-
-void onVoiceTick(void)
-{
-}
-
-void setVoiceVolume(void)
-{
-}
-
-void playVoiceInstantaneousRate(void)
-{
-}
-
-void playVoiceAverageRate(void)
-{
-}
-
-void playVoiceCumulativeDose(void)
-{
-}
-
-void playVoiceAlarm(void)
 {
 }
 

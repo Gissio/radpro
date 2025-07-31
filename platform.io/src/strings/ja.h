@@ -11,6 +11,7 @@
 #define STRING_APP_NAME "Rad Pro"
 
 // Styling characters (should not be translated)
+#define STRING_EMPTY ""
 #define STRING_NUMBERS "0123456789.:"
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
@@ -60,6 +61,12 @@
 // Common menu items
 #define STRING_OFF "オフ"
 
+// Sound volume and display brightness menu items
+#define STRING_VERY_LOW "極低"
+#define STRING_LOW "低"
+#define STRING_MEDIUM "中"
+#define STRING_HIGH "高"
+
 // Notification headings (upper case)
 #define STRING_NOTIFICATION_WARNING "警告"
 #define STRING_NOTIFICATION_SUCCESS "成功"
@@ -81,27 +88,31 @@
 #define STRING_INSTANTANEOUS "瞬間"
 #define STRING_AVERAGE "平均"
 #define STRING_CUMULATIVE "累積"
-#define STRING_HISTORY10_MIN "履歴(10分)"
-#define STRING_HISTORY1_H "履歴(1時間)"
-#define STRING_HISTORY24_H "履歴(24時間)"
+#define STRING_HISTORY_10_MINUTES "履歴(10分)"
+#define STRING_HISTORY_1_HOUR "履歴(1時間)"
+#define STRING_HISTORY_1_DAY "履歴(1日)"
+#define STRING_HISTORY_1_WEEK "履歴(1週)"
+#define STRING_HISTORY_1_MONTH "履歴(1ヶ月)"
+#define STRING_HISTORY_1_YEAR "履歴(1年)"
 
 // Measurement view secondary view strings
 #define STRING_TIME "時間"
 #define STRING_MAX "最大"
-#define STRING_RATE "率"
+#define STRING_RATE "線量率"
 #define STRING_DOSE "線量"
 
 // Measurement view info strings (upper case, up to 5 letters)
 #define STRING_INFO_ALARM "アラーム"
+#define STRING_INFO_WARNING "警告"
 #define STRING_INFO_FAULT "障害"
 #define STRING_INFO_MAX "最大"
-#define STRING_INFO_OVER "超過"
+#define STRING_INFO_OVERFLOW "超過"
 #define STRING_INFO_DONE "完了"
 
 // Settings menu items
 #define STRING_SETTINGS "設定"
 #define STRING_PULSES "パルス"
-#define STRING_ALARMS "アラーム"
+#define STRING_ALERTS "アラート"
 #define STRING_MEASUREMENTS "測定"
 #define STRING_GEIGER_TUBE "ガイガーチューブ"
 #define STRING_DATA_LOG "データログ"
@@ -115,22 +126,18 @@
 
 // Pulses menu items
 #define STRING_SOUND "音"
+#define STRING_VOICE "音声"
 #define STRING_VIBRATION "振動"
 #define STRING_PULSE_LED "パルスLED"
 #define STRING_DISPLAY_FLASH "表示点滅"
 #define STRING_THRESHOLD "閾値"
 
-// Sound menu items
-#define STRING_CLICKS "クリック"
-#define STRING_CHIRPS "チャープ"
-#define STRING_BEEPS "ビープ"
-
 // Alarms menu items
-#define STRING_RATE_ALARM "率アラーム"
-#define STRING_DOSE_ALARM "線量アラーム"
+#define STRING_RATE_WARNING "計数率警告"
+#define STRING_DOSE_WARNING "線量警告"
+#define STRING_RATE_ALARM "計数率警報"
+#define STRING_DOSE_ALARM "線量警報"
 #define STRING_INDICATION "表示"
-#define STRING_VOICE "音声"
-#define STRING_VOLUME "音量"
 
 // Measurements menu items
 #define STRING_UNITS "単位"
@@ -202,18 +209,26 @@
 #define STRING_THEME_DUSK "夕暮"
 #define STRING_THEME_NIGHT "夜"
 
-// Display - Brightness menu items
-#define STRING_VERY_LOW "極低"
-#define STRING_LOW "低"
-#define STRING_MEDIUM "中"
-#define STRING_HIGH "高"
-
 // Display - Contrast menu items prefix (followed by a number from 1 to 8)
 #define STRING_CONTRAST_LEVEL "レベル"
 
 // Display - Sleep menu items
 #define STRING_ALWAYS_OFF "常オフ"
 #define STRING_ALWAYS_ON "常オン"
+
+// Sound menu items
+#define STRING_ALERTSTYLE "アラートスタイル"
+#define STRING_ALERTVOLUME "アラート音量"
+#define STRING_VOICEVOLUME "音声ボリューム"
+
+// Sound Alarms length
+#define STRING_SHORT "短い"
+#define STRING_LONG "長い"
+
+// Sound pulses menu items
+#define STRING_CLICKS "クリック"
+#define STRING_CHIRPS "チャープ"
+#define STRING_BEEPS "ビープ"
 
 // Time and date menu items
 #define STRING_TIME_ZONE "時間帯"
@@ -229,8 +244,8 @@
 #define STRING_UTCPLUS "UTC+"
 
 // Time and date > Hour menu items (should not be translated)
-#define STRING_AM " AM"
-#define STRING_PM " PM"
+#define STRING_AM "AM"
+#define STRING_PM "PM"
 
 // Time and date > Time format menu items
 #define STRING_24_HOUR "24時間"
@@ -253,11 +268,7 @@
 #define STRING_8_SIDED_DIE "8面ダイス"
 #define STRING_6_SIDED_DIE "6面ダイス"
 #define STRING_4_SIDED_DIE "4面ダイス"
-#define STRING_COIN_FLIP "コイン投げ"
-
-// Random generator coin head/tail
-#define STRING_COIN_HEAD "表"
-#define STRING_COIN_TAIL "裏"
+#define STRING_COIN_FLIP "コイン投げ (0-1)"
 
 // Game menu items
 #define STRING_PLAY_WHITE "白をプレイ"

@@ -2,156 +2,138 @@
 
 ## 2.2 "Sundry"
 
-* **Geiger counter support:** Added compatibility for the GQ GMC-800 Geiger counter with software-enhanced pulse-stretching for reliable pulse clicks at high radiation levels.
+* **Geiger counter compatibility:** Added support for the GQ GMC-800 Geiger counter with software-enhanced pulse stretching for reliable pulse indication at high radiation levels.
 * **Multilingual support:** Expanded to 27 languages, including Bulgarian, Chinese, Croatian, Czech, Danish, Dutch, English, Finnish, French, German, Greek, Hungarian, Italian, Japanese, Korean, Norwegian, Polish, Portuguese, Romanian, Russian, Slovakian, Slovenian, Spanish, Swedish, Turkish, Ukrainian, and Vietnamese.
-* **User interface improvements:**
-  * Changed pulse sound toggle to press-and-hold the Down key on FS2011, FS-600, and GC-01 devices.
-  * Added user-selectable secondary units.
-* **Power management enhancements:**
-  * Connecting a powered-off device to USB no longer powers it on.
-  * Device now shuts off at critically low battery levels.
-  * Battery indicator now shows green when charging and red when low.
-  * Statistics now display battery voltage for all cells.
-* **Measurements:**
-  * Added averaging intervals of 3, 6, 12, 24 hours, ±50%, ±20%, ±10%, ±5%, ±2% and ±1% confidence intervals.
+* **User interface improvements**
+  * Introduced 1 week, 1 month and 1 year history views and history data loading on device startup.
+  * Added rate and dose warnings alongside alarms, with alert dismissal preserving state.
+  * Highlighted warning and alarm zones in instantaneous rate bar and history view.
+  * Improved alert LED indication.
+  * Added user-selectable secondary units and alert sound style options.
+  * Added pulse sound icon for toggle feedback.
+  * Lock mode turns off display.
+  * Increased font size for dice roll display.
+* **Power management enhancements**
+  * USB connection no longer powers on a turned-off device.
+  * Automatic shutdown at critically low battery levels.
+  * Battery indicator displays green when charging and red when low (on color displays).
+  * Added battery voltage statistics for all cells.
+  * Improved voltage measurement accuracy for FS2011 (GD32F150R8/GD32F103R8) and FNIRSI GC-01.
+* **Measurements enhancements**
+  * Expanded averaging intervals: 3, 6, 12, 24 hours, ±50%, ±20%, ±10%, ±5%, ±2% and ±1% confidence intervals.
   * Extended sensitivity range to 1–10,000 cpm/µSv/h for low-sensitivity Geiger tubes (e.g., SI-3BG).
-  * Expanded dead-time compensation range to 5-500 µs for scintillation detector compatibility.
+  * Expanded dead-time compensation to 5-500 µs for scintillation detector compatibility.
   * Adjusted SBM-20 sensitivity to 150.5 cpm/µSv/h.
-  * Loss-of-count detection is now dynamically adjusted based on selected sensitivity.
-  * Enhanced voltage measurement accuracy for FS2011 (GD32F150R8/GD32F103R8) and FNIRSI GC-01.
-* **Data and connectivity:**
-  * Improved `radpro-tool` timezone synchronization and error handling.
-  * Added `SET deviceTimeZone` and `GET deviceTimeZone` data commands.
-  * Introduced `RESET datalog` data command to clear data logs.
-* **Removed features:**
-  * Eliminated background compensation due to negligible intrinsic activity in common Geiger tubes
-  * Removed `GET tubeBackgroundCompensation` data command.
-* **Fixes:**
-  * Fixed issue preventing proper updates to history and maximum values for 10-second, 30-second and 60-second averaging intervals.
-  * Fixed issue causing datalog writing failures when the device was USB-powered but powered off.
-  * Corrected 12-hour format to properly display AM/PM in Settings.
-  * Fixed game flicker issue on portrait-oriented devices.
+  * Dynamic loss-of-count detection based on selected sensitivity.
+* **Data and connectivity**
+  * Added `SET deviceTimeZone` and `GET deviceTimeZone`.
+  * Introduced `RESET datalog` to clear data logs.
+  * Improved `GET datalog` with more options.
+  * Enhanced `radpro-tool` with timezone synchronization and inproved error handling.
+* **Removed features**
+  * Removed background compensation due to negligible intrinsic activity in common Geiger tubes.
+  * Removed `GET tubeBackgroundCompensation` command.
+* **Bug fixes:**
+  * Fixed history and maximum value updates for 10-second, 30-second, and 60-second averaging intervals.
+  * Resolved datalog writing errors when USB-powered but turned off.
+  * Fixed datalog download issue causing restarts in high-radiation conditions.
+  * Corrected AM/PM display in 12-hour format settings.
+  * Fixed game flicker on portrait-oriented devices.
 
 ## 2.1.1 "The dot mender"
 
-* **Updates:**
-  * Renamed "Conversion factor" to "Sensitivity" (as sensitivity is cpm/radiation rate, while conversion factor is radiation rate/cpm).
-  * Renamed the `GET tubeConversionFactor` data command to `GET tubeSensitivity`.
-  * On 5-key devices, a short press of the power key in the measurement view now puts the display to sleep.
-  * On 3-key devices, holding the left and right keys in the measurement view now toggles pulse sounds.
-  * Lock mode can now be accessed from any screen without needing to navigate to the settings menu.
-  * Die rolls and coin flips now generate a single outcome per run.
-  * Added support for 100-sided and 10-sided die rolls, as well as binary random number generation.
-  * History is now calculated only when the instantaneous rate confidence interval falls below 75%.
-  * When the battery level is critically low (0 bars), Rad Pro now automatically saves the dose every 60 minutes.
-* **Fixes:**
-  * On devices with a color display, fixed an issue where the measurement dot occasionally failed to appear in the measurement view.
-  * Corrected battery voltage measurement issues on the Bosean FS-5000.
+* **Updates**
+  * Renamed **Conversion factor** to **Sensitivity** (as sensitivity is cpm/radiation rate, while conversion factor is radiation rate/cpm).
+  * Renamed `GET tubeConversionFactor` to `GET tubeSensitivity`.
+  * Short press of power key on 5-key devices in measurement view activates display sleep.
+  * On 3-key devices, holding left and right keys in measurement view toggles pulse sounds.
+  * Lock mode now accessible from any screen.
+  * Die rolls and coin flips generate single outcomes per run.
+  * Added support for 100-sided and 10-sided die rolls and binary random number generation.
+  * History calculated only when instantaneous rate confidence interval is below 75%.
+  * Automatic dose saving every 60 minutes at critically low battery levels.
+* **Bug fixes**
+  * Fixed missing measurement dot on color display devices.
+  * Corrected battery voltage measurement on Bosean FS-5000.
 
 ## 2.1 "Delicious trifles"
 
-* **Updates:**
-  * Added the ability to dismiss alarms with the reset measurement key.
-  * Added configurable alarm indication: sound, vibration, pulse LED and display flash.
-  * Added an alarm enabled indicator.
-  * Implemented a keyboard lock mode, accessible from Settings.
-  * Display of dose counts below 10,000 now shown in standard notation.
-  * Added new rate and dose alarm options.
-  * Added new average timer options.
-  * Extended the dead-time compensation range to 20-320 µs.
-  * Added the ability to toggle pulse sounds from the measurement view on supported devices.
-  * Added a new pulses chirps sound option.
-  * Extended the duration of alarm sounds.
-  * Enhanced the menu structure for more intuitive navigation.
-  * Updated the UI font to Open Sans for enhanced readability.
-  * Minor UI improvements.
+* **Updates**
+  * Added alert dismissal via reset measurement key.
+  * Configurable alert indications: sound, vibration, pulse LED, and display flash.
+  * Added alert-enabled indicator.
+  * Implemented keyboard lock mode, accessible from Settings.
+  * Doses below 10,000 now displayed in standard notation.
+  * Added new rate and dose alarm options, average timer options, and extended dead-time compensation (20–320 µs).
+  * Enabled pulse sound toggle from measurement view on supported devices.
+  * Added pulse chirp sound option and extended alert sound duration.
+  * Improved menu navigation and updated UI font to Open Sans for better readability.
 
-* **Fixes:**
-  * On color displays, fixed an issue causing an unsightly flash when waking from sleep mode.
-  * Fixed alarms continuing to sound after device shutdown while connected to external power.
-  * Corrected the display of secondary rate and count views after the average timer expired.
-  * Resolved an issue where the device state wasn't reset after a quick power cycle.
-  * Corrected a problem where 1 minute instantaneous averaging at high radiation levels didn't average correctly.
+* **Fixes**
+  * Fixed unsightly flash on color displays when waking from sleep.
+  * Resolved alerts sounding after shutdown while externally powered.
+  * Corrected secondary rate and count view display after average timer expiration.
+  * Fixed device state reset after quick power cycles.
+  * Corrected 1-minute instantaneous averaging at high radiation levels.
 
 ## 2.0.3 "The sensitive update"
 
 * Extended conversion factor range to 25-12,800 cpm/µSv/h.
-* When using sensitive detectors with a conversion factor of 600 cpm/µSv/h or higher, pulse indication is now capped at 600 cpm/µSv/h to provide approximately one pulse per second at background levels of radiation. This does not impact the actual measurements.
-* Minor UI and performance refinements.
+*Capped pulse indication at 600 cpm/µSv/h for sensitive detectors to maintain ~1 pulse/second at background levels (no impact on measurements).
+* Minor UI and performance improvements.
 
 ## 2.0.2 "The precise release"
 
-* Improved the instantaneous rate averaging algorithm.
-* Simplified the instantaneous rate averaging response curves, resulting in improved precision when using J613/J614 tubes.
-* Disabled instantaneous rate alarms in situations where the confidence interval is high, such as immediately after device startup.
+* Improved instantaneous rate averaging algorithm and simplified response curves for J613/J614 tubes.
+* Disabled instantaneous rate alarms during high confidence intervals (e.g., post-startup).
 * Minor UI improvements.
 
 ## 2.0.1 "Nobody's perfect"
 
 * Added data log reset.
-* Reverted the default conversion factor for J613/J614 tubes to 60.0 cpm/µSv/h.
+* Reverted J613/J614 tube conversion factor to 60.0 cpm/µSv/h.
 
-* Resolved issues with custom HV profiles.
-* Resolved issues with the `SET tubeHVFrequency` and `SET tubeHVDutyCycle` data connection requests.
-* Resolved issues with new history data log download.
+* Fixed custom HV profiles, `SET tubeHVFrequency`, `SET tubeHVDutyCycle`, and history data log download issues.
 * Minor refinements.
 
 ## 2.0 "Grand première"
 
-* First 2.0 release.
-* Updated the UI design system to [OpenBridge 5.0](https://www.openbridge.no/), improving legibility under sunlight.
-* Changed the default conversion factor for J613/J614 tubes to 30.0 cpm/µSv/h.
-* Removed the FNIRSI GC-01 display panel settings.
-* Increased the granularity and range of the `SET tubeHVFrequency` and `SET tubeHVDutyCycle` data connection requests to CPU clock resolution and 100 Hz-100 kHz and 0%-100%, respectively (not stored on power-off).
+* Updated UI to [OpenBridge 5.0](https://www.openbridge.no/) for better sunlight legibility.
+* Changed J613/J614 tube conversion factor to 30.0 cpm/µSv/h.
+* Removed FNIRSI GC-01 display panel settings.
+* Increased granularity for `SET tubeHVFrequency` (100 Hz–100 kHz) and `SET tubeHVDutyCycle` (0%–100%).
 
 ## 2.0rc5 "The final countdown"
 
-* Added Bosean FS-5000 support.
-* Added display panel menu for selecting the display panel (on supported devices).
+* Added Bosean FS-5000 support and display panel selection menu.
 * Added secondary dose view in average measurement mode.
-* Extended conversion factor range to 25-1600 cpm/µSv/h.
-* Added 1 second data log interval options and removed 30 seconds and 30 minutes data log interval options.
-* Added `SET tubeHVFrequency` and `SET tubeHVDutyCycle` data connection commands.
+* Extended conversion factor range to 25–1600 cpm/µSv/h.
+* Added 1-second data log interval; removed 30-second and 30-minute options.
+* Added `SET tubeHVFrequency` and `SET tubeHVDutyCycle` commands.
 * Added 24/12-hour time format selection.
-* Devices with data mode allow using the device while data mode is active; data mode state is also preserved after powering off.
-* Improved battery level indicator of the Bosean FS-600/FS-1000.
-* Improved battery level readout of the FS2011 (STM32F051), Bosean FS-600/FS-1000.
-* Improved keyboard control scheme of the Bosean FS-1000.
-* Changed USB data connection end of line to "\r\n".
-* Minor refinements.
+* Improved data mode usability and battery level indicators for FS2011, Bosean FS-600/FS-1000.
+* Changed USB data connection EOL to "\r\n".
 
 ## 2.0rc4 "The little update"
 
-* Added instantaneous rate averaging options: adaptive fast, adaptive precision, 1 minute, 30 seconds and 10 seconds.
-* Added secondary CPM and count displays in measurement views.
-* Improved vibration pulse strengths.
-* Improved FNIRSI GC-01 quiet pulse clicks.
-* Improved selected menu item contrast.
-* Improved data logging time precision.
-
-* Fixed History (24 h) bug.
+* Added instantaneous rate averaging options: adaptive fast, adaptive precision, 1 minute, 30 seconds, and 10 seconds.
+* Added secondary CPM and count displays.
+* Improved vibration pulse strength, FNIRSI GC-01 pulse clicks, menu contrast, and data logging time precision.
+* Fixed 24-hour history bug.
 
 ## 2.0rc3 "The BIG update"
 
-* UI update with big digits in measurement view.
-* Instantaneous rate bar with alert zones (1 µSv, 10 µSv).
-* History alert zones (1 µSv, 10 µSv).
-* Added average timer expiration after reaching a configurable confidence interval.
-* Added background compensation.
-* Added display flashes on the FNIRSI GC-01 (after display sleep).
-* Added vibration pulses on the FNIRSI GC-01 (off, weak or strong).
-* Added pulse threshold (disables pulse indication if instantaneous rate is below a certain value).
-* Added fault alarm on HV generator/Geiger tube failure (lack of pulses) or tube saturation (tube shorted).
-* Added 30 second and 10 second data log interval options.
-* Added 10 second display sleep option.
+* Updated UI with larger digits in measurement view.
+* Added instantaneous rate bar and history alert zones (1 µSv, 10 µSv).
+* Added average timer expiration at configurable confidence intervals.
+* Added background compensation, FNIRSI GC-01 display flashes, vibration pulses, pulse threshold, and fault alarms.
+* Added 10-second and 30-second data log intervals and 10-second display sleep option.
 * Added `radpro-flashtool`.
 * Removed measurement hold.
 
 ## 2.0rc2
 
-* Fixed flash programming.
-* Fixed FNIRSI GC-01 battery indicator.
-* Fixed conversion factor menu logic.
+* Fixed flash programming, FNIRSI GC-01 battery indicator, and conversion factor menu logic.
 
 ## 2.0rc1
 
@@ -159,57 +141,43 @@
 
 ## 1.3.0
 
-* Added data logging.
-* Added custom conversion factors.
-* Added support for the J305 Geiger tube.
+* Added data logging, custom conversion factors, and J305 Geiger tube support.
 * Minor bug fixes.
 
 ## 1.2.2
 
-* Added support for devices with a GD32 microcontroller.
-* Added data submission to the https://gmcmap.com/ radiation monitoring website.
+* Added GD32 microcontroller support and data submission to gmcmap.com.
 
 ## 1.2.1
 
-* Minor bugfixes.
+* Minor bug fixes.
 
 ## 1.2.0
-* Implemented storage of radiation dose in non-volatile memory.
-* Added the capability to store device statistics every hour.
-* Added client for the https://radmon.org radiation monitoring website.
-* Improved the font_tiny5 5-pixel font.
-* Enhanced battery level calculation using battery discharge curves and HV pulse syncing for shot noise removal.
-* Improved flash settings and state storage.
-* Fixed a start-up sequence bug.
-* Fixed a backlight bug when turning off the device.
-* Corrected the SBM-20 conversion ratio.
+* Added non-volatile radiation dose storage and hourly device statistics.
+* Added radmon.org client.
+* Improved font_tiny5, battery level calculation, flash settings, and state storage.
+* Fixed startup sequence, backlight, and SBM-20 conversion ratio bugs.
 
 ## 1.1.1
 
-* Minor bug fix
+* Minor bug fix.
 
 ## 1.1.0
 
-* Added Geiger-Müller tube type settings.
-* Added backlight pulse flash setting.
-* Added true random number generator.
-* Added support for the SBM-20 and SI-3BG Geiger-Müller tube.
-* Ported the project to the platform.io environment.
-* Improved battery level sampling.
-* Fixed rounding errors.
-* Improved usage instructions.
+* Added Geiger-Müller tube settings, backlight pulse flash, true random number generator, and SBM-20/SI-3BG tube support.
+* Ported to platform.io.
+* Improved battery sampling, fixed rounding errors, and enhanced usage instructions.
 
 ## 1.0.2
 
-* Added support for M4011 Geiger-Müller tube.
+* Added M4011 Geiger-Müller tube support.
 * Fixed battery indicator.
 
 ## 1.0.1
 
 * Improved pulse click volume.
-* Fixed battery indicator.
-* Fixed several bugs in game.
+* Fixed battery indicator and game bugs.
 
 ## 1.0.0
 
-* First release
+* First release.

@@ -14,7 +14,7 @@
 
 #define GAME_HISTORY_TURN_NUM 3
 
-extern const View gameMenuView;
+extern View gameMenuView;
 
 void resetGame(void);
 

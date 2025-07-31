@@ -113,7 +113,7 @@ typedef struct
     uint8_t advance;
 } mr_glyph_t;
 
-typedef int32_t mr_charcode;
+typedef uint32_t mr_charcode;
 
 typedef mr_charcode (*mr_get_charcode_callback_t)(uint8_t **str);
 

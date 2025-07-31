@@ -11,6 +11,7 @@
 #define STRING_APP_NAME "Rad Pro"
 
 // Styling characters (should not be translated)
+#define STRING_EMPTY ""
 #define STRING_NUMBERS "0123456789.:"
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
@@ -60,6 +61,12 @@
 // Common menu items
 #define STRING_OFF "Tắt"
 
+// Sound volume and display brightness menu items
+#define STRING_VERY_LOW "Rất thấp"
+#define STRING_LOW "Thấp"
+#define STRING_MEDIUM "Trung bình"
+#define STRING_HIGH "Cao"
+
 // Notification headings (upper case)
 #define STRING_NOTIFICATION_WARNING "CẢNH BÁO"
 #define STRING_NOTIFICATION_SUCCESS "THÀNH CÔNG"
@@ -81,9 +88,12 @@
 #define STRING_INSTANTANEOUS "Tức thời"
 #define STRING_AVERAGE "Trung bình"
 #define STRING_CUMULATIVE "Tích lũy"
-#define STRING_HISTORY10_MIN "Lịch sử (10 phút)"
-#define STRING_HISTORY1_H "Lịch sử (1 giờ)"
-#define STRING_HISTORY24_H "Lịch sử (24 giờ)"
+#define STRING_HISTORY_10_MINUTES "Lịch sử (10 phút)"
+#define STRING_HISTORY_1_HOUR "Lịch sử (1 giờ)"
+#define STRING_HISTORY_1_DAY "Lịch sử (1 ngày)"
+#define STRING_HISTORY_1_WEEK "Lịch sử (1 tuần)"
+#define STRING_HISTORY_1_MONTH "Lịch sử (1 tháng)"
+#define STRING_HISTORY_1_YEAR "Lịch sử (1 năm)"
 
 // Measurement view secondary view strings
 #define STRING_TIME "Thời"
@@ -93,15 +103,16 @@
 
 // Measurement view info strings (upper case, up to 5 letters)
 #define STRING_INFO_ALARM "BÁO"
+#define STRING_INFO_WARNING "CẢNH BÁO"
 #define STRING_INFO_FAULT "LỖI"
 #define STRING_INFO_MAX "MAX"
-#define STRING_INFO_OVER "VƯỢT"
+#define STRING_INFO_OVERFLOW "VƯỢT"
 #define STRING_INFO_DONE "XONG"
 
 // Settings menu items
 #define STRING_SETTINGS "Cài đặt"
 #define STRING_PULSES "Xung"
-#define STRING_ALARMS "Cảnh báo"
+#define STRING_ALERTS "Cảnh báo"
 #define STRING_MEASUREMENTS "Đo lường"
 #define STRING_GEIGER_TUBE "Ống Geiger"
 #define STRING_DATA_LOG "Nhật ký dữ liệu"
@@ -115,22 +126,18 @@
 
 // Pulses menu items
 #define STRING_SOUND "Âm thanh"
+#define STRING_VOICE "Giọng nói"
 #define STRING_VIBRATION "Rung"
 #define STRING_PULSE_LED "LED xung"
 #define STRING_DISPLAY_FLASH "Nhấp nháy màn hình"
 #define STRING_THRESHOLD "Ngưỡng"
 
-// Sound menu items
-#define STRING_CLICKS "Tiếng click"
-#define STRING_CHIRPS "Tiếng chirp"
-#define STRING_BEEPS "Tiếng bíp"
-
 // Alarms menu items
-#define STRING_RATE_ALARM "Cảnh báo tốc độ"
-#define STRING_DOSE_ALARM "Cảnh báo liều lượng"
+#define STRING_RATE_WARNING "Cảnh báo tốc độ"
+#define STRING_DOSE_WARNING "Cảnh báo liều lượng"
+#define STRING_RATE_ALARM "Báo động tốc độ"
+#define STRING_DOSE_ALARM "Báo động liều lượng"
 #define STRING_INDICATION "Chỉ báo"
-#define STRING_VOICE "Giọng nói"
-#define STRING_VOLUME "Âm lượng"
 
 // Measurements menu items
 #define STRING_UNITS "Đơn vị"
@@ -202,18 +209,26 @@
 #define STRING_THEME_DUSK "Hoàng hôn"
 #define STRING_THEME_NIGHT "Đêm"
 
-// Display - Brightness menu items
-#define STRING_VERY_LOW "Rất thấp"
-#define STRING_LOW "Thấp"
-#define STRING_MEDIUM "Trung bình"
-#define STRING_HIGH "Cao"
-
 // Display - Contrast menu items prefix (followed by a number from 1 to 8)
 #define STRING_CONTRAST_LEVEL "Cấp độ"
 
 // Display - Sleep menu items
 #define STRING_ALWAYS_OFF "Luôn tắt"
 #define STRING_ALWAYS_ON "Luôn bật"
+
+// Sound menu items
+#define STRING_ALERTSTYLE "Kiểu cảnh báo"
+#define STRING_ALERTVOLUME "Âm lượng cảnh báo"
+#define STRING_VOICEVOLUME "Âm lượng giọng nói"
+
+// Sound Alarms length
+#define STRING_SHORT "Ngắn"
+#define STRING_LONG "Dài"
+
+// Sound pulses menu items
+#define STRING_CLICKS "Tiếng click"
+#define STRING_CHIRPS "Tiếng chirp"
+#define STRING_BEEPS "Tiếng bíp"
 
 // Time and date menu items
 #define STRING_TIME_ZONE "Múi giờ"
@@ -229,8 +244,8 @@
 #define STRING_UTCPLUS "UTC+"
 
 // Time and date > Hour menu items (should not be translated)
-#define STRING_AM " AM"
-#define STRING_PM " PM"
+#define STRING_AM "AM"
+#define STRING_PM "PM"
 
 // Time and date > Time format menu items
 #define STRING_24_HOUR "24 giờ"
@@ -253,11 +268,7 @@
 #define STRING_8_SIDED_DIE "Xúc xắc 8 mặt"
 #define STRING_6_SIDED_DIE "Xúc xắc 6 mặt"
 #define STRING_4_SIDED_DIE "Xúc xắc 4 mặt"
-#define STRING_COIN_FLIP "Tung đồng xu"
-
-// Random generator coin head/tail
-#define STRING_COIN_HEAD "Mặt sấp"
-#define STRING_COIN_TAIL "Mặt ngửa"
+#define STRING_COIN_FLIP "Tung đồng xu (0-1)"
 
 // Game menu items
 #define STRING_PLAY_WHITE "Chơi trắng"

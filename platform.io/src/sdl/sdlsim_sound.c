@@ -12,12 +12,13 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include <SDL.h>
 
-#include "../buzzer.h"
+#include "../sound.h"
 #include "../events.h"
+
+// Buzzer
 
 #define AUDIO_SAMPLE_FREQUENCY 48000
 #define AUDIO_BUFFER_SIZE 4096
@@ -120,6 +121,58 @@ void updateBuzzer(void)
 void setBuzzer(bool value)
 {
     buzzer.value = value;
+}
+
+// Sound control
+
+void initSoundEnabled(void)
+{
+}
+
+void setSoundEnabled(bool value)
+{
+}
+
+// Voice
+
+void initVoice(void)
+{
+}
+
+void onVoiceTick(void)
+{
+}
+
+void playVoiceInstantaneousRate(void)
+{
+}
+
+void playVoiceAverageRate(void)
+{
+}
+
+void playVoiceCumulativeDose(void)
+{
+}
+
+void playAlertTest(void)
+{
+}
+
+void playVoiceTest(void)
+{
+}
+
+void playVoiceAlert(void)
+{
+}
+
+void clearVoiceAlert(void)
+{
+}
+
+void stopVoice(void)
+{
 }
 
 #endif

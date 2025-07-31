@@ -39,89 +39,78 @@ typedef struct
 
 static mr_charcode mr_decode_c_string(uint8_t **strp)
 {
-    mr_charcode charcode = **strp;
-
+    uint8_t *str = *strp;
     *strp += 1;
 
-    return charcode;
+    return *str;
 }
 
 static mr_charcode mr_decode_utf8(uint8_t **strp)
 {
     uint8_t *str = *strp;
-    mr_charcode value;
+    uint8_t lead = str[0];
+    uint32_t length;
+    mr_charcode codepoint;
 
-    if (str[0] < 0x80)
+    if (!(lead >> 7))
     {
-        value = str[0];
-
-        *strp += 1;
+        length = 1;
+        codepoint = lead & 0x7f;
     }
-    else if ((str[0] & 0xe0) == 0xc0)
+    else if ((lead >> 5) == 0x06)
     {
-        value = ((str[0] & 0x1f) << 6) |
-                ((str[1] & 0x3f) << 0);
-
-        *strp += 2;
+        length = 2;
+        codepoint = lead & 0x1f;
     }
-    else if ((str[0] & 0xf0) == 0xe0)
+    else if ((lead >> 4) == 0x0e)
     {
-        value = ((str[0] & 0x0f) << 12) |
-                ((str[1] & 0x3f) << 6) |
-                ((str[2] & 0x3f) << 0);
-
-        *strp += 3;
+        length = 3;
+        codepoint = lead & 0x0f;
     }
-    else if ((str[0] & 0xf8) == 0xf0 && (str[0] <= 0xf4))
+    else if ((lead >> 3) == 0x1e)
     {
-        value = ((str[0] & 0x07) << 18) |
-                ((str[1] & 0x3f) << 12) |
-                ((str[2] & 0x3f) << 6) |
-                ((str[3] & 0x3f) << 0);
-
-        *strp += 4;
+        length = 4;
+        codepoint = lead & 0x07;
     }
     else
+        return 0;
+
+    for (uint32_t i = 1; i < length; i++)
     {
-        // Invalid
-
-        value = -1;
-
-        *strp += 1;
+        if ((str[i] >> 6) != 0x02)
+            return 0;
+        codepoint = (codepoint << 6) | (str[i] & 0x3f);
     }
 
-    return value;
+    *strp += length;
+
+    return codepoint;
 }
 
 static mr_charcode mr_decode_utf16(uint8_t **strp)
 {
     uint16_t *str = (uint16_t *)*strp;
-    mr_charcode value;
+    uint16_t highSurrogate = str[0];
 
-    if ((str[0] < 0xd800) || (str[0] >= 0xe000))
+    if ((highSurrogate >> 11) != 0x1b)
     {
-        value = str[0];
-
         *strp += 2;
-    }
-    else if ((str[0] >= 0xd800) && (str[0] < 0xdc00) &&
-             (str[1] >= 0xdc00) && (str[1] <= 0xde00))
-    {
-        value = 0x00010000 +
-                (((str[0] & 0x03ff) << 10) |
-                 ((str[1] & 0x03ff) << 0));
 
-        *strp += 4;
+        return highSurrogate;
     }
     else
     {
-        // Invalid
-        value = -1;
+        uint16_t lowSurrogate = str[1];
+        if (((highSurrogate >> 10) != 0x36) &&
+            ((lowSurrogate >> 10) != 0x37))
+            return 0;
 
-        *strp += 2;
+        *strp += 4;
+
+        return (0x10000 +
+                ((highSurrogate & 0x3ff) << 10 |
+                 (lowSurrogate & 0x3ff)));
     }
-
-    return value;
 }
 
 // Data decoding

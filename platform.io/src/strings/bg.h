@@ -11,6 +11,7 @@
 #define STRING_APP_NAME "Rad Pro"
 
 // Styling characters (should not be translated)
+#define STRING_EMPTY ""
 #define STRING_NUMBERS "0123456789.:"
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
@@ -60,6 +61,12 @@
 // Common menu items
 #define STRING_OFF "Изключено"
 
+// Sound volume and display brightness menu items
+#define STRING_VERY_LOW "Много ниска"
+#define STRING_LOW "Ниска"
+#define STRING_MEDIUM "Средна"
+#define STRING_HIGH "Висока"
+
 // Notification headings (upper case)
 #define STRING_NOTIFICATION_WARNING "ВНИМАНИЕ"
 #define STRING_NOTIFICATION_SUCCESS "УСПЕХ"
@@ -81,27 +88,31 @@
 #define STRING_INSTANTANEOUS "Моментно"
 #define STRING_AVERAGE "Средно"
 #define STRING_CUMULATIVE "С натрупване"
-#define STRING_HISTORY10_MIN "История (10 мин)"
-#define STRING_HISTORY1_H "История (1 ч)"
-#define STRING_HISTORY24_H "История (24 ч)"
+#define STRING_HISTORY_10_MINUTES "История (10 мин)"
+#define STRING_HISTORY_1_HOUR "История (1 ч)"
+#define STRING_HISTORY_1_DAY "История (1 д)"
+#define STRING_HISTORY_1_WEEK "(1 седм)"
+#define STRING_HISTORY_1_MONTH "История (1 мес)"
+#define STRING_HISTORY_1_YEAR "История (1 г)"
 
 // Measurement view secondary view strings
 #define STRING_TIME "Време"
-#define STRING_MAX "Макс."
-#define STRING_RATE "Скор."
+#define STRING_MAX "Макс"
+#define STRING_RATE "Скорост"
 #define STRING_DOSE "Доза"
 
 // Measurement view info strings (upper case, up to 5 letters)
 #define STRING_INFO_ALARM "АЛАРМА"
+#define STRING_INFO_WARNING "ВНИМАНИЕ"
 #define STRING_INFO_FAULT "ГРЕШКА"
 #define STRING_INFO_MAX "МАКС"
-#define STRING_INFO_OVER "НАД"
+#define STRING_INFO_OVERFLOW "НАД"
 #define STRING_INFO_DONE "ГОТОВО"
 
 // Settings menu items
 #define STRING_SETTINGS "Настройки"
 #define STRING_PULSES "Импулси"
-#define STRING_ALARMS "Аларми"
+#define STRING_ALERTS "Сигнали"
 #define STRING_MEASUREMENTS "Измервания"
 #define STRING_GEIGER_TUBE "G-M брояч"
 #define STRING_DATA_LOG "Журнал с данни"
@@ -115,22 +126,18 @@
 
 // Pulses menu items
 #define STRING_SOUND "Звук"
+#define STRING_VOICE "Глас"
 #define STRING_VIBRATION "Вибрация"
 #define STRING_PULSE_LED "Светодиод за импулс"
 #define STRING_DISPLAY_FLASH "Мигане на дисплея"
 #define STRING_THRESHOLD "Праг"
 
-// Sound menu items
-#define STRING_CLICKS "Щракане"
-#define STRING_CHIRPS "Цвъркане"
-#define STRING_BEEPS "Бипкане"
-
 // Alarms menu items
-#define STRING_RATE_ALARM "Аларма за ниво"
+#define STRING_RATE_WARNING "Предупр. за скорост"
+#define STRING_DOSE_WARNING "Предупр. за доза"
+#define STRING_RATE_ALARM "Аларма за скорост"
 #define STRING_DOSE_ALARM "Аларма за доза"
 #define STRING_INDICATION "Индикация"
-#define STRING_VOICE "Глас"
-#define STRING_VOLUME "Сила на звука"
 
 // Measurements menu items
 #define STRING_UNITS "Единици"
@@ -202,18 +209,26 @@
 #define STRING_THEME_DUSK "Здрач"
 #define STRING_THEME_NIGHT "Нощ"
 
-// Display - Brightness menu items
-#define STRING_VERY_LOW "Много ниска"
-#define STRING_LOW "Ниска"
-#define STRING_MEDIUM "Средна"
-#define STRING_HIGH "Висока"
-
 // Display - Contrast menu items prefix (followed by a number from 1 to 8)
 #define STRING_CONTRAST_LEVEL "Ниво"
 
 // Display - Sleep menu items
 #define STRING_ALWAYS_OFF "Винаги изключен"
 #define STRING_ALWAYS_ON "Винаги включен"
+
+// Sound menu items
+#define STRING_ALERTSTYLE "Стил на сигнала"
+#define STRING_ALERTVOLUME "Сила на звука на сигнала"
+#define STRING_VOICEVOLUME "Сила на гласа"
+
+// Sound Alarms length
+#define STRING_SHORT "Кратък"
+#define STRING_LONG "Дълъг"
+
+// Sound pulses menu items
+#define STRING_CLICKS "Щракане"
+#define STRING_CHIRPS "Цвъркане"
+#define STRING_BEEPS "Бипкане"
 
 // Time and date menu items
 #define STRING_TIME_ZONE "Часова зона"
@@ -229,8 +244,8 @@
 #define STRING_UTCPLUS "UTC+"
 
 // Time and date > Hour menu items (should not be translated)
-#define STRING_AM " AM"
-#define STRING_PM " PM"
+#define STRING_AM "AM"
+#define STRING_PM "PM"
 
 // Time and date > Time format menu items
 #define STRING_24_HOUR "24-часов"
@@ -253,11 +268,7 @@
 #define STRING_8_SIDED_DIE "8-стенен зар"
 #define STRING_6_SIDED_DIE "6-стенен зар"
 #define STRING_4_SIDED_DIE "4-стенен зар"
-#define STRING_COIN_FLIP "Хвърляне на монета"
-
-// Random generator coin head/tail
-#define STRING_COIN_HEAD "Ези"
-#define STRING_COIN_TAIL "Тура"
+#define STRING_COIN_FLIP "Хвърляне на монета (0-1)"
 
 // Game menu items
 #define STRING_PLAY_WHITE "Играй с белите"

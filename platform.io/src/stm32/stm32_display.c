@@ -17,7 +17,7 @@
 // Gamma-corrected linear brightness values
 
 // value = 65536 * [0.25, 0.5, 0.75, 1] ^ 2.2
-static uint32_t displayBrightnessValue[] = {
+static const uint32_t displayBrightnessValue[] = {
     (uint32_t)(3104.1875F * DISPLAY_BACKLIGHT_BRIGHTNESS_MAX),
     (uint32_t)(14263.100F * DISPLAY_BACKLIGHT_BRIGHTNESS_MAX),
     (uint32_t)(34802.842F * DISPLAY_BACKLIGHT_BRIGHTNESS_MAX),

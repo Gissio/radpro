@@ -11,6 +11,7 @@
 #define STRING_APP_NAME "Rad Pro"
 
 // Styling characters (should not be translated)
+#define STRING_EMPTY ""
 #define STRING_NUMBERS "0123456789.:"
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
@@ -60,6 +61,12 @@
 // Common menu items
 #define STRING_OFF "Izklopljeno"
 
+// Sound volume and display brightness menu items
+#define STRING_VERY_LOW "Zelo nizka"
+#define STRING_LOW "Nizka"
+#define STRING_MEDIUM "Srednja"
+#define STRING_HIGH "Visoka"
+
 // Notification headings (upper case)
 #define STRING_NOTIFICATION_WARNING "OPOZORILO"
 #define STRING_NOTIFICATION_SUCCESS "USPEH"
@@ -81,9 +88,12 @@
 #define STRING_INSTANTANEOUS "Trenutno"
 #define STRING_AVERAGE "Povprečno"
 #define STRING_CUMULATIVE "Kumulativno"
-#define STRING_HISTORY10_MIN "Zgodovina (10 min)"
-#define STRING_HISTORY1_H "Zgodovina (1 h)"
-#define STRING_HISTORY24_H "Zgodovina (24 h)"
+#define STRING_HISTORY_10_MINUTES "Zgodovina (10 min)"
+#define STRING_HISTORY_1_HOUR "Zgodovina (1 h)"
+#define STRING_HISTORY_1_DAY "Zgodovina (1 d)"
+#define STRING_HISTORY_1_WEEK "Zgodovina (1 t)"
+#define STRING_HISTORY_1_MONTH "Zgodovina (1 m)"
+#define STRING_HISTORY_1_YEAR "Zgodovina (1 l)"
 
 // Measurement view secondary view strings
 #define STRING_TIME "Čas"
@@ -93,15 +103,16 @@
 
 // Measurement view info strings (upper case, up to 5 letters)
 #define STRING_INFO_ALARM "ALARM"
+#define STRING_INFO_WARNING "OPOZORILO"
 #define STRING_INFO_FAULT "NAPAKA"
 #define STRING_INFO_MAX "MAX"
-#define STRING_INFO_OVER "PREK"
+#define STRING_INFO_OVERFLOW "PREK"
 #define STRING_INFO_DONE "KONČ"
 
 // Settings menu items
 #define STRING_SETTINGS "Nastavitve"
 #define STRING_PULSES "Impulzi"
-#define STRING_ALARMS "Alarmi"
+#define STRING_ALERTS "Opozorila"
 #define STRING_MEASUREMENTS "Meritve"
 #define STRING_GEIGER_TUBE "Geigerjeva cev"
 #define STRING_DATA_LOG "Dnevnik podatkov"
@@ -115,22 +126,18 @@
 
 // Pulses menu items
 #define STRING_SOUND "Zvok"
+#define STRING_VOICE "Glas"
 #define STRING_VIBRATION "Vibracija"
 #define STRING_PULSE_LED "Impulzna LED"
 #define STRING_DISPLAY_FLASH "Utrip zaslona"
 #define STRING_THRESHOLD "Prag"
 
-// Sound menu items
-#define STRING_CLICKS "Kliki"
-#define STRING_CHIRPS "Cvrčanje"
-#define STRING_BEEPS "Piski"
-
 // Alarms menu items
+#define STRING_RATE_WARNING "Opozorilo hitrosti"
+#define STRING_DOSE_WARNING "Opozorilo doze"
 #define STRING_RATE_ALARM "Alarm hitrosti"
 #define STRING_DOSE_ALARM "Alarm doze"
 #define STRING_INDICATION "Indikacija"
-#define STRING_VOICE "Glas"
-#define STRING_VOLUME "Glasnost"
 
 // Measurements menu items
 #define STRING_UNITS "Enote"
@@ -202,18 +209,26 @@
 #define STRING_THEME_DUSK "Mrak"
 #define STRING_THEME_NIGHT "Noč"
 
-// Display - Brightness menu items
-#define STRING_VERY_LOW "Zelo nizka"
-#define STRING_LOW "Nizka"
-#define STRING_MEDIUM "Srednja"
-#define STRING_HIGH "Visoka"
-
 // Display - Contrast menu items prefix (followed by a number from 1 to 8)
 #define STRING_CONTRAST_LEVEL "Raven"
 
 // Display - Sleep menu items
 #define STRING_ALWAYS_OFF "Vedno izklopljeno"
 #define STRING_ALWAYS_ON "Vedno vklopljeno"
+
+// Sound menu items
+#define STRING_ALERTSTYLE "Slog opozorila"
+#define STRING_ALERTVOLUME "Glasnost opozorila"
+#define STRING_VOICEVOLUME "Glasnost glasu"
+
+// Sound Alarms length
+#define STRING_SHORT "Kratek"
+#define STRING_LONG "Dolg"
+
+// Sound pulses menu items
+#define STRING_CLICKS "Kliki"
+#define STRING_CHIRPS "Cvrčanje"
+#define STRING_BEEPS "Piski"
 
 // Time and date menu items
 #define STRING_TIME_ZONE "Časovni pas"
@@ -229,8 +244,8 @@
 #define STRING_UTCPLUS "UTC+"
 
 // Time and date > Hour menu items (should not be translated)
-#define STRING_AM " AM"
-#define STRING_PM " PM"
+#define STRING_AM "AM"
+#define STRING_PM "PM"
 
 // Time and date > Time format menu items
 #define STRING_24_HOUR "24-urni"
@@ -253,11 +268,7 @@
 #define STRING_8_SIDED_DIE "8-stranska kocka"
 #define STRING_6_SIDED_DIE "6-stranska kocka"
 #define STRING_4_SIDED_DIE "4-stranska kocka"
-#define STRING_COIN_FLIP "Met kovanca"
-
-// Random generator coin head/tail
-#define STRING_COIN_HEAD "Glava"
-#define STRING_COIN_TAIL "Rep"
+#define STRING_COIN_FLIP "Met kovanca (0-1)"
 
 // Game menu items
 #define STRING_PLAY_WHITE "Igraj belo"

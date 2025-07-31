@@ -30,18 +30,19 @@ typedef struct
 
 static struct
 {
-    bool open;
-    uint8_t lock;
-    uint32_t lastTimeFast;
-
+    bool openWrite;
     DatalogState writeState;
+
+    bool openRead;
     DatalogState readState;
+
+    uint32_t lastTimeFast;
 
     uint32_t bufferSize;
     uint8_t buffer[DATALOG_BUFFER_SIZE];
 } datalog;
 
-void onDatalogSubMenuBack(const Menu *menu);
+void onDatalogSubMenuBack(void);
 
 static const uint16_t datalogIntervalTime[] = {
     0,
@@ -52,18 +53,18 @@ static const uint16_t datalogIntervalTime[] = {
     1,
 };
 
-static const char *const datalogIntervalMenuOptions[] = {
-    getString(STRING_OFF),
-    getString(STRING_EVERY_HOUR),
-    getString(STRING_EVERY10_MINUTES),
-    getString(STRING_EVERY_MINUTE),
-    getString(STRING_EVERY10_SECONDS),
-    getString(STRING_EVERY_SECOND),
+static cstring datalogIntervalMenuOptions[] = {
+    STRING_OFF,
+    STRING_EVERY_HOUR,
+    STRING_EVERY10_MINUTES,
+    STRING_EVERY_MINUTE,
+    STRING_EVERY10_SECONDS,
+    STRING_EVERY_SECOND,
     NULL,
 };
 
-static const Menu datalogMenu;
-static const Menu datalogIntervalMenu;
+static Menu datalogMenu;
+static Menu datalogIntervalMenu;
 
 static bool decodeDatalogEntry(DatalogState *state);
 
@@ -93,6 +94,8 @@ void resetDatalog(void)
                    DATALOG_INTERVAL_NUM);
 }
 
+// Datalog write
+
 static void encodeDatalogValue(int32_t value,
                                uint8_t *data,
                                uint32_t size,
@@ -106,24 +109,6 @@ static void encodeDatalogValue(int32_t value,
 
     for (uint32_t i = 1; i < size; i++)
         data[i] = value >> (bitshift - 8 * i);
-}
-
-static int32_t decodeDatalogValue(uint8_t *data,
-                                  uint32_t size,
-                                  uint32_t bitsInFirstByte)
-{
-    uint32_t bitshift = 32 + 8 - bitsInFirstByte - 8 * size;
-    int32_t value = 0;
-
-    for (uint32_t i = 0; i < size; i++)
-    {
-        uint8_t symbol = *data++;
-        value = (value << 8) | symbol;
-    }
-
-    value = (value << bitshift) >> bitshift;
-
-    return value;
 }
 
 static bool isDatalogSpaceAvailable(uint32_t entrySize)
@@ -170,8 +155,8 @@ static void writeDatalogEntry(const uint8_t *entry,
 static void writeDatalogValue(bool forceWrite)
 {
     if ((settings.datalogInterval == DATALOG_INTERVAL_OFF) ||
-        !datalog.open || 
-        datalog.lock)
+        !datalog.openWrite ||
+        datalog.openRead)
         return;
 
     // Update?
@@ -261,21 +246,21 @@ static void writeDatalogValue(bool forceWrite)
     writeDatalogEntry(entry, entrySize);
 }
 
-void openDatalog(void)
+void openDatalogWrite(void)
 {
-    datalog.open = true;
+    datalog.openWrite = true;
 
     writeDatalogValue(true);
 }
 
-void closeDatalog(void)
+void closeDatalogWrite(void)
 {
     writeDatalogBuffer();
 
-    datalog.open = true;
+    datalog.openWrite = false;
 }
 
-void updateDatalog(void)
+void writeDatalog(void)
 {
     writeDatalogValue(false);
 }
@@ -286,16 +271,28 @@ void writeDatalogReset(void)
 
     setFlashPageState(&datalog.writeState.iterator,
                       FLASHPAGE_RESET);
+
+    resetHistory();
 }
 
-static void lockDatalog(void)
-{
-    datalog.lock++;
-}
+// Datalog read
 
-static void unlockDatalog(void)
+static int32_t decodeDatalogValue(uint8_t *data,
+                                  uint32_t size,
+                                  uint32_t bitsInFirstByte)
 {
-    datalog.lock--;
+    uint32_t bitshift = 32 + 8 - bitsInFirstByte - 8 * size;
+    int32_t value = 0;
+
+    for (uint32_t i = 0; i < size; i++)
+    {
+        uint8_t symbol = *data++;
+        value = (value << 8) | symbol;
+    }
+
+    value = (value << bitshift) >> bitshift;
+
+    return value;
 }
 
 static bool decodeDatalogEntry(DatalogState *state)
@@ -312,12 +309,12 @@ static bool decodeDatalogEntry(DatalogState *state)
 
         uint8_t *entry = getFlashPage(state->iterator.pageIndex) +
                          state->iterator.index;
-        uint32_t entrySize;
 
         uint8_t value = *entry;
         if (value < 0xf0)
         {
             // 7, 14, 21 or 28-bit differential pulse count value
+            uint32_t entrySize;
             if ((value & 0x80) == 0x00)
                 entrySize = 1;
             else if ((value & 0xc0) == 0x80)
@@ -331,22 +328,24 @@ static bool decodeDatalogEntry(DatalogState *state)
             state->dose.pulseCount += decodeDatalogValue(entry,
                                                          entrySize,
                                                          8 - entrySize);
+            state->iterator.index += entrySize;
+
+            return true;
         }
         else if (value == 0xf0)
         {
             // 32-bit data differential pulse count value
-            entrySize = 5;
-
             state->dose.time += state->timeInterval;
             state->dose.pulseCount += decodeDatalogValue(entry + 1,
                                                          4,
                                                          8);
+            state->iterator.index += 5;
+
+            return true;
         }
         else if (value < ((0xf1 - 1) + DATALOG_INTERVAL_NUM))
         {
             // Sample interval + absolute timestamp and pulse count value
-            entrySize = 9;
-
             state->timeInterval = datalogIntervalTime[value - 0xf1 + 1];
             state->dose.time = decodeDatalogValue(entry + 1,
                                                   4,
@@ -354,102 +353,109 @@ static bool decodeDatalogEntry(DatalogState *state)
             state->dose.pulseCount = decodeDatalogValue(entry + 5,
                                                         4,
                                                         8);
+            state->iterator.index += 9;
+
+            return true;
         }
         else if (value < 0xff)
         {
             // Filler byte
             state->iterator.index++;
-
-            continue;
         }
-        else
+        else // if (value == 0xff)
         {
-            // Unflashed value
-            if (getFlashPageState(&state->iterator) != FLASHPAGE_AVAILABLE)
-                continue;
+            if (getFlashPageState(&state->iterator) == FLASHPAGE_AVAILABLE)
+            {
+                // End of data
+                state->iterator.index = getFlashPaddedSize(state->iterator.index);
 
-            state->iterator.index = getFlashPaddedSize(state->iterator.index);
-
-            return false;
+                return false;
+            }
+            else
+            {
+                // Move to next page
+                state->iterator.index = flashPageDataSize;
+            }
         }
-
-        state->iterator.index += entrySize;
-
-        return true;
     }
 }
 
-void startDatalogDownload(void)
+bool openDatalogRead(void)
 {
-    lockDatalog();
+    if (datalog.openRead)
+        return false;
+
+    datalog.openRead = true;
 
     datalog.readState.iterator.region = &flashDatalogRegion;
 
     setFlashPageTail(&datalog.readState.iterator);
+
+    return true;
 }
 
-bool getDatalogDownloadEntry(Dose *dose)
+bool readDatalog(Dose *dose)
 {
     bool entryValid = decodeDatalogEntry(&datalog.readState);
 
     if (entryValid)
         *dose = datalog.readState.dose;
-    else
-        unlockDatalog();
 
     return entryValid;
 }
 
+void closeDatalogRead(void)
+{
+    datalog.openRead = false;
+}
+
 // Data log interval menu
 
-static const char *onDatalogIntervalMenuGetOption(const Menu *menu,
-                                                  uint32_t index,
+static const char *onDatalogIntervalMenuGetOption(uint32_t index,
                                                   MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.datalogInterval);
 
-    return datalogIntervalMenuOptions[index];
+    return getString(datalogIntervalMenuOptions[index]);
 }
 
-static void onDatalogIntervalMenuSelect(const Menu *menu)
+static void onDatalogIntervalMenuSelect(uint32_t index)
 {
-    uint32_t datalogInterval = menu->state->selectedIndex;
-
-    if (settings.datalogInterval == datalogInterval)
+    if (settings.datalogInterval == index)
         return;
 
-    settings.datalogInterval = datalogInterval;
+    settings.datalogInterval = index;
 
-    if (datalogInterval == DATALOG_INTERVAL_OFF)
-        closeDatalog();
+    if (index == DATALOG_INTERVAL_OFF)
+        closeDatalogWrite();
     else
-        openDatalog();
+        openDatalogWrite();
 }
 
 static MenuState datalogIntervalMenuState;
 
-static const Menu datalogIntervalMenu = {
-    getString(STRING_LOGGING_MODE),
+static Menu datalogIntervalMenu = {
+    STRING_LOGGING_MODE,
     &datalogIntervalMenuState,
     onDatalogIntervalMenuGetOption,
     onDatalogIntervalMenuSelect,
     onDatalogSubMenuBack,
 };
 
-static const View datalogIntervalMenuView = {
+static View datalogIntervalMenuView = {
     onMenuEvent,
     &datalogIntervalMenu,
 };
 
 // Data log reset confirmation view
 
-static void onDatalogResetConfirmationEvent(const View *view, Event event)
+static void onDatalogResetConfirmationEvent(Event event)
 {
     switch (event)
     {
     case EVENT_KEY_BACK:
     case EVENT_KEY_SELECT:
-        onDatalogSubMenuBack(NULL);
+        onDatalogSubMenuBack();
 
         break;
 
@@ -464,19 +470,19 @@ static void onDatalogResetConfirmationEvent(const View *view, Event event)
     }
 }
 
-static const View datalogResetConfirmationView = {
+static View datalogResetConfirmationView = {
     onDatalogResetConfirmationEvent,
     NULL,
 };
 
 // Data log reset notification view
 
-static void onDatalogResetAlertEvent(const View *view, Event event)
+static void onDatalogResetAlertEvent(Event event)
 {
     switch (event)
     {
     case EVENT_KEY_BACK:
-        onDatalogSubMenuBack(NULL);
+        onDatalogSubMenuBack();
 
         break;
 
@@ -498,51 +504,50 @@ static void onDatalogResetAlertEvent(const View *view, Event event)
     }
 }
 
-static const View datalogResetAlertView = {
+static View datalogResetAlertView = {
     onDatalogResetAlertEvent,
     NULL,
 };
 
 // Data log menu
 
-static const char *const datalogMenuOptions[] = {
-    getString(STRING_LOGGING_MODE),
-    getString(STRING_RESET),
+static cstring datalogMenuOptions[] = {
+    STRING_LOGGING_MODE,
+    STRING_RESET,
     NULL,
 };
 
-static const char *onDatalogMenuGetOption(const Menu *menu,
-                                          uint32_t index,
+static const char *onDatalogMenuGetOption(uint32_t index,
                                           MenuStyle *menuStyle)
 {
     *menuStyle = (index == 0) ? MENUSTYLE_SUBMENU : 0;
 
-    return datalogMenuOptions[index];
+    return getString(datalogMenuOptions[index]);
 }
 
-static void onDatalogMenuSelect(const Menu *menu)
+static void onDatalogMenuSelect(uint32_t index)
 {
-    setView((menu->state->selectedIndex == 0)
+    setView((index == 0)
                 ? &datalogIntervalMenuView
                 : &datalogResetAlertView);
 }
 
-void onDatalogSubMenuBack(const Menu *menu)
+void onDatalogSubMenuBack(void)
 {
     setView(&datalogMenuView);
 }
 
 static MenuState datalogMenuState;
 
-static const Menu datalogMenu = {
-    getString(STRING_DATA_LOG),
+static Menu datalogMenu = {
+    STRING_DATA_LOG,
     &datalogMenuState,
     onDatalogMenuGetOption,
     onDatalogMenuSelect,
     onSettingsSubMenuBack,
 };
 
-const View datalogMenuView = {
+View datalogMenuView = {
     onMenuEvent,
     &datalogMenu,
 };

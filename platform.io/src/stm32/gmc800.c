@@ -9,15 +9,8 @@
 
 #if defined(GMC800)
 
-#include "../cmath.h"
-#include "../display.h"
 #include "../events.h"
-#include "../flash.h"
 #include "../keyboard.h"
-#include "../measurements.h"
-#include "../power.h"
-#include "../pulsecontrol.h"
-#include "../settings.h"
 #include "../system.h"
 
 #include "device.h"
@@ -28,12 +21,6 @@
 
 void initSystem(void)
 {
-    // Enable HSE
-    set_bits(RCC->CR,
-             RCC_CR_HSEON);
-    wait_until_bits_set(RCC->CR,
-                        RCC_CR_HSERDY);
-
     // Set 2 wait states for flash
     modify_bits(FLASH->ACR,
                 FLASH_ACR_LATENCY_Msk,
@@ -44,12 +31,18 @@ void initSystem(void)
                 RCC_CFGR_HPRE_DIV1 |     // Set AHB clock: 72 MHz / 1 = 72 MHz
                 RCC_CFGR_PPRE1_DIV2 |    // Set APB1 clock: 72 MHz / 2 = 36 MHz
                 RCC_CFGR_PPRE2_DIV1 |    // Set APB2 clock: 72 MHz / 1 = 72 MHz
-                RCC_CFGR_ADCPRE_DIV8 |   // Set ADC clock: 72 MHz / 8 = 9 MHz
+                RCC_CFGR_ADCPRE_DIV6 |   // Set ADC clock: 72 MHz / 6 = 12 MHz
                 RCC_CFGR_PLLSRC_HSE |    // Set PLL source: HSE
                 RCC_CFGR_PLLXTPRE_HSE |  // Set PLL HSE predivision factor: /1
                 RCC_CFGR_PLLMULL9 |      // Set PLL multiplier: 9x
                 RCC_CFGR_USBPRE_DIV1_5 | // Set USB prescaler: 1.5x
                 RCC_CFGR_MCO_NOCLOCK;    // Disable MCO
+
+    // Enable HSE
+    set_bits(RCC->CR,
+             RCC_CR_HSEON);
+    wait_until_bits_set(RCC->CR,
+                        RCC_CR_HSERDY);
 
     // Enable PLL
     set_bits(RCC->CR,
@@ -71,23 +64,63 @@ void initSystem(void)
                 AFIO_MAPR_SWJ_CFG_Msk,
                 AFIO_MAPR_SWJ_CFG_JTAGDISABLE);
 
-    // Enable GPIOA, GPIOB, GPIOC
+    // Enable GPIOA, GPIOB, GPIOC, GPIOD
     set_bits(RCC->APB2ENR,
              RCC_APB2ENR_IOPAEN |
                  RCC_APB2ENR_IOPBEN |
-                 RCC_APB2ENR_IOPCEN);
+                 RCC_APB2ENR_IOPCEN |
+                 RCC_APB2ENR_IOPDEN);
 
     // Disable USART reset
-    gpio_clear(USART_RESET_PORT,
-               USART_RESET_PIN);
-    gpio_setup(USART_RESET_PORT,
-               USART_RESET_PIN,
+    gpio_clear(USART_RESET_EN_PORT,
+               USART_RESET_EN_PIN);
+    gpio_setup(USART_RESET_EN_PORT,
+               USART_RESET_EN_PIN,
                GPIO_MODE_OUTPUT_2MHZ_PUSHPULL);
+}
+
+void startBootloader(void)
+{
+    // Disable interrupts
+    NVIC_DisableAllIRQs();
+    SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk;
+    SysTick->VAL = 0;
+
+    // Set HSI as system clock
+    modify_bits(RCC->CFGR,
+                RCC_CFGR_SW_Msk,
+                RCC_CFGR_SW_HSI);
+    wait_until_bits_value(RCC->CFGR,
+                          RCC_CFGR_SWS_Msk,
+                          RCC_CFGR_SWS_HSI);
+
+    // Disable PLL
+    clear_bits(RCC->CR,
+               RCC_CR_PLLON);
+    wait_until_bits_clear(RCC->CR,
+                          RCC_CR_PLLRDY);
+
+    // Reset RCC
+    RCC->CFGR = 0;
+
+    // Set 0 wait states for flash
+    modify_bits(FLASH->ACR,
+                FLASH_ACR_LATENCY_Msk,
+                FLASH_ACR_LATENCY_0WS);
+
+    // Disable USART reset
+    gpio_setup(USART_RESET_EN_PORT,
+               USART_RESET_EN_PIN,
+               GPIO_MODE_INPUT_FLOATING);
+
+    // Jump to bootloader
+    __set_MSP(SYSTEM_VECTOR_TABLE->sp);
+    SYSTEM_VECTOR_TABLE->onReset();
 }
 
 // Communications
 
-const char *const commId = "GQ GMC-800;" FIRMWARE_NAME " " FIRMWARE_VERSION;
+const char *const commId = "GQ GMC-800;" FIRMWARE_NAME " " FIRMWARE_VERSION "/" LANGUAGE;
 
 // Keyboard
 
@@ -278,72 +311,6 @@ bool isDisplayEnabled(void)
 
 void refreshDisplay(void)
 {
-}
-
-// Pulse control
-
-#define PULSE_LENGTH 0.0008F
-#define PULSESTRETCHERFIX_MINRATE (1.0F / PULSE_LENGTH)
-
-static struct {
-    bool enabled;
-
-    volatile bool stretcherFix;
-} pulseControl;
-
-void initPulseControl(void)
-{
-    gpio_set(BUZZ_EN_PORT, BUZZ_EN_PIN);
-
-    gpio_setup(PULSE_GREEN_EN_PORT,
-               PULSE_GREEN_EN_PIN,
-               GPIO_MODE_OUTPUT_2MHZ_PUSHPULL);
-    gpio_setup(PULSE_RED_EN_PORT,
-               PULSE_RED_EN_PIN,
-               GPIO_MODE_OUTPUT_2MHZ_PUSHPULL);
-}
-
-static void setPulseControlClicks(bool value)
-{
-    if (value)
-        gpio_setup(BUZZ_EN_PORT,
-                   BUZZ_EN_PIN,
-                   GPIO_MODE_INPUT_PULLUP);
-    else
-        gpio_setup(BUZZ_EN_PORT,
-                   BUZZ_EN_PIN,
-                   GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-}
-
-void setPulseControl(bool value)
-{
-    pulseControl.enabled = value;
-
-    updatePulseControl();
-}
-
-void updatePulseControl(void)
-{
-    pulseControl.stretcherFix =
-        pulseControl.enabled &&
-        settings.pulseSound &&
-        (getInstantaneousRate() >= PULSESTRETCHERFIX_MINRATE);
-
-    if (!pulseControl.stretcherFix)
-        setPulseControlClicks(pulseControl.enabled && settings.pulseSound);
-
-    gpio_modify(PULSE_GREEN_EN_PORT,
-                PULSE_GREEN_EN_PIN,
-                pulseControl.enabled && settings.pulseLED && !isAlarm());
-    gpio_modify(PULSE_RED_EN_PORT,
-                PULSE_RED_EN_PIN,
-                pulseControl.enabled && settings.pulseLED && isAlarm());
-}
-
-void onPulseControlTick(void)
-{
-    if (pulseControl.stretcherFix)
-        setPulseControlClicks(getRandomBit());
 }
 
 #endif

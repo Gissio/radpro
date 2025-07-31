@@ -16,7 +16,7 @@
 #include "menu.h"
 #include "view.h"
 
-extern const View displayMenuView;
+extern View displayMenuView;
 
 #if defined(DISPLAY_128X64)
 #define DISPLAY_WIDTH 128
@@ -42,10 +42,12 @@ extern const View displayMenuView;
 
 #define HISTORY_VALUE_MIN 0.02F
 #define HISTORY_DECADE 40
+#define HISTORY_MARGIN ((uint32_t)(0.2F * HISTORY_DECADE))
 
 typedef enum
 {
     MEASUREMENTSTYLE_NORMAL,
+    MEASUREMENTSTYLE_WARNING,
     MEASUREMENTSTYLE_ALARM,
     MEASUREMENTSTYLE_HOLD,
 } MeasurementStyle;
@@ -64,12 +66,12 @@ void updateDisplayContrast(void);
 
 void refreshDisplay(void);
 
-void drawPowerOff(bool displayEnabled);
+void drawPowerOff(bool displayBatteryIcon);
 void drawTitleBar(const char *title,
                   bool isMenu);
 void drawNotification(const char *title,
                       const char *subtitle);
-void drawMenu(const Menu *menu);
+void drawMenu(Menu *menu);
 void drawMeasurementValue(const char *valueString,
                           const char *unitString,
                           float confidence,
@@ -87,9 +89,10 @@ void drawHistory(float scale,
                  const char *unitString,
                  uint32_t timeTickNum,
                  const uint8_t *data,
-                 uint8_t alertZone1Value,
-                 uint8_t alertZone2Value);
+                 uint32_t alertZone1Value,
+                 uint32_t alertZone2Value);
 void drawRNG(const char *title,
+             bool largeFont,
              const char *rngString,
              const char *stateString);
 void drawStatistics(void);

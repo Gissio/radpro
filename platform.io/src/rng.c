@@ -36,28 +36,41 @@ typedef enum
     RNG_MODE_8SIDED_DIE,
     RNG_MODE_6SIDED_DIE,
     RNG_MODE_4SIDED_DIE,
-
     RNG_MODE_COIN_FLIP,
 
     RNG_MODE_THROW = RNG_MODE_100SIDED_DIE,
 } RNGMode;
 
-static const uint8_t rngModeRanges[] = {94, 62, 16, 10, 2, 100, 20, 12, 10, 8, 6, 4, 2};
+static const uint8_t rngModeRanges[] = {
+    94,
+    62,
+    16,
+    10,
+    2,
+    100,
+    20,
+    12,
+    10,
+    8,
+    6,
+    4,
+    2,
+};
 
-static const char *const rngModeMenuOptions[] = {
-    getString(STRING_ASCII),
-    getString(STRING_ALPHANUMERIC),
-    getString(STRING_HEXADECIMAL),
-    getString(STRING_DECIMAL),
-    getString(STRING_BINARY),
-    getString(STRING_100_SIDED_DIE),
-    getString(STRING_20_SIDED_DIE),
-    getString(STRING_12_SIDED_DIE),
-    getString(STRING_10_SIDED_DIE),
-    getString(STRING_8_SIDED_DIE),
-    getString(STRING_6_SIDED_DIE),
-    getString(STRING_4_SIDED_DIE),
-    getString(STRING_COIN_FLIP),
+static cstring rngModeMenuOptions[] = {
+    STRING_ASCII,
+    STRING_ALPHANUMERIC,
+    STRING_HEXADECIMAL,
+    STRING_DECIMAL,
+    STRING_BINARY,
+    STRING_100_SIDED_DIE,
+    STRING_20_SIDED_DIE,
+    STRING_12_SIDED_DIE,
+    STRING_10_SIDED_DIE,
+    STRING_8_SIDED_DIE,
+    STRING_6_SIDED_DIE,
+    STRING_4_SIDED_DIE,
+    STRING_COIN_FLIP,
     NULL,
 };
 
@@ -81,9 +94,9 @@ static struct
     uint8_t activityIndicator;
 } rng;
 
-extern const View rngView;
+extern View rngView;
 
-extern const Menu rngMenu;
+extern Menu rngMenu;
 
 void resetRNG(void)
 {
@@ -246,30 +259,29 @@ static void updateFastDiceRollerText(void)
 
             strcatChar(rng.text, c);
         }
-        else if (rng.mode != RNG_MODE_COIN_FLIP)
+        else
         {
             if ((rng.mode != RNG_MODE_100SIDED_DIE) &&
-                (rng.mode != RNG_MODE_10SIDED_DIE))
+                (rng.mode != RNG_MODE_10SIDED_DIE) &&
+                (rng.mode != RNG_MODE_COIN_FLIP))
                 digit++;
 
             strcatUInt32(rng.text, digit, 0);
         }
-        else
-            strcpy(rng.text, digit ? getString(STRING_COIN_HEAD) : getString(STRING_COIN_TAIL));
 
         if ((rng.mode >= RNG_MODE_THROW) ||
             (strlen(rng.text) >= RNG_SYMBOLS_MAX))
         {
             rng.activityIndicator = 0;
 
-            triggerAlarm();
+            triggerAlert();
         }
     }
 }
 
 // RNG view
 
-static void onRNGEvent(const View *view, Event event)
+static void onRNGEvent(Event event)
 {
     switch (event)
     {
@@ -296,9 +308,10 @@ static void onRNGEvent(const View *view, Event event)
         if (rng.activityIndicator)
             stateString = getString(STRING_ELLIPSIS) + 3 - rng.activityIndicator;
         else
-            stateString = "";
+            stateString = getString(STRING_EMPTY);
 
-        drawRNG(rngModeMenuOptions[rng.mode],
+        drawRNG(getString(rngModeMenuOptions[rng.mode]),
+                !rng.activityIndicator && (rng.mode >= RNG_MODE_THROW),
                 rng.text,
                 stateString);
 
@@ -310,32 +323,31 @@ static void onRNGEvent(const View *view, Event event)
     }
 }
 
-const View rngView = {
+View rngView = {
     onRNGEvent,
     NULL,
 };
 
 // RNG menu
 
-static const char *onRNGMenuGetOption(const Menu *menu,
-                                      uint32_t index,
+static const char *onRNGMenuGetOption(uint32_t index,
                                       MenuStyle *menuStyle)
 {
     *menuStyle = MENUSTYLE_SUBMENU;
 
-    return rngModeMenuOptions[index];
+    return getString(rngModeMenuOptions[index]);
 }
 
-static void onRNGMenuSelect(const Menu *menu)
+static void onRNGMenuSelect(uint32_t index)
 {
-    initFastDiceRoller(menu->state->selectedIndex);
+    initFastDiceRoller(index);
 
     setView(&rngView);
 }
 
 static MenuState rngMenuState;
 
-const Menu rngMenu = {
+Menu rngMenu = {
     getString(STRING_RANDOM_GENERATOR),
     &rngMenuState,
     onRNGMenuGetOption,
@@ -343,7 +355,7 @@ const Menu rngMenu = {
     onSettingsSubMenuBack,
 };
 
-const View rngMenuView = {
+View rngMenuView = {
     onMenuEvent,
     &rngMenu,
 };

@@ -19,8 +19,6 @@
 #include "menu.h"
 #include "settings.h"
 
-#define GAME_MENU_OPTIONS_NUM 3
-
 #if defined(STM32F0)
 #define GAME_DEPTH_MAX 16
 #else
@@ -66,8 +64,8 @@ static const uint16_t gameStrengthToNodesCount[] = {
     16384,
 };
 
-static const Menu gameMenu;
-static const Menu gameStrengthMenu;
+static Menu gameMenu;
+static Menu gameStrengthMenu;
 
 static void onGameCallback(void *userdata);
 
@@ -307,7 +305,7 @@ static void formatGameMove(char *buffer, mcumax_move move)
     }
 }
 
-static void onGameViewEvent(const View *view, Event event)
+static void onGameViewEvent(Event event)
 {
     switch (event)
     {
@@ -419,15 +417,14 @@ static void onGameViewEvent(const View *view, Event event)
     }
 }
 
-const View gameView = {
+View gameView = {
     onGameViewEvent,
     NULL,
 };
 
 // Game strength menu
 
-static const char *onGameStrengthMenuGetOption(const Menu *menu,
-                                               uint32_t index,
+static const char *onGameStrengthMenuGetOption(uint32_t index,
                                                MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.gameStrength);
@@ -444,64 +441,63 @@ static const char *onGameStrengthMenuGetOption(const Menu *menu,
         return NULL;
 }
 
-static void onGameStrengthMenuSelect(const Menu *menu)
+static void onGameStrengthMenuSelect(uint32_t index)
 {
-    settings.gameStrength = menu->state->selectedIndex;
+    settings.gameStrength = index;
 }
 
-static void onGameStrengthMenuBack(const Menu *menu)
+static void onGameStrengthMenuBack(void)
 {
     setView(&gameMenuView);
 }
 
 static MenuState gameStrengthMenuState;
 
-static const Menu gameStrengthMenu = {
-    getString(STRING_STRENGTH),
+static Menu gameStrengthMenu = {
+    STRING_STRENGTH,
     &gameStrengthMenuState,
     onGameStrengthMenuGetOption,
     onGameStrengthMenuSelect,
     onGameStrengthMenuBack,
 };
 
-static const View gameStrengthMenuView = {
+static View gameStrengthMenuView = {
     onMenuEvent,
     &gameStrengthMenu,
 };
 
 // Game menu
 
-static const View gameStrengthMenuView;
+static View gameStrengthMenuView;
 
-static const char *const gameStartMenuOptions[] = {
-    getString(STRING_PLAY_WHITE),
-    getString(STRING_PLAY_BLACK),
-    getString(STRING_STRENGTH),
+static cstring gameStartMenuOptions[] = {
+    STRING_PLAY_WHITE,
+    STRING_PLAY_BLACK,
+    STRING_STRENGTH,
     NULL,
 };
 
-static const char *const gameContinueMenuOptions[] = {
-    getString(STRING_CONTINUE_GAME),
-    getString(STRING_NEW_GAME),
-    getString(STRING_STRENGTH),
+static cstring gameContinueMenuOptions[] = {
+    STRING_CONTINUE_GAME,
+    STRING_NEW_GAME,
+    STRING_STRENGTH,
     NULL,
 };
 
-static const char *onGameMenuGetOption(const Menu *menu,
-                                       uint32_t index,
+static const char *onGameMenuGetOption(uint32_t index,
                                        MenuStyle *menuStyle)
 {
     *menuStyle = MENUSTYLE_SUBMENU;
 
     if (!game.moveIndex)
-        return gameStartMenuOptions[index];
+        return getString(gameStartMenuOptions[index]);
     else
-        return gameContinueMenuOptions[index];
+        return getString(gameContinueMenuOptions[index]);
 }
 
-static void onGameMenuSelect(const Menu *menu)
+static void onGameMenuSelect(uint32_t index)
 {
-    switch (menu->state->selectedIndex)
+    switch (index)
     {
     case 0:
         if (game.moveIndex)
@@ -545,15 +541,15 @@ static void onGameMenuSelect(const Menu *menu)
 
 static MenuState gameMenuState;
 
-static const Menu gameMenu = {
-    getString(STRING_GAME),
+static Menu gameMenu = {
+    STRING_GAME,
     &gameMenuState,
     onGameMenuGetOption,
     onGameMenuSelect,
     onSettingsSubMenuBack,
 };
 
-const View gameMenuView = {
+View gameMenuView = {
     onMenuEvent,
     &gameMenu,
 };

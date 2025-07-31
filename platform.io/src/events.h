@@ -21,7 +21,7 @@
 
 #define KEY_TICKS ((uint32_t)(0.025 * SYSTICK_FREQUENCY))
 
-extern const View pulsesMenuView;
+extern View pulsesMenuView;
 
 extern float timerCountToSeconds;
 
@@ -30,13 +30,18 @@ void initEventsHardware(void);
 void resetEvents(void);
 
 void onTick(void);
+void syncTick(void);
 uint32_t getTick(void);
 void sleep(uint32_t value);
 
-void syncTimerThread(void);
 void dispatchEvents(void);
 
 float getTubeDeadTime(void);
+
+#if defined(PULSE_LED)
+void cancelPulseLEDTimer(void);
+void setPulseLEDEnabled(bool value);
+#endif
 
 void requestBacklightTrigger(void);
 bool isBacklightTriggerRequested(void);
@@ -44,13 +49,14 @@ void triggerBacklight(void);
 void cancelBacklight(void);
 bool isBacklightActive(void);
 
-void setPulseThreshold(bool value);
-bool isPulseThresholdEnabled(void);
+void setPulseThresholdExceeded(bool value);
+bool isPulseThresholdExceeded(void);
 
 void triggerPulse(void);
-void triggerAlarm(void);
+void triggerAlert(void);
+void triggerSound(void);
 void triggerVibration(void);
 
-void togglePulseClicks(void);
+void togglePulseSound(void);
 
 #endif

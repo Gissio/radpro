@@ -21,22 +21,22 @@ void getKeyboardState(bool *isKeyDown)
 {
     const Uint8 *state = SDL_GetKeyboardState(NULL);
 
-#if defined(KEYBOARD_5KEYS)
+#if defined(KEYBOARD_5_KEYS)
     isKeyDown[KEY_LEFT] = state[SDL_SCANCODE_LEFT];
     isKeyDown[KEY_RIGHT] = state[SDL_SCANCODE_RIGHT];
     isKeyDown[KEY_UP] = state[SDL_SCANCODE_UP];
     isKeyDown[KEY_DOWN] = state[SDL_SCANCODE_DOWN];
     isKeyDown[KEY_OK] = state[SDL_SCANCODE_RETURN];
-#elif defined(KEYBOARD_4KEYS)
+#elif defined(KEYBOARD_4_KEYS)
     isKeyDown[KEY_LEFT] = state[SDL_SCANCODE_LEFT];
     isKeyDown[KEY_RIGHT] = state[SDL_SCANCODE_RIGHT];
     isKeyDown[KEY_UP] = state[SDL_SCANCODE_UP];
     isKeyDown[KEY_DOWN] = state[SDL_SCANCODE_DOWN];
-#elif defined(KEYBOARD_3KEYS)
+#elif defined(KEYBOARD_3_KEYS)
     isKeyDown[KEY_LEFT] = state[SDL_SCANCODE_LEFT];
     isKeyDown[KEY_RIGHT] = state[SDL_SCANCODE_RIGHT];
     isKeyDown[KEY_OK] = state[SDL_SCANCODE_DOWN];
-#elif defined(KEYBOARD_2KEYS)
+#elif defined(KEYBOARD_2_KEYS)
     isKeyDown[KEY_LEFT] = state[SDL_SCANCODE_LEFT];
     isKeyDown[KEY_RIGHT] = state[SDL_SCANCODE_RIGHT];
 #endif

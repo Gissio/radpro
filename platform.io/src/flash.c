@@ -7,7 +7,8 @@
  * License: MIT
  */
 
-#include "cstring.h"
+#include <string.h>
+
 #include "flash.h"
 
 bool isFlashEmpty(const uint8_t *data,
@@ -110,7 +111,7 @@ void setFlashPageNext(FlashIterator *iterator)
     iterator->pageIndex++;
     iterator->index = 0;
 
-    const FlashRegion *region = iterator->region;
+    FlashRegion *region = iterator->region;
     if (iterator->pageIndex >= region->endPageIndex)
         iterator->pageIndex = region->beginPageIndex;
 }
@@ -120,7 +121,7 @@ void setFlashPagePrev(FlashIterator *iterator)
     iterator->pageIndex--;
     iterator->index = 0;
 
-    const FlashRegion *region = iterator->region;
+    FlashRegion *region = iterator->region;
     if (iterator->pageIndex < region->beginPageIndex)
         iterator->pageIndex = region->endPageIndex - 1;
 }

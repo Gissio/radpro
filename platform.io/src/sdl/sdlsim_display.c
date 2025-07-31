@@ -36,7 +36,7 @@ bool vibrationOn;
 bool pulseLEDOn;
 bool alertLEDOn;
 
-static uint8_t displayBrightnessValues[] = {
+static const uint8_t displayBrightnessValues[] = {
     0x3f, 0x7f, 0xbf, 0xff};
 
 #if defined(ST7789_DEBUG)
@@ -212,7 +212,7 @@ void updateDisplay(void)
         switch (event.type)
         {
         case SDL_QUIT:
-            closeDatalog();
+            closeDatalogWrite();
             writeSettings();
 
             exit(0);
@@ -241,12 +241,12 @@ void updateDisplay(void)
     }
 }
 
-extern volatile uint32_t eventsCurrentTick;
+extern volatile uint32_t eventsTick;
 
 bool updateSDLTicks()
 {
-    int32_t deltaTicks = SDL_GetTicks() - eventsCurrentTick;
-    eventsCurrentTick++;
+    int32_t deltaTicks = SDL_GetTicks() - eventsTick;
+    eventsTick++;
 
     onTick();
 
@@ -309,7 +309,7 @@ void setVibration(bool value)
 
 // LED
 
-void initLED(void)
+void initPulseLED(void)
 {
 }
 
@@ -318,6 +318,10 @@ void setPulseLED(bool value)
     pulseLEDOn = value;
 
     updateDisplayTitle();
+}
+
+void initAlertLED(void)
+{
 }
 
 void setAlertLED(bool value)

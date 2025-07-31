@@ -11,7 +11,6 @@
 
 #include "../display.h"
 #include "../events.h"
-#include "../flash.h"
 #include "../keyboard.h"
 #include "../settings.h"
 #include "../system.h"
@@ -46,14 +45,26 @@ void initSystem(void)
 #endif
 }
 
+void startBootloader(void)
+{
+    // Disable interrupts
+    NVIC_DisableAllIRQs();
+    SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk;
+    SysTick->VAL = 0;
+
+    // Jump to bootloader
+    __set_MSP(SYSTEM_VECTOR_TABLE->sp);
+    SYSTEM_VECTOR_TABLE->onReset();
+}
+
 // Communications
 
 #if defined(STM32F0) && !defined(GD32)
-const char *const commId = "FS2011 (STM32F051C8);" FIRMWARE_NAME " " FIRMWARE_VERSION;
+const char *const commId = "FS2011 (STM32F051C8);" FIRMWARE_NAME " " FIRMWARE_VERSION "/" LANGUAGE;
 #elif defined(STM32F0) && defined(GD32)
-const char *const commId = "FS2011 (GD32F150C8);" FIRMWARE_NAME " " FIRMWARE_VERSION;
+const char *const commId = "FS2011 (GD32F150C8);" FIRMWARE_NAME " " FIRMWARE_VERSION "/" LANGUAGE;
 #elif defined(STM32F1)
-const char *const commId = "FS2011 (GD32F103C8);" FIRMWARE_NAME " " FIRMWARE_VERSION;
+const char *const commId = "FS2011 (GD32F103C8);" FIRMWARE_NAME " " FIRMWARE_VERSION "/" LANGUAGE;
 #endif
 
 // Keyboard
@@ -101,7 +112,7 @@ void getKeyboardState(bool *isKeyDown)
 #if defined(KEYBOARD_2lKEYS)
     isKeyDown[KEY_LEFT] = !gpio_get(KEY_PLAYPAUSE_PORT, KEY_PLAYPAUSE_PIN);
     isKeyDown[KEY_RIGHT] = !gpio_get(KEY_POWER_PORT, KEY_POWER_PIN);
-#elif defined(KEYBOARD_5KEYS)
+#elif defined(KEYBOARD_5_KEYS)
     isKeyDown[KEY_LEFT] = !gpio_get(KEY_PLAYPAUSE_PORT, KEY_PLAYPAUSE_PIN);
     isKeyDown[KEY_RIGHT] = !gpio_get(KEY_MENUOK_PORT, KEY_MENUOK_PIN);
     isKeyDown[KEY_UP] = !gpio_get(KEY_UP_PORT, KEY_UP_PIN);

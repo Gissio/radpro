@@ -10,13 +10,18 @@
 #if defined(STM32)
 
 #include "../adc.h"
+#include "../keyboard.h"
 #include "../power.h"
 
 #include "device.h"
 
+static bool powerEnabled;
+
 void initPower(void)
 {
     // GPIO
+    setPower(false);
+
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
 
     gpio_setup_output(PWR_EN_PORT,
@@ -111,11 +116,6 @@ void initPower(void)
 #endif
 }
 
-uint32_t getBatteryNum(void)
-{
-    return PWR_BAT_NUM;
-}
-
 void setPower(bool value)
 {
     gpio_modify(PWR_EN_PORT,
@@ -131,7 +131,26 @@ void setPower(bool value)
                 value);
 #endif
 
-    power.enabled = value;
+    powerEnabled = value;
+}
+
+bool isPowered(void)
+{
+    return powerEnabled;
+}
+
+bool isPowerOnReset(void)
+{
+#if defined(STM32F0) || defined(STM32F1)
+    bool isPowerOnReset = get_bits(RCC->CSR, RCC_CSR_PORRSTF_Msk);
+#elif defined(STM32G0)
+    bool isPowerOnReset = get_bits(RCC->CSR, RCC_CSR_PWRRSTF_Msk);
+#elif defined(STM32L4)
+    bool isPowerOnReset = get_bits(RCC->CSR, RCC_CSR_BORRSTF_Msk);
+#endif
+    set_bits(RCC->CSR, RCC_CSR_RMVF_Msk);
+
+    return isPowerOnReset;
 }
 
 bool isBatteryCharging(void)
@@ -156,6 +175,11 @@ bool isUSBPowered(void)
 #else
     return false;
 #endif
+}
+
+uint32_t getBatteryNum(void)
+{
+    return PWR_BAT_NUM;
 }
 
 #endif

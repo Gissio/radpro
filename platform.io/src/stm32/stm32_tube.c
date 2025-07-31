@@ -121,7 +121,7 @@ void initTubeHardware(void)
                false,
                true);
 
-    NVIC_SetPriority(TUBE_DET_IRQ, 0x00);
+    NVIC_SetPriority(TUBE_DET_IRQ, 0x0);
     NVIC_EnableIRQ(TUBE_DET_IRQ);
 
     exti_enable_interrupt(TUBE_DET_PIN);

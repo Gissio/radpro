@@ -13,10 +13,10 @@ extends = base
 build_flags =
     ${base.build_flags}
     -DFS2011
-    -DQFP
+    -DBOOTLOADER
     -DBATTERY_REMOVABLE
     -DTUBE_HV_PWM
-    -DKEYBOARD_5KEYS
+    -DKEYBOARD_5_KEYS
     -DDISPLAY_128X64
     -DDISPLAY_MONOCHROME
     -DFONT_LARGE='"fonts/font_mono_large.h"'
@@ -44,6 +44,7 @@ extends = base
 board = stm32g070cb
 build_flags =
     ${base.build_flags}
+    -DBOOTLOADER
     -DBATTERY_REMOVABLE
     -DPWR_USB
     -DTUBE_HV_PWM
@@ -61,24 +62,26 @@ extends = bosean-fs600_fs1000
 build_flags =
     ${bosean-fs600_fs1000.build_flags}
     -DFS600
-    -DKEYBOARD_5KEYS
+    -DKEYBOARD_5_KEYS
+    -DKEYBOARD_KEY_POWER_OK
 
 [bosean-fs1000]
 extends = bosean-fs600_fs1000
 build_flags =
     ${bosean-fs600_fs1000.build_flags}
     -DFS1000
-    -DKEYBOARD_2KEYS
+    -DKEYBOARD_2_KEYS
 
-[bosean-fs5000]
+[bosean-fs5000_common]
 extends = base
 board = stm32l431rc
 ; extra_scripts = pre:scripts/hardfloat.py
 build_flags =
     ${base.build_flags}
     -DFS5000
+    -DBOOTLOADER
     -DPWR_USB
-    -DKEYBOARD_3KEYS
+    -DKEYBOARD_3_KEYS
     -DDISPLAY_COLOR
     -DFONT_SYMBOLS='"fonts/font_color_symbols.h"'
     -DBUZZER
@@ -88,17 +91,17 @@ build_flags =
     -DGAME
 lib_ignore = libusb_stm32
 
-[bosean-fs5000_portrait]
-extends = bosean-fs5000
+[bosean-fs5000]
+extends = bosean-fs5000_common
 build_flags =
-    ${bosean-fs5000.build_flags}
+    ${bosean-fs5000_common.build_flags}
     -DDISPLAY_240X320
     -DFONT_LARGE='"fonts/font_color_large_portrait.h"'
 
 [bosean-fs5000_landscape]
-extends = bosean-fs5000
+extends = bosean-fs5000_common
 build_flags =
-    ${bosean-fs5000.build_flags}
+    ${bosean-fs5000_common.build_flags}
     -DDISPLAY_320X240
     -DFONT_LARGE='"fonts/font_color_large.h"'
 
@@ -110,7 +113,8 @@ build_flags =
     -DUSB_PMASIZE=0x200
     -DUSBD_ASM_DRIVER
     -DTUBE_HV_PWM
-    -DKEYBOARD_5KEYS
+    -DKEYBOARD_5_KEYS
+    -DKEYBOARD_KEY_POWER_OK
     -DSTART_POWERON
     -DDISPLAY_320X240
     -DDISPLAY_COLOR
@@ -135,7 +139,8 @@ extends = fnirsi-gc01
 board = ch32f103r8
 build_flags =
     ${fnirsi-gc01.build_flags}
-    -DFONT_SYMBOLS_NOCHARGING
+    -DFONT_LARGE='"fonts/font_color_low_large.h"'
+    -DFONT_SYMBOLS='"fonts/font_color_low_symbols.h"'
     -DDATA_MODE
 
 [fnirsi-gc01_apm32f103rb]
@@ -147,35 +152,37 @@ build_flags =
     -DFONT_SYMBOLS='"fonts/font_color_symbols.h"'
     -DGAME
 
-[gq-gmc800]
+[gq-gmc800_common]
 extends = base
 board = gd32f303rc
 ; extra_scripts = pre:scripts/hardfloat.py
 build_flags =
     ${base.build_flags}
     -DGMC800
+    -DBOOTLOADER
     -DPWR_USB
     -DTUBE_HV_PWM
-    -DKEYBOARD_4KEYS
+    -DKEYBOARD_4_KEYS
     -DDISPLAY_COLOR
     -DFONT_SYMBOLS='"fonts/font_color_symbols.h"'
-    -DPULSE_CONTROL
+    -DLED_CONTROL
+    -DSOUND_CONTROL
     -DVOICE
     -DVIBRATION
     -DGAME
 lib_ignore = libusb_stm32
 upload_flags = -c set CPUTAPID 0x2ba01477
 
-[gq-gmc800_portrait]
-extends = gq-gmc800
+[gq-gmc800]
+extends = gq-gmc800_common
 build_flags =
-    ${gq-gmc800.build_flags}
+    ${gq-gmc800_common.build_flags}
     -DDISPLAY_240X320
     -DFONT_LARGE='"fonts/font_color_large_portrait.h"'
 
 [gq-gmc800_landscape]
-extends = gq-gmc800
+extends = gq-gmc800_common
 build_flags =
-    ${gq-gmc800.build_flags}
+    ${gq-gmc800_common.build_flags}
     -DDISPLAY_320X240
     -DFONT_LARGE='"fonts/font_color_large.h"'

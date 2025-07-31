@@ -9,15 +9,9 @@
 
 #if defined(GC01)
 
-#include "stm32.h"
-
-#include "../display.h"
 #include "../events.h"
-#include "../flash.h"
 #include "../keyboard.h"
-#include "../settings.h"
 #include "../system.h"
-#include "../tube.h"
 
 #include "device.h"
 
@@ -27,14 +21,10 @@
 
 void initSystem(void)
 {
-    // Set stack pointer to fix bootloader madness
+    // Fix bootloader issues
     __set_MSP(*((uint32_t *)FIRMWARE_BASE));
-
-    // Enable HSE
-    set_bits(RCC->CR,
-             RCC_CR_HSEON);
-    wait_until_bits_set(RCC->CR,
-                        RCC_CR_HSERDY);
+    NVIC_DisableAllIRQs();
+    SCB->VTOR = FIRMWARE_BASE;
 
     // Set 2 wait states for flash
     modify_bits(FLASH->ACR,
@@ -46,12 +36,18 @@ void initSystem(void)
                 RCC_CFGR_HPRE_DIV1 |     // Set AHB clock: 72 MHz / 1 = 72 MHz
                 RCC_CFGR_PPRE1_DIV2 |    // Set APB1 clock: 72 MHz / 2 = 36 MHz
                 RCC_CFGR_PPRE2_DIV1 |    // Set APB2 clock: 72 MHz / 1 = 72 MHz
-                RCC_CFGR_ADCPRE_DIV8 |   // Set ADC clock: 72 MHz / 8 = 9 MHz
+                RCC_CFGR_ADCPRE_DIV6 |   // Set ADC clock: 72 MHz / 6 = 12 MHz
                 RCC_CFGR_PLLSRC_HSE |    // Set PLL source: HSE
                 RCC_CFGR_PLLXTPRE_HSE |  // Set PLL HSE predivision factor: /1
                 RCC_CFGR_PLLMULL9 |      // Set PLL multiplier: 9x
                 RCC_CFGR_USBPRE_DIV1_5 | // Set USB prescaler: 1.5x
                 RCC_CFGR_MCO_NOCLOCK;    // Disable MCO
+
+    // Enable HSE
+    set_bits(RCC->CR,
+             RCC_CR_HSEON);
+    wait_until_bits_set(RCC->CR,
+                        RCC_CR_HSERDY);
 
     // Enable PLL
     set_bits(RCC->CR,
@@ -66,10 +62,6 @@ void initSystem(void)
     wait_until_bits_value(RCC->CFGR,
                           RCC_CFGR_SWS_Msk,
                           RCC_CFGR_SWS_PLL);
-
-    // Set vector table
-    NVIC_DisableAllIRQs();
-    SCB->VTOR = FIRMWARE_BASE;
 
     // Disable JTAG
     rcc_enable_afio();
@@ -94,9 +86,9 @@ void initSystem(void)
 // Communications
 
 #if defined(CH32)
-const char *const commId = "FNIRSI GC-01 (CH32F103C8);" FIRMWARE_NAME " " FIRMWARE_VERSION;
+const char *const commId = "FNIRSI GC-01 (CH32F103C8);" FIRMWARE_NAME " " FIRMWARE_VERSION "/" LANGUAGE;
 #elif defined(APM32)
-const char *const commId = "FNIRSI GC-01 (APM32F103CB);" FIRMWARE_NAME " " FIRMWARE_VERSION;
+const char *const commId = "FNIRSI GC-01 (APM32F103CB);" FIRMWARE_NAME " " FIRMWARE_VERSION "/" LANGUAGE;
 #endif
 
 // Keyboard

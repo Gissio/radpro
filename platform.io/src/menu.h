@@ -15,7 +15,7 @@
 
 #include "view.h"
 
-typedef struct Menu_ Menu;
+typedef const struct Menu_ Menu;
 
 #define MENUSTYLE_CHECKED (1 << 0)
 #define MENUSTYLE_SUBMENU (1 << 1)
@@ -23,11 +23,10 @@ typedef struct Menu_ Menu;
 
 typedef uint32_t MenuStyle;
 
-typedef const char *OnMenuGetOption(const Menu *menu,
-                                    uint32_t index,
+typedef const char *OnMenuGetOption(uint32_t index,
                                     MenuStyle *menuStyle);
-typedef void OnMenuSelect(const Menu *menu);
-typedef void OnMenuBack(const Menu *menu);
+typedef void OnMenuSelect(uint32_t index);
+typedef void OnMenuBack(void);
 
 extern char menuOption[32];
 
@@ -39,17 +38,23 @@ typedef struct
 
 struct Menu_
 {
-    const char *title;
+    cstring title;
     MenuState *state;
     OnMenuGetOption *onGetOption;
     OnMenuSelect *onSelect;
     OnMenuBack *onBack;
 };
 
-void selectMenuItem(const Menu *menu,
+typedef const struct
+{
+    cstring title;
+    ViewPointer view;
+} SubMenuOption;
+
+void selectMenuItem(Menu *menu,
                     uint32_t index,
                     uint32_t optionsNum);
 
-void onMenuEvent(const View *view, Event event);
+void onMenuEvent(Event event);
 
 #endif

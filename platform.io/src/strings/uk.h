@@ -11,6 +11,7 @@
 #define STRING_APP_NAME "Rad Pro"
 
 // Styling characters (should not be translated)
+#define STRING_EMPTY ""
 #define STRING_NUMBERS "0123456789.:"
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
@@ -60,6 +61,12 @@
 // Common menu items
 #define STRING_OFF "Вимкнено"
 
+// Sound volume and display brightness menu items
+#define STRING_VERY_LOW "Дуже низька"
+#define STRING_LOW "Низька"
+#define STRING_MEDIUM "Середня"
+#define STRING_HIGH "Висока"
+
 // Notification headings (upper case)
 #define STRING_NOTIFICATION_WARNING "ПОПЕРЕДЖЕННЯ"
 #define STRING_NOTIFICATION_SUCCESS "УСПІХ"
@@ -81,27 +88,31 @@
 #define STRING_INSTANTANEOUS "Миттєвий"
 #define STRING_AVERAGE "Середній"
 #define STRING_CUMULATIVE "Накопичувальний"
-#define STRING_HISTORY10_MIN "Історія (10 хв)"
-#define STRING_HISTORY1_H "Історія (1 год)"
-#define STRING_HISTORY24_H "Історія (24 год)"
+#define STRING_HISTORY_10_MINUTES "Історія (10 хв)"
+#define STRING_HISTORY_1_HOUR "Історія (1 год)"
+#define STRING_HISTORY_1_DAY "Історія (1 д)"
+#define STRING_HISTORY_1_WEEK "Історія (1 тиж)"
+#define STRING_HISTORY_1_MONTH "Історія (1 міс)"
+#define STRING_HISTORY_1_YEAR "Історія (1 р)"
 
 // Measurement view secondary view strings
 #define STRING_TIME "Час"
-#define STRING_MAX "Макс."
-#define STRING_RATE "Темп"
+#define STRING_MAX "Макс"
+#define STRING_RATE "Швидкість"
 #define STRING_DOSE "Доза"
 
 // Measurement view info strings (upper case, up to 5 letters)
 #define STRING_INFO_ALARM "ТРИВОГА"
+#define STRING_INFO_WARNING "ПОПЕРЕДЖЕННЯ"
 #define STRING_INFO_FAULT "ПОМИЛКА"
 #define STRING_INFO_MAX "МАКС"
-#define STRING_INFO_OVER "ПЕРЕВИЩ"
+#define STRING_INFO_OVERFLOW "ПЕРЕВИЩ"
 #define STRING_INFO_DONE "ГОТОВО"
 
 // Settings menu items
 #define STRING_SETTINGS "Налаштування"
 #define STRING_PULSES "Імпульси"
-#define STRING_ALARMS "Сигнали"
+#define STRING_ALERTS "Сповіщення"
 #define STRING_MEASUREMENTS "Вимірювання"
 #define STRING_GEIGER_TUBE "Лічильник Гейгера"
 #define STRING_DATA_LOG "Журнал даних"
@@ -115,22 +126,18 @@
 
 // Pulses menu items
 #define STRING_SOUND "Звук"
+#define STRING_VOICE "Голос"
 #define STRING_VIBRATION "Вібрація"
 #define STRING_PULSE_LED "Світлодіод імпульсу"
 #define STRING_DISPLAY_FLASH "Спалах дисплея"
 #define STRING_THRESHOLD "Поріг"
 
-// Sound menu items
-#define STRING_CLICKS "Клацання"
-#define STRING_CHIRPS "Щебетання"
-#define STRING_BEEPS "Гудки"
-
 // Alarms menu items
+#define STRING_RATE_WARNING "Попер. швидкості"
+#define STRING_DOSE_WARNING "Попер. дози"
 #define STRING_RATE_ALARM "Сигнал швидкості"
 #define STRING_DOSE_ALARM "Сигнал дози"
 #define STRING_INDICATION "Індикація"
-#define STRING_VOICE "Голос"
-#define STRING_VOLUME "Гучність"
 
 // Measurements menu items
 #define STRING_UNITS "Одиниці"
@@ -202,18 +209,26 @@
 #define STRING_THEME_DUSK "Сутінки"
 #define STRING_THEME_NIGHT "Ніч"
 
-// Display - Brightness menu items
-#define STRING_VERY_LOW "Дуже низька"
-#define STRING_LOW "Низька"
-#define STRING_MEDIUM "Середня"
-#define STRING_HIGH "Висока"
-
 // Display - Contrast menu items prefix (followed by a number from 1 to 8)
 #define STRING_CONTRAST_LEVEL "Рівень"
 
 // Display - Sleep menu items
 #define STRING_ALWAYS_OFF "Завжди вимкнено"
 #define STRING_ALWAYS_ON "Завжди увімкнено"
+
+// Sound menu items
+#define STRING_ALERTSTYLE "Стиль сповіщення"
+#define STRING_ALERTVOLUME "Гучність сповіщення"
+#define STRING_VOICEVOLUME "Гучність голосу"
+
+// Sound Alarms length
+#define STRING_SHORT "Короткий"
+#define STRING_LONG "Довгий"
+
+// Sound pulses menu items
+#define STRING_CLICKS "Клацання"
+#define STRING_CHIRPS "Щебетання"
+#define STRING_BEEPS "Гудки"
 
 // Time and date menu items
 #define STRING_TIME_ZONE "Часовий пояс"
@@ -229,8 +244,8 @@
 #define STRING_UTCPLUS "UTC+"
 
 // Time and date > Hour menu items (should not be translated)
-#define STRING_AM " AM"
-#define STRING_PM " PM"
+#define STRING_AM "AM"
+#define STRING_PM "PM"
 
 // Time and date > Time format menu items
 #define STRING_24_HOUR "24-годинний"
@@ -253,11 +268,7 @@
 #define STRING_8_SIDED_DIE "8-гранний кубик"
 #define STRING_6_SIDED_DIE "6-гранний кубик"
 #define STRING_4_SIDED_DIE "4-гранний кубик"
-#define STRING_COIN_FLIP "Підкидання монети"
-
-// Random generator coin head/tail
-#define STRING_COIN_HEAD "Орел"
-#define STRING_COIN_TAIL "Решка"
+#define STRING_COIN_FLIP "Підкидання монети (0-1)"
 
 // Game menu items
 #define STRING_PLAY_WHITE "Грати білими"

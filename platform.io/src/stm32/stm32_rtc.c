@@ -16,7 +16,7 @@
 
 void initRTC(void)
 {
-    syncTimerThread();
+    syncTick();
 
     rcc_enable_rtc();
     rtc_disable_backup_domain_write_protection();

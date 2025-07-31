@@ -11,6 +11,7 @@
 #define STRING_APP_NAME "Rad Pro"
 
 // Styling characters (should not be translated)
+#define STRING_EMPTY ""
 #define STRING_NUMBERS "0123456789.:"
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
@@ -60,6 +61,12 @@
 // Common menu items
 #define STRING_OFF "Oprit"
 
+// Sound volume and display brightness menu items
+#define STRING_VERY_LOW "Foarte scăzut"
+#define STRING_LOW "Scăzut"
+#define STRING_MEDIUM "Mediu"
+#define STRING_HIGH "Ridicat"
+
 // Notification headings (upper case)
 #define STRING_NOTIFICATION_WARNING "AVERTIZARE"
 #define STRING_NOTIFICATION_SUCCESS "SUCCES"
@@ -81,9 +88,12 @@
 #define STRING_INSTANTANEOUS "Instantaneu"
 #define STRING_AVERAGE "Medie"
 #define STRING_CUMULATIVE "Cumulativ"
-#define STRING_HISTORY10_MIN "Istoric (10 min)"
-#define STRING_HISTORY1_H "Istoric (1 oră)"
-#define STRING_HISTORY24_H "Istoric (24 ore)"
+#define STRING_HISTORY_10_MINUTES "Istoric (10 min)"
+#define STRING_HISTORY_1_HOUR "Istoric (1 h)"
+#define STRING_HISTORY_1_DAY "Istoric (1 z)"
+#define STRING_HISTORY_1_WEEK "Istoric (1 săpt)"
+#define STRING_HISTORY_1_MONTH "Istoric (1 lună)"
+#define STRING_HISTORY_1_YEAR "Istoric (1 an)"
 
 // Measurement view secondary view strings
 #define STRING_TIME "Timp"
@@ -93,15 +103,16 @@
 
 // Measurement view info strings (upper case, up to 5 letters)
 #define STRING_INFO_ALARM "ALARMĂ"
+#define STRING_INFO_WARNING "AVERTIZARE"
 #define STRING_INFO_FAULT "DEFECT"
 #define STRING_INFO_MAX "MAX"
-#define STRING_INFO_OVER "DEPĂȘ"
+#define STRING_INFO_OVERFLOW "DEPĂȘ"
 #define STRING_INFO_DONE "GATA"
 
 // Settings menu items
 #define STRING_SETTINGS "Setări"
 #define STRING_PULSES "Impulsuri"
-#define STRING_ALARMS "Alarme"
+#define STRING_ALERTS "Alerte"
 #define STRING_MEASUREMENTS "Măsurători"
 #define STRING_GEIGER_TUBE "Tub Geiger"
 #define STRING_DATA_LOG "Înregistrări"
@@ -115,22 +126,18 @@
 
 // Pulses menu items
 #define STRING_SOUND "Sunet"
+#define STRING_VOICE "Voce"
 #define STRING_VIBRATION "Vibrație"
 #define STRING_PULSE_LED "LED impuls"
 #define STRING_DISPLAY_FLASH "Clipire ecran"
 #define STRING_THRESHOLD "Prag"
 
-// Sound menu items
-#define STRING_CLICKS "Clicuri"
-#define STRING_CHIRPS "Ciripituri"
-#define STRING_BEEPS "Bipuri"
-
 // Alarms menu items
+#define STRING_RATE_WARNING "Avertisment rată"
+#define STRING_DOSE_WARNING "Avertisment doză"
 #define STRING_RATE_ALARM "Alarmă rată"
 #define STRING_DOSE_ALARM "Alarmă doză"
 #define STRING_INDICATION "Indicație"
-#define STRING_VOICE "Voce"
-#define STRING_VOLUME "Volum"
 
 // Measurements menu items
 #define STRING_UNITS "Unități"
@@ -202,18 +209,26 @@
 #define STRING_THEME_DUSK "Amurg"
 #define STRING_THEME_NIGHT "Noapte"
 
-// Display - Brightness menu items
-#define STRING_VERY_LOW "Foarte scăzut"
-#define STRING_LOW "Scăzut"
-#define STRING_MEDIUM "Mediu"
-#define STRING_HIGH "Ridicat"
-
 // Display - Contrast menu items prefix (followed by a number from 1 to 8)
 #define STRING_CONTRAST_LEVEL "Nivel"
 
 // Display - Sleep menu items
 #define STRING_ALWAYS_OFF "Întotdeauna oprit"
 #define STRING_ALWAYS_ON "Întotdeauna pornit"
+
+// Sound menu items
+#define STRING_ALERTSTYLE "Stil de alertă"
+#define STRING_ALERTVOLUME "Volum alertă"
+#define STRING_VOICEVOLUME "Volum voce"
+
+// Sound Alarms length
+#define STRING_SHORT "Scurt"
+#define STRING_LONG "Lung"
+
+// Sound pulses menu items
+#define STRING_CLICKS "Clicuri"
+#define STRING_CHIRPS "Ciripituri"
+#define STRING_BEEPS "Bipuri"
 
 // Time and date menu items
 #define STRING_TIME_ZONE "Fus orar"
@@ -229,8 +244,8 @@
 #define STRING_UTCPLUS "UTC+"
 
 // Time and date > Hour menu items (should not be translated)
-#define STRING_AM " AM"
-#define STRING_PM " PM"
+#define STRING_AM "AM"
+#define STRING_PM "PM"
 
 // Time and date > Time format menu items
 #define STRING_24_HOUR "24 ore"
@@ -253,11 +268,7 @@
 #define STRING_8_SIDED_DIE "Zar 8 fețe"
 #define STRING_6_SIDED_DIE "Zar 6 fețe"
 #define STRING_4_SIDED_DIE "Zar 4 fețe"
-#define STRING_COIN_FLIP "Aruncare monedă"
-
-// Random generator coin head/tail
-#define STRING_COIN_HEAD "Cap"
-#define STRING_COIN_TAIL "Pajură"
+#define STRING_COIN_FLIP "Aruncare monedă (0-1)"
 
 // Game menu items
 #define STRING_PLAY_WHITE "Joacă alb"

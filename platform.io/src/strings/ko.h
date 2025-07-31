@@ -11,6 +11,7 @@
 #define STRING_APP_NAME "Rad Pro"
 
 // Styling characters (should not be translated)
+#define STRING_EMPTY ""
 #define STRING_NUMBERS "0123456789.:"
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
@@ -60,6 +61,12 @@
 // Common menu items
 #define STRING_OFF "꺼짐"
 
+// Sound volume and display brightness menu items
+#define STRING_VERY_LOW "매우 낮음"
+#define STRING_LOW "낮음"
+#define STRING_MEDIUM "중간"
+#define STRING_HIGH "높음"
+
 // Notification headings (upper case)
 #define STRING_NOTIFICATION_WARNING "경고"
 #define STRING_NOTIFICATION_SUCCESS "성공"
@@ -81,27 +88,31 @@
 #define STRING_INSTANTANEOUS "즉시"
 #define STRING_AVERAGE "평균"
 #define STRING_CUMULATIVE "누적"
-#define STRING_HISTORY10_MIN "기록 (10분)"
-#define STRING_HISTORY1_H "기록 (1시간)"
-#define STRING_HISTORY24_H "기록 (24시간)"
+#define STRING_HISTORY_10_MINUTES "기록 (10분)"
+#define STRING_HISTORY_1_HOUR "기록 (1시간)"
+#define STRING_HISTORY_1_DAY "기록 (1일)"
+#define STRING_HISTORY_1_WEEK "기록 (1주)"
+#define STRING_HISTORY_1_MONTH "기록 (1개월)"
+#define STRING_HISTORY_1_YEAR "기록 (1년)"
 
 // Measurement view secondary view strings
 #define STRING_TIME "시간"
 #define STRING_MAX "최대"
-#define STRING_RATE "비율"
+#define STRING_RATE "속도"
 #define STRING_DOSE "선량"
 
 // Measurement view info strings (upper case, up to 5 letters)
 #define STRING_INFO_ALARM "알람"
+#define STRING_INFO_WARNING "경고"
 #define STRING_INFO_FAULT "오류"
 #define STRING_INFO_MAX "최대"
-#define STRING_INFO_OVER "초과"
+#define STRING_INFO_OVERFLOW "초과"
 #define STRING_INFO_DONE "완료"
 
 // Settings menu items
 #define STRING_SETTINGS "설정"
 #define STRING_PULSES "펄스"
-#define STRING_ALARMS "알람"
+#define STRING_ALERTS "알림"
 #define STRING_MEASUREMENTS "측정"
 #define STRING_GEIGER_TUBE "가이거 튜브"
 #define STRING_DATA_LOG "데이터 로그"
@@ -115,22 +126,18 @@
 
 // Pulses menu items
 #define STRING_SOUND "소리"
+#define STRING_VOICE "음성"
 #define STRING_VIBRATION "진동"
 #define STRING_PULSE_LED "펄스 LED"
 #define STRING_DISPLAY_FLASH "디스플레이 플래시"
 #define STRING_THRESHOLD "임계값"
 
-// Sound menu items
-#define STRING_CLICKS "클릭"
-#define STRING_CHIRPS "짹짹"
-#define STRING_BEEPS "삐"
-
 // Alarms menu items
-#define STRING_RATE_ALARM "비율 알람"
-#define STRING_DOSE_ALARM "선량 알람"
+#define STRING_RATE_WARNING "속도 경고"
+#define STRING_DOSE_WARNING "선량 경고"
+#define STRING_RATE_ALARM "속도 경보"
+#define STRING_DOSE_ALARM "선량 경보"
 #define STRING_INDICATION "표시"
-#define STRING_VOICE "음성"
-#define STRING_VOLUME "볼륨"
 
 // Measurements menu items
 #define STRING_UNITS "단위"
@@ -202,18 +209,26 @@
 #define STRING_THEME_DUSK "황혼"
 #define STRING_THEME_NIGHT "밤"
 
-// Display - Brightness menu items
-#define STRING_VERY_LOW "매우 낮음"
-#define STRING_LOW "낮음"
-#define STRING_MEDIUM "중간"
-#define STRING_HIGH "높음"
-
 // Display - Contrast menu items prefix (followed by a number from 1 to 8)
 #define STRING_CONTRAST_LEVEL "레벨"
 
 // Display - Sleep menu items
 #define STRING_ALWAYS_OFF "항상 꺼짐"
 #define STRING_ALWAYS_ON "항상 켜짐"
+
+// Sound menu items
+#define STRING_ALERTSTYLE "알림 스타일"
+#define STRING_ALERTVOLUME "알림 음량"
+#define STRING_VOICEVOLUME "음성 음량"
+
+// Sound Alarms length
+#define STRING_SHORT "짧은"
+#define STRING_LONG "긴"
+
+// Sound pulses menu items
+#define STRING_CLICKS "클릭"
+#define STRING_CHIRPS "짹짹"
+#define STRING_BEEPS "삐"
 
 // Time and date menu items
 #define STRING_TIME_ZONE "시간대"
@@ -229,8 +244,8 @@
 #define STRING_UTCPLUS "UTC+"
 
 // Time and date > Hour menu items (should not be translated)
-#define STRING_AM " AM"
-#define STRING_PM " PM"
+#define STRING_AM "AM"
+#define STRING_PM "PM"
 
 // Time and date > Time format menu items
 #define STRING_24_HOUR "24시간"
@@ -253,11 +268,7 @@
 #define STRING_8_SIDED_DIE "8면 주사위"
 #define STRING_6_SIDED_DIE "6면 주사위"
 #define STRING_4_SIDED_DIE "4면 주사위"
-#define STRING_COIN_FLIP "동전 던지기"
-
-// Random generator coin head/tail
-#define STRING_COIN_HEAD "앞면"
-#define STRING_COIN_TAIL "뒷면"
+#define STRING_COIN_FLIP "동전 던지기 (0-1)"
 
 // Game menu items
 #define STRING_PLAY_WHITE "흰색 플레이"

@@ -15,21 +15,21 @@
 
 typedef uint16_t PageIndex;
 
-typedef struct
+typedef const struct
 {
     PageIndex beginPageIndex;
     PageIndex endPageIndex;
 } FlashRegion;
 
-extern const FlashRegion flashSettingsRegion;
-extern const FlashRegion flashDatalogRegion;
+extern FlashRegion flashSettingsRegion;
+extern FlashRegion flashDatalogRegion;
 
 extern const uint32_t flashPageDataSize;
 extern const uint32_t flashWordSize;
 
 typedef struct
 {
-    const FlashRegion *region;
+    FlashRegion *region;
 
     PageIndex pageIndex;
 

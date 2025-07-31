@@ -14,7 +14,7 @@
 
 #include "view.h"
 
-extern const View rngMenuView;
+extern View rngMenuView;
 
 void resetRNG(void);
 

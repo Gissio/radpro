@@ -11,6 +11,7 @@
 #define STRING_APP_NAME "Rad Pro"
 
 // Styling characters (should not be translated)
+#define STRING_EMPTY ""
 #define STRING_NUMBERS "0123456789.:"
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
@@ -60,6 +61,12 @@
 // Common menu items
 #define STRING_OFF "Ki"
 
+// Sound volume and display brightness menu items
+#define STRING_VERY_LOW "Nagyon alacsony"
+#define STRING_LOW "Alacsony"
+#define STRING_MEDIUM "Közepes"
+#define STRING_HIGH "Magas"
+
 // Notification headings (upper case)
 #define STRING_NOTIFICATION_WARNING "FIGYELMEZTETÉS"
 #define STRING_NOTIFICATION_SUCCESS "SIKER"
@@ -81,27 +88,31 @@
 #define STRING_INSTANTANEOUS "Azonnali"
 #define STRING_AVERAGE "Átlag"
 #define STRING_CUMULATIVE "Összesített"
-#define STRING_HISTORY10_MIN "Előzmények (10 perc)"
-#define STRING_HISTORY1_H "Előzmények (1 óra)"
-#define STRING_HISTORY24_H "Előzmények (24 óra)"
+#define STRING_HISTORY_10_MINUTES "Előzmények (10 p)"
+#define STRING_HISTORY_1_HOUR "Előzmények (1 ó)"
+#define STRING_HISTORY_1_DAY "Előzmények (1 n)"
+#define STRING_HISTORY_1_WEEK "Előzmények (1 h)"
+#define STRING_HISTORY_1_MONTH "Előzmények (1 hó)"
+#define STRING_HISTORY_1_YEAR "Előzmények (1 é)"
 
 // Measurement view secondary view strings
 #define STRING_TIME "Idő"
 #define STRING_MAX "Max"
-#define STRING_RATE "Arány"
+#define STRING_RATE "Ráta"
 #define STRING_DOSE "Dózis"
 
 // Measurement view info strings (upper case, up to 5 letters)
 #define STRING_INFO_ALARM "RIADÓ"
+#define STRING_INFO_WARNING "FIGYELMEZTETÉS"
 #define STRING_INFO_FAULT "HIBA"
 #define STRING_INFO_MAX "MAX"
-#define STRING_INFO_OVER "TÚL"
+#define STRING_INFO_OVERFLOW "TÚL"
 #define STRING_INFO_DONE "KÉSZ"
 
 // Settings menu items
 #define STRING_SETTINGS "Beállítások"
 #define STRING_PULSES "Impulzusok"
-#define STRING_ALARMS "Riasztások"
+#define STRING_ALERTS "Riasztások"
 #define STRING_MEASUREMENTS "Mérések"
 #define STRING_GEIGER_TUBE "Geiger-cső"
 #define STRING_DATA_LOG "Adatnapló"
@@ -115,22 +126,18 @@
 
 // Pulses menu items
 #define STRING_SOUND "Hang"
+#define STRING_VOICE "Beszéd"
 #define STRING_VIBRATION "Rezgés"
 #define STRING_PULSE_LED "Impulzus LED"
 #define STRING_DISPLAY_FLASH "Kijelző villogás"
 #define STRING_THRESHOLD "Küszöb"
 
-// Sound menu items
-#define STRING_CLICKS "Kattogás"
-#define STRING_CHIRPS "Csipogás"
-#define STRING_BEEPS "Sípolás"
-
 // Alarms menu items
-#define STRING_RATE_ALARM "Arány riasztás"
-#define STRING_DOSE_ALARM "Dózis riasztás"
+#define STRING_RATE_WARNING "Rátafigyelmeztetés"
+#define STRING_DOSE_WARNING "Dózisfigyelmeztetés"
+#define STRING_RATE_ALARM "Rátariasztás"
+#define STRING_DOSE_ALARM "Dózisriasztás"
 #define STRING_INDICATION "Jelzés"
-#define STRING_VOICE "Hang"
-#define STRING_VOLUME "Hangerő"
 
 // Measurements menu items
 #define STRING_UNITS "Mértékegységek"
@@ -202,18 +209,26 @@
 #define STRING_THEME_DUSK "Alkony"
 #define STRING_THEME_NIGHT "Éjszaka"
 
-// Display - Brightness menu items
-#define STRING_VERY_LOW "Nagyon alacsony"
-#define STRING_LOW "Alacsony"
-#define STRING_MEDIUM "Közepes"
-#define STRING_HIGH "Magas"
-
 // Display - Contrast menu items prefix (followed by a number from 1 to 8)
 #define STRING_CONTRAST_LEVEL "Szint"
 
 // Display - Sleep menu items
 #define STRING_ALWAYS_OFF "Mindig ki"
 #define STRING_ALWAYS_ON "Mindig be"
+
+// Sound menu items
+#define STRING_ALERTSTYLE "Riasztási stílus"
+#define STRING_ALERTVOLUME "Riasztási hangerő"
+#define STRING_VOICEVOLUME "Beszédhangerő"
+
+// Sound Alarms length
+#define STRING_SHORT "Rövid"
+#define STRING_LONG "Hosszú"
+
+// Sound pulses menu items
+#define STRING_CLICKS "Kattogás"
+#define STRING_CHIRPS "Csipogás"
+#define STRING_BEEPS "Sípolás"
 
 // Time and date menu items
 #define STRING_TIME_ZONE "Időzóna"
@@ -229,8 +244,8 @@
 #define STRING_UTCPLUS "UTC+"
 
 // Time and date > Hour menu items (should not be translated)
-#define STRING_AM " DE"
-#define STRING_PM " DU"
+#define STRING_AM "DE"
+#define STRING_PM "DU"
 
 // Time and date > Time format menu items
 #define STRING_24_HOUR "24 órás"
@@ -253,11 +268,7 @@
 #define STRING_8_SIDED_DIE "8 oldalú kocka"
 #define STRING_6_SIDED_DIE "6 oldalú kocka"
 #define STRING_4_SIDED_DIE "4 oldalú kocka"
-#define STRING_COIN_FLIP "Érmefeldobás"
-
-// Random generator coin head/tail
-#define STRING_COIN_HEAD "Fej"
-#define STRING_COIN_TAIL "Írás"
+#define STRING_COIN_FLIP "Érmefeldobás (0-1)"
 
 // Game menu items
 #define STRING_PLAY_WHITE "Fehérrel játszani"

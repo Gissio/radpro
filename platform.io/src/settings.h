@@ -21,23 +21,49 @@ typedef struct
     uint32_t pulseCount;
 } Dose;
 
-#if defined(BUZZER)
 enum
 {
-    PULSE_SOUND_OFF,
-    PULSE_SOUND_OFF_CLICKS,
-    PULSE_SOUND_OFF_CHIRPS,
-    PULSE_SOUND_OFF_BEEPS,
-    PULSE_SOUND_NUM,
-    PULSE_SOUND_ON = PULSE_SOUND_NUM,
-    PULSE_SOUND_ON_CLICKS,
-    PULSE_SOUND_ON_CHIRPS,
-    PULSE_SOUND_ON_BEEPS,
+    RATE_OFF,
+    RATE_0_5_USVH,
+    RATE_1_USVH,
+    RATE_2_USVH,
+    RATE_5_USVH,
+    RATE_10_USVH,
+    RATE_20_USVH,
+    RATE_50_USVH,
+    RATE_100_USVH,
+    RATE_200_USVH,
+    RATE_500_USVH,
+    RATE_1000_USVH,
+    RATE_2000_USVH,
+    RATE_5000_USVH,
+    RATE_10000_USVH,
+    RATE_20000_USVH,
 
-    PULSE_SOUND_ON_MASK = PULSE_SOUND_ON,
-    PULSE_SOUND_TYPE_MASK = PULSE_SOUND_OFF_BEEPS,
+    RATE_NUM,
 };
-#endif
+
+enum
+{
+    DOSE_OFF,
+    DOSE_2_USV,
+    DOSE_5_USV,
+    DOSE_10_USV,
+    DOSE_20_USV,
+    DOSE_50_USV,
+    DOSE_100_USV,
+    DOSE_200_USV,
+    DOSE_500_USV,
+    DOSE_1000_USV,
+    DOSE_2000_USV,
+    DOSE_5000_USV,
+    DOSE_10000_USV,
+    DOSE_20000_USV,
+    DOSE_50000_USV,
+    DOSE_100000_USV,
+
+    DOSE_NUM,
+};
 
 enum
 {
@@ -51,114 +77,41 @@ enum
 
 enum
 {
-    AVERAGING_UNLIMITED,
-    AVERAGING_24H,
-    AVERAGING_12H,
-    AVERAGING_6H,
-    AVERAGING_3H,
-    AVERAGING_1H,
-    AVERAGING_30M,
-    AVERAGING_10M,
-    AVERAGING_5M,
-    AVERAGING_1M,
-    AVERAGING_30S,
-    AVERAGING_10S,
-    AVERAGING_5S,
-    AVERAGING_1S,
-    AVERAGING_TIME_NUM,
-
-    AVERAGING_50CONFIDENCE = AVERAGING_TIME_NUM,
-    AVERAGING_20CONFIDENCE,
-    AVERAGING_10CONFIDENCE,
-    AVERAGING_5CONFIDENCE,
-    AVERAGING_2CONFIDENCE,
-    AVERAGING_1CONFIDENCE,
-
-    AVERAGING_NUM,
-};
-
-enum
-{
     INSTANTANEOUSAVERAGING_ADAPTIVEFAST,
     INSTANTANEOUSAVERAGING_ADAPTIVEPRECISION,
-    INSTANTANEOUSAVERAGING_60SECONDS,
-    INSTANTANEOUSAVERAGING_30SECONDS,
-    INSTANTANEOUSAVERAGING_10SECONDS,
+    INSTANTANEOUSAVERAGING_60_SECONDS,
+    INSTANTANEOUSAVERAGING_30_SECONDS,
+    INSTANTANEOUSAVERAGING_10_SECONDS,
 
     INSTANTANEOUSAVERAGING_NUM,
 };
 
 enum
 {
-    RATEALARM_OFF,
-    RATEALARM_0_5,
-    RATEALARM_1,
-    RATEALARM_2,
-    RATEALARM_5,
-    RATEALARM_10,
-    RATEALARM_20,
-    RATEALARM_50,
-    RATEALARM_100,
-    RATEALARM_200,
-    RATEALARM_500,
-    RATEALARM_1000,
-    RATEALARM_2000,
-    RATEALARM_5000,
-    RATEALARM_10000,
-    RATEALARM_20000,
+    AVERAGING_UNLIMITED,
+    AVERAGING_24_HOURS,
+    AVERAGING_12_HOURS,
+    AVERAGING_6_HOURS,
+    AVERAGING_3_HOURS,
+    AVERAGING_1_HOUR,
+    AVERAGING_30_MINUTES,
+    AVERAGING_10_MINUTES,
+    AVERAGING_5_MINUTES,
+    AVERAGING_1_MINUTE,
+    AVERAGING_30_SECONDS,
+    AVERAGING_10_SECONDS,
+    AVERAGING_5_SECONDS,
+    AVERAGING_1_SECOND,
+    AVERAGING_TIME_NUM,
 
-    RATEALARM_NUM,
-};
+    AVERAGING_CONFIDENCE_50 = AVERAGING_TIME_NUM,
+    AVERAGING_CONFIDENCE_20,
+    AVERAGING_CONFIDENCE_10,
+    AVERAGING_CONFIDENCE_5,
+    AVERAGING_CONFIDENCE_2,
+    AVERAGING_CONFIDENCE_1,
 
-enum
-{
-    DOSEALARM_OFF,
-    DOSEALARM_2,
-    DOSEALARM_5,
-    DOSEALARM_10,
-    DOSEALARM_20,
-    DOSEALARM_50,
-    DOSEALARM_100,
-    DOSEALARM_200,
-    DOSEALARM_500,
-    DOSEALARM_1000,
-    DOSEALARM_2000,
-    DOSEALARM_5000,
-    DOSEALARM_10000,
-    DOSEALARM_20000,
-    DOSEALARM_50000,
-    DOSEALARM_100000,
-
-    DOSEALARM_NUM,
-};
-
-enum
-{
-#if defined(BUZZER) || defined(VOICE)
-    ALARMINDICATION_SOUND,
-#endif
-#if defined(VOICE)
-    ALARMINDICATION_VOICE,
-#endif
-#if defined(VIBRATION)
-    ALARMINDICATION_VIBRATION,
-#endif
-#if defined(PULSE_LED) || defined(ALERT_LED) || defined(PULSE_CONTROL)
-    ALARMINDICATION_PULSE_LED,
-#endif
-    ALARMINDICATION_DISPLAY_FLASH,
-
-    ALARMINDICATION_NUM,
-};
-
-enum 
-{
-    ALARM_VOLUME_LOW,
-    ALARM_VOLUME_MEDIUM,
-    ALARM_VOLUME_HIGH,
-    ALARM_VOLUME_VERYHIGH,
-
-    ALARM_VOLUME_NUM,
+    AVERAGING_NUM,
 };
 
 enum
@@ -236,12 +189,12 @@ enum
 
 enum
 {
-    TUBE_HVFREQUENCY_1_25,
-    TUBE_HVFREQUENCY_2_5,
-    TUBE_HVFREQUENCY_5,
-    TUBE_HVFREQUENCY_10,
-    TUBE_HVFREQUENCY_20,
-    TUBE_HVFREQUENCY_40,
+    TUBE_HVFREQUENCY_1_25_KHZ,
+    TUBE_HVFREQUENCY_2_5_KHZ,
+    TUBE_HVFREQUENCY_5_KHZ,
+    TUBE_HVFREQUENCY_10_KHZ,
+    TUBE_HVFREQUENCY_20_KHZ,
+    TUBE_HVFREQUENCY_40_KHZ,
 
     TUBE_HVFREQUENCY_NUM,
 };
@@ -257,19 +210,18 @@ enum
 enum
 {
     DATALOG_INTERVAL_OFF,
-    DATALOG_INTERVAL_60M,
-    DATALOG_INTERVAL_10M,
-    DATALOG_INTERVAL_1M,
-    DATALOG_INTERVAL_10S,
-    DATALOG_INTERVAL_1S,
+    DATALOG_INTERVAL_60_MINUTES,
+    DATALOG_INTERVAL_10_MINUTES,
+    DATALOG_INTERVAL_1_MINUTE,
+    DATALOG_INTERVAL_10_SECONDS,
+    DATALOG_INTERVAL_1_SECOND,
 
     DATALOG_INTERVAL_NUM,
 };
 
-#if defined(DISPLAY_MONOCHROME)
 #define DISPLAY_CONTRAST_DEFAULT 4
 #define DISPLAY_CONTRAST_NUM 8
-#elif defined(DISPLAY_COLOR)
+
 enum
 {
     DISPLAY_THEME_DAY,
@@ -277,22 +229,6 @@ enum
     DISPLAY_THEME_NIGHT,
 
     DISPLAY_THEME_NUM,
-};
-#endif
-
-enum
-{
-#if defined(DISPLAY_MONOCHROME)
-    DISPLAY_SLEEP_ALWAYS_OFF,
-#endif
-    DISPLAY_SLEEP_10S,
-    DISPLAY_SLEEP_30S,
-    DISPLAY_SLEEP_1M,
-    DISPLAY_SLEEP_2M,
-    DISPLAY_SLEEP_5M,
-    DISPLAY_SLEEP_ALWAYS_ON,
-
-    DISPLAY_SLEEP_NUM,
 };
 
 enum
@@ -303,6 +239,58 @@ enum
     DISPLAY_BRIGHTNESS_VERYHIGH,
 
     DISPLAY_BRIGHTNESS_NUM,
+};
+
+enum
+{
+#if defined(DISPLAY_MONOCHROME)
+    DISPLAY_SLEEP_ALWAYS_OFF,
+#endif
+    DISPLAY_SLEEP_10_SECONDS,
+    DISPLAY_SLEEP_30_SECONDS,
+    DISPLAY_SLEEP_1_MINUTE,
+    DISPLAY_SLEEP_2_MINUTES,
+    DISPLAY_SLEEP_5_MINUTES,
+    DISPLAY_SLEEP_ALWAYS_ON,
+
+    DISPLAY_SLEEP_NUM,
+};
+
+enum
+{
+    SOUND_PULSETYPE_CLICKS,
+    SOUND_PULSETYPE_CHIRPS,
+    SOUND_PULSETYPE_BEEPS,
+
+    SOUND_PULSETYPE_NUM,
+};
+
+enum
+{
+    SOUND_ALERTSTYLE_SHORT,
+    SOUND_ALERTSTYLE_LONG,
+
+    SOUND_ALERTSTYLE_NUM,
+};
+
+enum
+{
+    SOUND_ALERTVOLUME_LOW,
+    SOUND_ALERTVOLUME_MEDIUM,
+    SOUND_ALERTVOLUME_HIGH,
+    SOUND_ALERTVOLUME_VERYHIGH,
+
+    SOUND_ALERTVOLUME_NUM,
+};
+
+enum
+{
+    SOUND_VOICEVOLUME_LOW,
+    SOUND_VOICEVOLUME_MEDIUM,
+    SOUND_VOICEVOLUME_HIGH,
+    SOUND_VOICEVOLUME_VERYHIGH,
+
+    SOUND_VOICEVOLUME_NUM,
 };
 
 enum
@@ -340,22 +328,23 @@ enum
 
 enum
 {
-    RTC_TIMEFORMAT_24HOUR,
-    RTC_TIMEFORMAT_12HOUR,
+    RTC_TIMEFORMAT_24_HOUR,
+    RTC_TIMEFORMAT_12_HOUR,
 
     RTC_TIMEFORMAT_NUM,
 };
 
-#if defined(BATTERY_REMOVABLE)
 enum
 {
+#if defined BATTERY_REMOVABLE
     BATTERYTYPE_NI_MH,
     BATTERYTYPE_ALKALINE,
+#else
+    BATTERYTYPE_LI_ION,
+#endif
 
     BATTERYTYPE_NUM,
 };
-#endif
-
 
 enum
 {
@@ -375,18 +364,9 @@ typedef struct
 {
     unsigned int entryEmpty : 1;
 
-#if defined(PULSE_CONTROL)
     unsigned int pulseSound : 1;
-#endif
-#if defined(BUZZER)
-    unsigned int pulseSound : 3;
-#endif
-#if defined(VIBRATION)
     unsigned int pulseVibration : 1;
-#endif
-#if defined(PULSE_LED) || defined(PULSE_CONTROL)
     unsigned int pulseLED : 1;
-#endif
     unsigned int pulseDisplayFlash : 1;
     unsigned int pulseThreshold : 4;
 
@@ -397,39 +377,38 @@ typedef struct
 
     unsigned int rateAlarm : 4;
     unsigned int doseAlarm : 4;
-    unsigned int alarmIndication : 5;
-#if defined(VOICE)
-    unsigned int alarmVolume : 2;
-#endif
+    unsigned int rateWarning : 4;
+    unsigned int doseWarning : 4;
+    unsigned int alertSound : 1;
+    unsigned int alertVoice : 1;
+    unsigned int alertVibration : 1;
+    unsigned int alertPulseLED : 1;
+    unsigned int alertDisplayFlash : 1;
 
     unsigned int tubeSensitivity : 8;
     unsigned int tubeDeadTimeCompensation : 7;
-#if defined(TUBE_HV_PWM)
     unsigned int tubeHVProfile : 2;
     unsigned int tubeHVFrequency : 3;
     unsigned int tubeHVDutyCycle : 9;
-#endif
 
     unsigned int datalogInterval : 3;
 
-#if defined(DISPLAY_MONOCHROME)
     unsigned int displayContrast : 3;
-#elif defined(DISPLAY_COLOR)
     unsigned int displayTheme : 2;
-#endif
     unsigned int displayBrightness : 2;
     unsigned int displaySleep : 3;
+
+    unsigned int soundPulseType : 2;
+    unsigned int soundAlertStyle : 1;
+    unsigned int soundAlertVolume : 2;
+    unsigned int soundVoiceVolume : 2;
 
     unsigned int rtcTimeZone : 5;
     unsigned int rtcTimeFormat : 1;
 
-#if defined(BATTERY_REMOVABLE)
     unsigned int batteryType : 1;
-#endif
 
-#if defined(DATA_MODE)
     unsigned int dataMode : 1;
-#endif
 
     unsigned int gameStrength : 3;
 } Settings
@@ -440,13 +419,13 @@ typedef struct
 
 extern Settings settings;
 
-extern const View settingsMenuView;
+extern View settingsMenuView;
 
 void initSettings(void);
 void resetSettings(void);
 
 void writeSettings(void);
 
-void onSettingsSubMenuBack(const Menu *menu);
+void onSettingsSubMenuBack(void);
 
 #endif

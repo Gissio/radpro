@@ -37,8 +37,8 @@ def get_firmware_version():
 
 
 def extract_elf_data(elf_file):
-    """ Get SWD comm
-    """
+    ''' Get SWD comm
+    '''
     with open(elf_file, 'rb') as f:
         elf = ELFFile(f)
 
@@ -62,8 +62,8 @@ def extract_elf_data(elf_file):
 
 
 def get_crc(buffer, crc=0xffffffff):
-    """ Calculate STM32 CRC
-    """
+    ''' Calculate STM32 CRC
+    '''
     for i in range(0, len(buffer)):
         crc ^= buffer[(i & ~3) + (3 - i & 3)] << 24
         for _ in range(8):
@@ -73,19 +73,13 @@ def get_crc(buffer, crc=0xffffffff):
     return crc
 
 
-def read_word(buffer, address):
-    buffer[address:address+4] = bytearray(struct.pack('<L', value))
-
-
 def write_word(buffer, address, value):
     buffer[address:address+4] = bytearray(struct.pack('<L', value))
 
 
 def sign_firmware(env_name):
-    """ Sign firmware
-    """
-
-    env_manufacturer = env_name.split('-')[0]
+    ''' Sign firmware
+    '''
 
     languages = get_languages()
 
@@ -100,7 +94,7 @@ def sign_firmware(env_name):
 
         # Read compiled firmware
         if not os.path.exists(elf_file):
-            print("warning: file not found: " + bin_file)
+            print('warning: file not found: ' + bin_file)
             continue
 
         firmware_version = get_firmware_version()
@@ -136,7 +130,7 @@ def sign_firmware(env_name):
 
         # Build install binary
         if firmware_offset != 0:
-            install_path = env_manufacturer + '/' + 'install' + '/'
+            install_path = env_name + '/' + 'install' + '/'
             output_path = install_path + build_stem + '-install.bin'
 
             os.makedirs(install_path, exist_ok=True)
@@ -144,7 +138,7 @@ def sign_firmware(env_name):
                 f.write(flash)
 
         # Build firmware binary
-        firmware_path = env_manufacturer + '/' + 'firmware' + '/'
+        firmware_path = env_name + '/' + 'firmware' + '/'
         output_path = firmware_path + build_stem + '.bin'
 
         os.makedirs(firmware_path, exist_ok=True)
@@ -161,9 +155,9 @@ sign_firmware('fs2011-gd32f150c8')
 sign_firmware('fs2011-gd32f103c8')
 sign_firmware('bosean-fs600')
 sign_firmware('bosean-fs1000')
-sign_firmware('bosean-fs5000_portrait')
-sign_firmware('bosean-fs5000_landscape')
+sign_firmware('bosean-fs5000')
+# sign_firmware('bosean-fs5000_landscape')
 sign_firmware('fnirsi-gc01_ch32f103r8')
 sign_firmware('fnirsi-gc01_apm32f103rb')
-sign_firmware('gq-gmc800_portrait')
-sign_firmware('gq-gmc800_landscape')
+sign_firmware('gq-gmc800')
+# sign_firmware('gq-gmc800_landscape')

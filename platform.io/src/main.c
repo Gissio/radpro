@@ -12,7 +12,6 @@
 #endif
 
 #include "adc.h"
-#include "buzzer.h"
 #include "comm.h"
 #include "debug.h"
 #include "display.h"
@@ -23,15 +22,14 @@
 #include "led.h"
 #include "menu.h"
 #include "power.h"
-#include "pulsecontrol.h"
 #include "rng.h"
 #include "rtc.h"
 #include "settings.h"
+#include "sound.h"
 #include "system.h"
 #include "tube.h"
 #include "vibration.h"
 #include "view.h"
-#include "voice.h"
 
 #if SIMULATOR
 bool updateSDLTicks();
@@ -62,38 +60,21 @@ int main(void)
     initKeyboard();
     initDisplay();
     initView();
-#if defined(PULSE_CONTROL)
-    initPulseControl();
-#endif
-#if defined(VOICE)
-    initVoice();
-#endif
-#if defined(BUZZER)
-    initBuzzer();
+#if defined(BUZZER) || defined(SOUND_EN)
+    initSound();
 #endif
 #if defined(VIBRATION)
     initVibration();
 #endif
-#if defined(PULSE_LED)
+#if defined(PULSE_LED) || defined(ALERT_LED) || defined(PULSE_LED_EN) || defined(ALERT_LED_EN)
     initLED();
 #endif
 
 #if defined(TEST_MODE)
-    setPower(true);
     runTestMode();
 #endif
 
-#if defined(START_POWERON)
-    powerOn();
-#else
-    if (isPowerKeyDown())
-    {
-        waitLongKeyPress();
-        powerOn();
-    }
-    else
-        powerOff(true);
-#endif
+    powerOn(true);
 
     // Main loop
 #if SIMULATOR

@@ -10,6 +10,8 @@
 #if !defined(VIEW_H)
 #define VIEW_H
 
+#include "cstring.h"
+
 typedef enum
 {
     EVENT_KEY_BACK,
@@ -19,7 +21,7 @@ typedef enum
     EVENT_KEY_RESET,
     EVENT_KEY_POWER,
     EVENT_KEY_TOGGLELOCK,
-    EVENT_KEY_TOGGLEPULSECLICKS,
+    EVENT_KEY_TOGGLEPULSESOUND,
     EVENT_KEY_TOGGLEBACKLIGHT,
     EVENT_KEY_PLAY,
 
@@ -31,9 +33,10 @@ typedef enum
     EVENT_NONE,
 } Event;
 
-typedef struct View_ View;
+typedef const struct View_ View;
+typedef View *const ViewPointer;
 
-typedef void OnEvent(const View *view, Event event);
+typedef void OnEvent(Event event);
 
 struct View_
 {
@@ -41,22 +44,20 @@ struct View_
     const void *userdata;
 };
 
-typedef struct
-{
-    const char *option;
-    const View *view;
-} OptionView;
-
 void initView(void);
 
 void dispatchViewEvents(void);
 
-void setView(const View *view);
+void setView(View *view);
+View *getView(void);
 
 void requestViewUpdate(void);
 void updateView(void);
 
 void setLockMode(bool value);
 bool isLockMode(void);
+
+void setPulseSoundIconEnabled(bool value);
+bool isPulseSoundIconEnabled(void);
 
 #endif

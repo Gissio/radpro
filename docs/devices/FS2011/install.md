@@ -2,15 +2,13 @@
 
 This guide explains how to install the Rad Pro firmware on FS2011 and YT-203B Geiger counters.
 
-## Required supplies
+## What you'll need
 
-To install Rad Pro, you'll need:
-
-* [ST-LINK V2 USB dongle (or compatible clone)](https://www.amazon.com/s?k=st-link+v2)
-* 4-pin header
-* Philips screwdriver
-* Optional: Soldering iron and solder
-* For Windows users: [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html)
+* **ST-LINK V2 USB dongle** (or compatible clone): Available on [Amazon](https://www.amazon.com/s?k=st-link+v2).
+* **4-pin header** for SWD connection.
+* **Philips screwdriver** to open the device.
+* **Optional:** Soldering iron and solder for a secure connection.
+* **Windows users:** [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html)
 
 ## Step 1: Open the device
 
@@ -18,16 +16,18 @@ To install Rad Pro, you'll need:
 
 1. Power off the device and remove the batteries.
 2. Unscrew the back case and carefully open the device.
-3. Verify that the circuit board matches the image above (the Geiger-Müller tube may vary). If the board differs, you may have a different hardware revision, and Rad Pro may not function correctly. If issues arise, report them on the [Rad Pro GitHub issues page](https://github.com/Gissio/radpro/issues).
-4. Note the microprocessor type (square chip), which should be STM32F051C8, GD32F150C8, or GD32F103C8.
-5. Note the Geiger-Müller tube type (marked on the glass as J614, J321, J305 or M4011). For unmarked tubes measuring 55 or 65 mm, assume J614 or J613, respectively.
+3. Confirm the circuit board matches the image above (Geiger-Müller tube may vary). If it differs, you may have a different hardware revision, and Rad Pro may not work correctly. Report issues on the [Rad Pro GitHub issues page](https://github.com/Gissio/radpro/issues).
+4. Identify the microprocessor type (square chip), which should be STM32F051C8, GD32F150C8, or GD32F103C8.
+5. Identify the Geiger-Müller tube (marked on the glass as J305, J321, J613, J614, or M4011). For unmarked tubes:
+   * 55 mm tubes: Assume J614.
+   * 65 mm tubes: Assume J613.
 
 ## Step 2: Connect the programmer
 
 ![FS2011 connectors](img/fs2011-swd.jpg)
 
-1. Optional: Solder a 4-pin header to the XS1 pads on the board for a secure connection.
-2. Connect the ST-LINK V2 to the XS1 pads using the following pin configuration (top to bottom):
+1. Optional: Solder a 4-pin header to the XS1 pads on the board for a reliable connection.
+2. Connect the ST-LINK V2 to the XS1 pads using this pin configuration (top to bottom):
   * GND
   * SWCLK
   * SWDIO
@@ -35,21 +35,21 @@ To install Rad Pro, you'll need:
 
 ![ST-LINK V2 programmer](../../img/ST-LINK-V2.png)
 
-**WARNING:** Double-check electrical connections to prevent damage to the device.
+**WARNING:** Double-check connections to avoid damaging the device.
 
 ## Step 3: Flash the firmware
 
-1. For Windows users, install the [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html).
-2. Download and extract the latest `radpro-[version].zip` from [Rad Pro releases](https://github.com/Gissio/radpro/releases).
-3. Navigate to the `fs2011` folder and run the appropriate script based on your operating system:
-  * Windows: Double click `fs2011-[mcu]-[type].bat`.
-  * Linux: Run `fs2011-[mcu]-[type].sh` in a terminal.
-  * macOS: Open `Terminal.app` (in `/Applications/Utilities`), navigate to the `fs2011` folder, and drag `fs2011-[mcu]-[type].sh` onto the Terminal icon in the dock.
-  * `[mcu]`: The microprocessor type of your board (`stm32f051c8`, `gd32f150c8` or `gd32f103c8`).
-  * `[type]`: Installation type (`install` or `update`). Note: Not all releases support updating.
-4. The installer will prompt you to select a language using two-letter language codes. Enter the desired code to proceed.
-5. The installer automatically backs up the original firmware to the `backup` folder. Store this securely to restore the original firmware if needed. To restore, drag the backup file onto `fs2011-[mcu]-[type]-install.bat` (Windows) or `fs2011-[mcu]-[type]-install.sh` (macOS/Linux).
-6. Close and reassemble the device.
+1. Windows users: install the [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html).
+2. Download and extract the latest `radpro-flashtool-[version].zip` from [Rad Pro releases](https://github.com/Gissio/radpro/releases).
+3. Navigate to the `fs2011-[microprocessor]` folder and run the appropriate script:
+  * Windows: Double click `install.bat`.
+  * Linux: Run `install.sh` in a terminal.
+  * macOS: Open `Terminal.app` (in `/Applications/Utilities`), navigate to the `fs2011-[microprocessor]` folder, and drag `install.sh` onto the Terminal icon in the dock.
+  * `[microprocessor]`: `stm32f051c8`, `gd32f150c8`, or `gd32f103c8`.
+4. Select a language by entering its two-letter code (e.g., `en` for English) when prompted.
+5. The installer automatically backs up the original firmware to the `backup` folder. Store this file securely to restore the original firmware if needed.
+   * To restore, drag the backup file onto `install.bat` (Windows) or `install.sh` (macOS/Linux).
+6. Reassemble the device after flashing.
 
 ## Step 4: Configure the device
 
@@ -65,17 +65,17 @@ Use the following controls to operate your device:
   * **Navigate options:** Use the Up or Down key.
   * **Select option:** Press the Menu/OK or Power key.
   * **Go back:** Prses the Play/Pause key.
-  * **Toggle lock mode:** Press and hold both the Power and Play/Pause keys.
+  * **Toggle lock mode:** Press and hold both the Play/Pause and Power keys.
 
 To configure the device:
 
-1. Go to **Settings > Geiger tube > Sensitivity** and select the option matching your Geiger-Müller tube.
-2. In **Geiger tube > HV Profile**, choose an appropriate profile:
-  * **Energy-saving:** Lowest power consumption, ideal for background radiation level.
-  * **Accuracy:** Higher power consumption, suitable for elevated radiation levels.
-  * **Factory default:** Highest power consumption, uses the original firmware profile.
+1. Go to **Settings > Geiger tube > Sensitivity** and select the option that matches your Geiger-Müller tube.
+2. Go to **Geiger tube > HV Profile** and select:
+  * **Energy-saving:** Lowest power use, best for background radiation.
+  * **Accuracy:** Higher power use, ideal for elevated radiation levels.
+  * **Factory default:** Highest power use, matches original firmware settings.
 
-For detailed usage instructions, refer to the [Rad Pro User Manual](../../manual.md) and the [ionizing radiation field guide](../../field-guide/field-guide.md).
+For detailed usage, see the [Rad Pro User Manual](../../manual.md) and the [ionizing radiation field guide](https://github.com/Gissio/ionizing-radiation-field-guide).
 
 ## Step 5: Optional modifications
 
@@ -97,19 +97,19 @@ Enhance your device with these optional modifications:
 * **Fix battery contact issues:** For AA rechargeable batteries with low-profile caps, apply solder to the battery holder’s pads to ensure proper contact.
 * **Increase buzzer volume:** Drill holes in the back case in front of the buzzer.
 
-## Step 6: Final steps
+## Step 5: Support Rad Pro
 
-If you find Rad Pro useful, consider:
+If you find Rad Pro useful:
 
-* Watching the [Rad Pro GitHub repository](https://github.com/Gissio/radpro) for release notifications.
-* Starring the project to show your support.
+* Watch the [Rad Pro GitHub repository](https://github.com/Gissio/radpro) for release updates.
+* Star the project to show your support.
 
 ## Hardware-specific notes
 
 <!-- Calculated as follows:
 
-* With 1-byte differential values: [23 pages * (1 timestamp entry/page [10 bytes] + 1012 differential entries/page [1 byte each])] = 23299 entries
-* With 2-byte differential values: [23 pages * (1 timestamp entry/page [10 bytes] + 506 differential entries/page [2 byte each])] = 11661 entries
+* With 1-byte differential values: [21 pages * (1 timestamp entry/page [10 bytes] + 1012 differential entries/page [1 byte each])] = 21273 entries
+* With 2-byte differential values: [21 pages * (1 timestamp entry/page [10 bytes] + 506 differential entries/page [2 byte each])] = 10647 entries
 
 * 60-minute and 10-minute intervals require 2-byte differential values.
 * 1-minute intervals and less require 1-byte differential values.
@@ -117,11 +117,11 @@ If you find Rad Pro useful, consider:
  -->
 
 * **Data storage:** Stores up to 23,299 data points. At 20 cpm (normal radiation levels), this supports:
-  * 485 days at 60-minute intervals
-  * 80 days at 10-minute intervals
-  * 16 days at 1-minute intervals
-  * 3 days at 10-second intervals
-  * 6 hours at 1-second intervals
+  * 443 days at 60-minute intervals
+  * 73 days at 10-minute intervals
+  * 14 days at 1-minute intervals
+  * 59 hours at 10-second intervals
+  * 5 hours at 1-second intervals
 
 * **Voltage limitation:** Two Zener diodes limit the maximum voltage to 440 V (nominal).
 

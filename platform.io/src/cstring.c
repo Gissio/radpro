@@ -14,26 +14,25 @@
 
 #ifdef __EMSCRIPTEN__
 
-void strclr(char *str)
+void strclr(char *s)
 {
-    *str = '\0';
+    *s = '\0';
 }
 
 #endif
 
-void strcatChar(char *str,
-                char c)
+void strcatChar(char *s, char c)
 {
-    str += strlen(str);
-    str[0] = c;
-    str[1] = '\0';
+    s += strlen(s);
+    s[0] = c;
+    s[1] = '\0';
 }
 
-void strcatUInt32(char *str,
+void strcatUInt32(char *s,
                   uint32_t value,
                   uint32_t minLength)
 {
-    str += strlen(str);
+    s += strlen(s);
 
     uint32_t n = 0;
     uint32_t x = value;
@@ -48,15 +47,14 @@ void strcatUInt32(char *str,
 
     for (int32_t i = (minLength - 1); i >= 0; i--)
     {
-        str[i] = '0' + (value % 10);
+        s[i] = '0' + (value % 10);
         value /= 10;
     }
 
-    str[minLength] = '\0';
+    s[minLength] = '\0';
 }
 
-void strcatTime(char *str,
-                uint32_t time)
+void strcatTime(char *s, uint32_t time)
 {
     uint32_t seconds = time % 60;
     uint32_t minutes = (time / 60) % 60;
@@ -64,16 +62,16 @@ void strcatTime(char *str,
 
     if (hours > 0)
     {
-        strcatUInt32(str, hours, 0);
-        strcatChar(str, ':');
+        strcatUInt32(s, hours, 0);
+        strcatChar(s, ':');
     }
 
-    strcatUInt32(str, minutes, 2);
-    strcatChar(str, ':');
-    strcatUInt32(str, seconds, 2);
+    strcatUInt32(s, minutes, 2);
+    strcatChar(s, ':');
+    strcatUInt32(s, seconds, 2);
 }
 
-void strcatFloat(char *str,
+void strcatFloat(char *s,
                  float value,
                  uint32_t fractionalDecimals)
 {
@@ -81,7 +79,7 @@ void strcatFloat(char *str,
     {
         value = -value;
 
-        strcatChar(str, '-');
+        strcatChar(s, '-');
     }
 
     float decimalPower = (float)getDecimalPower(fractionalDecimals);
@@ -91,34 +89,33 @@ void strcatFloat(char *str,
     uint32_t valueInt = (uint32_t)value;
     uint32_t valueFrac = (uint32_t)(decimalPower * (value - valueInt));
 
-    strcatUInt32(str, valueInt, 0);
+    strcatUInt32(s, valueInt, 0);
     if (fractionalDecimals)
     {
-        strcatChar(str, '.');
-        strcatUInt32(str, valueFrac, fractionalDecimals);
+        strcatChar(s, '.');
+        strcatUInt32(s, valueFrac, fractionalDecimals);
     }
 }
 
-const char *metricPrefixes[8] = {
-    getString(STRING_NANO),
-    getString(STRING_MICRO),
-    getString(STRING_MILLI),
-    "",
-    getString(STRING_KILO),
-    getString(STRING_MEGA),
-    getString(STRING_GIGA),
+cstring metricPrefixes[8] = {
+    STRING_NANO,
+    STRING_MICRO,
+    STRING_MILLI,
+    STRING_EMPTY,
+    STRING_KILO,
+    STRING_MEGA,
+    STRING_GIGA,
 };
 
-static void strcatMetricPrefix(char *str,
-                               int32_t index)
+static void strcatMetricPrefix(char *s, int32_t index)
 {
     uint32_t metricIndex = index + 3;
     if (metricIndex > 6)
         metricIndex = 3;
-    strcat(str, metricPrefixes[metricIndex]);
+    strcat(s, getString(metricPrefixes[metricIndex]));
 }
 
-void strcatFloatAsMetricValueAndPrefix(char *str,
+void strcatFloatAsMetricValueAndPrefix(char *s,
                                        char *metricPrefix,
                                        float value,
                                        int32_t minMetricPrefixIndex)
@@ -136,33 +133,17 @@ void strcatFloatAsMetricValueAndPrefix(char *str,
         fractionalDecimals = 3;
 
     if (value == 0.0F)
-        strcat(str, "‒.‒‒‒"); // Note: uses figure dash! (U+2012)
+        strcat(s, "‒.‒‒‒"); // Note: uses figure dash! (U+2012)
     else
     {
         float metricValue = powf(10.0F, decimalPower - metricPower);
 
-        strcatFloat(str, metricValue, fractionalDecimals);
+        strcatFloat(s, metricValue, fractionalDecimals);
     }
     strcatMetricPrefix(metricPrefix, metricPrefixIndex);
 }
 
-void strcatFloatAsMetricValueWithPrefix(char *str,
-                                        float value,
-                                        int32_t minMetricPrefixIndex)
-{
-    char metricPrefix[4];
-    strclr(metricPrefix);
-
-    strcatFloatAsMetricValueAndPrefix(str,
-                                      metricPrefix,
-                                      value,
-                                      minMetricPrefixIndex);
-
-    strcatChar(str, ' ');
-    strcat(str, metricPrefix);
-}
-
-void strcatDecimalPowerWithMetricPrefix(char *str,
+void strcatDecimalPowerWithMetricPrefix(char *s,
                                         int32_t exponent,
                                         int32_t minMetricPrefixIndex)
 {
@@ -173,10 +154,10 @@ void strcatDecimalPowerWithMetricPrefix(char *str,
     {
         int32_t fractionalDecimals = (3 * minMetricPrefixIndex - exponent - 1);
 
-        strcat(str, "0.");
+        strcat(s, "0.");
         for (int32_t i = 0; i < fractionalDecimals; i++)
-            strcatChar(str, '0');
-        strcatChar(str, '1');
+            strcatChar(s, '0');
+        strcatChar(s, '1');
 
         metricPrefixIndex = minMetricPrefixIndex;
     }
@@ -184,13 +165,13 @@ void strcatDecimalPowerWithMetricPrefix(char *str,
     {
         int32_t fractionalDecimals = (exponent - 3 * metricPrefixIndex);
 
-        strcatChar(str, '1');
+        strcatChar(s, '1');
         for (int32_t i = 0; i < fractionalDecimals; i++)
-            strcatChar(str, '0');
+            strcatChar(s, '0');
     }
 
-    strcatChar(str, ' ');
-    strcatMetricPrefix(str, metricPrefixIndex);
+    strcatChar(s, ' ');
+    strcatMetricPrefix(s, metricPrefixIndex);
 }
 
 static char getHexDigit(uint32_t value)
@@ -198,101 +179,164 @@ static char getHexDigit(uint32_t value)
     return (value < 10) ? value + '0' : value + ('a' - 10);
 }
 
-void strcatUInt8Hex(char *str,
-                    uint8_t value)
+void strcatUInt8Hex(char *s, uint8_t value)
 {
-    str += strlen(str);
+    s += strlen(s);
 
-    *str++ = getHexDigit((value >> 4) & 0xf);
-    *str++ = getHexDigit((value >> 0) & 0xf);
+    *s++ = getHexDigit((value >> 4) & 0xf);
+    *s++ = getHexDigit((value >> 0) & 0xf);
 
-    *str++ = '\0';
+    *s++ = '\0';
 }
 
-void strcatUInt16Hex(char *str,
-                     uint16_t value)
+void strcatUInt16Hex(char *s, uint16_t value)
 {
-    strcatUInt8Hex(str, value >> 8);
-    strcatUInt8Hex(str, value & 0xff);
+    strcatUInt8Hex(s, value >> 8);
+    strcatUInt8Hex(s, value & 0xff);
 }
 
-void strcatUInt32Hex(char *str,
-                     uint32_t value)
+void strcatUInt32Hex(char *s, uint32_t value)
 {
-    strcatUInt16Hex(str, value >> 16);
-    strcatUInt16Hex(str, value & 0xffff);
+    strcatUInt16Hex(s, value >> 16);
+    strcatUInt16Hex(s, value & 0xffff);
 }
 
-void strcatDataHex(char *str,
+void strcatDataHex(char *s,
                    uint8_t *data,
                    uint32_t n)
 {
-    str += strlen(str);
+    s += strlen(s);
 
     for (uint32_t i = 0; i < n; i++)
     {
         uint8_t value = *data++;
-        *str++ = getHexDigit((value >> 4) & 0xf);
-        *str++ = getHexDigit((value >> 0) & 0xf);
+        *s++ = getHexDigit((value >> 4) & 0xf);
+        *s++ = getHexDigit((value >> 0) & 0xf);
     }
 
-    *str++ = '\0';
+    *s++ = '\0';
 }
 
-bool parseUInt32(char *str,
-                 uint32_t *value)
+bool parseToken(const char **s, const char *match)
 {
-    uint32_t mantissa = 0;
+    const char *t = *s;
+
+    // Skip space
+    while (*t == ' ')
+        t++;
 
     while (true)
     {
-        char c = *str++;
+        char c = *t++;
+        char cMatch = *match++;
 
-        if (c < 0x20)
-            break;
+        if (cMatch == '\0')
+        {
+            if ((c == '\0') || (c == ' '))
+            {
+                *s = t;
+
+                return true;
+            }
+            else
+                return false;
+        }
+        else if (c != cMatch)
+            return false;
+    }
+}
+
+bool parseUInt32(const char **s, uint32_t *value)
+{
+    const char *t = *s;
+
+    // Skip space
+    while (*t == ' ')
+        t++;
+
+    uint32_t mantissa = 0;
+    bool parsedDigit = false;
+
+    while (true)
+    {
+        char c = *t++;
+
+        if ((c == '\0') || c == ' ')
+        {
+            if (parsedDigit)
+            {
+                *s = t;
+                *value = mantissa;
+
+                return true;
+            }
+            else
+                return false;
+        }
         else if ((c >= '0') && (c <= '9'))
+        {
             mantissa = 10 * mantissa + (c - '0');
+
+            parsedDigit = true;
+        }
         else
             return false;
     }
-
-    *value = mantissa;
-
-    return true;
 }
 
-bool parseFloat(char *str,
-                float *value)
+bool parseFloat(const char **s, float *value)
 {
+    const char *t = *s;
+
+    // Skip space
+    while (*t == ' ')
+        t++;
+
     float mantissa = 0;
     float divisor = 1;
     bool pastDecimalPoint = false;
+    bool parsedDigit = false;
 
-    if (*str == '-')
+    // Parse minus sign
+    if (*t == '-')
     {
-        str++;
+        t++;
         divisor = -1;
     }
 
     while (true)
     {
-        char c = *str++;
+        char c = *t++;
 
-        if (c < 0x20)
-            break;
+        if ((c == '\0') || c == ' ')
+        {
+            if (parsedDigit)
+            {
+                *s = t;
+                *value = mantissa / divisor;
+
+                return true;
+            }
+            else
+                return false;
+        }
         else if (c == '.')
+        {
+            if (!parsedDigit)
+                return false;
+
             pastDecimalPoint = true;
+        }
         else if ((c >= '0') && (c <= '9'))
         {
             mantissa = 10 * mantissa + (c - '0');
+
             if (pastDecimalPoint)
                 divisor = 10 * divisor;
+
+            parsedDigit = true;
         }
         else
             return false;
     }
-
-    *value = mantissa / divisor;
-
-    return true;
 }

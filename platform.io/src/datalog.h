@@ -16,17 +16,17 @@
 #include "settings.h"
 #include "view.h"
 
-extern const View datalogMenuView;
+extern View datalogMenuView;
 
 void resetDatalog(void);
 
-void openDatalog(void);
-void closeDatalog(void);
-
-void updateDatalog(void);
+void openDatalogWrite(void);
+void closeDatalogWrite(void);
+void writeDatalog(void);
 void writeDatalogReset(void);
 
-void startDatalogDownload(void);
-bool getDatalogDownloadEntry(Dose *dose);
+bool openDatalogRead(void);
+void closeDatalogRead(void);
+bool readDatalog(Dose *dose);
 
 #endif

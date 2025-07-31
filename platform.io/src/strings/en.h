@@ -11,6 +11,7 @@
 #define STRING_APP_NAME "Rad Pro"
 
 // Styling characters (should not be translated)
+#define STRING_EMPTY ""
 #define STRING_NUMBERS "0123456789.:"
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
@@ -60,6 +61,12 @@
 // Common menu items
 #define STRING_OFF "Off"
 
+// Sound volume and display brightness menu items
+#define STRING_VERY_LOW "Very low"
+#define STRING_LOW "Low"
+#define STRING_MEDIUM "Medium"
+#define STRING_HIGH "High"
+
 // Notification headings (upper case)
 #define STRING_NOTIFICATION_WARNING "WARNING"
 #define STRING_NOTIFICATION_SUCCESS "SUCCESS"
@@ -81,9 +88,12 @@
 #define STRING_INSTANTANEOUS "Instantaneous"
 #define STRING_AVERAGE "Average"
 #define STRING_CUMULATIVE "Cumulative"
-#define STRING_HISTORY10_MIN "History (10 min)"
-#define STRING_HISTORY1_H "History (1 h)"
-#define STRING_HISTORY24_H "History (24 h)"
+#define STRING_HISTORY_10_MINUTES "History (10 min)"
+#define STRING_HISTORY_1_HOUR "History (1 h)"
+#define STRING_HISTORY_1_DAY "History (1 d)"
+#define STRING_HISTORY_1_WEEK "History (1 w)"
+#define STRING_HISTORY_1_MONTH "History (1 mo)"
+#define STRING_HISTORY_1_YEAR "History (1 y)"
 
 // Measurement view secondary view strings
 #define STRING_TIME "Time"
@@ -93,15 +103,16 @@
 
 // Measurement view info strings (upper case, up to 5 letters)
 #define STRING_INFO_ALARM "ALARM"
+#define STRING_INFO_WARNING "WARNING"
 #define STRING_INFO_FAULT "FAULT"
 #define STRING_INFO_MAX "MAX"
-#define STRING_INFO_OVER "OVER"
+#define STRING_INFO_OVERFLOW "OVER"
 #define STRING_INFO_DONE "DONE"
 
 // Settings menu items
 #define STRING_SETTINGS "Settings"
 #define STRING_PULSES "Pulses"
-#define STRING_ALARMS "Alarms"
+#define STRING_ALERTS "Alerts"
 #define STRING_MEASUREMENTS "Measurements"
 #define STRING_GEIGER_TUBE "Geiger tube"
 #define STRING_DATA_LOG "Data log"
@@ -115,22 +126,18 @@
 
 // Pulses menu items
 #define STRING_SOUND "Sound"
+#define STRING_VOICE "Voice"
 #define STRING_VIBRATION "Vibration"
 #define STRING_PULSE_LED "Pulse LED"
 #define STRING_DISPLAY_FLASH "Display flash"
 #define STRING_THRESHOLD "Threshold"
 
-// Sound menu items
-#define STRING_CLICKS "Clicks"
-#define STRING_CHIRPS "Chirps"
-#define STRING_BEEPS "Beeps"
-
 // Alarms menu items
+#define STRING_RATE_WARNING "Rate warning"
+#define STRING_DOSE_WARNING "Dose warning"
 #define STRING_RATE_ALARM "Rate alarm"
 #define STRING_DOSE_ALARM "Dose alarm"
 #define STRING_INDICATION "Indication"
-#define STRING_VOICE "Voice"
-#define STRING_VOLUME "Volume"
 
 // Measurements menu items
 #define STRING_UNITS "Units"
@@ -202,18 +209,26 @@
 #define STRING_THEME_DUSK "Dusk"
 #define STRING_THEME_NIGHT "Night"
 
-// Display - Brightness menu items
-#define STRING_VERY_LOW "Very low"
-#define STRING_LOW "Low"
-#define STRING_MEDIUM "Medium"
-#define STRING_HIGH "High"
-
 // Display - Contrast menu items prefix (followed by a number from 1 to 8)
 #define STRING_CONTRAST_LEVEL "Level"
 
 // Display - Sleep menu items
 #define STRING_ALWAYS_OFF "Always off"
 #define STRING_ALWAYS_ON "Always on"
+
+// Sound menu items
+#define STRING_ALERTSTYLE "Alert style"
+#define STRING_ALERTVOLUME "Alert volume"
+#define STRING_VOICEVOLUME "Voice volume"
+
+// Sound Alarms length
+#define STRING_SHORT "Short"
+#define STRING_LONG "Long"
+
+// Sound pulses menu items
+#define STRING_CLICKS "Clicks"
+#define STRING_CHIRPS "Chirps"
+#define STRING_BEEPS "Beeps"
 
 // Time and date menu items
 #define STRING_TIME_ZONE "Time zone"
@@ -229,8 +244,8 @@
 #define STRING_UTCPLUS "UTC+"
 
 // Time and date > Hour menu items (should not be translated)
-#define STRING_AM " AM"
-#define STRING_PM " PM"
+#define STRING_AM "AM"
+#define STRING_PM "PM"
 
 // Time and date > Time format menu items
 #define STRING_24_HOUR "24-hour"
@@ -253,11 +268,7 @@
 #define STRING_8_SIDED_DIE "8-sided die"
 #define STRING_6_SIDED_DIE "6-sided die"
 #define STRING_4_SIDED_DIE "4-sided die"
-#define STRING_COIN_FLIP "Coin flip"
-
-// Random generator coin head/tail
-#define STRING_COIN_HEAD "Head"
-#define STRING_COIN_TAIL "Tail"
+#define STRING_COIN_FLIP "Coin flip (0-1)"
 
 // Game menu items
 #define STRING_PLAY_WHITE "Play white"

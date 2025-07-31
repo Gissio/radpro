@@ -1,1 +1,1 @@
-[Moved here](field-guide/field-guide.md)
+[Moved here](https://github.com/Gissio/ionizing-radiation-field-guide).

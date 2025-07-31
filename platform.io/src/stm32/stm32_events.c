@@ -15,12 +15,13 @@
 
 #include "device.h"
 
-extern volatile uint32_t eventsCurrentTick;
+extern volatile uint32_t eventsTick;
 
 float timerCountToSeconds = (1.0F / PULSE_MEASUREMENT_FREQUENCY);
 
 void initEventsHardware(void)
 {
+    // SysTick
     NVIC_SetPriority(SysTick_IRQn, 0xc0);
     SysTick->LOAD = AHB_FREQUENCY / SYSTICK_FREQUENCY - 1;
     SysTick->VAL = 0;
@@ -28,10 +29,9 @@ void initEventsHardware(void)
                     SysTick_CTRL_TICKINT_Msk |
                     SysTick_CTRL_ENABLE_Msk;
 
-    // Set IWDG prescaler to divider /256
     iwdg_unlock();
     wait_until_bits_clear(IWDG->SR, IWDG_SR_PVU);
-    IWDG->PR = 0b110;
+    IWDG->PR = 0b110; // Divider /256
     
     iwdg_unlock();
     wait_until_bits_clear(IWDG->SR, IWDG_SR_RVU);
@@ -44,18 +44,18 @@ void SysTick_Handler(void)
 {
     onTick();
 
-    eventsCurrentTick++;
+    eventsTick++;
 }
 
 void sleep(uint32_t value)
 {
-    uint32_t targetTick = eventsCurrentTick + value;
+    uint32_t targetTick = eventsTick + value;
 
     while (true)
     {
         iwdg_reload();
 
-        if (((int32_t)(eventsCurrentTick - targetTick)) >= 0)
+        if (((int32_t)(eventsTick - targetTick)) >= 0)
             break;
 
 #if defined(USB_INTERFACE) && defined(DATA_MODE)

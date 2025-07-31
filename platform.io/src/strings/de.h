@@ -11,6 +11,7 @@
 #define STRING_APP_NAME "Rad Pro"
 
 // Styling characters (should not be translated)
+#define STRING_EMPTY ""
 #define STRING_NUMBERS "0123456789.:"
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
@@ -60,6 +61,12 @@
 // Common menu items
 #define STRING_OFF "Aus"
 
+// Sound volume and display brightness menu items
+#define STRING_VERY_LOW "Sehr niedrig"
+#define STRING_LOW "Niedrig"
+#define STRING_MEDIUM "Mittel"
+#define STRING_HIGH "Hoch"
+
 // Notification headings (upper case)
 #define STRING_NOTIFICATION_WARNING "WARNUNG"
 #define STRING_NOTIFICATION_SUCCESS "ERFOLG"
@@ -81,27 +88,31 @@
 #define STRING_INSTANTANEOUS "Momentan"
 #define STRING_AVERAGE "Durchschnitt"
 #define STRING_CUMULATIVE "Kumulativ"
-#define STRING_HISTORY10_MIN "Verlauf (10 Min)"
-#define STRING_HISTORY1_H "Verlauf (1 Std)"
-#define STRING_HISTORY24_H "Verlauf (24 Std)"
+#define STRING_HISTORY_10_MINUTES "Verlauf (10 Min)"
+#define STRING_HISTORY_1_HOUR "Verlauf (1 Std)"
+#define STRING_HISTORY_1_DAY "Verlauf (1 T)"
+#define STRING_HISTORY_1_WEEK "Verlauf (1 W)"
+#define STRING_HISTORY_1_MONTH "Verlauf (1 Mo)"
+#define STRING_HISTORY_1_YEAR "Verlauf (1 J)"
 
 // Measurement view secondary view strings
 #define STRING_TIME "Zeit"
 #define STRING_MAX "Max"
-#define STRING_RATE "Rate"
+#define STRING_RATE "Zählrate"
 #define STRING_DOSE "Dosis"
 
 // Measurement view info strings (upper case, up to 5 letters)
 #define STRING_INFO_ALARM "ALARM"
+#define STRING_INFO_WARNING "WARNUNG"
 #define STRING_INFO_FAULT "FEHLER"
 #define STRING_INFO_MAX "MAX"
-#define STRING_INFO_OVER "ÜBER"
+#define STRING_INFO_OVERFLOW "ÜBER"
 #define STRING_INFO_DONE "FERTIG"
 
 // Settings menu items
 #define STRING_SETTINGS "Einstellungen"
 #define STRING_PULSES "Impulse"
-#define STRING_ALARMS "Alarme"
+#define STRING_ALERTS "Alarme"
 #define STRING_MEASUREMENTS "Messungen"
 #define STRING_GEIGER_TUBE "Zählrohr"
 #define STRING_DATA_LOG "Datenlog"
@@ -115,22 +126,18 @@
 
 // Pulses menu items
 #define STRING_SOUND "Ton"
+#define STRING_VOICE "Stimme"
 #define STRING_VIBRATION "Vibration"
 #define STRING_PULSE_LED "Puls-LED"
 #define STRING_DISPLAY_FLASH "Anzeigeblinken"
 #define STRING_THRESHOLD "Schwelle"
 
-// Sound menu items
-#define STRING_CLICKS "Knacken"
-#define STRING_CHIRPS "Zirpen"
-#define STRING_BEEPS "Piepsen"
-
 // Alarms menu items
-#define STRING_RATE_ALARM "Dosisleistungsalarm"
+#define STRING_RATE_WARNING "Zählratenwarnung"
+#define STRING_DOSE_WARNING "Dosiswarnung"
+#define STRING_RATE_ALARM "Zählratenalarm"
 #define STRING_DOSE_ALARM "Dosisalarm"
 #define STRING_INDICATION "Anzeige"
-#define STRING_VOICE "Stimme"
-#define STRING_VOLUME "Lautstärke"
 
 // Measurements menu items
 #define STRING_UNITS "Einheiten"
@@ -202,18 +209,26 @@
 #define STRING_THEME_DUSK "Dämmerung"
 #define STRING_THEME_NIGHT "Nacht"
 
-// Display - Brightness menu items
-#define STRING_VERY_LOW "Sehr niedrig"
-#define STRING_LOW "Niedrig"
-#define STRING_MEDIUM "Mittel"
-#define STRING_HIGH "Hoch"
-
 // Display - Contrast menu items prefix (followed by a number from 1 to 8)
 #define STRING_CONTRAST_LEVEL "Stufe"
 
 // Display - Sleep menu items
 #define STRING_ALWAYS_OFF "Immer ausgeschaltet"
 #define STRING_ALWAYS_ON "Immer eingeschaltet"
+
+// Sound menu items
+#define STRING_ALERTSTYLE "Alarmstil"
+#define STRING_ALERTVOLUME "Alarmlautstärke"
+#define STRING_VOICEVOLUME "Sprachlautstärke"
+
+// Sound Alarms length
+#define STRING_SHORT "Kurz"
+#define STRING_LONG "Lang"
+
+// Sound pulses menu items
+#define STRING_CLICKS "Knacken"
+#define STRING_CHIRPS "Zirpen"
+#define STRING_BEEPS "Piepsen"
 
 // Time and date menu items
 #define STRING_TIME_ZONE "Zeitzone"
@@ -229,8 +244,8 @@
 #define STRING_UTCPLUS "UTC+"
 
 // Time and date > Hour menu items (should not be translated)
-#define STRING_AM " AM"
-#define STRING_PM " PM"
+#define STRING_AM "AM"
+#define STRING_PM "PM"
 
 // Time and date > Time format menu items
 #define STRING_24_HOUR "24-Stunden"
@@ -253,11 +268,7 @@
 #define STRING_8_SIDED_DIE "8-seitiger Würfel"
 #define STRING_6_SIDED_DIE "6-seitiger Würfel"
 #define STRING_4_SIDED_DIE "4-seitiger Würfel"
-#define STRING_COIN_FLIP "Münzwurf"
-
-// Random generator coin head/tail
-#define STRING_COIN_HEAD "Kopf"
-#define STRING_COIN_TAIL "Zahl"
+#define STRING_COIN_FLIP "Münzwurf (0-1)"
 
 // Game menu items
 #define STRING_PLAY_WHITE "Weiß spielen"

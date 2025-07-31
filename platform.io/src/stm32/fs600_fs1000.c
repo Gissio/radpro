@@ -11,7 +11,6 @@
 
 #include "../display.h"
 #include "../events.h"
-#include "../flash.h"
 #include "../keyboard.h"
 #include "../settings.h"
 #include "../system.h"
@@ -29,9 +28,11 @@ void initSystem(void)
                 RCC_CR_HSIDIV_Msk,
                 RCC_CR_HSIDIV_DIV2);
 
-    // Disable UCPD strobes
+    // Enable SYSCFG (for EXTI, UPCD)
     set_bits(RCC->APBENR2,
-             RCC_APBENR2_SYSCFGEN);
+        RCC_APBENR2_SYSCFGEN);
+
+    // Disable UCPD strobes
     set_bits(SYSCFG->CFGR1,
              SYSCFG_CFGR1_UCPD1_STROBE |
                  SYSCFG_CFGR1_UCPD2_STROBE);
@@ -44,12 +45,29 @@ void initSystem(void)
                  RCC_IOPENR_GPIODEN);
 }
 
+void startBootloader(void)
+{
+    // Disable interrupts
+    NVIC_DisableAllIRQs();
+    SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk;
+    SysTick->VAL = 0;
+
+    // Set SYSCLK to HSI16/1
+    modify_bits(RCC->CR,
+                RCC_CR_HSIDIV_Msk,
+                RCC_CR_HSIDIV_DIV1);
+
+    // Jump to bootloader
+    __set_MSP(SYSTEM_VECTOR_TABLE->sp);
+    SYSTEM_VECTOR_TABLE->onReset();
+}
+
 // Communications
 
 #if defined(FS600)
-const char *const commId = "Bosean FS-600;" FIRMWARE_NAME " " FIRMWARE_VERSION;
+const char *const commId = "Bosean FS-600;" FIRMWARE_NAME " " FIRMWARE_VERSION "/" LANGUAGE;
 #elif defined(FS1000)
-const char *const commId = "Bosean FS-1000;" FIRMWARE_NAME " " FIRMWARE_VERSION;
+const char *const commId = "Bosean FS-1000;" FIRMWARE_NAME " " FIRMWARE_VERSION "/" LANGUAGE;
 #endif
 
 // Keyboard
@@ -76,10 +94,10 @@ void initKeyboardHardware(void)
 
 void getKeyboardState(bool *isKeyDown)
 {
-#if defined(KEYBOARD_2KEYS)
+#if defined(KEYBOARD_2_KEYS)
     isKeyDown[KEY_LEFT] = gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN);
     isKeyDown[KEY_RIGHT] = !gpio_get(KEY_OK_PORT, KEY_OK_PIN);
-#elif defined(KEYBOARD_5KEYS)
+#elif defined(KEYBOARD_5_KEYS)
     isKeyDown[KEY_LEFT] = gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN);
     isKeyDown[KEY_RIGHT] = gpio_get(KEY_RIGHT_PORT, KEY_RIGHT_PIN);
     isKeyDown[KEY_UP] = gpio_get(KEY_UP_PORT, KEY_UP_PIN);

@@ -2,15 +2,15 @@
 
 This guide explains how to install the Rad Pro firmware on Bosean FS-5000 Geiger counters.
 
-## Required supplies
+To update the firmware, use the [Rad Pro Web Installer](https://gissio.github.io/radpro-installer/).
 
-To install Rad Pro, you'll need:
+## What you'll need
 
-* [ST-LINK V2 USB dongle (or compatible clone)](https://www.amazon.com/s?k=st-link+v2)
-* 4-pin header
-* Philips screwdriver
-* Optional: Soldering iron and solder
-* For Windows users: [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html)
+* **ST-LINK V2 USB dongle** (or compatible clone): Available on [Amazon](https://www.amazon.com/s?k=st-link+v2).
+* **4-pin header** for SWD connection.
+* **Philips screwdriver** to open the device.
+* **Optional:** Soldering iron and solder for a secure connection.
+* **Windows users:** [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html)
 
 ## Step 1: Open the device
 
@@ -18,15 +18,17 @@ To install Rad Pro, you'll need:
 
 1. Power off the device.
 2. Unscrew the back case and carefully open the device.
-3. Verify that the circuit board matches the image above (the Geiger-Müller tube may vary). If the board differs, you may have a different hardware revision, and Rad Pro may not function correctly. If issues arise, report them on the [Rad Pro GitHub issues page](https://github.com/Gissio/radpro/issues).
-4. Note the Geiger-Müller tube type (marked on the glass as J614, J321, J305 or M4011). For unmarked tubes measuring 55 or 65 mm, assume J614 or J613, respectively.
+3. Confirm the circuit board matches the image above (Geiger-Müller tube may vary). If it differs, you may have a different hardware revision, and Rad Pro may not work correctly. Report issues on the [Rad Pro GitHub issues page](https://github.com/Gissio/radpro/issues).
+4. Identify the Geiger-Müller tube (marked on the glass as J305, J321, J613, J614, or M4011). For unmarked tubes:
+   * 55 mm tubes: Assume J614.
+   * 65 mm tubes: Assume J613.
 
 ## Step 2: Connect the programmer
 
 ![Bosean FS-5000 connectors](img/fs5000-swd.jpg)
 
-1. Optional: Solder a 4-pin header to the SWD pads on the board for a secure connection.
-2. Connect the ST-LINK V2 to the SWD pads using the following pin configuration (top to bottom):
+1. Optional: Solder a 4-pin header to the SWD pads on the board for a reliable connection.
+2. Connect the ST-LINK V2 to the SWD pads using this pin configuration (top to bottom):
   * 3.3V
   * SWDIO
   * SWCLK
@@ -34,20 +36,20 @@ To install Rad Pro, you'll need:
 
 ![ST-LINK V2 programmer](../../img/ST-LINK-V2.png)
 
-**WARNING:** Double-check electrical connections to prevent damage to the device.
+**WARNING:** Double-check connections to avoid damaging the device.
 
 ## Step 3: Flash the firmware
 
-1. For Windows users, install the [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html).
-2. Download and extract the latest `radpro-[version].zip` from [Rad Pro releases](https://github.com/Gissio/radpro/releases).
-3. Navigate to the `bosean` folder and run the appropriate script based on your operating system:
-  * Windows: Double click `bosean-fs5000-[type].bat`.
-  * Linux: Run `bosean-fs5000-[type].sh` in a terminal.
-  * macOS: Open `Terminal.app` (in `/Applications/Utilities`), navigate to the `bosean` folder, and drag `bosean-fs5000-[type].sh` onto the Terminal icon in the dock.
-  * `[type]`: Installation type (`install` or `update`). Note: Not all releases support updating.
-4. The installer will prompt you to select a language using two-letter language codes. Enter the desired code to proceed.
-5. The installer automatically backs up the original firmware to the `backup` folder. Store this securely to restore the original firmware if needed. To restore, drag the backup file onto `bosean-fs5000-install.bat` (Windows) or `bosean-fs5000-install.sh` (macOS/Linux).
-6. Close and reassemble the device.
+1. Windows users: install the [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html).
+2. Download and extract the latest `radpro-flashtool-[version].zip` from [Rad Pro releases](https://github.com/Gissio/radpro/releases).
+3. Navigate to the `bosean-fs5000` folder and run the appropriate script:
+  * Windows: Double click `install.bat`.
+  * Linux: Run `install.sh` in a terminal.
+  * macOS: Open `Terminal.app` (in `/Applications/Utilities`), navigate to the `bosean-fs5000` folder, and drag `install.sh` onto the Terminal icon in the dock.
+4. Select a language by entering its two-letter code (e.g., `en` for English) when prompted.
+5. The installer automatically backs up the original firmware to the `backup` folder. Store this file securely to restore the original firmware if needed.
+   * To restore, drag the backup file onto `install.bat` (Windows) or `install.sh` (macOS/Linux).
+6. Reassemble the device after flashing.
 
 <!-- Note: check this [video](https://youtu.be/Ney8Cb1XnZk) for alternative installation instructions. -->
 
@@ -64,41 +66,39 @@ Use the following controls to operate your device:
   * **Navigate options:** Use the Up/Back or Down/Settings key.
   * **Select option:** Press and short hold the Right/Settings key or press the OK/Power key.
   * **Go back:** Press and short hold the Up/Back key.
-  * **Toggle lock mode:** Press and long hold both the OK/Power and Up/Back keys.
+  * **Toggle lock mode:** Press and long hold both the Up/Back and OK/Power keys.
 
 To configure the device:
 
-1. Go to **Settings > Geiger tube > Sensitivity** and select the option matching your Geiger-Müller tube.
-2. For USB data connections under Windows, install the [CH340 driver](https://www.catalog.update.microsoft.com/Search.aspx?q=USB%5CVID_1A86%26PID_7523).
+1. Go to **Settings > Geiger tube > Sensitivity** and select the option that matches your Geiger-Müller tube.
+2. For USB data connections on Windows, install the [CH340 driver](https://www.catalog.update.microsoft.com/Search.aspx?q=USB%5CVID_1A86%26PID_7523).
 
-For detailed usage instructions, refer to the [Rad Pro User Manual](../../manual.md) and the [ionizing radiation field guide](../../field-guide/field-guide.md).
+For detailed usage, see the [Rad Pro User Manual](../../manual.md) and the [ionizing radiation field guide](https://github.com/Gissio/ionizing-radiation-field-guide).
 
-## Step 5: Final steps
+## Step 5: Support Rad Pro
 
-If you find Rad Pro useful, consider:
+If you find Rad Pro useful:
 
-* Watching the [Rad Pro GitHub repository](https://github.com/Gissio/radpro) for release notifications.
-* Starring the project to show your support.
+* Watch the [Rad Pro GitHub repository](https://github.com/Gissio/radpro) for release updates.
+* Star the project to show your support.
 
 ## Hardware-specific notes
 
-* **USB data connection:** Use a USB data cable to connect the FS-5000 to a computer.
-
 <!-- Calculated as follows:
 
-* With 1-byte differential values: [67 pages * (1 timestamp entry/page [16 bytes] + 2024 differential entries/page [1 byte each]) + page full indicator (2 bytes)] = 196425 entries
-* With 2-byte differential values: [67 pages * (1 timestamp entry/page [16 bytes] + 1012 differential entries/page [2 byte each])] = 98261 entries
+* With 1-byte differential values: [95 pages * (1 timestamp entry/page [16 bytes] + 2024 differential entries/page [1 byte each])] = 192375 entries
+* With 2-byte differential values: [95 pages * (1 timestamp entry/page [16 bytes] + 1012 differential entries/page [2 byte each])] = 96235 entries
 
 * 60-minute and 10-minute intervals require 2-byte differential values.
 * 1-minute intervals and less require 1-byte differential values.
 
  -->
 
-* **Data storage:** Stores up to 208,575 data points. At 20 cpm (normal radiation levels), this supports:
-  * 4094 days at 60-minute intervals
-  * 682 days at 10-minute intervals
-  * 136 days at 1-minute intervals
+* **Data storage:** Stores up to 196,425 data points. At 20 cpm (normal radiation levels), this supports:
+  * 4010 days at 60-minute intervals
+  * 668 days at 10-minute intervals
+  * 133 days at 1-minute intervals
   * 22 days at 10-second intervals
-  * 54 hours at 1-second intervals
+  * 53 hours at 1-second intervals
 
 * **HV profiles:** Not supported.

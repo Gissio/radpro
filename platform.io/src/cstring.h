@@ -14,56 +14,51 @@
 #include <stdint.h>
 #include <string.h>
 
-#include I18N
+#include STRINGS
 
-#define getString(string) string
+#define getString(s) s
+
+typedef const char *const cstring;
 
 #ifdef __EMSCRIPTEN__
 
-void strclr(char *str);
+void strclr(char *s);
 
 #else
 
-inline void strclr(char *str)
+inline void strclr(char *s)
 {
-    *str = '\0';
+    *s = '\0';
 }
 
 #endif
 
-void strcatChar(char *str,
-                char c);
+void strcatChar(char *s, char c);
 
-void strcatUInt32(char *str,
-                  uint32_t value, uint32_t length);
-void strcatTime(char *str,
-                uint32_t time);
-void strcatFloat(char *str,
+void strcatUInt32(char *s,
+                  uint32_t value,
+                  uint32_t length);
+void strcatTime(char *s, uint32_t time);
+void strcatFloat(char *s,
                  float value,
                  uint32_t fractionalDecimals);
-void strcatFloatAsMetricValueAndPrefix(char *str,
+void strcatFloatAsMetricValueAndPrefix(char *s,
                                        char *metricPrefix,
                                        float value,
                                        int32_t minMetricPrefixIndex);
-void strcatFloatAsMetricValueWithPrefix(char *str,
-                                        float value, int32_t minMetricPrefix);
-void strcatDecimalPowerWithMetricPrefix(char *str,
+void strcatDecimalPowerWithMetricPrefix(char *s,
                                         int32_t exponent,
                                         int32_t minMetricPrefixIndex);
 
-void strcatUInt8Hex(char *str,
-                    uint8_t value);
-void strcatUInt16Hex(char *str,
-                     uint16_t value);
-void strcatUInt32Hex(char *str,
-                     uint32_t value);
-void strcatDataHex(char *str,
+void strcatUInt8Hex(char *s, uint8_t value);
+void strcatUInt16Hex(char *s, uint16_t value);
+void strcatUInt32Hex(char *s, uint32_t value);
+void strcatDataHex(char *s,
                    uint8_t *data,
                    uint32_t size);
 
-bool parseUInt32(char *str,
-                 uint32_t *value);
-bool parseFloat(char *str,
-                float *value);
+bool parseToken(const char **s, const char *match);
+bool parseUInt32(const char **s, uint32_t *value);
+bool parseFloat(const char **s, float *value);
 
 #endif

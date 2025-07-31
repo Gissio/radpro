@@ -11,6 +11,7 @@
 #define STRING_APP_NAME "Rad Pro"
 
 // Styling characters (should not be translated)
+#define STRING_EMPTY ""
 #define STRING_NUMBERS "0123456789.:"
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
@@ -60,6 +61,12 @@
 // Common menu items
 #define STRING_OFF "Vypnuto"
 
+// Sound volume and display brightness menu items
+#define STRING_VERY_LOW "Velmi nízký"
+#define STRING_LOW "Nízký"
+#define STRING_MEDIUM "Střední"
+#define STRING_HIGH "Vysoký"
+
 // Notification headings (upper case)
 #define STRING_NOTIFICATION_WARNING "VAROVÁNÍ"
 #define STRING_NOTIFICATION_SUCCESS "ÚSPĚCH"
@@ -81,27 +88,31 @@
 #define STRING_INSTANTANEOUS "Okamžitý"
 #define STRING_AVERAGE "Průměrný"
 #define STRING_CUMULATIVE "Kumulativní"
-#define STRING_HISTORY10_MIN "Historie (10 min)"
-#define STRING_HISTORY1_H "Historie (1 h)"
-#define STRING_HISTORY24_H "Historie (24 h)"
+#define STRING_HISTORY_10_MINUTES "Historie (10 min)"
+#define STRING_HISTORY_1_HOUR "Historie (1 h)"
+#define STRING_HISTORY_1_DAY "Historie (1 d)"
+#define STRING_HISTORY_1_WEEK "Historie (1 t)"
+#define STRING_HISTORY_1_MONTH "Historie (1 m)"
+#define STRING_HISTORY_1_YEAR "Historie (1 r)"
 
 // Measurement view secondary view strings
 #define STRING_TIME "Čas"
 #define STRING_MAX "Max"
-#define STRING_RATE "Tok"
+#define STRING_RATE "Rychlost"
 #define STRING_DOSE "Dávka"
 
 // Measurement view info strings (upper case, up to 5 letters)
 #define STRING_INFO_ALARM "ALARM"
+#define STRING_INFO_WARNING "VAROVÁNÍ"
 #define STRING_INFO_FAULT "CHYBA"
 #define STRING_INFO_MAX "MAX"
-#define STRING_INFO_OVER "PŘES"
+#define STRING_INFO_OVERFLOW "PŘES"
 #define STRING_INFO_DONE "HOTOVO"
 
 // Settings menu items
 #define STRING_SETTINGS "Nastavení"
 #define STRING_PULSES "Impulzy"
-#define STRING_ALARMS "Alarmy"
+#define STRING_ALERTS "Upozornění"
 #define STRING_MEASUREMENTS "Měření"
 #define STRING_GEIGER_TUBE "Geigerova trubice"
 #define STRING_DATA_LOG "Datový záznam"
@@ -115,22 +126,18 @@
 
 // Pulses menu items
 #define STRING_SOUND "Zvuk"
+#define STRING_VOICE "Hlas"
 #define STRING_VIBRATION "Vibrace"
 #define STRING_PULSE_LED "Pulsní LED"
 #define STRING_DISPLAY_FLASH "Blikání displeje"
 #define STRING_THRESHOLD "Práh"
 
-// Sound menu items
-#define STRING_CLICKS "Kliknutí"
-#define STRING_CHIRPS "Cvakání"
-#define STRING_BEEPS "Pípání"
-
 // Alarms menu items
-#define STRING_RATE_ALARM "Alarm toku"
+#define STRING_RATE_WARNING "Varování rychlosti"
+#define STRING_DOSE_WARNING "Varování dávky"
+#define STRING_RATE_ALARM "Alarm rychlosti"
 #define STRING_DOSE_ALARM "Alarm dávky"
 #define STRING_INDICATION "Indikace"
-#define STRING_VOICE "Hlas"
-#define STRING_VOLUME "Hlasitost"
 
 // Measurements menu items
 #define STRING_UNITS "Jednotky"
@@ -202,18 +209,26 @@
 #define STRING_THEME_DUSK "Soumrak"
 #define STRING_THEME_NIGHT "Noc"
 
-// Display - Brightness menu items
-#define STRING_VERY_LOW "Velmi nízký"
-#define STRING_LOW "Nízký"
-#define STRING_MEDIUM "Střední"
-#define STRING_HIGH "Vysoký"
-
 // Display - Contrast menu items prefix (followed by a number from 1 to 8)
 #define STRING_CONTRAST_LEVEL "Úroveň"
 
 // Display - Sleep menu items
 #define STRING_ALWAYS_OFF "Vždy vypnuto"
 #define STRING_ALWAYS_ON "Vždy zapnuto"
+
+// Sound menu items
+#define STRING_ALERTSTYLE "Styl upozornění"
+#define STRING_ALERTVOLUME "Hlasitost upozornění"
+#define STRING_VOICEVOLUME "Hlasitost hlasu"
+
+// Sound Alarms length
+#define STRING_SHORT "Krátký"
+#define STRING_LONG "Dlouhý"
+
+// Sound pulses menu items
+#define STRING_CLICKS "Kliknutí"
+#define STRING_CHIRPS "Cvakání"
+#define STRING_BEEPS "Pípání"
 
 // Time and date menu items
 #define STRING_TIME_ZONE "Časové pásmo"
@@ -229,8 +244,8 @@
 #define STRING_UTCPLUS "UTC+"
 
 // Time and date > Hour menu items (should not be translated)
-#define STRING_AM " AM"
-#define STRING_PM " PM"
+#define STRING_AM "AM"
+#define STRING_PM "PM"
 
 // Time and date > Time format menu items
 #define STRING_24_HOUR "24hodinový"
@@ -253,11 +268,7 @@
 #define STRING_8_SIDED_DIE "8stěnná kostka"
 #define STRING_6_SIDED_DIE "6stěnná kostka"
 #define STRING_4_SIDED_DIE "4stěnná kostka"
-#define STRING_COIN_FLIP "Hod mincí"
-
-// Random generator coin head/tail
-#define STRING_COIN_HEAD "Hlava"
-#define STRING_COIN_TAIL "Orel"
+#define STRING_COIN_FLIP "Hod mincí (0-1)"
 
 // Game menu items
 #define STRING_PLAY_WHITE "Hrát bílé"

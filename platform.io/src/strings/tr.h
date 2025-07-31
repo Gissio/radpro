@@ -11,6 +11,7 @@
 #define STRING_APP_NAME "Rad Pro"
 
 // Styling characters (should not be translated)
+#define STRING_EMPTY ""
 #define STRING_NUMBERS "0123456789.:"
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
@@ -60,6 +61,12 @@
 // Common menu items
 #define STRING_OFF "Kapalı"
 
+// Sound volume and display brightness menu items
+#define STRING_VERY_LOW "Çok düşük"
+#define STRING_LOW "Düşük"
+#define STRING_MEDIUM "Orta"
+#define STRING_HIGH "Yüksek"
+
 // Notification headings (upper case)
 #define STRING_NOTIFICATION_WARNING "UYARI"
 #define STRING_NOTIFICATION_SUCCESS "BAŞARILI"
@@ -81,9 +88,12 @@
 #define STRING_INSTANTANEOUS "Anlık"
 #define STRING_AVERAGE "Ortalama"
 #define STRING_CUMULATIVE "Toplam"
-#define STRING_HISTORY10_MIN "Geçmiş (10 dk)"
-#define STRING_HISTORY1_H "Geçmiş (1 s)"
-#define STRING_HISTORY24_H "Geçmiş (24 s)"
+#define STRING_HISTORY_10_MINUTES "Geçmiş (10 dk)"
+#define STRING_HISTORY_1_HOUR "Geçmiş (1 s)"
+#define STRING_HISTORY_1_DAY "Geçmiş (1 g)"
+#define STRING_HISTORY_1_WEEK "Geçmiş (1 h)"
+#define STRING_HISTORY_1_MONTH "Geçmiş (1 ay)"
+#define STRING_HISTORY_1_YEAR "Geçmiş (1 y)"
 
 // Measurement view secondary view strings
 #define STRING_TIME "Zaman"
@@ -93,15 +103,16 @@
 
 // Measurement view info strings (upper case, up to 5 letters)
 #define STRING_INFO_ALARM "ALARM"
+#define STRING_INFO_WARNING "UYARI"
 #define STRING_INFO_FAULT "HATA"
 #define STRING_INFO_MAX "MAKS"
-#define STRING_INFO_OVER "AŞIRI"
+#define STRING_INFO_OVERFLOW "AŞIRI"
 #define STRING_INFO_DONE "BİTTİ"
 
 // Settings menu items
 #define STRING_SETTINGS "Ayarlar"
 #define STRING_PULSES "Naberler"
-#define STRING_ALARMS "Alarmlar"
+#define STRING_ALERTS "Uyarılar"
 #define STRING_MEASUREMENTS "Ölçümler"
 #define STRING_GEIGER_TUBE "Geiger tüpü"
 #define STRING_DATA_LOG "Veri günlüğü"
@@ -115,22 +126,18 @@
 
 // Pulses menu items
 #define STRING_SOUND "Ses"
+#define STRING_VOICE "Konuşma"
 #define STRING_VIBRATION "Titreşim"
 #define STRING_PULSE_LED "Naber LED'i"
 #define STRING_DISPLAY_FLASH "Ekran flaşı"
 #define STRING_THRESHOLD "Eşik"
 
-// Sound menu items
-#define STRING_CLICKS "Tıklamalar"
-#define STRING_CHIRPS "Cıvıltılar"
-#define STRING_BEEPS "Bip sesleri"
-
 // Alarms menu items
+#define STRING_RATE_WARNING "Oran uyarısı"
+#define STRING_DOSE_WARNING "Doz uyarısı"
 #define STRING_RATE_ALARM "Oran alarmı"
 #define STRING_DOSE_ALARM "Doz alarmı"
 #define STRING_INDICATION "Gösterge"
-#define STRING_VOICE "Ses"
-#define STRING_VOLUME "Ses seviyesi"
 
 // Measurements menu items
 #define STRING_UNITS "Birimler"
@@ -202,18 +209,26 @@
 #define STRING_THEME_DUSK "Alacakaranlık"
 #define STRING_THEME_NIGHT "Gece"
 
-// Display - Brightness menu items
-#define STRING_VERY_LOW "Çok düşük"
-#define STRING_LOW "Düşük"
-#define STRING_MEDIUM "Orta"
-#define STRING_HIGH "Yüksek"
-
 // Display - Contrast menu items prefix (followed by a number from 1 to 8)
 #define STRING_CONTRAST_LEVEL "Seviye"
 
 // Display - Sleep menu items
 #define STRING_ALWAYS_OFF "Her zaman kapalı"
 #define STRING_ALWAYS_ON "Her zaman açık"
+
+// Sound menu items
+#define STRING_ALERTSTYLE "Uyarı stili"
+#define STRING_ALERTVOLUME "Uyarı ses seviyesi"
+#define STRING_VOICEVOLUME "Ses seviyesi"
+
+// Sound Alarms length
+#define STRING_SHORT "Kısa"
+#define STRING_LONG "Uzun"
+
+// Sound pulses menu items
+#define STRING_CLICKS "Tıklamalar"
+#define STRING_CHIRPS "Cıvıltılar"
+#define STRING_BEEPS "Bip sesleri"
 
 // Time and date menu items
 #define STRING_TIME_ZONE "Zaman dilimi"
@@ -229,8 +244,8 @@
 #define STRING_UTCPLUS "UTC+"
 
 // Time and date > Hour menu items (should not be translated)
-#define STRING_AM " AM"
-#define STRING_PM " PM"
+#define STRING_AM "AM"
+#define STRING_PM "PM"
 
 // Time and date > Time format menu items
 #define STRING_24_HOUR "24 saat"
@@ -253,11 +268,7 @@
 #define STRING_8_SIDED_DIE "8 yüzlü zar"
 #define STRING_6_SIDED_DIE "6 yüzlü zar"
 #define STRING_4_SIDED_DIE "4 yüzlü zar"
-#define STRING_COIN_FLIP "Yazı tura"
-
-// Random generator coin head/tail
-#define STRING_COIN_HEAD "Yazı"
-#define STRING_COIN_TAIL "Tura"
+#define STRING_COIN_FLIP "Yazı tura (0-1)"
 
 // Game menu items
 #define STRING_PLAY_WHITE "Beyaz oyna"

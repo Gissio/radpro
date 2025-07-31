@@ -15,46 +15,28 @@
 
 #include "view.h"
 
-#define BATTERY_LEVEL_NUM 5
-
-typedef enum
-{
-    POWERON_VIEW_FLASHFAILURE,
-    POWERON_VIEW_SPLASH,
-} PowerOnViewState;
-
-typedef struct {
-    bool enabled;
-
-    PowerOnViewState onViewState;
-
-    uint32_t offDisplayTimer;
-} Power;
-
-extern Power power;
-
-extern const View powerOnView;
-extern const View powerOffView;
+extern View powerOnView;
+extern View powerOffView;
 
 #if defined(BATTERY_REMOVABLE)
-extern const View batteryTypeMenuView;
+extern View batteryTypeMenuView;
 #endif
 
 void initPower(void);
 
-uint32_t getBatteryNum(void);
-
 void setPower(bool value);
 bool isPowered(void);
+bool isPowerOnReset(void);
+bool isBatteryCharging(void);
+bool isUSBPowered(void);
+uint32_t getBatteryNum(void);
 
-void powerOn(void);
-void powerOff(bool displayEnabled);
+void powerOn(bool isBoot);
+void powerOff(bool isBootOrLowBattery);
+bool isDeviceOff(void);
 
 void updateBattery(void);
 uint8_t getBatteryLevel(void);
 float getBatteryVoltage(void);
-
-bool isBatteryCharging(void);
-bool isUSBPowered(void);
 
 #endif

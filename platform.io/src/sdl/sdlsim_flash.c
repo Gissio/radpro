@@ -10,7 +10,6 @@
 #if defined(SIMULATOR)
 
 #include <stdio.h>
-#include <string.h>
 
 #include "../flash.h"
 
@@ -30,8 +29,8 @@
 
 uint8_t flashImage[FLASH_SIZE];
 
-const FlashRegion flashSettingsRegion = {SETTINGS_PAGE_BEGIN, SETTINGS_PAGE_END};
-const FlashRegion flashDatalogRegion = {DATALOG_PAGE_BEGIN, DATALOG_PAGE_END};
+FlashRegion flashSettingsRegion = {SETTINGS_PAGE_BEGIN, SETTINGS_PAGE_END};
+FlashRegion flashDatalogRegion = {DATALOG_PAGE_BEGIN, DATALOG_PAGE_END};
 
 const uint32_t flashPageDataSize = FLASH_PAGE_SIZE - FLASH_WORD_SIZE;
 const uint32_t flashWordSize = FLASH_WORD_SIZE;

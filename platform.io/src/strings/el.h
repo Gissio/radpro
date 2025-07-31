@@ -11,6 +11,7 @@
 #define STRING_APP_NAME "Rad Pro"
 
 // Styling characters (should not be translated)
+#define STRING_EMPTY ""
 #define STRING_NUMBERS "0123456789.:"
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
@@ -60,6 +61,12 @@
 // Common menu items
 #define STRING_OFF "Ανενεργό"
 
+// Sound volume and display brightness menu items
+#define STRING_VERY_LOW "Πολύ χαμηλή"
+#define STRING_LOW "Χαμηλή"
+#define STRING_MEDIUM "Μεσαία"
+#define STRING_HIGH "Υψηλή"
+
 // Notification headings (upper case)
 #define STRING_NOTIFICATION_WARNING "ΠΡΟΕΙΔΟΠΟΙΗΣΗ"
 #define STRING_NOTIFICATION_SUCCESS "ΕΠΙΤΥΧΙΑ"
@@ -81,9 +88,12 @@
 #define STRING_INSTANTANEOUS "Στιγμιαία"
 #define STRING_AVERAGE "Μέσος όρος"
 #define STRING_CUMULATIVE "Σωρευτική"
-#define STRING_HISTORY10_MIN "Ιστορικό (10 λεπτά)"
-#define STRING_HISTORY1_H "Ιστορικό (1 ώρα)"
-#define STRING_HISTORY24_H "Ιστορικό (24 ώρες)"
+#define STRING_HISTORY_10_MINUTES "Ιστορικό (10 λεπτά)"
+#define STRING_HISTORY_1_HOUR "Ιστορικό (1 ώρα)"
+#define STRING_HISTORY_1_DAY "Ιστορικό (1 ημ)"
+#define STRING_HISTORY_1_WEEK "Ιστορικό (1 εβδ)"
+#define STRING_HISTORY_1_MONTH "Ιστορικό (1 μ)"
+#define STRING_HISTORY_1_YEAR "Ιστορικό (1 έ)"
 
 // Measurement view secondary view strings
 #define STRING_TIME "Χρόνος"
@@ -93,15 +103,16 @@
 
 // Measurement view info strings (upper case, up to 5 letters)
 #define STRING_INFO_ALARM "ΣΥΝΑΓ"
+#define STRING_INFO_WARNING "ΠΡΟΕΙΔΟΠΟΙΗΣΗ"
 #define STRING_INFO_FAULT "ΣΦΑΛΜΑ"
 #define STRING_INFO_MAX "ΜΑΞ"
-#define STRING_INFO_OVER "ΥΠΕΡ"
+#define STRING_INFO_OVERFLOW "ΥΠΕΡ"
 #define STRING_INFO_DONE "ΟΛΟΚ"
 
 // Settings menu items
 #define STRING_SETTINGS "Ρυθμίσεις"
 #define STRING_PULSES "Παλμοί"
-#define STRING_ALARMS "Συναγερμοί"
+#define STRING_ALERTS "Ειδοποιήσεις"
 #define STRING_MEASUREMENTS "Μετρήσεις"
 #define STRING_GEIGER_TUBE "Σωλήνας Geiger"
 #define STRING_DATA_LOG "Αρχείο δεδομένων"
@@ -115,22 +126,18 @@
 
 // Pulses menu items
 #define STRING_SOUND "Ήχος"
+#define STRING_VOICE "Φωνή"
 #define STRING_VIBRATION "Δόνηση"
 #define STRING_PULSE_LED "LED παλμού"
 #define STRING_DISPLAY_FLASH "Αναβόσβηση οθόνης"
 #define STRING_THRESHOLD "Κατώφλι"
 
-// Sound menu items
-#define STRING_CLICKS "Κλικ"
-#define STRING_CHIRPS "Κελαηδίσματα"
-#define STRING_BEEPS "Μπιπ"
-
 // Alarms menu items
+#define STRING_RATE_WARNING "Προειδοποίηση ρυθμού"
+#define STRING_DOSE_WARNING "Προειδοποίηση δόσης"
 #define STRING_RATE_ALARM "Συναγερμός ρυθμού"
 #define STRING_DOSE_ALARM "Συναγερμός δόσης"
 #define STRING_INDICATION "Ένδειξη"
-#define STRING_VOICE "Φωνή"
-#define STRING_VOLUME "Ένταση"
 
 // Measurements menu items
 #define STRING_UNITS "Μονάδες"
@@ -202,18 +209,26 @@
 #define STRING_THEME_DUSK "Λυκόφως"
 #define STRING_THEME_NIGHT "Νύχτα"
 
-// Display - Brightness menu items
-#define STRING_VERY_LOW "Πολύ χαμηλή"
-#define STRING_LOW "Χαμηλή"
-#define STRING_MEDIUM "Μεσαία"
-#define STRING_HIGH "Υψηλή"
-
 // Display - Contrast menu items prefix (followed by a number from 1 to 8)
 #define STRING_CONTRAST_LEVEL "Επίπεδο"
 
 // Display - Sleep menu items
 #define STRING_ALWAYS_OFF "Πάντα απενεργοποιημένη"
 #define STRING_ALWAYS_ON "Πάντα ενεργοποιημένη"
+
+// Sound menu items
+#define STRING_ALERTSTYLE "Στυλ ειδοποίησης"
+#define STRING_ALERTVOLUME "Ένταση ειδοποίησης"
+#define STRING_VOICEVOLUME "Ένταση φωνής"
+
+// Sound Alarms length
+#define STRING_SHORT "Σύντομος"
+#define STRING_LONG "Μακρύς"
+
+// Sound pulses menu items
+#define STRING_CLICKS "Κλικ"
+#define STRING_CHIRPS "Κελαηδίσματα"
+#define STRING_BEEPS "Μπιπ"
 
 // Time and date menu items
 #define STRING_TIME_ZONE "Ζώνη ώρας"
@@ -229,8 +244,8 @@
 #define STRING_UTCPLUS "UTC+"
 
 // Time and date > Hour menu items (should not be translated)
-#define STRING_AM " ΠΜ"
-#define STRING_PM " ΜΜ"
+#define STRING_AM "ΠΜ"
+#define STRING_PM "ΜΜ"
 
 // Time and date > Time format menu items
 #define STRING_24_HOUR "24ωρη"
@@ -253,11 +268,7 @@
 #define STRING_8_SIDED_DIE "Ζάρι 8 όψεων"
 #define STRING_6_SIDED_DIE "Ζάρι 6 όψεων"
 #define STRING_4_SIDED_DIE "Ζάρι 4 όψεων"
-#define STRING_COIN_FLIP "Ρίψη νομίσματος"
-
-// Random generator coin head/tail
-#define STRING_COIN_HEAD "Κεφαλή"
-#define STRING_COIN_TAIL "Ουρά"
+#define STRING_COIN_FLIP "Ρίψη νομίσματος (0-1)"
 
 // Game menu items
 #define STRING_PLAY_WHITE "Παίξε λευκά"

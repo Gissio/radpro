@@ -11,6 +11,7 @@
 #define STRING_APP_NAME "Rad Pro"
 
 // Styling characters (should not be translated)
+#define STRING_EMPTY ""
 #define STRING_NUMBERS "0123456789.:"
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
@@ -60,6 +61,12 @@
 // Common menu items
 #define STRING_OFF "Uit"
 
+// Sound volume and display brightness menu items
+#define STRING_VERY_LOW "Zeer laag"
+#define STRING_LOW "Laag"
+#define STRING_MEDIUM "Gemiddeld"
+#define STRING_HIGH "Hoog"
+
 // Notification headings (upper case)
 #define STRING_NOTIFICATION_WARNING "WAARSCHUWING"
 #define STRING_NOTIFICATION_SUCCESS "SUCCES"
@@ -81,27 +88,31 @@
 #define STRING_INSTANTANEOUS "Momentaan"
 #define STRING_AVERAGE "Gemiddeld"
 #define STRING_CUMULATIVE "Cumulatief"
-#define STRING_HISTORY10_MIN "Geschiedenis (10 min)"
-#define STRING_HISTORY1_H "Geschiedenis (1 uur)"
-#define STRING_HISTORY24_H "Geschiedenis (24 uur)"
+#define STRING_HISTORY_10_MINUTES "Geschiedenis (10 min)"
+#define STRING_HISTORY_1_HOUR "Geschiedenis (1 u)"
+#define STRING_HISTORY_1_DAY "Geschiedenis (1 d)"
+#define STRING_HISTORY_1_WEEK "Geschiedenis (1 w)"
+#define STRING_HISTORY_1_MONTH "Geschiedenis (1 m)"
+#define STRING_HISTORY_1_YEAR "Geschiedenis (1 j)"
 
 // Measurement view secondary view strings
 #define STRING_TIME "Tijd"
 #define STRING_MAX "Max"
-#define STRING_RATE "Snel."
+#define STRING_RATE "Snelheid"
 #define STRING_DOSE "Dosis"
 
 // Measurement view info strings (upper case, up to 5 letters)
 #define STRING_INFO_ALARM "ALARM"
+#define STRING_INFO_WARNING "WAARSCHUWING"
 #define STRING_INFO_FAULT "FOUT"
 #define STRING_INFO_MAX "MAX"
-#define STRING_INFO_OVER "OVER"
+#define STRING_INFO_OVERFLOW "OVER"
 #define STRING_INFO_DONE "KLAAR"
 
 // Settings menu items
 #define STRING_SETTINGS "Instellingen"
 #define STRING_PULSES "Pulsen"
-#define STRING_ALARMS "Alarmen"
+#define STRING_ALERTS "Waarschuwingen"
 #define STRING_MEASUREMENTS "Metingen"
 #define STRING_GEIGER_TUBE "Geigerteller"
 #define STRING_DATA_LOG "Gegevenslog"
@@ -115,22 +126,18 @@
 
 // Pulses menu items
 #define STRING_SOUND "Geluid"
+#define STRING_VOICE "Stem"
 #define STRING_VIBRATION "Trilling"
 #define STRING_PULSE_LED "Puls-LED"
 #define STRING_DISPLAY_FLASH "Schermflits"
 #define STRING_THRESHOLD "Drempel"
 
-// Sound menu items
-#define STRING_CLICKS "Klikken"
-#define STRING_CHIRPS "Piepen"
-#define STRING_BEEPS "Biepen"
-
 // Alarms menu items
+#define STRING_RATE_WARNING "Snelheidswaarschuwing"
+#define STRING_DOSE_WARNING "Dosiswaarschuwing"
 #define STRING_RATE_ALARM "Snelheidsalarm"
 #define STRING_DOSE_ALARM "Dosisalarm"
 #define STRING_INDICATION "Indicatie"
-#define STRING_VOICE "Stem"
-#define STRING_VOLUME "Volume"
 
 // Measurements menu items
 #define STRING_UNITS "Eenheden"
@@ -202,18 +209,26 @@
 #define STRING_THEME_DUSK "Schemer"
 #define STRING_THEME_NIGHT "Nacht"
 
-// Display - Brightness menu items
-#define STRING_VERY_LOW "Zeer laag"
-#define STRING_LOW "Laag"
-#define STRING_MEDIUM "Gemiddeld"
-#define STRING_HIGH "Hoog"
-
 // Display - Contrast menu items prefix (followed by a number from 1 to 8)
 #define STRING_CONTRAST_LEVEL "Niveau"
 
 // Display - Sleep menu items
 #define STRING_ALWAYS_OFF "Altijd uit"
 #define STRING_ALWAYS_ON "Altijd aan"
+
+// Sound menu items
+#define STRING_ALERTSTYLE "Waarschuwingsstijl"
+#define STRING_ALERTVOLUME "Waarschuwingsvolume"
+#define STRING_VOICEVOLUME "Stemvolume"
+
+// Sound Alarms length
+#define STRING_SHORT "Kort"
+#define STRING_LONG "Lang"
+
+// Sound pulses menu items
+#define STRING_CLICKS "Klikken"
+#define STRING_CHIRPS "Piepen"
+#define STRING_BEEPS "Biepen"
 
 // Time and date menu items
 #define STRING_TIME_ZONE "Tijdzone"
@@ -229,8 +244,8 @@
 #define STRING_UTCPLUS "UTC+"
 
 // Time and date > Hour menu items (should not be translated)
-#define STRING_AM " AM"
-#define STRING_PM " PM"
+#define STRING_AM "AM"
+#define STRING_PM "PM"
 
 // Time and date > Time format menu items
 #define STRING_24_HOUR "24-uurs"
@@ -253,11 +268,7 @@
 #define STRING_8_SIDED_DIE "8-zijdige dobbelsteen"
 #define STRING_6_SIDED_DIE "6-zijdige dobbelsteen"
 #define STRING_4_SIDED_DIE "4-zijdige dobbelsteen"
-#define STRING_COIN_FLIP "Munt opgooien"
-
-// Random generator coin head/tail
-#define STRING_COIN_HEAD "Kop"
-#define STRING_COIN_TAIL "Munt"
+#define STRING_COIN_FLIP "Munt opgooien (0-1)"
 
 // Game menu items
 #define STRING_PLAY_WHITE "Speel wit"

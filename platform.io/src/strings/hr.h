@@ -11,6 +11,7 @@
 #define STRING_APP_NAME "Rad Pro"
 
 // Styling characters (should not be translated)
+#define STRING_EMPTY ""
 #define STRING_NUMBERS "0123456789.:"
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
@@ -60,6 +61,12 @@
 // Common menu items
 #define STRING_OFF "Isključeno"
 
+// Sound volume and display brightness menu items
+#define STRING_VERY_LOW "Vrlo nisko"
+#define STRING_LOW "Nisko"
+#define STRING_MEDIUM "Srednje"
+#define STRING_HIGH "Visoko"
+
 // Notification headings (upper case)
 #define STRING_NOTIFICATION_WARNING "UPOZORENJE"
 #define STRING_NOTIFICATION_SUCCESS "USPJEH"
@@ -81,27 +88,31 @@
 #define STRING_INSTANTANEOUS "Trenutno"
 #define STRING_AVERAGE "Prosjek"
 #define STRING_CUMULATIVE "Kumulativno"
-#define STRING_HISTORY10_MIN "Povijest (10 min)"
-#define STRING_HISTORY1_H "Povijest (1 h)"
-#define STRING_HISTORY24_H "Povijest (24 h)"
+#define STRING_HISTORY_10_MINUTES "Povijest (10 min)"
+#define STRING_HISTORY_1_HOUR "Povijest (1 h)"
+#define STRING_HISTORY_1_DAY "Povijest (1 d)"
+#define STRING_HISTORY_1_WEEK "Povijest (1 tj)"
+#define STRING_HISTORY_1_MONTH "Povijest (1 mj)"
+#define STRING_HISTORY_1_YEAR "Povijest (1 g)"
 
 // Measurement view secondary view strings
 #define STRING_TIME "Vrijeme"
 #define STRING_MAX "Maks"
-#define STRING_RATE "Stopa"
+#define STRING_RATE "Brzina"
 #define STRING_DOSE "Doza"
 
 // Measurement view info strings (upper case, up to 5 letters)
 #define STRING_INFO_ALARM "ALARM"
+#define STRING_INFO_WARNING "UPOZORENJE"
 #define STRING_INFO_FAULT "GREŠKA"
 #define STRING_INFO_MAX "MAKS"
-#define STRING_INFO_OVER "PREKO"
+#define STRING_INFO_OVERFLOW "PREKO"
 #define STRING_INFO_DONE "GOTOVO"
 
 // Settings menu items
 #define STRING_SETTINGS "Postavke"
 #define STRING_PULSES "Impulsi"
-#define STRING_ALARMS "Alarmi"
+#define STRING_ALERTS "Upozorenja"
 #define STRING_MEASUREMENTS "Mjerenja"
 #define STRING_GEIGER_TUBE "Geigerova cijev"
 #define STRING_DATA_LOG "Zapis podataka"
@@ -115,22 +126,18 @@
 
 // Pulses menu items
 #define STRING_SOUND "Zvuk"
+#define STRING_VOICE "Glas"
 #define STRING_VIBRATION "Vibracija"
 #define STRING_PULSE_LED "LED impulsa"
 #define STRING_DISPLAY_FLASH "Bljeskalica zaslona"
 #define STRING_THRESHOLD "Prag"
 
-// Sound menu items
-#define STRING_CLICKS "Klikovi"
-#define STRING_CHIRPS "Cvrkuti"
-#define STRING_BEEPS "Bipovi"
-
 // Alarms menu items
-#define STRING_RATE_ALARM "Alarm stope"
+#define STRING_RATE_WARNING "Upozorenje brzine"
+#define STRING_DOSE_WARNING "Upozorenje doze"
+#define STRING_RATE_ALARM "Alarm brzine"
 #define STRING_DOSE_ALARM "Alarm doze"
 #define STRING_INDICATION "Indikacija"
-#define STRING_VOICE "Glas"
-#define STRING_VOLUME "Glasnoća"
 
 // Measurements menu items
 #define STRING_UNITS "Jedinice"
@@ -202,18 +209,26 @@
 #define STRING_THEME_DUSK "Sumrak"
 #define STRING_THEME_NIGHT "Noć"
 
-// Display - Brightness menu items
-#define STRING_VERY_LOW "Vrlo nisko"
-#define STRING_LOW "Nisko"
-#define STRING_MEDIUM "Srednje"
-#define STRING_HIGH "Visoko"
-
 // Display - Contrast menu items prefix (followed by a number from 1 to 8)
 #define STRING_CONTRAST_LEVEL "Razina"
 
 // Display - Sleep menu items
 #define STRING_ALWAYS_OFF "Uvijek isključeno"
 #define STRING_ALWAYS_ON "Uvijek uključeno"
+
+// Sound menu items
+#define STRING_ALERTSTYLE "Stil upozorenja"
+#define STRING_ALERTVOLUME "Glasnoća upozorenja"
+#define STRING_VOICEVOLUME "Glasnoća glasa"
+
+// Sound Alarms length
+#define STRING_SHORT "Kratak"
+#define STRING_LONG "Dug"
+
+// Sound pulses menu items
+#define STRING_CLICKS "Klikovi"
+#define STRING_CHIRPS "Cvrkuti"
+#define STRING_BEEPS "Bipovi"
 
 // Time and date menu items
 #define STRING_TIME_ZONE "Vremenska zona"
@@ -229,8 +244,8 @@
 #define STRING_UTCPLUS "UTC+"
 
 // Time and date > Hour menu items (should not be translated)
-#define STRING_AM " AM"
-#define STRING_PM " PM"
+#define STRING_AM "AM"
+#define STRING_PM "PM"
 
 // Time and date > Time format menu items
 #define STRING_24_HOUR "24-satni"
@@ -253,11 +268,7 @@
 #define STRING_8_SIDED_DIE "8-strana kocka"
 #define STRING_6_SIDED_DIE "6-strana kocka"
 #define STRING_4_SIDED_DIE "4-strana kocka"
-#define STRING_COIN_FLIP "Bacanje novčića"
-
-// Random generator coin head/tail
-#define STRING_COIN_HEAD "Glava"
-#define STRING_COIN_TAIL "Pismo"
+#define STRING_COIN_FLIP "Bacanje novčića (0-1)"
 
 // Game menu items
 #define STRING_PLAY_WHITE "Igraj bijelo"

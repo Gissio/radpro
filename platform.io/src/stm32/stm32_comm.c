@@ -21,7 +21,7 @@
 
 #if defined(USART_INTERFACE)
 
-void initComm(void)
+void initCommHardware(void)
 {
 }
 
@@ -98,19 +98,9 @@ void closeComm(void)
 
     // RCC
     rcc_disable_usart(USART_INTERFACE);
+    rcc_reset_usart(USART_INTERFACE);
 
     resetComm(false);
-}
-
-void updateComm(void)
-{
-#if !defined(DATA_MODE) && defined(PWR_USB)
-    bool commShouldBeEnabled = isPowered() && isUSBPowered();
-    if (!comm.open && commShouldBeEnabled)
-        openComm();
-    else if (comm.open && !commShouldBeEnabled)
-        closeComm();
-#endif
 }
 
 void transmitComm(void)
@@ -149,7 +139,19 @@ void USART_IRQ_HANDLER(void)
     case COMM_RX:
         if ((c >= ' ') &&
             (comm.bufferIndex < (COMM_BUFFER_SIZE - 1)))
+        {
             comm.buffer[comm.bufferIndex++] = c;
+
+#if defined(GMC800)
+            if ((c == '>') && (comm.lastChar == '>'))
+            {
+                comm.buffer[comm.bufferIndex] = '\0';
+
+                comm.bufferIndex = 0;
+                comm.state = COMM_RX_READY;
+            }
+#endif
+        }
         else if ((c == '\r') ||
                  ((c == '\n') &&
                   (comm.lastChar != '\r')))
@@ -159,8 +161,8 @@ void USART_IRQ_HANDLER(void)
             comm.bufferIndex = 0;
             comm.state = COMM_RX_READY;
         }
-        else if (c > 0)
-            comm.lastChar = c;
+
+        comm.lastChar = c;
 
         break;
 
@@ -177,7 +179,7 @@ void USART_IRQ_HANDLER(void)
                 strclr(comm.buffer);
                 comm.bufferIndex = 0;
 
-                if (comm.transmitState == TRANSMIT_DONE)
+                if (comm.transmitState == TRANSMIT_RESPONSE)
                     comm.state = COMM_RX;
                 else
                     comm.state = COMM_TX_READY;
@@ -502,7 +504,7 @@ static void onUSBData(usbd_device *dev,
             strclr(comm.buffer);
             comm.bufferIndex = 0;
 
-            if (comm.transmitState == TRANSMIT_DONE)
+            if (comm.transmitState == TRANSMIT_RESPONSE)
                 comm.state = COMM_RX;
             else
                 comm.state = COMM_TX_READY;
@@ -564,7 +566,7 @@ void USB_IRQ_HANDLER(void)
     usbd_poll(&usbdDevice);
 }
 
-void initComm(void)
+void initCommHardware(void)
 {
     // Force USB device reenumeration
     gpio_setup(USB_DP_PORT,
@@ -607,19 +609,25 @@ void closeComm(void)
     resetComm(false);
 }
 
-void updateComm(void)
+#else
+
+void initCommHardware(void)
 {
 }
 
-#else
-
 void openComm(void)
 {
+    if (comm.open)
+        return;
+
     resetComm(true);
 }
 
 void closeComm(void)
 {
+    if (!comm.open)
+        return;
+
     resetComm(false);
 }
 
@@ -628,16 +636,16 @@ void transmitComm(void)
     strclr(comm.buffer);
     comm.bufferIndex = 0;
 
-    if (comm.transmitState == TRANSMIT_DONE)
+    if (comm.transmitState == TRANSMIT_RESPONSE)
         comm.state = COMM_RX;
     else
         comm.state = COMM_TX_READY;
 }
 
+#endif
+
 void updateComm(void)
 {
 }
-
-#endif
 
 #endif

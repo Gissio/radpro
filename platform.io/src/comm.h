@@ -35,10 +35,12 @@ typedef enum
 
 typedef enum
 {
-    TRANSMIT_DONE,
-    TRANSMIT_DEVICEID,
-    TRANSMIT_DATALOG,
-    TRANSMIT_BOOTLOADER,
+    TRANSMIT_RESPONSE = 0,
+    TRANSMIT_BOOTLOADER = 1,
+    TRANSMIT_DEVICEID = 2,
+    TRANSMIT_DATALOG = 3,
+    TRANSMIT_RAW = 4,
+    TRANSMIT_ERROR = 5,
 } TransmitState;
 
 typedef struct
@@ -55,14 +57,18 @@ typedef struct
     char lastChar;
 
     volatile TransmitState transmitState;
-    uint32_t datalogTimeLimit;
+    uint32_t datalogStartTimestamp;
+    uint32_t datalogEndTimestamp;
+    uint32_t datalogMaxEntryNum;
+    uint32_t datalogEntryNum;
 } Comm;
 
 extern Comm comm;
 
-extern const View dataModeMenuView;
+extern View dataModeMenuView;
 
 void initComm(void);
+void initCommHardware(void);
 
 void openComm(void);
 void closeComm(void);

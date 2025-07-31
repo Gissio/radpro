@@ -15,7 +15,7 @@
 
 char menuOption[32];
 
-void selectMenuItem(const Menu *menu,
+void selectMenuItem(Menu *menu,
                     uint32_t index,
                     uint32_t optionsNum)
 {
@@ -28,9 +28,9 @@ void selectMenuItem(const Menu *menu,
         menu->state->startIndex = optionsNum - menuLineNum;
 }
 
-void onMenuEvent(const View *view, Event event)
+void onMenuEvent(Event event)
 {
-    const Menu *menu = (const Menu *)view->userdata;
+    Menu *menu = (Menu *)getView()->userdata;
     MenuState *menuState = menu->state;
     MenuStyle menuStyle;
 
@@ -38,13 +38,13 @@ void onMenuEvent(const View *view, Event event)
     {
     case EVENT_KEY_BACK:
         if (menu->onBack)
-            menu->onBack(menu);
+            menu->onBack();
 
         break;
 
     case EVENT_KEY_SELECT:
         if (menu->onSelect)
-            menu->onSelect(menu);
+            menu->onSelect(menu->state->selectedIndex);
 
         requestViewUpdate();
 
@@ -64,7 +64,7 @@ void onMenuEvent(const View *view, Event event)
             else
             {
                 uint32_t index = 0;
-                while (menu->onGetOption(menu, index, &menuStyle))
+                while (menu->onGetOption(index, &menuStyle))
                     index++;
 
                 menuState->selectedIndex = index - 1;
@@ -76,7 +76,7 @@ void onMenuEvent(const View *view, Event event)
         }
         else if (event == EVENT_KEY_DOWN)
         {
-            if (menu->onGetOption(menu, menuState->selectedIndex + 1, &menuStyle))
+            if (menu->onGetOption(menuState->selectedIndex + 1, &menuStyle))
             {
                 menuState->selectedIndex++;
 

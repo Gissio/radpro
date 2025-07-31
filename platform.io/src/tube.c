@@ -16,27 +16,27 @@
 #include "tube.h"
 #include "vibration.h"
 
-static const Menu tubeMenu;
-static const Menu tubeSensitivityMenu;
-static const Menu tubeDeadTimeCompensationMenu;
+static Menu tubeMenu;
+static Menu tubeSensitivityMenu;
+static Menu tubeDeadTimeCompensationMenu;
 
 #if defined(TUBE_HV_PWM)
-static const Menu tubeHVProfileMenu;
-static const Menu tubeHVCustomProfileMenu;
-static const Menu tubeHVFrequencyMenu;
-static const Menu tubeHVDutyCycleMenu;
+static Menu tubeHVProfileMenu;
+static Menu tubeHVCustomProfileMenu;
+static Menu tubeHVFrequencyMenu;
+static Menu tubeHVDutyCycleMenu;
 #endif
 
-void onTubeSubMenuBack(const Menu *menu);
+void onTubeSubMenuBack(void);
 
 #if defined(TUBE_HV_PWM)
 
 static float getTubeHVCustomProfileFrequency(uint32_t index);
 static float getTubeHVCustomProfileDutyCycle(uint32_t index);
 
-static void onTubeHVCustomProfileSubMenuBack(const Menu *menu);
+static void onTubeHVCustomProfileSubMenuBack(void);
 
-static void onTubeHVGeneratorSubMenuBack(const Menu *menu);
+static void onTubeHVGeneratorSubMenuBack(void);
 
 static struct
 {
@@ -57,9 +57,9 @@ void initTube(void)
         (settings.tubeHVDutyCycle >= TUBE_HVDUTYCYCLE_NUM)
             ? TUBE_HVDUTYCYCLE_NUM - 1
             : settings.tubeHVDutyCycle);
-#endif
 
     initTubeHardware();
+#endif
 }
 
 void resetTube(void)
@@ -90,9 +90,9 @@ void resetTube(void)
 #endif
 }
 
-// Tube HV frequency menu
-
 #if defined(TUBE_HV_PWM)
+
+// Tube HV frequency menu
 
 static float getTubeHVCustomProfileFrequency(uint32_t index)
 {
@@ -142,8 +142,7 @@ bool setTubeHVFrequency(float value)
     return true;
 }
 
-static const char *onTubeHVFrequencyMenuGetOption(const Menu *menu,
-                                                  uint32_t index,
+static const char *onTubeHVFrequencyMenuGetOption(uint32_t index,
                                                   MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.tubeHVFrequency);
@@ -163,32 +162,27 @@ static const char *onTubeHVFrequencyMenuGetOption(const Menu *menu,
         return NULL;
 }
 
-static void onTubeHVFrequencyMenuSelect(const Menu *menu)
+static void onTubeHVFrequencyMenuSelect(uint32_t index)
 {
-    setTubeHVFrequency(
-        getTubeHVCustomProfileFrequency(menu->state->selectedIndex));
+    setTubeHVFrequency(getTubeHVCustomProfileFrequency(index));
 }
 
 static MenuState tubeHVFrequencyMenuState;
 
-static const Menu tubeHVFrequencyMenu = {
-    getString(STRING_PWMFREQUENCY),
+static Menu tubeHVFrequencyMenu = {
+    STRING_PWMFREQUENCY,
     &tubeHVFrequencyMenuState,
     onTubeHVFrequencyMenuGetOption,
     onTubeHVFrequencyMenuSelect,
     onTubeHVCustomProfileSubMenuBack,
 };
 
-static const View tubeHVrequencyMenuView = {
+static View tubeHVrequencyMenuView = {
     onMenuEvent,
     &tubeHVFrequencyMenu,
 };
 
-#endif
-
 // Tube HV duty cycle menu
-
-#if defined(TUBE_HV_PWM)
 
 static float getTubeHVCustomProfileDutyCycle(uint32_t index)
 {
@@ -244,8 +238,7 @@ bool setTubeHVDutyCycle(float value)
     return true;
 }
 
-static const char *onTubeHVDutyCycleMenuGetOption(const Menu *menu,
-                                                  uint32_t index,
+static const char *onTubeHVDutyCycleMenuGetOption(uint32_t index,
                                                   MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.tubeHVDutyCycle);
@@ -262,51 +255,46 @@ static const char *onTubeHVDutyCycleMenuGetOption(const Menu *menu,
         return NULL;
 }
 
-static void onTubeHVDutyCycleMenuSelect(const Menu *menu)
+static void onTubeHVDutyCycleMenuSelect(uint32_t index)
 {
     setTubeHVDutyCycle(
-        getTubeHVCustomProfileDutyCycle(menu->state->selectedIndex));
+        getTubeHVCustomProfileDutyCycle(index));
 }
 
 static MenuState tubeHVDutyCycleMenuState;
 
-static const Menu tubeHVDutyCycleMenu = {
-    getString(STRING_PWMDUTY_CYCLE),
+static Menu tubeHVDutyCycleMenu = {
+    STRING_PWMDUTY_CYCLE,
     &tubeHVDutyCycleMenuState,
     onTubeHVDutyCycleMenuGetOption,
     onTubeHVDutyCycleMenuSelect,
     onTubeHVCustomProfileSubMenuBack,
 };
 
-static const View tubeHVDutyCycleMenuView = {
+static View tubeHVDutyCycleMenuView = {
     onMenuEvent,
     &tubeHVDutyCycleMenu,
 };
 
-#endif
-
 // Tube HV custom profile menu
 
-#if defined(TUBE_HV_PWM)
-
-static const char *const tubeHVCustomProfileMenuOptions[] = {
-    getString(STRING_PWMFREQUENCY),
-    getString(STRING_PWMDUTY_CYCLE),
+static cstring tubeHVCustomProfileMenuOptions[] = {
+    STRING_PWMFREQUENCY,
+    STRING_PWMDUTY_CYCLE,
     NULL,
 };
 
-static const char *onTubeHVCustomProfileMenuGetOption(const Menu *menu,
-                                                      uint32_t index,
+static const char *onTubeHVCustomProfileMenuGetOption(uint32_t index,
                                                       MenuStyle *menuStyle)
 {
     *menuStyle = MENUSTYLE_SUBMENU;
 
-    return tubeHVCustomProfileMenuOptions[index];
+    return getString(tubeHVCustomProfileMenuOptions[index]);
 }
 
-static void onTubeHVCustomProfileMenuSelect(const Menu *menu)
+static void onTubeHVCustomProfileMenuSelect(uint32_t index)
 {
-    switch (menu->state->selectedIndex)
+    switch (index)
     {
     case 0:
         setView(&tubeHVrequencyMenuView);
@@ -321,36 +309,32 @@ static void onTubeHVCustomProfileMenuSelect(const Menu *menu)
 
 static MenuState tubeHVCustomProfileMenuState;
 
-static const Menu tubeHVCustomProfileMenu = {
-    getString(STRING_CUSTOM),
+static Menu tubeHVCustomProfileMenu = {
+    STRING_CUSTOM,
     &tubeHVCustomProfileMenuState,
     onTubeHVCustomProfileMenuGetOption,
     onTubeHVCustomProfileMenuSelect,
     onTubeHVGeneratorSubMenuBack,
 };
 
-static const View tubeHVCustomProfileMenuView = {
+static View tubeHVCustomProfileMenuView = {
     onMenuEvent,
     &tubeHVCustomProfileMenu,
 };
 
-static void onTubeHVCustomProfileSubMenuBack(const Menu *menu)
+static void onTubeHVCustomProfileSubMenuBack(void)
 {
     setView(&tubeHVCustomProfileMenuView);
 }
 
-#endif
-
 // Tube HV custom profile warning
 
-#if defined(TUBE_HV_PWM)
-
-static void onHVCustomProfileWarningEvent(const View *view, Event event)
+static void onHVCustomProfileWarningEvent(Event event)
 {
     switch (event)
     {
     case EVENT_KEY_BACK:
-        onTubeHVGeneratorSubMenuBack(NULL);
+        onTubeHVGeneratorSubMenuBack();
 
         break;
 
@@ -374,31 +358,26 @@ static void onHVCustomProfileWarningEvent(const View *view, Event event)
     }
 }
 
-static const View tubeHVCustomProfileWarningView = {
+static View tubeHVCustomProfileWarningView = {
     onHVCustomProfileWarningEvent,
     NULL,
 };
 
-#endif
-
 // Tube HV profile menu
 
-#if defined(TUBE_HV_PWM)
-
-static const char *const tubeHVProfileMenuOptions[] = {
-    getString(STRING_FACTORY_DEFAULT),
+static cstring tubeHVProfileMenuOptions[] = {
+    STRING_FACTORY_DEFAULT,
 #if defined(TUBE_HVPROFILE_ACCURACY_FREQUENCY)
-    getString(STRING_ACCURACY),
+    STRING_ACCURACY,
 #endif
 #if defined(TUBE_HVPROFILE_ENERGYSAVING_FREQUENCY)
-    getString(STRING_ENERGY_SAVING),
+    STRING_ENERGY_SAVING,
 #endif
-    getString(STRING_CUSTOM),
+    STRING_CUSTOM,
     NULL,
 };
 
-static const char *onTubeHVProfileMenuGetOption(const Menu *menu,
-                                                uint32_t index,
+static const char *onTubeHVProfileMenuGetOption(uint32_t index,
                                                 MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.tubeHVProfile);
@@ -406,14 +385,14 @@ static const char *onTubeHVProfileMenuGetOption(const Menu *menu,
     if (index == TUBE_HVPROFILE_CUSTOM)
         *menuStyle |= MENUSTYLE_SUBMENU;
 
-    return tubeHVProfileMenuOptions[index];
+    return getString(tubeHVProfileMenuOptions[index]);
 }
 
-static void onTubeHVProfileMenuSelect(const Menu *menu)
+static void onTubeHVProfileMenuSelect(uint32_t index)
 {
-    if (menu->state->selectedIndex < TUBE_HVPROFILE_CUSTOM)
+    if (index < TUBE_HVPROFILE_CUSTOM)
     {
-        settings.tubeHVProfile = menu->state->selectedIndex;
+        settings.tubeHVProfile = index;
 
         updateTubeHV();
     }
@@ -423,20 +402,20 @@ static void onTubeHVProfileMenuSelect(const Menu *menu)
 
 static MenuState tubeHVProfileMenuState;
 
-static const Menu tubeHVProfileMenu = {
-    getString(STRING_HVPROFILE),
+static Menu tubeHVProfileMenu = {
+    STRING_HVPROFILE,
     &tubeHVProfileMenuState,
     onTubeHVProfileMenuGetOption,
     onTubeHVProfileMenuSelect,
     onTubeSubMenuBack,
 };
 
-static const View tubeHVProfileMenuView = {
+static View tubeHVProfileMenuView = {
     onMenuEvent,
     &tubeHVProfileMenu,
 };
 
-static void onTubeHVGeneratorSubMenuBack(const Menu *menu)
+static void onTubeHVGeneratorSubMenuBack(void)
 {
     setView(&tubeHVProfileMenuView);
 }
@@ -454,13 +433,13 @@ static const float tubeSensitivityMenuPresets[] = {
     150.5F,
 };
 
-static const char *const tubeSensitivityMenuOptions[] = {
-    getString(STRING_J305),
-    getString(STRING_J321),
-    getString(STRING_J613),
-    getString(STRING_J614),
-    getString(STRING_M4011),
-    getString(STRING_SBM20),
+static cstring tubeSensitivityMenuOptions[] = {
+    STRING_J305,
+    STRING_J321,
+    STRING_J613,
+    STRING_J614,
+    STRING_M4011,
+    STRING_SBM20,
 };
 
 static float getTubeSensitivityForIndex(uint32_t index)
@@ -485,15 +464,14 @@ uint32_t getLossOfCountTime(void)
     return (uint32_t)((60.0F * 10.0F / 0.05F) / getTubeSensitivity()) + 1;
 }
 
-static const char *onTubeSensitivityMenuGetOption(const Menu *menu,
-                                                  uint32_t index,
+static const char *onTubeSensitivityMenuGetOption(uint32_t index,
                                                   MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.tubeSensitivity);
 
     if (index < TUBE_SENSITIVITY_PRESETS_NUM)
     {
-        strcpy(menuOption, tubeSensitivityMenuOptions[index]);
+        strcpy(menuOption, getString(tubeSensitivityMenuOptions[index]));
 
         if (index == TUBE_SENSITIVITY_DEFAULT)
             strcat(menuOption, getString(STRING_DEFAULT));
@@ -513,24 +491,24 @@ static const char *onTubeSensitivityMenuGetOption(const Menu *menu,
     return menuOption;
 }
 
-static void onTubeSensitivityMenuSelect(const Menu *menu)
+static void onTubeSensitivityMenuSelect(uint32_t index)
 {
-    settings.tubeSensitivity = menu->state->selectedIndex;
+    settings.tubeSensitivity = index;
 
     updateMeasurementUnits();
 }
 
 static MenuState tubeSensitivityMenuState;
 
-static const Menu tubeSensitivityMenu = {
-    getString(STRING_SENSITIVITY),
+static Menu tubeSensitivityMenu = {
+    STRING_SENSITIVITY,
     &tubeSensitivityMenuState,
     onTubeSensitivityMenuGetOption,
     onTubeSensitivityMenuSelect,
     onTubeSubMenuBack,
 };
 
-static const View tubeSensitivityMenuView = {
+static View tubeSensitivityMenuView = {
     onMenuEvent,
     &tubeSensitivityMenu,
 };
@@ -552,8 +530,7 @@ float getTubeDeadTimeCompensation(void)
     return getTubeDeadTimeCompensationFromIndex(settings.tubeDeadTimeCompensation);
 }
 
-static const char *onTubeDeadTimeCompensationMenuGetOption(const Menu *menu,
-                                                           uint32_t index,
+static const char *onTubeDeadTimeCompensationMenuGetOption(uint32_t index,
                                                            MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.tubeDeadTimeCompensation);
@@ -573,76 +550,66 @@ static const char *onTubeDeadTimeCompensationMenuGetOption(const Menu *menu,
         return NULL;
 }
 
-static void onTubeDeadTimeCompensationMenuSelect(const Menu *menu)
+static void onTubeDeadTimeCompensationMenuSelect(uint32_t index)
 {
-    settings.tubeDeadTimeCompensation = menu->state->selectedIndex;
+    settings.tubeDeadTimeCompensation = index;
 }
 
 static MenuState tubeDeadTimeCompensationMenuState;
 
-static const Menu tubeDeadTimeCompensationMenu = {
-    getString(STRING_DEAD_TIME_SHORT_COMPENSATION),
+static Menu tubeDeadTimeCompensationMenu = {
+    STRING_DEAD_TIME_SHORT_COMPENSATION,
     &tubeDeadTimeCompensationMenuState,
     onTubeDeadTimeCompensationMenuGetOption,
     onTubeDeadTimeCompensationMenuSelect,
     onTubeSubMenuBack,
 };
 
-static const View tubeDeadTimeCompensationMenuView = {
+static View tubeDeadTimeCompensationMenuView = {
     onMenuEvent,
     &tubeDeadTimeCompensationMenu,
 };
 
 // Tube menu
 
-static const char *const tubeMenuOptions[] = {
-    getString(STRING_SENSITIVITY),
-    getString(STRING_DEAD_TIME_SHORT_COMPENSATION),
+static SubMenuOption tubeMenuOptions[] = {
+    {STRING_SENSITIVITY, &tubeSensitivityMenuView},
+    {STRING_DEAD_TIME_SHORT_COMPENSATION, &tubeDeadTimeCompensationMenuView},
 #if defined(TUBE_HV_PWM)
-    getString(STRING_HVPROFILE),
+    {STRING_HVPROFILE, &tubeHVProfileMenuView},
 #endif
-    NULL,
+    {NULL},
 };
 
-static const View *tubeMenuOptionViews[] = {
-    &tubeSensitivityMenuView,
-    &tubeDeadTimeCompensationMenuView,
-#if defined(TUBE_HV_PWM)
-    &tubeHVProfileMenuView,
-#endif
-    NULL,
-};
-
-static const char *onTubeMenuGetOption(const Menu *menu,
-                                       uint32_t index,
+static const char *onTubeMenuGetOption(uint32_t index,
                                        MenuStyle *menuStyle)
 {
     *menuStyle = MENUSTYLE_SUBMENU;
 
-    return tubeMenuOptions[index];
+    return getString(tubeMenuOptions[index].title);
 }
 
-static void onTubeMenuSelect(const Menu *menu)
+static void onTubeMenuSelect(uint32_t index)
 {
-    setView(tubeMenuOptionViews[menu->state->selectedIndex]);
+    setView(tubeMenuOptions[index].view);
 }
 
-void onTubeSubMenuBack(const Menu *menu)
+void onTubeSubMenuBack(void)
 {
     setView(&tubeMenuView);
 }
 
 static MenuState tubeMenuState;
 
-static const Menu tubeMenu = {
-    getString(STRING_GEIGER_TUBE),
+static Menu tubeMenu = {
+    STRING_GEIGER_TUBE,
     &tubeMenuState,
     onTubeMenuGetOption,
     onTubeMenuSelect,
     onSettingsSubMenuBack,
 };
 
-const View tubeMenuView = {
+View tubeMenuView = {
     onMenuEvent,
     &tubeMenu,
 };

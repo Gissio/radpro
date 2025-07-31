@@ -17,7 +17,7 @@
 
 static struct
 {
-    const View *currentView;
+    View *currentView;
 
     bool drawUpdate;
 } view;
@@ -42,12 +42,12 @@ void dispatchViewEvents(void)
         if (event == EVENT_NONE)
             break;
 
-        if (!isPowered())
+        if (isDeviceOff())
         {
             if (event == EVENT_KEY_POWER)
-                powerOn();
+                powerOn(false);
             else
-                view.currentView->onEvent(view.currentView, EVENT_KEY_TOGGLEBACKLIGHT);
+                view.currentView->onEvent(EVENT_KEY_TOGGLEBACKLIGHT);
         }
         else
         {
@@ -64,18 +64,14 @@ void dispatchViewEvents(void)
                     {
                         setMeasurementView(-1);
                         setLockMode(true);
+
+                        event = EVENT_KEY_TOGGLEBACKLIGHT;
                     }
                     else
                         setLockMode(false);
                 }
-                else if (event == EVENT_KEY_TOGGLEPULSECLICKS)
-                {
-                    togglePulseClicks();
-
-                    triggerVibration();
-                }
                 else
-                    view.currentView->onEvent(view.currentView, event);
+                    view.currentView->onEvent(event);
 
                 if ((event == EVENT_KEY_TOGGLEBACKLIGHT) &&
                     isBacklightActive())
@@ -93,7 +89,7 @@ void dispatchViewEvents(void)
     {
 #if defined(DISPLAY_COLOR)
         bool isPulseFlashesActive = settings.pulseDisplayFlash &&
-                                    !isPulseThresholdEnabled();
+                                    isPulseThresholdExceeded();
         bool isDisplayActive = (isBacklightActive() ||
                                 isPulseFlashesActive);
 
@@ -112,7 +108,7 @@ void dispatchViewEvents(void)
     {
         view.drawUpdate = false;
 
-        view.currentView->onEvent(view.currentView, EVENT_DRAW);
+        view.currentView->onEvent(EVENT_DRAW);
 
 #if defined(DISPLAY_MONOCHROME)
         refreshDisplay();
@@ -124,15 +120,20 @@ void dispatchViewEvents(void)
         if (isBacklightTriggerRequested())
             triggerBacklight();
 
-        view.currentView->onEvent(view.currentView, EVENT_POST_DRAW);
+        view.currentView->onEvent(EVENT_POST_DRAW);
     }
 }
 
-void setView(const View *newView)
+void setView(View *newView)
 {
     view.currentView = newView;
 
     requestViewUpdate();
+}
+
+View *getView(void)
+{
+    return view.currentView;
 }
 
 void requestViewUpdate(void)
@@ -142,23 +143,40 @@ void requestViewUpdate(void)
 
 void updateView(void)
 {
-    view.currentView->onEvent(view.currentView, EVENT_PERIOD);
+    view.currentView->onEvent(EVENT_PERIOD);
 
     view.drawUpdate = true;
 }
 
 // Lock mode
 
-bool viewLockMode;
+static bool viewLockMode;
 
 void setLockMode(bool value)
 {
     viewLockMode = value;
 
+    updateView();
     triggerVibration();
 }
 
 bool isLockMode(void)
 {
     return viewLockMode;
+}
+
+// Pulse sound icon
+
+static bool viewPulseSoundIconEnabled;
+
+void setPulseSoundIconEnabled(bool value)
+{
+    viewPulseSoundIconEnabled = value;
+
+    updateView();
+}
+
+bool isPulseSoundIconEnabled(void)
+{
+    return viewPulseSoundIconEnabled;
 }

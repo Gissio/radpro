@@ -11,6 +11,7 @@
 #define STRING_APP_NAME "Rad Pro"
 
 // Styling characters (should not be translated)
+#define STRING_EMPTY ""
 #define STRING_NUMBERS "0123456789.:"
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
@@ -60,8 +61,14 @@
 // Common menu items
 #define STRING_OFF "Spento"
 
+// Sound volume and display brightness menu items
+#define STRING_VERY_LOW "Molto bassa"
+#define STRING_LOW "Bassa"
+#define STRING_MEDIUM "Media"
+#define STRING_HIGH "Alta"
+
 // Notification headings (upper case)
-#define STRING_NOTIFICATION_WARNING "AVVISO"
+#define STRING_NOTIFICATION_WARNING "AVVERTENZA"
 #define STRING_NOTIFICATION_SUCCESS "SUCCESSO"
 
 // Firmware checksum failure notification (shorter than 30 characters)
@@ -81,9 +88,12 @@
 #define STRING_INSTANTANEOUS "Istantaneo"
 #define STRING_AVERAGE "Medio"
 #define STRING_CUMULATIVE "Cumulativo"
-#define STRING_HISTORY10_MIN "Storico (10 min)"
-#define STRING_HISTORY1_H "Storico (1 h)"
-#define STRING_HISTORY24_H "Storico (24 h)"
+#define STRING_HISTORY_10_MINUTES "Storico (10 min)"
+#define STRING_HISTORY_1_HOUR "Storico (1 h)"
+#define STRING_HISTORY_1_DAY "Storico (1 g)"
+#define STRING_HISTORY_1_WEEK "Cronologia (1 sett)"
+#define STRING_HISTORY_1_MONTH "Storico (1 m)"
+#define STRING_HISTORY_1_YEAR "Storico (1 a)"
 
 // Measurement view secondary view strings
 #define STRING_TIME "Tempo"
@@ -93,15 +103,16 @@
 
 // Measurement view info strings (upper case, up to 5 letters)
 #define STRING_INFO_ALARM "ALLARME"
+#define STRING_INFO_WARNING "AVVERTENZA"
 #define STRING_INFO_FAULT "GUASTO"
 #define STRING_INFO_MAX "MAX"
-#define STRING_INFO_OVER "SOVR."
+#define STRING_INFO_OVERFLOW "SOVR."
 #define STRING_INFO_DONE "PRONTO"
 
 // Settings menu items
 #define STRING_SETTINGS "Impostazioni"
 #define STRING_PULSES "Impulsi"
-#define STRING_ALARMS "Allarmi"
+#define STRING_ALERTS "Avvisi"
 #define STRING_MEASUREMENTS "Misure"
 #define STRING_GEIGER_TUBE "Tubo Geiger"
 #define STRING_DATA_LOG "Log dati"
@@ -115,22 +126,18 @@
 
 // Pulses menu items
 #define STRING_SOUND "Suono"
+#define STRING_VOICE "Voce"
 #define STRING_VIBRATION "Vibrazione"
 #define STRING_PULSE_LED "LED impulso"
 #define STRING_DISPLAY_FLASH "Lampeggio display"
 #define STRING_THRESHOLD "Soglia"
 
-// Sound menu items
-#define STRING_CLICKS "Clic"
-#define STRING_CHIRPS "Chirp"
-#define STRING_BEEPS "Bip"
-
 // Alarms menu items
+#define STRING_RATE_WARNING "Avviso tasso"
+#define STRING_DOSE_WARNING "Avviso dose"
 #define STRING_RATE_ALARM "Allarme tasso"
 #define STRING_DOSE_ALARM "Allarme dose"
 #define STRING_INDICATION "Indicazione"
-#define STRING_VOICE "Voce"
-#define STRING_VOLUME "Volume"
 
 // Measurements menu items
 #define STRING_UNITS "Unità"
@@ -202,18 +209,26 @@
 #define STRING_THEME_DUSK "Crepuscolo"
 #define STRING_THEME_NIGHT "Notte"
 
-// Display - Brightness menu items
-#define STRING_VERY_LOW "Molto bassa"
-#define STRING_LOW "Bassa"
-#define STRING_MEDIUM "Media"
-#define STRING_HIGH "Alta"
-
 // Display - Contrast menu items prefix (followed by a number from 1 to 8)
 #define STRING_CONTRAST_LEVEL "Livello"
 
 // Display - Sleep menu items
 #define STRING_ALWAYS_OFF "Sempre spento"
 #define STRING_ALWAYS_ON "Sempre acceso"
+
+// Sound menu items
+#define STRING_ALERTSTYLE "Stile avviso"
+#define STRING_ALERTVOLUME "Volume avviso"
+#define STRING_VOICEVOLUME "Volume voce"
+
+// Sound Alarms length
+#define STRING_SHORT "Corto"
+#define STRING_LONG "Lungo"
+
+// Sound pulses menu items
+#define STRING_CLICKS "Clic"
+#define STRING_CHIRPS "Chirp"
+#define STRING_BEEPS "Bip"
 
 // Time and date menu items
 #define STRING_TIME_ZONE "Fuso orario"
@@ -229,8 +244,8 @@
 #define STRING_UTCPLUS "UTC+"
 
 // Time and date > Hour menu items (should not be translated)
-#define STRING_AM " AM"
-#define STRING_PM " PM"
+#define STRING_AM "AM"
+#define STRING_PM "PM"
 
 // Time and date > Time format menu items
 #define STRING_24_HOUR "24 ore"
@@ -253,11 +268,7 @@
 #define STRING_8_SIDED_DIE "Dado a 8 facce"
 #define STRING_6_SIDED_DIE "Dado a 6 facce"
 #define STRING_4_SIDED_DIE "Dado a 4 facce"
-#define STRING_COIN_FLIP "Lancio moneta"
-
-// Random generator coin head/tail
-#define STRING_COIN_HEAD "Testa"
-#define STRING_COIN_TAIL "Croce"
+#define STRING_COIN_FLIP "Lancio moneta (0-1)"
 
 // Game menu items
 #define STRING_PLAY_WHITE "Gioca bianco"

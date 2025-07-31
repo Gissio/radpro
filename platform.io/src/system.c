@@ -14,7 +14,7 @@
 
 // Statistics view
 
-static void onStatisticsViewEvent(const View *view, Event event)
+static void onStatisticsViewEvent(Event event)
 {
     switch (event)
     {
@@ -33,7 +33,7 @@ static void onStatisticsViewEvent(const View *view, Event event)
     }
 }
 
-const View statisticsView = {
+View statisticsView = {
     onStatisticsViewEvent,
     NULL,
 };

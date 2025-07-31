@@ -11,6 +11,7 @@
 #define STRING_APP_NAME "Rad Pro"
 
 // Styling characters (should not be translated)
+#define STRING_EMPTY ""
 #define STRING_NUMBERS "0123456789.:"
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
@@ -60,6 +61,12 @@
 // Common menu items
 #define STRING_OFF "Fra"
 
+// Sound volume and display brightness menu items
+#define STRING_VERY_LOW "Meget lav"
+#define STRING_LOW "Lav"
+#define STRING_MEDIUM "Mellem"
+#define STRING_HIGH "Høj"
+
 // Notification headings (upper case)
 #define STRING_NOTIFICATION_WARNING "ADVARSEL"
 #define STRING_NOTIFICATION_SUCCESS "SUCCES"
@@ -81,27 +88,31 @@
 #define STRING_INSTANTANEOUS "Øjeblikkelig"
 #define STRING_AVERAGE "Gennemsnit"
 #define STRING_CUMULATIVE "Kumulativ"
-#define STRING_HISTORY10_MIN "Historik (10 min)"
-#define STRING_HISTORY1_H "Historik (1 t)"
-#define STRING_HISTORY24_H "Historik (24 t)"
+#define STRING_HISTORY_10_MINUTES "Historik (10 min)"
+#define STRING_HISTORY_1_HOUR "Historik (1 t)"
+#define STRING_HISTORY_1_DAY "Historik (1 d)"
+#define STRING_HISTORY_1_WEEK "Historik (1 u)"
+#define STRING_HISTORY_1_MONTH "Historik (1 m)"
+#define STRING_HISTORY_1_YEAR "Historik (1 å)"
 
 // Measurement view secondary view strings
 #define STRING_TIME "Tid"
 #define STRING_MAX "Maks"
-#define STRING_RATE "Rate"
+#define STRING_RATE "Hastighed"
 #define STRING_DOSE "Dosis"
 
 // Measurement view info strings (upper case, up to 5 letters)
 #define STRING_INFO_ALARM "ALARM"
+#define STRING_INFO_WARNING "ADVARSEL"
 #define STRING_INFO_FAULT "FEJL"
 #define STRING_INFO_MAX "MAKS"
-#define STRING_INFO_OVER "OVER"
+#define STRING_INFO_OVERFLOW "OVER"
 #define STRING_INFO_DONE "FÆRDIG"
 
 // Settings menu items
 #define STRING_SETTINGS "Indstillinger"
 #define STRING_PULSES "Impulser"
-#define STRING_ALARMS "Alarmer"
+#define STRING_ALERTS "Alarmer"
 #define STRING_MEASUREMENTS "Målinger"
 #define STRING_GEIGER_TUBE "Geiger-rør"
 #define STRING_DATA_LOG "Datalog"
@@ -115,22 +126,18 @@
 
 // Pulses menu items
 #define STRING_SOUND "Lyd"
+#define STRING_VOICE "Stemme"
 #define STRING_VIBRATION "Vibration"
 #define STRING_PULSE_LED "Puls-LED"
 #define STRING_DISPLAY_FLASH "Skærmblink"
 #define STRING_THRESHOLD "Tærskel"
 
-// Sound menu items
-#define STRING_CLICKS "Klik"
-#define STRING_CHIRPS "Pib"
-#define STRING_BEEPS "Bip"
-
 // Alarms menu items
-#define STRING_RATE_ALARM "Ratealarm"
+#define STRING_RATE_WARNING "Hastighedsadvarsel"
+#define STRING_DOSE_WARNING "Dosisadvarsel"
+#define STRING_RATE_ALARM "Hastighedsalarm"
 #define STRING_DOSE_ALARM "Dosisalarm"
 #define STRING_INDICATION "Indikation"
-#define STRING_VOICE "Stemme"
-#define STRING_VOLUME "Lydstyrke"
 
 // Measurements menu items
 #define STRING_UNITS "Enheder"
@@ -202,18 +209,26 @@
 #define STRING_THEME_DUSK "Skumring"
 #define STRING_THEME_NIGHT "Nat"
 
-// Display - Brightness menu items
-#define STRING_VERY_LOW "Meget lav"
-#define STRING_LOW "Lav"
-#define STRING_MEDIUM "Mellem"
-#define STRING_HIGH "Høj"
-
 // Display - Contrast menu items prefix (followed by a number from 1 to 8)
 #define STRING_CONTRAST_LEVEL "Niveau"
 
 // Display - Sleep menu items
 #define STRING_ALWAYS_OFF "Altid fra"
 #define STRING_ALWAYS_ON "Altid tændt"
+
+// Sound menu items
+#define STRING_ALERTSTYLE "Alarmstil"
+#define STRING_ALERTVOLUME "Alarmvolumen"
+#define STRING_VOICEVOLUME "Stemmevolumen"
+
+// Sound Alarms length
+#define STRING_SHORT "Kort"
+#define STRING_LONG "Lang"
+
+// Sound pulses menu items
+#define STRING_CLICKS "Klik"
+#define STRING_CHIRPS "Pib"
+#define STRING_BEEPS "Bip"
 
 // Time and date menu items
 #define STRING_TIME_ZONE "Tidszone"
@@ -229,8 +244,8 @@
 #define STRING_UTCPLUS "UTC+"
 
 // Time and date > Hour menu items (should not be translated)
-#define STRING_AM " AM"
-#define STRING_PM " PM"
+#define STRING_AM "AM"
+#define STRING_PM "PM"
 
 // Time and date > Time format menu items
 #define STRING_24_HOUR "24-timers"
@@ -253,11 +268,7 @@
 #define STRING_8_SIDED_DIE "8-sidet terning"
 #define STRING_6_SIDED_DIE "6-sidet terning"
 #define STRING_4_SIDED_DIE "4-sidet terning"
-#define STRING_COIN_FLIP "Møntkast"
-
-// Random generator coin head/tail
-#define STRING_COIN_HEAD "Krone"
-#define STRING_COIN_TAIL "Plat"
+#define STRING_COIN_FLIP "Møntkast (0-1)"
 
 // Game menu items
 #define STRING_PLAY_WHITE "Spil hvid"

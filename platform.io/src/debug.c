@@ -7,7 +7,6 @@
  * License: MIT
  */
 
-#include "buzzer.h"
 #include "cstring.h"
 #include "debug.h"
 #include "display.h"
@@ -16,6 +15,7 @@
 #include "led.h"
 #include "power.h"
 #include "settings.h"
+#include "sound.h"
 
 #define DEBUG_BIT_LENGTH 100
 #define DEBUG_BIT0_LENGTH 1
@@ -80,6 +80,7 @@ extern const uint8_t font_tiny5[];
 
 void runTestMode(void)
 {
+    setPower(true);
     sleep(500);
 
     while (true)

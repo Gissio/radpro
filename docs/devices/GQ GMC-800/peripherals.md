@@ -14,20 +14,20 @@
 * PA14 (SWCLK): SWD clock
 
 * PB0 (AF): DISPLAY_BACKLIGHT (TIM3_CH3)
-* PB1 (Output): BUZZ_EN
-* PB3 (Output): LED_PULSE_EN
-* PB4 (Output): LED_ALERT_EN
+* PB1 (Output): PULSE_SOUND_EN
+* PB3 (Output): PULSE_GREENLED_EN
+* PB4 (Output): PULSE_REDLED_EN
 * PB5 (Output): M_VIB
 * PB6 (Output): VOICE_PROG
 * PB8 (Output/AF): TUBE_HV (TIM4_CH3)
-* PB10 (Input pull-down): KEY_POWER
+* PB10 (Input pull-up): KEY_POWER
 * PB11 (Output): DISPLAY_DCX
 * PB12 (Input pull-up): PWR_CHRG
 * PB13 (Input pull-up): KEY_DOWN
 * PB14 (Input pull-up): KEY_UP
 * PB15 (Input pull-up): KEY_BACK
 
-* PC0 (Output): USART_RESET
+* PC0 (Floating/output low): USART_RESET_EN
 * PC1 (Input): PWR_USB
 * PC3 (Output): PWR_EN
 * PC4 (Analog): PWR_BAT
@@ -36,4 +36,4 @@
 * PC8 (AF): ?
 * PC9 (AF): ?
 
-* PD2 (Output): USART_BOOT0
+* PD2 (Floating/output high): USART_BOOT0

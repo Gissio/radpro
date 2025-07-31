@@ -2,7 +2,7 @@
     "build": {
         "core": "stm32",
         "cpu": "cortex-m4",
-        "extra_flags": "-D STM32 -D STM32F1 -D STM32F103xE -D GD32 -D SRAM_SIZE=49152",
+        "extra_flags": "-D STM32 -D STM32F1 -D STM32F103xE -D GD32 -D GD32F303 -D SRAM_SIZE=49152",
         "f_cpu": "72000000L",
         "mcu": "stm32f103rct6",
         "product_line": "STM32F103xE"

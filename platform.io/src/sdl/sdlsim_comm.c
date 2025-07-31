@@ -10,15 +10,14 @@
 #if defined(SIMULATOR)
 
 #include <stdio.h>
-#include <string.h>
 
 #include "../comm.h"
 #include "../cstring.h"
 #include "../system.h"
 
-const char *const commId = "Rad Pro simulator;Rad Pro " FIRMWARE_VERSION;
+const char *const commId = "Rad Pro simulator;Rad Pro " FIRMWARE_VERSION "/" LANGUAGE;
 
-void initComm(void)
+void initCommHardware(void)
 {
 }
 
@@ -140,7 +139,7 @@ void updateComm(void)
             strclr(comm.buffer);
             comm.bufferIndex = 0;
 
-            if (comm.transmitState == TRANSMIT_DONE)
+            if (comm.transmitState == TRANSMIT_RESPONSE)
                 comm.state = COMM_RX;
             else
                 comm.state = COMM_TX_READY;
@@ -168,7 +167,7 @@ void transmitComm(void)
     strclr(comm.buffer);
     comm.bufferIndex = 0;
 
-    if (comm.transmitState == TRANSMIT_DONE)
+    if (comm.transmitState == TRANSMIT_RESPONSE)
         comm.state = COMM_RX;
     else
         comm.state = COMM_TX_READY;

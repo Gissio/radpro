@@ -15,10 +15,10 @@
 #include "power.h"
 #include "settings.h"
 
-#if defined(KEYBOARD_2KEYS) || defined(KEYBOARD_3KEYS)
+#if defined(KEYBOARD_2_KEYS) || defined(KEYBOARD_3_KEYS)
 #define KEY_PRESSED_SHORT ((uint32_t)(0.25 * SYSTICK_FREQUENCY / KEY_TICKS))
 #define KEY_PRESSED_LONG ((uint32_t)(1.0 * SYSTICK_FREQUENCY / KEY_TICKS))
-#elif defined(KEYBOARD_4KEYS) || defined(KEYBOARD_5KEYS)
+#elif defined(KEYBOARD_4_KEYS) || defined(KEYBOARD_5_KEYS)
 #define KEY_REPEAT_START ((uint32_t)(0.5 * SYSTICK_FREQUENCY / KEY_TICKS))
 #define KEY_REPEAT_PERIOD ((uint32_t)(0.05 * SYSTICK_FREQUENCY / KEY_TICKS))
 #define KEY_PRESSED_LONG ((uint32_t)(1.0 * SYSTICK_FREQUENCY / KEY_TICKS))
@@ -60,13 +60,13 @@ bool isPowerKeyDown(void)
     bool isKeyPressed[KEY_NUM];
     getKeyboardState(isKeyPressed);
 
-#if defined(KEYBOARD_2KEYS)
+#if defined(KEYBOARD_2_KEYS)
     return isKeyPressed[KEY_RIGHT];
-#elif defined(KEYBOARD_3KEYS)
+#elif defined(KEYBOARD_3_KEYS)
     return isKeyPressed[KEY_OK];
-#elif defined(KEYBOARD_4KEYS)
+#elif defined(KEYBOARD_4_KEYS)
     return isKeyPressed[KEY_RIGHT];
-#elif defined(KEYBOARD_5KEYS)
+#elif defined(KEYBOARD_5_KEYS)
     return isKeyPressed[KEY_OK];
 #endif
 }
@@ -95,15 +95,15 @@ void onKeyboardTick(void)
 #if defined(DISPLAY_MONOCHROME)
             if ((settings.displaySleep != DISPLAY_SLEEP_ALWAYS_OFF) &&
                 !isBacklightActive() &&
-                isPowered())
+                !isDeviceOff())
 #elif defined(DISPLAY_COLOR)
             if (!isBacklightActive() &&
-                isPowered())
+                !isDeviceOff())
 #endif
                 event = EVENT_KEY_TOGGLEBACKLIGHT;
             else
             {
-#if defined(KEYBOARD_4KEYS) || defined(KEYBOARD_5KEYS)
+#if defined(KEYBOARD_4_KEYS) || defined(KEYBOARD_5_KEYS)
                 if (keyboard.mode == KEYBOARD_MODE_MENU)
                     if ((i == KEY_UP) || (i == KEY_DOWN))
                         event = i;
@@ -119,7 +119,7 @@ void onKeyboardTick(void)
             !isKeyPressed[i] &&
             (i == keyboard.pressedKey))
         {
-#if defined(KEYBOARD_2KEYS)
+#if defined(KEYBOARD_2_KEYS)
             if (keyboard.mode == KEYBOARD_MODE_MEASUREMENT)
             {
                 if (keyboard.pressedTicks < KEY_PRESSED_SHORT)
@@ -143,7 +143,7 @@ void onKeyboardTick(void)
                         event = EVENT_KEY_DOWN;
                 }
             }
-#elif defined(KEYBOARD_3KEYS)
+#elif defined(KEYBOARD_3_KEYS)
             if (keyboard.mode == KEYBOARD_MODE_MEASUREMENT)
             {
                 if (keyboard.pressedTicks < KEY_PRESSED_SHORT)
@@ -174,7 +174,7 @@ void onKeyboardTick(void)
                         event = EVENT_KEY_SELECT;
                 }
             }
-#elif defined(KEYBOARD_4KEYS) || defined(KEYBOARD_5KEYS)
+#elif defined(KEYBOARD_4_KEYS) || defined(KEYBOARD_5_KEYS)
             if (keyboard.mode == KEYBOARD_MODE_MEASUREMENT)
             {
                 if (keyboard.pressedTicks < KEY_PRESSED_LONG)
@@ -187,7 +187,7 @@ void onKeyboardTick(void)
                         event = EVENT_KEY_UP;
                     else if (i == KEY_DOWN)
                         event = EVENT_KEY_DOWN;
-#if defined(KEYBOARD_5KEYS)
+#if defined(KEYBOARD_5_KEYS)
                     else if (i == KEY_OK)
                         event = EVENT_KEY_TOGGLEBACKLIGHT;
 #endif
@@ -201,7 +201,10 @@ void onKeyboardTick(void)
                         event = EVENT_KEY_BACK;
                     else if (i == KEY_RIGHT)
                         event = EVENT_KEY_SELECT;
-#if defined(KEYBOARD_5KEYS)
+#if defined(KEYBOARD_5_KEYS) && !defined(KEYBOARD_KEY_POWER_OK)
+                    else if (i == KEY_OK)
+                        event = EVENT_KEY_TOGGLEBACKLIGHT;
+#elif defined(KEYBOARD_5_KEYS) && defined(KEYBOARD_KEY_POWER_OK)
                     else if (i == KEY_OK)
                         event = EVENT_KEY_SELECT;
 #endif
@@ -220,7 +223,7 @@ void onKeyboardTick(void)
     {
         keyboard.pressedTicks += 1;
 
-#if defined(KEYBOARD_2KEYS)
+#if defined(KEYBOARD_2_KEYS)
         if (keyboard.mode == KEYBOARD_MODE_MEASUREMENT)
         {
             if (keyboard.pressedTicks == KEY_PRESSED_SHORT)
@@ -255,7 +258,7 @@ void onKeyboardTick(void)
                     event = EVENT_KEY_POWER;
             }
         }
-#elif defined(KEYBOARD_3KEYS)
+#elif defined(KEYBOARD_3_KEYS)
         if (keyboard.mode == KEYBOARD_MODE_MEASUREMENT)
         {
             if (keyboard.pressedTicks == KEY_PRESSED_SHORT)
@@ -268,7 +271,7 @@ void onKeyboardTick(void)
                 if (isKeyPressed[KEY_LEFT] && isKeyPressed[KEY_OK])
                     event = EVENT_KEY_TOGGLELOCK;
                 else if (isKeyPressed[KEY_LEFT] && isKeyPressed[KEY_RIGHT])
-                    event = EVENT_KEY_TOGGLEPULSECLICKS;
+                    event = EVENT_KEY_TOGGLEPULSESOUND;
                 else if (isKeyPressed[KEY_LEFT])
                     event = EVENT_KEY_RESET;
                 else if (isKeyPressed[KEY_OK])
@@ -292,29 +295,29 @@ void onKeyboardTick(void)
                     event = EVENT_KEY_POWER;
             }
         }
-#elif defined(KEYBOARD_4KEYS) || defined(KEYBOARD_5KEYS)
+#elif defined(KEYBOARD_4_KEYS) || defined(KEYBOARD_5_KEYS)
         if (keyboard.mode == KEYBOARD_MODE_MEASUREMENT)
         {
             if (keyboard.pressedTicks == KEY_PRESSED_LONG)
             {
-#if defined(KEYBOARD_4KEYS)
+#if defined(KEYBOARD_4_KEYS)
                 if (isKeyPressed[KEY_LEFT] && isKeyPressed[KEY_RIGHT])
                     event = EVENT_KEY_TOGGLELOCK;
                 else if (keyboard.pressedKey == KEY_UP)
                     event = EVENT_KEY_PLAY;
                 else if (keyboard.pressedKey == KEY_DOWN)
-                    event = EVENT_KEY_TOGGLEPULSECLICKS;
+                    event = EVENT_KEY_TOGGLEPULSESOUND;
                 else if (keyboard.pressedKey == KEY_LEFT)
                     event = EVENT_KEY_RESET;
                 else if (keyboard.pressedKey == KEY_RIGHT)
                     event = EVENT_KEY_POWER;
-#elif defined(KEYBOARD_5KEYS)
+#elif defined(KEYBOARD_5_KEYS)
                 if (isKeyPressed[KEY_LEFT] && isKeyPressed[KEY_OK])
                     event = EVENT_KEY_TOGGLELOCK;
                 else if (keyboard.pressedKey == KEY_LEFT)
                     event = EVENT_KEY_RESET;
-                else if (keyboard.pressedKey == KEY_DOWN)
-                    event = EVENT_KEY_TOGGLEPULSECLICKS;
+                else if (keyboard.pressedKey == KEY_RIGHT)
+                    event = EVENT_KEY_TOGGLEPULSESOUND;
                 else if (keyboard.pressedKey == KEY_OK)
                     event = EVENT_KEY_POWER;
 #endif
@@ -332,7 +335,7 @@ void onKeyboardTick(void)
                         event = (Event)keyboard.pressedKey;
                 }
             }
-#if defined(KEYBOARD_4KEYS)
+#if defined(KEYBOARD_4_KEYS)
             if (keyboard.pressedTicks == KEY_PRESSED_LONG)
             {
                 if (isKeyPressed[KEY_LEFT] && isKeyPressed[KEY_RIGHT])
@@ -340,7 +343,7 @@ void onKeyboardTick(void)
                 else if (keyboard.pressedKey == KEY_RIGHT)
                     event = EVENT_KEY_POWER;
             }
-#elif defined(KEYBOARD_5KEYS)
+#elif defined(KEYBOARD_5_KEYS)
             if (keyboard.pressedTicks == KEY_PRESSED_LONG)
             {
                 if (isKeyPressed[KEY_LEFT] && isKeyPressed[KEY_OK])
@@ -363,7 +366,7 @@ void onKeyboardTick(void)
 
 void setKeyboardMode(KeyboardMode mode)
 {
-#if defined(KEYBOARD_2KEYS)
+#if defined(KEYBOARD_2_KEYS)
     if (mode == KEYBOARD_MODE_MEASUREMENT)
         keyboard.pressedKey = KEY_NONE;
 #else

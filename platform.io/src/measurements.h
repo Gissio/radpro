@@ -16,8 +16,14 @@
 #include "settings.h"
 #include "view.h"
 
-extern const View alarmsMenuView;
-extern const View measurementsMenuView;
+typedef enum {
+    ALERTLEVEL_NONE,
+    ALERTLEVEL_WARNING,
+    ALERTLEVEL_ALARM,
+} AlertLevel;
+
+extern View alertsMenuView;
+extern View measurementsMenuView;
 
 void resetMeasurements(void);
 
@@ -47,11 +53,16 @@ uint32_t getTubeTime(void);
 void setTubePulseCount(uint32_t value);
 uint32_t getTubePulseCount(void);
 
-bool isAlarmEnabled(void);
-bool isAlarm(void);
-bool isInstantaneousRateAlarm(void);
-bool isCumulativeDoseAlarm(void);
+void resetHistory(void);
 
-char *buildRateAlarmMenuOption(uint32_t index);
+bool isAlertEnabled(void);
+bool isAlertBlink(void);
+AlertLevel getAlertLevel(void);
+bool isInstantaneousRateAlert(void);
+bool isCumulativeDoseAlert(void);
+bool isAlertUndismissed(void);
+void dismissAlert(void);
+
+char *buildRateAlertMenuOption(uint32_t index);
 
 #endif

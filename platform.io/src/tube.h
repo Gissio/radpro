@@ -16,7 +16,7 @@
 #include "menu.h"
 #include "view.h"
 
-extern const View tubeMenuView;
+extern View tubeMenuView;
 
 void initTube(void);
 void initTubeHardware(void);
@@ -36,6 +36,6 @@ void updateTubeHV(void);
 bool getTubePulseTime(uint32_t *pulseTime);
 bool getTubeDet(void);
 
-void onPulsesSubMenuBack(const Menu *menu);
+void onPulsesSubMenuBack(void);
 
 #endif
