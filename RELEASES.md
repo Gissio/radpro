@@ -33,7 +33,7 @@
 * **Removed features**
   * Removed background compensation due to negligible intrinsic activity in common Geiger tubes.
   * Removed `GET tubeBackgroundCompensation` command.
-* **Bug fixes:**
+* **Bug fixes**
   * Fixed history and maximum value updates for 10-second, 30-second, and 60-second averaging intervals.
   * Resolved datalog writing errors when USB-powered but turned off.
   * Fixed datalog download issue causing restarts in high-radiation conditions.
