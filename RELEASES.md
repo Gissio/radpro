@@ -2,10 +2,10 @@
 
 ## 2.2 "Sundry"
 
-* **Geiger counter compatibility:** Added support for the GQ GMC-800 Geiger counter with software-enhanced pulse stretching for reliable pulse indication at high radiation levels.
+* **Geiger counter compatibility:** Added support for the GQ GMC-800 Geiger counter with software-enhanced pulse stretching for reliable pulse clicks at high radiation levels.
 * **Multilingual support:** Expanded to 27 languages, including Bulgarian, Chinese, Croatian, Czech, Danish, Dutch, English, Finnish, French, German, Greek, Hungarian, Italian, Japanese, Korean, Norwegian, Polish, Portuguese, Romanian, Russian, Slovakian, Slovenian, Spanish, Swedish, Turkish, Ukrainian, and Vietnamese.
 * **User interface improvements**
-  * Introduced 1 week, 1 month and 1 year history views and history data loading on device startup.
+  * Introduced 1 week, 1 month and 1 year history views and history data loading from data log on device startup.
   * Added rate and dose warnings alongside alarms, with alert dismissal preserving state.
   * Highlighted warning and alarm zones in instantaneous rate bar and history view.
   * Improved alert LED indication.

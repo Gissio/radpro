@@ -118,16 +118,16 @@ void setBuzzer(bool value)
 
 void initSoundEnabled(void)
 {
+    gpio_set(SOUND_EN_PORT, SOUND_EN_PIN);
+}
+
+void setSoundEnabled(bool value)
+{
     gpio_setup(SOUND_EN_PORT,
                SOUND_EN_PIN,
                value
                    ? GPIO_MODE_INPUT_PULLUP
                    : GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-}
-
-void setSoundEnabled(bool value)
-{
-    gpio_set(SOUND_EN_PORT, SOUND_EN_PIN);
 }
 
 #endif

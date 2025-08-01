@@ -2,7 +2,7 @@
 
 This guide explains how to install the Rad Pro firmware on Bosean FS-5000 Geiger counters.
 
-To update the firmware, use the [Rad Pro Web Installer](https://gissio.github.io/radpro-installer/).
+To update the firmware, use the [Rad Pro web installer](https://gissio.github.io/radpro-installer/).
 
 ## What you'll need
 

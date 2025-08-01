@@ -10,6 +10,7 @@
 #if defined(SIMULATOR)
 
 #include <stdio.h>
+#include <string.h>
 
 #include "../flash.h"
 

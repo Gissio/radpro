@@ -206,8 +206,7 @@ static const uint8_t displayPinSetup[] = {
 void initDisplay(void)
 {
     // GPIO
-    gpio_set(DISPLAY_RSTB_PORT,
-             DISPLAY_RSTB_PIN);
+    gpio_set(DISPLAY_RSTB_PORT, DISPLAY_RSTB_PIN);
 
     for (uint32_t i = 0; i < sizeof(displayPinSetup); i++)
     {
@@ -236,10 +235,11 @@ void initDisplay(void)
                    onDisplaySetCommand,
                    onDisplaySend);
 
-    mr_send_sequence(&mr,
-                     displayInitSequence);
+    mr_send_sequence(&mr, displayInitSequence);
 
     updateDisplayContrast();
+
+    initBacklight();
 }
 
 void enableDisplay(bool value)
@@ -256,10 +256,8 @@ bool isDisplayEnabled(void)
 
 void updateDisplayContrast(void)
 {
-    mr_send_command(&mr,
-                    MR_ST7565_ELECTRONIC_VOLUME);
-    mr_send_command(&mr,
-                    20 + (settings.displayContrast << 2));
+    mr_send_command(&mr, MR_ST7565_ELECTRONIC_VOLUME);
+    mr_send_command(&mr, 20 + (settings.displayContrast << 2));
 }
 
 void refreshDisplay(void)

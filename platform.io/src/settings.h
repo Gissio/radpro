@@ -375,10 +375,10 @@ typedef struct
     unsigned int averaging : 5;
     unsigned int instantaneousAveraging : 3;
 
-    unsigned int rateAlarm : 4;
-    unsigned int doseAlarm : 4;
     unsigned int rateWarning : 4;
     unsigned int doseWarning : 4;
+    unsigned int rateAlarm : 4;
+    unsigned int doseAlarm : 4;
     unsigned int alertSound : 1;
     unsigned int alertVoice : 1;
     unsigned int alertVibration : 1;

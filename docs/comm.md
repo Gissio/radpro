@@ -1,8 +1,8 @@
-# Rad Pro USB Communications Protocol
+# Rad Pro USB communications protocol
 
 This document outlines the configuration and commands for establishing a USB data connection with a Rad Pro device using an ASCII-based, request-response protocol. All commands and responses terminate with `\r\n` (ASCII carriage return and newline).
 
-## USB Configuration
+## USB configuration
 
 To connect to a Rad Pro device via USB, use the following settings:
 
@@ -12,13 +12,13 @@ To connect to a Rad Pro device via USB, use the following settings:
 - **Stop bits**: 1
 - **Flow control**: None
 
-## Protocol Overview
+## Protocol overview
 
 The protocol operates on a request-response model, with commands sent as ASCII text. Responses begin with `OK` for success or `ERROR` for invalid/erroneous requests. All numerical values are in decimal format unless otherwise specified.
 
 ## Commands
 
-### Get Device Identification
+### Get device identification
 - **Request**: `GET deviceId\r\n`
 - **Response**: `OK [hardware-id];[software-id];[device-id]\r\n`
 - **Description**: Retrieves the device's hardware and software details.
@@ -32,7 +32,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   OK FS2011 (STM32F051C8);Rad Pro 2.0/en;b5706d937087f975b5812810
   ```
 
-### Get Device Battery Voltage
+### Get device battery voltage
 - **Request**: `GET deviceBatteryVoltage\r\n`
 - **Response**: `OK [value]\r\n`
 - **Description**: Returns the battery voltage (all cells) in volts, with three decimal places.
@@ -43,7 +43,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   OK 1.421
   ```
 
-### Get Device Date and Time
+### Get device date and time
 - **Request**: `GET deviceTime\r\n`
 - **Response**: `OK [value]\r\n`
 - **Description**: Returns the device's current UNIX timestamp (seconds since 1/1/1970).
@@ -54,7 +54,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   OK 1690000000
   ```
 
-### Set Device Date and Time
+### Set device date and time
 - **Request**: `SET deviceTime [value]\r\n`
 - **Response**: `OK\r\n`
 - **Description**: Sets the device's date and time using a UNIX timestamp.
@@ -65,7 +65,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   OK
   ```
 
-### Get Device Time Zone
+### Get device time zone
 - **Request**: `GET deviceTimeZone\r\n`
 - **Response**: `OK [value]\r\n`
 - **Description**: Returns the device's time zone offset from UTC (in hours).
@@ -76,7 +76,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   OK 1.0
   ```
 
-### Set Device Time Zone
+### Set device time zone
 - **Request**: `SET deviceTimeZone [value]\r\n`
 - **Response**: `OK\r\n`
 - **Description**: Sets the device's time zone offset from UTC (in hours).
@@ -87,7 +87,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   OK
   ```
 
-### Get Tube Lifetime
+### Get tube lifetime
 - **Request**: `GET tubeTime\r\n`
 - **Response**: `OK [value]\r\n`
 - **Description**: Returns the tube's operational lifetime in seconds.
@@ -98,7 +98,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   OK 16000
   ```
 
-### Set Tube Lifetime
+### Set tube lifetime
 - **Request**: `SET tubeTime [value]\r\n`
 - **Response**: `OK\r\n`
 - **Description**: Sets the tube's operational lifetime in seconds.
@@ -109,7 +109,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   OK
   ```
 
-### Get Tube Pulse Count
+### Get tube pulse count
 - **Request**: `GET tubePulseCount\r\n`
 - **Response**: `OK [value]\r\n`
 - **Description**: Returns the tube's lifetime pulse count, which overflows to 0 after 2³²-1. Updated continuously.
@@ -120,7 +120,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   OK 1500
   ```
 
-### Set Tube Pulse Count
+### Set tube pulse count
 - **Request**: `SET tubePulseCount [value]\r\n`
 - **Response**: `OK\r\n`
 - **Description**: Sets the tube's lifetime pulse count.
@@ -131,7 +131,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   OK
   ```
 
-### Get Tube Rate
+### Get tube rate
 - **Request**: `GET tubeRate\r\n`
 - **Response**: `OK [value]\r\n`
 - **Description**: Returns the tube's instantaneous rate in counts per minute (cpm), with three decimal places, updated every second. For better precision, calculate the rate using two `GET tubePulseCount` measurements over a time period: `(pulse_count_end - pulse_count_start) / time_in_minutes`.
@@ -142,7 +142,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   OK 142.857
   ```
 
-### Get Tube Sensitivity
+### Get tube sensitivity
 - **Request**: `GET tubeSensitivity\r\n`
 - **Response**: `OK [value]\r\n`
 - **Description**: Returns the tube's sensitivity in cpm/µSv/h, with three decimal places.
@@ -153,7 +153,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   OK 153.800
   ```
 
-### Get Tube Dead Time
+### Get tbe dead time
 - **Request**: `GET tubeDeadTime\r\n`
 - **Response**: `OK [value]\r\n`
 - **Description**: Returns an upper bound of the tube's dead time in seconds, with seven decimal places.
@@ -164,7 +164,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   OK 0.0002420
   ```
 
-### Get Tube Dead-Time Compensation
+### Get tube dead-time compensation
 - **Request**: `GET tubeDeadTimeCompensation\r\n`
 - **Response**: `OK [value]\r\n`
 - **Description**: Returns the tube's dead-time compensation in seconds, with seven decimal places. Returns `0.0000000` if disabled.
@@ -175,7 +175,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   OK 0.0002500
   ```
 
-### Get Tube PWM Frequency (Supported Devices)
+### Get tube PWM frequency (supported devices)
 - **Request**: `GET tubeHVFrequency\r\n`
 - **Response**: `OK [value]\r\n`
 - **Description**: Returns the PWM frequency of the high-voltage generator in Hz, with two decimal places.
@@ -186,7 +186,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   OK 1250.00
   ```
 
-### Set Tube PWM Frequency (Supported Devices)
+### Set tube PWM frequency (supported devices)
 - **Request**: `SET tubeHVFrequency [value]\r\n`
 - **Response**: `OK\r\n`
 - **Description**: Sets the PWM frequency of the high-voltage generator (100 to 100000 Hz), with up to two decimal places.
@@ -197,7 +197,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   OK
   ```
 
-### Get Tube PWM Duty Cycle (Supported Devices)
+### Get tube PWM duty cycle (supported devices)
 - **Request**: `GET tubeHVDutyCycle\r\n`
 - **Response**: `OK [value]\r\n`
 - **Description**: Returns the PWM duty cycle of the high-voltage generator, with five decimal places.
@@ -208,7 +208,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   OK 0.09750
   ```
 
-### Set Tube PWM Duty Cycle (Supported Devices)
+### Set tube PWM duty cycle (supported devices)
 - **Request**: `SET tubeHVDutyCycle [value]\r\n`
 - **Response**: `OK\r\n`
 - **Description**: Sets the PWM duty cycle (0.0 to 1.0), with up to five decimal places.
@@ -219,13 +219,13 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   OK
   ```
 
-### Get Data Log
-- **Request**: `GET datalog [start-time] [end-time] [max-entry-num]\r\n`
+### Get data log
+- **Request**: `GET datalog [start-time] [end-time] [max-record-num]\r\n`
 - **Response**: `OK [data]\r\n`
 - **Description**: Retrieves data log from flash memory. Parameters are optional.
-  - `[start-time]`: UNIX timestamp (seconds since 1/1/1970) to include entries from this time or later. Use 0 to include all earlier entries.
-  - `[end-time]`: UNIX timestamp to include entries before or at this time. Use 4294967295 to include all later entries.
-  - `[max-entry-num]`: Maximum number of records to return.
+  - `[start-time]`: UNIX timestamp (seconds since 1/1/1970) to include records from this time or later. Use 0 to include all earlier records.
+  - `[end-time]`: UNIX timestamp to include records before or at this time. Use 4294967295 to include all later records.
+  - `[max-record-num]`: Maximum number of records to return.
   - `[data]`: Semicolon-separated records, each with comma-separated fields. The first record lists field names (`time`, `tubePulseCount`); followed by measurements (least to most recent). 
   - Note: Data logging is paused during download.
 - **Example**:
@@ -235,7 +235,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   OK time,tubePulseCount;1690000000,1542;1690000060,1618;1690000120,1693
   ```
 
-### Reset Data Log
+### Reset data log
 - **Request**: `RESET datalog\r\n`
 - **Response**: `OK\r\n`
 - **Description**: Clears the data log in flash memory.
@@ -246,7 +246,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   OK
   ```
 
-### Get Random Data
+### Get random data
 - **Request**: `GET randomData\r\n`
 - **Response**: `OK [value]\r\n`
 - **Description**: Returns up to 16 bytes from the random generator, in hexadecimal (0-9, a-f).
@@ -257,7 +257,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   OK 9155facb75c00e331cf7fd625102f37a
   ```
 
-### Start Bootloader
+### Start bootloader (supported devices)
 - **Request**: `START bootloader\r\n`
 - **Response**: `OK\r\n`
 - **Description**: Initiates the system bootloader for device updates.
@@ -268,7 +268,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   OK
   ```
 
-### Error Handling
+### Error handling
 - **Response**: `ERROR\r\n`
 - **Description**: Returned for invalid or erroneous requests.
 - **Example**:

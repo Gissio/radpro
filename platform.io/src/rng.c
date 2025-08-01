@@ -306,7 +306,7 @@ static void onRNGEvent(Event event)
 
         const char *stateString;
         if (rng.activityIndicator)
-            stateString = getString(STRING_ELLIPSIS) + 3 - rng.activityIndicator;
+            stateString = (const char *)(getString(STRING_ELLIPSIS)) + 3 - rng.activityIndicator;
         else
             stateString = getString(STRING_EMPTY);
 

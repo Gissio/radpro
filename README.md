@@ -12,7 +12,7 @@ With Rad Pro, you can:
 * Calculate average radiation rates for precise surveys.
 * Track cumulative radiation dose over time.
 * Configure customizable rate and dose alerts (warnings and alarms).
-* Visualize radiation rate trends with historical plots (10 minutes, 1 hour, 1 day, 1 month, 1 year).
+* Visualize radiation rate trends with historical plots (10 minutes, 1 hour, 1 day, 1 week, 1 month, 1 year).
 * Log data to built-in flash memory or stream live to a computer, with optional integration to [gmcmap.com](https://gmcmap.com), [radmon.org](https://radmon.org), and [safecast.org](https://map.safecast.org).
 * Generate cryptographically secure random data, including passwords (ASCII, alphanumeric), random numbers (hexadecimal, decimal, binary), and virtual dice rolls (4, 6, 8, 10, 12, 20, and 100-sided) or coin flips.
 

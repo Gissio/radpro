@@ -72,7 +72,7 @@ To reset the cumulative dose or dismiss alerts, refer to the device’s installa
 
 At startup, the history is loaded from the data log and updates every second using the instantaneous rate. The plot uses a [logarithmic scale](https://en.wikipedia.org/wiki/Logarithmic_scale), with each division representing a tenfold increase in radiation, and includes warning and alarm zones.
 
-The view can be switched between 10-minute, 1-hour, 1-day, 1-month, or 1-year views.
+The view can be switched between 10-minute, 1-hour, 1-day, 1-week, 1-month, or 1-year views.
 
 To clear the history, reset the data log.
 
@@ -100,7 +100,7 @@ To start logging:
 
 **USB connection:** Some devices require enabling **Data mode** in settings. Disable it after use to save power.
 
-**Downloading/Logging:** Use [GeigerLog](https://sourceforge.net/projects/geigerlog/) to download logs or log live data. The CPS (counts per second) data is raw; use the **MvAvg** function to average it.
+**Downloading/logging:** Use [GeigerLog](https://sourceforge.net/projects/geigerlog/) to download logs or log live data. The CPS (counts per second) data is raw; use the **MvAvg** function to average it.
 
 **Note:** Data logging pauses during downloads.
 

@@ -29,8 +29,7 @@ void initSystem(void)
                 RCC_CR_HSIDIV_DIV2);
 
     // Enable SYSCFG (for EXTI, UPCD)
-    set_bits(RCC->APBENR2,
-        RCC_APBENR2_SYSCFGEN);
+    set_bits(RCC->APBENR2, RCC_APBENR2_SYSCFGEN);
 
     // Disable UCPD strobes
     set_bits(SYSCFG->CFGR1,
@@ -152,7 +151,9 @@ static void onDisplaySend(uint16_t value)
     uint32_t data = 0x1ff << (16 + 11 - 7) |
                     (value << (12 - 7));
 
-    const uint32_t mask = ((get_bitvalue(DISPLAY_SCLK_PIN) | get_bitvalue(DISPLAY_SDA_PIN)) << 16) |
+    const uint32_t mask = ((get_bitvalue(DISPLAY_SCLK_PIN) |
+                            get_bitvalue(DISPLAY_SDA_PIN))
+                           << 16) |
                           get_bitvalue(DISPLAY_SDA_PIN);
 
     GPIOB->BSRR = data & mask;
@@ -199,12 +200,9 @@ static void onDisplaySend(uint16_t value)
 void initDisplay(void)
 {
     // GPIO
-    gpio_set(DISPLAY_RSTB_PORT,
-             DISPLAY_RSTB_PIN);
-    gpio_set(DISPLAY_CSB_PORT,
-             DISPLAY_CSB_PIN);
-    gpio_set(DISPLAY_SCLK_PORT,
-             DISPLAY_SCLK_PIN);
+    gpio_set(DISPLAY_RSTB_PORT, DISPLAY_RSTB_PIN);
+    gpio_set(DISPLAY_CSB_PORT, DISPLAY_CSB_PIN);
+    gpio_set(DISPLAY_SCLK_PORT, DISPLAY_SCLK_PIN);
 
     gpio_setup_output(DISPLAY_RSTB_PORT,
                       DISPLAY_RSTB_PIN,
@@ -244,10 +242,11 @@ void initDisplay(void)
                    onDisplaySetCommand,
                    onDisplaySend);
 
-    mr_send_sequence(&mr,
-                     displayInitSequence);
+    mr_send_sequence(&mr, displayInitSequence);
 
     updateDisplayContrast();
+
+    initBacklight();
 }
 
 void enableDisplay(bool value)
@@ -264,10 +263,8 @@ bool isDisplayEnabled(void)
 
 void updateDisplayContrast(void)
 {
-    mr_send_command(&mr,
-                    MR_ST7565_ELECTRONIC_VOLUME);
-    mr_send_command(&mr,
-                    20 + (settings.displayContrast << 2));
+    mr_send_command(&mr, MR_ST7565_ELECTRONIC_VOLUME);
+    mr_send_command(&mr, 20 + (settings.displayContrast << 2));
 }
 
 void refreshDisplay(void)

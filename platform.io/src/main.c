@@ -60,7 +60,7 @@ int main(void)
     initKeyboard();
     initDisplay();
     initView();
-#if defined(BUZZER) || defined(SOUND_EN)
+#if defined(BUZZER) || defined(SOUND_EN) || defined(VOICE)
     initSound();
 #endif
 #if defined(VIBRATION)

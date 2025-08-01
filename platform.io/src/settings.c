@@ -41,59 +41,67 @@ typedef struct
 
 Settings settings;
 
+const Settings defaultSettings = {
+#if defined(BUZZER) || defined(SOUND_EN)
+    .pulseSound = true,
+#endif
+#if defined(PULSE_LED) || defined(PULSE_LED_EN)
+    .pulseLED = true,
+#endif
+
+    .secondaryUnits = UNITS_CPM,
+
+    .rateWarning = RATE_1_USVH,
+    .doseWarning = DOSE_100_USV,
+    .rateAlarm = RATE_10_USVH,
+    .doseAlarm = DOSE_1000_USV,
+    .alertSound = true,
+#if defined(VOICE)
+    .alertVoice = true,
+#endif
+#if defined(VIBRATION)
+    .alertVibration = true,
+#endif
+#if defined(PULSE_LED) || defined(ALERT_LED) || defined(PULSE_LED_EN) || defined(ALERT_LED_EN)
+    .alertPulseLED = true,
+#endif
+    .alertDisplayFlash = true,
+
+    .tubeSensitivity = TUBE_SENSITIVITY_DEFAULT,
+
+    .datalogInterval = DATALOG_INTERVAL_10_MINUTES,
+
+#if defined(DISPLAY_MONOCHROME)
+    .displayContrast = DISPLAY_CONTRAST_DEFAULT,
+#endif
+#if defined(SIMULATOR)
+    .displayBrightness = DISPLAY_BRIGHTNESS_VERYHIGH,
+#else
+    .displayBrightness = DISPLAY_BRIGHTNESS_HIGH,
+#endif
+    .displaySleep = DISPLAY_SLEEP_30_SECONDS,
+
+#if defined(VOICE)
+    .soundAlertStyle = SOUND_ALERTSTYLE_LONG,
+    .soundAlertVolume = SOUND_ALERTVOLUME_VERYHIGH,
+    .soundVoiceVolume = SOUND_VOICEVOLUME_VERYHIGH,
+#endif
+
+    .rtcTimeZone = RTC_TIMEZONE_P0000,
+};
+
 static FlashState *getFlashState(FlashIterator *iterator);
 
 void initSettings(void)
 {
     // Default values
-#if defined(BUZZER) || defined(SOUND_EN)
-    settings.pulseSound = true;
-#endif
-#if defined(PULSE_LED) || defined(PULSE_LED_EN)
-    settings.pulseLED = true;
-#endif
-
-    settings.secondaryUnits = UNITS_CPM;
-
-    settings.alertSound = true;
-#if defined(VOICE)
-    settings.alertVoice = true;
-#endif
-#if defined(VIBRATION)
-    settings.alertVibration = true;
-#endif
-#if defined(PULSE_LED) || defined(ALERT_LED) || defined(PULSE_LED_EN) || defined(ALERT_LED_EN)
-    settings.alertPulseLED = true;
-#endif
-    settings.alertDisplayFlash = true;
-
-    settings.tubeSensitivity = TUBE_SENSITIVITY_DEFAULT;
-
-    settings.datalogInterval = DATALOG_INTERVAL_10_MINUTES;
-
-#if defined(DISPLAY_MONOCHROME)
-    settings.displayContrast = DISPLAY_CONTRAST_DEFAULT;
-#endif
-#if defined(SIMULATOR)
-    settings.displayBrightness = DISPLAY_BRIGHTNESS_VERYHIGH;
-#else
-    settings.displayBrightness = DISPLAY_BRIGHTNESS_HIGH;
-#endif
-    settings.displaySleep = DISPLAY_SLEEP_30_SECONDS;
-
-#if defined(VOICE)
-    settings.soundAlertStyle = SOUND_ALERTSTYLE_LONG;
-    settings.soundAlertVolume = SOUND_ALERTVOLUME_VERYHIGH;
-    settings.soundVoiceVolume = SOUND_VOICEVOLUME_VERYHIGH;
-#endif
+    settings = defaultSettings;
 
 #if defined(SIMULATOR)
     time_t unixTime = time(NULL);
     struct tm *localTM = gmtime(&unixTime);
     time_t localTime = mktime(localTM);
     settings.rtcTimeZone = 12 + (unixTime - localTime) / 3600;
-#else
-    settings.rtcTimeZone = RTC_TIMEZONE_P0000;
 #endif
 
     // Read flash state

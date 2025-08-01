@@ -9,6 +9,7 @@
 
 #if defined(FS5000)
 
+#include "../display.h"
 #include "../events.h"
 #include "../keyboard.h"
 #include "../system.h"
@@ -37,10 +38,8 @@ void initSystem(void)
     );
 
     // Enable HSI16
-    set_bits(RCC->CR,
-             RCC_CR_HSION);
-    wait_until_bits_set(RCC->CR,
-                        RCC_CR_HSIRDY);
+    set_bits(RCC->CR, RCC_CR_HSION);
+    wait_until_bits_set(RCC->CR, RCC_CR_HSIRDY);
 
     // Configure PLL
     RCC->PLLCFGR = (0b01 << RCC_PLLCFGR_PLLR_Pos) |  // Set main PLL PLLCLK division factor: /4
@@ -50,10 +49,8 @@ void initSystem(void)
                    RCC_PLLCFGR_PLLSRC_HSI;           // Set PLL source: HSI16
 
     // Enable PLL
-    set_bits(RCC->CR,
-             RCC_CR_PLLON);
-    wait_until_bits_set(RCC->CR,
-                        RCC_CR_PLLRDY);
+    set_bits(RCC->CR, RCC_CR_PLLON);
+    wait_until_bits_set(RCC->CR, RCC_CR_PLLRDY);
 
     // Set PLL as system clock
     modify_bits(RCC->CFGR,
@@ -64,8 +61,7 @@ void initSystem(void)
                           RCC_CFGR_SWS_PLL);
 
     // Enable SYSCFG (for EXTI)
-    set_bits(RCC->APB2ENR,
-             RCC_APB2ENR_SYSCFGEN);
+    set_bits(RCC->APB2ENR, RCC_APB2ENR_SYSCFGEN);
 
     // Enable GPIOA, GPIOB, GPIOC, GPIOD, ADC
     set_bits(RCC->AHB2ENR,
@@ -97,8 +93,7 @@ void startBootloader(void)
                           RCC_CFGR_SWS_MSI);
 
     // Disable PLL
-    clear_bits(RCC->CR,
-               RCC_CR_PLLON);
+    clear_bits(RCC->CR, RCC_CR_PLLON);
     wait_until_bits_clear(RCC->CR,
                           RCC_CR_PLLRDY);
 
@@ -273,8 +268,7 @@ static const uint8_t displayPinSetup[] = {
 void initDisplay(void)
 {
     // GPIO
-    gpio_set(DISPLAY_POWER_PORT,
-             DISPLAY_POWER_PIN);
+    gpio_set(DISPLAY_POWER_PORT, DISPLAY_POWER_PIN);
 
     gpio_setup_output(DISPLAY_POWER_PORT,
                       DISPLAY_POWER_PIN,
@@ -282,14 +276,10 @@ void initDisplay(void)
                       GPIO_OUTPUTSPEED_2MHZ,
                       GPIO_PULL_FLOATING);
 
-    gpio_set(DISPLAY_RESX_PORT,
-             DISPLAY_RESX_PIN);
-    gpio_set(DISPLAY_CSX_PORT,
-             DISPLAY_CSX_PIN);
-    gpio_set(DISPLAY_RDX_PORT,
-             DISPLAY_RDX_PIN);
-    gpio_set(DISPLAY_WRX_PORT,
-             DISPLAY_WRX_PIN);
+    gpio_set(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN);
+    gpio_set(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN);
+    gpio_set(DISPLAY_RDX_PORT, DISPLAY_RDX_PIN);
+    gpio_set(DISPLAY_WRX_PORT, DISPLAY_WRX_PIN);
 
     for (uint32_t i = 0; i < sizeof(displayPinSetup); i++)
         gpio_setup_output(displayPortSetup[i],
@@ -316,8 +306,9 @@ void initDisplay(void)
                    onDisplaySend,
                    onDisplaySend16);
 
-    mr_send_sequence(&mr,
-                     displayInitSequence);
+    mr_send_sequence(&mr, displayInitSequence);
+
+    initBacklight();
 }
 
 void enableDisplay(bool value)

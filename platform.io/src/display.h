@@ -55,6 +55,8 @@ typedef enum
 extern const uint32_t menuLineNum;
 
 void initDisplay(void);
+void initBacklight(void);
+
 void resetDisplay(void);
 
 void enableDisplay(bool value);

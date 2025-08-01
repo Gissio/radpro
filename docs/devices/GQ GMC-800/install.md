@@ -1,6 +1,6 @@
 # Installing Rad Pro on GQ GMC-800 Geiger counters
 
-To install the Rad Pro firmware on GQ GMC-800 Geiger counters use the [Rad Pro Web Installer](https://gissio.github.io/radpro-installer/).
+To install the Rad Pro firmware on GQ GMC-800 Geiger counters use the [Rad Pro web installer](https://gissio.github.io/radpro-installer/).
 
 ## Hardware-specific notes
 

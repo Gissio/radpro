@@ -9,6 +9,7 @@
 
 #if defined(GC01)
 
+#include "../display.h"
 #include "../events.h"
 #include "../keyboard.h"
 #include "../system.h"
@@ -44,16 +45,12 @@ void initSystem(void)
                 RCC_CFGR_MCO_NOCLOCK;    // Disable MCO
 
     // Enable HSE
-    set_bits(RCC->CR,
-             RCC_CR_HSEON);
-    wait_until_bits_set(RCC->CR,
-                        RCC_CR_HSERDY);
+    set_bits(RCC->CR, RCC_CR_HSEON);
+    wait_until_bits_set(RCC->CR, RCC_CR_HSERDY);
 
     // Enable PLL
-    set_bits(RCC->CR,
-             RCC_CR_PLLON);
-    wait_until_bits_set(RCC->CR,
-                        RCC_CR_PLLRDY);
+    set_bits(RCC->CR, RCC_CR_PLLON);
+    wait_until_bits_set(RCC->CR, RCC_CR_PLLRDY);
 
     // Set PLL as system clock
     modify_bits(RCC->CFGR,
@@ -216,14 +213,10 @@ static void onDisplaySend(uint16_t value)
 void initDisplay(void)
 {
     // GPIO
-    gpio_set(DISPLAY_RESX_PORT,
-             DISPLAY_RESX_PIN);
-    gpio_set(DISPLAY_CSX_PORT,
-             DISPLAY_CSX_PIN);
-    gpio_set(DISPLAY_RDX_PORT,
-             DISPLAY_RDX_PIN);
-    gpio_set(DISPLAY_WRX_PORT,
-             DISPLAY_WRX_PIN);
+    gpio_set(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN);
+    gpio_set(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN);
+    gpio_set(DISPLAY_RDX_PORT, DISPLAY_RDX_PIN);
+    gpio_set(DISPLAY_WRX_PORT, DISPLAY_WRX_PIN);
 
     gpio_setup(DISPLAY_RESX_PORT,
                DISPLAY_RESX_PIN,
@@ -272,8 +265,9 @@ void initDisplay(void)
                    onDisplaySend,
                    onDisplaySend);
 
-    mr_send_sequence(&mr,
-                     displayInitSequence);
+    mr_send_sequence(&mr, displayInitSequence);
+
+    initBacklight();
 }
 
 void enableDisplay(bool value)
@@ -341,10 +335,8 @@ static void onDisplaySend16(uint16_t value)
 void initDisplay(void)
 {
     // GPIO
-    gpio_set(DISPLAY_RESX_PORT,
-             DISPLAY_RESX_PIN);
-    gpio_set(DISPLAY_CSX_PORT,
-             DISPLAY_CSX_PIN);
+    gpio_set(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN);
+    gpio_set(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN);
 
     gpio_setup(DISPLAY_RESX_PORT,
                DISPLAY_RESX_PIN,
@@ -387,11 +379,11 @@ void initDisplay(void)
                    onDisplaySend,
                    onDisplaySend16);
 
-    mr_send_sequence(&mr,
-                     displayInitSequence);
+    mr_send_sequence(&mr, displayInitSequence);
 
-    mr_send_sequence(&mr,
-                     displayIPSInitSequence);
+    mr_send_sequence(&mr, displayIPSInitSequence);
+
+    initBacklight();
 }
 
 void enableDisplay(bool value)

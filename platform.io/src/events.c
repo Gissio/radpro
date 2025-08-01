@@ -207,16 +207,6 @@ void onTick(void)
     if (updateTimer(&events.backlightTimer) == TIMER_ELAPSED)
         setBacklight(false);
 
-    // Sound enable
-#if defined(SOUND_EN)
-    onSoundEnabledTick();
-#endif
-
-    // Voice
-#if defined(VOICE)
-    onVoiceTick();
-#endif
-
     // Buzzer
 #if defined(BUZZER)
 #if defined(SIMULATOR)
@@ -250,6 +240,16 @@ void onTick(void)
     default:
         break;
     }
+#endif
+
+    // Sound enable
+#if defined(SOUND_EN)
+    onSoundEnabledTick();
+#endif
+
+    // Voice
+#if defined(VOICE)
+    onVoiceTick();
 #endif
 
     // Vibration

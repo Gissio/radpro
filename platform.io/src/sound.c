@@ -113,7 +113,7 @@ View soundPulseTypeMenuView = {
 
 #if defined(SOUND_EN)
 
-// Sound control
+// Sound enabled
 
 void onSoundEnabledTick(void)
 {

@@ -9,6 +9,7 @@
 
 #if defined(GMC800)
 
+#include "../display.h"
 #include "../events.h"
 #include "../keyboard.h"
 #include "../system.h"
@@ -39,16 +40,12 @@ void initSystem(void)
                 RCC_CFGR_MCO_NOCLOCK;    // Disable MCO
 
     // Enable HSE
-    set_bits(RCC->CR,
-             RCC_CR_HSEON);
-    wait_until_bits_set(RCC->CR,
-                        RCC_CR_HSERDY);
+    set_bits(RCC->CR, RCC_CR_HSEON);
+    wait_until_bits_set(RCC->CR, RCC_CR_HSERDY);
 
     // Enable PLL
-    set_bits(RCC->CR,
-             RCC_CR_PLLON);
-    wait_until_bits_set(RCC->CR,
-                        RCC_CR_PLLRDY);
+    set_bits(RCC->CR, RCC_CR_PLLON);
+    wait_until_bits_set(RCC->CR, RCC_CR_PLLRDY);
 
     // Set PLL as system clock
     modify_bits(RCC->CFGR,
@@ -72,8 +69,7 @@ void initSystem(void)
                  RCC_APB2ENR_IOPDEN);
 
     // Disable USART reset
-    gpio_clear(USART_RESET_EN_PORT,
-               USART_RESET_EN_PIN);
+    gpio_clear(USART_RESET_EN_PORT, USART_RESET_EN_PIN);
     gpio_setup(USART_RESET_EN_PORT,
                USART_RESET_EN_PIN,
                GPIO_MODE_OUTPUT_2MHZ_PUSHPULL);
@@ -95,10 +91,8 @@ void startBootloader(void)
                           RCC_CFGR_SWS_HSI);
 
     // Disable PLL
-    clear_bits(RCC->CR,
-               RCC_CR_PLLON);
-    wait_until_bits_clear(RCC->CR,
-                          RCC_CR_PLLRDY);
+    clear_bits(RCC->CR, RCC_CR_PLLON);
+    wait_until_bits_clear(RCC->CR, RCC_CR_PLLRDY);
 
     // Reset RCC
     RCC->CFGR = 0;
@@ -243,10 +237,8 @@ static void onDisplaySend16(uint16_t value)
 void initDisplay(void)
 {
     // GPIO
-    gpio_set(DISPLAY_RESX_PORT,
-             DISPLAY_RESX_PIN);
-    gpio_set(DISPLAY_CSX_PORT,
-             DISPLAY_CSX_PIN);
+    gpio_set(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN);
+    gpio_set(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN);
 
     gpio_setup(DISPLAY_RESX_PORT,
                DISPLAY_RESX_PIN,
@@ -292,8 +284,9 @@ void initDisplay(void)
                    onDisplaySend,
                    onDisplaySend16);
 
-    mr_send_sequence(&mr,
-                     displayInitSequence);
+    mr_send_sequence(&mr, displayInitSequence);
+
+    initBacklight();
 }
 
 void enableDisplay(bool value)
