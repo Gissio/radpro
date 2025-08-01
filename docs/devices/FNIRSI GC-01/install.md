@@ -24,7 +24,7 @@ To install Rad Pro, you'll need:
 ## Step 2: Flash the firmware
 
 1. Download and extract the latest `radpro-fnirsi-gc01_[microprocessor]-[version].zip` from [Rad Pro releases](https://github.com/Gissio/radpro/releases).
-2. Choose the correct firmware file: `radpro-fnirsi-gc01_[microprocessor]-[language]-x.y.z-install.bin`.
+2. Go to the `fnirsi-gci01_[micropreocessor]` folder, then to the  `install` subfolder. Choose the correct firmware file: `radpro-fnirsi-gc01_[microprocessor]-[language]-x.y.z-install.bin`.
    * `[microprocessor]`: `ch32f103r8t6` or `apm32f103rbt6`.
    * `[language]` Two-letter code for your preferred language (e.g., `en` for English).
 3. Connect the device to a **Windows computer** using a **USB 2.0 port** and the USB data cable. **Warning:** Installation may fail on macOS, Linux, or USB 3.0 ports.

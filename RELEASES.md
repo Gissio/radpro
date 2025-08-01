@@ -2,14 +2,14 @@
 
 ## 2.2 "Sundry"
 
-* **Geiger counter compatibility:** Added support for the GQ GMC-800 Geiger counter with software-enhanced pulse stretching for reliable pulse clicks at high radiation levels.
+* **Geiger counter compatibility:** Added support for the GQ GMC-800 Geiger counter with software-enhanced pulse stretching for reliable pulse sound at high radiation levels.
 * **Multilingual support:** Expanded to 27 languages, including Bulgarian, Chinese, Croatian, Czech, Danish, Dutch, English, Finnish, French, German, Greek, Hungarian, Italian, Japanese, Korean, Norwegian, Polish, Portuguese, Romanian, Russian, Slovakian, Slovenian, Spanish, Swedish, Turkish, Ukrainian, and Vietnamese.
 * **User interface improvements**
-  * Introduced 1 week, 1 month and 1 year history views and history data loading from data log on device startup.
-  * Added rate and dose warnings alongside alarms, with alert dismissal preserving state.
+  * Added history view for 1 week, 1 month, and 1 year, with data loading from data log on startup.
+  * Introduced rate and dose warnings, with alert dismissal preserving alert state.
   * Highlighted warning and alarm zones in instantaneous rate bar and history view.
   * Improved alert LED indication.
-  * Added user-selectable secondary units and alert sound style options.
+  * Added user-selectable secondary units and customizable alert sound styles.
   * Added pulse sound icon for toggle feedback.
   * Lock mode turns off display.
   * Increased font size for dice roll display.
@@ -20,15 +20,15 @@
   * Added battery voltage statistics for all cells.
   * Improved voltage measurement accuracy for FS2011 (GD32F150R8/GD32F103R8) and FNIRSI GC-01.
 * **Measurements enhancements**
-  * Expanded averaging intervals: 3, 6, 12, 24 hours, ±50%, ±20%, ±10%, ±5%, ±2% and ±1% confidence intervals.
+  * Expanded averaging intervals: 3, 6, 12, 24 hours, and confidence intervals of ±50%, ±20%, ±10%, ±5%, ±2% and ±1%.
   * Extended sensitivity range to 1–10,000 cpm/µSv/h for low-sensitivity Geiger tubes (e.g., SI-3BG).
   * Expanded dead-time compensation to 5-500 µs for scintillation detector compatibility.
   * Adjusted SBM-20 sensitivity to 150.5 cpm/µSv/h.
   * Dynamic loss-of-count detection based on selected sensitivity.
 * **Data and connectivity**
-  * Added `SET deviceTimeZone` and `GET deviceTimeZone`.
-  * Introduced `RESET datalog` to clear data logs.
-  * Improved `GET datalog` with more options.
+  * Added `SET deviceTimeZone` and `GET deviceTimeZone` commands.
+  * Introduced `RESET datalog` command to clear data logs.
+  * Improved `GET datalog` command with more options.
   * Enhanced `radpro-tool` with timezone synchronization and inproved error handling.
 * **Removed features**
   * Removed background compensation due to negligible intrinsic activity in common Geiger tubes.
