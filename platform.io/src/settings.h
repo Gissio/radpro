@@ -161,7 +161,7 @@ enum
 #define TUBE_HVPROFILE_FACTORYDEFAULT_FREQUENCY 9207.16F
 #define TUBE_HVPROFILE_FACTORYDEFAULT_DUTYCYCLE 0.75F
 #elif defined(APM32)
-#define TUBE_SENSITIVITY_DEFAULT TUBE_SENSITIVITY_J613
+#define TUBE_SENSITIVITY_DEFAULT TUBE_SENSITIVITY_J321
 #define TUBE_HVPROFILE_FACTORYDEFAULT_FREQUENCY 47058.82F
 #define TUBE_HVPROFILE_FACTORYDEFAULT_DUTYCYCLE 0.5F
 #endif
@@ -362,7 +362,7 @@ enum
 
 typedef struct
 {
-    unsigned int entryEmpty : 1;
+    unsigned int empty : 1;
 
     unsigned int pulseSound : 1;
     unsigned int pulseVibration : 1;

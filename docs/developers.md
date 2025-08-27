@@ -56,6 +56,10 @@ Sets 10 second time intervals and encodes initial timestamp and pulse count.
 
 Sets 1 second time intervals and encodes initial timestamp and pulse count.
 
+    0b11111000
+
+Marks the start of a new logging session.
+
     0b11111110
 
-Dummy entry for memory alignment.
+Dummy value for memory alignment.

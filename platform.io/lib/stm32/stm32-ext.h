@@ -68,6 +68,22 @@ typedef struct
 #define RCC_CFGR_SW_LSI 0x00000003U
 #define RCC_CFGR_SW_LSE 0x00000004U
 
+#define RCC_CFGR_HPRE_DIV1 (0x0 << RCC_CFGR_HPRE_Pos)
+#define RCC_CFGR_HPRE_DIV2 (0x8 << RCC_CFGR_HPRE_Pos)
+#define RCC_CFGR_HPRE_DIV4 (0x9 << RCC_CFGR_HPRE_Pos)
+#define RCC_CFGR_HPRE_DIV8 (0xa << RCC_CFGR_HPRE_Pos)
+#define RCC_CFGR_HPRE_DIV16 (0xb << RCC_CFGR_HPRE_Pos)
+#define RCC_CFGR_HPRE_DIV64 (0xc << RCC_CFGR_HPRE_Pos)
+#define RCC_CFGR_HPRE_DIV128 (0xd << RCC_CFGR_HPRE_Pos)
+#define RCC_CFGR_HPRE_DIV256 (0xe << RCC_CFGR_HPRE_Pos)
+#define RCC_CFGR_HPRE_DIV512 (0xf << RCC_CFGR_HPRE_Pos)
+
+#define RCC_CFGR_PPRE_DIV1 (0x0 << RCC_CFGR_PPRE_Pos)
+#define RCC_CFGR_PPRE_DIV2 (0x4 << RCC_CFGR_PPRE_Pos)
+#define RCC_CFGR_PPRE_DIV4 (0x5 << RCC_CFGR_PPRE_Pos)
+#define RCC_CFGR_PPRE_DIV8 (0x6 << RCC_CFGR_PPRE_Pos)
+#define RCC_CFGR_PPRE_DIV16 (0x7 << RCC_CFGR_PPRE_Pos)
+
 #endif
 
 __STATIC_INLINE void rcc_enable_crc(void)
@@ -1821,12 +1837,12 @@ __STATIC_INLINE void usart_send_blocking(USART_TypeDef *base,
 
 // SPI
 
-__STATIC_INLINE void spi_wait_until_txe(SPI_TypeDef *base)
+__STATIC_INLINE void spi_wait_until_txe(const SPI_TypeDef *base)
 {
     wait_until_bits_set(base->SR, SPI_SR_TXE);
 }
 
-__STATIC_INLINE void spi_wait_while_bsy(SPI_TypeDef *base)
+__STATIC_INLINE void spi_wait_while_bsy(const SPI_TypeDef *base)
 {
     wait_until_bits_clear(base->SR, SPI_SR_BSY);
 }
@@ -1855,7 +1871,7 @@ __STATIC_INLINE void dma_setup_memory32_to_peripheral32(DMA_Channel_TypeDef *cha
     channel->CPAR = (uint32_t)dest;
 }
 
-__STATIC_INLINE bool dma_is_active(DMA_Channel_TypeDef *channel)
+__STATIC_INLINE bool dma_is_active(const DMA_Channel_TypeDef *channel)
 {
     return (channel->CNDTR != 0);
 }

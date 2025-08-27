@@ -4,6 +4,16 @@ framework = cmsis
 build_flags =
     -DQFP
     -DMCURENDERER_WITHOUT_BITMAP_SUPPORT
+    -Wl,--defsym,__aeabi_fadd=qfp_fadd
+    -Wl,--defsym,__aeabi_fsub=qfp_fsub
+    -Wl,--defsym,__aeabi_fmul=qfp_fmul
+    -Wl,--defsym,__aeabi_fdiv=qfp_fdiv
+    -Wl,--defsym,__aeabi_f2uiz=qfp_float2uint
+    -Wl,--defsym,__aeabi_i2f=qfp_int2float
+    -Wl,--defsym,__aeabi_ui2f=qfp_uint2float
+    -Wl,--defsym,logf=qfp_fln
+    -Wl,--defsym,expf=qfp_fexp
+    -Wl,--defsym,sqrtf=qfp_fsqrt
 debug_build_flags =
 	-Og -g2 -ggdb2
     -DDEBUG
@@ -13,14 +23,14 @@ extends = base
 build_flags =
     ${base.build_flags}
     -DFS2011
-    -DBOOTLOADER
+    -DFAST_SYSTEM_CLOCK
     -DBATTERY_REMOVABLE
     -DTUBE_HV_PWM
     -DKEYBOARD_5_KEYS
     -DDISPLAY_128X64
     -DDISPLAY_MONOCHROME
-    -DFONT_LARGE='"fonts/font_mono_large.h"'
-    -DFONT_SYMBOLS='"fonts/font_mono_symbols.h"'
+    -DFONT_SYMBOLS='"fonts/font_symbols_monochrome.h"'
+    -DFONT_LARGE='"fonts/font_large_monochrome.h"'
     -DBUZZER
     -DVIBRATION
     -DDATA_MODE
@@ -30,14 +40,20 @@ lib_ignore = libusb_stm32
 [fs2011-stm32f051c8]
 extends = fs2011
 board = stm32f051c8
+build_flags =
+    ${fs2011.build_flags}
 
 [fs2011-gd32f150c8]
 extends = fs2011
 board = gd32f150c8
+build_flags =
+    ${fs2011.build_flags}
 
 [fs2011-gd32f103c8]
 extends = fs2011
 board = gd32f103c8
+build_flags =
+    ${fs2011.build_flags}
 
 [bosean-fs600_fs1000]
 extends = base
@@ -45,13 +61,14 @@ board = stm32g070cb
 build_flags =
     ${base.build_flags}
     -DBOOTLOADER
+    -DFAST_SYSTEM_CLOCK
     -DBATTERY_REMOVABLE
     -DPWR_USB
     -DTUBE_HV_PWM
     -DDISPLAY_128X64
     -DDISPLAY_MONOCHROME
-    -DFONT_LARGE='"fonts/font_mono_large.h"'
-    -DFONT_SYMBOLS='"fonts/font_mono_symbols.h"'
+    -DFONT_SYMBOLS='"fonts/font_symbols_monochrome.h"'
+    -DFONT_LARGE='"fonts/font_large_monochrome.h"'
     -DBUZZER
     -DPULSE_LED
     -DGAME
@@ -83,7 +100,7 @@ build_flags =
     -DPWR_USB
     -DKEYBOARD_3_KEYS
     -DDISPLAY_COLOR
-    -DFONT_SYMBOLS='"fonts/font_color_symbols.h"'
+    -DFONT_SYMBOLS='"fonts/font_symbols_color.h"'
     -DBUZZER
     -DVIBRATION
     -DPULSE_LED
@@ -96,14 +113,14 @@ extends = bosean-fs5000_common
 build_flags =
     ${bosean-fs5000_common.build_flags}
     -DDISPLAY_240X320
-    -DFONT_LARGE='"fonts/font_color_large_portrait.h"'
+    -DFONT_LARGE='"fonts/font_large_color_84.h"'
 
 [bosean-fs5000_landscape]
 extends = bosean-fs5000_common
 build_flags =
     ${bosean-fs5000_common.build_flags}
     -DDISPLAY_320X240
-    -DFONT_LARGE='"fonts/font_color_large.h"'
+    -DFONT_LARGE='"fonts/font_large_color_115.h"'
 
 [fnirsi-gc01]
 extends = base
@@ -139,8 +156,8 @@ extends = fnirsi-gc01
 board = ch32f103r8
 build_flags =
     ${fnirsi-gc01.build_flags}
-    -DFONT_LARGE='"fonts/font_color_low_large.h"'
-    -DFONT_SYMBOLS='"fonts/font_color_low_symbols.h"'
+    -DFONT_SYMBOLS='"fonts/font_symbols_color_1bpp.h"'
+    -DFONT_LARGE='"fonts/font_large_color_115_1bpp.h"'
     -DDATA_MODE
 
 [fnirsi-gc01_apm32f103rb]
@@ -148,8 +165,8 @@ extends = fnirsi-gc01
 board = apm32f103rb
 build_flags =
     ${fnirsi-gc01.build_flags}
-    -DFONT_LARGE='"fonts/font_color_large.h"'
-    -DFONT_SYMBOLS='"fonts/font_color_symbols.h"'
+    -DFONT_SYMBOLS='"fonts/font_symbols_color.h"'
+    -DFONT_LARGE='"fonts/font_large_color_115.h"'
     -DGAME
 
 [gq-gmc800_common]
@@ -164,7 +181,7 @@ build_flags =
     -DTUBE_HV_PWM
     -DKEYBOARD_4_KEYS
     -DDISPLAY_COLOR
-    -DFONT_SYMBOLS='"fonts/font_color_symbols.h"'
+    -DFONT_SYMBOLS='"fonts/font_symbols_color.h"'
     -DPULSE_LED_EN
     -DALERT_LED_EN
     -DSOUND_EN
@@ -179,11 +196,11 @@ extends = gq-gmc800_common
 build_flags =
     ${gq-gmc800_common.build_flags}
     -DDISPLAY_240X320
-    -DFONT_LARGE='"fonts/font_color_large_portrait.h"'
+    -DFONT_LARGE='"fonts/font_large_color_84.h"'
 
 [gq-gmc800_landscape]
 extends = gq-gmc800_common
 build_flags =
     ${gq-gmc800_common.build_flags}
     -DDISPLAY_320X240
-    -DFONT_LARGE='"fonts/font_color_large.h"'
+    -DFONT_LARGE='"fonts/font_large_color_115.h"'

@@ -114,7 +114,7 @@ void runTestMode(void)
         drawTestMode(lines);
         refreshDisplay();
 
-        enableDisplay(true);
+        setDisplayEnable(true);
         setBacklight(true);
     }
 }

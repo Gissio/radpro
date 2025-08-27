@@ -22,10 +22,22 @@
 
 void initSystem(void)
 {
-    // Fix bootloader issues
+    // Fix bootloader SP and VTOR issues
     __set_MSP(*((uint32_t *)FIRMWARE_BASE));
     NVIC_DisableAllIRQs();
     SCB->VTOR = FIRMWARE_BASE;
+
+    // Set HSI as system clock
+    modify_bits(RCC->CFGR,
+                RCC_CFGR_SW_Msk,
+                RCC_CFGR_SW_HSI);
+    wait_until_bits_value(RCC->CFGR,
+                          RCC_CFGR_SWS_Msk,
+                          RCC_CFGR_SWS_HSI);
+
+    // Disable PLL
+    clear_bits(RCC->CR, RCC_CR_PLLON);
+    wait_until_bits_clear(RCC->CR, RCC_CR_PLLRDY);
 
     // Set 2 wait states for flash
     modify_bits(FLASH->ACR,
@@ -33,16 +45,15 @@ void initSystem(void)
                 FLASH_ACR_LATENCY_2WS);
 
     // Configure AHB, APB1, APB2, ADC, PLL
-    RCC->CFGR = RCC_CFGR_SW_HSI |        // Select HSI as system clock
-                RCC_CFGR_HPRE_DIV1 |     // Set AHB clock: 72 MHz / 1 = 72 MHz
-                RCC_CFGR_PPRE1_DIV2 |    // Set APB1 clock: 72 MHz / 2 = 36 MHz
-                RCC_CFGR_PPRE2_DIV1 |    // Set APB2 clock: 72 MHz / 1 = 72 MHz
-                RCC_CFGR_ADCPRE_DIV6 |   // Set ADC clock: 72 MHz / 6 = 12 MHz
-                RCC_CFGR_PLLSRC_HSE |    // Set PLL source: HSE
-                RCC_CFGR_PLLXTPRE_HSE |  // Set PLL HSE predivision factor: /1
-                RCC_CFGR_PLLMULL9 |      // Set PLL multiplier: 9x
-                RCC_CFGR_USBPRE_DIV1_5 | // Set USB prescaler: 1.5x
-                RCC_CFGR_MCO_NOCLOCK;    // Disable MCO
+    RCC->CFGR = RCC_CFGR_SW_HSI |       // Select HSI as system clock
+                RCC_CFGR_HPRE_DIV1 |    // Set AHB clock: 72 MHz / 1 = 72 MHz
+                RCC_CFGR_PPRE1_DIV2 |   // Set APB1 clock: 72 MHz / 2 = 36 MHz
+                RCC_CFGR_PPRE2_DIV1 |   // Set APB2 clock: 72 MHz / 1 = 72 MHz
+                RCC_CFGR_ADCPRE_DIV6 |  // Set ADC clock: 72 MHz / 6 = 12 MHz
+                RCC_CFGR_PLLSRC_HSE |   // Set PLL source: HSE
+                RCC_CFGR_PLLXTPRE_HSE | // Set PLL HSE predivision factor: /1
+                RCC_CFGR_PLLMULL9 |     // Set PLL multiplier: 9x
+                RCC_CFGR_USBPRE_DIV1_5; // Set USB prescaler: 1.5x
 
     // Enable HSE
     set_bits(RCC->CR, RCC_CR_HSEON);
@@ -270,7 +281,7 @@ void initDisplay(void)
     initBacklight();
 }
 
-void enableDisplay(bool value)
+void setDisplayEnable(bool value)
 {
     mr_st7789_set_display(&mr, value);
     mr_st7789_set_sleep(&mr, !value);
@@ -386,7 +397,7 @@ void initDisplay(void)
     initBacklight();
 }
 
-void enableDisplay(bool value)
+void setDisplayEnable(bool value)
 {
     mr_st7789_set_display(&mr, value);
     mr_st7789_set_sleep(&mr, !value);

@@ -68,32 +68,34 @@
 #define STRING_HIGH "높음"
 
 // Notification headings (upper case)
-#define STRING_NOTIFICATION_WARNING "경고"
-#define STRING_NOTIFICATION_SUCCESS "성공"
+#define STRING_NOTIFICATION_WARNING ""
+#define STRING_NOTIFICATION_SUCCESS ""
 
-// Firmware checksum failure notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "펌웨어 체크섬 실패"
+// Firmware checksum failure notification
+#define STRING_SPLASH_FIRMWARE_CHECKSUM_FAILURE "경고\n\n펌웨어 체크섬 실패."
 
-// HV profile menu items (shorter than 30 characters)
-#define STRING_NOTIFICATION_HVCUSTOM "잘못된 값은 기기를 손상."
+// HV profile menu items
+#define STRING_NOTIFICATION_HVCUSTOM "경고\n\n잘못된 값은 장치를 손상시킬 수 있습니다."
 
-// Data log reset notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_TITLE "데이터 로그 초기화?"
-#define STRING_NOTIFICATION_DATALOG_RESET_SUBTITLE "모든 기록이 삭제됩니다."
+// Data log reset notification
+#define STRING_NOTIFICATION_DATALOG_RESET_CONFIRM "데이터 로그를 초기화하시겠습니까?\n\n모든 기록이 삭제됩니다."
 
-// Data log reset success notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "데이터 로그가 초기화됨."
+// Data log reset success notification
+#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "성공\n\n데이터 로그가 초기화되었습니다."
 
 // Measurement view UI heading strings
 #define STRING_INSTANTANEOUS "즉시"
 #define STRING_AVERAGE "평균"
 #define STRING_CUMULATIVE "누적"
-#define STRING_HISTORY_10_MINUTES "기록 (10분)"
-#define STRING_HISTORY_1_HOUR "기록 (1시간)"
-#define STRING_HISTORY_1_DAY "기록 (1일)"
-#define STRING_HISTORY_1_WEEK "기록 (1주)"
-#define STRING_HISTORY_1_MONTH "기록 (1개월)"
-#define STRING_HISTORY_1_YEAR "기록 (1년)"
+#define STRING_HISTORY "기록"
+
+// Measurement history view time periods
+#define STRING_HISTORY_10_MINUTES "10분"
+#define STRING_HISTORY_1_HOUR "1시간"
+#define STRING_HISTORY_1_DAY "1일"
+#define STRING_HISTORY_1_WEEK "1주"
+#define STRING_HISTORY_1_MONTH "1개월"
+#define STRING_HISTORY_1_YEAR "1년"
 
 // Measurement view secondary view strings
 #define STRING_TIME "시간"
@@ -102,12 +104,12 @@
 #define STRING_DOSE "선량"
 
 // Measurement view info strings (upper case, up to 5 letters)
-#define STRING_INFO_ALARM "알람"
-#define STRING_INFO_WARNING "경고"
-#define STRING_INFO_FAULT "오류"
-#define STRING_INFO_MAX "최대"
-#define STRING_INFO_OVERFLOW "초과"
-#define STRING_INFO_DONE "완료"
+#define STRING_ALERT_ALARM "경보"
+#define STRING_ALERT_WARNING "경고"
+#define STRING_ALERT_FAULT "고장"
+#define STRING_ALERT_MAX "최대"
+#define STRING_ALERT_OVERFLOW "초과"
+#define STRING_ALERT_DONE "완료"
 
 // Settings menu items
 #define STRING_SETTINGS "설정"
@@ -115,14 +117,14 @@
 #define STRING_ALERTS "알림"
 #define STRING_MEASUREMENTS "측정"
 #define STRING_GEIGER_TUBE "가이거 튜브"
-#define STRING_DATA_LOG "데이터 로그"
+#define STRING_DATALOG "데이터 로그"
 #define STRING_DISPLAY "디스플레이"
 #define STRING_DATE_AND_TIME "날짜 및 시간"
 #define STRING_BATTERY_TYPE "배터리 유형"
 #define STRING_RANDOM_GENERATOR "랜덤 생성기"
 #define STRING_GAME "게임"
 #define STRING_STATISTICS "통계"
-#define STRING_DATA_MODE "데이터 모드"
+#define STRING_DATAMODE "데이터 모드"
 
 // Pulses menu items
 #define STRING_SOUND "소리"
@@ -134,8 +136,8 @@
 
 // Alarms menu items
 #define STRING_RATE_WARNING "속도 경고"
-#define STRING_DOSE_WARNING "선량 경고"
 #define STRING_RATE_ALARM "속도 경보"
+#define STRING_DOSE_WARNING "선량 경고"
 #define STRING_DOSE_ALARM "선량 경보"
 #define STRING_INDICATION "표시"
 
@@ -158,7 +160,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "감도"
-#define STRING_DEAD_TIME_SHORT_COMPENSATION "데드 타임 보상"
+#define STRING_DEAD_TIME_COMPENSATION "데드 타임 보상"
 #define STRING_HVPROFILE "HV 프로파일"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
@@ -183,9 +185,6 @@
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "PWM 주파수"
 #define STRING_PWMDUTY_CYCLE "PWM 듀티 사이클"
-
-// Tube/battery voltage
-#define STRING_VOLTAGE "전압"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "로깅 모드"
@@ -281,13 +280,11 @@
 #define STRING_GAME_LEVEL "레벨"
 
 // Statistics view items
-#define STRING_TUBE_LIFE_TIME "튜브 수명"
+#define STRING_TUBE_LIFE "튜브 수명"
 #define STRING_DEAD_TIME "데드 타임"
-#define STRING_DEVICE_ID "기기 ID"
 
 #define STRING_TUBE "튜브"
-#define STRING_LIFE_TIME "수명"
-#define STRING_DEAD_TIME_SHORT "데드 타임"
+#define STRING_LIFE "수명"
 #define STRING_DEVICE "기기"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE_SHORT "전압"
+#define STRING_BATTERY "배터리"

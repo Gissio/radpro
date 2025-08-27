@@ -17,11 +17,13 @@
 
 #define FIRMWARE_AUTHOR "Gissio"
 #define FIRMWARE_NAME "Rad Pro"
-#define FIRMWARE_VERSION "2.2beta5"
+#define FIRMWARE_VERSION "3.0rc1"
 
 extern View statisticsView;
 
 void initSystem(void);
+
+void setFastSystemClock(bool value);
 
 void getDeviceId(char *);
 

@@ -29,7 +29,7 @@ def run_fontconv(source,
                  ascent=None,
                  descent=None,
                  cap_height=None):
-    args=[]
+    args = []
     args += ['-s', codepoint_set]
     args += ['-n', name]
     if pixels:
@@ -48,10 +48,11 @@ def run_fontconv(source,
     fontconv.main()
 
 
-def get_codepoint_set(filename, codepoint_set=''):
+def get_codepoint_set(text, codepoint_set=''):
+    text = ''.join(text)
+
     codepoints = textproc.parse_codepoint_set(codepoint_set)
 
-    text = open(filename, 'rt', encoding='utf-8').read()
     text = textproc.filter_c_strings(text)
 
     codepoints.update({ord(char) for char in text})
@@ -60,129 +61,169 @@ def get_codepoint_set(filename, codepoint_set=''):
 
 
 # Codepoint sets
+CODEPOINT_SET_SYMBOLS_MONOCHROME = '0x30-0x3e,0x41-0x46,0x49-0x4e,0x50-0x56'
+CODEPOINT_SET_SYMBOLS_COLOR = '0x30-0x3e,0x41-0x46'
+CODEPOINT_SET_SYMBOLS_COLOR_1BPP = '0x30-0x3e'
 CODEPOINT_SET_LARGE = '0x2e,0x30-0x39,0x2012'
-CODEPOINT_SET_MONO_SYMBOLS = '0x30-0x3e,0x41-0x46,0x49-0x4e,0x50-0x56'
-CODEPOINT_SET_COLOR_SYMBOLS = '0x30-0x3e,0x41-0x46'
 
-
-# Common font conversions
+# Common fonts
 run_fontconv('RadPro-Symbols8.bdf',
-             CODEPOINT_SET_MONO_SYMBOLS,
-             'font_mono_symbols.h',
+             CODEPOINT_SET_SYMBOLS_MONOCHROME,
+             'font_symbols_monochrome.h',
              'font_symbols')
 run_fontconv('RadPro-Symbols.ttf',
-             CODEPOINT_SET_COLOR_SYMBOLS,
-             'font_color_symbols.h',
+             CODEPOINT_SET_SYMBOLS_COLOR,
+             'font_symbols_color.h',
              'font_symbols',
              pixels=24)
 run_fontconv('RadPro-Symbols.ttf',
-             CODEPOINT_SET_COLOR_SYMBOLS,
-             'font_color_low_symbols.h',
+             CODEPOINT_SET_SYMBOLS_COLOR_1BPP,
+             'font_symbols_color_1bpp.h',
              'font_symbols',
              pixels=24,
              bpp=1)
 
 run_fontconv('RadPro-Sans33-Digits.bdf',
              CODEPOINT_SET_LARGE,
-             'font_mono_large.h',
+             'font_large_monochrome.h',
              'font_large')
-run_fontconv('OpenSans-SemiBoldFigureDash.ttf',
+run_fontconv('NotoSans-SemiBold.ttf',
              CODEPOINT_SET_LARGE,
-             'font_color_large.h',
+             'font_large_color_115.h',
              'font_large',
-             pixels=118,
-             ascent=113,
-             cap_height=86)
-run_fontconv('OpenSans-SemiBoldFigureDash.ttf',
+             pixels=115,
+             cap_height=82)
+run_fontconv('NotoSans-SemiBold.ttf',
              CODEPOINT_SET_LARGE,
-             'font_color_large_portrait.h',
+             'font_large_color_115_1bpp.h',
              'font_large',
-             pixels=86,
-             ascent=83,
-             cap_height=63)
-run_fontconv('OpenSans-SemiBoldFigureDash.ttf',
-             CODEPOINT_SET_LARGE,
-             'font_color_low_large.h',
-             'font_large',
-             pixels=118,
+             pixels=115,
              bpp=1,
-             ascent=113,
-             cap_height=86)
+             cap_height=82)
+run_fontconv('NotoSans-SemiBold.ttf',
+             CODEPOINT_SET_LARGE,
+             'font_large_color_84.h',
+             'font_large',
+             pixels=84,
+             cap_height=60)
+
 
 # Languages
 for language_file in Path('../platform.io/src/strings').glob('*.h'):
     language = language_file.stem
 
     # Get codepoint sets using textproc
-    textproc.build_codepoint_set
-    codepoint_set_small = get_codepoint_set(language_file, '0x20-0x7e')
-    codepoint_set_medium = get_codepoint_set(language_file)
+    language_text = open(language_file, 'rt', encoding='utf-8').readlines()
+
+    font_medium_matches = [
+        'STRING_ELLIPSIS',
+        'STRING_NANO',
+        'STRING_MICRO',
+        'STRING_MILLI',
+        'STRING_KILO',
+        'STRING_MEGA',
+        'STRING_GIGA',
+        'STRING_SV',
+        'STRING_SVH',
+        'STRING_REM',
+        'STRING_REMH',
+        'STRING_CPM',
+        'STRING_CPS',
+        'STRING_COUNT',
+        'STRING_COUNTS',
+    ]
+
+    medium_text = [line for line in language_text
+                   if any(match in line for match in font_medium_matches)]
+
+    codepoint_set_small = get_codepoint_set(language_text, '0x20-0x7e')
+    codepoint_set_monochrome_medium = get_codepoint_set(language_text)
+    codepoint_set_color_medium = get_codepoint_set(medium_text)
 
     # Set font paths based on language
     if language == 'ja':
-        font_mono_small = 'QuanPixel-7.bdf'
-        font_mono_medium = 'FusionPixel-12.bdf'
-        font_color = 'NotoSansJP-Medium.ttf'
+        font_small_monochrome = 'QuanPixel-7.bdf'
+        font_medium_monochrome = 'FusionPixel-12.bdf'
+        font_color = 'NotoSansJP-SemiBold.ttf'
     elif language == 'ko':
-        font_mono_small = 'QuanPixel-7.bdf'
-        font_mono_medium = 'FusionPixel-12.bdf'
-        font_color = 'NotoSansKR-Medium.ttf'
+        font_small_monochrome = 'QuanPixel-7.bdf'
+        font_medium_monochrome = 'FusionPixel-12.bdf'
+        font_color = 'NotoSansKR-SemiBold.ttf'
     elif language == 'zh_CN':
-        font_mono_small = 'QuanPixel-7.bdf'
-        font_mono_medium = 'FusionPixel-12.bdf'
-        font_color = 'NotoSansSC-Medium.ttf'
+        font_small_monochrome = 'QuanPixel-7.bdf'
+        font_medium_monochrome = 'FusionPixel-12.bdf'
+        font_color = 'NotoSansSC-SemiBold.ttf'
     else:
-        font_mono_small = 'Tiny5-Regular.bdf'
-        font_mono_medium = 'RadPro-Sans8.bdf'
-        font_color = 'OpenSans-Medium.ttf'
+        font_small_monochrome = 'Tiny5-Regular.bdf'
+        font_medium_monochrome = 'RadPro-Sans8.bdf'
+        font_color = 'NotoSans-SemiBold.ttf'
 
-    # Language-specific font conversions
-    run_fontconv(font_mono_small,
-                 codepoint_set_small,
-                 f'font_mono_small_{language}.h',
-                 'font_small',
-                 ascent=7,
-                 descent=1,
-                 cap_height=5)
-    run_fontconv(font_color,
-                 codepoint_set_small,
-                 f'font_color_small_{language}.h',
-                 'font_small',
-                 pixels=16.8,
-                 ascent=18,
-                 descent=6,
-                 cap_height=12)
-    run_fontconv(font_color,
-                 codepoint_set_small,
-                 f'font_color_low_small_{language}.h',
-                 'font_small',
-                 pixels=16.8,
-                 bpp=1,
-                 ascent=18,
-                 descent=6,
-                 cap_height=12)
+    if language in ['ja', 'ko', 'zh_CN']:
+        font_medium_color_32_ascent = 36
+        font_medium_color_32_descent = 9
+        font_medium_color_32_cap_height = 25
+        font_small_color_21_ascent = 23
+        font_small_color_21_descent = 7
+        font_small_color_21_cap_height = 16
+    else:
+        font_medium_color_32_ascent = None
+        font_medium_color_32_descent = None
+        font_medium_color_32_cap_height = None
+        font_small_color_21_ascent = None
+        font_small_color_21_descent = None
+        font_small_color_21_cap_height = None
 
-    run_fontconv(font_mono_medium,
-                 codepoint_set_medium,
-                 f'font_mono_medium_{language}.h',
-                 'font_medium',
-                 ascent=10,
-                 descent=2,
-                 cap_height=8)
+    # Language-specific fonts
+    run_fontconv(font_medium_monochrome,
+                 codepoint_set_monochrome_medium,
+                 f'font_medium_{language}_monochrome.h',
+                 'font_medium')
     run_fontconv(font_color,
-                 codepoint_set_medium,
-                 f'font_color_medium_{language}.h',
+                 codepoint_set_color_medium,
+                 f'font_medium_{language}_color_24.h',
                  'font_medium',
-                 pixels=25.2,
-                 ascent=24,
-                 descent=8,
-                 cap_height=18)
+                 pixels=24)
     run_fontconv(font_color,
-                 codepoint_set_medium,
-                 f'font_color_low_medium_{language}.h',
+                 codepoint_set_color_medium,
+                 f'font_medium_{language}_color_32.h',
                  'font_medium',
-                 pixels=25.2,
+                 pixels=32,
+                 ascent=font_medium_color_32_ascent,
+                 descent=font_medium_color_32_descent,
+                 cap_height=font_medium_color_32_cap_height)
+    run_fontconv(font_color,
+                 codepoint_set_color_medium,
+                 f'font_medium_{language}_color_32_1bpp.h',
+                 'font_medium',
+                 pixels=32,
                  bpp=1,
-                 ascent=24,
-                 descent=8,
-                 cap_height=18)
+                 ascent=font_medium_color_32_ascent,
+                 descent=font_medium_color_32_descent,
+                 cap_height=font_medium_color_32_cap_height)
+
+    run_fontconv(font_small_monochrome,
+                 codepoint_set_small,
+                 f'font_small_{language}_monochrome.h',
+                 'font_small')
+    run_fontconv(font_color,
+                 codepoint_set_small,
+                 f'font_small_{language}_color_16.h',
+                 'font_small',
+                 pixels=16)
+    run_fontconv(font_color,
+                 codepoint_set_small,
+                 f'font_small_{language}_color_21.h',
+                 'font_small',
+                 pixels=21,
+                 ascent=font_small_color_21_ascent,
+                 descent=font_small_color_21_descent,
+                 cap_height=font_small_color_21_cap_height)
+    run_fontconv(font_color,
+                 codepoint_set_small,
+                 f'font_small_{language}_color_21_1bpp.h',
+                 'font_small',
+                 pixels=21,
+                 bpp=1,
+                 ascent=font_small_color_21_ascent,
+                 descent=font_small_color_21_descent,
+                 cap_height=font_small_color_21_cap_height)

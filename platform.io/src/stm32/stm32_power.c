@@ -15,8 +15,6 @@
 
 #include "device.h"
 
-static bool powerEnabled;
-
 void initPower(void)
 {
     // GPIO
@@ -130,13 +128,6 @@ void setPower(bool value)
                 PWR_VCC_PIN,
                 value);
 #endif
-
-    powerEnabled = value;
-}
-
-bool isPowered(void)
-{
-    return powerEnabled;
 }
 
 bool isPowerOnReset(void)

@@ -67,33 +67,31 @@
 #define STRING_MEDIUM "Medium"
 #define STRING_HIGH "High"
 
-// Notification headings (upper case)
-#define STRING_NOTIFICATION_WARNING "WARNING"
-#define STRING_NOTIFICATION_SUCCESS "SUCCESS"
+// Firmware checksum failure notification
+#define STRING_SPLASH_FIRMWARE_CHECKSUM_FAILURE "WARNING\n\nFirmware checksum failure."
 
-// Firmware checksum failure notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "Firmware checksum failure."
+// HV profile menu items
+#define STRING_NOTIFICATION_HVCUSTOM "WARNING\n\nWrong values may harm device."
 
-// HV profile menu items (shorter than 30 characters)
-#define STRING_NOTIFICATION_HVCUSTOM "Wrong values harm device."
+// Data log reset notification
+#define STRING_NOTIFICATION_DATALOG_RESET_CONFIRM "Reset data log?\n\nAll records will be deleted."
 
-// Data log reset notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_TITLE "Reset data log?"
-#define STRING_NOTIFICATION_DATALOG_RESET_SUBTITLE "All records will be deleted."
-
-// Data log reset success notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "Data log has been reset."
+// Data log reset success notification
+#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "SUCCESS\n\nData log has been reset."
 
 // Measurement view UI heading strings
 #define STRING_INSTANTANEOUS "Instantaneous"
 #define STRING_AVERAGE "Average"
 #define STRING_CUMULATIVE "Cumulative"
-#define STRING_HISTORY_10_MINUTES "History (10 min)"
-#define STRING_HISTORY_1_HOUR "History (1 h)"
-#define STRING_HISTORY_1_DAY "History (1 d)"
-#define STRING_HISTORY_1_WEEK "History (1 w)"
-#define STRING_HISTORY_1_MONTH "History (1 mo)"
-#define STRING_HISTORY_1_YEAR "History (1 y)"
+#define STRING_HISTORY "History"
+
+// Measurement history view time periods
+#define STRING_HISTORY_10_MINUTES "10 min"
+#define STRING_HISTORY_1_HOUR "1 h"
+#define STRING_HISTORY_1_DAY "1 d"
+#define STRING_HISTORY_1_WEEK "1 w"
+#define STRING_HISTORY_1_MONTH "1 mo"
+#define STRING_HISTORY_1_YEAR "1 y"
 
 // Measurement view secondary view strings
 #define STRING_TIME "Time"
@@ -102,12 +100,12 @@
 #define STRING_DOSE "Dose"
 
 // Measurement view info strings (upper case, up to 5 letters)
-#define STRING_INFO_ALARM "ALARM"
-#define STRING_INFO_WARNING "WARNING"
-#define STRING_INFO_FAULT "FAULT"
-#define STRING_INFO_MAX "MAX"
-#define STRING_INFO_OVERFLOW "OVER"
-#define STRING_INFO_DONE "DONE"
+#define STRING_ALERT_ALARM "ALARM"
+#define STRING_ALERT_WARNING "WARNING"
+#define STRING_ALERT_FAULT "FAULT"
+#define STRING_ALERT_MAX "MAX"
+#define STRING_ALERT_OVERFLOW "OVER"
+#define STRING_ALERT_DONE "DONE"
 
 // Settings menu items
 #define STRING_SETTINGS "Settings"
@@ -115,14 +113,14 @@
 #define STRING_ALERTS "Alerts"
 #define STRING_MEASUREMENTS "Measurements"
 #define STRING_GEIGER_TUBE "Geiger tube"
-#define STRING_DATA_LOG "Data log"
+#define STRING_DATALOG "Data log"
 #define STRING_DISPLAY "Display"
 #define STRING_DATE_AND_TIME "Date and time"
 #define STRING_BATTERY_TYPE "Battery type"
 #define STRING_RANDOM_GENERATOR "Random generator"
 #define STRING_GAME "Game"
 #define STRING_STATISTICS "Statistics"
-#define STRING_DATA_MODE "Data mode"
+#define STRING_DATAMODE "Data mode"
 
 // Pulses menu items
 #define STRING_SOUND "Sound"
@@ -134,8 +132,8 @@
 
 // Alarms menu items
 #define STRING_RATE_WARNING "Rate warning"
-#define STRING_DOSE_WARNING "Dose warning"
 #define STRING_RATE_ALARM "Rate alarm"
+#define STRING_DOSE_WARNING "Dose warning"
 #define STRING_DOSE_ALARM "Dose alarm"
 #define STRING_INDICATION "Indication"
 
@@ -158,7 +156,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "Sensitivity"
-#define STRING_DEAD_TIME_SHORT_COMPENSATION "Dead-time compensation"
+#define STRING_DEAD_TIME_COMPENSATION "Dead-time compensation"
 #define STRING_HVPROFILE "HV profile"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
@@ -171,7 +169,7 @@
 #define STRING_J614 "J614"
 #define STRING_M4011 "M4011"
 
-// Russian Geiger tubes (should only be translated with non-latin scripts)
+// Russian Geiger tubes (should only be translated with cyrillic scripts)
 #define STRING_SBM20 "SBM-20"
 
 // HV profile menu items
@@ -183,9 +181,6 @@
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "PWM frequency"
 #define STRING_PWMDUTY_CYCLE "PWM duty cycle"
-
-// Tube/battery voltage
-#define STRING_VOLTAGE "Voltage"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Logging mode"
@@ -281,13 +276,11 @@
 #define STRING_GAME_LEVEL "Level"
 
 // Statistics view items
-#define STRING_TUBE_LIFE_TIME "Tube life time"
+#define STRING_TUBE_LIFE "Tube life"
 #define STRING_DEAD_TIME "Dead time"
-#define STRING_DEVICE_ID "Device ID"
 
 #define STRING_TUBE "Tube"
-#define STRING_LIFE_TIME "Life time"
-#define STRING_DEAD_TIME_SHORT "Dead time"
+#define STRING_LIFE "Life"
 #define STRING_DEVICE "Device"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE_SHORT "Voltage"
+#define STRING_BATTERY "Battery"

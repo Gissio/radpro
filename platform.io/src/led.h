@@ -26,6 +26,6 @@ void initAlertLED(void);
 void setAlertLED(bool value);
 #endif
 
-void updateLED(void);
+void updateLED(bool enabled);
 
 #endif

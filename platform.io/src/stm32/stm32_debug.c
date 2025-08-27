@@ -15,56 +15,6 @@
 #include "../events.h"
 #include "../power.h"
 
-#define DEBUG_USART_INTERFACE USART1
-#define DEBUG_USART_APB_FREQUENCY APB2_FREQUENCY
-#define DEBUG_USART_TX_PORT GPIOB
-#define DEBUG_USART_TX_PIN 6
-#define DEBUG_USART_TX_AF 0
-#define DEBUG_USART_BAUDRATE 115200
-
-void initDebug(void)
-{
-    // RCC
-    rcc_enable_usart(DEBUG_USART_INTERFACE);
-
-    // GPIO
-#if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
-    gpio_setup_af(DEBUG_USART_TX_PORT,
-                  DEBUG_USART_TX_PIN,
-                  GPIO_OUTPUTTYPE_PUSHPULL,
-                  GPIO_OUTPUTSPEED_50MHZ,
-                  GPIO_PULL_FLOATING,
-                  DEBUG_USART_TX_AF);
-#elif defined(STM32F1)
-    set_bits(AFIO->MAPR,
-             AFIO_MAPR_USART1_REMAP);
-
-    gpio_setup(DEBUG_USART_TX_PORT,
-               DEBUG_USART_TX_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL);
-#endif
-
-    // USART
-    usart_setup_8n1(DEBUG_USART_INTERFACE,
-                    (DEBUG_USART_APB_FREQUENCY + DEBUG_USART_BAUDRATE / 2) / DEBUG_USART_BAUDRATE);
-}
-
-void printDebug(char *s)
-{
-    while (true)
-    {
-        char c = *s;
-        if (c == '\0')
-            return;
-
-        usart_send_blocking(DEBUG_USART_INTERFACE, c);
-        if (c == '\n')
-            usart_send_blocking(DEBUG_USART_INTERFACE, '\r');
-
-        s++;
-    }
-}
-
 uint32_t getGPIO(uint32_t index)
 {
     switch (index)
@@ -101,7 +51,7 @@ void debugWait(uint32_t ms)
     uint32_t n = (SYSCLK_FREQUENCY / 8000000) * 200 * ms;
 
     for (uint32_t i = 0; i < n; i++)
-        sleep(0);
+        resetWatchdog();
 }
 
 void onHardFault(const uint32_t *args)

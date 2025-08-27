@@ -18,7 +18,6 @@ static int32_t timeDelta;
 
 void initRTC(void)
 {
-    timeDelta = 0;
 }
 
 static uint32_t getLocalTime(void)

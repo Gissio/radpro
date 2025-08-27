@@ -25,15 +25,14 @@ extern View batteryTypeMenuView;
 void initPower(void);
 
 void setPower(bool value);
-bool isPowered(void);
 bool isPowerOnReset(void);
 bool isBatteryCharging(void);
 bool isUSBPowered(void);
 uint32_t getBatteryNum(void);
 
 void powerOn(bool isBoot);
-void powerOff(bool isBootOrLowBattery);
-bool isDeviceOff(void);
+void powerOff(bool showBatteryIndicator);
+bool isInPowerOffView(void);
 
 void updateBattery(void);
 uint8_t getBatteryLevel(void);

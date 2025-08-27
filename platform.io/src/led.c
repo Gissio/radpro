@@ -7,6 +7,8 @@
  * License: MIT
  */
 
+#if defined(PULSE_LED) || defined(ALERT_LED) || defined(PULSE_LED_EN) || defined(ALERT_LED_EN)
+
 #include "events.h"
 #include "led.h"
 #include "measurements.h"
@@ -24,22 +26,20 @@ void initLED(void)
     initAlertLED();
 #endif
 
-    updateLED();
+    updateLED(false);
 }
 
-void updateLED(void)
+void updateLED(bool enabled)
 {
-#if defined(PULSE_LED) || defined(ALERT_LED) || defined(PULSE_LED_EN) || defined(ALERT_LED_EN)
-
-    AlertLevel alertLevel = getAlertLevel();
-
-    bool pulseLEDEnabled = !isDeviceOff() &&
-                           isPulseThresholdExceeded() &&
-                           settings.pulseLED;
+    // Get state
+    bool pulseLEDEnabled = isPulseThresholdExceeded() &&
+                           settings.pulseLED &&
+                           enabled;
     bool pulseLEDState;
 
-    // Get state
-    if ((alertLevel > ALERTLEVEL_NONE) && !settings.alertPulseLED)
+    AlertLevel alertLevel = getAlertLevel();
+    if (!settings.alertPulseLED ||
+        !enabled)
         alertLevel = ALERTLEVEL_NONE;
 
 #if defined(PULSE_LED) && !defined(ALERT_LED)
@@ -53,7 +53,8 @@ void updateLED(void)
 #elif (defined(PULSE_LED) && defined(ALERT_LED)) || (defined(PULSE_LED_EN) && defined(ALERT_LED_EN))
     bool alertLEDState;
 
-    if ((alertLevel > ALERTLEVEL_NONE) && !isAlertBlink())
+    if ((alertLevel > ALERTLEVEL_NONE) &&
+        !isAlertBlink())
         alertLevel = ALERTLEVEL_NONE;
 
     if (alertLevel == ALERTLEVEL_NONE)
@@ -75,21 +76,25 @@ void updateLED(void)
     }
 #endif
 
-    // Update state
+    // Update pulse LED
 #if defined(PULSE_LED)
-    setPulseLEDEnabled(pulseLEDEnabled);
+    enablePulseLED(pulseLEDEnabled);
 #endif
     if (pulseLEDState != ledLastPulseLEDState)
     {
 #if defined(PULSE_LED)
-        cancelPulseLEDTimer();
+        cancelPulseLED();
 #endif
+#if defined(PULSE_LED) || defined(PULSE_LED_EN)
         setPulseLED(pulseLEDState);
+#endif
         ledLastPulseLEDState = pulseLEDState;
     }
+
+    // Update alert LED
 #if defined(ALERT_LED) || defined(ALERT_LED_EN)
     setAlertLED(alertLEDState);
 #endif
+}
 
 #endif
-}

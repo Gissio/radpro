@@ -37,7 +37,7 @@ typedef struct
     Dose tube;
     Dose dose;
     Settings settings;
-} FlashState;
+} PersistentState;
 
 Settings settings;
 
@@ -52,9 +52,7 @@ const Settings defaultSettings = {
     .secondaryUnits = UNITS_CPM,
 
     .rateWarning = RATE_1_USVH,
-    .doseWarning = DOSE_100_USV,
     .rateAlarm = RATE_10_USVH,
-    .doseAlarm = DOSE_1000_USV,
     .alertSound = true,
 #if defined(VOICE)
     .alertVoice = true,
@@ -90,7 +88,7 @@ const Settings defaultSettings = {
     .rtcTimeZone = RTC_TIMEZONE_P0000,
 };
 
-static FlashState *getFlashState(FlashIterator *iterator);
+static PersistentState *getPersistentState(FlashIterator *iterator);
 
 void initSettings(void)
 {
@@ -104,17 +102,17 @@ void initSettings(void)
     settings.rtcTimeZone = 12 + (unixTime - localTime) / 3600;
 #endif
 
-    // Read flash state
+    // Read persistent state
     FlashIterator iterator;
-    FlashState *flashState = getFlashState(&iterator);
+    PersistentState *persistentState = getPersistentState(&iterator);
 
-    if (flashState)
+    if (persistentState)
     {
-        setCumulativeDoseTime(flashState->dose.time);
-        setCumulativeDosePulseCount(flashState->dose.pulseCount);
-        setTubeTime(flashState->tube.time);
-        setTubePulseCount(flashState->tube.pulseCount);
-        settings = flashState->settings;
+        setCumulativeDoseTime(persistentState->dose.time);
+        setCumulativeDosePulseCount(persistentState->dose.pulseCount);
+        setTubeTime(persistentState->tube.time);
+        setTubePulseCount(persistentState->tube.pulseCount);
+        settings = persistentState->settings;
 
         // Validate settings
         if (settings.instantaneousAveraging >= INSTANTANEOUSAVERAGING_NUM)
@@ -162,44 +160,44 @@ void resetSettings(void)
                    0);
 }
 
-static FlashState *getFlashState(FlashIterator *iterator)
+static PersistentState *getPersistentState(FlashIterator *iterator)
 {
     iterator->region = &flashSettingsRegion;
     setFlashPageHead(iterator);
 
-    uint8_t *entry = getFlashPage(iterator->pageIndex);
-    FlashState *flashState = NULL;
+    uint8_t *persistentState = getFlashPage(iterator->pageIndex);
+    PersistentState *lastPersistentState = NULL;
 
     for (iterator->index = 0;
-         iterator->index <= (flashPageDataSize - sizeof(FlashState));
-         iterator->index += sizeof(FlashState))
+         iterator->index <= (flashPageDataSize - sizeof(PersistentState));
+         iterator->index += sizeof(PersistentState))
     {
-        if (isFlashEmpty(entry, sizeof(FlashState)))
+        if (isFlashEmpty(persistentState, sizeof(PersistentState)))
             break;
 
-        flashState = (FlashState *)entry;
+        lastPersistentState = (PersistentState *)persistentState;
 
-        entry += sizeof(FlashState);
+        persistentState += sizeof(PersistentState);
     }
 
-    return flashState;
+    return lastPersistentState;
 }
 
 void writeSettings(void)
 {
     FlashIterator iterator;
-    getFlashState(&iterator);
+    getPersistentState(&iterator);
 
-    FlashState flashState;
-    flashState.dose.time = getCumulativeDoseTime();
-    flashState.dose.pulseCount = getCumulativeDosePulseCount();
-    flashState.tube.time = getTubeTime();
-    flashState.tube.pulseCount = getTubePulseCount();
-    flashState.settings = settings;
+    PersistentState persistentState;
+    persistentState.dose.time = getCumulativeDoseTime();
+    persistentState.dose.pulseCount = getCumulativeDosePulseCount();
+    persistentState.tube.time = getTubeTime();
+    persistentState.tube.pulseCount = getTubePulseCount();
+    persistentState.settings = settings;
 
     writeFlashPage(&iterator,
-                   (uint8_t *)&flashState,
-                   sizeof(FlashState));
+                   (uint8_t *)&persistentState,
+                   sizeof(PersistentState));
 }
 
 // Settings menu
@@ -209,7 +207,7 @@ static SubMenuOption settingsMenuOptions[] = {
     {STRING_ALERTS, &alertsMenuView},
     {STRING_MEASUREMENTS, &measurementsMenuView},
     {STRING_GEIGER_TUBE, &tubeMenuView},
-    {STRING_DATA_LOG, &datalogMenuView},
+    {STRING_DATALOG, &datalogMenuView},
     {STRING_DISPLAY, &displayMenuView},
 #if defined(BUZZER) || defined(VOICE)
     {STRING_SOUND, &soundMenuView},
@@ -224,7 +222,7 @@ static SubMenuOption settingsMenuOptions[] = {
 #endif
     {STRING_STATISTICS, &statisticsView},
 #if defined(DATA_MODE)
-    {STRING_DATA_MODE, NULL},
+    {STRING_DATAMODE, NULL},
 #endif
     {NULL},
 };

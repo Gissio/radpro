@@ -101,7 +101,7 @@ void mr_sdl_init(mr_t *mr,
         exit(1);
     }
 
-#ifndef __EMSCRIPTEN__
+#if !defined(__EMSCRIPTEN__)
     SDL_RenderSetLogicalSize(display->sdl_renderer,
                              width * upscale,
                              height * upscale);

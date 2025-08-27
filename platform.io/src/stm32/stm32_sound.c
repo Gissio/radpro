@@ -9,7 +9,7 @@
 
 #if defined(STM32)
 
-#if defined(BUZZER) || defined(VOICE)
+#if defined(BUZZER) || defined(SOUND_EN) || defined(VOICE)
 #include "../events.h"
 #include "../sound.h"
 
@@ -281,7 +281,7 @@ void initVoice(void)
 //     sleep(30);
 // }
 
-static void enableVoice(void)
+static void setVoiceEnabled(void)
 {
     // RCC
     rcc_enable_tim(VOICE_TX_TIMER);
@@ -359,7 +359,7 @@ void onVoiceTick(void)
         voice.sequenceIndex = 0;
 
         if (!voice.transmitting)
-            enableVoice();
+            setVoiceEnabled();
 
         voice.requestedSequenceUpdate = false;
     }
@@ -584,6 +584,20 @@ void playVoiceTest(void)
     pushVoiceQueue(VOICE_ONE);
     pushVoiceQueue(VOICE_TWO);
     pushVoiceQueue(VOICE_THREE);
+    sendVoiceQueue();
+}
+
+void playNumber(uint32_t value)
+{
+    clearVoiceAlert();
+
+    clearVoiceQueue();
+    pushVoiceQueue(VOICE_STOP);
+    pushVoiceQueue(voiceVolume[settings.soundVoiceVolume]);
+    if (value == 0)
+        pushVoiceQueue(VOICE_ZERO);
+    else
+        pushVoiceQueueNumber(value);
     sendVoiceQueue();
 }
 

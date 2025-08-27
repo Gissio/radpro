@@ -23,6 +23,8 @@
 
 void initSystem(void)
 {
+    setFastSystemClock(false);
+
     // Set SYSCLK to HSI16/2
     modify_bits(RCC->CR,
                 RCC_CR_HSIDIV_Msk,
@@ -42,6 +44,70 @@ void initSystem(void)
                  RCC_IOPENR_GPIOBEN |
                  RCC_IOPENR_GPIOCEN |
                  RCC_IOPENR_GPIODEN);
+}
+
+void setFastSystemClock(bool value)
+{
+    // Set HSI as system clock
+    modify_bits(RCC->CFGR,
+                RCC_CFGR_SW_Msk,
+                RCC_CFGR_SW_HSI);
+    wait_until_bits_value(RCC->CFGR,
+                          RCC_CFGR_SWS_Msk,
+                          RCC_CFGR_SWS_HSI);
+
+    // Disable PLL
+    clear_bits(RCC->CR, RCC_CR_PLLON);
+    wait_until_bits_clear(RCC->CR, RCC_CR_PLLRDY);
+
+    if (value)
+    {
+        // Set 2 wait states for flash
+        modify_bits(FLASH->ACR,
+                    FLASH_ACR_LATENCY_Msk,
+                    FLASH_ACR_LATENCY_2WS);
+
+        // Configure SW, AHB, APB
+        RCC->CFGR = RCC_CFGR_SW_HSI |    // Select HSI as system clock
+                    RCC_CFGR_HPRE_DIV8 | // Set AHB clock: 64 MHz / 8 = 8 MHz
+                    RCC_CFGR_PPRE_DIV2;  // Set APB clock: 64 MHz / 2 = 4 MHz
+
+        // Configure PLL
+        RCC->PLLCFGR = RCC_PLLCFGR_PLLSRC_HSI |          // Set PLL source: HSI16
+                       (0b000 << RCC_PLLCFGR_PLLM_Pos) | // Set PLL division factor: /1
+                       (8 << RCC_PLLCFGR_PLLN_Pos) |     // Set main PLL VCO multiplication factor: 8x
+                       RCC_PLLCFGR_PLLREN |              // Enable main PLL PLLCLK output
+                       (0b001 << RCC_PLLCFGR_PLLR_Pos);  // Set main PLL PLLCLK division factor: /2
+
+        // Enable PLL
+        set_bits(RCC->CR, RCC_CR_PLLON);
+        wait_until_bits_set(RCC->CR, RCC_CR_PLLRDY);
+
+        // Set PLL as system clock
+        modify_bits(RCC->CFGR,
+                    RCC_CFGR_SW_Msk,
+                    RCC_CFGR_SW_PLL);
+        wait_until_bits_value(RCC->CFGR,
+                              RCC_CFGR_SWS_Msk,
+                              RCC_CFGR_SWS_PLL);
+
+        // Update sys tick
+        SysTick->LOAD = SysTick->LOAD << 3;
+    }
+    else
+    {
+        // Set 0 wait states for flash
+        clear_bits(FLASH->ACR,
+                   FLASH_ACR_LATENCY_Msk);
+
+        // Configure SW, AHB, APB
+        RCC->CFGR = RCC_CFGR_SW_HSI |    // Select HSI as system clock
+                    RCC_CFGR_HPRE_DIV1 | // Set AHB clock: 8 MHz / 1 = 8 MHz
+                    RCC_CFGR_PPRE_DIV2;  // Set APB clock: 8 MHz / 2 = 4 MHz
+
+        // Update sys tick
+        SysTick->LOAD = SysTick->LOAD >> 3;
+    }
 }
 
 void startBootloader(void)
@@ -249,7 +315,7 @@ void initDisplay(void)
     initBacklight();
 }
 
-void enableDisplay(bool value)
+void setDisplayEnable(bool value)
 {
     mr_st7565_set_display(&mr, value);
 

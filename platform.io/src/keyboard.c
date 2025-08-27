@@ -95,10 +95,10 @@ void onKeyboardTick(void)
 #if defined(DISPLAY_MONOCHROME)
             if ((settings.displaySleep != DISPLAY_SLEEP_ALWAYS_OFF) &&
                 !isBacklightActive() &&
-                !isDeviceOff())
+                !isInPowerOffView())
 #elif defined(DISPLAY_COLOR)
             if (!isBacklightActive() &&
-                !isDeviceOff())
+                !isInPowerOffView())
 #endif
                 event = EVENT_KEY_TOGGLEBACKLIGHT;
             else

@@ -14,10 +14,10 @@
 
 #include "device.h"
 
+static bool rtcEnabled;
+
 void initRTC(void)
 {
-    syncTick();
-
     rcc_enable_rtc();
     rtc_disable_backup_domain_write_protection();
 
@@ -32,6 +32,8 @@ void initRTC(void)
 
         setDeviceTime(RTC_TIME_INIT);
     }
+
+    rtcEnabled = true;
 }
 
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
@@ -48,6 +50,9 @@ static uint32_t decodeBCDByte(uint8_t value)
 
 void setDeviceTime(uint32_t value)
 {
+    if (!rtcEnabled)
+        return;
+
     RTCDateTime dateTime;
     getDateTimeFromTime(value, &dateTime);
 
@@ -91,6 +96,9 @@ uint32_t getDeviceTimeFast(void)
 
 void setDeviceTime(uint32_t value)
 {
+    if (!rtcEnabled)
+        return;
+
     rtc_enter_configuration_mode();
     rtc_set_prescaler_factor(LSE_FREQUENCY);
     rtc_set_count(value);

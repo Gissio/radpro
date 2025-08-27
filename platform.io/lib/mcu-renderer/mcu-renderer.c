@@ -984,7 +984,7 @@ void mr_draw_string_textbuffer(mr_t *mr,
     {
         mr_charcode charcode = get_charcode_callback((uint8_t **)&str);
         bool draw_buffer;
-        int16_t buffer_width_increment;
+        int16_t buffer_width_increment = 0;
 
         if (!charcode)
             draw_buffer = true;

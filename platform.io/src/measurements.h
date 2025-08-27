@@ -34,7 +34,7 @@ float getCurrentDoseFactor(void);
 void setMeasurements(bool value);
 
 void onMeasurementTick(uint32_t pulseCount);
-void onMeasurementPeriod(void);
+void onMeasurementHeartbeat(void);
 void updateMeasurements(void);
 
 void setMeasurementView(int32_t index);
@@ -53,6 +53,7 @@ uint32_t getTubeTime(void);
 void setTubePulseCount(uint32_t value);
 uint32_t getTubePulseCount(void);
 
+void loadHistory(void);
 void resetHistory(void);
 
 bool isAlertEnabled(void);
@@ -62,6 +63,7 @@ bool isInstantaneousRateAlert(void);
 bool isCumulativeDoseAlert(void);
 bool isAlertUndismissed(void);
 void dismissAlert(void);
+bool isPulseSoundIconEnabled(void);
 
 char *buildRateAlertMenuOption(uint32_t index);
 

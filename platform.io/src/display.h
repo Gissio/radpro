@@ -33,11 +33,11 @@ extern View displayMenuView;
 #endif
 
 #if defined(DISPLAY_128X64)
-#define HISTORY_BUFFER_SIZE 120
+#define HISTORY_BIN_NUM 120
 #elif defined(DISPLAY_320X240)
-#define HISTORY_BUFFER_SIZE 300
+#define HISTORY_BIN_NUM 300
 #elif defined(DISPLAY_240X320)
-#define HISTORY_BUFFER_SIZE 200
+#define HISTORY_BIN_NUM 200
 #endif
 
 #define HISTORY_VALUE_MIN 0.02F
@@ -49,7 +49,7 @@ typedef enum
     MEASUREMENTSTYLE_NORMAL,
     MEASUREMENTSTYLE_WARNING,
     MEASUREMENTSTYLE_ALARM,
-    MEASUREMENTSTYLE_HOLD,
+    MEASUREMENTSTYLE_DONE,
 } MeasurementStyle;
 
 extern const uint32_t menuLineNum;
@@ -59,7 +59,7 @@ void initBacklight(void);
 
 void resetDisplay(void);
 
-void enableDisplay(bool value);
+void setDisplayEnable(bool value);
 bool isDisplayEnabled(void);
 
 void setBacklight(bool value);
@@ -69,38 +69,38 @@ void updateDisplayContrast(void);
 void refreshDisplay(void);
 
 void drawPowerOff(bool displayBatteryIcon);
-void drawTitleBar(const char *title,
-                  bool isMenu);
+void drawTitleBar(const char *title);
+void drawSplash(const char *message);
 void drawNotification(const char *title,
-                      const char *subtitle);
+                      const char *message);
 void drawMenu(Menu *menu);
 void drawMeasurementValue(const char *valueString,
                           const char *unitString,
                           float confidence,
                           MeasurementStyle style);
-void drawMeasurementInfo(const char *infoKeyString,
-                         const char *infoValueString,
-                         const char *infoUnitString,
-                         const char *stateString,
+void drawMeasurementAlert(const char *alertString);
+void drawMeasurementInfo(const char *keyString,
+                         const char *valueString,
+                         const char *unitString,
                          MeasurementStyle style);
 void drawMeasurementBar(float value,
                         int32_t minExponent,
-                        float alertZone1Value,
-                        float alertZone2Value);
+                        float alertZone1,
+                        float alertZone2);
 void drawHistory(float scale,
                  const char *unitString,
-                 uint32_t timeTickNum,
-                 const uint8_t *data,
-                 uint32_t alertZone1Value,
-                 uint32_t alertZone2Value);
+                 uint32_t xTickNum,
+                 const char *periodLabel,
+                 const uint8_t *bins,
+                 uint32_t alertZone1,
+                 uint32_t alertZone2);
 void drawRNG(const char *title,
-             bool largeFont,
+             bool isLarge,
              const char *rngString,
              const char *stateString);
 void drawStatistics(void);
 void drawGame(const uint8_t board[8][8],
-              const char time[2][16],
-              const char history[3][2][6]);
+              const char time[2][16]);
 void drawDataMode(void);
 void drawTestMode(const char lines[8][32]);
 

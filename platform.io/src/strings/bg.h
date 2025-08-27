@@ -67,33 +67,31 @@
 #define STRING_MEDIUM "Средна"
 #define STRING_HIGH "Висока"
 
-// Notification headings (upper case)
-#define STRING_NOTIFICATION_WARNING "ВНИМАНИЕ"
-#define STRING_NOTIFICATION_SUCCESS "УСПЕХ"
+// Firmware checksum failure notification
+#define STRING_SPLASH_FIRMWARE_CHECKSUM_FAILURE "ВНИМАНИЕ\n\nНеуспех при проверка на фърмуера."
 
-// Firmware checksum failure notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "Грешка на фърмуера."
+// HV profile menu items
+#define STRING_NOTIFICATION_HVCUSTOM "ВНИМАНИЕ\n\nГрешни стойности могат да повредят устройството."
 
-// HV profile menu items (shorter than 30 characters)
-#define STRING_NOTIFICATION_HVCUSTOM "На ваш риск."
+// Data log reset notification
+#define STRING_NOTIFICATION_DATALOG_RESET_CONFIRM "Нулиране на дневника с данни?\n\nВсички записи ще бъдат изтрити."
 
-// Data log reset notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_TITLE "Изтриване?"
-#define STRING_NOTIFICATION_DATALOG_RESET_SUBTITLE "Всичко ще бъде изтрито."
-
-// Data log reset success notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "Записите са изтрити."
+// Data log reset success notification
+#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "УСПЕХ\n\nДневникът с данни е нулиран."
 
 // Measurement view UI heading strings
 #define STRING_INSTANTANEOUS "Моментно"
 #define STRING_AVERAGE "Средно"
 #define STRING_CUMULATIVE "С натрупване"
-#define STRING_HISTORY_10_MINUTES "История (10 мин)"
-#define STRING_HISTORY_1_HOUR "История (1 ч)"
-#define STRING_HISTORY_1_DAY "История (1 д)"
-#define STRING_HISTORY_1_WEEK "(1 седм)"
-#define STRING_HISTORY_1_MONTH "История (1 мес)"
-#define STRING_HISTORY_1_YEAR "История (1 г)"
+#define STRING_HISTORY "История"
+
+// Measurement history view time periods
+#define STRING_HISTORY_10_MINUTES "10 мин"
+#define STRING_HISTORY_1_HOUR "1 ч"
+#define STRING_HISTORY_1_DAY "1 д"
+#define STRING_HISTORY_1_WEEK "1 седм"
+#define STRING_HISTORY_1_MONTH "1 мес"
+#define STRING_HISTORY_1_YEAR "1 г"
 
 // Measurement view secondary view strings
 #define STRING_TIME "Време"
@@ -102,12 +100,12 @@
 #define STRING_DOSE "Доза"
 
 // Measurement view info strings (upper case, up to 5 letters)
-#define STRING_INFO_ALARM "АЛАРМА"
-#define STRING_INFO_WARNING "ВНИМАНИЕ"
-#define STRING_INFO_FAULT "ГРЕШКА"
-#define STRING_INFO_MAX "МАКС"
-#define STRING_INFO_OVERFLOW "НАД"
-#define STRING_INFO_DONE "ГОТОВО"
+#define STRING_ALERT_ALARM "АЛАРМА"
+#define STRING_ALERT_WARNING "ВНИМАНИЕ"
+#define STRING_ALERT_FAULT "ГРЕШКА"
+#define STRING_ALERT_MAX "МАКС"
+#define STRING_ALERT_OVERFLOW "НАД"
+#define STRING_ALERT_DONE "ГОТОВО"
 
 // Settings menu items
 #define STRING_SETTINGS "Настройки"
@@ -115,14 +113,14 @@
 #define STRING_ALERTS "Сигнали"
 #define STRING_MEASUREMENTS "Измервания"
 #define STRING_GEIGER_TUBE "G-M брояч"
-#define STRING_DATA_LOG "Журнал с данни"
+#define STRING_DATALOG "Журнал с данни"
 #define STRING_DISPLAY "Дисплей"
 #define STRING_DATE_AND_TIME "Дата и час"
 #define STRING_BATTERY_TYPE "Тип батерия"
 #define STRING_RANDOM_GENERATOR "Случаен генератор"
 #define STRING_GAME "Игра"
 #define STRING_STATISTICS "Статистика"
-#define STRING_DATA_MODE "Режим на данни"
+#define STRING_DATAMODE "Режим на данни"
 
 // Pulses menu items
 #define STRING_SOUND "Звук"
@@ -134,8 +132,8 @@
 
 // Alarms menu items
 #define STRING_RATE_WARNING "Предупр. за скорост"
-#define STRING_DOSE_WARNING "Предупр. за доза"
 #define STRING_RATE_ALARM "Аларма за скорост"
+#define STRING_DOSE_WARNING "Предупр. за доза"
 #define STRING_DOSE_ALARM "Аларма за доза"
 #define STRING_INDICATION "Индикация"
 
@@ -158,7 +156,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "Чувствителност"
-#define STRING_DEAD_TIME_SHORT_COMPENSATION "Комп. на мъртво време"
+#define STRING_DEAD_TIME_COMPENSATION "Комп. на мъртво време"
 #define STRING_HVPROFILE "HV профил"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
@@ -171,7 +169,7 @@
 #define STRING_J614 "J614"
 #define STRING_M4011 "M4011"
 
-// Russian Geiger tubes (should only be translated with non-latin scripts)
+// Russian Geiger tubes (should only be translated with cyrillic scripts)
 #define STRING_SBM20 "СБМ-20"
 
 // HV profile menu items
@@ -183,9 +181,6 @@
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "ШИМ честота"
 #define STRING_PWMDUTY_CYCLE "ШИМ коеф. запълване"
-
-// Tube/battery voltage
-#define STRING_VOLTAGE "Напрежение"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Режим на запис"
@@ -281,13 +276,11 @@
 #define STRING_GAME_LEVEL "Ниво"
 
 // Statistics view items
-#define STRING_TUBE_LIFE_TIME "Работа на дет."
+#define STRING_TUBE_LIFE "Живот на дет."
 #define STRING_DEAD_TIME "Мъртво време"
-#define STRING_DEVICE_ID "ID на устр."
 
 #define STRING_TUBE "Детектор"
-#define STRING_LIFE_TIME "Живот"
-#define STRING_DEAD_TIME_SHORT "Мъртво в."
+#define STRING_LIFE "Живот"
 #define STRING_DEVICE "Устройство"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE_SHORT "Напр."
+#define STRING_BATTERY "Батерия"

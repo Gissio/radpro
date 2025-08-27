@@ -67,33 +67,31 @@
 #define STRING_MEDIUM "Medio"
 #define STRING_HIGH "Alto"
 
-// Notification headings (upper case)
-#define STRING_NOTIFICATION_WARNING "ADVERTENCIA"
-#define STRING_NOTIFICATION_SUCCESS "ÉXITO"
+// Firmware checksum failure notification
+#define STRING_SPLASH_FIRMWARE_CHECKSUM_FAILURE "ADVERTENCIA\n\nFallo en la suma de verificación del firmware."
 
-// Firmware checksum failure notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "Fallo de firmware."
+// HV profile menu items
+#define STRING_NOTIFICATION_HVCUSTOM "ADVERTENCIA\n\nValores incorrectos pueden dañar el dispositivo."
 
-// HV profile menu items (shorter than 30 characters)
-#define STRING_NOTIFICATION_HVCUSTOM "Valores malos dañan equipo."
+// Data log reset notification
+#define STRING_NOTIFICATION_DATALOG_RESET_CONFIRM "¿Restablecer el registro de datos?\n\nTodos los registros serán eliminados."
 
-// Data log reset notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_TITLE "¿Restablecer?"
-#define STRING_NOTIFICATION_DATALOG_RESET_SUBTITLE "Se borrarán todos los datos."
-
-// Data log reset success notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "Registro restablecido."
+// Data log reset success notification
+#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "ÉXITO\n\nEl registro de datos ha sido restablecido."
 
 // Measurement view UI heading strings
 #define STRING_INSTANTANEOUS "Instantáneo"
 #define STRING_AVERAGE "Promedio"
 #define STRING_CUMULATIVE "Acumulado"
-#define STRING_HISTORY_10_MINUTES "Historial (10 min)"
-#define STRING_HISTORY_1_HOUR "Historial (1 h)"
-#define STRING_HISTORY_1_DAY "Historial (1 d)"
-#define STRING_HISTORY_1_WEEK "Historial (1 sem)"
-#define STRING_HISTORY_1_MONTH "Historial (1 mes)"
-#define STRING_HISTORY_1_YEAR "Historial (1 a)"
+#define STRING_HISTORY "Historial"
+
+// Measurement history view time periods
+#define STRING_HISTORY_10_MINUTES "10 min"
+#define STRING_HISTORY_1_HOUR "1 h"
+#define STRING_HISTORY_1_DAY "1 d"
+#define STRING_HISTORY_1_WEEK "1 sem"
+#define STRING_HISTORY_1_MONTH "1 mes"
+#define STRING_HISTORY_1_YEAR "1 a"
 
 // Measurement view secondary view strings
 #define STRING_TIME "Tiempo"
@@ -102,12 +100,12 @@
 #define STRING_DOSE "Dosis"
 
 // Measurement view info strings (upper case, up to 5 letters)
-#define STRING_INFO_ALARM "ALARMA"
-#define STRING_INFO_WARNING "ADVERTENCIA"
-#define STRING_INFO_FAULT "FALLO"
-#define STRING_INFO_MAX "MÁX"
-#define STRING_INFO_OVERFLOW "SOBRE"
-#define STRING_INFO_DONE "LISTO"
+#define STRING_ALERT_ALARM "ALARMA"
+#define STRING_ALERT_WARNING "ADVERTENCIA"
+#define STRING_ALERT_FAULT "FALLO"
+#define STRING_ALERT_MAX "MÁX"
+#define STRING_ALERT_OVERFLOW "SOBRE"
+#define STRING_ALERT_DONE "LISTO"
 
 // Settings menu items
 #define STRING_SETTINGS "Configuración"
@@ -115,14 +113,14 @@
 #define STRING_ALERTS "Alertas"
 #define STRING_MEASUREMENTS "Mediciones"
 #define STRING_GEIGER_TUBE "Tubo Geiger"
-#define STRING_DATA_LOG "Registro de datos"
+#define STRING_DATALOG "Registro de datos"
 #define STRING_DISPLAY "Pantalla"
 #define STRING_DATE_AND_TIME "Fecha y hora"
 #define STRING_BATTERY_TYPE "Tipo de batería"
 #define STRING_RANDOM_GENERATOR "Generador aleatorio"
 #define STRING_GAME "Juego"
 #define STRING_STATISTICS "Estadísticas"
-#define STRING_DATA_MODE "Modo de datos"
+#define STRING_DATAMODE "Modo de datos"
 
 // Pulses menu items
 #define STRING_SOUND "Sonido"
@@ -134,8 +132,8 @@
 
 // Alarms menu items
 #define STRING_RATE_WARNING "Advert. de tasa"
-#define STRING_DOSE_WARNING "Advert. de dosis"
 #define STRING_RATE_ALARM "Alarma de tasa"
+#define STRING_DOSE_WARNING "Advert. de dosis"
 #define STRING_DOSE_ALARM "Alarma de dosis"
 #define STRING_INDICATION "Indicación"
 
@@ -158,7 +156,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "Sensibilidad"
-#define STRING_DEAD_TIME_SHORT_COMPENSATION "Comp. tiempo muerto"
+#define STRING_DEAD_TIME_COMPENSATION "Comp. tiempo muerto"
 #define STRING_HVPROFILE "Perfil HV"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
@@ -171,7 +169,7 @@
 #define STRING_J614 "J614"
 #define STRING_M4011 "M4011"
 
-// Russian Geiger tubes (should only be translated with non-latin scripts)
+// Russian Geiger tubes (should only be translated with cyrillic scripts)
 #define STRING_SBM20 "SBM-20"
 
 // HV profile menu items
@@ -183,9 +181,6 @@
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "Frecuencia PWM"
 #define STRING_PWMDUTY_CYCLE "Ciclo de trabajo PWM"
-
-// Tube/battery voltage
-#define STRING_VOLTAGE "Voltaje"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Modo de registro"
@@ -281,13 +276,11 @@
 #define STRING_GAME_LEVEL "Nivel"
 
 // Statistics view items
-#define STRING_TUBE_LIFE_TIME "Vida del tubo"
-#define STRING_DEAD_TIME "Tiempo muerto"
-#define STRING_DEVICE_ID "ID del dispositivo"
+#define STRING_TUBE_LIFE "Vida del tubo"
+#define STRING_DEAD_TIME "T. muerto"
 
 #define STRING_TUBE "Tubo"
-#define STRING_LIFE_TIME "Vida"
-#define STRING_DEAD_TIME_SHORT "T. muerto"
+#define STRING_LIFE "Vida"
 #define STRING_DEVICE "Dispositivo"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE_SHORT "Voltaje"
+#define STRING_BATTERY "Batería"

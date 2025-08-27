@@ -67,33 +67,31 @@
 #define STRING_MEDIUM "Mediu"
 #define STRING_HIGH "Ridicat"
 
-// Notification headings (upper case)
-#define STRING_NOTIFICATION_WARNING "AVERTIZARE"
-#define STRING_NOTIFICATION_SUCCESS "SUCCES"
+// Firmware checksum failure notification
+#define STRING_SPLASH_FIRMWARE_CHECKSUM_FAILURE "AVERTISMENT\n\nEșec al sumei de control a firmware-ului."
 
-// Firmware checksum failure notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "Eșec checksum firmware."
+// HV profile menu items
+#define STRING_NOTIFICATION_HVCUSTOM "AVERTISMENT\n\nValorile incorecte pot dăuna dispozitivului."
 
-// HV profile menu items (shorter than 30 characters)
-#define STRING_NOTIFICATION_HVCUSTOM "Valori greșite afectează disp."
+// Data log reset notification
+#define STRING_NOTIFICATION_DATALOG_RESET_CONFIRM "Resetați jurnalul de date?\n\nToate înregistrările vor fi șterse."
 
-// Data log reset notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_TITLE "Resetare?"
-#define STRING_NOTIFICATION_DATALOG_RESET_SUBTITLE "Toate înreg. vor fi șterse."
-
-// Data log reset success notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "Înregistrări resetat."
+// Data log reset success notification
+#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "SUCCES\n\nJurnalul de date a fost resetat."
 
 // Measurement view UI heading strings
 #define STRING_INSTANTANEOUS "Instantaneu"
 #define STRING_AVERAGE "Medie"
 #define STRING_CUMULATIVE "Cumulativ"
-#define STRING_HISTORY_10_MINUTES "Istoric (10 min)"
-#define STRING_HISTORY_1_HOUR "Istoric (1 h)"
-#define STRING_HISTORY_1_DAY "Istoric (1 z)"
-#define STRING_HISTORY_1_WEEK "Istoric (1 săpt)"
-#define STRING_HISTORY_1_MONTH "Istoric (1 lună)"
-#define STRING_HISTORY_1_YEAR "Istoric (1 an)"
+#define STRING_HISTORY "Istoric"
+
+// Measurement history view time periods
+#define STRING_HISTORY_10_MINUTES "10 min"
+#define STRING_HISTORY_1_HOUR "1 h"
+#define STRING_HISTORY_1_DAY "1 z"
+#define STRING_HISTORY_1_WEEK "1 săpt"
+#define STRING_HISTORY_1_MONTH "1 lună"
+#define STRING_HISTORY_1_YEAR "1 an"
 
 // Measurement view secondary view strings
 #define STRING_TIME "Timp"
@@ -102,12 +100,12 @@
 #define STRING_DOSE "Doză"
 
 // Measurement view info strings (upper case, up to 5 letters)
-#define STRING_INFO_ALARM "ALARMĂ"
-#define STRING_INFO_WARNING "AVERTIZARE"
-#define STRING_INFO_FAULT "DEFECT"
-#define STRING_INFO_MAX "MAX"
-#define STRING_INFO_OVERFLOW "DEPĂȘ"
-#define STRING_INFO_DONE "GATA"
+#define STRING_ALERT_ALARM "ALARMĂ"
+#define STRING_ALERT_WARNING "AVERTISMENT"
+#define STRING_ALERT_FAULT "DEFECȚIUNE"
+#define STRING_ALERT_MAX "MAX"
+#define STRING_ALERT_OVERFLOW "DEPĂȘIRE"
+#define STRING_ALERT_DONE "TERMINAT"
 
 // Settings menu items
 #define STRING_SETTINGS "Setări"
@@ -115,14 +113,14 @@
 #define STRING_ALERTS "Alerte"
 #define STRING_MEASUREMENTS "Măsurători"
 #define STRING_GEIGER_TUBE "Tub Geiger"
-#define STRING_DATA_LOG "Înregistrări"
+#define STRING_DATALOG "Jurnalul de date"
 #define STRING_DISPLAY "Afișaj"
 #define STRING_DATE_AND_TIME "Dată și oră"
 #define STRING_BATTERY_TYPE "Tip baterie"
 #define STRING_RANDOM_GENERATOR "Generator aleator"
 #define STRING_GAME "Joc"
 #define STRING_STATISTICS "Statistici"
-#define STRING_DATA_MODE "Mod date"
+#define STRING_DATAMODE "Mod date"
 
 // Pulses menu items
 #define STRING_SOUND "Sunet"
@@ -134,8 +132,8 @@
 
 // Alarms menu items
 #define STRING_RATE_WARNING "Avertisment rată"
-#define STRING_DOSE_WARNING "Avertisment doză"
 #define STRING_RATE_ALARM "Alarmă rată"
+#define STRING_DOSE_WARNING "Avertisment doză"
 #define STRING_DOSE_ALARM "Alarmă doză"
 #define STRING_INDICATION "Indicație"
 
@@ -158,7 +156,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "Sensibilitate"
-#define STRING_DEAD_TIME_SHORT_COMPENSATION "Compensare timp mort"
+#define STRING_DEAD_TIME_COMPENSATION "Compensare timp mort"
 #define STRING_HVPROFILE "Profil HV"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
@@ -171,7 +169,7 @@
 #define STRING_J614 "J614"
 #define STRING_M4011 "M4011"
 
-// Russian Geiger tubes (should only be translated with non-latin scripts)
+// Russian Geiger tubes (should only be translated with cyrillic scripts)
 #define STRING_SBM20 "SBM-20"
 
 // HV profile menu items
@@ -183,9 +181,6 @@
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "Frecvență PWM"
 #define STRING_PWMDUTY_CYCLE "Ciclu de lucru PWM"
-
-// Tube/battery voltage
-#define STRING_VOLTAGE "Tensiune"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Mod înregistrare"
@@ -281,13 +276,11 @@
 #define STRING_GAME_LEVEL "Nivel"
 
 // Statistics view items
-#define STRING_TUBE_LIFE_TIME "Viața tubului"
+#define STRING_TUBE_LIFE "Viața tubului"
 #define STRING_DEAD_TIME "Timp mort"
-#define STRING_DEVICE_ID "ID dispozitiv"
 
 #define STRING_TUBE "Tub"
-#define STRING_LIFE_TIME "Durată"
-#define STRING_DEAD_TIME_SHORT "Timp mort"
+#define STRING_LIFE "Durată"
 #define STRING_DEVICE "Dispozitiv"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE_SHORT "Tensiune"
+#define STRING_BATTERY "Baterie"

@@ -7,7 +7,7 @@
  * License: MIT
  */
 
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__)
 #include <emscripten.h>
 #endif
 
@@ -31,7 +31,7 @@
 #include "vibration.h"
 #include "view.h"
 
-#if SIMULATOR
+#if defined(SIMULATOR)
 bool updateSDLTicks();
 
 static void simulateFrame(void)
@@ -77,8 +77,8 @@ int main(void)
     powerOn(true);
 
     // Main loop
-#if SIMULATOR
-#if __EMSCRIPTEN__
+#if defined(SIMULATOR)
+#if defined(__EMSCRIPTEN__)
     emscripten_set_main_loop(simulateFrame, 0, 1);
 #else
     while (true)
@@ -87,12 +87,12 @@ int main(void)
 #else
     while (true)
     {
+        sleep(1);
+
 #if defined(GAME)
         dispatchGameEvents();
 #endif
         dispatchEvents();
-
-        sleep(1);
     }
 #endif
 }

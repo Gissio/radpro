@@ -67,33 +67,31 @@
 #define STRING_MEDIUM "Orta"
 #define STRING_HIGH "Yüksek"
 
-// Notification headings (upper case)
-#define STRING_NOTIFICATION_WARNING "UYARI"
-#define STRING_NOTIFICATION_SUCCESS "BAŞARILI"
+// Firmware checksum failure notification
+#define STRING_SPLASH_FIRMWARE_CHECKSUM_FAILURE "UYARI\n\nYazılım sağlama toplaması hatası."
 
-// Firmware checksum failure notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "Yazılım kontrol hatası."
+// HV profile menu items
+#define STRING_NOTIFICATION_HVCUSTOM "UYARI\n\nYanlış değerler cihaza zarar verebilir."
 
-// HV profile menu items (shorter than 30 characters)
-#define STRING_NOTIFICATION_HVCUSTOM "Yanlış değerler zarar verir."
+// Data log reset notification
+#define STRING_NOTIFICATION_DATALOG_RESET_CONFIRM "Veri günlüğünü sıfırla?\n\nTüm kayıtlar silinecek."
 
-// Data log reset notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_TITLE "Veri kaydını sıfırla?"
-#define STRING_NOTIFICATION_DATALOG_RESET_SUBTITLE "Tüm kayıtlar silinecek."
-
-// Data log reset success notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "Veri günlüğü sıfırlandı."
+// Data log reset success notification
+#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "BAŞARILI\n\nVeri günlüğü sıfırlandı."
 
 // Measurement view UI heading strings
 #define STRING_INSTANTANEOUS "Anlık"
 #define STRING_AVERAGE "Ortalama"
 #define STRING_CUMULATIVE "Toplam"
-#define STRING_HISTORY_10_MINUTES "Geçmiş (10 dk)"
-#define STRING_HISTORY_1_HOUR "Geçmiş (1 s)"
-#define STRING_HISTORY_1_DAY "Geçmiş (1 g)"
-#define STRING_HISTORY_1_WEEK "Geçmiş (1 h)"
-#define STRING_HISTORY_1_MONTH "Geçmiş (1 ay)"
-#define STRING_HISTORY_1_YEAR "Geçmiş (1 y)"
+#define STRING_HISTORY "Geçmiş"
+
+// Measurement history view time periods
+#define STRING_HISTORY_10_MINUTES "10 dk"
+#define STRING_HISTORY_1_HOUR "1 s"
+#define STRING_HISTORY_1_DAY "1 g"
+#define STRING_HISTORY_1_WEEK "1 h"
+#define STRING_HISTORY_1_MONTH "1 ay"
+#define STRING_HISTORY_1_YEAR "1 y"
 
 // Measurement view secondary view strings
 #define STRING_TIME "Zaman"
@@ -102,12 +100,12 @@
 #define STRING_DOSE "Doz"
 
 // Measurement view info strings (upper case, up to 5 letters)
-#define STRING_INFO_ALARM "ALARM"
-#define STRING_INFO_WARNING "UYARI"
-#define STRING_INFO_FAULT "HATA"
-#define STRING_INFO_MAX "MAKS"
-#define STRING_INFO_OVERFLOW "AŞIRI"
-#define STRING_INFO_DONE "BİTTİ"
+#define STRING_ALERT_ALARM "ALARM"
+#define STRING_ALERT_WARNING "UYARI"
+#define STRING_ALERT_FAULT "ARIZA"
+#define STRING_ALERT_MAX "MAKS"
+#define STRING_ALERT_OVERFLOW "AŞIRI"
+#define STRING_ALERT_DONE "TAMAM"
 
 // Settings menu items
 #define STRING_SETTINGS "Ayarlar"
@@ -115,14 +113,14 @@
 #define STRING_ALERTS "Uyarılar"
 #define STRING_MEASUREMENTS "Ölçümler"
 #define STRING_GEIGER_TUBE "Geiger tüpü"
-#define STRING_DATA_LOG "Veri günlüğü"
+#define STRING_DATALOG "Veri günlüğü"
 #define STRING_DISPLAY "Ekran"
 #define STRING_DATE_AND_TIME "Tarih ve saat"
 #define STRING_BATTERY_TYPE "Pil tipi"
 #define STRING_RANDOM_GENERATOR "Rastgele üreteç"
 #define STRING_GAME "Oyun"
 #define STRING_STATISTICS "İstatistikler"
-#define STRING_DATA_MODE "Veri modu"
+#define STRING_DATAMODE "Veri modu"
 
 // Pulses menu items
 #define STRING_SOUND "Ses"
@@ -134,8 +132,8 @@
 
 // Alarms menu items
 #define STRING_RATE_WARNING "Oran uyarısı"
-#define STRING_DOSE_WARNING "Doz uyarısı"
 #define STRING_RATE_ALARM "Oran alarmı"
+#define STRING_DOSE_WARNING "Doz uyarısı"
 #define STRING_DOSE_ALARM "Doz alarmı"
 #define STRING_INDICATION "Gösterge"
 
@@ -158,7 +156,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "Hassasiyet"
-#define STRING_DEAD_TIME_SHORT_COMPENSATION "Ölü zaman telafisi"
+#define STRING_DEAD_TIME_COMPENSATION "Ölü zaman telafisi"
 #define STRING_HVPROFILE "HV profili"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
@@ -171,7 +169,7 @@
 #define STRING_J614 "J614"
 #define STRING_M4011 "M4011"
 
-// Russian Geiger tubes (should only be translated with non-latin scripts)
+// Russian Geiger tubes (should only be translated with cyrillic scripts)
 #define STRING_SBM20 "SBM-20"
 
 // HV profile menu items
@@ -183,9 +181,6 @@
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "PWM frekansı"
 #define STRING_PWMDUTY_CYCLE "PWM görev döngüsü"
-
-// Tube/battery voltage
-#define STRING_VOLTAGE "Voltaj"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Kayıt modu"
@@ -281,13 +276,11 @@
 #define STRING_GAME_LEVEL "Seviye"
 
 // Statistics view items
-#define STRING_TUBE_LIFE_TIME "Tüp ömrü"
+#define STRING_TUBE_LIFE "Tüp ömrü"
 #define STRING_DEAD_TIME "Ölü zaman"
-#define STRING_DEVICE_ID "Cihaz kimliği"
 
 #define STRING_TUBE "Tüp"
-#define STRING_LIFE_TIME "Ömür"
-#define STRING_DEAD_TIME_SHORT "Ölü zaman"
+#define STRING_LIFE "Ömür"
 #define STRING_DEVICE "Cihaz"
-#define STRING_ID "Kimlik"
-#define STRING_VOLTAGE_SHORT "Voltaj"
+#define STRING_ID "ID"
+#define STRING_BATTERY "Pil"

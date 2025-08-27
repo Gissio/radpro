@@ -1,6 +1,6 @@
 /*
  * Rad Pro
- * STM32 Geiger-Müller tube
+ * STM32 Geiger-Müller tubeHardware
  *
  * (C) 2022-2025 Gissio
  *
@@ -32,7 +32,7 @@ static struct
     volatile uint32_t pulseTimeQueueHead;
     volatile uint32_t pulseTimeQueueTail;
     volatile uint32_t pulseTimeQueue[TUBE_PULSE_QUEUE_SIZE];
-} tube;
+} tubeHardware;
 
 void initTubeHardware(void)
 {
@@ -129,7 +129,7 @@ void initTubeHardware(void)
 
 void setTubeHV(bool value)
 {
-    tube.enabled = value;
+    tubeHardware.enabled = value;
 
     updateTubeHV();
 }
@@ -138,7 +138,7 @@ void updateTubeHV(void)
 {
 #if defined(TUBE_HV_PWM)
     uint32_t period = TUBE_HV_FREQUENCY / getTubeHVFrequency();
-    uint32_t onTime = tube.enabled
+    uint32_t onTime = tubeHardware.enabled
                           ? period * getTubeHVDutyCycle() + 0.5F
                           : 0;
 
@@ -177,7 +177,7 @@ void updateTubeHV(void)
 #else
     gpio_modify(TUBE_HV_PORT,
                 TUBE_HV_PIN,
-                tube.enabled);
+                tubeHardware.enabled);
 #endif
 }
 
@@ -200,17 +200,17 @@ void TUBE_DET_IRQ_HANDLER(void)
             count |= countHigh2 << 16;
     }
 
-    tube.pulseTimeQueue[tube.pulseTimeQueueHead] = count;
-    tube.pulseTimeQueueHead = (tube.pulseTimeQueueHead + 1) & TUBE_PULSE_QUEUE_MASK;
+    tubeHardware.pulseTimeQueue[tubeHardware.pulseTimeQueueHead] = count;
+    tubeHardware.pulseTimeQueueHead = (tubeHardware.pulseTimeQueueHead + 1) & TUBE_PULSE_QUEUE_MASK;
 }
 
 bool getTubePulseTime(uint32_t *pulseTime)
 {
-    if (tube.pulseTimeQueueHead == tube.pulseTimeQueueTail)
+    if (tubeHardware.pulseTimeQueueHead == tubeHardware.pulseTimeQueueTail)
         return false;
 
-    *pulseTime = tube.pulseTimeQueue[tube.pulseTimeQueueTail];
-    tube.pulseTimeQueueTail = (tube.pulseTimeQueueTail + 1) & TUBE_PULSE_QUEUE_MASK;
+    *pulseTime = tubeHardware.pulseTimeQueue[tubeHardware.pulseTimeQueueTail];
+    tubeHardware.pulseTimeQueueTail = (tubeHardware.pulseTimeQueueTail + 1) & TUBE_PULSE_QUEUE_MASK;
 
     return true;
 }

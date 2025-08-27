@@ -67,33 +67,31 @@
 #define STRING_MEDIUM "中"
 #define STRING_HIGH "高"
 
-// Notification headings (upper case)
-#define STRING_NOTIFICATION_WARNING "警告"
-#define STRING_NOTIFICATION_SUCCESS "成功"
+// Firmware checksum failure notification
+#define STRING_SPLASH_FIRMWARE_CHECKSUM_FAILURE "警告\n\nファームウェア\tの\tチェックサム\tエラー。"
 
-// Firmware checksum failure notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "ファームウェアエラー"
+// HV profile menu items
+#define STRING_NOTIFICATION_HVCUSTOM "警告\n\n誤った\t値\tは\tデバイス\tを\t損傷する\t可能性\tが\tあります。"
 
-// HV profile menu items (shorter than 30 characters)
-#define STRING_NOTIFICATION_HVCUSTOM "誤値は機器を損傷"
+// Data log reset notification
+#define STRING_NOTIFICATION_DATALOG_RESET_CONFIRM "データログ\tを\tリセット\tしますか？\n\nすべて\tの\t記録\tが\t削除されます。"
 
-// Data log reset notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_TITLE "ログリセット？"
-#define STRING_NOTIFICATION_DATALOG_RESET_SUBTITLE "全記録が削除されます"
-
-// Data log reset success notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "データログがリセット"
+// Data log reset success notification
+#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "成功\n\nデータログ\tが\tリセット\tされました。"
 
 // Measurement view UI heading strings
 #define STRING_INSTANTANEOUS "瞬間"
 #define STRING_AVERAGE "平均"
 #define STRING_CUMULATIVE "累積"
-#define STRING_HISTORY_10_MINUTES "履歴(10分)"
-#define STRING_HISTORY_1_HOUR "履歴(1時間)"
-#define STRING_HISTORY_1_DAY "履歴(1日)"
-#define STRING_HISTORY_1_WEEK "履歴(1週)"
-#define STRING_HISTORY_1_MONTH "履歴(1ヶ月)"
-#define STRING_HISTORY_1_YEAR "履歴(1年)"
+#define STRING_HISTORY "履歴"
+
+// Measurement history view time periods
+#define STRING_HISTORY_10_MINUTES "10分"
+#define STRING_HISTORY_1_HOUR "1時間"
+#define STRING_HISTORY_1_DAY "1日"
+#define STRING_HISTORY_1_WEEK "1週"
+#define STRING_HISTORY_1_MONTH "1ヶ月"
+#define STRING_HISTORY_1_YEAR "1年"
 
 // Measurement view secondary view strings
 #define STRING_TIME "時間"
@@ -102,12 +100,12 @@
 #define STRING_DOSE "線量"
 
 // Measurement view info strings (upper case, up to 5 letters)
-#define STRING_INFO_ALARM "アラーム"
-#define STRING_INFO_WARNING "警告"
-#define STRING_INFO_FAULT "障害"
-#define STRING_INFO_MAX "最大"
-#define STRING_INFO_OVERFLOW "超過"
-#define STRING_INFO_DONE "完了"
+#define STRING_ALERT_ALARM "アラーム"
+#define STRING_ALERT_WARNING "警告"
+#define STRING_ALERT_FAULT "故障"
+#define STRING_ALERT_MAX "最大"
+#define STRING_ALERT_OVERFLOW "オーバー"
+#define STRING_ALERT_DONE "完了"
 
 // Settings menu items
 #define STRING_SETTINGS "設定"
@@ -115,14 +113,14 @@
 #define STRING_ALERTS "アラート"
 #define STRING_MEASUREMENTS "測定"
 #define STRING_GEIGER_TUBE "ガイガーチューブ"
-#define STRING_DATA_LOG "データログ"
+#define STRING_DATALOG "データログ"
 #define STRING_DISPLAY "表示"
 #define STRING_DATE_AND_TIME "日時"
 #define STRING_BATTERY_TYPE "電池種"
 #define STRING_RANDOM_GENERATOR "乱数生成"
 #define STRING_GAME "ゲーム"
 #define STRING_STATISTICS "統計"
-#define STRING_DATA_MODE "データモード"
+#define STRING_DATAMODE "データモード"
 
 // Pulses menu items
 #define STRING_SOUND "音"
@@ -134,8 +132,8 @@
 
 // Alarms menu items
 #define STRING_RATE_WARNING "計数率警告"
-#define STRING_DOSE_WARNING "線量警告"
 #define STRING_RATE_ALARM "計数率警報"
+#define STRING_DOSE_WARNING "線量警告"
 #define STRING_DOSE_ALARM "線量警報"
 #define STRING_INDICATION "表示"
 
@@ -158,7 +156,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "感度"
-#define STRING_DEAD_TIME_SHORT_COMPENSATION "死時間補正"
+#define STRING_DEAD_TIME_COMPENSATION "死時間補正"
 #define STRING_HVPROFILE "HVプロファイル"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
@@ -171,7 +169,7 @@
 #define STRING_J614 "J614"
 #define STRING_M4011 "M4011"
 
-// Russian Geiger tubes (should only be translated with non-latin scripts)
+// Russian Geiger tubes (should only be translated with cyrillic scripts)
 #define STRING_SBM20 "SBM-20"
 
 // HV profile menu items
@@ -183,9 +181,6 @@
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "PWM周波数"
 #define STRING_PWMDUTY_CYCLE "PWMデューティ"
-
-// Tube/battery voltage
-#define STRING_VOLTAGE "電圧"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "ログモード"
@@ -281,13 +276,11 @@
 #define STRING_GAME_LEVEL "レベル"
 
 // Statistics view items
-#define STRING_TUBE_LIFE_TIME "チューブ寿命"
+#define STRING_TUBE_LIFE "チューブ寿命"
 #define STRING_DEAD_TIME "死時間"
-#define STRING_DEVICE_ID "機器ID"
 
 #define STRING_TUBE "チューブ"
-#define STRING_LIFE_TIME "寿命"
-#define STRING_DEAD_TIME_SHORT "死時間"
+#define STRING_LIFE "寿命"
 #define STRING_DEVICE "機器"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE_SHORT "電圧"
+#define STRING_BATTERY "バッテリー"

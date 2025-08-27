@@ -12,19 +12,19 @@
 
 #include "cmath.h"
 #include "cstring.h"
+#include "datalog.h"
 #include "display.h"
 #include "events.h"
 #include "keyboard.h"
 #include "led.h"
 #include "measurements.h"
 #include "menu.h"
+#include "rtc.h"
 #include "settings.h"
 #include "sound.h"
+#include "system.h"
 #include "tube.h"
 #include "view.h"
-
-#define ALERTZONE1_USVH 1.0E-6F
-#define ALERTZONE2_USVH 1.0E-5F
 
 #define INSTANTANEOUS_RATE_QUEUE_SIZE 64
 #define INSTANTANEOUS_RATE_QUEUE_MASK (INSTANTANEOUS_RATE_QUEUE_SIZE - 1)
@@ -34,31 +34,37 @@
 #define PULSE_INDICATION_FACTOR_UNIT 0x10000
 #define PULSE_INDICATION_FACTOR_MASK (PULSE_INDICATION_FACTOR_UNIT - 1)
 
-enum
+enum InstantaneousTab
 {
     INSTANTANEOUS_TAB_BAR,
-    INSTANTANEOUS_TAB_PERIOD,
+    INSTANTANEOUS_TAB_TIME,
     INSTANTANEOUS_TAB_MAX,
     INSTANTANEOUS_TAB_RATE,
 
     INSTANTANEOUS_TAB_NUM,
+
+    INSTANTANEOUS_TAB_ALERT = INSTANTANEOUS_TAB_NUM,
 };
 
-enum
+enum AverageTab
 {
     AVERAGE_TAB_TIME,
     AVERAGE_TAB_RATE,
     AVERAGE_TAB_DOSE,
 
     AVERAGE_TAB_NUM,
+
+    AVERAGE_TAB_ALERT = AVERAGE_TAB_NUM,
 };
 
-enum
+enum CumulativeDose
 {
-    CUMULATIVE_TAB_TIME,
-    CUMULATIVE_TAB_DOSE,
+    CUMULATIVEDOSE_TAB_TIME,
+    CUMULATIVEDOSE_TAB_DOSE,
 
-    CUMULATIVE_TAB_NUM,
+    CUMULATIVEDOSE_TAB_NUM,
+
+    CUMULATIVEDOSE_TAB_ALERT = CUMULATIVEDOSE_TAB_NUM,
 };
 
 typedef struct
@@ -79,29 +85,28 @@ typedef bool Alert;
 
 typedef struct
 {
-    float averageSum;
-    uint32_t averageCount;
+    uint32_t timeInterval;
 
-    uint32_t sampleIndex;
+    float cumulativeTime;
+    uint32_t cumulativePulseCount;
 
-    uint16_t bufferIndex;
-    uint8_t buffer[HISTORY_BUFFER_SIZE];
+    uint8_t bins[HISTORY_BIN_NUM];
 } HistoryState;
 
 typedef const struct
 {
     cstring name;
-    uint32_t samplesPerDataPoint;
-    uint8_t timeTickNum;
+    uint32_t binInterval;
+    uint8_t xTickNum;
 } History;
 
 static History histories[] = {
-    {STRING_HISTORY_10_MINUTES, 10 * 60 / HISTORY_BUFFER_SIZE, 10},
-    {STRING_HISTORY_1_HOUR, 60 * 60 / HISTORY_BUFFER_SIZE, 6},
-    {STRING_HISTORY_1_DAY, 24 * 60 * 60 / HISTORY_BUFFER_SIZE, 8},
-    {STRING_HISTORY_1_WEEK, 7 * 24 * 60 * 60 / HISTORY_BUFFER_SIZE, 7},
-    {STRING_HISTORY_1_MONTH, 28 * 24 * 60 * 60 / HISTORY_BUFFER_SIZE, 4},
-    {STRING_HISTORY_1_YEAR, 365 * 24 * 60 * 60 / HISTORY_BUFFER_SIZE, 12},
+    {STRING_HISTORY_10_MINUTES, 10 * 60 / HISTORY_BIN_NUM, 10},
+    {STRING_HISTORY_1_HOUR, 60 * 60 / HISTORY_BIN_NUM, 6},
+    {STRING_HISTORY_1_DAY, 24 * 60 * 60 / HISTORY_BIN_NUM, 8},
+    {STRING_HISTORY_1_WEEK, 7 * 24 * 60 * 60 / HISTORY_BIN_NUM, 7},
+    {STRING_HISTORY_1_MONTH, 28 * 24 * 60 * 60 / HISTORY_BIN_NUM, 4},
+    {STRING_HISTORY_1_YEAR, 365 * 24 * 60 * 60 / HISTORY_BIN_NUM, 12},
 };
 
 #define HISTORY_NUM (sizeof(histories) / sizeof(History))
@@ -166,7 +171,7 @@ static struct
 
         bool alertDismissed;
         bool alertBlink;
-    } period;
+    } heartbeat;
 
     struct
     {
@@ -184,7 +189,8 @@ static struct
         Alert alarm;
     } instantaneous;
 
-    uint32_t instantaneousTabIndex;
+    enum InstantaneousTab instantaneousTabIndex;
+    const char *instantaneousAlertString;
 
     struct
     {
@@ -194,11 +200,12 @@ static struct
 
         Rate rate;
         bool timerExpired;
-        uint32_t timedPulseCount;
-        Rate timedRate;
+        uint32_t timerPulseCount;
+        Rate timerRate;
     } average;
 
-    uint32_t averageTabIndex;
+    enum AverageTab averageTabIndex;
+    const char *averageAlertString;
 
     struct
     {
@@ -208,7 +215,8 @@ static struct
         Alert alarm;
     } cumulativeDose;
 
-    uint32_t cumulativeDoseTabIndex;
+    enum CumulativeDose cumulativeDoseTabIndex;
+    const char *cumulativeDoseAlertString;
 
     struct
     {
@@ -219,9 +227,11 @@ static struct
 
     bool enabled;
     int32_t viewIndex;
+
+    bool isPulseSoundIconEnabled;
 } measurements;
 
-static const uint8_t instantaneousAveragingPeriods[] = {
+static const uint8_t instantaneousAveragingIntervals[] = {
     0, 5, 60, 30, 10};
 
 static const int32_t averagingTimes[] = {
@@ -450,7 +460,7 @@ void setMeasurements(bool value)
 static void updateAlert(Alert *alert, bool value)
 {
     if (!*alert && value)
-        measurements.period.alertDismissed = false;
+        measurements.heartbeat.alertDismissed = false;
 
     *alert = value;
 }
@@ -464,10 +474,10 @@ void onMeasurementTick(uint32_t pulseCount)
     {
         measurements.tube.dose.pulseCount += pulseCount;
 
-        if (!measurements.period.measurement.pulseCount)
-            measurements.period.measurement.firstPulseTick = getTick();
-        measurements.period.measurement.lastPulseTick = getTick();
-        measurements.period.measurement.pulseCount += pulseCount;
+        if (!measurements.heartbeat.measurement.pulseCount)
+            measurements.heartbeat.measurement.firstPulseTick = getTick();
+        measurements.heartbeat.measurement.lastPulseTick = getTick();
+        measurements.heartbeat.measurement.pulseCount += pulseCount;
 
         // Pulse indication divider
         measurements.instantaneous.pulseIndicationRemainder += pulseCount * measurements.instantaneous.pulseIndicationFactor;
@@ -480,14 +490,14 @@ void onMeasurementTick(uint32_t pulseCount)
     }
 }
 
-void onMeasurementPeriod(void)
+void onMeasurementHeartbeat(void)
 {
     if (!measurements.enabled)
         return;
 
-    measurements.period.snapshotTick = getTick();
-    measurements.period.snapshotMeasurement = measurements.period.measurement;
-    measurements.period.measurement.pulseCount = 0;
+    measurements.heartbeat.snapshotTick = getTick();
+    measurements.heartbeat.snapshotMeasurement = measurements.heartbeat.measurement;
+    measurements.heartbeat.measurement.pulseCount = 0;
 }
 
 uint8_t getHistoryValue(float value)
@@ -520,31 +530,31 @@ void updateMeasurements(void)
     // Loss of count and tube shorted detection
     bool faultAlarm = false;
 
-    if (measurements.period.snapshotMeasurement.pulseCount)
-        measurements.period.lossOfCountTimer = 0;
+    if (measurements.heartbeat.snapshotMeasurement.pulseCount)
+        measurements.heartbeat.lossOfCountTimer = 0;
     else
-        measurements.period.lossOfCountTimer++;
-    faultAlarm = (measurements.period.lossOfCountTimer >= getLossOfCountTime());
+        measurements.heartbeat.lossOfCountTimer++;
+    faultAlarm = (measurements.heartbeat.lossOfCountTimer >= getLossOfCountTime());
 
-    bool isTubeShorted = (!measurements.period.snapshotMeasurement.pulseCount && getTubeDet());
-    if (measurements.period.lastTubeShorted && isTubeShorted)
+    bool isTubeShorted = (!measurements.heartbeat.snapshotMeasurement.pulseCount && getTubeDet());
+    if (measurements.heartbeat.lastTubeShorted && isTubeShorted)
         faultAlarm = true;
-    measurements.period.lastTubeShorted = isTubeShorted;
+    measurements.heartbeat.lastTubeShorted = isTubeShorted;
 
-    updateAlert(&measurements.period.faultAlarm, faultAlarm);
+    updateAlert(&measurements.heartbeat.faultAlarm, faultAlarm);
 
-    // Dear-time Compensation
+    // Dead-time Compensation
     Measurement compensatedMeasurement;
 
-    compensatedMeasurement.firstPulseTick = measurements.period.snapshotMeasurement.firstPulseTick;
-    compensatedMeasurement.lastPulseTick = measurements.period.snapshotMeasurement.lastPulseTick;
+    compensatedMeasurement.firstPulseTick = measurements.heartbeat.snapshotMeasurement.firstPulseTick;
+    compensatedMeasurement.lastPulseTick = measurements.heartbeat.snapshotMeasurement.lastPulseTick;
 
-    measurements.period.deadTimeCompensationRemainder += measurements.period.snapshotMeasurement.pulseCount *
-                                                         getDeadTimeCompensationFactor(measurements.instantaneous.rate.value);
+    measurements.heartbeat.deadTimeCompensationRemainder += measurements.heartbeat.snapshotMeasurement.pulseCount *
+                                                            getDeadTimeCompensationFactor(measurements.instantaneous.rate.value);
 
-    compensatedMeasurement.pulseCount = (uint32_t)measurements.period.deadTimeCompensationRemainder;
-    if (measurements.period.deadTimeCompensationRemainder >= 1)
-        measurements.period.deadTimeCompensationRemainder -= compensatedMeasurement.pulseCount;
+    compensatedMeasurement.pulseCount = (uint32_t)measurements.heartbeat.deadTimeCompensationRemainder;
+    if (measurements.heartbeat.deadTimeCompensationRemainder >= 1)
+        measurements.heartbeat.deadTimeCompensationRemainder -= compensatedMeasurement.pulseCount;
 
     // Instantaneous rate
     if (compensatedMeasurement.pulseCount)
@@ -564,7 +574,7 @@ void updateMeasurements(void)
 
     measurements.instantaneous.rate.time = 0;
 
-    uint32_t averagingPeriod = instantaneousAveragingPeriods[settings.instantaneousAveraging];
+    uint32_t averagingTime = instantaneousAveragingIntervals[settings.instantaneousAveraging];
     uint32_t averagingPulseCount = (settings.instantaneousAveraging <= INSTANTANEOUSAVERAGING_ADAPTIVEPRECISION)
                                        ? INSTANTANEOUS_RATE_AVERAGING_PULSE_COUNT
                                        : 0;
@@ -575,9 +585,9 @@ void updateMeasurements(void)
     {
         uint32_t queueIndex = (measurements.instantaneous.queueTail - 1 - i) & INSTANTANEOUS_RATE_QUEUE_MASK;
 
-        uint32_t timePeriod = 1 + (measurements.period.snapshotTick - measurements.instantaneous.queue[queueIndex].firstPulseTick) / SYSTICK_FREQUENCY;
+        uint32_t time = 1 + (measurements.heartbeat.snapshotTick - measurements.instantaneous.queue[queueIndex].firstPulseTick) / SYSTICK_FREQUENCY;
 
-        if (timePeriod > averagingPeriod)
+        if (time > averagingTime)
         {
             if (instantaneousMeasurement.pulseCount > averagingPulseCount)
             {
@@ -591,7 +601,7 @@ void updateMeasurements(void)
         if (!instantaneousMeasurement.pulseCount)
             instantaneousMeasurement.lastPulseTick = measurements.instantaneous.queue[queueIndex].lastPulseTick;
         instantaneousMeasurement.pulseCount += measurements.instantaneous.queue[queueIndex].pulseCount;
-        measurements.instantaneous.rate.time = timePeriod;
+        measurements.instantaneous.rate.time = time;
     }
 
     calculateRate(instantaneousMeasurement.pulseCount,
@@ -624,6 +634,7 @@ void updateMeasurements(void)
     if ((measurements.average.rate.time < UINT32_MAX) &&
         (measurements.average.pulseCount < UINT32_MAX))
     {
+        addClamped(&measurements.average.rate.time, 1);
         if (compensatedMeasurement.pulseCount)
         {
             if (!measurements.average.pulseCount)
@@ -640,10 +651,6 @@ void updateMeasurements(void)
                           &measurements.average.rate);
         }
 
-        if ((measurements.average.rate.time < UINT32_MAX) &&
-            (measurements.average.pulseCount < UINT32_MAX))
-            measurements.average.rate.time++;
-
         // Average timer
         bool timerExpired = (settings.averaging < AVERAGING_TIME_NUM)
                                 ? (measurements.average.rate.time >= averagingTimes[settings.averaging])
@@ -652,16 +659,16 @@ void updateMeasurements(void)
 
         if (!timerExpired)
         {
-            measurements.average.timedPulseCount = measurements.average.pulseCount;
-            measurements.average.timedRate = measurements.average.rate;
+            measurements.average.timerPulseCount = measurements.average.pulseCount;
+            measurements.average.timerRate = measurements.average.rate;
         }
 
         if (timerExpired && !measurements.average.timerExpired)
         {
             measurements.average.timerExpired = true;
 
-            measurements.average.timedPulseCount = measurements.average.pulseCount;
-            measurements.average.timedRate = measurements.average.rate;
+            measurements.average.timerPulseCount = measurements.average.pulseCount;
+            measurements.average.timerRate = measurements.average.rate;
 
             triggerAlert();
         }
@@ -688,45 +695,46 @@ void updateMeasurements(void)
                     (doseSv >= doseAlertsSv[settings.doseAlarm]));
 
     // History
-    for (uint32_t i = 0; i < HISTORY_NUM; i++)
+    for (uint32_t historyIndex = 0; historyIndex < HISTORY_NUM; historyIndex++)
     {
-        History *history = &histories[i];
-        HistoryState *historyState = &measurements.history.states[i];
-
-        historyState->sampleIndex++;
-        if (historyState->sampleIndex >= history->samplesPerDataPoint)
-            historyState->sampleIndex = 0;
+        History *history = &histories[historyIndex];
+        HistoryState *historyState = &measurements.history.states[historyIndex];
 
         if (instantaneousRateConfidenceSufficient &&
             (measurements.instantaneous.rate.value >= 0))
-            historyState->averageSum += measurements.instantaneous.rate.value;
-        historyState->averageCount++;
-
-        if (historyState->sampleIndex == 0)
         {
-            float averageRate = historyState->averageSum / historyState->averageCount;
-            historyState->buffer[historyState->bufferIndex] = getHistoryValue(averageRate);
+            historyState->cumulativeTime += measurements.instantaneous.rate.value;
+            historyState->cumulativePulseCount++;
+        }
 
-            historyState->averageSum = 0;
-            historyState->averageCount = 0;
+        historyState->timeInterval++;
+        if (historyState->timeInterval >= history->binInterval)
+        {
+            float averageRate = historyState->cumulativePulseCount
+                                    ? historyState->cumulativeTime / historyState->cumulativePulseCount
+                                    : 0;
+            for (uint32_t i = 0; i < HISTORY_BIN_NUM - 1; i++)
+                historyState->bins[i] = historyState->bins[i + 1];
+            historyState->bins[HISTORY_BIN_NUM - 1] = getHistoryValue(averageRate);
 
-            historyState->bufferIndex++;
-            if (historyState->bufferIndex >= HISTORY_BUFFER_SIZE)
-                historyState->bufferIndex = 0;
+            historyState->timeInterval = 0;
+
+            historyState->cumulativeTime = 0;
+            historyState->cumulativePulseCount = 0;
         }
     }
 
     // Alerts
     if (getAlertLevel() == ALERTLEVEL_NONE)
     {
-        measurements.period.alertBlink = false;
+        measurements.heartbeat.alertBlink = false;
 #if VOICE
         clearVoiceAlert();
 #endif
     }
     else
     {
-        measurements.period.alertBlink = !measurements.period.alertBlink;
+        measurements.heartbeat.alertBlink = !measurements.heartbeat.alertBlink;
 
         if (isAlertUndismissed())
             triggerAlert();
@@ -734,13 +742,78 @@ void updateMeasurements(void)
 
     // Sound control
 #if defined(SOUND_EN)
-    updateSoundEnabled();
+    updateSound(true);
 #endif
 
     // LED
 #if defined(PULSE_LED) || defined(ALERT_LED) || defined(PULSE_LED_EN) || defined(ALERT_LED_EN)
-    updateLED();
+    updateLED(true);
 #endif
+
+    // Set view
+    if (!isDisplayEnabled() && isAlertUndismissed())
+    {
+        if (isInstantaneousRateAlert())
+            setView(&instantaneousRateView);
+        else if (isCumulativeDoseAlert())
+            setView(&cumulativeDoseView);
+    }
+
+    // Update view
+    const char *instantaneousAlertString = NULL;
+    const char *averageAlertString = NULL;
+    const char *cumulativeDoseAlertString = NULL;
+
+    if (measurements.heartbeat.faultAlarm)
+    {
+        instantaneousAlertString = getString(STRING_ALERT_FAULT);
+        averageAlertString = getString(STRING_ALERT_FAULT);
+        cumulativeDoseAlertString = getString(STRING_ALERT_FAULT);
+    }
+    else
+    {
+        if (measurements.instantaneous.alarm)
+            instantaneousAlertString = getString(STRING_ALERT_ALARM);
+        else if (measurements.instantaneous.warning)
+            instantaneousAlertString = getString(STRING_ALERT_WARNING);
+
+        if (measurements.average.pulseCount == UINT32_MAX)
+            averageAlertString = getString(STRING_ALERT_MAX);
+        else if (measurements.average.timerExpired)
+            averageAlertString = getString(STRING_ALERT_DONE);
+
+        if (measurements.cumulativeDose.alarm)
+            cumulativeDoseAlertString = getString(STRING_ALERT_ALARM);
+        else if (measurements.cumulativeDose.warning)
+            cumulativeDoseAlertString = getString(STRING_ALERT_WARNING);
+        else if (measurements.cumulativeDose.dose.pulseCount == UINT32_MAX)
+            cumulativeDoseAlertString = getString(STRING_ALERT_MAX);
+    }
+
+    if (instantaneousAlertString != measurements.instantaneousAlertString)
+    {
+        if (instantaneousAlertString)
+            measurements.instantaneousTabIndex = INSTANTANEOUS_TAB_ALERT;
+        else
+            measurements.instantaneousTabIndex = INSTANTANEOUS_TAB_BAR;
+        measurements.instantaneousAlertString = instantaneousAlertString;
+    }
+    if (averageAlertString != measurements.averageAlertString)
+    {
+        if (averageAlertString)
+            measurements.averageTabIndex = AVERAGE_TAB_ALERT;
+        else
+            measurements.averageTabIndex = AVERAGE_TAB_TIME;
+        measurements.averageAlertString = averageAlertString;
+    }
+    if (cumulativeDoseAlertString != measurements.cumulativeDoseAlertString)
+    {
+        if (cumulativeDoseAlertString)
+            measurements.cumulativeDoseTabIndex = CUMULATIVEDOSE_TAB_ALERT;
+        else
+            measurements.cumulativeDoseTabIndex = CUMULATIVEDOSE_TAB_TIME;
+        measurements.cumulativeDoseAlertString = cumulativeDoseAlertString;
+    }
 }
 
 // Measurement views common
@@ -773,7 +846,7 @@ static void buildValueString(char *valueString,
 
     strcat(unitString, unit->name[0]
                            ? unit->name
-                           : getString(STRING_COUNT));
+                           : getString(STRING_COUNTS));
 }
 
 void setMeasurementView(int32_t index)
@@ -791,10 +864,10 @@ static bool onMeasurementEvent(Event event)
     switch (event)
     {
     case EVENT_KEY_SELECT:
-        if (!isLockMode())
+        if (!isInLockMode())
         {
+            measurements.isPulseSoundIconEnabled = false;
             setKeyboardMode(KEYBOARD_MODE_MENU);
-            setPulseSoundIconEnabled(false);
             setView(&settingsMenuView);
         }
 
@@ -822,13 +895,13 @@ static bool onMeasurementEvent(Event event)
         if (isAlertUndismissed())
             dismissAlert();
         else
-            return isLockMode();
+            return isInLockMode();
 
         break;
 
     case EVENT_KEY_TOGGLEPULSESOUND:
+        measurements.isPulseSoundIconEnabled = true;
         togglePulseSound();
-        setPulseSoundIconEnabled(true);
         triggerVibration();
 
         break;
@@ -849,6 +922,9 @@ static void resetInstantaneousRate(void)
            sizeof(measurements.instantaneous));
 
     updateMeasurementUnits();
+
+    if (measurements.instantaneousTabIndex == INSTANTANEOUS_TAB_ALERT)
+        measurements.instantaneousTabIndex = INSTANTANEOUS_TAB_BAR;
 }
 
 float getInstantaneousRate(void)
@@ -866,7 +942,9 @@ static void onInstantaneousRateViewEvent(Event event)
     case EVENT_KEY_BACK:
         measurements.instantaneousTabIndex++;
 
-        if (measurements.instantaneousTabIndex >= INSTANTANEOUS_TAB_NUM)
+        if ((measurements.instantaneousAlertString)
+                ? measurements.instantaneousTabIndex >= (INSTANTANEOUS_TAB_NUM + 1)
+                : measurements.instantaneousTabIndex >= INSTANTANEOUS_TAB_NUM)
             measurements.instantaneousTabIndex = 0;
 
         requestViewUpdate();
@@ -891,112 +969,94 @@ static void onInstantaneousRateViewEvent(Event event)
 
     case EVENT_DRAW:
     {
-        char valueString[16];
-        char unitString[16];
-        const char *stateString;
-        const char *keyString = NULL;
+        char valueString[32];
+        char unitString[32];
         MeasurementStyle style;
 
         strclr(valueString);
         strclr(unitString);
-
         buildValueString(valueString,
                          unitString,
                          measurements.instantaneous.rate.value,
                          &units[settings.units].rate,
                          unitsMinMetricPrefixIndex[settings.units]);
 
-        if (measurements.period.faultAlarm)
-        {
-            stateString = getString(STRING_INFO_FAULT);
-            style = MEASUREMENTSTYLE_NORMAL;
-        }
-        else if (measurements.instantaneous.alarm)
-        {
-            stateString = getString(STRING_INFO_ALARM);
+        if (measurements.instantaneous.alarm)
             style = MEASUREMENTSTYLE_ALARM;
-        }
         else if (measurements.instantaneous.warning)
-        {
-            stateString = getString(STRING_INFO_WARNING);
             style = MEASUREMENTSTYLE_WARNING;
-        }
         else
-        {
-            stateString = getString(STRING_EMPTY);
             style = MEASUREMENTSTYLE_NORMAL;
-        }
 
-        drawTitleBar(getString(STRING_INSTANTANEOUS), false);
+        drawTitleBar(getString(STRING_INSTANTANEOUS));
         drawMeasurementValue(valueString,
                              unitString,
                              measurements.instantaneous.rate.confidence,
                              style);
 
-        strclr(valueString);
-        strcpy(unitString, " ");
-
-        switch (measurements.instantaneousTabIndex)
+        if (measurements.instantaneousTabIndex == INSTANTANEOUS_TAB_ALERT)
+            drawMeasurementAlert(measurements.instantaneousAlertString);
+        else if (measurements.instantaneousTabIndex != INSTANTANEOUS_TAB_BAR)
         {
-        case INSTANTANEOUS_TAB_BAR:
+            const char *keyString = NULL;
+            strclr(valueString);
+            strcpy(unitString, " ");
+
+            switch (measurements.instantaneousTabIndex)
+            {
+            case INSTANTANEOUS_TAB_TIME:
+                if (measurements.instantaneous.rate.time > 0)
+                    strcatTime(valueString,
+                               measurements.instantaneous.rate.time);
+
+                keyString = getString(STRING_TIME);
+
+                break;
+
+            case INSTANTANEOUS_TAB_MAX:
+                if (measurements.instantaneous.maxValue > 0)
+                    buildValueString(valueString,
+                                     unitString,
+                                     measurements.instantaneous.maxValue,
+                                     &units[settings.units].rate,
+                                     unitsMinMetricPrefixIndex[settings.units]);
+
+                keyString = getString(STRING_MAX);
+
+                break;
+
+            case INSTANTANEOUS_TAB_RATE:
+                if (measurements.instantaneous.rate.value > 0)
+                    buildValueString(valueString,
+                                     unitString,
+                                     measurements.instantaneous.rate.value,
+                                     &units[settings.secondaryUnits].rate,
+                                     unitsMinMetricPrefixIndex[settings.secondaryUnits]);
+
+                keyString = getString(STRING_RATE);
+
+                break;
+
+            default:
+                break;
+            }
+
+            drawMeasurementInfo(keyString,
+                                valueString,
+                                unitString,
+                                style);
+        }
+        else
         {
             float scale = units[settings.units].rate.scale;
             float uSvHScale = scale / units[UNITS_SIEVERTS].rate.scale;
-
             drawMeasurementBar(measurements.instantaneous.rate.value * scale,
                                unitsMeasurementBarMinExponent[settings.units],
                                rateAlertsSvH[settings.rateWarning] * uSvHScale,
                                rateAlertsSvH[settings.rateAlarm] * uSvHScale);
-
-            break;
         }
 
-        case INSTANTANEOUS_TAB_PERIOD:
-            if (measurements.instantaneous.rate.time > 0)
-                strcatTime(valueString,
-                           measurements.instantaneous.rate.time);
-
-            keyString = getString(STRING_TIME);
-
-            break;
-
-        case INSTANTANEOUS_TAB_MAX:
-        {
-            if (measurements.instantaneous.maxValue > 0)
-            {
-                buildValueString(valueString,
-                                 unitString,
-                                 measurements.instantaneous.maxValue,
-                                 &units[settings.units].rate,
-                                 unitsMinMetricPrefixIndex[settings.units]);
-            }
-
-            keyString = getString(STRING_MAX);
-
-            break;
-        }
-
-        case INSTANTANEOUS_TAB_RATE:
-            if (measurements.instantaneous.rate.value > 0)
-            {
-                buildValueString(valueString,
-                                 unitString,
-                                 measurements.instantaneous.rate.value,
-                                 &units[settings.secondaryUnits].rate,
-                                 unitsMinMetricPrefixIndex[settings.secondaryUnits]);
-            }
-
-            keyString = getString(STRING_RATE);
-
-            break;
-        }
-
-        if (measurements.instantaneousTabIndex != INSTANTANEOUS_TAB_BAR)
-            drawMeasurementInfo(keyString,
-                                valueString,
-                                unitString,
-                                stateString,
-                                style);
+        break;
     }
 
     default:
@@ -1016,11 +1076,14 @@ static void resetAverageRate(void)
     memset(&measurements.average,
            0,
            sizeof(measurements.average));
+
+    if (measurements.averageTabIndex == AVERAGE_TAB_ALERT)
+        measurements.averageTabIndex = AVERAGE_TAB_TIME;
 }
 
 float getAverageRate(void)
 {
-    return measurements.average.timedRate.value;
+    return measurements.average.timerRate.value;
 }
 
 static void onAverageRateViewEvent(Event event)
@@ -1033,7 +1096,9 @@ static void onAverageRateViewEvent(Event event)
     case EVENT_KEY_BACK:
         measurements.averageTabIndex++;
 
-        if (measurements.averageTabIndex >= AVERAGE_TAB_NUM)
+        if ((measurements.averageAlertString)
+                ? measurements.averageTabIndex >= (AVERAGE_TAB_NUM + 1)
+                : measurements.averageTabIndex >= AVERAGE_TAB_NUM)
             measurements.averageTabIndex = 0;
 
         requestViewUpdate();
@@ -1058,93 +1123,83 @@ static void onAverageRateViewEvent(Event event)
 
     case EVENT_DRAW:
     {
-        char valueString[16];
-        char unitString[16];
-        const char *stateString;
-        const char *keyString = NULL;
+        char valueString[32];
+        char unitString[32];
         MeasurementStyle style;
 
         strclr(valueString);
         strclr(unitString);
-
         buildValueString(valueString,
                          unitString,
-                         measurements.average.timedRate.value,
+                         measurements.average.timerRate.value,
                          &units[settings.units].rate,
                          unitsMinMetricPrefixIndex[settings.units]);
 
-        if (measurements.period.faultAlarm)
-        {
-            stateString = getString(STRING_INFO_FAULT);
-            style = MEASUREMENTSTYLE_NORMAL;
-        }
-        else if (measurements.average.pulseCount == UINT32_MAX)
-        {
-            stateString = getString(STRING_INFO_MAX);
-            style = MEASUREMENTSTYLE_HOLD;
-        }
-        else if (measurements.average.timerExpired)
-        {
-            stateString = getString(STRING_INFO_DONE);
-            style = MEASUREMENTSTYLE_HOLD;
-        }
+        if ((measurements.average.pulseCount == UINT32_MAX) ||
+            measurements.average.timerExpired)
+            style = MEASUREMENTSTYLE_DONE;
         else
-        {
-            stateString = getString(STRING_EMPTY);
             style = MEASUREMENTSTYLE_NORMAL;
-        }
 
-        drawTitleBar(getString(STRING_AVERAGE), false);
+        drawTitleBar(getString(STRING_AVERAGE));
         drawMeasurementValue(valueString,
                              unitString,
-                             measurements.average.timedRate.confidence,
+                             measurements.average.timerRate.confidence,
                              style);
 
-        strclr(valueString);
-        strcpy(unitString, " ");
-
-        switch (measurements.averageTabIndex)
+        if (measurements.averageTabIndex == AVERAGE_TAB_ALERT)
+            drawMeasurementAlert(measurements.averageAlertString);
+        else
         {
-        case AVERAGE_TAB_TIME:
-            strcatTime(valueString,
-                       measurements.average.timedRate.time);
+            const char *keyString = NULL;
+            strclr(valueString);
+            strcpy(unitString, " ");
 
-            keyString = getString(STRING_TIME);
-
-            break;
-
-        case AVERAGE_TAB_RATE:
-            if (measurements.average.timedRate.value > 0)
+            switch (measurements.averageTabIndex)
             {
-                buildValueString(valueString,
-                                 unitString,
-                                 measurements.average.timedRate.value,
-                                 &units[settings.secondaryUnits].rate,
-                                 unitsMinMetricPrefixIndex[settings.secondaryUnits]);
+            case AVERAGE_TAB_TIME:
+                strcatTime(valueString,
+                           measurements.average.timerRate.time);
+
+                keyString = getString(STRING_TIME);
+
+                break;
+
+            case AVERAGE_TAB_RATE:
+                if (measurements.average.timerRate.value > 0)
+                {
+                    buildValueString(valueString,
+                                     unitString,
+                                     measurements.average.timerRate.value,
+                                     &units[settings.secondaryUnits].rate,
+                                     unitsMinMetricPrefixIndex[settings.secondaryUnits]);
+                }
+
+                keyString = getString(STRING_RATE);
+
+                break;
+
+            case AVERAGE_TAB_DOSE:
+                if (measurements.average.timerPulseCount > 0)
+                    buildValueString(valueString,
+                                     unitString,
+                                     measurements.average.timerPulseCount,
+                                     &units[UNITS_CPM].dose,
+                                     unitsMinMetricPrefixIndex[UNITS_CPM]);
+
+                keyString = getString(STRING_DOSE);
+
+                break;
+
+            default:
+                break;
             }
 
-            keyString = getString(STRING_RATE);
-
-            break;
-
-        case AVERAGE_TAB_DOSE:
-            if (measurements.average.timedPulseCount > 0)
-                buildValueString(valueString,
-                                 unitString,
-                                 measurements.average.timedPulseCount,
-                                 &units[UNITS_CPM].dose,
-                                 unitsMinMetricPrefixIndex[UNITS_CPM]);
-
-            keyString = getString(STRING_DOSE);
-
-            break;
+            drawMeasurementInfo(keyString,
+                                valueString,
+                                unitString,
+                                style);
         }
-
-        drawMeasurementInfo(keyString,
-                            valueString,
-                            unitString,
-                            stateString,
-                            style);
 
         break;
     }
@@ -1186,6 +1241,9 @@ static void resetCumulativeDose(void)
     memset(&measurements.cumulativeDose,
            0,
            sizeof(measurements.cumulativeDose));
+
+    if (measurements.cumulativeDoseTabIndex == CUMULATIVEDOSE_TAB_ALERT)
+        measurements.cumulativeDoseTabIndex = CUMULATIVEDOSE_TAB_TIME;
 }
 
 static void onCumulativeDoseViewEvent(Event event)
@@ -1198,7 +1256,9 @@ static void onCumulativeDoseViewEvent(Event event)
     case EVENT_KEY_BACK:
         measurements.cumulativeDoseTabIndex++;
 
-        if (measurements.cumulativeDoseTabIndex >= CUMULATIVE_TAB_NUM)
+        if ((measurements.cumulativeDoseAlertString)
+                ? measurements.cumulativeDoseTabIndex >= (CUMULATIVEDOSE_TAB_NUM + 1)
+                : measurements.cumulativeDoseTabIndex >= CUMULATIVEDOSE_TAB_NUM)
             measurements.cumulativeDoseTabIndex = 0;
 
         requestViewUpdate();
@@ -1223,87 +1283,72 @@ static void onCumulativeDoseViewEvent(Event event)
 
     case EVENT_DRAW:
     {
-        char valueString[16];
-        char unitString[16];
-        const char *stateString;
-        const char *keyString = NULL;
+        char valueString[32];
+        char unitString[32];
         MeasurementStyle style;
 
         strclr(valueString);
         strclr(unitString);
-
         buildValueString(valueString,
                          unitString,
                          measurements.cumulativeDose.dose.pulseCount,
                          &units[settings.units].dose,
                          unitsMinMetricPrefixIndex[settings.units]);
 
-        if (measurements.period.faultAlarm)
-        {
-            stateString = getString(STRING_INFO_FAULT);
-            style = MEASUREMENTSTYLE_NORMAL;
-        }
-        else if (measurements.cumulativeDose.alarm)
-        {
-            stateString = getString(STRING_INFO_ALARM);
+        if (measurements.cumulativeDose.alarm)
             style = MEASUREMENTSTYLE_ALARM;
-        }
         else if (measurements.cumulativeDose.warning)
-        {
-            stateString = getString(STRING_INFO_WARNING);
             style = MEASUREMENTSTYLE_WARNING;
-        }
         else if (measurements.cumulativeDose.dose.pulseCount == UINT32_MAX)
-        {
-            stateString = getString(STRING_INFO_MAX);
-            style = MEASUREMENTSTYLE_HOLD;
-        }
+            style = MEASUREMENTSTYLE_DONE;
         else
-        {
-            stateString = getString(STRING_EMPTY);
-
             style = MEASUREMENTSTYLE_NORMAL;
-        }
 
-        drawTitleBar(getString(STRING_CUMULATIVE), false);
+        drawTitleBar(getString(STRING_CUMULATIVE));
         drawMeasurementValue(valueString,
                              unitString,
                              0,
                              style);
 
-        strclr(valueString);
-        strcpy(unitString, " ");
-
-        switch (measurements.cumulativeDoseTabIndex)
+        if (measurements.cumulativeDoseTabIndex == CUMULATIVEDOSE_TAB_ALERT)
+            drawMeasurementAlert(measurements.cumulativeDoseAlertString);
+        else
         {
-        case CUMULATIVE_TAB_TIME:
-            strcatTime(valueString,
-                       measurements.cumulativeDose.dose.time);
+            const char *keyString = NULL;
+            strclr(valueString);
+            strcpy(unitString, " ");
 
-            keyString = getString(STRING_TIME);
-
-            break;
-
-        case CUMULATIVE_TAB_DOSE:
-            if (measurements.cumulativeDose.dose.pulseCount > 0)
+            switch (measurements.cumulativeDoseTabIndex)
             {
-                buildValueString(valueString,
-                                 unitString,
-                                 measurements.cumulativeDose.dose.pulseCount,
-                                 &units[settings.secondaryUnits].dose,
-                                 unitsMinMetricPrefixIndex[settings.secondaryUnits]);
+            case CUMULATIVEDOSE_TAB_TIME:
+                strcatTime(valueString,
+                           measurements.cumulativeDose.dose.time);
+
+                keyString = getString(STRING_TIME);
+
+                break;
+
+            case CUMULATIVEDOSE_TAB_DOSE:
+                if (measurements.cumulativeDose.dose.pulseCount > 0)
+                    buildValueString(valueString,
+                                     unitString,
+                                     measurements.cumulativeDose.dose.pulseCount,
+                                     &units[settings.secondaryUnits].dose,
+                                     unitsMinMetricPrefixIndex[settings.secondaryUnits]);
+
+                keyString = getString(STRING_DOSE);
+
+                break;
+
+            default:
+                break;
             }
 
-            keyString = getString(STRING_DOSE);
-
-            break;
+            drawMeasurementInfo(keyString,
+                                valueString,
+                                unitString,
+                                style);
         }
-
-        drawMeasurementInfo(keyString,
-                            valueString,
-                            unitString,
-                            stateString,
-                            style);
 
         break;
     }
@@ -1342,6 +1387,170 @@ uint32_t getTubePulseCount(void)
 
 // History
 
+typedef struct
+{
+    uint32_t binIndex;
+    uint32_t binStart;
+    uint32_t binEnd;
+
+    uint32_t cumulativeTime;
+    uint64_t cumulativePulseCountInt;
+    float cumulativePulseCountFloat;
+} LoadHistoryState;
+
+static void updateLoadHistory(LoadHistoryState *state, uint8_t *bins)
+{
+    uint32_t cumulativeTime = state->cumulativeTime;
+    uint64_t cumulativePulseCountInt = state->cumulativePulseCountInt;
+    float cumulativePulseCountFloat = state->cumulativePulseCountFloat;
+
+    while (cumulativePulseCountInt >> 32)
+    {
+        cumulativeTime >>= 8;
+        cumulativePulseCountInt >>= 8;
+        cumulativePulseCountFloat /= 256;
+    }
+
+    float rate = cumulativeTime
+                     ? (cumulativePulseCountFloat + (uint32_t)cumulativePulseCountInt) /
+                           cumulativeTime
+                     : 0.0F;
+    bins[state->binIndex] = getHistoryValue(rate);
+}
+
+void loadHistory(void)
+{
+    // Initialization
+    uint32_t historyEnd = getDeviceTime();
+
+    LoadHistoryState states[HISTORY_NUM];
+    memset(states, 0, HISTORY_NUM * sizeof(LoadHistoryState));
+
+    uint32_t historiesStart[HISTORY_NUM];
+    for (uint32_t historyIndex = 0; historyIndex < HISTORY_NUM; historyIndex++)
+    {
+        uint32_t binInterval = histories[historyIndex].binInterval;
+        historiesStart[historyIndex] = historyEnd - HISTORY_BIN_NUM * binInterval;
+    }
+
+    // Process records
+#if defined(FAST_SYSTEM_CLOCK)
+    setFastSystemClock(true);
+#endif
+
+    openDatalogRead();
+
+    Dose prevRecord;
+    Dose record;
+    bool isNewLoggingSession;
+
+    if (readDatalogRecord(&isNewLoggingSession, &prevRecord))
+    {
+        while (readDatalogRecord(&isNewLoggingSession, &record))
+        {
+            resetWatchdog();
+
+            // printf("+ %d:%d\n", record.time, record.pulseCount);
+
+            if (!isNewLoggingSession)
+            {
+                for (uint32_t historyIndex = 0; historyIndex < HISTORY_NUM; historyIndex++)
+                {
+                    uint32_t historyStart = historiesStart[historyIndex];
+                    LoadHistoryState *state = &states[historyIndex];
+
+                    // Overlap record interval with history interval
+                    uint32_t recordStart = (prevRecord.time > historyStart) ? prevRecord.time : historyStart;
+                    uint32_t recordEnd = (record.time < historyEnd) ? record.time : historyEnd;
+
+                    // if (historyIndex == 5)
+                    //     printf("- %d-%d %d-%d %d-%d\n",
+                    //            prevRecord.time, record.time,
+                    //            historyStart, historyEnd,
+                    //            recordStart, recordEnd);
+
+                    if (recordStart < recordEnd)
+                    {
+                        int32_t intervalTime = record.time - prevRecord.time;
+                        uint32_t intervalPulseCount = record.pulseCount - prevRecord.pulseCount;
+
+                        if ((record.time > state->binStart) &&
+                            (record.time <= state->binEnd))
+                        {
+                            state->cumulativeTime += intervalTime;
+                            state->cumulativePulseCountInt += intervalPulseCount;
+                        }
+                        else
+                        {
+                            uint32_t binInterval = histories[historyIndex].binInterval;
+                            uint8_t *bins = measurements.history.states[historyIndex].bins;
+
+                            uint32_t binIndexStart = (recordStart - historyStart) / binInterval;
+                            uint32_t binIndexEnd = (recordEnd - 1 - historyStart) / binInterval + 1;
+
+                            // if (historyIndex == 5)
+                            //     printf("/ %d-%d\n",
+                            //            binIndexStart, binIndexEnd - 1);
+
+                            for (uint32_t binIndex = binIndexStart; binIndex < binIndexEnd; binIndex++)
+                            {
+                                // Overlap record interval with bin interval
+                                uint32_t binStart = historyStart + binIndex * binInterval;
+                                uint32_t binEnd = binStart + binInterval;
+
+                                uint32_t overlapStart = (binStart > recordStart) ? binStart : recordStart;
+                                uint32_t overlapEnd = (binEnd < recordEnd) ? binEnd : recordEnd;
+
+                                uint32_t overlapTime = overlapEnd - overlapStart;
+                                float overlapPulseCount = (float)intervalPulseCount * overlapTime / intervalTime;
+
+                                if (binIndex != state->binIndex)
+                                {
+                                    // if (historyIndex == 5)
+                                    // {
+                                    //     printf("  %d (%d): %d %f\n",
+                                    //            state->binIndex, binIndex,
+                                    //            state->cumulativeTime, state->cumulativePulseCountFloat + (float)state->cumulativePulseCountInt);
+                                    // }
+
+                                    updateLoadHistory(state, bins);
+
+                                    state->binIndex = binIndex;
+                                    state->binStart = binStart;
+                                    state->binEnd = binEnd;
+
+                                    state->cumulativeTime = 0;
+                                    state->cumulativePulseCountInt = 0;
+                                    state->cumulativePulseCountFloat = 0;
+                                }
+
+                                state->cumulativeTime += overlapTime;
+                                state->cumulativePulseCountFloat += overlapPulseCount;
+                            }
+                        }
+                    }
+                }
+            }
+
+            prevRecord = record;
+        }
+
+        for (uint32_t historyIndex = 0; historyIndex < HISTORY_NUM; historyIndex++)
+        {
+            LoadHistoryState *state = &states[historyIndex];
+            uint8_t *bins = measurements.history.states[historyIndex].bins;
+
+            updateLoadHistory(state, bins);
+        }
+    }
+
+    closeDatalogRead();
+
+#if defined(FAST_SYSTEM_CLOCK)
+    setFastSystemClock(false);
+#endif
+}
+
 void resetHistory(void)
 {
     memset(&measurements.history.states,
@@ -1375,24 +1584,15 @@ static void onHistoryViewEvent(Event event)
 
     case EVENT_DRAW:
     {
-        HistoryState *historyState = &measurements.history.states[measurements.history.tabIndex];
+        const HistoryState *historyState = &measurements.history.states[measurements.history.tabIndex];
         const Unit *rateUnit = &units[settings.units].rate;
 
-        uint8_t data[HISTORY_BUFFER_SIZE];
-        for (uint32_t i = 0; i < HISTORY_BUFFER_SIZE; i++)
-        {
-            uint32_t dataIndex = historyState->bufferIndex + i;
-            if (dataIndex >= HISTORY_BUFFER_SIZE)
-                dataIndex -= HISTORY_BUFFER_SIZE;
-
-            data[i] = historyState->buffer[dataIndex];
-        }
-
-        drawTitleBar(histories[measurements.history.tabIndex].name, false);
+        drawTitleBar(getString(STRING_HISTORY));
         drawHistory(rateUnit->scale,
                     rateUnit->name,
-                    histories[measurements.history.tabIndex].timeTickNum,
-                    data,
+                    histories[measurements.history.tabIndex].xTickNum,
+                    histories[measurements.history.tabIndex].name,
+                    historyState->bins,
                     getHistoryValue(rateAlertsSvH[settings.rateWarning] /
                                     units[UNITS_SIEVERTS].rate.scale),
                     getHistoryValue(rateAlertsSvH[settings.rateAlarm] /
@@ -1523,23 +1723,6 @@ static View rateWarningMenuView = {
     &rateWarningMenu,
 };
 
-// Dose warning menu
-
-static MenuState doseWarningMenuState;
-
-static Menu doseWarningMenu = {
-    STRING_DOSE_WARNING,
-    &doseWarningMenuState,
-    onDoseAlertMenuGetOption,
-    onDoseAlertMenuSelect,
-    onAlertsSubMenuBack,
-};
-
-static View doseWarningMenuView = {
-    onMenuEvent,
-    &doseWarningMenu,
-};
-
 // Rate alarm menu
 
 static MenuState rateAlarmMenuState;
@@ -1555,6 +1738,23 @@ static Menu rateAlarmMenu = {
 static View rateAlarmMenuView = {
     onMenuEvent,
     &rateAlarmMenu,
+};
+
+// Dose warning menu
+
+static MenuState doseWarningMenuState;
+
+static Menu doseWarningMenu = {
+    STRING_DOSE_WARNING,
+    &doseWarningMenuState,
+    onDoseAlertMenuGetOption,
+    onDoseAlertMenuSelect,
+    onAlertsSubMenuBack,
+};
+
+static View doseWarningMenuView = {
+    onMenuEvent,
+    &doseWarningMenu,
 };
 
 // Dose alarm menu
@@ -1718,14 +1918,14 @@ bool isAlertEnabled(void)
 
 bool isAlertBlink(void)
 {
-    return measurements.period.alertBlink;
+    return measurements.heartbeat.alertBlink;
 }
 
 AlertLevel getAlertLevel(void)
 {
     if (measurements.instantaneous.alarm ||
         measurements.cumulativeDose.alarm ||
-        measurements.period.faultAlarm)
+        measurements.heartbeat.faultAlarm)
         return ALERTLEVEL_ALARM;
     else if (measurements.instantaneous.warning ||
              measurements.cumulativeDose.warning)
@@ -1749,20 +1949,25 @@ bool isCumulativeDoseAlert(void)
 bool isAlertUndismissed(void)
 {
     return (getAlertLevel() > ALERTLEVEL_NONE) &&
-           !measurements.period.alertDismissed;
+           !measurements.heartbeat.alertDismissed;
 }
 
 void dismissAlert(void)
 {
-    measurements.period.alertDismissed = true;
+    measurements.heartbeat.alertDismissed = true;
+}
+
+bool isPulseSoundIconEnabled(void)
+{
+    return measurements.isPulseSoundIconEnabled;
 }
 
 static SubMenuOption alertsMenuOptions[] = {
-    {STRING_RATE_WARNING, &rateWarningMenuView},
-    {STRING_DOSE_WARNING, &doseWarningMenuView},
-    {STRING_RATE_ALARM, &rateAlarmMenuView},
-    {STRING_DOSE_ALARM, &doseAlarmMenuView},
     {STRING_INDICATION, &alertIndicationMenuView},
+    {STRING_RATE_WARNING, &rateWarningMenuView},
+    {STRING_RATE_ALARM, &rateAlarmMenuView},
+    {STRING_DOSE_WARNING, &doseWarningMenuView},
+    {STRING_DOSE_ALARM, &doseAlarmMenuView},
     {NULL},
 };
 

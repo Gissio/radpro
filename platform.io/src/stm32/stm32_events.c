@@ -32,11 +32,11 @@ void initEventsHardware(void)
     iwdg_unlock();
     wait_until_bits_clear(IWDG->SR, IWDG_SR_PVU);
     IWDG->PR = 0b110; // Divider /256
-    
+
     iwdg_unlock();
     wait_until_bits_clear(IWDG->SR, IWDG_SR_RVU);
     IWDG->RLR = (LSI_FREQUENCY / 256) - 1;
-    
+
     iwdg_start();
 }
 
@@ -45,6 +45,11 @@ void SysTick_Handler(void)
     onTick();
 
     eventsTick++;
+}
+
+void resetWatchdog(void)
+{
+    iwdg_reload();
 }
 
 void sleep(uint32_t value)

@@ -30,8 +30,8 @@ void initEventsHardware(void);
 void resetEvents(void);
 
 void onTick(void);
-void syncTick(void);
 uint32_t getTick(void);
+void resetWatchdog(void);
 void sleep(uint32_t value);
 
 void dispatchEvents(void);
@@ -39,8 +39,8 @@ void dispatchEvents(void);
 float getTubeDeadTime(void);
 
 #if defined(PULSE_LED)
-void cancelPulseLEDTimer(void);
-void setPulseLEDEnabled(bool value);
+void enablePulseLED(bool value);
+void cancelPulseLED(void);
 #endif
 
 void requestBacklightTrigger(void);

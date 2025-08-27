@@ -68,32 +68,34 @@
 #define STRING_HIGH "Høy"
 
 // Notification headings (upper case)
-#define STRING_NOTIFICATION_WARNING "ADVARSEL"
+#define STRING_NOTIFICATION_WARNING ""
 #define STRING_NOTIFICATION_SUCCESS "SUKSESS"
 
-// Firmware checksum failure notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "Fastvarekontrollsum feilet."
+// Firmware checksum failure notification
+#define STRING_SPLASH_FIRMWARE_CHECKSUM_FAILURE "ADVARSEL\n\nFirmware kontrollsumfeil."
 
-// HV profile menu items (shorter than 30 characters)
-#define STRING_NOTIFICATION_HVCUSTOM "Feil verdier skader enheten."
+// HV profile menu items
+#define STRING_NOTIFICATION_HVCUSTOM "ADVARSEL\n\nFeil verdier kan skade enheten."
 
-// Data log reset notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_TITLE "Tilbakestill?"
-#define STRING_NOTIFICATION_DATALOG_RESET_SUBTITLE "Alle poster slettes."
+// Data log reset notification
+#define STRING_NOTIFICATION_DATALOG_RESET_CONFIRM "Tilbakestill datalogg?\n\nAlle opptak vil bli slettet."
 
-// Data log reset success notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "Datalogg tilbakestilt."
+// Data log reset success notification
+#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "SUKSESS\n\nDataloggen er tilbakestilt."
 
 // Measurement view UI heading strings
 #define STRING_INSTANTANEOUS "Øyeblikkelig"
 #define STRING_AVERAGE "Gjennomsnitt"
 #define STRING_CUMULATIVE "Kumulativ"
-#define STRING_HISTORY_10_MINUTES "Historikk (10 min)"
-#define STRING_HISTORY_1_HOUR "Historikk (1 t)"
-#define STRING_HISTORY_1_DAY "Historikk (1 d)"
-#define STRING_HISTORY_1_WEEK "Historikk (1 u)"
-#define STRING_HISTORY_1_MONTH "Historikk (1 m)"
-#define STRING_HISTORY_1_YEAR "Historikk (1 å)"
+#define STRING_HISTORY "Historikk"
+
+// Measurement history view time periods
+#define STRING_HISTORY_10_MINUTES "10 min"
+#define STRING_HISTORY_1_HOUR "1 t"
+#define STRING_HISTORY_1_DAY "1 d"
+#define STRING_HISTORY_1_WEEK "1 u"
+#define STRING_HISTORY_1_MONTH "1 m"
+#define STRING_HISTORY_1_YEAR "1 å"
 
 // Measurement view secondary view strings
 #define STRING_TIME "Tid"
@@ -102,12 +104,12 @@
 #define STRING_DOSE "Dose"
 
 // Measurement view info strings (upper case, up to 5 letters)
-#define STRING_INFO_ALARM "ALARM"
-#define STRING_INFO_WARNING "ADVARSEL"
-#define STRING_INFO_FAULT "FEIL"
-#define STRING_INFO_MAX "MAKS"
-#define STRING_INFO_OVERFLOW "OVER"
-#define STRING_INFO_DONE "FERDIG"
+#define STRING_ALERT_ALARM "ALARM"
+#define STRING_ALERT_WARNING "ADVARSEL"
+#define STRING_ALERT_FAULT "FEIL"
+#define STRING_ALERT_MAX "MAKS"
+#define STRING_ALERT_OVERFLOW "OVER"
+#define STRING_ALERT_DONE "FERDIG"
 
 // Settings menu items
 #define STRING_SETTINGS "Innstillinger"
@@ -115,14 +117,14 @@
 #define STRING_ALERTS "Varsler"
 #define STRING_MEASUREMENTS "Målinger"
 #define STRING_GEIGER_TUBE "Geiger-rør"
-#define STRING_DATA_LOG "Datalogg"
+#define STRING_DATALOG "Datalogg"
 #define STRING_DISPLAY "Skjerm"
 #define STRING_DATE_AND_TIME "Dato og tid"
 #define STRING_BATTERY_TYPE "Batteritype"
 #define STRING_RANDOM_GENERATOR "Tilfeldig generator"
 #define STRING_GAME "Spill"
 #define STRING_STATISTICS "Statistikk"
-#define STRING_DATA_MODE "Datamodus"
+#define STRING_DATAMODE "Datamodus"
 
 // Pulses menu items
 #define STRING_SOUND "Lyd"
@@ -134,8 +136,8 @@
 
 // Alarms menu items
 #define STRING_RATE_WARNING "Hastighetsadvarsel"
-#define STRING_DOSE_WARNING "Doseadvarsel"
 #define STRING_RATE_ALARM "Hastighetsalarm"
+#define STRING_DOSE_WARNING "Doseadvarsel"
 #define STRING_DOSE_ALARM "Dosealarm"
 #define STRING_INDICATION "Indikasjon"
 
@@ -158,7 +160,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "Følsomhet"
-#define STRING_DEAD_TIME_SHORT_COMPENSATION "Dødtidskompensasjon"
+#define STRING_DEAD_TIME_COMPENSATION "Dødtidskompensasjon"
 #define STRING_HVPROFILE "HV-profil"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
@@ -171,7 +173,7 @@
 #define STRING_J614 "J614"
 #define STRING_M4011 "M4011"
 
-// Russian Geiger tubes (should only be translated with non-latin scripts)
+// Russian Geiger tubes (should only be translated with cyrillic scripts)
 #define STRING_SBM20 "SBM-20"
 
 // HV profile menu items
@@ -183,9 +185,6 @@
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "PWM-frekvens"
 #define STRING_PWMDUTY_CYCLE "PWM-arbeidssyklus"
-
-// Tube/battery voltage
-#define STRING_VOLTAGE "Spenning"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Loggingsmodus"
@@ -281,13 +280,11 @@
 #define STRING_GAME_LEVEL "Nivå"
 
 // Statistics view items
-#define STRING_TUBE_LIFE_TIME "Rørets levetid"
+#define STRING_TUBE_LIFE "Rørets levetid"
 #define STRING_DEAD_TIME "Dødtid"
-#define STRING_DEVICE_ID "Enhets-ID"
 
 #define STRING_TUBE "Rør"
-#define STRING_LIFE_TIME "Levetid"
-#define STRING_DEAD_TIME_SHORT "Dødtid"
+#define STRING_LIFE "Levetid"
 #define STRING_DEVICE "Enhet"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE_SHORT "Spenning"
+#define STRING_BATTERY "Batteri"

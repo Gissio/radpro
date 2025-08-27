@@ -67,33 +67,31 @@
 #define STRING_MEDIUM "Μεσαία"
 #define STRING_HIGH "Υψηλή"
 
-// Notification headings (upper case)
-#define STRING_NOTIFICATION_WARNING "ΠΡΟΕΙΔΟΠΟΙΗΣΗ"
-#define STRING_NOTIFICATION_SUCCESS "ΕΠΙΤΥΧΙΑ"
+// Firmware checksum failure notification
+#define STRING_SPLASH_FIRMWARE_CHECKSUM_FAILURE "ΠΡΟΕΙΔΟΠΟΙΗΣΗ\n\nΑποτυχία ελέγχου αθροίσματος υλικολογισμικού."
 
-// Firmware checksum failure notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "Σφάλμα υλικολογισμικού."
+// HV profile menu items
+#define STRING_NOTIFICATION_HVCUSTOM "ΠΡΟΕΙΔΟΠΟΙΗΣΗ\n\nΛανθασμένες τιμές μπορεί να βλάψουν τη συσκευή."
 
-// HV profile menu items (shorter than 30 characters)
-#define STRING_NOTIFICATION_HVCUSTOM "Λάθος τιμές βλάπτουν."
+// Data log reset notification
+#define STRING_NOTIFICATION_DATALOG_RESET_CONFIRM "Επαναφορά αρχείου καταγραφής δεδομένων;\n\nΌλες οι εγγραφές θα διαγραφούν."
 
-// Data log reset notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_TITLE "Επαναφορά;"
-#define STRING_NOTIFICATION_DATALOG_RESET_SUBTITLE "Όλα τα αρχεία διαγράφονται."
-
-// Data log reset success notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "Δεδομένα επαναφέρθηκαν."
+// Data log reset success notification
+#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "ΕΠΙΤΥΧΙΑ\n\nΤο αρχείο καταγραφής δεδομένων επαναφέρθηκε."
 
 // Measurement view UI heading strings
 #define STRING_INSTANTANEOUS "Στιγμιαία"
 #define STRING_AVERAGE "Μέσος όρος"
 #define STRING_CUMULATIVE "Σωρευτική"
-#define STRING_HISTORY_10_MINUTES "Ιστορικό (10 λεπτά)"
-#define STRING_HISTORY_1_HOUR "Ιστορικό (1 ώρα)"
-#define STRING_HISTORY_1_DAY "Ιστορικό (1 ημ)"
-#define STRING_HISTORY_1_WEEK "Ιστορικό (1 εβδ)"
-#define STRING_HISTORY_1_MONTH "Ιστορικό (1 μ)"
-#define STRING_HISTORY_1_YEAR "Ιστορικό (1 έ)"
+#define STRING_HISTORY "Ιστορικό"
+
+// Measurement history view time periods
+#define STRING_HISTORY_10_MINUTES "10 λεπτά"
+#define STRING_HISTORY_1_HOUR "1 ώρα"
+#define STRING_HISTORY_1_DAY "1 ημ"
+#define STRING_HISTORY_1_WEEK "1 εβδ"
+#define STRING_HISTORY_1_MONTH "1 μ"
+#define STRING_HISTORY_1_YEAR "1 έ"
 
 // Measurement view secondary view strings
 #define STRING_TIME "Χρόνος"
@@ -102,12 +100,12 @@
 #define STRING_DOSE "Δόση"
 
 // Measurement view info strings (upper case, up to 5 letters)
-#define STRING_INFO_ALARM "ΣΥΝΑΓ"
-#define STRING_INFO_WARNING "ΠΡΟΕΙΔΟΠΟΙΗΣΗ"
-#define STRING_INFO_FAULT "ΣΦΑΛΜΑ"
-#define STRING_INFO_MAX "ΜΑΞ"
-#define STRING_INFO_OVERFLOW "ΥΠΕΡ"
-#define STRING_INFO_DONE "ΟΛΟΚ"
+#define STRING_ALERT_ALARM "ΣΥΝΑΓΕΡΜΌΣ"
+#define STRING_ALERT_WARNING "ΠΡΟΕΙΔΟΠΟΙΗΣΗ"
+#define STRING_ALERT_FAULT "ΒΛΆΒΗ"
+#define STRING_ALERT_MAX "ΜΕΓ"
+#define STRING_ALERT_OVERFLOW "ΥΠΕΡ"
+#define STRING_ALERT_DONE "ΟΛΟΚΛΗΡΩΜΈΝΟ"
 
 // Settings menu items
 #define STRING_SETTINGS "Ρυθμίσεις"
@@ -115,14 +113,14 @@
 #define STRING_ALERTS "Ειδοποιήσεις"
 #define STRING_MEASUREMENTS "Μετρήσεις"
 #define STRING_GEIGER_TUBE "Σωλήνας Geiger"
-#define STRING_DATA_LOG "Αρχείο δεδομένων"
+#define STRING_DATALOG "Αρχείο δεδομένων"
 #define STRING_DISPLAY "Οθόνη"
 #define STRING_DATE_AND_TIME "Ημερομηνία και ώρα"
 #define STRING_BATTERY_TYPE "Τύπος μπαταρίας"
 #define STRING_RANDOM_GENERATOR "Γεννήτρια τυχαίων"
 #define STRING_GAME "Παιχνίδι"
 #define STRING_STATISTICS "Στατιστικά"
-#define STRING_DATA_MODE "Λειτουργία δεδομένων"
+#define STRING_DATAMODE "Λειτουργία δεδομένων"
 
 // Pulses menu items
 #define STRING_SOUND "Ήχος"
@@ -134,8 +132,8 @@
 
 // Alarms menu items
 #define STRING_RATE_WARNING "Προειδοποίηση ρυθμού"
-#define STRING_DOSE_WARNING "Προειδοποίηση δόσης"
 #define STRING_RATE_ALARM "Συναγερμός ρυθμού"
+#define STRING_DOSE_WARNING "Προειδοποίηση δόσης"
 #define STRING_DOSE_ALARM "Συναγερμός δόσης"
 #define STRING_INDICATION "Ένδειξη"
 
@@ -158,7 +156,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "Ευαισθησία"
-#define STRING_DEAD_TIME_SHORT_COMPENSATION "Αντιστάθμιση νεκρού χρόνου"
+#define STRING_DEAD_TIME_COMPENSATION "Αντιστάθμιση νεκρού χρόνου"
 #define STRING_HVPROFILE "Προφίλ HV"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
@@ -183,9 +181,6 @@
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "Συχνότητα PWM"
 #define STRING_PWMDUTY_CYCLE "Κύκλος εργασίας PWM"
-
-// Tube/battery voltage
-#define STRING_VOLTAGE "Τάση"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Λειτουργία καταγραφής"
@@ -281,13 +276,11 @@
 #define STRING_GAME_LEVEL "Επίπεδο"
 
 // Statistics view items
-#define STRING_TUBE_LIFE_TIME "Ζωή σωλήνα"
+#define STRING_TUBE_LIFE "Ζωή σωλήνα"
 #define STRING_DEAD_TIME "Νεκρός χρόνος"
-#define STRING_DEVICE_ID "ID συσκευής"
 
 #define STRING_TUBE "Σωλήνας"
-#define STRING_LIFE_TIME "Ζωή"
-#define STRING_DEAD_TIME_SHORT "Νεκρός χ."
+#define STRING_LIFE "Ζωή"
 #define STRING_DEVICE "Συσκευή"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE_SHORT "Τάση"
+#define STRING_BATTERY "Μπαταρία"

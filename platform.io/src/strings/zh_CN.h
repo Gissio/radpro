@@ -68,32 +68,34 @@
 #define STRING_HIGH "高"
 
 // Notification headings (upper case)
-#define STRING_NOTIFICATION_WARNING "警告"
-#define STRING_NOTIFICATION_SUCCESS "成功"
+#define STRING_NOTIFICATION_WARNING ""
+#define STRING_NOTIFICATION_SUCCESS ""
 
-// Firmware checksum failure notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "固件校验失败"
+// Firmware checksum failure notification
+#define STRING_SPLASH_FIRMWARE_CHECKSUM_FAILURE "警告\n\n固件\t校验和\t失败。"
 
-// HV profile menu items (shorter than 30 characters)
-#define STRING_NOTIFICATION_HVCUSTOM "错误值可能损坏设备"
+// HV profile menu items
+#define STRING_NOTIFICATION_HVCUSTOM "警告\n\n错误的值\t可能会\t损坏设备。"
 
-// Data log reset notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_TITLE "重置数据记录？"
-#define STRING_NOTIFICATION_DATALOG_RESET_SUBTITLE "所有记录将被删除"
+// Data log reset notification
+#define STRING_NOTIFICATION_DATALOG_RESET_CONFIRM "重置\t数据记录？\n\n所有记录\t将被删除"
 
-// Data log reset success notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "数据记录已重置"
+// Data log reset success notification
+#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "成功\n\n数据\t日志\t已重置。"
 
 // Measurement view UI heading strings
 #define STRING_INSTANTANEOUS "瞬时"
 #define STRING_AVERAGE "平均"
 #define STRING_CUMULATIVE "累积"
-#define STRING_HISTORY_10_MINUTES "历史(10分钟)"
-#define STRING_HISTORY_1_HOUR "历史(1小时)"
-#define STRING_HISTORY_1_DAY "历史(1天)"
-#define STRING_HISTORY_1_WEEK "历史(1周)"
-#define STRING_HISTORY_1_MONTH "历史(1个月)"
-#define STRING_HISTORY_1_YEAR "历史(1年)"
+#define STRING_HISTORY "历史"
+
+// Measurement history view time periods
+#define STRING_HISTORY_10_MINUTES "10分钟"
+#define STRING_HISTORY_1_HOUR "1小时"
+#define STRING_HISTORY_1_DAY "1天"
+#define STRING_HISTORY_1_WEEK "1周"
+#define STRING_HISTORY_1_MONTH "1个月"
+#define STRING_HISTORY_1_YEAR "1年"
 
 // Measurement view secondary view strings
 #define STRING_TIME "时间"
@@ -102,12 +104,12 @@
 #define STRING_DOSE "剂量"
 
 // Measurement view info strings (upper case, up to 5 letters)
-#define STRING_INFO_ALARM "警报"
-#define STRING_INFO_WARNING "警告"
-#define STRING_INFO_FAULT "故障"
-#define STRING_INFO_MAX "最大"
-#define STRING_INFO_OVERFLOW "超限"
-#define STRING_INFO_DONE "完成"
+#define STRING_ALERT_ALARM "警报"
+#define STRING_ALERT_WARNING "警告"
+#define STRING_ALERT_FAULT "故障"
+#define STRING_ALERT_MAX "最大"
+#define STRING_ALERT_OVERFLOW "溢出"
+#define STRING_ALERT_DONE "完成"
 
 // Settings menu items
 #define STRING_SETTINGS "设置"
@@ -115,14 +117,14 @@
 #define STRING_ALERTS "警报"
 #define STRING_MEASUREMENTS "测量"
 #define STRING_GEIGER_TUBE "盖革管"
-#define STRING_DATA_LOG "数据记录"
+#define STRING_DATALOG "数据记录"
 #define STRING_DISPLAY "显示"
 #define STRING_DATE_AND_TIME "日期时间"
 #define STRING_BATTERY_TYPE "电池类型"
 #define STRING_RANDOM_GENERATOR "随机生成"
 #define STRING_GAME "游戏"
 #define STRING_STATISTICS "统计"
-#define STRING_DATA_MODE "数据模式"
+#define STRING_DATAMODE "数据模式"
 
 // Pulses menu items
 #define STRING_SOUND "声音"
@@ -134,8 +136,8 @@
 
 // Alarms menu items
 #define STRING_RATE_WARNING "速率警告"
-#define STRING_DOSE_WARNING "剂量警告"
 #define STRING_RATE_ALARM "速率报警"
+#define STRING_DOSE_WARNING "剂量警告"
 #define STRING_DOSE_ALARM "剂量报警"
 #define STRING_INDICATION "指示"
 
@@ -158,7 +160,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "灵敏度"
-#define STRING_DEAD_TIME_SHORT_COMPENSATION "死时间补偿"
+#define STRING_DEAD_TIME_COMPENSATION "死时间补偿"
 #define STRING_HVPROFILE "高压配置"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
@@ -171,7 +173,7 @@
 #define STRING_J614 "J614"
 #define STRING_M4011 "M4011"
 
-// Russian Geiger tubes (should only be translated with non-latin scripts)
+// Russian Geiger tubes (should only be translated with cyrillic scripts)
 #define STRING_SBM20 "SBM-20"
 
 // HV profile menu items
@@ -183,9 +185,6 @@
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "PWM频率"
 #define STRING_PWMDUTY_CYCLE "PWM占空比"
-
-// Tube/battery voltage
-#define STRING_VOLTAGE "电压"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "记录模式"
@@ -281,13 +280,11 @@
 #define STRING_GAME_LEVEL "级别"
 
 // Statistics view items
-#define STRING_TUBE_LIFE_TIME "管寿命"
+#define STRING_TUBE_LIFE "管寿命"
 #define STRING_DEAD_TIME "死时间"
-#define STRING_DEVICE_ID "设备ID"
 
 #define STRING_TUBE "管"
-#define STRING_LIFE_TIME "寿命"
-#define STRING_DEAD_TIME_SHORT "死时间"
+#define STRING_LIFE "寿命"
 #define STRING_DEVICE "设备"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE_SHORT "电压"
+#define STRING_BATTERY "电池"

@@ -67,33 +67,31 @@
 #define STRING_MEDIUM "Keskitaso"
 #define STRING_HIGH "Korkea"
 
-// Notification headings (upper case)
-#define STRING_NOTIFICATION_WARNING "VAROITUS"
-#define STRING_NOTIFICATION_SUCCESS "ONNISTUI"
+// Firmware checksum failure notification
+#define STRING_SPLASH_FIRMWARE_CHECKSUM_FAILURE "VAROITUS\n\nLaiteohjelmiston tarkistussumman epäonnistuminen."
 
-// Firmware checksum failure notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "Laiteohjelmiston virhe."
+// HV profile menu items
+#define STRING_NOTIFICATION_HVCUSTOM "VAROITUS\n\nVäärät arvot voivat vahingoittaa laitetta."
 
-// HV profile menu items (shorter than 30 characters)
-#define STRING_NOTIFICATION_HVCUSTOM "Väärät arvot vahingoittavat."
+// Data log reset notification
+#define STRING_NOTIFICATION_DATALOG_RESET_CONFIRM "Nollata dataloki?\n\nKaikki tiedot poistetaan."
 
-// Data log reset notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_TITLE "Nollata dataloki?"
-#define STRING_NOTIFICATION_DATALOG_RESET_SUBTITLE "Kaikki tiedot poistetaan."
-
-// Data log reset success notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "Dataloki on nollattu."
+// Data log reset success notification
+#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "ONNISTUI\n\nDataloki on nollattu."
 
 // Measurement view UI heading strings
 #define STRING_INSTANTANEOUS "Hetkellinen"
 #define STRING_AVERAGE "Keskiarvo"
 #define STRING_CUMULATIVE "Kumulatiivinen"
-#define STRING_HISTORY_10_MINUTES "Historia (10 min)"
-#define STRING_HISTORY_1_HOUR "Historia (1 h)"
-#define STRING_HISTORY_1_DAY "Historia (1 pv)"
-#define STRING_HISTORY_1_WEEK "Historia (1 vk)"
-#define STRING_HISTORY_1_MONTH "Historia (1 kk)"
-#define STRING_HISTORY_1_YEAR "Historia (1 v)"
+#define STRING_HISTORY "Historia"
+
+// Measurement history view time periods
+#define STRING_HISTORY_10_MINUTES "10 min"
+#define STRING_HISTORY_1_HOUR "1 h"
+#define STRING_HISTORY_1_DAY "1 pv"
+#define STRING_HISTORY_1_WEEK "1 vk"
+#define STRING_HISTORY_1_MONTH "1 kk"
+#define STRING_HISTORY_1_YEAR "1 v"
 
 // Measurement view secondary view strings
 #define STRING_TIME "Aika"
@@ -102,12 +100,12 @@
 #define STRING_DOSE "Annos"
 
 // Measurement view info strings (upper case, up to 5 letters)
-#define STRING_INFO_ALARM "HÄLYT"
-#define STRING_INFO_WARNING "VAROITUS"
-#define STRING_INFO_FAULT "VIKA"
-#define STRING_INFO_MAX "MAKS"
-#define STRING_INFO_OVERFLOW "YLIT"
-#define STRING_INFO_DONE "VAL"
+#define STRING_ALERT_ALARM "HÄLYTYS"
+#define STRING_ALERT_WARNING "VAROITUS"
+#define STRING_ALERT_FAULT "VIKA"
+#define STRING_ALERT_MAX "MAKS"
+#define STRING_ALERT_OVERFLOW "YLI"
+#define STRING_ALERT_DONE "VALMIS"
 
 // Settings menu items
 #define STRING_SETTINGS "Asetukset"
@@ -115,14 +113,14 @@
 #define STRING_ALERTS "Hälytykset"
 #define STRING_MEASUREMENTS "Mittaukset"
 #define STRING_GEIGER_TUBE "Geiger-putki"
-#define STRING_DATA_LOG "Dataloki"
+#define STRING_DATALOG "Dataloki"
 #define STRING_DISPLAY "Näyttö"
 #define STRING_DATE_AND_TIME "Päiväys ja aika"
 #define STRING_BATTERY_TYPE "Akun tyyppi"
 #define STRING_RANDOM_GENERATOR "Satunnaisgeneraattori"
 #define STRING_GAME "Peli"
 #define STRING_STATISTICS "Tilastot"
-#define STRING_DATA_MODE "Datatila"
+#define STRING_DATAMODE "Datatila"
 
 // Pulses menu items
 #define STRING_SOUND "Ääni"
@@ -134,8 +132,8 @@
 
 // Alarms menu items
 #define STRING_RATE_WARNING "Nopeusvaroitus"
-#define STRING_DOSE_WARNING "Annosvaroitus"
 #define STRING_RATE_ALARM "Nopeushälytys"
+#define STRING_DOSE_WARNING "Annosvaroitus"
 #define STRING_DOSE_ALARM "Annoshälytys"
 #define STRING_INDICATION "Ilmoitus"
 
@@ -158,7 +156,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "Herkkyys"
-#define STRING_DEAD_TIME_SHORT_COMPENSATION "Kuolleen ajan kompensointi"
+#define STRING_DEAD_TIME_COMPENSATION "Kuolleen ajan kompensointi"
 #define STRING_HVPROFILE "HV-profiili"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
@@ -171,7 +169,7 @@
 #define STRING_J614 "J614"
 #define STRING_M4011 "M4011"
 
-// Russian Geiger tubes (should only be translated with non-latin scripts)
+// Russian Geiger tubes (should only be translated with cyrillic scripts)
 #define STRING_SBM20 "SBM-20"
 
 // HV profile menu items
@@ -183,9 +181,6 @@
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "PWM-taajuus"
 #define STRING_PWMDUTY_CYCLE "PWM-työsuhde"
-
-// Tube/battery voltage
-#define STRING_VOLTAGE "Jännite"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Lokitusmoodi"
@@ -281,13 +276,11 @@
 #define STRING_GAME_LEVEL "Taso"
 
 // Statistics view items
-#define STRING_TUBE_LIFE_TIME "Putken käyttöikä"
+#define STRING_TUBE_LIFE "Putken käyttöikä"
 #define STRING_DEAD_TIME "Kuollut aika"
-#define STRING_DEVICE_ID "Laitteen tunnus"
 
 #define STRING_TUBE "Putki"
-#define STRING_LIFE_TIME "Käyttöikä"
-#define STRING_DEAD_TIME_SHORT "Kuollut aika"
+#define STRING_LIFE "Käyttöikä"
 #define STRING_DEVICE "Laite"
-#define STRING_ID "Tunnus"
-#define STRING_VOLTAGE_SHORT "Jännite"
+#define STRING_ID "ID"
+#define STRING_BATTERY "Akku"
