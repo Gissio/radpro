@@ -54,7 +54,7 @@ void setFastSystemClock(bool value)
                 RCC_CFGR_SW_HSI);
     wait_until_bits_value(RCC->CFGR,
                           RCC_CFGR_SWS_Msk,
-                          RCC_CFGR_SWS_HSI);
+                          RCC_CFGR_SWS_HSISYS);
 
     // Disable PLL
     clear_bits(RCC->CR, RCC_CR_PLLON);
@@ -89,7 +89,7 @@ void setFastSystemClock(bool value)
                     RCC_CFGR_SW_PLL);
         wait_until_bits_value(RCC->CFGR,
                               RCC_CFGR_SWS_Msk,
-                              RCC_CFGR_SWS_PLL);
+                              RCC_CFGR_SWS_PLLRCLK);
 
         // Update sys tick
         SysTick->LOAD = SysTick->LOAD << 3;
