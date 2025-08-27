@@ -67,33 +67,31 @@
 #define STRING_MEDIUM "Gemiddeld"
 #define STRING_HIGH "Hoog"
 
-// Notification headings (upper case)
-#define STRING_NOTIFICATION_WARNING "WAARSCHUWING"
-#define STRING_NOTIFICATION_SUCCESS "SUCCES"
+// Firmware checksum failure notification
+#define STRING_SPLASH_FIRMWARE_CHECKSUM_FAILURE "WAARSCHUWING\n\nFirmware checksum mislukt."
 
-// Firmware checksum failure notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "Firmware checksum fout."
+// HV profile menu items
+#define STRING_NOTIFICATION_HVCUSTOM "WAARSCHUWING\n\nVerkeerde waarden kunnen het apparaat beschadigen."
 
-// HV profile menu items (shorter than 30 characters)
-#define STRING_NOTIFICATION_HVCUSTOM "Foute waarden schaden."
+// Data log reset notification
+#define STRING_NOTIFICATION_DATALOG_RESET_CONFIRM "Gegevenslog resetten?\n\nAlle records worden verwijderd."
 
-// Data log reset notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_TITLE "Log resetten?"
-#define STRING_NOTIFICATION_DATALOG_RESET_SUBTITLE "Alle records worden gewist."
-
-// Data log reset success notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "Log is gereset."
+// Data log reset success notification
+#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "SUCCES\n\nGegevenslog is gereset."
 
 // Measurement view UI heading strings
 #define STRING_INSTANTANEOUS "Momentaan"
 #define STRING_AVERAGE "Gemiddeld"
 #define STRING_CUMULATIVE "Cumulatief"
-#define STRING_HISTORY_10_MINUTES "Geschiedenis (10 min)"
-#define STRING_HISTORY_1_HOUR "Geschiedenis (1 u)"
-#define STRING_HISTORY_1_DAY "Geschiedenis (1 d)"
-#define STRING_HISTORY_1_WEEK "Geschiedenis (1 w)"
-#define STRING_HISTORY_1_MONTH "Geschiedenis (1 m)"
-#define STRING_HISTORY_1_YEAR "Geschiedenis (1 j)"
+#define STRING_HISTORY "Geschiedenis"
+
+// Measurement history view time periods
+#define STRING_HISTORY_10_MINUTES "10 min"
+#define STRING_HISTORY_1_HOUR "1 u"
+#define STRING_HISTORY_1_DAY "1 d"
+#define STRING_HISTORY_1_WEEK "1 w"
+#define STRING_HISTORY_1_MONTH "1 m"
+#define STRING_HISTORY_1_YEAR "1 j"
 
 // Measurement view secondary view strings
 #define STRING_TIME "Tijd"
@@ -102,12 +100,12 @@
 #define STRING_DOSE "Dosis"
 
 // Measurement view info strings (upper case, up to 5 letters)
-#define STRING_INFO_ALARM "ALARM"
-#define STRING_INFO_WARNING "WAARSCHUWING"
-#define STRING_INFO_FAULT "FOUT"
-#define STRING_INFO_MAX "MAX"
-#define STRING_INFO_OVERFLOW "OVER"
-#define STRING_INFO_DONE "KLAAR"
+#define STRING_ALERT_ALARM "ALARM"
+#define STRING_ALERT_WARNING "WAARSCHUWING"
+#define STRING_ALERT_FAULT "FOUT"
+#define STRING_ALERT_MAX "MAX"
+#define STRING_ALERT_OVERFLOW "OVER"
+#define STRING_ALERT_DONE "KLAAR"
 
 // Settings menu items
 #define STRING_SETTINGS "Instellingen"
@@ -115,14 +113,14 @@
 #define STRING_ALERTS "Waarschuwingen"
 #define STRING_MEASUREMENTS "Metingen"
 #define STRING_GEIGER_TUBE "Geigerteller"
-#define STRING_DATA_LOG "Gegevenslog"
+#define STRING_DATALOG "Gegevenslog"
 #define STRING_DISPLAY "Scherm"
 #define STRING_DATE_AND_TIME "Datum en tijd"
 #define STRING_BATTERY_TYPE "Batterijtype"
 #define STRING_RANDOM_GENERATOR "Willekeurige generator"
 #define STRING_GAME "Spel"
 #define STRING_STATISTICS "Statistieken"
-#define STRING_DATA_MODE "Gegevensmodus"
+#define STRING_DATAMODE "Gegevensmodus"
 
 // Pulses menu items
 #define STRING_SOUND "Geluid"
@@ -134,8 +132,8 @@
 
 // Alarms menu items
 #define STRING_RATE_WARNING "Snelheidswaarschuwing"
-#define STRING_DOSE_WARNING "Dosiswaarschuwing"
 #define STRING_RATE_ALARM "Snelheidsalarm"
+#define STRING_DOSE_WARNING "Dosiswaarschuwing"
 #define STRING_DOSE_ALARM "Dosisalarm"
 #define STRING_INDICATION "Indicatie"
 
@@ -158,7 +156,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "Gevoeligheid"
-#define STRING_DEAD_TIME_SHORT_COMPENSATION "Dode-tijdcompensatie"
+#define STRING_DEAD_TIME_COMPENSATION "Dode-tijdcompensatie"
 #define STRING_HVPROFILE "HV-profiel"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
@@ -171,7 +169,7 @@
 #define STRING_J614 "J614"
 #define STRING_M4011 "M4011"
 
-// Russian Geiger tubes (should only be translated with non-latin scripts)
+// Russian Geiger tubes (should only be translated with cyrillic scripts)
 #define STRING_SBM20 "SBM-20"
 
 // HV profile menu items
@@ -183,9 +181,6 @@
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "PWM-frequentie"
 #define STRING_PWMDUTY_CYCLE "PWM-inschakelduur"
-
-// Tube/battery voltage
-#define STRING_VOLTAGE "Spanning"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Logmodus"
@@ -281,13 +276,11 @@
 #define STRING_GAME_LEVEL "Niveau"
 
 // Statistics view items
-#define STRING_TUBE_LIFE_TIME "Levensduur buis"
+#define STRING_TUBE_LIFE "Levensduur buis"
 #define STRING_DEAD_TIME "Dode tijd"
-#define STRING_DEVICE_ID "Apparaat-ID"
 
 #define STRING_TUBE "Buis"
-#define STRING_LIFE_TIME "Levensduur"
-#define STRING_DEAD_TIME_SHORT "Dode tijd"
+#define STRING_LIFE "Levensduur"
 #define STRING_DEVICE "Apparaat"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE_SHORT "Spanning"
+#define STRING_BATTERY "Batterij"

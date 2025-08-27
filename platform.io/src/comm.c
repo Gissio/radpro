@@ -87,22 +87,15 @@ static void pushCommFloat(float value, uint32_t fractionalDecimals)
     strcatFloat(comm.buffer, value, fractionalDecimals);
 }
 
-static void pushCommDatalogEntry(char *buffer, const Dose *entry)
-{
-    strcatUInt32(buffer, entry->time, 0);
-    strcatChar(comm.buffer, ',');
-    strcatUInt32(buffer, entry->pulseCount, 0);
-}
-
 void dispatchCommEvents(void)
 {
     // Update comm state
 #if defined(DATA_MODE)
-    bool commShouldBeOpen = !isDeviceOff() && settings.dataMode;
+    bool commShouldBeOpen = settings.dataMode;
 #elif defined(PWR_USB)
-    bool commShouldBeOpen = !isDeviceOff() && isUSBPowered();
+    bool commShouldBeOpen = isUSBPowered();
 #else
-    bool commShouldBeOpen = !isDeviceOff();
+    bool commShouldBeOpen = true;
 #endif
     if (!comm.open && commShouldBeOpen)
         openComm();
@@ -128,6 +121,8 @@ void dispatchCommEvents(void)
                 strcatChar(comm.buffer, ';');
                 comm.transmitState = TRANSMIT_DEVICEID;
             }
+            else if (parseToken(&s, "devicePower"))
+                pushCommUInt32(!isInPowerOffView());
             else if (parseToken(&s, "deviceBatteryVoltage"))
                 pushCommFloat(getBatteryVoltage(), 3);
             else if (parseToken(&s, "deviceTime"))
@@ -156,14 +151,14 @@ void dispatchCommEvents(void)
             {
                 if (openDatalogRead())
                 {
-                    comm.datalogStartTimestamp = 0;
-                    comm.datalogEndTimestamp = UINT32_MAX;
-                    comm.datalogMaxEntryNum = UINT32_MAX;
-                    comm.datalogEntryNum = 0;
-                    if (parseUInt32(&s, &comm.datalogStartTimestamp))
+                    comm.datalogStartTime = 0;
+                    comm.datalogEndTime = UINT32_MAX;
+                    comm.datalogMaxRecordNum = UINT32_MAX;
+                    comm.datalogRecordNum = 0;
+                    if (parseUInt32(&s, &comm.datalogStartTime))
                     {
-                        if (parseUInt32(&s, &comm.datalogEndTimestamp))
-                            parseUInt32(&s, &comm.datalogMaxEntryNum);
+                        if (parseUInt32(&s, &comm.datalogEndTime))
+                            parseUInt32(&s, &comm.datalogMaxRecordNum);
                     }
                     pushCommOk();
                     strcat(comm.buffer, " time,tubePulseCount");
@@ -189,9 +184,18 @@ void dispatchCommEvents(void)
             uint32_t intValue;
             float floatValue;
 
-            if (parseTokenAndUInt32(&s, "deviceTime", &intValue))
+            if (parseTokenAndUInt32(&s, "devicePower", &intValue))
+            {
+                if (intValue)
+                    powerOn(false);
+                else
+                    powerOff(true);
+                pushCommOk();
+            }
+            else if (parseTokenAndUInt32(&s, "deviceTime", &intValue))
             {
                 setDeviceTime(intValue);
+                openDatalogWrite();
                 pushCommOk();
             }
             else if (parseTokenAndFloat(&s, "deviceTimeZone", &floatValue))
@@ -276,7 +280,7 @@ void dispatchCommEvents(void)
             sleep(START_BOOTLOADER_TIME);
             powerOff(false);
             setBacklight(false);
-            enableDisplay(false);
+            setDisplayEnable(false);
             startBootloader();
 
             comm.transmitState = TRANSMIT_RESPONSE;
@@ -300,15 +304,16 @@ void dispatchCommEvents(void)
 
         case TRANSMIT_DATALOG:
         {
-            uint32_t sentEntryNum = 0;
-            uint32_t checkedEntryNum = 0;
+            uint32_t sentRecordNum = 0;
+            uint32_t readRecordNum = 0;
 
-            while ((sentEntryNum < 2) &&
-                   (checkedEntryNum < 1000))
+            while ((sentRecordNum < 2) &&
+                   (readRecordNum < 1000))
             {
-                Dose dose;
+                bool isNewLoggingSession;
+                Dose record;
 
-                if (!readDatalog(&dose))
+                if (!readDatalogRecord(&isNewLoggingSession, &record))
                 {
                     closeDatalogRead();
 
@@ -318,18 +323,22 @@ void dispatchCommEvents(void)
                     break;
                 }
 
-                if ((dose.time >= comm.datalogStartTimestamp) &&
-                    (dose.time <= comm.datalogEndTimestamp) &&
-                    (comm.datalogEntryNum < comm.datalogMaxEntryNum))
+                if ((record.time >= comm.datalogStartTime) &&
+                    (record.time <= comm.datalogEndTime) &&
+                    (comm.datalogRecordNum < comm.datalogMaxRecordNum))
                 {
+                    if (isNewLoggingSession)
+                        strcatChar(comm.buffer, ';');
                     strcatChar(comm.buffer, ';');
-                    pushCommDatalogEntry(comm.buffer, &dose);
+                    strcatUInt32(comm.buffer, record.time, 0);
+                    strcatChar(comm.buffer, ',');
+                    strcatUInt32(comm.buffer, record.pulseCount, 0);
 
-                    sentEntryNum++;
-                    comm.datalogEntryNum++;
+                    sentRecordNum++;
+                    comm.datalogRecordNum++;
                 }
 
-                checkedEntryNum++;
+                readRecordNum++;
             }
 
             transmitComm();

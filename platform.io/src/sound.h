@@ -35,9 +35,8 @@ void initSoundEnabled(void);
 
 void setSoundEnabled(bool value);
 
-void onSoundEnabledTick(void);
-
-void updateSoundEnabled(void);
+void updateSound(bool enabled);
+void onSoundTick(void);
 #endif
 
 #if defined(VOICE)
@@ -50,6 +49,7 @@ void playVoiceAverageRate(void);
 void playVoiceCumulativeDose(void);
 void playAlertTest(void);
 void playVoiceTest(void);
+void playNumber(uint32_t value);
 
 void playVoiceAlert(void);
 void clearVoiceAlert(void);

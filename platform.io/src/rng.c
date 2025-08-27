@@ -13,6 +13,7 @@
 #include "menu.h"
 #include "rng.h"
 #include "settings.h"
+#include "sound.h"
 
 #define RNG_BITQUEUE_SIZE 128
 #define RNG_BITQUEUE_MASK (RNG_BITQUEUE_SIZE - 1)
@@ -197,7 +198,7 @@ int32_t getRandomData(void)
 
 // Fast Dice Roller algorithm: https://arxiv.org/abs/1304.1916
 
-static int32_t getFastDiceRollerInt(void)
+static int32_t getFastDiceRollerValue(void)
 {
     while (true)
     {
@@ -213,8 +214,10 @@ static int32_t getFastDiceRollerInt(void)
             if (rng.fastDiceRollerC < rng.fastDiceRollerN)
             {
                 uint32_t c = rng.fastDiceRollerC;
+
                 rng.fastDiceRollerV = 1;
                 rng.fastDiceRollerC = 0;
+
                 return c;
             }
             else
@@ -241,21 +244,21 @@ static void updateFastDiceRollerText(void)
 {
     while (rng.activityIndicator)
     {
-        int32_t digit = getFastDiceRollerInt();
-        if (digit < 0)
+        int32_t value = getFastDiceRollerValue();
+        if (value < 0)
             return;
 
         if (rng.mode == RNG_MODE_FULL_ASCII)
-            strcatChar(rng.text, '!' + digit);
+            strcatChar(rng.text, '!' + value);
         else if (rng.mode < RNG_MODE_THROW)
         {
             char c;
-            if (digit < 10)
-                c = '0' + digit;
-            else if (digit < (10 + 26))
-                c = 'a' + digit - 10;
+            if (value < 10)
+                c = '0' + value;
+            else if (value < (10 + 26))
+                c = 'a' + value - 10;
             else
-                c = 'A' + digit - (10 + 26);
+                c = 'A' + value - (10 + 26);
 
             strcatChar(rng.text, c);
         }
@@ -264,9 +267,9 @@ static void updateFastDiceRollerText(void)
             if ((rng.mode != RNG_MODE_100SIDED_DIE) &&
                 (rng.mode != RNG_MODE_10SIDED_DIE) &&
                 (rng.mode != RNG_MODE_COIN_FLIP))
-                digit++;
+                value++;
 
-            strcatUInt32(rng.text, digit, 0);
+            strcatUInt32(rng.text, value, 0);
         }
 
         if ((rng.mode >= RNG_MODE_THROW) ||
@@ -274,7 +277,14 @@ static void updateFastDiceRollerText(void)
         {
             rng.activityIndicator = 0;
 
+#if defined(VOICE)
+            if (settings.alertVoice)
+                playNumber(value);
+            else
+                triggerAlert();
+#else
             triggerAlert();
+#endif
         }
     }
 }
@@ -290,7 +300,7 @@ static void onRNGEvent(Event event)
 
         break;
 
-    case EVENT_PERIOD:
+    case EVENT_HEARTBEAT:
         if (rng.activityIndicator)
         {
             rng.activityIndicator++;
@@ -311,7 +321,8 @@ static void onRNGEvent(Event event)
             stateString = getString(STRING_EMPTY);
 
         drawRNG(getString(rngModeMenuOptions[rng.mode]),
-                !rng.activityIndicator && (rng.mode >= RNG_MODE_THROW),
+                !rng.activityIndicator &&
+                    (rng.mode >= RNG_MODE_THROW),
                 rng.text,
                 stateString);
 

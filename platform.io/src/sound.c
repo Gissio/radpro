@@ -40,8 +40,7 @@ void initSound(void)
 #endif
 #if defined(SOUND_EN)
     initSoundEnabled();
-
-    updateSoundEnabled();
+    updateSound(false);
 #endif
 #if defined(VOICE)
     initVoice();
@@ -115,23 +114,23 @@ View soundPulseTypeMenuView = {
 
 // Sound enabled
 
-void onSoundEnabledTick(void)
+void updateSound(bool enabled)
 {
-    if (soundEnabledPulseStretcherFix)
-        setSoundEnabled(getRandomBit());
-}
-
-void updateSoundEnabled(void)
-{
-    bool soundEnabled = !isDeviceOff() &&
-                        isPulseThresholdExceeded() &&
-                        settings.pulseSound;
+    bool soundEnabled = isPulseThresholdExceeded() &&
+                        settings.pulseSound &&
+                        enabled;
 
     soundEnabledPulseStretcherFix = soundEnabled &&
                                    (getInstantaneousRate() >= PULSE_STRETCHERFIX_MINRATE);
 
     if (!soundEnabledPulseStretcherFix)
         setSoundEnabled(soundEnabled);
+}
+
+void onSoundTick(void)
+{
+    if (soundEnabledPulseStretcherFix)
+        setSoundEnabled(getRandomBit());
 }
 
 #endif

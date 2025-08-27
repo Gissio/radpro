@@ -67,33 +67,31 @@
 #define STRING_MEDIUM "Közepes"
 #define STRING_HIGH "Magas"
 
-// Notification headings (upper case)
-#define STRING_NOTIFICATION_WARNING "FIGYELMEZTETÉS"
-#define STRING_NOTIFICATION_SUCCESS "SIKER"
+// Firmware checksum failure notification
+#define STRING_SPLASH_FIRMWARE_CHECKSUM_FAILURE "FIGYELMEZTETÉS\n\nFirmware ellenőrzőösszeg-hiba."
 
-// Firmware checksum failure notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "Firmware checksum hiba."
+// HV profile menu items
+#define STRING_NOTIFICATION_HVCUSTOM "FIGYELMEZTETÉS\n\nHelytelen értékek károsíthatják a készüléket."
 
-// HV profile menu items (shorter than 30 characters)
-#define STRING_NOTIFICATION_HVCUSTOM "Hibás értékek károsíthatják."
+// Data log reset notification
+#define STRING_NOTIFICATION_DATALOG_RESET_CONFIRM "Adatnapló visszaállítása?\n\nMinden rekord törlődik."
 
-// Data log reset notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_TITLE "Adatnapló törlése?"
-#define STRING_NOTIFICATION_DATALOG_RESET_SUBTITLE "Minden rekord törlődik."
-
-// Data log reset success notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "Adatnapló törölve."
+// Data log reset success notification
+#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "SIKER\n\nAz adatnapló visszaállítva."
 
 // Measurement view UI heading strings
 #define STRING_INSTANTANEOUS "Azonnali"
 #define STRING_AVERAGE "Átlag"
 #define STRING_CUMULATIVE "Összesített"
-#define STRING_HISTORY_10_MINUTES "Előzmények (10 p)"
-#define STRING_HISTORY_1_HOUR "Előzmények (1 ó)"
-#define STRING_HISTORY_1_DAY "Előzmények (1 n)"
-#define STRING_HISTORY_1_WEEK "Előzmények (1 h)"
-#define STRING_HISTORY_1_MONTH "Előzmények (1 hó)"
-#define STRING_HISTORY_1_YEAR "Előzmények (1 é)"
+#define STRING_HISTORY "Előzmények"
+
+// Measurement history view time periods
+#define STRING_HISTORY_10_MINUTES "10 p"
+#define STRING_HISTORY_1_HOUR "1 ó"
+#define STRING_HISTORY_1_DAY "1 n"
+#define STRING_HISTORY_1_WEEK "1 h"
+#define STRING_HISTORY_1_MONTH "1 hó"
+#define STRING_HISTORY_1_YEAR "1 é"
 
 // Measurement view secondary view strings
 #define STRING_TIME "Idő"
@@ -102,12 +100,12 @@
 #define STRING_DOSE "Dózis"
 
 // Measurement view info strings (upper case, up to 5 letters)
-#define STRING_INFO_ALARM "RIADÓ"
-#define STRING_INFO_WARNING "FIGYELMEZTETÉS"
-#define STRING_INFO_FAULT "HIBA"
-#define STRING_INFO_MAX "MAX"
-#define STRING_INFO_OVERFLOW "TÚL"
-#define STRING_INFO_DONE "KÉSZ"
+#define STRING_ALERT_ALARM "RIASZTÁS"
+#define STRING_ALERT_WARNING "FIGYELMEZTETÉS"
+#define STRING_ALERT_FAULT "HIBA"
+#define STRING_ALERT_MAX "MAX"
+#define STRING_ALERT_OVERFLOW "TÚL"
+#define STRING_ALERT_DONE "KÉSZ"
 
 // Settings menu items
 #define STRING_SETTINGS "Beállítások"
@@ -115,14 +113,14 @@
 #define STRING_ALERTS "Riasztások"
 #define STRING_MEASUREMENTS "Mérések"
 #define STRING_GEIGER_TUBE "Geiger-cső"
-#define STRING_DATA_LOG "Adatnapló"
+#define STRING_DATALOG "Adatnapló"
 #define STRING_DISPLAY "Kijelző"
 #define STRING_DATE_AND_TIME "Dátum és idő"
 #define STRING_BATTERY_TYPE "Akkumulátor típusa"
 #define STRING_RANDOM_GENERATOR "Véletlenszám-generátor"
 #define STRING_GAME "Játék"
 #define STRING_STATISTICS "Statisztika"
-#define STRING_DATA_MODE "Adatmód"
+#define STRING_DATAMODE "Adatmód"
 
 // Pulses menu items
 #define STRING_SOUND "Hang"
@@ -134,8 +132,8 @@
 
 // Alarms menu items
 #define STRING_RATE_WARNING "Rátafigyelmeztetés"
-#define STRING_DOSE_WARNING "Dózisfigyelmeztetés"
 #define STRING_RATE_ALARM "Rátariasztás"
+#define STRING_DOSE_WARNING "Dózisfigyelmeztetés"
 #define STRING_DOSE_ALARM "Dózisriasztás"
 #define STRING_INDICATION "Jelzés"
 
@@ -158,7 +156,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "Érzékenység"
-#define STRING_DEAD_TIME_SHORT_COMPENSATION "Holtidő-kompenzáció"
+#define STRING_DEAD_TIME_COMPENSATION "Holtidő-kompenzáció"
 #define STRING_HVPROFILE "HV profil"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
@@ -171,7 +169,7 @@
 #define STRING_J614 "J614"
 #define STRING_M4011 "M4011"
 
-// Russian Geiger tubes (should only be translated with non-latin scripts)
+// Russian Geiger tubes (should only be translated with cyrillic scripts)
 #define STRING_SBM20 "SBM-20"
 
 // HV profile menu items
@@ -183,9 +181,6 @@
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "PWM frekvencia"
 #define STRING_PWMDUTY_CYCLE "PWM kitöltési tényező"
-
-// Tube/battery voltage
-#define STRING_VOLTAGE "Feszültség"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Naplózási mód"
@@ -281,13 +276,11 @@
 #define STRING_GAME_LEVEL "Szint"
 
 // Statistics view items
-#define STRING_TUBE_LIFE_TIME "Cső élettartama"
+#define STRING_TUBE_LIFE "Cső élettartama"
 #define STRING_DEAD_TIME "Holtidő"
-#define STRING_DEVICE_ID "Eszköz ID"
 
 #define STRING_TUBE "Cső"
-#define STRING_LIFE_TIME "Élettartam"
-#define STRING_DEAD_TIME_SHORT "Holtidő"
+#define STRING_LIFE "Élettartam"
 #define STRING_DEVICE "Eszköz"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE_SHORT "Feszültség"
+#define STRING_BATTERY "Akkumulátor"

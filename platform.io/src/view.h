@@ -28,7 +28,7 @@ typedef enum
     EVENT_DRAW,
     EVENT_POST_DRAW,
 
-    EVENT_PERIOD,
+    EVENT_HEARTBEAT,
 
     EVENT_NONE,
 } Event;
@@ -55,9 +55,6 @@ void requestViewUpdate(void);
 void updateView(void);
 
 void setLockMode(bool value);
-bool isLockMode(void);
-
-void setPulseSoundIconEnabled(bool value);
-bool isPulseSoundIconEnabled(void);
+bool isInLockMode(void);
 
 #endif

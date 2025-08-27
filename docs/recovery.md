@@ -22,5 +22,6 @@ To recover your FNIRSI GC-01 Geiger counter, follow the [installation instructio
 
 To recover your GQ GMC-800 Geiger counter, try the following steps:
 
-1. Run the Rad Pro web installer with the battery removed.
-2. Reinstall the original firmware. Contact GQ Electronics at [support@gqelectronicsllc.com](mailto:support@gqelectronicsllc.com) with your device model and serial number to request the latest firmware update.
+1. **Power cycle the device:** Disconnect the USB cable, remove the battery, wait 10 seconds, then reinsert the battery and press the power button to restart the device.
+2. **Use the Rad Pro web installer:** If the power cycle does not resolve the issue, keep the battery removed and run the Rad Pro web installer to start the recovery process.
+3. **Reinstall original firmware:** If the issue persists, contact GQ Electronics at [support@gqelectronicsllc.com](mailto:support@gqelectronicsllc.com) with your device model and serial number to request the latest firmware update.

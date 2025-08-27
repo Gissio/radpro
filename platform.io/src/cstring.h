@@ -20,7 +20,7 @@
 
 typedef const char *const cstring;
 
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__)
 
 void strclr(char *s);
 

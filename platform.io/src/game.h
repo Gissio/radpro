@@ -12,8 +12,6 @@
 
 #include "view.h"
 
-#define GAME_HISTORY_TURN_NUM 3
-
 extern View gameMenuView;
 
 void resetGame(void);

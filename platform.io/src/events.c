@@ -40,6 +40,8 @@
 
 #define POWERON_TEST_TICKS ((uint32_t)(0.100 * SYSTICK_FREQUENCY))
 
+#define LOCKMODE_BACKLIGHT_TICKS (10 * SYSTICK_FREQUENCY)
+
 typedef enum
 {
     TIMER_OFF = -1,
@@ -51,8 +53,6 @@ volatile uint32_t eventsTick;
 
 static struct
 {
-    bool sync;
-
     bool pulseThresholdExceeded;
 
     bool lastPulseTimeCountInitialized;
@@ -69,8 +69,8 @@ static struct
 #endif
 
 #if defined(PULSE_LED) || defined(PULSE_LED_EN)
-    volatile int32_t pulseLEDTimer;
     bool pulseLEDEnabled;
+    volatile int32_t pulseLEDTimer;
 #endif
 
 #if defined(VIBRATION)
@@ -79,9 +79,9 @@ static struct
 
     int32_t keyboardTimer;
 
-    int32_t periodTimer;
-    volatile uint32_t periodUpdate;
-    uint32_t lastPeriodUpdate;
+    int32_t heartbeatTimer;
+    volatile uint32_t heartbeatUpdate;
+    uint32_t lastHeartbeatUpdate;
 } events;
 
 static Menu pulsesMenu;
@@ -112,22 +112,26 @@ static const uint32_t alertSoundTicks[] = {
 };
 #endif
 
+static void syncTick(void);
+
 void initEvents(void)
 {
     events.keyboardTimer = KEY_TICKS;
 
-    events.periodTimer = SYSTICK_FREQUENCY;
+    events.heartbeatTimer = SYSTICK_FREQUENCY;
 
     initEventsHardware();
 }
 
 void resetEvents(void)
 {
+    syncTick();
+
     events.deadTimeCount = PULSE_MEASUREMENT_FREQUENCY;
 
-    events.periodTimer = SYSTICK_FREQUENCY;
-    events.periodUpdate = 0;
-    events.lastPeriodUpdate = 0;
+    events.heartbeatTimer = SYSTICK_FREQUENCY;
+    events.heartbeatUpdate = 0;
+    events.lastHeartbeatUpdate = 0;
 
     selectMenuItem(&pulsesMenu,
                    0,
@@ -186,13 +190,13 @@ void onTick(void)
 
     onMeasurementTick(pulseCount);
 
-    // Period
-    if (updateTimer(&events.periodTimer) == TIMER_ELAPSED)
+    // Heartbeat
+    if (updateTimer(&events.heartbeatTimer) == TIMER_ELAPSED)
     {
-        events.periodTimer = SYSTICK_FREQUENCY;
-        events.periodUpdate++;
+        events.heartbeatTimer = SYSTICK_FREQUENCY;
+        events.heartbeatUpdate++;
 
-        onMeasurementPeriod();
+        onMeasurementHeartbeat();
     }
 
     // Keyboard
@@ -244,7 +248,7 @@ void onTick(void)
 
     // Sound enable
 #if defined(SOUND_EN)
-    onSoundEnabledTick();
+    onSoundTick();
 #endif
 
     // Voice
@@ -263,16 +267,12 @@ void onTick(void)
     if (updateTimer(&events.pulseLEDTimer) == TIMER_ELAPSED)
         setPulseLED(false);
 #endif
-
-    events.sync = true;
 }
 
-void syncTick(void)
+static void syncTick(void)
 {
 #if !defined(SIMULATOR)
-    events.sync = false;
-    while (!events.sync)
-        sleep(1);
+    sleep(1);
 #endif
 }
 
@@ -280,21 +280,19 @@ void syncTick(void)
 
 void dispatchEvents(void)
 {
-    sleep(0);
-
     dispatchCommEvents();
 
-    uint32_t periodUpdate = events.periodUpdate;
-    if (events.lastPeriodUpdate != periodUpdate)
+    uint32_t heartbeatUpdate = events.heartbeatUpdate;
+    if (events.lastHeartbeatUpdate != heartbeatUpdate)
     {
-        events.lastPeriodUpdate = periodUpdate;
+        events.lastHeartbeatUpdate = heartbeatUpdate;
 
         updateMeasurements();
         updateView();
         updateBattery();
     }
 
-    writeDatalog();
+    updateDatalog();
     dispatchViewEvents();
 }
 
@@ -332,6 +330,11 @@ static void setBuzzerTimer(int32_t ticks, int32_t noiseTicks)
 #endif
 
 #if defined(PULSE_LED)
+void enablePulseLED(bool value)
+{
+    events.pulseLEDEnabled = value;
+}
+
 static void setPulseLEDTimer(int32_t ticks)
 {
     if (ticks > events.pulseLEDTimer)
@@ -342,14 +345,11 @@ static void setPulseLEDTimer(int32_t ticks)
     }
 }
 
-void cancelPulseLEDTimer(void)
+void cancelPulseLED(void)
 {
-    events.pulseLEDTimer = 0;
-}
+    syncTick();
 
-void setPulseLEDEnabled(bool value)
-{
-    events.pulseLEDEnabled = value;
+    events.pulseLEDTimer = 0;
 }
 #endif
 
@@ -367,7 +367,10 @@ static void setVibrationTimer(int32_t ticks)
 
 void requestBacklightTrigger(void)
 {
-    events.requestedBacklightTimer = displayTimerValues[settings.displaySleep];
+    if (isInLockMode())
+        events.requestedBacklightTimer = LOCKMODE_BACKLIGHT_TICKS;
+    else
+        events.requestedBacklightTimer = displayTimerValues[settings.displaySleep];
     events.requestedBacklightReset = true;
 }
 
@@ -385,6 +388,8 @@ bool isBacklightTriggerRequested(void)
 
 void triggerBacklight(void)
 {
+    syncTick();
+
     if (events.requestedBacklightReset)
         events.backlightTimer = 0;
 
@@ -396,6 +401,8 @@ void triggerBacklight(void)
 
 void cancelBacklight(void)
 {
+    syncTick();
+
     events.backlightTimer = 0;
 
     setBacklight(false);
@@ -557,7 +564,7 @@ static void onPulseIndicationMenuSelect(uint32_t index)
         settings.pulseSound = !settings.pulseSound;
 
 #if defined(SOUND_EN)
-        updateSoundEnabled();
+        updateSound(true);
 #endif
 
         break;
@@ -574,7 +581,7 @@ static void onPulseIndicationMenuSelect(uint32_t index)
     case PULSEINDICATION_MENU_PULSE_LED:
         settings.pulseLED = !settings.pulseLED;
 
-        updateLED();
+        updateLED(true);
 
         break;
 #endif
@@ -619,6 +626,10 @@ static const char *onPulseThresholdMenuGetOption(uint32_t index,
 static void onPulseThresholdMenuSelect(uint32_t index)
 {
     settings.pulseThreshold = index;
+
+#if defined(PULSE_LED) || defined(PULSE_LED_EN)
+    updateLED(true);
+#endif
 }
 
 static MenuState pulseThresholdMenuState;

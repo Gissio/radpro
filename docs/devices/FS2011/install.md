@@ -5,8 +5,8 @@ This guide explains how to install the Rad Pro firmware on FS2011 and YT-203B Ge
 ## What you'll need
 
 * **ST-LINK V2 USB dongle** (or compatible clone): Available on [Amazon](https://www.amazon.com/s?k=st-link+v2).
-* **4-pin header** for SWD connection.
-* **Philips screwdriver** to open the device.
+* **4-pin header**: For the SWD connection.
+* **Philips screwdriver:** For opening the device.
 * **Optional:** Soldering iron and solder for a secure connection.
 * **Windows users:** [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html)
 
@@ -17,10 +17,10 @@ This guide explains how to install the Rad Pro firmware on FS2011 and YT-203B Ge
 1. Power off the device and remove the batteries.
 2. Unscrew the back case and carefully open the device.
 3. Confirm the circuit board matches the image above (Geiger-Müller tube may vary). If it differs, you may have a different hardware revision, and Rad Pro may not work correctly. Report issues on the [Rad Pro GitHub issues page](https://github.com/Gissio/radpro/issues).
-4. Identify the microprocessor type (square chip), which should be STM32F051C8, GD32F150C8, or GD32F103C8.
-5. Identify the Geiger-Müller tube (marked on the glass as J305, J321, J613, J614, or M4011). For unmarked tubes:
-   * 55 mm tubes: Assume J614.
-   * 65 mm tubes: Assume J613.
+4. Identify the microprocessor (square chip), either **STM32F051C8**, **GD32F150C8**, or **GD32F103C8**.
+4. Identify the Geiger-Müller tube, marked as **J305**, **J321**, **J613**, **J614**, or **M4011**. For unmarked tubes:
+   * **55 mm tubes:** Assume J614.
+   * **65 mm tubes:** Assume J613.
 
 ## Step 2: Connect the programmer
 
@@ -55,17 +55,17 @@ This guide explains how to install the Rad Pro firmware on FS2011 and YT-203B Ge
 
 Use the following controls to operate your device:
 
-  * **Power on/off:** Press and hold the Power key.
-  * **Switch measurement mode:** Use the Up or Down key.
-  * **Switch secondary measurement view:** Press the Play/Pause key.
-  * **Reset measurement/dismiss alarm:** Press and hold the Play/Pause key.
-  * **Toggle pulse sound (measurement view only):** Press and hold the Down key.
-  * **Sleep display (measurement view only):** Press the Power key.
-  * **Access settings:** Press the Menu/OK key.
-  * **Navigate options:** Use the Up or Down key.
-  * **Select option:** Press the Menu/OK or Power key.
-  * **Go back:** Prses the Play/Pause key.
-  * **Toggle lock mode:** Press and hold both the Play/Pause and Power keys.
+* **Power on/off:** Press and hold the Power key.
+* **Switch measurement mode:** Use the Up or Down key.
+* **Switch secondary measurement view:** Press the Play/Pause key.
+* **Reset measurement/dismiss alert:** Press and hold the Play/Pause key.
+* **Toggle pulse sound (measurement view only):** Press and hold the Menu/OK key.
+* **Sleep display (measurement view only):** Press the Power key.
+* **Access settings:** Press the Menu/OK key.
+* **Navigate options:** Use the Up or Down key.
+* **Select option:** Press the Menu/OK or Power key.
+* **Go back:** Prses the Play/Pause key.
+* **Toggle lock mode:** Press and hold both the Play/Pause and Power keys.
 
 To configure the device:
 
@@ -108,8 +108,8 @@ If you find Rad Pro useful:
 
 <!-- Calculated as follows:
 
-* With 1-byte differential values: [21 pages * (1 timestamp entry/page [10 bytes] + 1012 differential entries/page [1 byte each])] = 21273 entries
-* With 2-byte differential values: [21 pages * (1 timestamp entry/page [10 bytes] + 506 differential entries/page [2 byte each])] = 10647 entries
+* With 1-byte differential values: [21 pages * (1 timestamp record/page [10 bytes] + 1012 differential records/page [1 byte each])] = 21273 records
+* With 2-byte differential values: [21 pages * (1 timestamp record/page [10 bytes] + 506 differential records/page [2 byte each])] = 10647 enrecordtries
 
 * 60-minute and 10-minute intervals require 2-byte differential values.
 * 1-minute intervals and less require 1-byte differential values.

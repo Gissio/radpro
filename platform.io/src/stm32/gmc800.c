@@ -22,22 +22,40 @@
 
 void initSystem(void)
 {
-    // Set 2 wait states for flash
-    modify_bits(FLASH->ACR,
-                FLASH_ACR_LATENCY_Msk,
-                FLASH_ACR_LATENCY_2WS);
+    // Enable HSI
+    set_bits(RCC->CR, RCC_CR_HSION);
+    wait_until_bits_set(RCC->CR, RCC_CR_HSIRDY);
+
+    // Set HSI as system clock
+    modify_bits(RCC->CFGR,
+                RCC_CFGR_SW_Msk,
+                RCC_CFGR_SW_HSI);
+    wait_until_bits_value(RCC->CFGR,
+                          RCC_CFGR_SWS_Msk,
+                          RCC_CFGR_SWS_HSI);
+
+    // Disable PLL
+    clear_bits(RCC->CR, RCC_CR_PLLON);
+    wait_until_bits_clear(RCC->CR, RCC_CR_PLLRDY);
 
     // Configure AHB, APB1, APB2, ADC, PLL
-    RCC->CFGR = RCC_CFGR_SW_HSI |        // Select HSI as system clock
-                RCC_CFGR_HPRE_DIV1 |     // Set AHB clock: 72 MHz / 1 = 72 MHz
-                RCC_CFGR_PPRE1_DIV2 |    // Set APB1 clock: 72 MHz / 2 = 36 MHz
-                RCC_CFGR_PPRE2_DIV1 |    // Set APB2 clock: 72 MHz / 1 = 72 MHz
-                RCC_CFGR_ADCPRE_DIV6 |   // Set ADC clock: 72 MHz / 6 = 12 MHz
-                RCC_CFGR_PLLSRC_HSE |    // Set PLL source: HSE
-                RCC_CFGR_PLLXTPRE_HSE |  // Set PLL HSE predivision factor: /1
-                RCC_CFGR_PLLMULL9 |      // Set PLL multiplier: 9x
-                RCC_CFGR_USBPRE_DIV1_5 | // Set USB prescaler: 1.5x
-                RCC_CFGR_MCO_NOCLOCK;    // Disable MCO
+    RCC->CFGR = RCC_CFGR_SW_HSI |       // Select HSI as system clock
+                RCC_CFGR_HPRE_DIV1 |    // Set AHB clock: 72 MHz / 1 = 72 MHz
+                RCC_CFGR_PPRE1_DIV2 |   // Set APB1 clock: 72 MHz / 2 = 36 MHz
+                RCC_CFGR_PPRE2_DIV1 |   // Set APB2 clock: 72 MHz / 1 = 72 MHz
+                RCC_CFGR_ADCPRE_DIV6 |  // Set ADC clock: 72 MHz / 6 = 12 MHz
+                RCC_CFGR_PLLSRC_HSE |   // Set PLL source: HSE
+                RCC_CFGR_PLLXTPRE_HSE | // Set PLL HSE predivision factor: /1
+                RCC_CFGR_PLLMULL9;      // Set PLL multiplier: 9x
+
+    // Configure PLL
+    modify_bits(RCC->CFGR,
+                RCC_CFGR_PLLSRC_Msk |
+                    RCC_CFGR_PLLXTPRE_Msk |
+                    RCC_CFGR_PLLMULL_Msk,
+                RCC_CFGR_PLLSRC_HSE |       // Set PLL source: HSE
+                    RCC_CFGR_PLLXTPRE_HSE | // Set PLL HSE predivision factor: /1
+                    RCC_CFGR_PLLMULL9);     // Set PLL multiplier: 9x
 
     // Enable HSE
     set_bits(RCC->CR, RCC_CR_HSEON);
@@ -55,6 +73,9 @@ void initSystem(void)
                           RCC_CFGR_SWS_Msk,
                           RCC_CFGR_SWS_PLL);
 
+    // Disable HSI
+    clear_bits(RCC->CR, RCC_CR_HSION);
+
     // Disable JTAG
     rcc_enable_afio();
     modify_bits(AFIO->MAPR,
@@ -68,10 +89,10 @@ void initSystem(void)
                  RCC_APB2ENR_IOPCEN |
                  RCC_APB2ENR_IOPDEN);
 
-    // Disable USART reset
-    gpio_clear(USART_RESET_EN_PORT, USART_RESET_EN_PIN);
-    gpio_setup(USART_RESET_EN_PORT,
-               USART_RESET_EN_PIN,
+    // Disable reset from USART RTS
+    gpio_clear(SYSTEM_RESET_EN_PORT, SYSTEM_RESET_EN_PIN);
+    gpio_setup(SYSTEM_RESET_EN_PORT,
+               SYSTEM_RESET_EN_PIN,
                GPIO_MODE_OUTPUT_2MHZ_PUSHPULL);
 }
 
@@ -81,6 +102,10 @@ void startBootloader(void)
     NVIC_DisableAllIRQs();
     SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk;
     SysTick->VAL = 0;
+
+    // Enable HSI
+    set_bits(RCC->CR, RCC_CR_HSION);
+    wait_until_bits_set(RCC->CR, RCC_CR_HSIRDY);
 
     // Set HSI as system clock
     modify_bits(RCC->CFGR,
@@ -102,9 +127,9 @@ void startBootloader(void)
                 FLASH_ACR_LATENCY_Msk,
                 FLASH_ACR_LATENCY_0WS);
 
-    // Disable USART reset
-    gpio_setup(USART_RESET_EN_PORT,
-               USART_RESET_EN_PIN,
+    // Enable reset from USART RTS
+    gpio_setup(SYSTEM_RESET_EN_PORT,
+               SYSTEM_RESET_EN_PIN,
                GPIO_MODE_INPUT_FLOATING);
 
     // Jump to bootloader
@@ -289,7 +314,7 @@ void initDisplay(void)
     initBacklight();
 }
 
-void enableDisplay(bool value)
+void setDisplayEnable(bool value)
 {
     mr_st7789_set_display(&mr, value);
     mr_st7789_set_sleep(&mr, !value);

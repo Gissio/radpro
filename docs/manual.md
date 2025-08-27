@@ -18,7 +18,7 @@
   * `radpro-tool` for low-level computer access.
   * Game.
 * **Language support:** 27 languages, including English, Spanish, Chinese, and more.
-* **User interface:** Based on the [OpenBridge 5.0](https://www.openbridge.no/) design standard with anti-aliased text.
+* **User interface:** Based on the [OpenBridge 6.0](https://www.openbridge.no/) design standard with anti-aliased text.
 
 ## Measurements
 
@@ -28,13 +28,13 @@ Rad Pro supports the following measurement modes:
 
 ### Instantaneous rate
 
-Calculates the instantaneous radiation rate by dividing the number of pulses, minus one, by the time between the first and last pulse in the averaging period.
+Calculates the instantaneous radiation rate by dividing the number of pulses, minus one, by the time interval between the first and last pulse within the averaging window.
 
 The secondary view can be switched between:
 
 * **Bar view:** Shows radiation levels on a [logarithmic](https://en.wikipedia.org/wiki/Logarithmic_scale) scale, with each tick representing a tenfold increase in radiation, highlighting warning and alarm zones.
-* **Time view:** Displays the averaging period duration.
-* **Max view:** Shows the highest recorded rate.
+* **Time view:** Displays the averaging time.
+* **Max view:** Shows the highest measured rate.
 * **Rate view:** Displays the instantaneous rate in secondary units.
 
 The [confidence interval](https://en.wikipedia.org/wiki/Confidence_interval) indicates the range where the true rate lies with 95% probability, assuming stable radiation levels. For example, a rate of 1.000 µSv/h with a ±40% interval means the true rate is likely between 0.600 µSv/h and 1.400 µSv/h. A narrower interval reflects higher precision.
@@ -43,13 +43,13 @@ To reset the instantaneous rate or dismiss alerts, refer to the device's install
 
 ### Average rate
 
-Calculates the average radiation rate over a set period, using the same formula as the instantaneous rate.
+Calculates the average radiation rate over a time window, using the same formula as the instantaneous rate.
 
 The secondary view can be switched between:
 
-* **Time view:** Shows the averaging period duration.
+* **Time view:** Shows the averaging time.
 * **Rate view:** Displays the average rate in secondary units.
-* **Dose view:** Shows the dose accumulated during the averaging period.
+* **Dose view:** Shows the dose accumulated during the averaging time.
 
 The confidence interval reflects the range where the true average rate lies with 95% probability, assuming stable radiation. Averaging can be indefinite or limited by time or confidence level. An alert signals when averaging completes.
 
@@ -59,11 +59,11 @@ To reset the average rate, refer to the device’s installation instructions.
 
 ### Cumulative dose
 
-The cumulative dose tracks the total number of pulses recorded durent the measurement period.
+The cumulative dose tracks the total number of pulses recorded during the measurement time.
 
 The secondary view can be switched between:
 
-* **Time view:** Shows the measurement period duration.
+* **Time view:** Shows the measurement time.
 * **Dose view:** Displays the cumulative dose in secondary units.
 
 To reset the cumulative dose or dismiss alerts, refer to the device’s installation instructions.
@@ -110,7 +110,7 @@ Choose from these averaging options to balance response speed and precision:
 
 * **Adaptive fast:** Averages the last 20 pulses, targeting a ±50% confidence interval. Ideal for general use. See response curves: [instantaneousaveraging-adaptivefast.ipynb](../tests/instantaneousaveraging-adaptivefast.ipynb)
 * **Adaptive precision:** Extends **Adaptive fast** with a minimum 5-second averaging time for greater precision at high radiation levels, but slower response. See response curves: [instantaneousaveraging-adaptiveprecision.ipynb](../tests/instantaneousaveraging-adaptiveprecision.ipynb)
-* **Fixed periods (1 minute, 30 seconds and 10 seconds):** Uses a fixed averaging window. If zero or one pulse is detected during the averaging period, the rate registers as zero.
+* **Fixed intervals (1 minute, 30 seconds and 10 seconds):** Uses a fixed averaging window. If zero or one pulse is detected during the averaging interval, the rate registers as zero.
 
 ## Instantaneous rate alerts
 
@@ -118,7 +118,7 @@ Alerts trigger only when the confidence interval falls below 75% to reduce false
 
 ## Dead-time compensation
 
-[Dead time](https://en.wikipedia.org/wiki/Geiger%E2%80%93M%C3%BCller_tube#Quenching_and_dead_time) is the brief period (50–200 µs) after a radiation event when the Geiger-Müller tube cannot detect another event, leading to undercounting at high radiation levels. Rad Pro compensates for these missed counts.
+[Dead time](https://en.wikipedia.org/wiki/Geiger%E2%80%93M%C3%BCller_tube#Quenching_and_dead_time) is the brief interval (50–200 µs) after a radiation event during which a Geiger-Müller tube cannot detect another event, leading to undercounting at high radiation levels. Rad Pro can compensate for these missed counts.
 
 To measure dead time, go to **Settings** > **Statistics** and monitor the **Dead time** value. Measure several hours at normal radiation levels for accuracy, or use a radioactive source to speed up the process.
 
@@ -235,7 +235,7 @@ Refer to the [communications protocol description](comm.md) for USB serial port 
 
 **Q: Why are instantaneous rate measurements noisy?**
 
-**A:** Noise is inherent in short averaging periods. Select a longer averaging option (e.g., 1 minute) for smoother results, at the cost of slower response.
+**A:** Noise is inherent in short averaging intervals. Select a longer averaging window (e.g., 1 minute) for smoother results, at the cost of slower response.
 
 **Q: Why don’t I hear clicks?**
 

@@ -23,6 +23,8 @@
 
 void initSystem(void)
 {
+    setFastSystemClock(false);
+
 #if defined(STM32F0)
     // Enable GPIOA, GPIOB, GPIOF
     set_bits(RCC->AHBENR,
@@ -42,6 +44,112 @@ void initSystem(void)
     set_bits(RCC->APB2ENR,
              RCC_APB2ENR_IOPAEN |
                  RCC_APB2ENR_IOPBEN);
+#endif
+}
+
+void setFastSystemClock(bool value)
+{
+    // Set HSI as system clock
+    modify_bits(RCC->CFGR,
+                RCC_CFGR_SW_Msk,
+                RCC_CFGR_SW_HSI);
+    wait_until_bits_value(RCC->CFGR,
+                          RCC_CFGR_SWS_Msk,
+                          RCC_CFGR_SWS_HSI);
+
+    // Disable PLL
+    clear_bits(RCC->CR, RCC_CR_PLLON);
+    wait_until_bits_clear(RCC->CR, RCC_CR_PLLRDY);
+
+#if defined(STM32F0)
+    if (value)
+    {
+        // Set 1 wait states for flash
+        set_bits(FLASH->ACR,
+                 FLASH_ACR_LATENCY_Msk);
+
+        // Configure SW, AHB, APB, PLL
+        RCC->CFGR = RCC_CFGR_SW_HSI |          // Select HSI as system clock
+                    RCC_CFGR_HPRE_DIV1 |       // Set AHB clock: 32 MHz / 1 = 32 MHz
+                    RCC_CFGR_PPRE_DIV8 |       // Set APB clock: 32 MHz / 8 = 4 MHz
+                    RCC_CFGR_PLLSRC_HSI_DIV2 | // Set PLL source: HSI / 2
+                    RCC_CFGR_PLLMUL8;          // Set PLLMUL: 8x
+
+        // Enable PLL
+        set_bits(RCC->CR, RCC_CR_PLLON);
+        wait_until_bits_set(RCC->CR, RCC_CR_PLLRDY);
+
+        // Set PLL as system clock
+        modify_bits(RCC->CFGR,
+                    RCC_CFGR_SW_Msk,
+                    RCC_CFGR_SW_PLL);
+        wait_until_bits_value(RCC->CFGR,
+                              RCC_CFGR_SWS_Msk,
+                              RCC_CFGR_SWS_PLL);
+
+        // Update sys tick
+        SysTick->LOAD = SysTick->LOAD << 2;
+    }
+    else
+    {
+        // Set 0 wait states for flash
+        clear_bits(FLASH->ACR,
+                   FLASH_ACR_LATENCY_Msk);
+
+        // Configure SW, AHB, APB
+        RCC->CFGR = RCC_CFGR_SW_HSI |    // Select HSI as system clock
+                    RCC_CFGR_HPRE_DIV1 | // Set AHB clock: 8 MHz / 1 = 8 MHz
+                    RCC_CFGR_PPRE_DIV2;  // Set APB clock: 8 MHz / 2 = 4 MHz
+
+        // Update sys tick
+        SysTick->LOAD = SysTick->LOAD >> 2;
+    }
+#elif STM32F1
+    if (value)
+    {
+        // Set 2 wait states for flash
+        modify_bits(FLASH->ACR,
+                    FLASH_ACR_LATENCY_Msk,
+                    FLASH_ACR_LATENCY_2WS);
+
+        // Configure SW, AHB, APB1, APB2, PLL
+        RCC->CFGR = RCC_CFGR_SW_HSI |          // Select HSI as system clock
+                    RCC_CFGR_HPRE_DIV1 |       // Set AHB clock: 32 MHz / 1 = 64 MHz
+                    RCC_CFGR_PPRE1_DIV8 |      // Set APB1 clock: 32 MHz / 8 = 4 MHz
+                    RCC_CFGR_PPRE2_DIV8 |      // Set APB2 clock: 32 MHz / 8 = 4 MHz
+                    RCC_CFGR_PLLSRC_HSI_DIV2 | // Set PLL source: HSI / 2
+                    RCC_CFGR_PLLMULL8;         // Set PLL multiplier: 8x
+
+        // Enable PLL
+        set_bits(RCC->CR, RCC_CR_PLLON);
+        wait_until_bits_set(RCC->CR, RCC_CR_PLLRDY);
+
+        // Set PLL as system clock
+        modify_bits(RCC->CFGR,
+                    RCC_CFGR_SW_Msk,
+                    RCC_CFGR_SW_PLL);
+        wait_until_bits_value(RCC->CFGR,
+                              RCC_CFGR_SWS_Msk,
+                              RCC_CFGR_SWS_PLL);
+
+        // Update sys tick
+        SysTick->LOAD = SysTick->LOAD << 2;
+    }
+    else
+    {
+        // Set 0 wait states for flash
+        clear_bits(FLASH->ACR,
+                   FLASH_ACR_LATENCY_Msk);
+
+        // Configure SW, AHB, APB1, APB2
+        RCC->CFGR = RCC_CFGR_SW_HSI |     // Select HSI as system clock
+                    RCC_CFGR_HPRE_DIV1 |  // Set AHB clock: 8 MHz / 1 = 8 MHz
+                    RCC_CFGR_PPRE1_DIV2 | // Set APB1 clock: 8 MHz / 2 = 4 MHz
+                    RCC_CFGR_PPRE2_DIV2;  // Set APB2 clock: 8 MHz / 2 = 4 MHz
+
+        // Update sys tick
+        SysTick->LOAD = SysTick->LOAD >> 2;
+    }
 #endif
 }
 
@@ -242,7 +350,7 @@ void initDisplay(void)
     initBacklight();
 }
 
-void enableDisplay(bool value)
+void setDisplayEnable(bool value)
 {
     mr_st7565_set_display(&mr, value);
 

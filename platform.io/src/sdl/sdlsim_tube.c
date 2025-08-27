@@ -25,6 +25,7 @@
 #define SIM_USVH 0.15F
 #define SIM_CPS (SIM_USVH * SIM_SENSITIVITIY / 60.0F)
 
+static uint32_t tubeTime;
 float tubeCPS;
 
 static struct
@@ -77,6 +78,17 @@ bool getTubePulseTime(uint32_t *pulseTime)
 {
     if (tube.pulseIndex == tube.pulseCount)
     {
+#if defined(__EMSCRIPTEN__)
+        tubeTime++;
+        if (tubeTime > 120000)
+            tubeTime = 0;
+
+        if (tubeTime == 30000)
+            tubeCPS = 100 * SIM_CPS;
+        else if (tubeTime == 31000)
+            tubeCPS = SIM_CPS;
+#endif
+
         tube.pulseTime += 8000;
 
         tube.pulseIndex = 0;

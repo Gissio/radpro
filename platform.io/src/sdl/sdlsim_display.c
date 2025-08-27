@@ -182,7 +182,7 @@ void initDisplay(void)
     updateDisplayTitle();
 }
 
-void enableDisplay(bool value)
+void setDisplayEnable(bool value)
 {
     mr_sdl_set_display(&mr_sdl, value);
 

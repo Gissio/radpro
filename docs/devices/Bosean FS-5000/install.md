@@ -7,8 +7,8 @@ To update the firmware, use the [Rad Pro web installer](https://gissio.github.io
 ## What you'll need
 
 * **ST-LINK V2 USB dongle** (or compatible clone): Available on [Amazon](https://www.amazon.com/s?k=st-link+v2).
-* **4-pin header** for SWD connection.
-* **Philips screwdriver** to open the device.
+* **4-pin header**: For the SWD connection.
+* **Philips screwdriver:** For opening the device.
 * **Optional:** Soldering iron and solder for a secure connection.
 * **Windows users:** [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html)
 
@@ -19,9 +19,9 @@ To update the firmware, use the [Rad Pro web installer](https://gissio.github.io
 1. Power off the device.
 2. Unscrew the back case and carefully open the device.
 3. Confirm the circuit board matches the image above (Geiger-Müller tube may vary). If it differs, you may have a different hardware revision, and Rad Pro may not work correctly. Report issues on the [Rad Pro GitHub issues page](https://github.com/Gissio/radpro/issues).
-4. Identify the Geiger-Müller tube (marked on the glass as J305, J321, J613, J614, or M4011). For unmarked tubes:
-   * 55 mm tubes: Assume J614.
-   * 65 mm tubes: Assume J613.
+4. Identify the Geiger-Müller tube, marked as **J305**, **J321**, **J613**, **J614**, or **M4011**. For unmarked tubes:
+   * **55 mm tubes:** Assume J614.
+   * **65 mm tubes:** Assume J613.
 
 ## Step 2: Connect the programmer
 
@@ -57,16 +57,16 @@ To update the firmware, use the [Rad Pro web installer](https://gissio.github.io
 
 Use the following controls to operate your device:
 
-  * **Power on/off:** Press and long hold the OK/Power key.
-  * **Switch measurement mode:** Use the Up/Back or Down/Settings key.
-  * **Switch secondary measurement view:** Press the OK/Power key.
-  * **Reset measurement/dismiss alarm:** Press and long hold the Up/Back key.
-  * **Toggle pulse sound (measurement view only):** Press and long hold both the Up/Back and Down/Settings key.
-  * **Access settings:** Press and short hold the Down/Settings key.
-  * **Navigate options:** Use the Up/Back or Down/Settings key.
-  * **Select option:** Press and short hold the Right/Settings key or press the OK/Power key.
-  * **Go back:** Press and short hold the Up/Back key.
-  * **Toggle lock mode:** Press and long hold both the Up/Back and OK/Power keys.
+* **Power on/off:** Press and long hold the OK/Power key.
+* **Switch measurement mode:** Use the Up/Back or Down/Settings key.
+* **Switch secondary measurement view:** Press the OK/Power key.
+* **Reset measurement/dismiss alert:** Press and long hold the Up/Back key.
+* **Toggle pulse sound (measurement view only):** Press and long hold both the Up/Back and Down/Settings key.
+* **Access settings:** Press and short hold the Down/Settings key.
+* **Navigate options:** Use the Up/Back or Down/Settings key.
+* **Select option:** Press and short hold the Right/Settings key or press the OK/Power key.
+* **Go back:** Press and short hold the Up/Back key.
+* **Toggle lock mode:** Press and long hold both the Up/Back and OK/Power keys.
 
 To configure the device:
 
@@ -86,19 +86,19 @@ If you find Rad Pro useful:
 
 <!-- Calculated as follows:
 
-* With 1-byte differential values: [95 pages * (1 timestamp entry/page [16 bytes] + 2024 differential entries/page [1 byte each])] = 192375 entries
-* With 2-byte differential values: [95 pages * (1 timestamp entry/page [16 bytes] + 1012 differential entries/page [2 byte each])] = 96235 entries
+* With 1-byte differential values: [100 pages * (1 timestamp record/page [16 bytes] + 2024 differential records/page [1 byte each])] = 202500 records
+* With 2-byte differential values: [100 pages * (1 timestamp record/page [16 bytes] + 1012 differential records/page [2 byte each])] = 101300 records
 
 * 60-minute and 10-minute intervals require 2-byte differential values.
 * 1-minute intervals and less require 1-byte differential values.
 
  -->
 
-* **Data storage:** Stores up to 196,425 data points. At 20 cpm (normal radiation levels), this supports:
-  * 4010 days at 60-minute intervals
-  * 668 days at 10-minute intervals
-  * 133 days at 1-minute intervals
-  * 22 days at 10-second intervals
-  * 53 hours at 1-second intervals
+* **Data storage:** Stores up to 202,500 data points. At 20 cpm (normal radiation levels), this supports:
+  * 4220 days at 60-minute intervals
+  * 703 days at 10-minute intervals
+  * 140 days at 1-minute intervals
+  * 23 days at 10-second intervals
+  * 56 hours at 1-second intervals
 
 * **HV profiles:** Not supported.

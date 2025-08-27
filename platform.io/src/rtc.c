@@ -8,6 +8,7 @@
  */
 
 #include "cstring.h"
+#include "datalog.h"
 #include "menu.h"
 #include "rtc.h"
 #include "settings.h"
@@ -156,7 +157,7 @@ typedef const struct
 } RTCMenuOptionSetting;
 
 static RTCMenuOptionSetting rtcMenuOptionSettings[] = {
-    {RTC_YEAR_MIN, 80},
+    {RTC_YEAR_MIN, RTC_YEAR_NUM},
     {1, 12},
     {1, 31},
     {0, 24},
@@ -258,6 +259,8 @@ static void onRTCSubMenuSelect(uint32_t index)
 
     setDeviceDateTime(&dateTime);
     rtcCurrentDateTime = dateTime;
+
+    openDatalogWrite();
 }
 
 static void onRTCSubMenuBack(void)

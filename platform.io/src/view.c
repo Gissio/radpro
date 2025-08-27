@@ -28,7 +28,7 @@ void initView(void)
 
 #if defined(DISPLAY_MONOCHROME)
     refreshDisplay();
-    enableDisplay(true);
+    setDisplayEnable(true);
 #endif
 }
 
@@ -42,7 +42,7 @@ void dispatchViewEvents(void)
         if (event == EVENT_NONE)
             break;
 
-        if (isDeviceOff())
+        if (isInPowerOffView())
         {
             if (event == EVENT_KEY_POWER)
                 powerOn(false);
@@ -53,14 +53,14 @@ void dispatchViewEvents(void)
         {
             if (event == EVENT_KEY_POWER)
             {
-                if (!isLockMode())
+                if (!isInLockMode())
                     powerOff(false);
             }
             else
             {
                 if (event == EVENT_KEY_TOGGLELOCK)
                 {
-                    if (!isLockMode())
+                    if (!isInLockMode())
                     {
                         setMeasurementView(-1);
                         setLockMode(true);
@@ -98,7 +98,7 @@ void dispatchViewEvents(void)
             view.drawUpdate = false;
 
             if (isDisplayEnabled())
-                enableDisplay(false);
+                setDisplayEnable(false);
         }
 #endif
     }
@@ -114,7 +114,7 @@ void dispatchViewEvents(void)
         refreshDisplay();
 #elif defined(DISPLAY_COLOR)
         if (!isDisplayEnabled())
-            enableDisplay(true);
+            setDisplayEnable(true);
 #endif
 
         if (isBacklightTriggerRequested())
@@ -143,7 +143,7 @@ void requestViewUpdate(void)
 
 void updateView(void)
 {
-    view.currentView->onEvent(EVENT_PERIOD);
+    view.currentView->onEvent(EVENT_HEARTBEAT);
 
     view.drawUpdate = true;
 }
@@ -160,23 +160,7 @@ void setLockMode(bool value)
     triggerVibration();
 }
 
-bool isLockMode(void)
+bool isInLockMode(void)
 {
     return viewLockMode;
-}
-
-// Pulse sound icon
-
-static bool viewPulseSoundIconEnabled;
-
-void setPulseSoundIconEnabled(bool value)
-{
-    viewPulseSoundIconEnabled = value;
-
-    updateView();
-}
-
-bool isPulseSoundIconEnabled(void)
-{
-    return viewPulseSoundIconEnabled;
 }

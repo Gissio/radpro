@@ -4,7 +4,7 @@ Try the [Rad Pro simulator](https://gissio.github.io/radpro-simulator/)!
 
 ## Introduction
 
-Rad Pro is an advanced custom firmware designed to enhance the functionality of various commercially available Geiger counters, including the [FS2011](https://www.amazon.com/s?k=fs2011), [YT-203B](https://www.amazon.com/s?k=yt203b), [Bosean FS-600](https://bosean.net/products/nuclear_radiation_detector.html), [Bosean FS-1000](https://bosean.net/products/FS-1000_nuclear_radiation_detector.html), [Bosean FS-5000](https://bosean.net/FS-5000-Nuclear-Radiation-Detector-2.html), [FNIRSI GC-01](https://www.fnirsi.com/products/gc-01) and [JOY-IT JT-RAD01](https://joy-it.net/products/JT-RAD01).
+Rad Pro is an advanced custom firmware designed to enhance the functionality of various commercially available Geiger counters, including the [FS2011](https://www.amazon.com/s?k=fs2011), [YT-203B](https://www.amazon.com/s?k=yt203b), [Bosean FS-600](https://bosean.net/products/nuclear_radiation_detector.html), [Bosean FS-1000](https://bosean.net/products/FS-1000_nuclear_radiation_detector.html), [Bosean FS-5000](https://bosean.net/FS-5000-Nuclear-Radiation-Detector-2.html), [FNIRSI GC-01](https://www.fnirsi.com/products/gc-01), [JOY-IT JT-RAD01](https://joy-it.net/products/JT-RAD01) and [GQ GMC-800](https://www.gqelectronicsllc.com/comersus/store/comersus_viewItem.asp?idProduct=5859).
 
 With Rad Pro, you can:
 
@@ -16,7 +16,7 @@ With Rad Pro, you can:
 * Log data to built-in flash memory or stream live to a computer, with optional integration to [gmcmap.com](https://gmcmap.com), [radmon.org](https://radmon.org), and [safecast.org](https://map.safecast.org).
 * Generate cryptographically secure random data, including passwords (ASCII, alphanumeric), random numbers (hexadecimal, decimal, binary), and virtual dice rolls (4, 6, 8, 10, 12, 20, and 100-sided) or coin flips.
 
-## Installation guide
+## Installation guides
 
 * [Important legal information](docs/legal.md)
 * [FS2011/YT-203B installation guide](docs/devices/FS2011/install.md)
@@ -38,6 +38,6 @@ With Rad Pro, you can:
 
 ## Acknowledgements
 
-* Rad Pro's user interface leverages the industry-standard [OpenBridge 5.0](https://www.openbridge.no/) design system.
+* Rad Pro's user interface leverages the industry-standard [OpenBridge 6.0](https://www.openbridge.no/) design system.
 * Special thanks to `Alfred90`, `danielhahn76`, `felixsteghofer`, `DG0MG`, `murkle`, `cromagn`, `ivohar`,`mryndzionek`, `JantarX`,  `mizsha`, `Tig3rch3n`, `Arparela`, `w01fdev`, `martin-machacek`, `dsl71`, `Davegsm82`, `alfmck`, `jonwhite227`, `dc1rdb`, `ihrapsa`, `Montecri`, `boromix`, `maxobe`, `TheAsgard`, `ugopapetti`, `NuclearPhoenixx`, `technils`, `Ilja-code-art`, `ICantMakeThings`, `mayrthom`, `hackra76`, `plamenbe`, and many others for their invaluable testing and feedback.
 * Special thanks to `pixitha` for FS2011 (GD32F150) board photos with a J305 Geiger tube, `felixsteghofer` for FS2011 (GD32F103) board photos, `DG0MG` for Bosean FS-600 board photos, `murkle` for Bosean FS-1000 board photos, `ivohar` for FNIRSCI GC-01 schematics, and `oOblik` for Bosean FS-5000 board photos.

@@ -1,22 +1,24 @@
 # Releases
 
-## 2.2 "Sundry"
+## 3.0 "Sundry"
 
 * **Geiger counter compatibility:** Added support for the GQ GMC-800 Geiger counter with software-enhanced pulse stretching for reliable pulse sound at high radiation levels.
 * **Multilingual support:** Expanded to 27 languages, including Bulgarian, Chinese, Croatian, Czech, Danish, Dutch, English, Finnish, French, German, Greek, Hungarian, Italian, Japanese, Korean, Norwegian, Polish, Portuguese, Romanian, Russian, Slovakian, Slovenian, Spanish, Swedish, Turkish, Ukrainian, and Vietnamese.
 * **User interface improvements**
-  * Added history view for 1 week, 1 month, and 1 year, with data loading from data log on startup.
-  * Introduced rate and dose warnings, with alert dismissal preserving alert state.
-  * Highlighted warning and alarm zones in instantaneous rate bar and history view.
+  * Introduced history views for 1-week, 1-month, and 1-year timeframes, with data loaded from the data log on startup.
+  * Added rate and dose warnings, with alert dismissal preserving alert state.
+  * Highlighted warning and alarm zones in the instantaneous rate bar and history view.
   * Improved alert LED indication.
   * Added user-selectable secondary units and customizable alert sound styles.
   * Added pulse sound icon for toggle feedback.
   * Lock mode turns off display.
   * Increased font size for dice roll display.
+  * Rescaled UI for improved legibility.
+  * Updated to OpenBridge 6.0 design system.
 * **Power management enhancements**
-  * USB connection no longer powers on a turned-off device.
+  * Prevented USB connection from powering on a turned-off device.
   * Automatic shutdown at critically low battery levels.
-  * Battery indicator displays green when charging and red when low (on color displays).
+  * Enhanced battery indicator: green when charging, red when low (on color displays).
   * Added battery voltage statistics for all cells.
   * Improved voltage measurement accuracy for FS2011 (GD32F150R8/GD32F103R8) and FNIRSI GC-01.
 * **Measurements enhancements**
@@ -24,12 +26,12 @@
   * Extended sensitivity range to 1–10,000 cpm/µSv/h for low-sensitivity Geiger tubes (e.g., SI-3BG).
   * Expanded dead-time compensation to 5-500 µs for scintillation detector compatibility.
   * Adjusted SBM-20 sensitivity to 150.5 cpm/µSv/h.
-  * Dynamic loss-of-count detection based on selected sensitivity.
+  * Implemented dynamic loss-of-count detection based on selected sensitivity.
 * **Data and connectivity**
-  * Added `SET deviceTimeZone` and `GET deviceTimeZone` commands.
+  * Enhanced `GET datalog` command with additional options and empty records to indicate the start of new logging sessions.
+  * Added `SET deviceTimeZone` and `GET deviceTimeZone` commands for timezone management.
   * Introduced `RESET datalog` command to clear data logs.
-  * Improved `GET datalog` command with more options.
-  * Enhanced `radpro-tool` with timezone synchronization and inproved error handling.
+  * Upgraded `radpro-tool` with timezone synchronization and inproved error handling.
 * **Removed features**
   * Removed background compensation due to negligible intrinsic activity in common Geiger tubes.
   * Removed `GET tubeBackgroundCompensation` command.
@@ -38,7 +40,7 @@
   * Resolved datalog writing errors when USB-powered but turned off.
   * Fixed datalog download issue causing restarts in high-radiation conditions.
   * Corrected AM/PM display in 12-hour format settings.
-  * Fixed game flicker on portrait-oriented devices.
+  * Eliminated game flicker on portrait-oriented devices.
 
 ## 2.1.1 "The dot mender"
 

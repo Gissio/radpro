@@ -22,31 +22,42 @@
 
 void initSystem(void)
 {
-    // Set 2 wait states for flash
-    modify_bits(FLASH->ACR,
-                FLASH_ACR_LATENCY_Msk,
-                FLASH_ACR_LATENCY_2WS);
-
-    // Configure AHB, APB1, APB2
-    modify_bits(RCC->CFGR,
-                RCC_CFGR_HPRE_Msk |
-                    RCC_CFGR_PPRE1_Msk |
-                    RCC_CFGR_PPRE2_Msk,
-                RCC_CFGR_HPRE_DIV2 |      // Set AHB clock: 48 MHz / 2 = 24 MHz
-                    RCC_CFGR_PPRE1_DIV1 | // Set APB1 clock: 24 MHz / 1 = 24 MHz
-                    RCC_CFGR_PPRE2_DIV1   // Set APB2 clock: 24 MHz / 1 = 24 MHz
-    );
-
-    // Enable HSI16
+    // Enable HSI
     set_bits(RCC->CR, RCC_CR_HSION);
     wait_until_bits_set(RCC->CR, RCC_CR_HSIRDY);
 
+    // Set HSI as system clock
+    modify_bits(RCC->CFGR,
+                RCC_CFGR_SW_Msk,
+                RCC_CFGR_SW_HSI);
+    wait_until_bits_value(RCC->CFGR,
+                          RCC_CFGR_SWS_Msk,
+                          RCC_CFGR_SWS_HSI);
+
+    // Disable MSI
+    clear_bits(RCC->CR, RCC_CR_MSION);
+
+    // Disable PLL
+    clear_bits(RCC->CR, RCC_CR_PLLON);
+    wait_until_bits_clear(RCC->CR, RCC_CR_PLLRDY);
+
+    // Set 3 wait states for flash
+    modify_bits(FLASH->ACR,
+                FLASH_ACR_LATENCY_Msk,
+                FLASH_ACR_LATENCY_3WS);
+
+    // Configure AHB, APB1, APB2
+    RCC->CFGR = RCC_CFGR_SW_HSI |      // Set HSI
+                RCC_CFGR_HPRE_DIV2 |   // Set AHB clock: 64 MHz / 1 = 64 MHz
+                RCC_CFGR_PPRE1_DIV16 | // Set APB1 clock: 64 MHz / 16 = 4 MHz
+                RCC_CFGR_PPRE2_DIV16;  // Set APB2 clock: 64 MHz / 16 = 4 MHz
+
     // Configure PLL
-    RCC->PLLCFGR = (0b01 << RCC_PLLCFGR_PLLR_Pos) |  // Set main PLL PLLCLK division factor: /4
-                   RCC_PLLCFGR_PLLREN |              // Enable main PLL PLLCLK output
-                   (12 << RCC_PLLCFGR_PLLN_Pos) |    // Set main PLL VCO multiplication factor: 12x
+    RCC->PLLCFGR = RCC_PLLCFGR_PLLSRC_HSI |          // Set PLL source: HSI
                    (0b000 << RCC_PLLCFGR_PLLM_Pos) | // Set PLL division factor: /1
-                   RCC_PLLCFGR_PLLSRC_HSI;           // Set PLL source: HSI16
+                   (8 << RCC_PLLCFGR_PLLN_Pos) |     // Set main PLL VCO multiplication factor: 8x
+                   RCC_PLLCFGR_PLLREN |              // Enable main PLL PLLCLK output
+                   (0b00 << RCC_PLLCFGR_PLLR_Pos);   // Set main PLL PLLCLK division factor: /2
 
     // Enable PLL
     set_bits(RCC->CR, RCC_CR_PLLON);
@@ -83,6 +94,9 @@ void startBootloader(void)
     NVIC_DisableAllIRQs();
     SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk;
     SysTick->VAL = 0;
+
+    // Enable MSI
+    set_bits(RCC->CR, RCC_CR_MSION);
 
     // Set MSI as system clock
     modify_bits(RCC->CFGR,
@@ -311,7 +325,7 @@ void initDisplay(void)
     initBacklight();
 }
 
-void enableDisplay(bool value)
+void setDisplayEnable(bool value)
 {
     mr_st7789_set_display(&mr, value);
     mr_st7789_set_sleep(&mr, !value);

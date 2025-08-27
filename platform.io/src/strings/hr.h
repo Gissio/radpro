@@ -67,33 +67,31 @@
 #define STRING_MEDIUM "Srednje"
 #define STRING_HIGH "Visoko"
 
-// Notification headings (upper case)
-#define STRING_NOTIFICATION_WARNING "UPOZORENJE"
-#define STRING_NOTIFICATION_SUCCESS "USPJEH"
+// Firmware checksum failure notification
+#define STRING_SPLASH_FIRMWARE_CHECKSUM_FAILURE "UPOZORENJE\n\nNeuspjeh provjere kontrolnog zbroja firmvera."
 
-// Firmware checksum failure notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "Neispravna suma firmvera."
+// HV profile menu items
+#define STRING_NOTIFICATION_HVCUSTOM "UPOZORENJE\n\nPogrešne vrijednosti mogu oštetiti uređaj."
 
-// HV profile menu items (shorter than 30 characters)
-#define STRING_NOTIFICATION_HVCUSTOM "Kriva vrijednost šteti uređaju."
+// Data log reset notification
+#define STRING_NOTIFICATION_DATALOG_RESET_CONFIRM "Resetirati dnevnik podataka?\n\nSvi zapisi će biti izbrisani."
 
-// Data log reset notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_TITLE "Poništiti log?"
-#define STRING_NOTIFICATION_DATALOG_RESET_SUBTITLE "Svi zapisi će biti izbrisani."
-
-// Data log reset success notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "Zapis podataka poništen."
+// Data log reset success notification
+#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "USPJEH\n\nDnevnik podataka je resetiran."
 
 // Measurement view UI heading strings
 #define STRING_INSTANTANEOUS "Trenutno"
 #define STRING_AVERAGE "Prosjek"
 #define STRING_CUMULATIVE "Kumulativno"
-#define STRING_HISTORY_10_MINUTES "Povijest (10 min)"
-#define STRING_HISTORY_1_HOUR "Povijest (1 h)"
-#define STRING_HISTORY_1_DAY "Povijest (1 d)"
-#define STRING_HISTORY_1_WEEK "Povijest (1 tj)"
-#define STRING_HISTORY_1_MONTH "Povijest (1 mj)"
-#define STRING_HISTORY_1_YEAR "Povijest (1 g)"
+#define STRING_HISTORY "Povijest"
+
+// Measurement history view time periods
+#define STRING_HISTORY_10_MINUTES "10 min"
+#define STRING_HISTORY_1_HOUR "1 h"
+#define STRING_HISTORY_1_DAY "1 d"
+#define STRING_HISTORY_1_WEEK "1 tj"
+#define STRING_HISTORY_1_MONTH "1 mj"
+#define STRING_HISTORY_1_YEAR "1 g"
 
 // Measurement view secondary view strings
 #define STRING_TIME "Vrijeme"
@@ -102,12 +100,12 @@
 #define STRING_DOSE "Doza"
 
 // Measurement view info strings (upper case, up to 5 letters)
-#define STRING_INFO_ALARM "ALARM"
-#define STRING_INFO_WARNING "UPOZORENJE"
-#define STRING_INFO_FAULT "GREŠKA"
-#define STRING_INFO_MAX "MAKS"
-#define STRING_INFO_OVERFLOW "PREKO"
-#define STRING_INFO_DONE "GOTOVO"
+#define STRING_ALERT_ALARM "ALARM"
+#define STRING_ALERT_WARNING "UPOZORENJE"
+#define STRING_ALERT_FAULT "KVAR"
+#define STRING_ALERT_MAX "MAKS"
+#define STRING_ALERT_OVERFLOW "PREKO"
+#define STRING_ALERT_DONE "GOTOVO"
 
 // Settings menu items
 #define STRING_SETTINGS "Postavke"
@@ -115,14 +113,14 @@
 #define STRING_ALERTS "Upozorenja"
 #define STRING_MEASUREMENTS "Mjerenja"
 #define STRING_GEIGER_TUBE "Geigerova cijev"
-#define STRING_DATA_LOG "Zapis podataka"
+#define STRING_DATALOG "Zapis podataka"
 #define STRING_DISPLAY "Zaslon"
 #define STRING_DATE_AND_TIME "Datum i vrijeme"
 #define STRING_BATTERY_TYPE "Tip baterije"
 #define STRING_RANDOM_GENERATOR "Slučajni generator"
 #define STRING_GAME "Igra"
 #define STRING_STATISTICS "Statistika"
-#define STRING_DATA_MODE "Način podataka"
+#define STRING_DATAMODE "Način podataka"
 
 // Pulses menu items
 #define STRING_SOUND "Zvuk"
@@ -134,8 +132,8 @@
 
 // Alarms menu items
 #define STRING_RATE_WARNING "Upozorenje brzine"
-#define STRING_DOSE_WARNING "Upozorenje doze"
 #define STRING_RATE_ALARM "Alarm brzine"
+#define STRING_DOSE_WARNING "Upozorenje doze"
 #define STRING_DOSE_ALARM "Alarm doze"
 #define STRING_INDICATION "Indikacija"
 
@@ -158,7 +156,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "Osjetljivost"
-#define STRING_DEAD_TIME_SHORT_COMPENSATION "Mrtvo vrijeme kompenzacija"
+#define STRING_DEAD_TIME_COMPENSATION "Mrtvo vrijeme kompenzacija"
 #define STRING_HVPROFILE "HV profil"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
@@ -171,7 +169,7 @@
 #define STRING_J614 "J614"
 #define STRING_M4011 "M4011"
 
-// Russian Geiger tubes (should only be translated with non-latin scripts)
+// Russian Geiger tubes (should only be translated with cyrillic scripts)
 #define STRING_SBM20 "SBM-20"
 
 // HV profile menu items
@@ -183,9 +181,6 @@
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "PWM frekvencija"
 #define STRING_PWMDUTY_CYCLE "PWM radni ciklus"
-
-// Tube/battery voltage
-#define STRING_VOLTAGE "Napon"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Način zapisivanja"
@@ -281,13 +276,11 @@
 #define STRING_GAME_LEVEL "Razina"
 
 // Statistics view items
-#define STRING_TUBE_LIFE_TIME "Vijek cijevi"
+#define STRING_TUBE_LIFE "Vijek cijevi"
 #define STRING_DEAD_TIME "Mrtvo vrijeme"
-#define STRING_DEVICE_ID "ID uređaja"
 
 #define STRING_TUBE "Cijev"
-#define STRING_LIFE_TIME "Trajanja"
-#define STRING_DEAD_TIME_SHORT "Mrtvo vr."
+#define STRING_LIFE "Trajanja"
 #define STRING_DEVICE "Uređaj"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE_SHORT "Napon"
+#define STRING_BATTERY "Baterija"

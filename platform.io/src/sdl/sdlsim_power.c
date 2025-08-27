@@ -13,20 +13,12 @@
 
 #include "../power.h"
 
-static bool powerEnabled;
-
 void initPower(void)
 {
 }
 
 void setPower(bool value)
 {
-    powerEnabled = value;
-}
-
-bool isPowered(void)
-{
-    return powerEnabled;
 }
 
 bool isPowerOnReset(void)
@@ -36,12 +28,12 @@ bool isPowerOnReset(void)
 
 bool isBatteryCharging(void)
 {
-    return false;
+    return true;
 }
 
 bool isUSBPowered(void)
 {
-    return false;
+    return true;
 }
 
 uint32_t getBatteryNum(void)

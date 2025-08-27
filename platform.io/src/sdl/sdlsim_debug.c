@@ -16,7 +16,7 @@ uint32_t getGPIO(uint32_t gpio_index)
     switch (gpio_index)
     {
     case 0:
-        return 0x1234567;
+        return 0x01234567;
 
     case 1:
         return 0x89abcdef;

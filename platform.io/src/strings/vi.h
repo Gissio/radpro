@@ -68,32 +68,34 @@
 #define STRING_HIGH "Cao"
 
 // Notification headings (upper case)
-#define STRING_NOTIFICATION_WARNING "CẢNH BÁO"
-#define STRING_NOTIFICATION_SUCCESS "THÀNH CÔNG"
+#define STRING_NOTIFICATION_WARNING ""
+#define STRING_NOTIFICATION_SUCCESS ""
 
-// Firmware checksum failure notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "Lỗi kiểm tra firmware."
+// Firmware checksum failure notification
+#define STRING_SPLASH_FIRMWARE_CHECKSUM_FAILURE "CẢNH BÁO\n\nLỗi kiểm tra tổng kiểm firmware."
 
-// HV profile menu items (shorter than 30 characters)
-#define STRING_NOTIFICATION_HVCUSTOM "Giá trị sai hại thiết bị."
+// HV profile menu items
+#define STRING_NOTIFICATION_HVCUSTOM "CẢNH BÁO\n\nGiá trị sai có thể làm hỏng thiết bị."
 
-// Data log reset notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_TITLE "Đặt lại?"
-#define STRING_NOTIFICATION_DATALOG_RESET_SUBTITLE "Mọi bản ghi sẽ bị xóa."
+// Data log reset notification
+#define STRING_NOTIFICATION_DATALOG_RESET_CONFIRM "Đặt lại nhật ký dữ liệu?\n\nTất cả bản ghi sẽ bị xóa."
 
-// Data log reset success notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "Nhật ký dữ liệu đã reset."
+// Data log reset success notification
+#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "THÀNH CÔNG\n\nNhật ký dữ liệu đã được đặt lại."
 
 // Measurement view UI heading strings
 #define STRING_INSTANTANEOUS "Tức thời"
 #define STRING_AVERAGE "Trung bình"
 #define STRING_CUMULATIVE "Tích lũy"
-#define STRING_HISTORY_10_MINUTES "Lịch sử (10 phút)"
-#define STRING_HISTORY_1_HOUR "Lịch sử (1 giờ)"
-#define STRING_HISTORY_1_DAY "Lịch sử (1 ngày)"
-#define STRING_HISTORY_1_WEEK "Lịch sử (1 tuần)"
-#define STRING_HISTORY_1_MONTH "Lịch sử (1 tháng)"
-#define STRING_HISTORY_1_YEAR "Lịch sử (1 năm)"
+#define STRING_HISTORY "Lịch sử"
+
+// Measurement history view time periods
+#define STRING_HISTORY_10_MINUTES "10 phút"
+#define STRING_HISTORY_1_HOUR "1 giờ"
+#define STRING_HISTORY_1_DAY "1 ngày"
+#define STRING_HISTORY_1_WEEK "1 tuần"
+#define STRING_HISTORY_1_MONTH "1 tháng"
+#define STRING_HISTORY_1_YEAR "1 năm"
 
 // Measurement view secondary view strings
 #define STRING_TIME "Thời"
@@ -102,12 +104,12 @@
 #define STRING_DOSE "Liều"
 
 // Measurement view info strings (upper case, up to 5 letters)
-#define STRING_INFO_ALARM "BÁO"
-#define STRING_INFO_WARNING "CẢNH BÁO"
-#define STRING_INFO_FAULT "LỖI"
-#define STRING_INFO_MAX "MAX"
-#define STRING_INFO_OVERFLOW "VƯỢT"
-#define STRING_INFO_DONE "XONG"
+#define STRING_ALERT_ALARM "BÁO ĐỘNG"
+#define STRING_ALERT_WARNING "CẢNH BÁO"
+#define STRING_ALERT_FAULT "LỖI"
+#define STRING_ALERT_MAX "TỐI ĐA"
+#define STRING_ALERT_OVERFLOW "VƯỢT"
+#define STRING_ALERT_DONE "HOÀN THÀNH"
 
 // Settings menu items
 #define STRING_SETTINGS "Cài đặt"
@@ -115,14 +117,14 @@
 #define STRING_ALERTS "Cảnh báo"
 #define STRING_MEASUREMENTS "Đo lường"
 #define STRING_GEIGER_TUBE "Ống Geiger"
-#define STRING_DATA_LOG "Nhật ký dữ liệu"
+#define STRING_DATALOG "Nhật ký dữ liệu"
 #define STRING_DISPLAY "Màn hình"
 #define STRING_DATE_AND_TIME "Ngày và giờ"
 #define STRING_BATTERY_TYPE "Loại pin"
 #define STRING_RANDOM_GENERATOR "Tạo số ngẫu nhiên"
 #define STRING_GAME "Trò chơi"
 #define STRING_STATISTICS "Thống kê"
-#define STRING_DATA_MODE "Chế độ dữ liệu"
+#define STRING_DATAMODE "Chế độ dữ liệu"
 
 // Pulses menu items
 #define STRING_SOUND "Âm thanh"
@@ -134,8 +136,8 @@
 
 // Alarms menu items
 #define STRING_RATE_WARNING "Cảnh báo tốc độ"
-#define STRING_DOSE_WARNING "Cảnh báo liều lượng"
 #define STRING_RATE_ALARM "Báo động tốc độ"
+#define STRING_DOSE_WARNING "Cảnh báo liều lượng"
 #define STRING_DOSE_ALARM "Báo động liều lượng"
 #define STRING_INDICATION "Chỉ báo"
 
@@ -158,7 +160,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "Độ nhạy"
-#define STRING_DEAD_TIME_SHORT_COMPENSATION "Bù thời gian chết"
+#define STRING_DEAD_TIME_COMPENSATION "Bù thời gian chết"
 #define STRING_HVPROFILE "Hồ sơ HV"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
@@ -171,7 +173,7 @@
 #define STRING_J614 "J614"
 #define STRING_M4011 "M4011"
 
-// Russian Geiger tubes (should only be translated with non-latin scripts)
+// Russian Geiger tubes (should only be translated with cyrillic scripts)
 #define STRING_SBM20 "SBM-20"
 
 // HV profile menu items
@@ -183,9 +185,6 @@
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "Tần số PWM"
 #define STRING_PWMDUTY_CYCLE "Chu kỳ nhiệm vụ PWM"
-
-// Tube/battery voltage
-#define STRING_VOLTAGE "Điện áp"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Chế độ ghi"
@@ -281,13 +280,11 @@
 #define STRING_GAME_LEVEL "Cấp độ"
 
 // Statistics view items
-#define STRING_TUBE_LIFE_TIME "Thời gian ống"
+#define STRING_TUBE_LIFE "Thời gian ống"
 #define STRING_DEAD_TIME "Thời gian trễ"
-#define STRING_DEVICE_ID "ID thiết bị"
 
 #define STRING_TUBE "Ống"
-#define STRING_LIFE_TIME "Thời gian"
-#define STRING_DEAD_TIME_SHORT "Thời gian trễ"
+#define STRING_LIFE "Thời gian"
 #define STRING_DEVICE "Thiết bị"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE_SHORT "Điện áp"
+#define STRING_BATTERY "Pin"

@@ -67,33 +67,31 @@
 #define STRING_MEDIUM "Середня"
 #define STRING_HIGH "Висока"
 
-// Notification headings (upper case)
-#define STRING_NOTIFICATION_WARNING "ПОПЕРЕДЖЕННЯ"
-#define STRING_NOTIFICATION_SUCCESS "УСПІХ"
+// Firmware checksum failure notification
+#define STRING_SPLASH_FIRMWARE_CHECKSUM_FAILURE "ПОПЕРЕДЖЕННЯ\n\nПомилка контрольної суми прошивки."
 
-// Firmware checksum failure notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "Помилка контрольної суми."
+// HV profile menu items
+#define STRING_NOTIFICATION_HVCUSTOM "ПОПЕРЕДЖЕННЯ\n\nНеправильні значення можуть пошкодити пристрій."
 
-// HV profile menu items (shorter than 30 characters)
-#define STRING_NOTIFICATION_HVCUSTOM "Неправильні значення."
+// Data log reset notification
+#define STRING_NOTIFICATION_DATALOG_RESET_CONFIRM "Скинути журнал даних?\n\nУсі записи буде видалено."
 
-// Data log reset notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_TITLE "Скинути?"
-#define STRING_NOTIFICATION_DATALOG_RESET_SUBTITLE "Усі записи буде видалено."
-
-// Data log reset success notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "Журнал даних скинуто."
+// Data log reset success notification
+#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "УСПІХ\n\nЖурнал даних скинуто."
 
 // Measurement view UI heading strings
 #define STRING_INSTANTANEOUS "Миттєвий"
 #define STRING_AVERAGE "Середній"
 #define STRING_CUMULATIVE "Накопичувальний"
-#define STRING_HISTORY_10_MINUTES "Історія (10 хв)"
-#define STRING_HISTORY_1_HOUR "Історія (1 год)"
-#define STRING_HISTORY_1_DAY "Історія (1 д)"
-#define STRING_HISTORY_1_WEEK "Історія (1 тиж)"
-#define STRING_HISTORY_1_MONTH "Історія (1 міс)"
-#define STRING_HISTORY_1_YEAR "Історія (1 р)"
+#define STRING_HISTORY "Історія"
+
+// Measurement history view time periods
+#define STRING_HISTORY_10_MINUTES "10 хв"
+#define STRING_HISTORY_1_HOUR "1 год"
+#define STRING_HISTORY_1_DAY "1 д"
+#define STRING_HISTORY_1_WEEK "1 тиж"
+#define STRING_HISTORY_1_MONTH "1 міс"
+#define STRING_HISTORY_1_YEAR "1 р"
 
 // Measurement view secondary view strings
 #define STRING_TIME "Час"
@@ -102,12 +100,12 @@
 #define STRING_DOSE "Доза"
 
 // Measurement view info strings (upper case, up to 5 letters)
-#define STRING_INFO_ALARM "ТРИВОГА"
-#define STRING_INFO_WARNING "ПОПЕРЕДЖЕННЯ"
-#define STRING_INFO_FAULT "ПОМИЛКА"
-#define STRING_INFO_MAX "МАКС"
-#define STRING_INFO_OVERFLOW "ПЕРЕВИЩ"
-#define STRING_INFO_DONE "ГОТОВО"
+#define STRING_ALERT_ALARM "ТРИВОГА"
+#define STRING_ALERT_WARNING "ПОПЕРЕДЖЕННЯ"
+#define STRING_ALERT_FAULT "ПОМИЛКА"
+#define STRING_ALERT_MAX "МАКС"
+#define STRING_ALERT_OVERFLOW "ПЕРЕВИЩЕННЯ"
+#define STRING_ALERT_DONE "ЗАВЕРШЕНО"
 
 // Settings menu items
 #define STRING_SETTINGS "Налаштування"
@@ -115,14 +113,14 @@
 #define STRING_ALERTS "Сповіщення"
 #define STRING_MEASUREMENTS "Вимірювання"
 #define STRING_GEIGER_TUBE "Лічильник Гейгера"
-#define STRING_DATA_LOG "Журнал даних"
+#define STRING_DATALOG "Журнал даних"
 #define STRING_DISPLAY "Дисплей"
 #define STRING_DATE_AND_TIME "Дата і час"
 #define STRING_BATTERY_TYPE "Тип батареї"
 #define STRING_RANDOM_GENERATOR "Генератор випадкових чисел"
 #define STRING_GAME "Гра"
 #define STRING_STATISTICS "Статистика"
-#define STRING_DATA_MODE "Режим даних"
+#define STRING_DATAMODE "Режим даних"
 
 // Pulses menu items
 #define STRING_SOUND "Звук"
@@ -134,8 +132,8 @@
 
 // Alarms menu items
 #define STRING_RATE_WARNING "Попер. швидкості"
-#define STRING_DOSE_WARNING "Попер. дози"
 #define STRING_RATE_ALARM "Сигнал швидкості"
+#define STRING_DOSE_WARNING "Попер. дози"
 #define STRING_DOSE_ALARM "Сигнал дози"
 #define STRING_INDICATION "Індикація"
 
@@ -158,7 +156,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "Чутливість"
-#define STRING_DEAD_TIME_SHORT_COMPENSATION "Компенсація мертвого часу"
+#define STRING_DEAD_TIME_COMPENSATION "Компенсація мертвого часу"
 #define STRING_HVPROFILE "HV профіль"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
@@ -171,7 +169,7 @@
 #define STRING_J614 "J614"
 #define STRING_M4011 "M4011"
 
-// Russian Geiger tubes (should only be translated with non-latin scripts)
+// Russian Geiger tubes (should only be translated with cyrillic scripts)
 #define STRING_SBM20 "СБМ-20"
 
 // HV profile menu items
@@ -183,9 +181,6 @@
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "Частота ШІМ"
 #define STRING_PWMDUTY_CYCLE "Робочий цикл ШІМ"
-
-// Tube/battery voltage
-#define STRING_VOLTAGE "Напруга"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Режим журналювання"
@@ -281,13 +276,11 @@
 #define STRING_GAME_LEVEL "Рівень"
 
 // Statistics view items
-#define STRING_TUBE_LIFE_TIME "Робота детектора"
+#define STRING_TUBE_LIFE "Робота дет."
 #define STRING_DEAD_TIME "Мертвий час"
-#define STRING_DEVICE_ID "ID пристрою"
 
 #define STRING_TUBE "Детектор"
-#define STRING_LIFE_TIME "Життя"
-#define STRING_DEAD_TIME_SHORT "Мертвий ч."
+#define STRING_LIFE "Життя"
 #define STRING_DEVICE "Пристрій"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE_SHORT "Напруга"
+#define STRING_BATTERY "Батарея"

@@ -57,9 +57,9 @@ void initTube(void)
         (settings.tubeHVDutyCycle >= TUBE_HVDUTYCYCLE_NUM)
             ? TUBE_HVDUTYCYCLE_NUM - 1
             : settings.tubeHVDutyCycle);
+#endif
 
     initTubeHardware();
-#endif
 }
 
 void resetTube(void)
@@ -348,7 +348,7 @@ static void onHVCustomProfileWarningEvent(Event event)
         break;
 
     case EVENT_DRAW:
-        drawNotification(getString(STRING_NOTIFICATION_WARNING),
+        drawNotification(getString(STRING_CUSTOM),
                          getString(STRING_NOTIFICATION_HVCUSTOM));
 
         break;
@@ -460,8 +460,8 @@ float getTubeSensitivity(void)
 
 uint32_t getLossOfCountTime(void)
 {
-    // 60 s/min * [number of periods] * [lowest expected radiation in uSv/h]
-    return (uint32_t)((60.0F * 10.0F / 0.05F) / getTubeSensitivity()) + 1;
+    // (60 s/min) * (number of pulses) * (lowest expected radiation in uSv/h)
+    return (uint32_t)(((60.0F) * (10.0F) / (0.05F)) / getTubeSensitivity()) + 1;
 }
 
 static const char *onTubeSensitivityMenuGetOption(uint32_t index,
@@ -558,7 +558,7 @@ static void onTubeDeadTimeCompensationMenuSelect(uint32_t index)
 static MenuState tubeDeadTimeCompensationMenuState;
 
 static Menu tubeDeadTimeCompensationMenu = {
-    STRING_DEAD_TIME_SHORT_COMPENSATION,
+    STRING_DEAD_TIME_COMPENSATION,
     &tubeDeadTimeCompensationMenuState,
     onTubeDeadTimeCompensationMenuGetOption,
     onTubeDeadTimeCompensationMenuSelect,
@@ -574,7 +574,7 @@ static View tubeDeadTimeCompensationMenuView = {
 
 static SubMenuOption tubeMenuOptions[] = {
     {STRING_SENSITIVITY, &tubeSensitivityMenuView},
-    {STRING_DEAD_TIME_SHORT_COMPENSATION, &tubeDeadTimeCompensationMenuView},
+    {STRING_DEAD_TIME_COMPENSATION, &tubeDeadTimeCompensationMenuView},
 #if defined(TUBE_HV_PWM)
     {STRING_HVPROFILE, &tubeHVProfileMenuView},
 #endif

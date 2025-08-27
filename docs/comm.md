@@ -32,6 +32,28 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   OK FS2011 (STM32F051C8);Rad Pro 2.0/en;b5706d937087f975b5812810
   ```
 
+### Get device power
+- **Request**: `GET devicePower\r\n`
+- **Response**: `OK [value]\r\n`
+- **Description**: Returns the device's power state (`0`: off, `1`: on).
+- **Example**:
+
+  ```
+  GET devicePower
+  OK 0
+  ```
+
+### Set device power
+- **Request**: `SET devicePower [value]\r\n`
+- **Response**: `OK\r\n`
+- **Description**: Sets the device's power state (`0`: off, `1`: on).
+- **Example**:
+
+  ```
+  SET devicePower 1
+  OK
+  ```
+
 ### Get device battery voltage
 - **Request**: `GET deviceBatteryVoltage\r\n`
 - **Response**: `OK [value]\r\n`
@@ -134,7 +156,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
 ### Get tube rate
 - **Request**: `GET tubeRate\r\n`
 - **Response**: `OK [value]\r\n`
-- **Description**: Returns the tube's instantaneous rate in counts per minute (cpm), with three decimal places, updated every second. For better precision, calculate the rate using two `GET tubePulseCount` measurements over a time period: `(pulse_count_end - pulse_count_start) / time_in_minutes`.
+- **Description**: Returns the tube's instantaneous rate in counts per minute (cpm), with three decimal places, updated every second. For better precision, calculate the rate using two `GET tubePulseCount` measurements over a time interval: `(pulse_count_end - pulse_count_start) / time_interval_in_minutes`.
 - **Example**:
 
   ```
@@ -219,20 +241,20 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   OK
   ```
 
-### Get data log
+### Retrieve data log
 - **Request**: `GET datalog [start-time] [end-time] [max-record-num]\r\n`
 - **Response**: `OK [data]\r\n`
-- **Description**: Retrieves data log from flash memory. Parameters are optional.
-  - `[start-time]`: UNIX timestamp (seconds since 1/1/1970) to include records from this time or later. Use 0 to include all earlier records.
-  - `[end-time]`: UNIX timestamp to include records before or at this time. Use 4294967295 to include all later records.
+- **Description**: Fetches data log records stored in flash memory. All parameters are optional.
+  - `[start-time]`: UNIX timestamp (seconds since 1/1/1970) to include records from this time onward. Use `0` to include all earlier records.
+  - `[end-time]`: UNIX timestamp to include records up to this time. Use `4294967295` to include all later records.
   - `[max-record-num]`: Maximum number of records to return.
-  - `[data]`: Semicolon-separated records, each with comma-separated fields. The first record lists field names (`time`, `tubePulseCount`); followed by measurements (least to most recent). 
-  - Note: Data logging is paused during download.
+  - `[data]`: Semicolon-separated records, each containing comma-separated fields. The first record lists field names (`time`, `tubePulseCount`), followed by measurements records (ordered from least to most recent). Empty records (`;;`) indicate the start of a new logging session.
+  - Note: Data logging is paused during the download process.
 - **Example**:
 
   ```
   GET datalog 1690000000
-  OK time,tubePulseCount;1690000000,1542;1690000060,1618;1690000120,1693
+  OK time,tubePulseCount;;1690000000,1542;1690000060,1618;1690000120,1693
   ```
 
 ### Reset data log
@@ -246,7 +268,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   OK
   ```
 
-### Get random data
+### Retrieve random data
 - **Request**: `GET randomData\r\n`
 - **Response**: `OK [value]\r\n`
 - **Description**: Returns up to 16 bytes from the random generator, in hexadecimal (0-9, a-f).

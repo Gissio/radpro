@@ -25,7 +25,6 @@
 #define GAME_DEPTH_MAX 32
 #endif
 
-#define GAME_HISTORY_MOVE_NUM (GAME_HISTORY_TURN_NUM * 2)
 #define GAME_VALID_MOVES_NUM_MAX 181
 
 typedef enum
@@ -50,7 +49,7 @@ static struct
     int32_t validMovesIndex;
     mcumax_move validMoves[GAME_VALID_MOVES_NUM_MAX];
 
-    mcumax_move history[GAME_HISTORY_TURN_NUM * 2];
+    mcumax_move lastMove;
 } game;
 
 static const uint16_t gameStrengthToNodesCount[] = {
@@ -81,27 +80,6 @@ void resetGame(void)
                    GAMESTRENGTH_NUM);
 }
 
-static void recordGameMove(mcumax_move move)
-{
-    if (game.moveIndex < GAME_HISTORY_MOVE_NUM)
-        game.history[game.moveIndex] = move;
-    else
-    {
-        uint32_t index = game.moveIndex & 0x1;
-        if (index == 0)
-        {
-            for (uint32_t i = 2; i < GAME_HISTORY_MOVE_NUM; i++)
-                game.history[i - 2] = game.history[i];
-
-            game.history[GAME_HISTORY_MOVE_NUM - 1] = MCUMAX_MOVE_INVALID;
-        }
-
-        game.history[GAME_HISTORY_MOVE_NUM - 2 + index] = move;
-    }
-
-    game.moveIndex++;
-}
-
 static void updateGameBoard(void)
 {
     mcumax_move move = MCUMAX_MOVE_INVALID;
@@ -109,9 +87,8 @@ static void updateGameBoard(void)
     switch (game.state)
     {
     case GAME_SHOWING_LAST_MOVE:
-        for (uint32_t i = 0; i < GAME_HISTORY_MOVE_NUM; i++)
-            if (game.history[i].from != MCUMAX_SQUARE_INVALID)
-                move = game.history[i];
+        if (game.lastMove.from != MCUMAX_SQUARE_INVALID)
+            move = game.lastMove;
 
         break;
 
@@ -164,7 +141,7 @@ static void updateGameBoard(void)
 
 static void onGameCallback(void *userdata)
 {
-#if !__EMSCRIPTEN__
+#if !defined(__EMSCRIPTEN__)
     dispatchEvents();
 #endif
 }
@@ -184,8 +161,7 @@ static void startGame(uint32_t playerIndex)
     game.playerTime[0] = 0;
     game.playerTime[1] = 0;
 
-    for (uint32_t i = 0; i < GAME_HISTORY_MOVE_NUM; i++)
-        game.history[i] = MCUMAX_MOVE_INVALID;
+    game.lastMove = MCUMAX_MOVE_INVALID;
 
     if (playerIndex == 0)
     {
@@ -219,7 +195,8 @@ void dispatchGameEvents(void)
             {
                 mcumax_play_move(move);
 
-                recordGameMove(move);
+                game.moveIndex++;
+                game.lastMove = move;
 
                 updateValidMoves();
 
@@ -290,21 +267,6 @@ static void selectNextMoveTo(int32_t direction)
 
 // Game view
 
-static void formatGameMove(char *buffer, mcumax_move move)
-{
-    if (move.from == MCUMAX_SQUARE_INVALID)
-        strclr(buffer);
-    else
-    {
-        buffer[0] = 'a' + (move.from & 0x7);
-        buffer[1] = '1' + 7 - ((move.from & 0x70) >> 4);
-        buffer[2] = '-';
-        buffer[3] = 'a' + (move.to & 0x7);
-        buffer[4] = '1' + 7 - ((move.to & 0x70) >> 4);
-        buffer[5] = '\0';
-    }
-}
-
 static void onGameViewEvent(Event event)
 {
     switch (event)
@@ -349,7 +311,8 @@ static void onGameViewEvent(Event event)
 
             mcumax_play_move(move);
 
-            recordGameMove(move);
+            game.moveIndex++;
+            game.lastMove = move;
 
             game.state = GAME_SEARCHING;
 
@@ -386,24 +349,18 @@ static void onGameViewEvent(Event event)
         char time[2][16];
 
         strclr(time[0]);
-        strcatTime(time[0], game.playerTime[!game.playerIndex]);
+        strcatTime(time[0], game.playerTime[game.playerIndex]);
 
         strclr(time[1]);
-        strcatTime(time[1], game.playerTime[game.playerIndex]);
+        strcatTime(time[1], game.playerTime[!game.playerIndex]);
 
         // Moves
-        char history[GAME_HISTORY_TURN_NUM][2][6];
-
-        for (uint32_t y = 0; y < GAME_HISTORY_TURN_NUM; y++)
-            for (uint32_t x = 0; x < 2; x++)
-                formatGameMove(history[y][x], game.history[2 * y + x]);
-
-        drawGame(game.board, time, history);
+        drawGame(game.board, time);
 
         break;
     }
 
-    case EVENT_PERIOD:
+    case EVENT_HEARTBEAT:
         if (game.state != GAME_OVER)
         {
             uint32_t side = (game.moveIndex & 0x1);

@@ -7,8 +7,8 @@ To update the firmware, use the [Rad Pro web installer](https://gissio.github.io
 ## What you'll need
 
 * **ST-LINK V2 USB dongle** (or compatible clone): Available on [Amazon](https://www.amazon.com/s?k=st-link+v2).
-* **4-pin header** for SWD connection.
-* **Philips screwdriver** to open the device.
+* **4-pin header**: For the SWD connection.
+* **Philips screwdriver:** For opening the device.
 * **Optional:** Soldering iron and solder for a secure connection.
 * **Windows users:** [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html)
 
@@ -53,29 +53,29 @@ To update the firmware, use the [Rad Pro web installer](https://gissio.github.io
 
 ### FS-600 controls
 
-  * **Power on/off:** Press and hold the OK/Power key.
-  * **Switch measurement mode:** Use the Up or Down key.
-  * **Switch secondary measurement view:** Press the Back key.
-  * **Reset measurement/dismiss alarm:** Press and hold the Back key.
-  * **Toggle pulse sound (measurement view only):** Press and hold the Down key.
-  * **Sleep display (measurement view only):** Press the OK/Power key.
-  * **Access settings:** Press the Right/Settings key.
-  * **Navigate options:** Use the Up or Down key.
-  * **Select option:** Press the Right/Settings or OK/Power key.
-  * **Go back:** Prses the Back key.
-  * **Toggle lock mode:** Press and hold both the Back and OK/Power keys.
+* **Power on/off:** Press and hold the OK/Power key.
+* **Switch measurement mode:** Use the Up or Down key.
+* **Switch secondary measurement view:** Press the Back key.
+* **Reset measurement/dismiss alert:** Press and hold the Back key.
+* **Toggle pulse sound (measurement view only):** Press and hold the Right/Settings key.
+* **Sleep display (measurement view only):** Press the OK/Power key.
+* **Access settings:** Press the Right/Settings key.
+* **Navigate options:** Use the Up or Down key.
+* **Select option:** Press the Right/Settings or OK/Power key.
+* **Go back:** Prses the Back key.
+* **Toggle lock mode:** Press and hold both the Back and OK/Power keys.
 
 ### FS-1000 controls
 
-  * **Power on/off:** Press and long hold the Set/Power key.
-  * **Switch measurement mode:** Press the Mode key.
-  * **Switch secondary measurement view:** Press the Set/Power key.
-  * **Reset measurement/dismiss alarm:** Press and long hold the Mode key.
-  * **Access settings:** Press and short hold the Set/Power key.
-  * **Navigate options:** Use the Mode or Set/Power key.
-  * **Select option:** Press and short hold the Set/Power key.
-  * **Go back:** Press and short hold the Mode key.
-  * **Toggle lock mode:** Press and long hold both the Set/Power and Mode keys.
+* **Power on/off:** Press and long hold the Set/Power key.
+* **Switch measurement mode:** Press the Mode key.
+* **Switch secondary measurement view:** Press the Set/Power key.
+* **Reset measurement/dismiss alert:** Press and long hold the Mode key.
+* **Access settings:** Press and short hold the Set/Power key.
+* **Navigate options:** Use the Mode or Set/Power key.
+* **Select option:** Press and short hold the Set/Power key.
+* **Go back:** Press and short hold the Mode key.
+* **Toggle lock mode:** Press and long hold both the Set/Power and Mode keys.
 
 ### Configuration steps
 
@@ -102,8 +102,8 @@ If you find Rad Pro useful:
 
 <!-- Calculated as follows:
 
-* With 1-byte differential values: [42 pages * (1 timestamp entry/page [16 bytes] + 2024 differential entries/page [1 byte each])] = 85050 entries
-* With 2-byte differential values: [42 pages * (1 timestamp entry/page [16 bytes] + 1012 differential entries/page [2 byte each])] = 42546 entries
+* With 1-byte differential values: [42 pages * (1 timestamp record/page [16 bytes] + 2024 differential records/page [1 byte each])] = 85050 records
+* With 2-byte differential values: [42 pages * (1 timestamp record/page [16 bytes] + 1012 differential records/page [2 byte each])] = 42546 records
 
 * 60-minute and 10-minute intervals require 2-byte differential values.
 * 1-minute intervals and less require 1-byte differential values.

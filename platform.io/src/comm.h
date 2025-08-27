@@ -57,10 +57,10 @@ typedef struct
     char lastChar;
 
     volatile TransmitState transmitState;
-    uint32_t datalogStartTimestamp;
-    uint32_t datalogEndTimestamp;
-    uint32_t datalogMaxEntryNum;
-    uint32_t datalogEntryNum;
+    uint32_t datalogStartTime;
+    uint32_t datalogEndTime;
+    uint32_t datalogMaxRecordNum;
+    uint32_t datalogRecordNum;
 } Comm;
 
 extern Comm comm;

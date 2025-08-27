@@ -155,10 +155,10 @@ bool sendRequest(int serialPort,
     return true;
 }
 
-void appendLogEntry(time_t entryTime,
-                    uint32_t deltaPulseCount)
+void appendLogRecord(time_t recordTime,
+                     uint32_t deltaPulseCount)
 {
-    const struct tm *currentDateTime = localtime(&entryTime);
+    const struct tm *currentDateTime = localtime(&recordTime);
 
     char path[256];
     sprintf(path,
@@ -171,7 +171,7 @@ void appendLogEntry(time_t entryTime,
 
     if (fp)
     {
-        const struct tm *dateTime = localtime(&entryTime);
+        const struct tm *dateTime = localtime(&recordTime);
 
         fprintf(fp,
                 "%04d-%02d-%02d %02d:%02d:%02d,%u\n",
@@ -226,7 +226,7 @@ int main(int argc, char *argv[])
                         {
                             uint32_t deltaPulseCount = pulseCount - lastPulseCount;
 
-                            appendLogEntry(currentTime, deltaPulseCount);
+                            appendLogRecord(currentTime, deltaPulseCount);
                         }
 
                         lastLogTime = currentTime;

@@ -45,6 +45,7 @@ class Font:
         self.codepoint_set = ''
         self.variable_name = ''
 
+        self.size = None
         self.cap_height = None
         self.ascent = None
         self.descent = None
@@ -188,7 +189,9 @@ def load_bitmap_font(path, codepoint_set, font_variable_name):
 
             font.add_glyph(bdf_glyph.codepoint, glyph)
 
-        # Ascent, descent, cap height
+        # Size, ascent, descent, cap height
+        font.size = get_bdf_property(
+            bdf_font, 'POINT_SIZE', bdf_font.ptSize)
         font.ascent = get_bdf_property(
             bdf_font, 'FONT_ASCENT', font.boundingbox_top.max)
         font.descent = get_bdf_property(
@@ -273,7 +276,8 @@ def load_vector_font(path, codepoint_set, font_variable_name, pixels, pixel_bitn
 
             font.add_glyph(codepoint, glyph)
 
-        # Ascent, descent, cap height
+        # Size, ascent, descent, cap height
+        font.size = int(pixels)
         font.cap_height = (face.size.ascender + face.size.descender) // 64
         font.ascent = face.size.ascender // 64
         font.descent = -face.size.descender // 64
@@ -623,6 +627,7 @@ def write_encoded_font(font, encoded_font, path):
 
         file.write(f'#include <stdint.h>\n\n')
 
+        file.write(f'#define {define_name}_SIZE {font.size}\n')
         file.write(f'#define {define_name}_ASCENT {font.ascent}\n')
         file.write(f'#define {define_name}_DESCENT {font.descent}\n')
         file.write(f'#define {define_name}_CAP_HEIGHT {font.cap_height}\n')
@@ -729,7 +734,7 @@ def main():
         if len(missing_codepoints):
             missing_codepoint_set = ','.join(
                 build_codepoint_set(missing_codepoints))
-            print('error: requested codepoints not available: ' +
+            print('warning: requested codepoints not available: ' +
                   missing_codepoint_set)
 
     # Encode

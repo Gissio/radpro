@@ -67,33 +67,31 @@
 #define STRING_MEDIUM "Stredný"
 #define STRING_HIGH "Vysoký"
 
-// Notification headings (upper case)
-#define STRING_NOTIFICATION_WARNING "VAROVANIE"
-#define STRING_NOTIFICATION_SUCCESS "ÚSPECH"
+// Firmware checksum failure notification
+#define STRING_SPLASH_FIRMWARE_CHECKSUM_FAILURE "UPOZORNENIE\n\nZlyhanie kontrolného súčtu firmvéru."
 
-// Firmware checksum failure notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_FIRMWARE_CHECKSUM_FAILURE "Chyba firmvéru."
+// HV profile menu items
+#define STRING_NOTIFICATION_HVCUSTOM "UPOZORNENIE\n\nNesprávne hodnoty môžu poškodiť zariadenie."
 
-// HV profile menu items (shorter than 30 characters)
-#define STRING_NOTIFICATION_HVCUSTOM "Zlé hodnoty ničia zariadenie."
+// Data log reset notification
+#define STRING_NOTIFICATION_DATALOG_RESET_CONFIRM "Vynulovať dátový záznam?\n\nVšetky záznamy budú vymazané."
 
-// Data log reset notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_TITLE "Resetovať záznam?"
-#define STRING_NOTIFICATION_DATALOG_RESET_SUBTITLE "Všetky záznamy zmazané."
-
-// Data log reset success notification (shorter than 30 characters)
-#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "Dátový záznam vynulovaný."
+// Data log reset success notification
+#define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "ÚSPECH\n\nDátový záznam bol vynulovaný."
 
 // Measurement view UI heading strings
 #define STRING_INSTANTANEOUS "Okamžité"
 #define STRING_AVERAGE "Priemer"
 #define STRING_CUMULATIVE "Kumulatívne"
-#define STRING_HISTORY_10_MINUTES "História (10 min)"
-#define STRING_HISTORY_1_HOUR "História (1 h)"
-#define STRING_HISTORY_1_DAY "História (1 d)"
-#define STRING_HISTORY_1_WEEK "História (1 t)"
-#define STRING_HISTORY_1_MONTH "História (1 m)"
-#define STRING_HISTORY_1_YEAR "História (1 r)"
+#define STRING_HISTORY "História"
+
+// Measurement history view time periods
+#define STRING_HISTORY_10_MINUTES "10 min"
+#define STRING_HISTORY_1_HOUR "1 h"
+#define STRING_HISTORY_1_DAY "1 d"
+#define STRING_HISTORY_1_WEEK "1 t"
+#define STRING_HISTORY_1_MONTH "1 m"
+#define STRING_HISTORY_1_YEAR "1 r"
 
 // Measurement view secondary view strings
 #define STRING_TIME "Čas"
@@ -102,12 +100,12 @@
 #define STRING_DOSE "Dávka"
 
 // Measurement view info strings (upper case, up to 5 letters)
-#define STRING_INFO_ALARM "ALARM"
-#define STRING_INFO_WARNING "VAROVANIE"
-#define STRING_INFO_FAULT "CHYBA"
-#define STRING_INFO_MAX "MAX"
-#define STRING_INFO_OVERFLOW "NAD"
-#define STRING_INFO_DONE "HOTOVO"
+#define STRING_ALERT_ALARM "ALARM"
+#define STRING_ALERT_WARNING "UPOZORNENIE"
+#define STRING_ALERT_FAULT "CHYBA"
+#define STRING_ALERT_MAX "MAX"
+#define STRING_ALERT_OVERFLOW "NAD"
+#define STRING_ALERT_DONE "HOTOVO"
 
 // Settings menu items
 #define STRING_SETTINGS "Nastavenia"
@@ -115,14 +113,14 @@
 #define STRING_ALERTS "Upozornenia"
 #define STRING_MEASUREMENTS "Merania"
 #define STRING_GEIGER_TUBE "Geigerova trubica"
-#define STRING_DATA_LOG "Dátový záznam"
+#define STRING_DATALOG "Dátový záznam"
 #define STRING_DISPLAY "Displej"
 #define STRING_DATE_AND_TIME "Dátum a čas"
 #define STRING_BATTERY_TYPE "Typ batérie"
 #define STRING_RANDOM_GENERATOR "Generátor náhodných čísel"
 #define STRING_GAME "Hra"
 #define STRING_STATISTICS "Štatistiky"
-#define STRING_DATA_MODE "Dátový režim"
+#define STRING_DATAMODE "Dátový režim"
 
 // Pulses menu items
 #define STRING_SOUND "Zvuk"
@@ -134,8 +132,8 @@
 
 // Alarms menu items
 #define STRING_RATE_WARNING "Varovanie rýchlosti"
-#define STRING_DOSE_WARNING "Varovanie dávky"
 #define STRING_RATE_ALARM "Alarm rýchlosti"
+#define STRING_DOSE_WARNING "Varovanie dávky"
 #define STRING_DOSE_ALARM "Alarm dávky"
 #define STRING_INDICATION "Indikácia"
 
@@ -158,7 +156,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "Citlivosť"
-#define STRING_DEAD_TIME_SHORT_COMPENSATION "Kompenzácia mŕtveho času"
+#define STRING_DEAD_TIME_COMPENSATION "Kompenzácia mŕtveho času"
 #define STRING_HVPROFILE "HV profil"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
@@ -171,7 +169,7 @@
 #define STRING_J614 "J614"
 #define STRING_M4011 "M4011"
 
-// Russian Geiger tubes (should only be translated with non-latin scripts)
+// Russian Geiger tubes (should only be translated with cyrillic scripts)
 #define STRING_SBM20 "SBM-20"
 
 // HV profile menu items
@@ -183,9 +181,6 @@
 // HV profile - custom menu items
 #define STRING_PWMFREQUENCY "Frekvencia PWM"
 #define STRING_PWMDUTY_CYCLE "Pracovný cyklus PWM"
-
-// Tube/battery voltage
-#define STRING_VOLTAGE "Napätie"
 
 // Data Log menu items
 #define STRING_LOGGING_MODE "Režim záznamu"
@@ -281,13 +276,11 @@
 #define STRING_GAME_LEVEL "Úroveň"
 
 // Statistics view items
-#define STRING_TUBE_LIFE_TIME "Životnosť trubice"
+#define STRING_TUBE_LIFE "Životnosť trubice"
 #define STRING_DEAD_TIME "Mŕtvy čas"
-#define STRING_DEVICE_ID "ID zariadenia"
 
 #define STRING_TUBE "Trubica"
-#define STRING_LIFE_TIME "Životnosť"
-#define STRING_DEAD_TIME_SHORT "Mŕtvy čas"
+#define STRING_LIFE "Životnosť"
 #define STRING_DEVICE "Zariadenie"
 #define STRING_ID "ID"
-#define STRING_VOLTAGE_SHORT "Napätie"
+#define STRING_BATTERY "Batéria"

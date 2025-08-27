@@ -22,11 +22,11 @@ void resetDatalog(void);
 
 void openDatalogWrite(void);
 void closeDatalogWrite(void);
-void writeDatalog(void);
+void updateDatalog(void);
 void writeDatalogReset(void);
 
 bool openDatalogRead(void);
 void closeDatalogRead(void);
-bool readDatalog(Dose *dose);
+bool readDatalogRecord(bool *isNewLoggingSession, Dose *record);
 
 #endif

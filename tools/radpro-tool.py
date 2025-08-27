@@ -19,14 +19,14 @@ import time
 
 # Definitions
 
-radpro_tool_version = '1.0.2'
+radpro_tool_version = '2.2'
 log_warnings = False
 
 
 # Errors
 
 def log(level, message):
-    print(f'{datetime.now().isoformat()} {level}: {message}')
+    print(f'{datetime.now().isoformat()} {level}: {message}', file=sys.stderr)
 
 
 def log_info(message):
@@ -197,13 +197,26 @@ def get_sensitivity(io):
     return None
 
 
-def get_datalog(io, start_datetime):
+def get_datalog(io,
+                start_datetime,
+                end_datetime,
+                max_record_num):
     if start_datetime != None:
         start_time = int(datetime.fromisoformat(
             start_datetime).timestamp())
-        return io.get(f'datalog {start_time}')
     else:
-        return io.get('datalog')
+        start_time = 0
+
+    if end_datetime != None:
+        end_time = int(datetime.fromisoformat(
+            end_datetime).timestamp())
+    else:
+        end_time = 4294967295
+
+    if max_record_num != None:
+        return io.get(f'datalog {start_time} {end_time} {max_record_num}')
+    else:
+        return io.get(f'datalog {start_time} {end_time}')
 
 
 def get_pulsecount(io):
@@ -230,10 +243,17 @@ def get_randomdata(io):
     return None
 
 
-def download_datalog(io, path, start_datetime):
+def download_datalog(io,
+                     path,
+                     start_datetime,
+                     end_datetime,
+                     max_record_num):
     sensitivity = get_sensitivity(io)
 
-    datalog = get_datalog(io, start_datetime)
+    datalog = get_datalog(io,
+                          start_datetime,
+                          end_datetime,
+                          max_record_num)
     if datalog == None:
         return
 
@@ -242,11 +262,16 @@ def download_datalog(io, path, start_datetime):
 
     prev_timestamp = None
     prev_pulsecount = None
-    prev_deltatime = None
 
     for index, record in enumerate(records):
         # Ignore header
         if index == 0:
+            continue
+
+        # New logging session
+        if record == '':
+            prev_timestamp = None
+            prev_pulsecount = None
             continue
 
         values = record.split(',')
@@ -282,14 +307,9 @@ def download_datalog(io, path, start_datetime):
                     log_warning(
                         f'pulse count moving backwards: record "{record}"')
 
-                if prev_deltatime != None and prev_deltatime < curr_deltatime:
-                    log_info(f'time gap {curr_deltatime} s: record "{record}"')
-                else:
-                    if curr_deltatime > 0:
-                        cpm = delta_pulsecount * 60 / curr_deltatime
-                        uSvH = cpm / sensitivity
-
-            prev_deltatime = curr_deltatime
+                if curr_deltatime > 0:
+                    cpm = delta_pulsecount * 60 / curr_deltatime
+                    uSvH = cpm / sensitivity
 
         prev_timestamp = curr_timestamp
         prev_pulsecount = curr_pulsecount
@@ -446,8 +466,14 @@ def main():
                         dest='datalog_file',
                         help='download data log to a .csv file')
     parser.add_argument('--download-datalog-start',
-                        dest='datalog_datetime',
-                        help='download only data log entries newer than a certain ISO 8601 date and time (e.g. "2000-01-01" or "2000-01-01T12:00:00")')
+                        dest='datalog_datetime_start',
+                        help='download only data log records newer than a certain ISO 8601 date and time (e.g. "2000-01-01" or "2000-01-01T12:00:00")')
+    parser.add_argument('--download-datalog-end',
+                        dest='datalog_datetime_end',
+                        help='download only data log records older than a certain ISO 8601 date and time (e.g. "2000-01-01" or "2000-01-01T12:00:00")')
+    parser.add_argument('--download-datalog-max-record-num',
+                        dest='datalog_max_record_num',
+                        help='limi the number of data log records to download')
     parser.add_argument('--log-pulsedata',
                         dest='pulsedata_file',
                         help='log live pulse data to a .csv file')
@@ -586,7 +612,9 @@ def main():
 
         download_datalog(io,
                          args.datalog_file,
-                         args.datalog_datetime)
+                         args.datalog_datetime_start,
+                         args.datalog_datetime_end,
+                         args.datalog_max_record_num)
 
     if args.pulsedata_file != None or\
             args.randomdata_file != None or\

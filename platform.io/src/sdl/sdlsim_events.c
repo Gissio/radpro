@@ -19,6 +19,10 @@ void initEventsHardware(void)
 {
 }
 
+void resetWatchdog(void)
+{
+}
+
 void sleep(uint32_t value)
 {
 }

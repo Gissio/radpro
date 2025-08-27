@@ -12,7 +12,7 @@
 #include "cmath.h"
 #include "cstring.h"
 
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__)
 
 void strclr(char *s)
 {
