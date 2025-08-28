@@ -277,10 +277,10 @@
 
 // Statistics view items
 #define STRING_TUBE_LIFE "Življenjska doba"
-#define STRING_DEAD_TIME "Mrtev čas"
-
 #define STRING_TUBE "Cev"
 #define STRING_LIFE "Doba"
+#define STRING_DEAD_TIME "Mrtev čas"
+#define STRING_DEVICE_ID "ID naprave"
 #define STRING_DEVICE "Naprava"
 #define STRING_ID "ID"
 #define STRING_BATTERY "Baterija"

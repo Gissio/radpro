@@ -33,8 +33,8 @@ float getCurrentDoseFactor(void);
 
 void setMeasurements(bool value);
 
-void onMeasurementTick(uint32_t pulseCount);
-void onMeasurementHeartbeat(void);
+void onMeasurementsTick(uint32_t pulseCount);
+void onMeasurementsHeartbeat(void);
 void updateMeasurements(void);
 
 void setMeasurementView(int32_t index);

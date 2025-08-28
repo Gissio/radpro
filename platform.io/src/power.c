@@ -49,7 +49,7 @@ static struct
 
 // Power on
 
-static void resetBattery();
+static void resetBattery(void);
 
 static void onPowerOnViewEvent(Event event)
 {
@@ -277,7 +277,7 @@ struct
     bool lastUSBPowered;
 } battery;
 
-static void resetBattery()
+static void resetBattery(void)
 {
 #if defined(BATTERY_REMOVABLE)
     selectMenuItem(&batteryTypeMenu,

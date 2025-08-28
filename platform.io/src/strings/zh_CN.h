@@ -281,10 +281,10 @@
 
 // Statistics view items
 #define STRING_TUBE_LIFE "管寿命"
-#define STRING_DEAD_TIME "死时间"
-
 #define STRING_TUBE "管"
 #define STRING_LIFE "寿命"
+#define STRING_DEAD_TIME "死时间"
+#define STRING_DEVICE_ID "设备ID"
 #define STRING_DEVICE "设备"
 #define STRING_ID "ID"
 #define STRING_BATTERY "电池"

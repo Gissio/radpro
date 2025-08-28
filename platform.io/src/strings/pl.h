@@ -277,10 +277,10 @@
 
 // Statistics view items
 #define STRING_TUBE_LIFE "Żywotność lampy"
-#define STRING_DEAD_TIME "Czas martwy"
-
 #define STRING_TUBE "Lampa"
 #define STRING_LIFE "Żywotność"
+#define STRING_DEAD_TIME "Czas martwy"
+#define STRING_DEVICE_ID "ID urządzenia"
 #define STRING_DEVICE "Urządzenie"
 #define STRING_ID "ID"
 #define STRING_BATTERY "Bateria"

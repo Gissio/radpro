@@ -277,10 +277,10 @@
 
 // Statistics view items
 #define STRING_TUBE_LIFE "チューブ寿命"
-#define STRING_DEAD_TIME "死時間"
-
 #define STRING_TUBE "チューブ"
 #define STRING_LIFE "寿命"
+#define STRING_DEAD_TIME "死時間"
+#define STRING_DEVICE_ID "デバイスID"
 #define STRING_DEVICE "機器"
 #define STRING_ID "ID"
 #define STRING_BATTERY "バッテリー"

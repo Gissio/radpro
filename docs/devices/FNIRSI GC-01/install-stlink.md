@@ -52,7 +52,7 @@ Now, follow these steps:
 ## Step 3: Flash the firmware
 
 1. Windows users: install the [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html).
-2. Download and extract the latest `radpro-flashtool-[version].zip` from [Rad Pro releases](https://github.com/Gissio/radpro/releases).
+2. Download and extract the latest `radpro-[version].zip` from [Rad Pro releases](https://github.com/Gissio/radpro/releases).
 3. Navigate to the `fnirsi-gc01_[microprocessor]` folder and run the appropriate script:
   * Windows: Double click `install.bat`.
   * Linux: Run `install.sh` in a terminal.

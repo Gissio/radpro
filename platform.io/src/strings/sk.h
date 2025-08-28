@@ -277,10 +277,10 @@
 
 // Statistics view items
 #define STRING_TUBE_LIFE "Životnosť trubice"
-#define STRING_DEAD_TIME "Mŕtvy čas"
-
 #define STRING_TUBE "Trubica"
 #define STRING_LIFE "Životnosť"
+#define STRING_DEAD_TIME "Mŕtvy čas"
+#define STRING_DEVICE_ID "ID zariadenia"
 #define STRING_DEVICE "Zariadenie"
 #define STRING_ID "ID"
 #define STRING_BATTERY "Batéria"

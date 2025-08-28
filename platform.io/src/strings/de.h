@@ -277,10 +277,10 @@
 
 // Statistics view items
 #define STRING_TUBE_LIFE "Zählrohr"
-#define STRING_DEAD_TIME "Totzeit"
-
 #define STRING_TUBE "Zählrohr"
 #define STRING_LIFE "Laufzeit"
+#define STRING_DEAD_TIME "Totzeit"
+#define STRING_DEVICE_ID "Geräte-ID"
 #define STRING_DEVICE "Gerät"
 #define STRING_ID "ID"
 #define STRING_BATTERY "Batterie"

@@ -465,7 +465,7 @@ static void updateAlert(Alert *alert, bool value)
     *alert = value;
 }
 
-void onMeasurementTick(uint32_t pulseCount)
+void onMeasurementsTick(uint32_t pulseCount)
 {
     if (!measurements.enabled)
         return;
@@ -490,7 +490,7 @@ void onMeasurementTick(uint32_t pulseCount)
     }
 }
 
-void onMeasurementHeartbeat(void)
+void onMeasurementsHeartbeat(void)
 {
     if (!measurements.enabled)
         return;

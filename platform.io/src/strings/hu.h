@@ -277,10 +277,10 @@
 
 // Statistics view items
 #define STRING_TUBE_LIFE "Cső élettartama"
-#define STRING_DEAD_TIME "Holtidő"
-
 #define STRING_TUBE "Cső"
 #define STRING_LIFE "Élettartam"
+#define STRING_DEAD_TIME "Holtidő"
+#define STRING_DEVICE_ID "Eszköz ID"
 #define STRING_DEVICE "Eszköz"
 #define STRING_ID "ID"
 #define STRING_BATTERY "Akkumulátor"

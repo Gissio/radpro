@@ -277,10 +277,10 @@
 
 // Statistics view items
 #define STRING_TUBE_LIFE "Vida del tubo"
-#define STRING_DEAD_TIME "T. muerto"
-
 #define STRING_TUBE "Tubo"
 #define STRING_LIFE "Vida"
+#define STRING_DEAD_TIME "T. muerto"
+#define STRING_DEVICE_ID "ID del dispositivo"
 #define STRING_DEVICE "Dispositivo"
 #define STRING_ID "ID"
 #define STRING_BATTERY "Batería"

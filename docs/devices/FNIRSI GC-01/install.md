@@ -21,7 +21,7 @@ This guide explains how to install the Rad Pro firmware on FNIRSI GC-01 and JOY-
 
 ## Step 2: Flash the firmware
 
-1. Download and extract the latest `radpro-fnirsi-gc01_[microprocessor]-[version].zip` from [Rad Pro releases](https://github.com/Gissio/radpro/releases).
+1. Download and extract the latest `radpro-[version].zip` from [Rad Pro releases](https://github.com/Gissio/radpro/releases).
 2. Connect the device to a **Windows computer** using a **USB 2.0 port** and the USB data cable. **Note:** Installation may fail on macOS, Linux, or USB 3.0 ports.
 3. Power on the device. A USB drive should appear on your computer. If it does not, the device may be incompatible with Rad Pro.
 4. If you identified the microprocessor, navigate to the `fnirsi-gci01_[micropreocessor]/install` folder. Select the appropriate firmware file: `radpro-fnirsi-gc01_[microprocessor]-[language]-x.y.z-install.bin`.

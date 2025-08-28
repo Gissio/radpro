@@ -281,10 +281,10 @@
 
 // Statistics view items
 #define STRING_TUBE_LIFE "Thời gian ống"
-#define STRING_DEAD_TIME "Thời gian trễ"
-
 #define STRING_TUBE "Ống"
 #define STRING_LIFE "Thời gian"
+#define STRING_DEAD_TIME "Thời gian trễ"
+#define STRING_DEVICE_ID "ID thiết bị"
 #define STRING_DEVICE "Thiết bị"
 #define STRING_ID "ID"
 #define STRING_BATTERY "Pin"

@@ -277,10 +277,10 @@
 
 // Statistics view items
 #define STRING_TUBE_LIFE "Levensduur buis"
-#define STRING_DEAD_TIME "Dode tijd"
-
 #define STRING_TUBE "Buis"
 #define STRING_LIFE "Levensduur"
+#define STRING_DEAD_TIME "Dode tijd"
+#define STRING_DEVICE_ID "Apparaat-ID"
 #define STRING_DEVICE "Apparaat"
 #define STRING_ID "ID"
 #define STRING_BATTERY "Batterij"

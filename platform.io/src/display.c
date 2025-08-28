@@ -2052,7 +2052,7 @@ static cstring statisticsKeyStrings[] = {
     STRING_TUBE_LIFE,
     STRING_PULSES,
     STRING_DEAD_TIME,
-    STRING_ID,
+    STRING_DEVICE_ID,
     STRING_EMPTY,
     STRING_BATTERY,
 #elif defined(DISPLAY_PORTRAIT)

@@ -277,10 +277,10 @@
 
 // Statistics view items
 #define STRING_TUBE_LIFE "Tüp ömrü"
-#define STRING_DEAD_TIME "Ölü zaman"
-
 #define STRING_TUBE "Tüp"
 #define STRING_LIFE "Ömür"
+#define STRING_DEAD_TIME "Ölü zaman"
+#define STRING_DEVICE_ID "Cihaz ID"
 #define STRING_DEVICE "Cihaz"
 #define STRING_ID "ID"
 #define STRING_BATTERY "Pil"

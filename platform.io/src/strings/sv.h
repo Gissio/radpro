@@ -277,10 +277,10 @@
 
 // Statistics view items
 #define STRING_TUBE_LIFE "Rörlivslängd"
-#define STRING_DEAD_TIME "Dödtid"
-
 #define STRING_TUBE "Rör"
 #define STRING_LIFE "Livslängd"
+#define STRING_DEAD_TIME "Dödtid"
+#define STRING_DEVICE_ID "Enhets-ID"
 #define STRING_DEVICE "Enhet"
 #define STRING_ID "ID"
 #define STRING_BATTERY "Batteri"

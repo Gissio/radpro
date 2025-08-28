@@ -120,6 +120,7 @@ void dispatchViewEvents(void)
         if (isBacklightTriggerRequested())
             triggerBacklight();
 
+        // Post-draw
         view.currentView->onEvent(EVENT_POST_DRAW);
     }
 }

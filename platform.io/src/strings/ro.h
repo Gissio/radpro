@@ -277,10 +277,10 @@
 
 // Statistics view items
 #define STRING_TUBE_LIFE "Viața tubului"
-#define STRING_DEAD_TIME "Timp mort"
-
 #define STRING_TUBE "Tub"
 #define STRING_LIFE "Durată"
+#define STRING_DEAD_TIME "Timp mort"
+#define STRING_DEVICE_ID "ID dispozitiv"
 #define STRING_DEVICE "Dispozitiv"
 #define STRING_ID "ID"
 #define STRING_BATTERY "Baterie"

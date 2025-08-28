@@ -243,7 +243,7 @@ void updateDisplay(void)
 
 extern volatile uint32_t eventsTick;
 
-bool updateSDLTicks()
+bool updateSDLTicks(void)
 {
     int32_t deltaTicks = SDL_GetTicks() - eventsTick;
     eventsTick++;

@@ -40,7 +40,7 @@ This guide explains how to install the Rad Pro firmware on FS2011 and YT-203B Ge
 ## Step 3: Flash the firmware
 
 1. Windows users: install the [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html).
-2. Download and extract the latest `radpro-flashtool-[version].zip` from [Rad Pro releases](https://github.com/Gissio/radpro/releases).
+2. Download and extract the latest `radpro-[version].zip` from [Rad Pro releases](https://github.com/Gissio/radpro/releases).
 3. Navigate to the `fs2011-[microprocessor]` folder and run the appropriate script:
   * Windows: Double click `install.bat`.
   * Linux: Run `install.sh` in a terminal.

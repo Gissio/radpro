@@ -277,10 +277,10 @@
 
 // Statistics view items
 #define STRING_TUBE_LIFE "Ζωή σωλήνα"
-#define STRING_DEAD_TIME "Νεκρός χρόνος"
-
 #define STRING_TUBE "Σωλήνας"
 #define STRING_LIFE "Ζωή"
+#define STRING_DEAD_TIME "Νεκρός χρόνος"
+#define STRING_DEVICE_ID "ID Συσκευής"
 #define STRING_DEVICE "Συσκευή"
 #define STRING_ID "ID"
 #define STRING_BATTERY "Μπαταρία"

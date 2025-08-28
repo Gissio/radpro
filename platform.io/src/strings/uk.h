@@ -276,11 +276,11 @@
 #define STRING_GAME_LEVEL "Рівень"
 
 // Statistics view items
-#define STRING_TUBE_LIFE "Робота дет."
-#define STRING_DEAD_TIME "Мертвий час"
-
+#define STRING_TUBE_LIFE "Робота детектора"
 #define STRING_TUBE "Детектор"
 #define STRING_LIFE "Життя"
+#define STRING_DEAD_TIME "Мертвий час"
+#define STRING_DEVICE_ID "ІД пристрою"
 #define STRING_DEVICE "Пристрій"
-#define STRING_ID "ID"
+#define STRING_ID "ІД"
 #define STRING_BATTERY "Батарея"

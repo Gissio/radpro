@@ -277,10 +277,10 @@
 
 // Statistics view items
 #define STRING_TUBE_LIFE "Putken käyttöikä"
-#define STRING_DEAD_TIME "Kuollut aika"
-
 #define STRING_TUBE "Putki"
 #define STRING_LIFE "Käyttöikä"
+#define STRING_DEAD_TIME "Kuollut aika"
+#define STRING_DEVICE_ID "Laitteen ID"
 #define STRING_DEVICE "Laite"
 #define STRING_ID "ID"
 #define STRING_BATTERY "Akku"

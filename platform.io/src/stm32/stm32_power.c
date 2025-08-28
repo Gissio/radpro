@@ -160,7 +160,9 @@ bool isBatteryCharging(void)
 
 bool isUSBPowered(void)
 {
-#if defined(PWR_USB_PORT)
+#if defined(GC01)
+    return (getBatteryVoltage() > 4.5F);
+#elif defined(PWR_USB_PORT)
     return gpio_get(PWR_USB_PORT,
                     PWR_USB_PIN);
 #else

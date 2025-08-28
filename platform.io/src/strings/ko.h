@@ -281,10 +281,10 @@
 
 // Statistics view items
 #define STRING_TUBE_LIFE "튜브 수명"
-#define STRING_DEAD_TIME "데드 타임"
-
 #define STRING_TUBE "튜브"
 #define STRING_LIFE "수명"
+#define STRING_DEAD_TIME "데드 타임"
+#define STRING_DEVICE_ID "장치 ID"
 #define STRING_DEVICE "기기"
 #define STRING_ID "ID"
 #define STRING_BATTERY "배터리"

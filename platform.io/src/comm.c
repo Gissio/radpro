@@ -25,7 +25,7 @@
 
 Comm comm;
 
-void initComm()
+void initComm(void)
 {
     initCommHardware();
 }

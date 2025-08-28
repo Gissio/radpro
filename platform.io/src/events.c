@@ -188,7 +188,7 @@ void onTick(void)
         pulseCount++;
     }
 
-    onMeasurementTick(pulseCount);
+    onMeasurementsTick(pulseCount);
 
     // Heartbeat
     if (updateTimer(&events.heartbeatTimer) == TIMER_ELAPSED)
@@ -196,7 +196,7 @@ void onTick(void)
         events.heartbeatTimer = SYSTICK_FREQUENCY;
         events.heartbeatUpdate++;
 
-        onMeasurementHeartbeat();
+        onMeasurementsHeartbeat();
     }
 
     // Keyboard
