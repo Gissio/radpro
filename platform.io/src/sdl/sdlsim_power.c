@@ -17,7 +17,7 @@ void initPower(void)
 {
 }
 
-void setPower(bool value)
+void setPowerEnabled(bool value)
 {
 }
 

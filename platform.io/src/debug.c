@@ -80,7 +80,7 @@ extern const uint8_t font_tiny5[];
 
 void runTestMode(void)
 {
-    setPower(true);
+    setPowerEnabled(true);
     sleep(500);
 
     while (true)

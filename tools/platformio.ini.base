@@ -98,6 +98,7 @@ build_flags =
     -DFS5000
     -DBOOTLOADER
     -DPWR_USB
+    -DPWR_VCC
     -DKEYBOARD_3_KEYS
     -DDISPLAY_COLOR
     -DFONT_SYMBOLS='"fonts/font_symbols_color.h"'

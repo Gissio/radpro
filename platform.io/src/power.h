@@ -24,7 +24,8 @@ extern View batteryTypeMenuView;
 
 void initPower(void);
 
-void setPower(bool value);
+void setPowerEnabled(bool value);
+void setPowerVCC(bool value);
 bool isPowerOnReset(void);
 bool isBatteryCharging(void);
 bool isUSBPowered(void);

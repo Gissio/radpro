@@ -124,7 +124,10 @@ void powerOn(bool isBoot)
     }
 #endif
 
-    setPower(true);
+    setPowerEnabled(true);
+#if defined(PWR_VCC)
+    setPowerVCC(true);
+#endif
 
     resetEvents();
     resetBattery();
@@ -165,6 +168,9 @@ static void onPowerOffViewEvent(Event event)
         power.displayTimer = POWEROFF_DISPLAY_TIME;
         resetEvents();
         requestBacklightTrigger();
+#if defined(PWR_VCC)
+        setPowerVCC(true);
+#endif
 
         break;
 
@@ -175,7 +181,12 @@ static void onPowerOffViewEvent(Event event)
 
     case EVENT_HEARTBEAT:
         if (!isBacklightActive())
-            setPower(false);
+        {
+            setPowerEnabled(false);
+#if defined(PWR_VCC)
+            setPowerVCC(false);
+#endif
+        }
 
         if (power.displayTimer)
         {
@@ -228,7 +239,10 @@ void powerOff(bool showBatteryIndicator)
     {
         power.displayTimer = 0;
         cancelBacklight();
-        setPower(false);
+        setPowerEnabled(false);
+#if defined(PWR_VCC)
+        setPowerVCC(false);
+#endif
     }
 
     setView(&powerOffView);

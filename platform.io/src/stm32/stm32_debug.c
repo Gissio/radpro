@@ -62,7 +62,7 @@ void onHardFault(const uint32_t *args)
     for (uint32_t i = 4; i < 8; i++)
         debugUInt32(args[i]);
 
-    setPower(false);
+    setPowerEnabled(false);
 
     while (true)
         ;
