@@ -131,9 +131,9 @@
 #define STRING_THRESHOLD "Umbral"
 
 // Alarms menu items
-#define STRING_RATE_WARNING "Advert. de tasa"
+#define STRING_RATE_WARNING "Advertencia de tasa"
 #define STRING_RATE_ALARM "Alarma de tasa"
-#define STRING_DOSE_WARNING "Advert. de dosis"
+#define STRING_DOSE_WARNING "Advertencia de dosis"
 #define STRING_DOSE_ALARM "Alarma de dosis"
 #define STRING_INDICATION "Indicación"
 

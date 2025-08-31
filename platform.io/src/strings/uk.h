@@ -156,7 +156,7 @@
 
 // Geiger tube menu items
 #define STRING_SENSITIVITY "Чутливість"
-#define STRING_DEAD_TIME_COMPENSATION "Компенсація мертвого часу"
+#define STRING_DEAD_TIME_COMPENSATION "Комп. мертвого часу"
 #define STRING_HVPROFILE "HV профіль"
 
 // Suffix for indicating the default Geiger tube (as short as possible)
