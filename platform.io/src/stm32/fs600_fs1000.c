@@ -151,7 +151,7 @@ void initKeyboardHardware(void)
                      GPIO_PULL_FLOATING);
     gpio_setup_input(KEY_DOWN_PORT,
                      KEY_DOWN_PIN,
-                     GPIO_PULL_DOWN);
+                     GPIO_PULL_PULLDOWN);
     gpio_setup_input(KEY_OK_PORT,
                      KEY_OK_PIN,
                      GPIO_PULL_FLOATING);

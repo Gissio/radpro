@@ -1,5 +1,9 @@
 # Releases
 
+## 3.0.1 "The glow fix"
+
+* Removed the charging indicator on the FNIRSI GC-01, as the hardware cannot differentiate between USB disconnected and USB charging states.
+
 ## 3.0 "Sundry"
 
 * **Geiger counter compatibility:** Added support for the GQ GMC-800 Geiger counter with software-enhanced pulse stretching for reliable pulse sound at high radiation levels.

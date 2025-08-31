@@ -69,10 +69,8 @@ void initBuzzer(void)
                GPIO_MODE_OUTPUT_2MHZ_AF_PUSHPULL);
 
     // Timer
-    tim_setup_pwm(BUZZ_TIMER,
-                  BUZZ_TIMER_CHANNEL);
-    tim_set_period(BUZZ_TIMER,
-                   BUZZ_TIMER_PERIOD);
+    tim_setup_pwm(BUZZ_TIMER, BUZZ_TIMER_CHANNEL);
+    tim_set_period(BUZZ_TIMER, BUZZ_TIMER_PERIOD);
     setBuzzer(false);
     tim_enable(BUZZ_TIMER);
 
@@ -83,20 +81,28 @@ void setBuzzer(bool value)
 {
 #if !defined(BUZZ_TIMER)
 
+#if defined(BUZZ_ACTIVE_LOW)
     gpio_modify(BUZZ_PORT,
                 BUZZ_PIN,
-#if defined(BUZZ_ACTIVE_LOW)
-                !
-#endif
+                !value);
+#else
+    gpio_modify(BUZZ_PORT,
+                BUZZ_PIN,
                 value);
+#endif
 
 #if defined(BUZZ2_PORT)
+
+#if defined(BUZZ_ACTIVE_LOW)
     gpio_modify(BUZZ2_PORT,
                 BUZZ2_PIN,
-#if defined(BUZZ_ACTIVE_LOW)
-                !
-#endif
+                !value);
+#else
+    gpio_modify(BUZZ2_PORT,
+                BUZZ2_PIN,
                 value);
+#endif
+
 #endif
 
 #else
@@ -289,8 +295,7 @@ static void setVoiceEnabled(void)
 
     // Timer
     tim_setup_dma(VOICE_TX_TIMER);
-    tim_set_period(VOICE_TX_TIMER,
-                   VOICE_TX_TIMER_PERIOD);
+    tim_set_period(VOICE_TX_TIMER, VOICE_TX_TIMER_PERIOD);
     tim_enable(VOICE_TX_TIMER);
 
     voice.transmitting = true;

@@ -42,12 +42,17 @@ void initVibration(void)
 void setVibration(bool value)
 {
 #if defined(VIBRATION)
+
+#if defined(VIBRATION_ACTIVE_LOW)
     gpio_modify(VIBRATION_PORT,
                 VIBRATION_PIN,
-#if defined(VIBRATION_ACTIVE_LOW)
-                !
-#endif
+                !value);
+#else
+    gpio_modify(VIBRATION_PORT,
+                VIBRATION_PIN,
                 value);
+#endif
+
 #endif
 }
 

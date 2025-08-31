@@ -703,8 +703,8 @@ __STATIC_INLINE bool flash_program(uint8_t *dest,
 #define GPIO_OUTPUTSPEED_50MHZ 0b11
 
 #define GPIO_PULL_FLOATING 0b00
-#define GPIO_PULL_UP 0b01
-#define GPIO_PULL_DOWN 0b10
+#define GPIO_PULL_PULLUP 0b01
+#define GPIO_PULL_PULLDOWN 0b10
 
 #define GPIO_AF_NONE 0b00
 #define GPIO_AF0 0

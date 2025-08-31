@@ -183,19 +183,19 @@ void initKeyboardHardware(void)
 #if defined(STM32F0)
     gpio_setup_input(KEY_PLAYPAUSE_PORT,
                      KEY_PLAYPAUSE_PIN,
-                     GPIO_PULL_UP);
+                     GPIO_PULL_PULLUP);
     gpio_setup_input(KEY_MENUOK_PORT,
                      KEY_MENUOK_PIN,
-                     GPIO_PULL_UP);
+                     GPIO_PULL_PULLUP);
     gpio_setup_input(KEY_UP_PORT,
                      KEY_UP_PIN,
-                     GPIO_PULL_UP);
+                     GPIO_PULL_PULLUP);
     gpio_setup_input(KEY_DOWN_PORT,
                      KEY_DOWN_PIN,
-                     GPIO_PULL_UP);
+                     GPIO_PULL_PULLUP);
     gpio_setup_input(KEY_POWER_PORT,
                      KEY_POWER_PIN,
-                     GPIO_PULL_UP);
+                     GPIO_PULL_PULLUP);
 #elif defined(STM32F1)
     gpio_setup(KEY_PLAYPAUSE_PORT,
                KEY_PLAYPAUSE_PIN,

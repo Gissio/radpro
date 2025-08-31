@@ -18,3 +18,5 @@
 #elif defined(GMC800)
 #include "gmc800.h"
 #endif
+
+uint32_t prescalePWMParameters(uint32_t *period, uint32_t *onTime);

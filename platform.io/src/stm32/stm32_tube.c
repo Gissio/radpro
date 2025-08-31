@@ -9,7 +9,6 @@
 
 #if defined(STM32)
 
-#include "../cmath.h"
 #include "../events.h"
 #include "../settings.h"
 #include "../tube.h"
@@ -60,16 +59,20 @@ void initTubeHardware(void)
                       GPIO_OUTPUTSPEED_2MHZ,
                       GPIO_PULL_FLOATING);
 #endif
+
+#if defined(TUBE_DET_PULLUP)
     gpio_setup_input(TUBE_DET_PORT,
                      TUBE_DET_PIN,
-#if defined(TUBE_DET_PULLUP)
-                     GPIO_PULL_UP
+                     GPIO_PULL_PULLUP);
 #elif defined(TUBE_DET_PULLDOWN)
-                     GPIO_PULL_DOWN
+    gpio_setup_input(TUBE_DET_PORT,
+                     TUBE_DET_PIN,
+                     GPIO_PULL_PULLDOWN);
 #else
-                     GPIO_PULL_FLOATING
+    gpio_setup_input(TUBE_DET_PORT,
+                     TUBE_DET_PIN,
+                     GPIO_PULL_FLOATING);
 #endif
-    );
 
 #elif defined(STM32F1)
 
@@ -82,23 +85,26 @@ void initTubeHardware(void)
                TUBE_HV_PIN,
                GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
 #endif
+
+#if defined(TUBE_DET_PULLUP)
     gpio_setup(TUBE_DET_PORT,
                TUBE_DET_PIN,
-#if defined(TUBE_DET_PULLUP)
-               GPIO_MODE_INPUT_PULLUP
+               GPIO_MODE_INPUT_PULLUP);
 #elif defined(TUBE_DET_PULLDOWN)
-               GPIO_MODE_INPUT_PULLDOWN
+    gpio_setup(TUBE_DET_PORT,
+               TUBE_DET_PIN,
+               GPIO_MODE_INPUT_PULLDOWN);
 #else
-               GPIO_MODE_INPUT_FLOATING
+    gpio_setup(TUBE_DET_PORT,
+               TUBE_DET_PIN,
+               GPIO_MODE_INPUT_FLOATING);
 #endif
-    );
 
 #endif
 
     // HV PWM timer
 #if defined(TUBE_HV_PWM)
-    tim_setup_pwm(TUBE_HV_TIMER,
-                  TUBE_HV_TIMER_CHANNEL);
+    tim_setup_pwm(TUBE_HV_TIMER, TUBE_HV_TIMER_CHANNEL);
 
     updateTubeHV();
 
@@ -109,8 +115,7 @@ void initTubeHardware(void)
     tim_setup_linked(TUBE_DET_TIMER_MASTER,
                      TUBE_DET_TIMER_SLAVE,
                      TUBE_DET_TIMER_TRIGGER_CONNECTION);
-    tim_set_prescaler_factor(TUBE_DET_TIMER_MASTER,
-                             TUBE_DET_FREQUENCY / PULSE_MEASUREMENT_FREQUENCY);
+    tim_set_prescaler_factor(TUBE_DET_TIMER_MASTER, TUBE_DET_FREQUENCY / PULSE_MEASUREMENT_FREQUENCY);
 
     tim_enable(TUBE_DET_TIMER_SLAVE);
     tim_enable(TUBE_DET_TIMER_MASTER);
@@ -141,38 +146,13 @@ void updateTubeHV(void)
     uint32_t onTime = tubeHardware.enabled
                           ? period * getTubeHVDutyCycle() + 0.5F
                           : 0;
+    uint32_t prescalerFactor = prescalePWMParameters(&period, &onTime);
 
-    // Get presacler factor
-    uint32_t prescalerFactor = getGCD(period, onTime);
-    period /= prescalerFactor;
-    onTime /= prescalerFactor;
-
-    // Scale prescaler factor
-    while (prescalerFactor >= 0x10000)
-    {
-        period <<= 1;
-        onTime <<= 1;
-        prescalerFactor >>= 1;
-    }
-
-    // Scale period
-    while (period >= 0x10000)
-    {
-        period >>= 1;
-        onTime >>= 1;
-        prescalerFactor <<= 1;
-    }
-
-    tim_set_prescaler_factor(TUBE_HV_TIMER,
-                             prescalerFactor);
-
-    tim_set_period(TUBE_HV_TIMER,
-                   period);
-
+    tim_set_prescaler_factor(TUBE_HV_TIMER, prescalerFactor);
+    tim_set_period(TUBE_HV_TIMER, period);
     tim_set_ontime(TUBE_HV_TIMER,
                    TUBE_HV_TIMER_CHANNEL,
                    onTime);
-
     tim_generate_update(TUBE_HV_TIMER);
 #else
     gpio_modify(TUBE_HV_PORT,

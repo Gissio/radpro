@@ -41,7 +41,7 @@ void initSystem(void)
     // Configure AHB, APB1, APB2, ADC, PLL
     RCC->CFGR = RCC_CFGR_SW_HSI |       // Select HSI as system clock
                 RCC_CFGR_HPRE_DIV1 |    // Set AHB clock: 72 MHz / 1 = 72 MHz
-                RCC_CFGR_PPRE1_DIV2 |   // Set APB1 clock: 72 MHz / 2 = 36 MHz
+                RCC_CFGR_PPRE1_DIV16 |  // Set APB1 clock: 72 MHz / 16 = 4.5 MHz
                 RCC_CFGR_PPRE2_DIV1 |   // Set APB2 clock: 72 MHz / 1 = 72 MHz
                 RCC_CFGR_ADCPRE_DIV6 |  // Set ADC clock: 72 MHz / 6 = 12 MHz
                 RCC_CFGR_PLLSRC_HSE |   // Set PLL source: HSE

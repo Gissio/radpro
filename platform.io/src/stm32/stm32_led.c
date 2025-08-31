@@ -35,12 +35,15 @@ void initPulseLED(void)
 
 void setPulseLED(bool value)
 {
+#if defined(PULSE_LED_ACTIVE_LOW)
     gpio_modify(PULSE_LED_PORT,
                 PULSE_LED_PIN,
-#if defined(PULSE_LED_ACTIVE_LOW)
-                !
-#endif
+                !value);
+#else
+    gpio_modify(PULSE_LED_PORT,
+                PULSE_LED_PIN,
                 value);
+#endif
 }
 
 #endif
@@ -67,12 +70,15 @@ void initAlertLED(void)
 
 void setAlertLED(bool value)
 {
+#if defined(ALERT_LED_ACTIVE_LOW)
     gpio_modify(ALERT_LED_PORT,
                 ALERT_LED_PIN,
-#if defined(ALERT_LED_ACTIVE_LOW)
-                !
-#endif
+                !value);
+#else
+    gpio_modify(ALERT_LED_PORT,
+                ALERT_LED_PIN,
                 value);
+#endif
 }
 
 #endif

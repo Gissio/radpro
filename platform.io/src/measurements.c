@@ -794,7 +794,7 @@ void updateMeasurements(void)
     {
         if (instantaneousAlertString)
             measurements.instantaneousTabIndex = INSTANTANEOUS_TAB_ALERT;
-        else
+        else if (measurements.instantaneousTabIndex == INSTANTANEOUS_TAB_ALERT)
             measurements.instantaneousTabIndex = INSTANTANEOUS_TAB_BAR;
         measurements.instantaneousAlertString = instantaneousAlertString;
     }
@@ -802,7 +802,7 @@ void updateMeasurements(void)
     {
         if (averageAlertString)
             measurements.averageTabIndex = AVERAGE_TAB_ALERT;
-        else
+        else if (measurements.averageTabIndex == AVERAGE_TAB_ALERT)
             measurements.averageTabIndex = AVERAGE_TAB_TIME;
         measurements.averageAlertString = averageAlertString;
     }
@@ -810,7 +810,7 @@ void updateMeasurements(void)
     {
         if (cumulativeDoseAlertString)
             measurements.cumulativeDoseTabIndex = CUMULATIVEDOSE_TAB_ALERT;
-        else
+        else if (measurements.cumulativeDoseTabIndex == CUMULATIVEDOSE_TAB_ALERT)
             measurements.cumulativeDoseTabIndex = CUMULATIVEDOSE_TAB_TIME;
         measurements.cumulativeDoseAlertString = cumulativeDoseAlertString;
     }
