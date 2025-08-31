@@ -19,8 +19,10 @@ void initPower(void)
 {
     // GPIO
     setPowerEnabled(false);
+
 #if defined(PWR_VCC)
-    setPowerVCC(false);
+    gpio_set(PWR_VCC_PORT,
+             PWR_VCC_PIN);
 #endif
 
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
@@ -138,15 +140,6 @@ void setPowerEnabled(bool value)
                 value);
 #endif
 }
-
-#if defined(PWR_VCC)
-void setPowerVCC(bool value)
-{
-    gpio_modify(PWR_VCC_PORT,
-                PWR_VCC_PIN,
-                value);
-}
-#endif
 
 bool isPowerOnReset(void)
 {
