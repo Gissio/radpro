@@ -27,10 +27,11 @@
 #define BATTERY_LEVEL_NUM 5
 
 // First order filter (n: time constant in taps): k = exp(-1 / n)
-// For n = 100 (seconds):
-#define BATTERY_VOLTAGE_FILTER_CONSTANT 0.99F
+// For n = 10 (seconds):
+#define BATTERY_VOLTAGE_FILTER_CONSTANT 0.90483741F
 
-#define BATTERY_LEVEL_HYSTERESIS 0.01F
+#define BATTERY_HYSTERESIS_RANGE 0.005F
+#define BATTERY_HYSTERESIS (BATTERY_HYSTERESIS_RANGE / 2)
 
 #define POWEROFF_DISPLAY_TIME 5
 
@@ -244,10 +245,20 @@ bool isInPowerOffView(void)
 #if defined(BATTERY_REMOVABLE)
 static const float batteryLevels[2][BATTERY_LEVEL_NUM - 1] = {
     // Ni-MH
-    {1.198F, 1.243F, 1.268F, 1.297F},
+    {
+        1.198F - BATTERY_HYSTERESIS,
+        1.243F - BATTERY_HYSTERESIS,
+        1.268F - BATTERY_HYSTERESIS,
+        1.297F - BATTERY_HYSTERESIS,
+    },
 
     // Alkaline
-    {1.159F, 1.220F, 1.283F, 1.358F},
+    {
+        1.159F - BATTERY_HYSTERESIS,
+        1.220F - BATTERY_HYSTERESIS,
+        1.283F - BATTERY_HYSTERESIS,
+        1.358F - BATTERY_HYSTERESIS,
+    },
 };
 
 static const float batteryLow[2] = {
@@ -259,7 +270,12 @@ static Menu batteryTypeMenu;
 #else
 static const float batteryLevels[1][BATTERY_LEVEL_NUM - 1] = {
     // Li-Ion
-    {3.527F, 3.646F, 3.839F, 3.982F},
+    {
+        3.527F - BATTERY_HYSTERESIS,
+        3.646F - BATTERY_HYSTERESIS,
+        3.839F - BATTERY_HYSTERESIS,
+        3.982F - BATTERY_HYSTERESIS,
+    },
 };
 
 static const float batteryLow[1] = {
@@ -298,25 +314,21 @@ void updateBattery(void)
         battery.filteredVoltage = battery.voltage + BATTERY_VOLTAGE_FILTER_CONSTANT * (battery.filteredVoltage - battery.voltage);
 
     const float *batteryLevel = batteryLevels[settings.batteryType];
-
     uint8_t level = 0;
-
     for (uint32_t i = 0; i < (BATTERY_LEVEL_NUM - 1); i++)
     {
         float thresholdVoltage = batteryLevel[i];
 
         if (i >= battery.level)
-            thresholdVoltage += BATTERY_LEVEL_HYSTERESIS;
+            thresholdVoltage += BATTERY_HYSTERESIS_RANGE;
 
         if (battery.filteredVoltage >= thresholdVoltage)
             level = i + 1;
     }
-
     battery.level = level;
 
     // Power state
     bool usbPowered = isUSBPowered();
-
     if (!usbPowered)
     {
         bool lowBattery = (battery.filteredVoltage < batteryLow[settings.batteryType]);

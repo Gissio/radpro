@@ -87,8 +87,8 @@ typedef struct
 {
     uint32_t timeInterval;
 
-    float cumulativeTime;
-    uint32_t cumulativePulseCount;
+    uint32_t cumulativeTime;
+    float cumulativePulseCount;
 
     uint8_t bins[HISTORY_BIN_NUM];
 } HistoryState;
@@ -703,19 +703,19 @@ void updateMeasurements(void)
         if (instantaneousRateConfidenceSufficient &&
             (measurements.instantaneous.rate.value >= 0))
         {
-            historyState->cumulativeTime += measurements.instantaneous.rate.value;
-            historyState->cumulativePulseCount++;
+            historyState->cumulativeTime++;
+            historyState->cumulativePulseCount += measurements.instantaneous.rate.value;
         }
 
         historyState->timeInterval++;
         if (historyState->timeInterval >= history->binInterval)
         {
-            float averageRate = historyState->cumulativePulseCount
-                                    ? historyState->cumulativeTime / historyState->cumulativePulseCount
-                                    : 0;
+            float binRate = historyState->cumulativeTime
+                                ? historyState->cumulativePulseCount / historyState->cumulativeTime
+                                : 0;
             for (uint32_t i = 0; i < HISTORY_BIN_NUM - 1; i++)
                 historyState->bins[i] = historyState->bins[i + 1];
-            historyState->bins[HISTORY_BIN_NUM - 1] = getHistoryValue(averageRate);
+            historyState->bins[HISTORY_BIN_NUM - 1] = getHistoryValue(binRate);
 
             historyState->timeInterval = 0;
 
@@ -1450,8 +1450,6 @@ void loadHistory(void)
         {
             resetWatchdog();
 
-            // printf("+ %d:%d\n", record.time, record.pulseCount);
-
             if (!isNewLoggingSession)
             {
                 for (uint32_t historyIndex = 0; historyIndex < HISTORY_NUM; historyIndex++)
@@ -1462,12 +1460,6 @@ void loadHistory(void)
                     // Overlap record interval with history interval
                     uint32_t recordStart = (prevRecord.time > historyStart) ? prevRecord.time : historyStart;
                     uint32_t recordEnd = (record.time < historyEnd) ? record.time : historyEnd;
-
-                    // if (historyIndex == 5)
-                    //     printf("- %d-%d %d-%d %d-%d\n",
-                    //            prevRecord.time, record.time,
-                    //            historyStart, historyEnd,
-                    //            recordStart, recordEnd);
 
                     if (recordStart < recordEnd)
                     {
@@ -1488,10 +1480,6 @@ void loadHistory(void)
                             uint32_t binIndexStart = (recordStart - historyStart) / binInterval;
                             uint32_t binIndexEnd = (recordEnd - 1 - historyStart) / binInterval + 1;
 
-                            // if (historyIndex == 5)
-                            //     printf("/ %d-%d\n",
-                            //            binIndexStart, binIndexEnd - 1);
-
                             for (uint32_t binIndex = binIndexStart; binIndex < binIndexEnd; binIndex++)
                             {
                                 // Overlap record interval with bin interval
@@ -1506,13 +1494,6 @@ void loadHistory(void)
 
                                 if (binIndex != state->binIndex)
                                 {
-                                    // if (historyIndex == 5)
-                                    // {
-                                    //     printf("  %d (%d): %d %f\n",
-                                    //            state->binIndex, binIndex,
-                                    //            state->cumulativeTime, state->cumulativePulseCountFloat + (float)state->cumulativePulseCountInt);
-                                    // }
-
                                     updateLoadHistory(state, bins);
 
                                     state->binIndex = binIndex;

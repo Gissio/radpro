@@ -2,8 +2,9 @@
 
 ## 3.0.1 "The glow fix"
 
-* Removed the charging indicator on the FNIRSI GC-01, as the hardware does not allow distinguishing the USB disconnected and USB charging states.
-* Fixed an issue where the battery indicator was not displayed at power-off on the Bosean FS-5000.
+* Removed the charging indicator on the FNIRSI GC-01 due to hardware limitations preventing differentiation between USB disconnected and USB charging states.
+* Resolved an issue where the battery indicator failed to display during power-off on the Bosean FS-5000.
+* Improved battery indicator response time.
 
 ## 3.0 "Sundry"
 

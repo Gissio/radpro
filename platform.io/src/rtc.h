@@ -18,7 +18,6 @@
 #define RTC_YEAR_MIN 2025
 #define RTC_YEAR_MAX 2099
 #define RTC_YEAR_NUM (RTC_YEAR_MAX - RTC_YEAR_MIN + 1)
-#define RTC_TIME_INIT 946684800 // 2000-01-01T00:00:00+0000
 
 typedef struct
 {
