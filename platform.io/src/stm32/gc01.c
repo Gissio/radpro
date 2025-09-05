@@ -198,8 +198,6 @@ static void onDisplaySetReset(bool value)
 
 static void onDisplaySetChipselect(bool value)
 {
-    spi_wait_while_busy(DISPLAY_SPI);
-
     gpio_modify(DISPLAY_CSX_PORT,
                 DISPLAY_CSX_PIN,
                 !value);
@@ -207,8 +205,6 @@ static void onDisplaySetChipselect(bool value)
 
 static void onDisplaySetCommand(bool value)
 {
-    spi_wait_while_busy(DISPLAY_SPI);
-
     gpio_modify(DISPLAY_DCX_PORT,
                 DISPLAY_DCX_PIN,
                 !value);
@@ -320,6 +316,8 @@ static void onDisplaySetReset(bool value)
 
 static void onDisplaySetChipselect(bool value)
 {
+    spi_wait_while_busy(DISPLAY_SPI);
+
     gpio_modify(DISPLAY_CSX_PORT,
                 DISPLAY_CSX_PIN,
                 !value);
@@ -327,6 +325,8 @@ static void onDisplaySetChipselect(bool value)
 
 static void onDisplaySetCommand(bool value)
 {
+    spi_wait_while_busy(DISPLAY_SPI);
+
     gpio_modify(DISPLAY_DCX_PORT,
                 DISPLAY_DCX_PIN,
                 !value);
