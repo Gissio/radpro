@@ -2,7 +2,7 @@
 
 ## 3.0.2 "Icebreaker"
 
-* Fixed an issue that caused the device to freeze after a software update.
+* Fixed device freeze after a software update.
 * Resolved a bug that disabled alerts and voice output on the GQ GMC-800.
 
 ## 3.0.1 "The glow fix"
