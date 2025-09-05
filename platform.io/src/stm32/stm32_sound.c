@@ -147,16 +147,16 @@ void setSoundEnabled(bool value)
 
 // KT148A definitions
 
-#define VOICE_TX_LOW_INDEX 0
-#define VOICE_TX_LOW_LENGTH 30
-#define VOICE_TX_DATA_INDEX (VOICE_TX_LOW_INDEX + VOICE_TX_LOW_LENGTH)
-#define VOICE_TX_SHORT_LENGTH 1
-#define VOICE_TX_LONG_LENGTH 3
-#define VOICE_TX_BIT_LENGTH (VOICE_TX_SHORT_LENGTH + VOICE_TX_LONG_LENGTH)
+#define VOICE_TX_START_INDEX 0
+#define VOICE_TX_START_LENGTH 30
+#define VOICE_TX_BIT_SHORT_LENGTH 1
+#define VOICE_TX_BIT_LONG_LENGTH 3
+#define VOICE_TX_BIT_LENGTH (VOICE_TX_BIT_SHORT_LENGTH + VOICE_TX_BIT_LONG_LENGTH)
+#define VOICE_TX_DATA_INDEX (VOICE_TX_START_INDEX + VOICE_TX_START_LENGTH)
 #define VOICE_TX_DATA_LENGTH (8 * VOICE_TX_BIT_LENGTH)
-#define VOICE_TX_HIGH_INDEX (VOICE_TX_DATA_INDEX + VOICE_TX_DATA_LENGTH)
-#define VOICE_TX_HIGH_LENGTH 125
-#define VOICE_TX_LENGTH (VOICE_TX_HIGH_INDEX + VOICE_TX_HIGH_LENGTH)
+#define VOICE_TX_STOP_INDEX (VOICE_TX_DATA_INDEX + VOICE_TX_DATA_LENGTH)
+#define VOICE_TX_STOP_LENGTH 125
+#define VOICE_TX_LENGTH (VOICE_TX_STOP_INDEX + VOICE_TX_STOP_LENGTH)
 
 enum
 {
@@ -273,10 +273,10 @@ void initVoice(void)
                GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
 
     // Transmit buffer
-    voice.buffer[VOICE_TX_LOW_INDEX] = VOICE_BSRR(0);
+    voice.buffer[VOICE_TX_START_INDEX] = VOICE_BSRR(0);
     for (uint32_t i = 0; i < 8; i++)
         voice.buffer[VOICE_TX_DATA_INDEX + i * VOICE_TX_BIT_LENGTH] = VOICE_BSRR(1);
-    voice.buffer[VOICE_TX_HIGH_INDEX] = VOICE_BSRR(1);
+    voice.buffer[VOICE_TX_STOP_INDEX] = VOICE_BSRR(1);
 }
 
 // static void wakeVoice(void)
@@ -290,12 +290,17 @@ void initVoice(void)
 static void setVoiceEnabled(void)
 {
     // RCC
-    rcc_enable_tim(VOICE_TX_TIMER);
     rcc_enable_dma(VOICE_TX_DMA);
+    rcc_enable_tim(VOICE_TX_TIMER);
 
     // Timer
+    uint32_t period = VOICE_TX_TIMER_PERIOD;
+    uint32_t onTime = 0;
+    uint32_t prescalerFactor = prescalePWMParameters(&period, &onTime);
+
     tim_setup_dma(VOICE_TX_TIMER);
-    tim_set_period(VOICE_TX_TIMER, VOICE_TX_TIMER_PERIOD);
+    tim_set_prescaler_factor(VOICE_TX_TIMER, prescalerFactor);
+    tim_set_period(VOICE_TX_TIMER, period);
     tim_enable(VOICE_TX_TIMER);
 
     voice.transmitting = true;
@@ -303,15 +308,15 @@ static void setVoiceEnabled(void)
 
 static void disableVoice(void)
 {
-    // DMA
-    dma_disable(VOICE_TX_DMA_CHANNEL);
-
     // Timer
     tim_disable(VOICE_TX_TIMER);
 
+    // DMA
+    dma_disable(VOICE_TX_DMA_CHANNEL);
+
     // RCC
-    rcc_disable_dma(VOICE_TX_DMA);
     rcc_disable_tim(VOICE_TX_TIMER);
+    rcc_disable_dma(VOICE_TX_DMA);
 
     voice.transmitting = false;
 }
@@ -324,19 +329,17 @@ static void sendVoiceData(uint8_t value)
 
         if (value & 1)
         {
-            voice.buffer[bufferIndex + VOICE_TX_SHORT_LENGTH] = 0;
-            voice.buffer[bufferIndex + VOICE_TX_LONG_LENGTH] = VOICE_BSRR(0);
+            voice.buffer[bufferIndex + VOICE_TX_BIT_SHORT_LENGTH] = 0;
+            voice.buffer[bufferIndex + VOICE_TX_BIT_LONG_LENGTH] = VOICE_BSRR(0);
         }
         else
         {
-            voice.buffer[bufferIndex + VOICE_TX_SHORT_LENGTH] = VOICE_BSRR(0);
-            voice.buffer[bufferIndex + VOICE_TX_LONG_LENGTH] = 0;
+            voice.buffer[bufferIndex + VOICE_TX_BIT_SHORT_LENGTH] = VOICE_BSRR(0);
+            voice.buffer[bufferIndex + VOICE_TX_BIT_LONG_LENGTH] = 0;
         }
 
         value >>= 1;
     }
-
-    __DMB();
 
     dma_setup_memory32_to_peripheral32(VOICE_TX_DMA_CHANNEL,
                                        (uint32_t *)&VOICE_TX_PORT->BSRR,

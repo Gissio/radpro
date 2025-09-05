@@ -47,9 +47,10 @@ To update the firmware, use the [Rad Pro web installer](https://gissio.github.io
   * Linux: Run `install.sh` in a terminal.
   * macOS: Open `Terminal.app` (in `/Applications/Utilities`), navigate to the `bosean-fs5000` folder, and drag `install.sh` onto the Terminal icon in the dock.
 4. Select a language by entering its two-letter code (e.g., `en` for English) when prompted.
-5. The installer automatically backs up the original firmware to the `backup` folder. Store this file securely to restore the original firmware if needed.
+5. Keep the OK/Power button of your Bosean FS-5000 pressed while flashing.
+6. The installer automatically backs up the original firmware to the `backup` folder. Store this file securely to restore the original firmware if needed.
    * To restore, drag the backup file onto `install.bat` (Windows) or `install.sh` (macOS/Linux).
-6. Reassemble the device after flashing.
+7. Reassemble the device after flashing.
 
 <!-- Note: check this [video](https://youtu.be/Ney8Cb1XnZk) for alternative installation instructions. -->
 

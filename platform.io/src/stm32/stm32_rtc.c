@@ -23,8 +23,6 @@ void initRTC(void)
 
     if (!rtc_is_enabled())
     {
-        sleep(2);
-
         rtc_enable_lse();
         while (!rtc_is_lse_ready())
             sleep(1);

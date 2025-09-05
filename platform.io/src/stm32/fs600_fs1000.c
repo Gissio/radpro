@@ -23,6 +23,11 @@
 
 void initSystem(void)
 {
+    // Set SP and VTOR for bootloader
+    __set_MSP(*((uint32_t *)FIRMWARE_BASE));
+    NVIC_DisableAllIRQs();
+    SCB->VTOR = FIRMWARE_BASE;
+
     setFastSystemClock(false);
 
     // Set SYSCLK to HSI16/2

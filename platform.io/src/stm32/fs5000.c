@@ -22,6 +22,11 @@
 
 void initSystem(void)
 {
+    // Set SP and VTOR for bootloader
+    __set_MSP(*((uint32_t *)FIRMWARE_BASE));
+    NVIC_DisableAllIRQs();
+    SCB->VTOR = FIRMWARE_BASE;
+
     // Enable HSI
     set_bits(RCC->CR, RCC_CR_HSION);
     wait_until_bits_set(RCC->CR, RCC_CR_HSIRDY);

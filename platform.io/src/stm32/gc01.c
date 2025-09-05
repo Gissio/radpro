@@ -22,7 +22,7 @@
 
 void initSystem(void)
 {
-    // Fix bootloader SP and VTOR issues
+    // Set SP and VTOR for bootloader
     __set_MSP(*((uint32_t *)FIRMWARE_BASE));
     NVIC_DisableAllIRQs();
     SCB->VTOR = FIRMWARE_BASE;
@@ -198,7 +198,7 @@ static void onDisplaySetReset(bool value)
 
 static void onDisplaySetChipselect(bool value)
 {
-    spi_wait_while_bsy(SPI1);
+    spi_wait_while_busy(DISPLAY_SPI);
 
     gpio_modify(DISPLAY_CSX_PORT,
                 DISPLAY_CSX_PIN,
@@ -207,7 +207,7 @@ static void onDisplaySetChipselect(bool value)
 
 static void onDisplaySetCommand(bool value)
 {
-    spi_wait_while_bsy(SPI1);
+    spi_wait_while_busy(DISPLAY_SPI);
 
     gpio_modify(DISPLAY_DCX_PORT,
                 DISPLAY_DCX_PIN,
@@ -334,13 +334,13 @@ static void onDisplaySetCommand(bool value)
 
 static void onDisplaySend(uint16_t value)
 {
-    spi_send(SPI1, value);
+    spi_send(DISPLAY_SPI, value);
 }
 
 static void onDisplaySend16(uint16_t value)
 {
-    spi_send(SPI1, (value >> 8) & 0xff);
-    spi_send(SPI1, (value >> 0) & 0xff);
+    spi_send(DISPLAY_SPI, (value >> 8) & 0xff);
+    spi_send(DISPLAY_SPI, (value >> 0) & 0xff);
 }
 
 void initDisplay(void)
@@ -365,16 +365,11 @@ void initDisplay(void)
                DISPLAY_SDA_PIN,
                GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL);
 
-    set_bits(RCC->APB2ENR, RCC_APB2ENR_SPI1EN);
-
     // SPI
-    SPI1->CR1 = SPI_CR1_CPHA |
-                SPI_CR1_CPOL |
-                SPI_CR1_MSTR |
-                SPI_CR1_SSI |
-                SPI_CR1_SSM;
-    set_bits(SPI1->CR1,
-             SPI_CR1_SPE);
+    rcc_reset_spi(DISPLAY_SPI);
+    rcc_enable_spi(DISPLAY_SPI);
+    spi_setup(DISPLAY_SPI);
+    spi_enable(DISPLAY_SPI);
 
     // mcu-renderer
     mr_st7789_init(&mr,

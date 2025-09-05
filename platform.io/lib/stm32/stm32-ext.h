@@ -26,8 +26,8 @@
 #define MAX_SYSCLK 80000000
 #endif
 
-#define STM32_EXT_USLEEP(value)                                                \
-    for (volatile uint32_t i = 0; i < (uint32_t)(value * MAX_SYSCLK / 1000000); i++) \
+#define STM32_EXT_USLEEP(value)                                                        \
+    for (volatile uint32_t i = 0; i < (uint32_t)(value * (MAX_SYSCLK / 1000000)); i++) \
         ;
 
 typedef struct
@@ -86,6 +86,15 @@ typedef struct
 
 #endif
 
+__STATIC_INLINE void sync_peripheral(__IO uint32_t *address)
+{
+#if defined(STM32_SYNC_PERIPHERALS)
+    *address;
+
+    __DSB();
+#endif
+}
+
 __STATIC_INLINE void rcc_enable_crc(void)
 {
 #if defined(STM32F0) || defined(STM32F1) || defined(STM32G0)
@@ -108,6 +117,7 @@ __STATIC_INLINE void rcc_disable_crc(void)
 __STATIC_INLINE void rcc_enable_afio(void)
 {
     set_bits(RCC->APB2ENR, RCC_APB2ENR_AFIOEN);
+    sync_peripheral(&RCC->APB2ENR);
 }
 
 __STATIC_INLINE void rcc_disable_afio(void)
@@ -123,6 +133,7 @@ __STATIC_INLINE void rcc_enable_adc(const ADC_TypeDef *base)
     wait_until_bits_set(RCC->CR2, RCC_CR2_HSI14RDY);
 
     set_bits(RCC->APB2ENR, RCC_APB2ENR_ADCEN);
+    sync_peripheral(&RCC->APB2ENR);
 #elif defined(STM32F1)
     if (base == ADC1)
         set_bits(RCC->APB2ENR, RCC_APB2ENR_ADC1EN);
@@ -130,8 +141,10 @@ __STATIC_INLINE void rcc_enable_adc(const ADC_TypeDef *base)
     else if (base == ADC2)
         set_bits(RCC->APB2ENR, RCC_APB2ENR_ADC2EN);
 #endif
+    sync_peripheral(&RCC->APB2ENR);
 #elif defined(STM32G0)
     set_bits(RCC->APBENR2, RCC_APBENR2_ADCEN);
+    sync_peripheral(&RCC->APBENR2);
 #elif defined(STM32L4)
     set_bits(RCC->AHB2ENR, RCC_AHB2ENR_ADCEN);
 #endif
@@ -161,100 +174,208 @@ __STATIC_INLINE void rcc_enable_tim(const TIM_TypeDef *base)
 {
 #if defined(STM32F0)
     if (base == TIM1)
+    {
         set_bits(RCC->APB2ENR, RCC_APB2ENR_TIM1EN);
+        sync_peripheral(&RCC->APB2ENR);
+    }
     else if (base == TIM2)
+    {
         set_bits(RCC->APB1ENR, RCC_APB1ENR_TIM2EN);
+        sync_peripheral(&RCC->APB1ENR);
+    }
     else if (base == TIM3)
+    {
         set_bits(RCC->APB1ENR, RCC_APB1ENR_TIM3EN);
+        sync_peripheral(&RCC->APB1ENR);
+    }
     else if (base == TIM6)
+    {
         set_bits(RCC->APB1ENR, RCC_APB1ENR_TIM6EN);
+        sync_peripheral(&RCC->APB1ENR);
+    }
     else if (base == TIM14)
+    {
         set_bits(RCC->APB1ENR, RCC_APB1ENR_TIM14EN);
+        sync_peripheral(&RCC->APB1ENR);
+    }
     else if (base == TIM15)
+    {
         set_bits(RCC->APB2ENR, RCC_APB2ENR_TIM15EN);
+        sync_peripheral(&RCC->APB2ENR);
+    }
     else if (base == TIM16)
+    {
         set_bits(RCC->APB2ENR, RCC_APB2ENR_TIM16EN);
+        sync_peripheral(&RCC->APB2ENR);
+    }
     else if (base == TIM17)
+    {
         set_bits(RCC->APB2ENR, RCC_APB2ENR_TIM17EN);
+        sync_peripheral(&RCC->APB2ENR);
+    }
 #elif defined(STM32F1)
     if (base == TIM1)
+    {
         set_bits(RCC->APB2ENR, RCC_APB2ENR_TIM1EN);
+        sync_peripheral(&RCC->APB2ENR);
+    }
     else if (base == TIM2)
+    {
         set_bits(RCC->APB1ENR, RCC_APB1ENR_TIM2EN);
+        sync_peripheral(&RCC->APB1ENR);
+    }
     else if (base == TIM3)
+    {
         set_bits(RCC->APB1ENR, RCC_APB1ENR_TIM3EN);
+        sync_peripheral(&RCC->APB1ENR);
+    }
     else if (base == TIM4)
+    {
         set_bits(RCC->APB1ENR, RCC_APB1ENR_TIM4EN);
+        sync_peripheral(&RCC->APB1ENR);
+    }
 #if defined(TIM5)
     else if (base == TIM5)
+    {
         set_bits(RCC->APB1ENR, RCC_APB1ENR_TIM5EN);
+        sync_peripheral(&RCC->APB1ENR);
+    }
 #endif
 #if defined(TIM6)
     else if (base == TIM6)
+    {
         set_bits(RCC->APB1ENR, RCC_APB1ENR_TIM6EN);
+        sync_peripheral(&RCC->APB1ENR);
+    }
 #endif
 #if defined(TIM7)
     else if (base == TIM7)
+    {
         set_bits(RCC->APB1ENR, RCC_APB1ENR_TIM7EN);
+        sync_peripheral(&RCC->APB1ENR);
+    }
 #endif
 #if defined(TIM8)
     else if (base == TIM8)
+    {
         set_bits(RCC->APB2ENR, RCC_APB2ENR_TIM8EN);
+        sync_peripheral(&RCC->APB2ENR);
+    }
 #endif
 #if defined(TIM9)
     else if (base == TIM9)
+    {
         set_bits(RCC->APB2ENR, RCC_APB2ENR_TIM9EN);
+        sync_peripheral(&RCC->APB2ENR);
+    }
 #endif
 #if defined(TIM10)
     else if (base == TIM10)
+    {
         set_bits(RCC->APB2ENR, RCC_APB2ENR_TIM10EN);
+        sync_peripheral(&RCC->APB2ENR);
+    }
 #endif
 #if defined(TIM11)
     else if (base == TIM11)
+    {
         set_bits(RCC->APB2ENR, RCC_APB2ENR_TIM11EN);
+        sync_peripheral(&RCC->APB2ENR);
+    }
 #endif
 #if defined(TIM12)
     else if (base == TIM12)
+    {
         set_bits(RCC->APB1ENR, RCC_APB2ENR_TIM12EN);
+        sync_peripheral(&RCC->APB1ENR);
+    }
 #endif
 #if defined(TIM13)
     else if (base == TIM13)
+    {
         set_bits(RCC->APB1ENR, RCC_APB2ENR_TIM13EN);
+        sync_peripheral(&RCC->APB1ENR);
+    }
 #endif
 #if defined(TIM14)
     else if (base == TIM14)
+    {
         set_bits(RCC->APB1ENR, RCC_APB2ENR_TIM14EN);
+        sync_peripheral(&RCC->APB1ENR);
+    }
 #endif
 #elif defined(STM32G0)
     if (base == TIM1)
+    {
         set_bits(RCC->APBENR2, RCC_APBENR2_TIM1EN);
+        sync_peripheral(&RCC->APBENR2);
+    }
     else if (base == TIM3)
+    {
         set_bits(RCC->APBENR1, RCC_APBENR1_TIM3EN);
+        sync_peripheral(&RCC->APBENR1);
+    }
     else if (base == TIM6)
+    {
         set_bits(RCC->APBENR1, RCC_APBENR1_TIM6EN);
+        sync_peripheral(&RCC->APBENR1);
+    }
     else if (base == TIM7)
+    {
         set_bits(RCC->APBENR1, RCC_APBENR1_TIM7EN);
+        sync_peripheral(&RCC->APBENR1);
+    }
     else if (base == TIM14)
+    {
         set_bits(RCC->APBENR2, RCC_APBENR2_TIM14EN);
+        sync_peripheral(&RCC->APBENR2);
+    }
     else if (base == TIM15)
+    {
         set_bits(RCC->APBENR2, RCC_APBENR2_TIM15EN);
+        sync_peripheral(&RCC->APBENR2);
+    }
     else if (base == TIM16)
+    {
         set_bits(RCC->APBENR2, RCC_APBENR2_TIM16EN);
+        sync_peripheral(&RCC->APBENR2);
+    }
     else if (base == TIM17)
+    {
         set_bits(RCC->APBENR2, RCC_APBENR2_TIM17EN);
+        sync_peripheral(&RCC->APBENR2);
+    }
 #elif defined(STM32L4)
     if (base == TIM1)
+    {
         set_bits(RCC->APB2ENR, RCC_APB2ENR_TIM1EN);
+        sync_peripheral(&RCC->APB2ENR);
+    }
     else if (base == TIM2)
+    {
         set_bits(RCC->APB1ENR1, RCC_APB1ENR1_TIM2EN);
+        sync_peripheral(&RCC->APB1ENR1);
+    }
     else if (base == TIM6)
+    {
         set_bits(RCC->APB1ENR1, RCC_APB1ENR1_TIM6EN);
+        sync_peripheral(&RCC->APB1ENR1);
+    }
     else if (base == TIM7)
+    {
         set_bits(RCC->APB1ENR1, RCC_APB1ENR1_TIM7EN);
+        sync_peripheral(&RCC->APB1ENR1);
+    }
     else if (base == TIM15)
+    {
         set_bits(RCC->APB2ENR, RCC_APB2ENR_TIM15EN);
+        sync_peripheral(&RCC->APB2ENR);
+    }
     else if (base == TIM16)
+    {
         set_bits(RCC->APB2ENR, RCC_APB2ENR_TIM16EN);
+        sync_peripheral(&RCC->APB2ENR);
+    }
 #endif
 }
 
@@ -363,12 +484,16 @@ __STATIC_INLINE void rcc_enable_rtc(void)
 {
 #if defined(STM32F0)
     set_bits(RCC->APB1ENR, RCC_APB1ENR_PWREN);
+    sync_peripheral(&RCC->APB1ENR);
 #elif defined(STM32F1)
     set_bits(RCC->APB1ENR, RCC_APB1ENR_PWREN | RCC_APB1ENR_BKPEN);
+    sync_peripheral(&RCC->APB1ENR);
 #elif defined(STM32G0)
     set_bits(RCC->APBENR1, RCC_APBENR1_PWREN | RCC_APBENR1_RTCAPBEN);
+    sync_peripheral(&RCC->APBENR1);
 #elif defined(STM32L4)
     set_bits(RCC->APB1ENR1, RCC_APB1ENR1_PWREN | RCC_APB1ENR1_RTCAPBEN);
+    sync_peripheral(&RCC->APB1ENR1);
 #endif
 }
 
@@ -389,21 +514,42 @@ __STATIC_INLINE void rcc_enable_usart(const USART_TypeDef *base)
 {
 #if defined(STM32F0) || defined(STM32F1)
     if (base == USART1)
+    {
         set_bits(RCC->APB2ENR, RCC_APB2ENR_USART1EN);
+        sync_peripheral(&RCC->APB2ENR);
+    }
     else if (base == USART2)
+    {
         set_bits(RCC->APB1ENR, RCC_APB1ENR_USART2EN);
+        sync_peripheral(&RCC->APB1ENR);
+    }
 #elif defined(STM32G0)
     if (base == USART1)
+    {
         set_bits(RCC->APBENR2, RCC_APBENR2_USART1EN);
+        sync_peripheral(&RCC->APBENR2);
+    }
     else if (base == USART2)
+    {
         set_bits(RCC->APBENR1, RCC_APBENR1_USART2EN);
+        sync_peripheral(&RCC->APBENR1);
+    }
 #elif defined(STM32L4)
     if (base == USART1)
+    {
         set_bits(RCC->APB2ENR, RCC_APB2ENR_USART1EN);
+        sync_peripheral(&RCC->APB2ENR);
+    }
     else if (base == USART2)
+    {
         set_bits(RCC->APB1ENR1, RCC_APB1ENR1_USART2EN);
+        sync_peripheral(&RCC->APB1ENR1);
+    }
     else if (base == USART3)
+    {
         set_bits(RCC->APB1ENR1, RCC_APB1ENR1_USART3EN);
+        sync_peripheral(&RCC->APB1ENR1);
+    }
 #endif
 }
 
@@ -435,55 +581,118 @@ __STATIC_INLINE void rcc_reset_usart(const USART_TypeDef *base)
     if (base == USART1)
     {
         set_bits(RCC->APB2RSTR, RCC_APB2RSTR_USART1RST);
+        sync_peripheral(&RCC->APB2RSTR);
         clear_bits(RCC->APB2RSTR, RCC_APB2RSTR_USART1RST);
+        sync_peripheral(&RCC->APB2RSTR);
     }
     else if (base == USART2)
     {
         set_bits(RCC->APB1RSTR, RCC_APB1RSTR_USART2RST);
+        sync_peripheral(&RCC->APB1RSTR);
         clear_bits(RCC->APB1RSTR, RCC_APB1RSTR_USART2RST);
+        sync_peripheral(&RCC->APB1RSTR);
     }
 #elif defined(STM32G0)
-    if (base == USART1){
+    if (base == USART1)
+    {
         set_bits(RCC->APBRSTR2, RCC_APBRSTR2_USART1RST);
+        sync_peripheral(&RCC->APBRSTR2);
         clear_bits(RCC->APBRSTR2, RCC_APBRSTR2_USART1RST);
+        sync_peripheral(&RCC->APBRSTR2);
     }
-    else if (base == USART2){
+    else if (base == USART2)
+    {
         set_bits(RCC->APBRSTR1, RCC_APBRSTR1_USART2RST);
+        sync_peripheral(&RCC->APBRSTR1);
         clear_bits(RCC->APBRSTR1, RCC_APBRSTR1_USART2RST);
+        sync_peripheral(&RCC->APBRSTR1);
     }
 #elif defined(STM32L4)
-    if (base == USART1){
+    if (base == USART1)
+    {
         set_bits(RCC->APB2RSTR, RCC_APB2RSTR_USART1RST);
+        sync_peripheral(&RCC->APB2RSTR);
         clear_bits(RCC->APB2RSTR, RCC_APB2RSTR_USART1RST);
+        sync_peripheral(&RCC->APB2RSTR);
     }
-    else if (base == USART2){
+    else if (base == USART2)
+    {
         set_bits(RCC->APB1RSTR1, RCC_APB1RSTR1_USART2RST);
+        sync_peripheral(&RCC->APB1RSTR1);
         clear_bits(RCC->APB1RSTR1, RCC_APB1RSTR1_USART2RST);
+        sync_peripheral(&RCC->APB1RSTR1);
     }
-    else if (base == USART3){
+    else if (base == USART3)
+    {
         set_bits(RCC->APB1RSTR1, RCC_APB1RSTR1_USART3RST);
+        sync_peripheral(&RCC->APB1RSTR1);
         clear_bits(RCC->APB1RSTR1, RCC_APB1RSTR1_USART3RST);
+        sync_peripheral(&RCC->APB1RSTR1);
     }
+#endif
+}
+
+__STATIC_INLINE void rcc_enable_spi(const SPI_TypeDef *base)
+{
+#if defined(STM32F0) || defined(STM32F1)
+    if (base == SPI1)
+    {
+        set_bits(RCC->APB2ENR, RCC_APB2ENR_SPI1EN);
+        sync_peripheral(&RCC->APB2ENR);
+    }
+    else if (base == SPI2)
+    {
+        set_bits(RCC->APB1ENR, RCC_APB1ENR_SPI2EN);
+        sync_peripheral(&RCC->APB1ENR);
+    }
+#elif defined(STM32G0)
+    if (base == SPI1)
+    {
+        set_bits(RCC->APBENR2, RCC_APBENR2_SPI1EN);
+        sync_peripheral(&RCC->APBENR2);
+    }
+    else if (base == SPI2)
+    {
+        set_bits(RCC->APBENR1, RCC_APBENR1_SPI2EN);
+        sync_peripheral(&RCC->APBENR1);
+    }
+#elif defined(STM32L4)
+    if (base == SPI1)
+    {
+        set_bits(RCC->APB2ENR, RCC_APB2ENR_SPI1EN);
+        sync_peripheral(&RCC->APB2ENR);
+    }
+    else if (base == SPI2)
+    {
+        set_bits(RCC->APB1ENR1, RCC_APB1ENR1_SPI2EN);
+        sync_peripheral(&RCC->APB1ENR1);
+    }
+#endif
+}
+
+__STATIC_INLINE void rcc_disable_spi(const SPI_TypeDef *base)
+{
+#if defined(STM32F0) || defined(STM32F1)
+    if (base == SPI1)
+        clear_bits(RCC->APB2ENR, RCC_APB2ENR_SPI1EN);
+    else if (base == SPI2)
+        clear_bits(RCC->APB1ENR, RCC_APB1ENR_SPI2EN);
+#elif defined(STM32G0)
+    if (base == SPI1)
+        clear_bits(RCC->APBENR2, RCC_APBENR2_SPI1EN);
+    else if (base == SPI2)
+        clear_bits(RCC->APBENR1, RCC_APBENR1_SPI2EN);
+#elif defined(STM32L4)
+    if (base == SPI1)
+        clear_bits(RCC->APB2ENR, RCC_APB2ENR_SPI1EN);
+    else if (base == SPI2)
+        clear_bits(RCC->APB1ENR1, RCC_APB1ENR1_SPI2EN);
 #endif
 }
 
 __STATIC_INLINE void rcc_enable_dma(const DMA_TypeDef *base)
 {
-#if defined(STM32F0)
-    if (base == DMA1)
-        set_bits(RCC->AHBENR, RCC_AHBENR_DMA1EN);
-#if defined(DMA2)
-    else if (base == DMA2)
-        set_bits(RCC->AHBENR, RCC_AHBENR_DMA2EN);
-#endif
-#elif defined(STM32F1)
-    if (base == DMA1)
-        set_bits(RCC->AHBENR, RCC_AHBENR_DMA1EN);
-#if defined(DMA2)
-    else if (base == DMA2)
-        set_bits(RCC->AHBENR, RCC_AHBENR_DMA2EN);
-#endif
-#elif defined(STM32G0)
+#if defined(STM32F0) || defined(STM32F1) || defined(STM32G0)
     if (base == DMA1)
         set_bits(RCC->AHBENR, RCC_AHBENR_DMA1EN);
 #if defined(DMA2)
@@ -500,21 +709,7 @@ __STATIC_INLINE void rcc_enable_dma(const DMA_TypeDef *base)
 
 __STATIC_INLINE void rcc_disable_dma(const DMA_TypeDef *base)
 {
-#if defined(STM32F0)
-    if (base == DMA1)
-        clear_bits(RCC->AHBENR, RCC_AHBENR_DMA1EN);
-#if defined(DMA2)
-    else if (base == DMA2)
-        clear_bits(RCC->AHBENR, RCC_AHBENR_DMA2EN);
-#endif
-#elif defined(STM32F1)
-    if (base == DMA1)
-        clear_bits(RCC->AHBENR, RCC_AHBENR_DMA1EN);
-#if defined(DMA2)
-    else if (base == DMA2)
-        clear_bits(RCC->AHBENR, RCC_AHBENR_DMA2EN);
-#endif
-#elif defined(STM32G0)
+#if defined(STM32F0) || defined(STM32F1) || defined(STM32G0)
     if (base == DMA1)
         clear_bits(RCC->AHBENR, RCC_AHBENR_DMA1EN);
 #if defined(DMA2)
@@ -1491,7 +1686,10 @@ __STATIC_INLINE void tim_setup_pwm(TIM_TypeDef *base,
     }
 
     if (base == TIM1)
+    {
         set_bits(base->BDTR, TIM_BDTR_MOE);
+        sync_peripheral(&base->BDTR);
+    }
 }
 
 __STATIC_INLINE void tim_setup_linked(TIM_TypeDef *base_master,
@@ -1542,8 +1740,10 @@ __STATIC_INLINE void rtc_disable_backup_domain_write_protection(void)
 {
 #if defined(STM32F0) || defined(STM32F1)
     set_bits(PWR->CR, PWR_CR_DBP);
+    sync_peripheral(&PWR->CR);
 #elif defined(STM32G0) || defined(STM32L4)
     set_bits(PWR->CR1, PWR_CR1_DBP);
+    sync_peripheral(&PWR->CR1);
 #endif
 }
 
@@ -1837,12 +2037,12 @@ __STATIC_INLINE void usart_send_blocking(USART_TypeDef *base,
 
 // SPI
 
-__STATIC_INLINE void spi_wait_until_txe(const SPI_TypeDef *base)
+__STATIC_INLINE void spi_wait_until_transmitter_empty(const SPI_TypeDef *base)
 {
     wait_until_bits_set(base->SR, SPI_SR_TXE);
 }
 
-__STATIC_INLINE void spi_wait_while_bsy(const SPI_TypeDef *base)
+__STATIC_INLINE void spi_wait_while_busy(const SPI_TypeDef *base)
 {
     wait_until_bits_clear(base->SR, SPI_SR_BSY);
 }
@@ -1850,9 +2050,23 @@ __STATIC_INLINE void spi_wait_while_bsy(const SPI_TypeDef *base)
 __STATIC_INLINE void spi_send(SPI_TypeDef *base,
                               uint16_t data)
 {
-    spi_wait_until_txe(base);
+    spi_wait_until_transmitter_empty(base);
 
     base->DR = data;
+}
+
+__STATIC_INLINE void spi_setup(SPI_TypeDef *base)
+{
+    base->CR1 = SPI_CR1_CPHA |
+                SPI_CR1_CPOL |
+                SPI_CR1_MSTR |
+                SPI_CR1_SSI |
+                SPI_CR1_SSM;
+}
+
+__STATIC_INLINE void spi_enable(SPI_TypeDef *base)
+{
+    set_bits(base->CR1, SPI_CR1_SPE);
 }
 
 // DMA
@@ -1878,6 +2092,8 @@ __STATIC_INLINE bool dma_is_active(const DMA_Channel_TypeDef *channel)
 
 __STATIC_INLINE void dma_enable(DMA_Channel_TypeDef *channel)
 {
+    __DSB();
+
     set_bits(channel->CCR, DMA_CCR_EN);
 }
 

@@ -34,6 +34,7 @@ This guide explains how to install the Rad Pro firmware on FNIRSI GC-01 and JOY-
 
 * Some devices require holding the **Power** button from power-on until the firmware is copied and the device restarts.
 * Others may need the **Right/Settings** and **OK/Power** keys pressed together to make the USB drive available.
+* Some users report that it is necessary to copy the file to the USB drive twice.
 
 **Troubleshooting:**
 

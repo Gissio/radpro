@@ -29,6 +29,8 @@ void initEventsHardware(void)
                     SysTick_CTRL_TICKINT_Msk |
                     SysTick_CTRL_ENABLE_Msk;
 
+    iwdg_start(); // Start IWDG first (see AN2606 4.8)
+
     iwdg_unlock();
     wait_until_bits_clear(IWDG->SR, IWDG_SR_PVU);
     IWDG->PR = 0b110; // Divider /256
@@ -36,8 +38,6 @@ void initEventsHardware(void)
     iwdg_unlock();
     wait_until_bits_clear(IWDG->SR, IWDG_SR_RVU);
     IWDG->RLR = (LSI_FREQUENCY / 256) - 1;
-
-    iwdg_start();
 }
 
 void SysTick_Handler(void)
@@ -66,9 +66,9 @@ void sleep(uint32_t value)
 #if defined(USB_INTERFACE) && defined(DATA_MODE)
         // CH32F103R8T6 does not wake USB on IRQ
         if (!settings.dataMode)
-            __asm volatile("wfi");
+            __WFI();
 #else
-        __asm volatile("wfi");
+        __WFI();
 #endif
     }
 }
