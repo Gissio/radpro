@@ -278,10 +278,13 @@ static void updateFastDiceRollerText(void)
             rng.activityIndicator = 0;
 
 #if defined(VOICE)
-            if (settings.alertVoice)
-                playNumber(value);
-            else
-                triggerAlert();
+            if (rng.mode >= RNG_MODE_THROW)
+            {
+                if (settings.alertVoice)
+                    playNumber(value);
+                else
+                    triggerAlert();
+            }
 #else
             triggerAlert();
 #endif
