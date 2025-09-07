@@ -2,7 +2,7 @@
 
 ## 3.0.2 "Icebreaker"
 
-* Fixed a freezing issue on the Bosean FS-5000 during software update initialization.
+* Fixed web installer update for the Bosean FS-5000.
 * Resolved a problem causing devices to become unresponsive after software updates.
 * Corrected a bug on the GQ GMC-800 that prevented alerts and voice output from functioning properly.
 
