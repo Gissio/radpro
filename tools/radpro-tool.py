@@ -329,17 +329,17 @@ def download_datalog(io,
         log_warning(f'could not write {path}')
 
 
-def send_http_request(url, method='get', json=None, data=None):
+def send_http_request(url, method='get', json=None, data=None, headers=None):
     try:
         if method == 'get':
-            requests.get(url=url, timeout=60)
+            requests.get(url=url, timeout=60, headers=headers)
         elif method == 'post':
             if json is not None:
-                requests.post(url=url, json=json, timeout=60)
+                requests.post(url=url, json=json, timeout=60, headers=headers)
             elif data is not None:
-                requests.post(url=url, data=data, timeout=60)
+                requests.post(url=url, data=data, timeout=60, headers=headers)
             else:
-                requests.post(url=url, timeout=60)
+                requests.post(url=url, timeout=60, headers=headers)
     except Exception as e:
         log_warning(f'could not submit HTTP data: url "{url}": {e}')
 
@@ -410,14 +410,14 @@ def stream_datalog(io, args):
                     f'?AID={args.submit_gmcmap[0]}' + f'&GID={args.submit_gmcmap[1]}' + \
                     f'&CPM={cpm:.0f}' + f'&ACPM={cpm:.3f}' + \
                     f'&uSV={uSvH:.3f}'
-                send_http_request(url, 'post')
+                send_http_request(url, 'get', headers={'User-Agent': 'radpro-tool/' + radpro_tool_version})
 
             if args.submit_radmon != None and cpm != None:
                 url = 'https://radmon.org/radmon.php?function=submit' + \
                     f'&user={args.submit_radmon[0]}' + \
                     f'&password={args.submit_radmon[1]}' + \
                     f'&value={cpm:.3f}' + '&unit=CPM'
-                send_http_request(url)
+                send_http_request(url, headers={'User-Agent': 'radpro-tool/' + radpro_tool_version})
 
             if args.submit_safecast != None and cpm != None:
                 url = 'https://api.safecast.org/measurements.json?api_key=' + \
@@ -431,7 +431,7 @@ def stream_datalog(io, args):
                     'longitude': str(args.safecast_longitude),
                     'height': str(args.safecast_height),
                 }
-                send_http_request(url, 'post', json)
+                send_http_request(url, 'post', json, headers={'User-Agent': 'radpro-tool/' + radpro_tool_version})
 
         # Wait for next measurement
         next_event += args.period
