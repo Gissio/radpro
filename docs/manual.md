@@ -215,6 +215,24 @@ The [random generator](https://en.wikipedia.org/wiki/Hardware_random_number_gene
   python tools/radpro-tool.py --port COM13 --submit-gmcmap [USER_ACCOUNT_ID] [GEIGER_COUNTER_ID]
   ```
 
+- Submit data to [radmon.org](https://radmon.org):
+
+  ```bash
+  python tools/radpro-tool.py --port COM13 --submit-radmon [USERNAME] [DATA_SENDING_PASSWORD]
+  ```
+
+- Submit data to [safecast.org](https://safecast.org):
+
+  ```bash
+  python tools/radpro-tool.py --port COM13 --submit-safecast [API_KEY] [DEVICE_ID]
+  ```
+
+- Submit data to [safecast.org](https://safecast.org) with location data:
+
+  ```bash
+  python tools/radpro-tool.py --port COM13 --submit-safecast [API_KEY] [DEVICE_ID] --safecast-latitude 37.7749 --safecast-longitude -122.4194 --safecast-height 100.5
+  ```
+
 ## Data communications
 
 Refer to the [communications protocol description](comm.md) for USB serial port communication details.

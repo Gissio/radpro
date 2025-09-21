@@ -422,9 +422,9 @@ def stream_datalog(io, args):
                     'unit': 'cpm',
                     'device_id': args.submit_safecast[1],
                     'captured_at': f'"{curr_datetime.isoformat()}"',
-                    'latitude': '0',
-                    'longitude': '0',
-                    'height': '0',
+                    'latitude': str(args.safecast_latitude),
+                    'longitude': str(args.safecast_longitude),
+                    'height': str(args.safecast_height),
                 }
                 send_http_request(url, 'post', json)
 
@@ -498,6 +498,18 @@ def main():
                         metavar=('API_KEY', 'DEVICE_ID'),
                         action='store',
                         help='submit live data to https://safecast.org')
+    parser.add_argument('--safecast-latitude',
+                        type=float,
+                        default=0.0,
+                        help='latitude for Safecast submissions (default: 0.0)')
+    parser.add_argument('--safecast-longitude',
+                        type=float,
+                        default=0.0,
+                        help='longitude for Safecast submissions (default: 0.0)')
+    parser.add_argument('--safecast-height',
+                        type=float,
+                        default=0.0,
+                        help='height/altitude for Safecast submissions (default: 0.0)')
     parser.add_argument('--log-randomdata',
                         dest='randomdata_file',
                         help='log live randomly generated data to a binary file')
