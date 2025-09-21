@@ -329,12 +329,17 @@ def download_datalog(io,
         log_warning(f'could not write {path}')
 
 
-def send_http_request(url, method='get', json=None):
+def send_http_request(url, method='get', json=None, data=None):
     try:
         if method == 'get':
             requests.get(url=url, timeout=60)
         elif method == 'post':
-            requests.post(url=url, json=json, timeout=60)
+            if json is not None:
+                requests.post(url=url, json=json, timeout=60)
+            elif data is not None:
+                requests.post(url=url, data=data, timeout=60)
+            else:
+                requests.post(url=url, timeout=60)
     except Exception as e:
         log_warning(f'could not submit HTTP data: url "{url}": {e}')
 
@@ -405,7 +410,7 @@ def stream_datalog(io, args):
                     f'?AID={args.submit_gmcmap[0]}' + f'&GID={args.submit_gmcmap[1]}' + \
                     f'&CPM={cpm:.0f}' + f'&ACPM={cpm:.3f}' + \
                     f'&uSV={uSvH:.3f}'
-                send_http_request(url)
+                send_http_request(url, 'post')
 
             if args.submit_radmon != None and cpm != None:
                 url = 'https://radmon.org/radmon.php?function=submit' + \
