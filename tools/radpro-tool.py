@@ -392,13 +392,14 @@ def stream_datalog(io, args):
             prev_timestamp = curr_timestamp
             prev_pulsecount = curr_pulsecount
 
-            curr_datetime = str(datetime.fromtimestamp(curr_timestamp))
+            curr_datetime = datetime.fromtimestamp(curr_timestamp)
 
             if args.pulsedata_file != None and curr_pulsecount != None:
+                curr_datetime_str = str(curr_datetime)
                 if cpm != None:
-                    line = f'{curr_timestamp},{curr_datetime},{curr_pulsecount},{cpm:.1f},{uSvH:.3f}\n'
+                    line = f'{curr_timestamp},{curr_datetime_str},{curr_pulsecount},{cpm:.1f},{uSvH:.3f}\n'
                 else:
-                    line = f'{curr_timestamp},{curr_datetime},{curr_pulsecount},,\n'
+                    line = f'{curr_timestamp},{curr_datetime_str},{curr_pulsecount},,\n'
 
                 try:
                     open(args.pulsedata_file, 'at').write(line)
@@ -412,7 +413,7 @@ def stream_datalog(io, args):
                     f'&CPM={cpm:.0f}' + f'&ACPM={cpm:.3f}' + \
                     f'&uSV={uSvH:.3f}'
                 send_http_request(url, 'get', headers={'User-Agent': 'radpro-tool/' + radpro_tool_version})
-                print(f'GMCMap submission - DateTime: {datetime.fromtimestamp(curr_timestamp)}, CPM: {cpm:.3f}, uSv/h: {uSvH:.3f}')
+                print(f'GMCMap submission - DateTime: {curr_datetime}, CPM: {cpm:.3f}, uSv/h: {uSvH:.3f}')
 
             if args.submit_radmon != None and cpm != None:
                 url = 'https://radmon.org/radmon.php?function=submit' + \
@@ -420,7 +421,7 @@ def stream_datalog(io, args):
                     f'&password={args.submit_radmon[1]}' + \
                     f'&value={cpm:.3f}' + '&unit=CPM'
                 send_http_request(url, headers={'User-Agent': 'radpro-tool/' + radpro_tool_version})
-                print(f'Radmon submission - DateTime: {datetime.fromtimestamp(curr_timestamp)}, CPM: {cpm:.3f}, uSv/h: {uSvH:.3f}')
+                print(f'Radmon submission - DateTime: {curr_datetime}, CPM: {cpm:.3f}, uSv/h: {uSvH:.3f}')
 
             if args.submit_safecast != None and cpm != None:
                 url = 'https://api.safecast.org/measurements.json?api_key=' + \
@@ -435,7 +436,7 @@ def stream_datalog(io, args):
                     'height': str(args.safecast_height),
                 }
                 send_http_request(url, 'post', json, headers={'User-Agent': 'radpro-tool/' + radpro_tool_version})
-                print(f'Safecast submission - DateTime: {datetime.fromtimestamp(curr_timestamp)}, CPM: {cpm:.3f}, uSv/h: {uSvH:.3f}')
+                print(f'Safecast submission - DateTime: {curr_datetime}, CPM: {cpm:.3f}, uSv/h: {uSvH:.3f}')
 
         # Wait for next measurement
         next_event += args.period
