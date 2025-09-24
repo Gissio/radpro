@@ -392,8 +392,9 @@ def stream_datalog(io, args):
             prev_timestamp = curr_timestamp
             prev_pulsecount = curr_pulsecount
 
+            curr_datetime = str(datetime.fromtimestamp(curr_timestamp))
+
             if args.pulsedata_file != None and curr_pulsecount != None:
-                curr_datetime = str(datetime.fromtimestamp(curr_timestamp))
                 if cpm != None:
                     line = f'{curr_timestamp},{curr_datetime},{curr_pulsecount},{cpm:.1f},{uSvH:.3f}\n'
                 else:
