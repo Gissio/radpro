@@ -435,7 +435,7 @@ def stream_datalog(io, args):
                     'longitude': str(args.safecast_longitude),
                     'height': str(args.safecast_height),
                 }
-                send_http_request(url, 'post', json, headers={'User-Agent': 'radpro-tool/' + radpro_tool_version})
+                send_http_request(url, 'post', json=json, headers={'User-Agent': 'radpro-tool/' + radpro_tool_version})
                 print(f'Safecast submission - DateTime: {curr_datetime}, CPM: {cpm:.3f}, uSv/h: {uSvH:.3f}')
 
         # Wait for next measurement
