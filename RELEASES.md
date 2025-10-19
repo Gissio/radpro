@@ -1,5 +1,10 @@
 # Releases
 
+## 3.0.3 "Punctilio"
+
+* Added lithuanian and indonesian translations.
+* Bosean FS-5000: Enabled MCU prefetch.
+
 ## 3.0.2 "Icebreaker"
 
 * Fixed web installer update for the Bosean FS-5000.

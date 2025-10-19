@@ -51,6 +51,9 @@ void initSystem(void)
                 FLASH_ACR_LATENCY_Msk,
                 FLASH_ACR_LATENCY_3WS);
 
+    // Enable prefetch
+    set_bits(FLASH->ACR, FLASH_ACR_PRFTEN);
+
     // Configure AHB, APB1, APB2
     RCC->CFGR = RCC_CFGR_SW_HSI |      // Set HSI
                 RCC_CFGR_HPRE_DIV1 |   // Set AHB clock: 64 MHz / 1 = 64 MHz
