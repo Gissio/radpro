@@ -24,9 +24,6 @@
 void initSystem(void)
 {
     // Set SP and VTOR for bootloader
-    __set_MSP(*((uint32_t *)FIRMWARE_BASE));
-    NVIC_DisableAllIRQs();
-
     setFastSystemClock(false);
 
     // Set SYSCLK to HSI16/2
