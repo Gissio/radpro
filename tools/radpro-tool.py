@@ -166,6 +166,10 @@ def print_property(io, key):
         print(f'{key}:{value}')
 
 
+def set_device_power(io, value):
+    io.set('devicePower', value)
+
+
 def reset_tube_life_stats(io):
     io.set('tubeTime', 0)
     io.set('tubePulseCount', 0)
@@ -415,7 +419,8 @@ def stream_datalog(io, args):
                     f'&CPM={cpm:.0f}' + f'&ACPM={cpm:.3f}' + \
                     f'&uSV={uSvH:.3f}'
                 send_http_request(url, 'get')
-                print(f'GMCMap submission: {curr_datetime} CPM:{cpm:.3f} uSv/h:{uSvH:.3f}')
+                print(
+                    f'GMCMap submission: {curr_datetime} CPM:{cpm:.3f} uSv/h:{uSvH:.3f}')
 
             if args.submit_radmon != None and cpm != None:
                 url = 'https://radmon.org/radmon.php?function=submit' + \
@@ -423,7 +428,8 @@ def stream_datalog(io, args):
                     f'&password={args.submit_radmon[1]}' + \
                     f'&value={cpm:.3f}' + '&unit=CPM'
                 send_http_request(url)
-                print(f'Radmon submission: {curr_datetime} CPM:{cpm:.3f} uSv/h:{uSvH:.3f}')
+                print(
+                    f'Radmon submission: {curr_datetime} CPM:{cpm:.3f} uSv/h:{uSvH:.3f}')
 
             if args.submit_safecast != None and cpm != None:
                 url = 'https://api.safecast.org/measurements.json?api_key=' + \
@@ -438,7 +444,8 @@ def stream_datalog(io, args):
                     'height': str(args.safecast_height),
                 }
                 send_http_request(url, 'post', json=json)
-                print(f'Safecast submission: {curr_datetime} CPM:{cpm:.3f} uSv/h:{uSvH:.3f}')
+                print(
+                    f'Safecast submission: {curr_datetime} CPM:{cpm:.3f} uSv/h:{uSvH:.3f}')
 
         # Wait for next measurement
         next_event += args.period
@@ -474,6 +481,10 @@ def main():
     parser.add_argument('-p', '--port',
                         dest='port',
                         help='serial port device id or "SWD" (e.g. "COM13" or "/dev/ttyS0)"')
+    parser.add_argument('--set-device-power',
+                        type=int,
+                        choices=[0, 1],
+                        help='disables (0) or enables (1) device power')
     parser.add_argument('--download-datalog',
                         dest='datalog_file',
                         help='download data log to a .csv file')
@@ -582,6 +593,9 @@ def main():
             e = 'could not open port'
 
         log_error(e)
+
+    if args.set_device_power:
+        set_device_power(io, args.set_device_power)
 
     if args.get_device_id:
         print_property(io, 'deviceId')
