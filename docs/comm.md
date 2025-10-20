@@ -175,7 +175,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   OK 153.800
   ```
 
-### Get tbe dead time
+### Get tube dead time
 - **Request**: `GET tubeDeadTime\r\n`
 - **Response**: `OK [value]\r\n`
 - **Description**: Returns an upper bound of the tube's dead time in seconds, with seven decimal places.
@@ -299,3 +299,4 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   SET time
   ERROR
   ```
+
