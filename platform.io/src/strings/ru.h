@@ -99,13 +99,12 @@
 #define STRING_RATE "Скорост"
 #define STRING_DOSE "Доза"
 
-// Measurement view info strings (upper case, up to 5 letters)
+// Measurement view info strings
 #define STRING_ALERT_ALARM "ТРЕВОГА"
 #define STRING_ALERT_WARNING "ПРЕДУПРЕЖДЕНИЕ"
 #define STRING_ALERT_FAULT "НЕИСПРАВНОСТЬ"
 #define STRING_ALERT_MAX "МАКС"
-#define STRING_ALERT_OVERFLOW "ПЕРЕПОЛНЕНИЕ"
-#define STRING_ALERT_DONE "ЗАВЕРШЕНО"
+#define STRING_ALERT_DONE "ГОТОВО"
 
 // Settings menu items
 #define STRING_SETTINGS "Настройки"

@@ -99,13 +99,12 @@
 #define STRING_RATE "Greitis"
 #define STRING_DOSE "Dozė"
 
-// Measurement view info strings (upper case, up to 5 letters)
-#define STRING_ALERT_ALARM "ALARM"
-#define STRING_ALERT_WARNING "ĮSP"
-#define STRING_ALERT_FAULT "GEDIM"
+// Measurement view info strings
+#define STRING_ALERT_ALARM "ALARMAS"
+#define STRING_ALERT_WARNING "ĮSPĖJIMAS"
+#define STRING_ALERT_FAULT "GEDIMAS"
 #define STRING_ALERT_MAX "MAKS"
-#define STRING_ALERT_OVERFLOW "PER"
-#define STRING_ALERT_DONE "ATLIK"
+#define STRING_ALERT_DONE "BAIGTA"
 
 // Settings menu items
 #define STRING_SETTINGS "Nustatymai"

@@ -103,12 +103,11 @@
 #define STRING_RATE "速率"
 #define STRING_DOSE "剂量"
 
-// Measurement view info strings (upper case, up to 5 letters)
+// Measurement view info strings
 #define STRING_ALERT_ALARM "警报"
 #define STRING_ALERT_WARNING "警告"
 #define STRING_ALERT_FAULT "故障"
 #define STRING_ALERT_MAX "最大"
-#define STRING_ALERT_OVERFLOW "溢出"
 #define STRING_ALERT_DONE "完成"
 
 // Settings menu items

@@ -99,12 +99,11 @@
 #define STRING_RATE "Brzina"
 #define STRING_DOSE "Doza"
 
-// Measurement view info strings (upper case, up to 5 letters)
+// Measurement view info strings
 #define STRING_ALERT_ALARM "ALARM"
 #define STRING_ALERT_WARNING "UPOZORENJE"
 #define STRING_ALERT_FAULT "KVAR"
 #define STRING_ALERT_MAX "MAKS"
-#define STRING_ALERT_OVERFLOW "PREKO"
 #define STRING_ALERT_DONE "GOTOVO"
 
 // Settings menu items

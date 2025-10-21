@@ -99,12 +99,11 @@
 #define STRING_RATE "Tasa"
 #define STRING_DOSE "Dosis"
 
-// Measurement view info strings (upper case, up to 5 letters)
+// Measurement view info strings
 #define STRING_ALERT_ALARM "ALARMA"
 #define STRING_ALERT_WARNING "ADVERTENCIA"
 #define STRING_ALERT_FAULT "FALLO"
 #define STRING_ALERT_MAX "MÁX"
-#define STRING_ALERT_OVERFLOW "SOBRE"
 #define STRING_ALERT_DONE "LISTO"
 
 // Settings menu items

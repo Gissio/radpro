@@ -99,12 +99,11 @@
 #define STRING_RATE "Nopeus"
 #define STRING_DOSE "Annos"
 
-// Measurement view info strings (upper case, up to 5 letters)
+// Measurement view info strings
 #define STRING_ALERT_ALARM "HÄLYTYS"
 #define STRING_ALERT_WARNING "VAROITUS"
 #define STRING_ALERT_FAULT "VIKA"
 #define STRING_ALERT_MAX "MAKS"
-#define STRING_ALERT_OVERFLOW "YLI"
 #define STRING_ALERT_DONE "VALMIS"
 
 // Settings menu items

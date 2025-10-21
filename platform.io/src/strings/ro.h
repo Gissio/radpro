@@ -99,13 +99,12 @@
 #define STRING_RATE "Rată"
 #define STRING_DOSE "Doză"
 
-// Measurement view info strings (upper case, up to 5 letters)
+// Measurement view info strings
 #define STRING_ALERT_ALARM "ALARMĂ"
 #define STRING_ALERT_WARNING "AVERTISMENT"
 #define STRING_ALERT_FAULT "DEFECȚIUNE"
 #define STRING_ALERT_MAX "MAX"
-#define STRING_ALERT_OVERFLOW "DEPĂȘIRE"
-#define STRING_ALERT_DONE "TERMINAT"
+#define STRING_ALERT_DONE "FINALIZAT"
 
 // Settings menu items
 #define STRING_SETTINGS "Setări"

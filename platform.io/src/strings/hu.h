@@ -99,12 +99,11 @@
 #define STRING_RATE "Ráta"
 #define STRING_DOSE "Dózis"
 
-// Measurement view info strings (upper case, up to 5 letters)
+// Measurement view info strings
 #define STRING_ALERT_ALARM "RIASZTÁS"
 #define STRING_ALERT_WARNING "FIGYELMEZTETÉS"
 #define STRING_ALERT_FAULT "HIBA"
 #define STRING_ALERT_MAX "MAX"
-#define STRING_ALERT_OVERFLOW "TÚL"
 #define STRING_ALERT_DONE "KÉSZ"
 
 // Settings menu items

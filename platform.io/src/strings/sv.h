@@ -99,12 +99,11 @@
 #define STRING_RATE "Hastighet"
 #define STRING_DOSE "Dos"
 
-// Measurement view info strings (upper case, up to 5 letters)
+// Measurement view info strings
 #define STRING_ALERT_ALARM "LARM"
 #define STRING_ALERT_WARNING "VARNING"
 #define STRING_ALERT_FAULT "FEL"
 #define STRING_ALERT_MAX "MAX"
-#define STRING_ALERT_OVERFLOW "ÖVER"
 #define STRING_ALERT_DONE "KLAR"
 
 // Settings menu items

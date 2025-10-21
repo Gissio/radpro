@@ -103,12 +103,11 @@
 #define STRING_RATE "속도"
 #define STRING_DOSE "선량"
 
-// Measurement view info strings (upper case, up to 5 letters)
+// Measurement view info strings
 #define STRING_ALERT_ALARM "경보"
 #define STRING_ALERT_WARNING "경고"
 #define STRING_ALERT_FAULT "고장"
 #define STRING_ALERT_MAX "최대"
-#define STRING_ALERT_OVERFLOW "초과"
 #define STRING_ALERT_DONE "완료"
 
 // Settings menu items

@@ -99,12 +99,11 @@
 #define STRING_RATE "Rychlost"
 #define STRING_DOSE "Dávka"
 
-// Measurement view info strings (upper case, up to 5 letters)
+// Measurement view info strings
 #define STRING_ALERT_ALARM "ALARM"
 #define STRING_ALERT_WARNING "VAROVÁNÍ"
-#define STRING_ALERT_FAULT "CHYBA"
+#define STRING_ALERT_FAULT "PORUCHA"
 #define STRING_ALERT_MAX "MAX"
-#define STRING_ALERT_OVERFLOW "PŘES"
 #define STRING_ALERT_DONE "HOTOVO"
 
 // Settings menu items

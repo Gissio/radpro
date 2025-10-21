@@ -99,12 +99,11 @@
 #define STRING_RATE "Laju"
 #define STRING_DOSE "Dosis"
 
-// Measurement view info strings (upper case, up to 5 letters)
+// Measurement view info strings
 #define STRING_ALERT_ALARM "ALARM"
-#define STRING_ALERT_WARNING "PERING"
-#define STRING_ALERT_FAULT "KESAL"
+#define STRING_ALERT_WARNING "PERINGATAN"
+#define STRING_ALERT_FAULT "KESALAHAN"
 #define STRING_ALERT_MAX "MAKS"
-#define STRING_ALERT_OVERFLOW "LEBIH"
 #define STRING_ALERT_DONE "SELESAI"
 
 // Settings menu items

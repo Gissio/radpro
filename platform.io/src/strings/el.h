@@ -99,13 +99,12 @@
 #define STRING_RATE "Ρυθμός"
 #define STRING_DOSE "Δόση"
 
-// Measurement view info strings (upper case, up to 5 letters)
+// Measurement view info strings
 #define STRING_ALERT_ALARM "ΣΥΝΑΓΕΡΜΌΣ"
 #define STRING_ALERT_WARNING "ΠΡΟΕΙΔΟΠΟΙΗΣΗ"
 #define STRING_ALERT_FAULT "ΒΛΆΒΗ"
 #define STRING_ALERT_MAX "ΜΕΓ"
-#define STRING_ALERT_OVERFLOW "ΥΠΕΡ"
-#define STRING_ALERT_DONE "ΟΛΟΚΛΗΡΩΜΈΝΟ"
+#define STRING_ALERT_DONE "ΟΛΟΚΛΗΡΏΘΗΚΕ"
 
 // Settings menu items
 #define STRING_SETTINGS "Ρυθμίσεις"

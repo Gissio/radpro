@@ -2,8 +2,9 @@
 
 ## 3.0.3 "Punctilio"
 
-* Added lithuanian and indonesian translations.
-* Bosean FS-5000: Enabled MCU prefetch.
+* Added Lithuanian and Indonesian translations.
+* Bosean FS-5000: Enabled MCU prefetch for optimizing speed.
+* Bosean FS-600: Fixed an issue which caused start screen freezes.
 
 ## 3.0.2 "Icebreaker"
 

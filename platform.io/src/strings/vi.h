@@ -103,13 +103,12 @@
 #define STRING_RATE "Tốc độ"
 #define STRING_DOSE "Liều"
 
-// Measurement view info strings (upper case, up to 5 letters)
+// Measurement view info strings
 #define STRING_ALERT_ALARM "BÁO ĐỘNG"
 #define STRING_ALERT_WARNING "CẢNH BÁO"
 #define STRING_ALERT_FAULT "LỖI"
 #define STRING_ALERT_MAX "TỐI ĐA"
-#define STRING_ALERT_OVERFLOW "VƯỢT"
-#define STRING_ALERT_DONE "HOÀN THÀNH"
+#define STRING_ALERT_DONE "XONG"
 
 // Settings menu items
 #define STRING_SETTINGS "Cài đặt"

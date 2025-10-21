@@ -99,12 +99,11 @@
 #define STRING_RATE "Hitrost"
 #define STRING_DOSE "Doza"
 
-// Measurement view info strings (upper case, up to 5 letters)
+// Measurement view info strings
 #define STRING_ALERT_ALARM "ALARM"
 #define STRING_ALERT_WARNING "OPOZORILO"
 #define STRING_ALERT_FAULT "NAPAKA"
 #define STRING_ALERT_MAX "MAX"
-#define STRING_ALERT_OVERFLOW "ČEZ"
 #define STRING_ALERT_DONE "KONČANO"
 
 // Settings menu items
