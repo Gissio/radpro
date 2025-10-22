@@ -17,7 +17,7 @@
   * Power-on self-test and safety watchdog.
   * `radpro-tool` for low-level computer access.
   * Game.
-* **Language support:** 27 languages, including English, Spanish, Chinese, and more.
+* **Language support:** 29 languages, including English, Spanish, Chinese, and more.
 * **User interface:** Based on the [OpenBridge 6.0](https://www.openbridge.no/) design standard with anti-aliased text.
 
 ## Measurements
@@ -266,3 +266,4 @@ Refer to the [communications protocol description](comm.md) for USB serial port 
 **Q: Why doesn’t the device click for every count?**
 
 **A:** For tubes with sensitivity ≥600 cpm/µSv/h, pulse indication is capped at 600 cpm/µSv/h to prevent excessive audio feedback, without affecting measurements.
+
