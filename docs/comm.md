@@ -299,4 +299,3 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   SET time
   ERROR
   ```
-
