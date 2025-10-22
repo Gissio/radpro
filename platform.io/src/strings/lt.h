@@ -80,9 +80,9 @@
 #define STRING_NOTIFICATION_DATALOG_RESET_SUCCESS "SĖKMĖ\n\nDuomenų žurnalas atstatytas."
 
 // Measurement view UI heading strings
-#define STRING_INSTANTANEOUS "Akimirkinis"
+#define STRING_INSTANTANEOUS "Momentinis"
 #define STRING_AVERAGE "Vidutinis"
-#define STRING_CUMULATIVE "Kaupiamasis"
+#define STRING_CUMULATIVE "Kaupiamoji"
 #define STRING_HISTORY "Istorija"
 
 // Measurement history view time periods
