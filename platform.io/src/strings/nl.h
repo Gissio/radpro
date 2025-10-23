@@ -37,6 +37,7 @@
 #define STRING_VOLTS "V"
 #define STRING_KHZ "kHz"
 #define STRING_CPMUSVH "cpm/µSv/h"
+#define STRING_TEMPERATURE "C"
 
 // Units for indicating Geiger tube pulse count, as in "1 count" or "14 counts"
 #define STRING_COUNT "tell."

@@ -67,4 +67,26 @@ float readBatteryVoltage(void)
     return value;
 }
 
+
+float readTemperature(void)
+{
+    adc_enable(ADC1);
+
+#if (defined(STM32G0) || defined(STM32L4))
+    adc_enable_temperature_channel(ADC1);
+    uint32_t tempValue = readADC(ADC_TS_CHANNEL);
+    adc_disable_temperature_channel(ADC1);
+
+    float value = (TS_CAL2_TEMP - TS_CAL1_TEMP) / (TS_CAL2 - TS_CAL1)
+                 * ((float)tempValue - TS_CAL1) + TS_CAL1_TEMP;
+    
+#else
+    float value = 0.0F;
+#endif
+
+    adc_disable(ADC1);
+
+    return value;
+}
+
 #endif

@@ -2114,13 +2114,20 @@ __STATIC_INLINE void dma_disable(DMA_Channel_TypeDef *channel)
 #define VREFINT_VOLTAGE 1.2F
 #elif defined(STM32G0)
 #define TS_CAL1 (*((__I uint16_t *)0x1fff75a8))
+#define TS_CAL2 (*((__I uint16_t *)0x1fff75ca))
+#define TS_CAL1_TEMP 30.0F
+#define TS_CAL2_TEMP 130.0F
 #define VREFINT_CAL_VALUE (*((__I uint16_t *)0x1fff75aa))
 #define VREFINT_CAL_VOLTAGE 3.0F
+#define ADC_TS_CHANNEL 12u
 #elif defined(STM32L4)
 #define TS_CAL1 (*((__I uint16_t *)0x1fff75a8))
 #define TS_CAL2 (*((__I uint16_t *)0x1fff75ca))
+#define TS_CAL1_TEMP 30.0F
+#define TS_CAL2_TEMP 130.0F
 #define VREFINT_CAL_VALUE (*((__I uint16_t *)0x1fff75aa))
 #define VREFINT_CAL_VOLTAGE 3.0F
+#define ADC_TS_CHANNEL 17u
 #endif
 
 #define UID0 (((__I uint32_t *)UID_BASE)[0])

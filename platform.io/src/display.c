@@ -23,6 +23,7 @@
 #include "system.h"
 #include "tube.h"
 #include "view.h"
+#include "adc.h"
 
 // Defines
 
@@ -2169,8 +2170,12 @@ void drawStatistics(void)
         case STATISTICS_VOLTAGE:
             strcatFloat(valueString, getBatteryVoltage(), 3);
             strclr(unitString);
-            strcatChar(unitString, ' ');
             strcat(unitString, getString(STRING_VOLTS));
+#if (defined(STM32G0) || defined(STM32L4))
+            strcatChar(unitString, ' ');
+            strcatFloat(unitString, readTemperature(), 1);
+            strcat(unitString, getString(STRING_TEMPERATURE));
+#endif
 
             break;
         }

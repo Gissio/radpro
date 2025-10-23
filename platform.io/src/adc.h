@@ -15,5 +15,6 @@
 void initADC(void);
 
 float readBatteryVoltage(void);
+float readTemperature(void);
 
 #endif
