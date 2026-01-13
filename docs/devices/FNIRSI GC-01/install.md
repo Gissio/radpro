@@ -23,22 +23,38 @@ This guide explains how to install the Rad Pro firmware on FNIRSI GC-01 and JOY-
 
 1. Download and extract the latest `radpro-[version].zip` from [Rad Pro releases](https://github.com/Gissio/radpro/releases).
 2. Connect the device to a **Windows computer** using a **USB 2.0 port** and the USB data cable. **Note:** Installation may fail on macOS, Linux, or USB 3.0 ports.
-3. Power on the device. A USB drive should appear on your computer. If it does not, the device may be incompatible with Rad Pro.
+3. Power on the device. A USB drive should appear on your computer. If the drive does not immediately enumerate, then try some of the steps below:
+   * Some devices require holding the **Power** button from power-on until the firmware is copied and the device restarts.
+   * Others may need the **Right/Settings** and **OK/Power** keys pressed together to make the USB drive available.
+   * Some devices require pressing a BOOT button near the USB port (see more details below)
 4. If you identified the microprocessor, navigate to the `fnirsi-gc01_[micropreocessor]/install` folder. Select the appropriate firmware file: `radpro-fnirsi-gc01_[microprocessor]-[language]-x.y.z-install.bin`.
    * `[microprocessor]`: `ch32f103r8t6` or `apm32f103rbt6`.
    * `[language]` Two-letter code for your preferred language (e.g., `en` for English).
 5. If the microprocessor is unmarked, try `apm32f103rbt6` firmware first. If a **Drive full** error occurs, disconnect the device, then retry with `ch32f103r8t6`.
 6. Copy the selected firmware file to the USB drive. The device should restart automatically with Rad Pro installed.
+   * Some users report that it is necessary to copy the file to the USB drive twice.
 
-**Note:**
+**BOOT Button Instructions:**
 
-* Some devices require holding the **Power** button from power-on until the firmware is copied and the device restarts.
-* Others may need the **Right/Settings** and **OK/Power** keys pressed together to make the USB drive available.
-* Some users report that it is necessary to copy the file to the USB drive twice.
+It is important to note that, with the stock firmware, there is a small delay between pressing the power button and the stock UI appearing. Keep this in mind during the steps below. 
+
+1. Plug the USB data cable into the GC-01 and your PC. **The cable that ships with the GC-01 may not be a data cable!**
+2. Make sure the GC-01 is powered off.
+3. Locate a paper clip or small screwdriver you can use to press the BOOT button. 
+   * CAUTION: Do not attempt to press the button while holding the bare board! The process requires powering on the device, so the risk of contacting the high voltage power supply is very high!
+   
+   ![FNIRSI GC-01 boot button location](img/gc-01-boot-button.jpg)
+
+4. While pressing and **holding** the power button, quickly **press and release** the BOOT button. 
+   * This takes some practice and might require a few tries to get right. 
+   * The BOOT button should be pressed for about 1 second. 
+   * It can help to have the Device Manager visible so you know when the device was correctly enumerated. 
+   * The GC-01 must be powered on **without** the BOOT button pressed, but the button press has to be registered **before** the application starts. The button press has to be registered *only* during the small delay between pressing the power button and the stock UI appearing. 
+   * The GC-01 will not fully power on or enumerate over USB if the BOOT button is held down before pressing the power button. Pressing the BOOT button after the application is running will cause the application to reboot and will not enable USB enumeration. 
 
 **Troubleshooting:**
 
-* If the installation fails, press the **reset switch** next to the USB connector and repeat the process.
+* If the installation fails, press the **BOOT button** next to the USB connector and repeat the process.
 * To restore the original firmware, copy the [original firmware](firmware) to the USB drive.
 * For persistent issues, follow the [FNIRSI GC-01 alternative installation instructions](install-stlink.md).
 
