@@ -36,8 +36,8 @@
     display_send_command(0xc6);   // FRCTRL2: Frame rate control in normal mode
     display_send_data(0xf);       // Default value
     display_send_command(0xd0);   // PWCTRL1: Power control 1
-    display_send_data(0xa4);      // Set: AVDD 6.8 V, AVCL -4.8 V, VDDS 2.3 V
-    display_send_data(0xa1);
+    display_send_data(0xa4);
+    display_send_data(0xa1);      // Set: AVDD 6.8 V, AVCL -4.8 V, VDDS 2.3 V
     display_send_command(0xe0);   // PVGAMCTRL: Positive voltage gamma control
     display_send_data(0xd0);      // Set
     display_send_data(0x1);

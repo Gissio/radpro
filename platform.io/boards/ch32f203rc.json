@@ -1,0 +1,38 @@
+{
+    "build": {
+        "core": "stm32",
+        "cpu": "cortex-m3",
+        "extra_flags": "-D STM32 -D STM32F1 -D STM32F103xE -D CH32 -D CH32F2 -D FLASH_BASE_=0x08000000 -D FLASH_SIZE_=0x40000 -D FLASH_PAGE_SIZE=0x1000 -D FLASH_WORD_SIZE=0x2",
+        "f_cpu": "72000000L",
+        "mcu": "stm32f103rct6",
+        "product_line": "STM32F103xE"
+    },
+    "debug": {
+        "default_tools": [
+            "stlink"
+        ],
+        "jlink_device": "STM32F103RC",
+        "openocd_target": "stm32f1x",
+        "svd_path": "STM32F103xx.svd"
+    },
+    "frameworks": [
+        "cmsis",
+        "libopencm3"
+    ],
+    "name": "CH32F203RC",
+    "upload": {
+        "maximum_ram_size": 31744,
+        "maximum_size": 262144,
+        "protocol": "stlink",
+        "protocols": [
+            "jlink",
+            "cmsis-dap",
+            "stlink",
+            "blackmagic",
+            "mbed",
+            "dfu"
+        ]
+    },
+    "url": "https://wch-ic.com/",
+    "vendor": "WCH"
+}

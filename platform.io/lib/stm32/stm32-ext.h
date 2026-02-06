@@ -1,7 +1,7 @@
 /*
  * STM32 CMSIS extensions
  *
- * (C) 2022-2025 Gissio
+ * (C) 2022-2026 Gissio
  *
  * License: MIT
  */
@@ -44,9 +44,27 @@ typedef struct
 #define SYSTEM_VECTOR_TABLE ((VectorTable *)0x1fff0000)
 #endif
 
+#if defined(CH32F2)
+#define RCC_APB2ENR_TIM10EN_Pos (20U)
+#define RCC_APB2ENR_TIM10EN_Msk (0x1UL << RCC_APB2ENR_TIM10EN_Pos) /*!< 0x00100000 */
+#define RCC_APB2ENR_TIM10EN RCC_APB2ENR_TIM10EN_Msk                /*!< TIM10 Timer clock enable  */
+
+#define TIM10_BASE (APB2PERIPH_BASE + 0x00005000UL)
+#define TIM10 ((TIM_TypeDef *)TIM10_BASE)
+#endif
+
 // RCC
 
-#if defined(STM32F1)
+#if defined(CH32F2)
+#define RCC_CFGR_PLLSRC_HSI_DIV2 0
+#define RCC_CFGR_PLLSRC_HSE RCC_CFGR_PLLSRC
+
+#undef RCC_CFGR_USBPRE_Msk
+#define RCC_CFGR_USBPRE_Msk (0x3UL << RCC_CFGR_USBPRE_Pos)
+#define RCC_CFGR_USBPRE_DIV1 (0x0UL << RCC_CFGR_USBPRE_Pos)
+#define RCC_CFGR_USBPRE_DIV2 (0x1UL << RCC_CFGR_USBPRE_Pos)
+#define RCC_CFGR_USBPRE_DIV3 (0x2UL << RCC_CFGR_USBPRE_Pos)
+#elif defined(STM32F1)
 #define RCC_CFGR_PLLSRC_HSI_DIV2 0
 #define RCC_CFGR_PLLSRC_HSE RCC_CFGR_PLLSRC
 
@@ -523,6 +541,13 @@ __STATIC_INLINE void rcc_enable_usart(const USART_TypeDef *base)
         set_bits(RCC->APB1ENR, RCC_APB1ENR_USART2EN);
         sync_peripheral(&RCC->APB1ENR);
     }
+#if defined(USART3)
+    else if (base == USART3)
+    {
+        set_bits(RCC->APB1ENR, RCC_APB1ENR_USART3EN);
+        sync_peripheral(&RCC->APB1ENR);
+    }
+#endif
 #elif defined(STM32G0)
     if (base == USART1)
     {
@@ -750,29 +775,16 @@ __STATIC_INLINE uint32_t crc_read(void)
 #endif
 
 #if defined(STM32F0)
-#define FLASH_PAGE_SIZE 0x400UL
-#define FLASH_WORD_SIZE 0x2UL
-
 #define FLASH_SR_ERRORS FLASH_SR_WRPERR | \
                             FLASH_SR_PGERR
 #define FLASH_SR_CLEAR FLASH_SR_EOP | \
                            FLASH_SR_ERRORS
 #elif defined(STM32F1)
-#if defined(GD32F303)
-#define FLASH_PAGE_SIZE 0x800UL
-#else
-#define FLASH_PAGE_SIZE 0x400UL
-#endif
-#define FLASH_WORD_SIZE 0x2UL
-
 #define FLASH_SR_ERRORS FLASH_SR_WRPRTERR | \
                             FLASH_SR_PGERR
 #define FLASH_SR_CLEAR FLASH_SR_EOP | \
                            FLASH_SR_ERRORS
 #elif defined(STM32G0)
-#define FLASH_PAGE_SIZE 0x800UL
-#define FLASH_WORD_SIZE 0x8UL
-
 #define FLASH_KEY1 0x45670123UL
 #define FLASH_KEY2 0xCDEF89ABUL
 
@@ -788,9 +800,6 @@ __STATIC_INLINE uint32_t crc_read(void)
 #define FLASH_SR_CLEAR (FLASH_SR_ERRORS | \
                         FLASH_SR_EOP)
 #elif defined(STM32L4)
-#define FLASH_PAGE_SIZE 0x800UL
-#define FLASH_WORD_SIZE 0x8UL
-
 #define FLASH_KEY1 0x45670123UL
 #define FLASH_KEY2 0xCDEF89ABUL
 
@@ -807,11 +816,6 @@ __STATIC_INLINE uint32_t crc_read(void)
 #define FLASH_SR_CLEAR (FLASH_SR_ERRORS | \
                         FLASH_SR_EOP)
 #endif
-
-__STATIC_INLINE uint32_t flash_get_kb_size(void)
-{
-    return *((uint32_t *)FLASHSIZE_BASE);
-}
 
 __STATIC_INLINE void flash_unlock(void)
 {
@@ -838,18 +842,18 @@ __STATIC_INLINE void flash_clear_status(void)
     FLASH->SR = FLASH_SR_CLEAR;
 }
 
-__STATIC_INLINE bool flash_erase_page(uint32_t pageIndex)
+__STATIC_INLINE bool flash_erase(uint32_t dest)
 {
     flash_wait_while_busy();
     flash_clear_status();
 
     set_bits(FLASH->CR, FLASH_CR_PER);
 #if defined(STM32F0) || defined(STM32F1)
-    FLASH->AR = FLASH_BASE + pageIndex * FLASH_PAGE_SIZE;
+    FLASH->AR = dest;
 #elif defined(STM32G0) || defined(STM32L4)
     modify_bits(FLASH->CR,
                 FLASH_CR_PNB_Msk,
-                (pageIndex << FLASH_CR_PNB_Pos));
+                ((dest / FLASH_PAGE_SIZE) << FLASH_CR_PNB_Pos));
 #endif
     set_bits(FLASH->CR, FLASH_CR_STRT);
     flash_wait_while_busy();
@@ -859,8 +863,7 @@ __STATIC_INLINE bool flash_erase_page(uint32_t pageIndex)
     return (get_bits(FLASH->SR, FLASH_SR_ERRORS) == 0);
 }
 
-__STATIC_INLINE bool flash_program(uint8_t *dest,
-                                   uint8_t *source)
+__STATIC_INLINE bool flash_program(uint8_t *dest, const uint8_t *source)
 {
     flash_wait_while_busy();
     flash_clear_status();
@@ -911,13 +914,7 @@ __STATIC_INLINE bool flash_program(uint8_t *dest,
 #define GPIO_AF6 6
 #define GPIO_AF7 7
 
-__STATIC_INLINE void gpio_setup(GPIO_TypeDef *base,
-                                uint8_t pin,
-                                uint8_t mode,
-                                uint8_t output_type,
-                                uint8_t output_speed,
-                                uint8_t pull,
-                                uint8_t af)
+__STATIC_INLINE void gpio_setup(GPIO_TypeDef *base, uint8_t pin, uint8_t mode, uint8_t output_type, uint8_t output_speed, uint8_t pull, uint8_t af)
 {
     uint32_t shift2 = 2 * pin;
     uint32_t mask2 = 0b11 << shift2;
@@ -963,9 +960,7 @@ __STATIC_INLINE void gpio_setup(GPIO_TypeDef *base,
     }
 }
 
-__STATIC_INLINE void gpio_setup_input(GPIO_TypeDef *base,
-                                      uint8_t pin,
-                                      uint8_t pull)
+__STATIC_INLINE void gpio_setup_input(GPIO_TypeDef *base, uint8_t pin, uint8_t pull)
 {
     gpio_setup(base,
                pin,
@@ -976,11 +971,7 @@ __STATIC_INLINE void gpio_setup_input(GPIO_TypeDef *base,
                GPIO_AF_NONE);
 }
 
-__STATIC_INLINE void gpio_setup_output(GPIO_TypeDef *base,
-                                       uint8_t pin,
-                                       uint8_t output_type,
-                                       uint8_t output_speed,
-                                       uint8_t pull)
+__STATIC_INLINE void gpio_setup_output(GPIO_TypeDef *base, uint8_t pin, uint8_t output_type, uint8_t output_speed, uint8_t pull)
 {
     gpio_setup(base,
                pin,
@@ -991,12 +982,7 @@ __STATIC_INLINE void gpio_setup_output(GPIO_TypeDef *base,
                GPIO_AF_NONE);
 }
 
-__STATIC_INLINE void gpio_setup_af(GPIO_TypeDef *base,
-                                   uint8_t pin,
-                                   uint8_t output_type,
-                                   uint8_t output_speed,
-                                   uint8_t pull,
-                                   uint8_t af)
+__STATIC_INLINE void gpio_setup_af(GPIO_TypeDef *base, uint8_t pin, uint8_t output_type, uint8_t output_speed, uint8_t pull, uint8_t af)
 {
     gpio_setup(base,
                pin,
@@ -1007,9 +993,7 @@ __STATIC_INLINE void gpio_setup_af(GPIO_TypeDef *base,
                af);
 }
 
-__STATIC_INLINE void gpio_setup_analog(GPIO_TypeDef *base,
-                                       uint8_t pin,
-                                       uint8_t pull)
+__STATIC_INLINE void gpio_setup_analog(GPIO_TypeDef *base, uint8_t pin, uint8_t pull)
 {
     gpio_setup(base,
                pin,
@@ -1041,9 +1025,7 @@ __STATIC_INLINE void gpio_setup_analog(GPIO_TypeDef *base,
 
 #define GPIO_MODE_Msk 0b1111
 
-__STATIC_INLINE void gpio_setup(GPIO_TypeDef *base,
-                                uint8_t pin,
-                                uint8_t mode)
+__STATIC_INLINE void gpio_setup(GPIO_TypeDef *base, uint8_t pin, uint8_t mode)
 {
     if (mode == GPIO_MODE_INPUT_PULLDOWN)
         clear_bits(base->ODR, get_bitvalue(pin));
@@ -1068,27 +1050,22 @@ __STATIC_INLINE void gpio_setup(GPIO_TypeDef *base,
 
 #endif
 
-__STATIC_INLINE bool gpio_get(const GPIO_TypeDef *base,
-                              uint8_t pin)
+__STATIC_INLINE bool gpio_get(const GPIO_TypeDef *base, uint8_t pin)
 {
     return get_bits(base->IDR, get_bitvalue(pin));
 }
 
-__STATIC_INLINE void gpio_set(GPIO_TypeDef *base,
-                              uint8_t pin)
+__STATIC_INLINE void gpio_set(GPIO_TypeDef *base, uint8_t pin)
 {
     set_bits(base->ODR, get_bitvalue(pin));
 }
 
-__STATIC_INLINE void gpio_clear(GPIO_TypeDef *base,
-                                uint8_t pin)
+__STATIC_INLINE void gpio_clear(GPIO_TypeDef *base, uint8_t pin)
 {
     clear_bits(base->ODR, get_bitvalue(pin));
 }
 
-__STATIC_INLINE void gpio_modify(GPIO_TypeDef *base,
-                                 uint8_t pin,
-                                 bool value)
+__STATIC_INLINE void gpio_modify(GPIO_TypeDef *base, uint8_t pin, bool value)
 {
     if (value)
         gpio_set(base, pin);
@@ -1119,10 +1096,7 @@ __STATIC_INLINE void NVIC_DisableAllIRQs(void)
 #define STM32EXT_EXTI EXTI
 #endif
 
-__STATIC_INLINE void exti_setup(const GPIO_TypeDef *base,
-                                uint8_t pin,
-                                bool rising_trigger,
-                                bool falling_trigger)
+__STATIC_INLINE void exti_setup(const GPIO_TypeDef *base, uint8_t pin, bool rising_trigger, bool falling_trigger)
 {
     uint32_t shift4 = 4 * (pin & 0b11);
 
@@ -1187,12 +1161,12 @@ __STATIC_INLINE void exti_disable_interrupt(uint8_t pin)
 __STATIC_INLINE void exti_clear_pending_interrupt(uint8_t pin)
 {
 #if defined(STM32F0) || defined(STM32F1)
-    set_bits(EXTI->PR, get_bitvalue(pin));
+    EXTI->PR = get_bitvalue(pin);
 #elif defined(STM32G0)
-    set_bits(EXTI->RPR1, get_bitvalue(pin));
-    set_bits(EXTI->FPR1, get_bitvalue(pin));
+    EXTI->RPR1 = get_bitvalue(pin);
+    EXTI->FPR1 = get_bitvalue(pin);
 #elif defined(STM32L4)
-    set_bits(EXTI->PR1, get_bitvalue(pin));
+    EXTI->PR1 = get_bitvalue(pin);
 #endif
 }
 
@@ -1484,66 +1458,82 @@ __STATIC_INLINE void adc_disable_temperature_vref_channel(ADC_TypeDef *base)
 #endif
 }
 
-__STATIC_INLINE uint32_t adc_convert_oneshot(ADC_TypeDef *base,
-                                             uint8_t channel,
-                                             uint8_t sample_time)
+__STATIC_INLINE void adc_set_channel(ADC_TypeDef *base, uint8_t channel)
+{
+#if defined(STM32F0) && defined(GD32)
+    ((ADC_GD32_TypeDef *)base)->RSQ2 = channel;
+#elif defined(STM32F0) || defined(STM32G0)
+    base->CHSELR = get_bitvalue(channel);
+#elif defined(STM32F1)
+    base->SQR3 = channel;
+#elif defined(STM32L4)
+    base->SQR1 = (channel << ADC_SQR1_SQ1_Pos);
+#endif
+}
+
+__STATIC_INLINE void adc_set_sampletime(ADC_TypeDef *base, uint8_t sampletime)
 {
 #if defined(STM32F0) && defined(GD32)
     ((ADC_GD32_TypeDef *)base)->RSQ0 = 0;
-    ((ADC_GD32_TypeDef *)base)->RSQ2 = channel;
 
     modify_bits(((ADC_GD32_TypeDef *)base)->CTL1,
                 ADC_CTL1_ETERC_Msk | ADC_CTL1_ETSRC_Msk,
                 ADC_CTL1_ETERC | ADC_CTL1_ETSRC_SWRCST);
 
-    if (channel >= 10)
-        ((ADC_GD32_TypeDef *)base)->SAMPT0 = sample_time << (3 * (channel - 10));
-    else
-        ((ADC_GD32_TypeDef *)base)->SAMPT1 = sample_time << (3 * channel);
-
-    set_bits(((ADC_GD32_TypeDef *)base)->CTL1, ADC_CTL1_SWRCST);
-
-    while (!get_bits(((ADC_GD32_TypeDef *)base)->STAT, ADC_STAT_EOC))
-        ;
+    uint32_t value = 0;
+    for (uint32_t i = 0; i < 10; i++)
+        value |= sampletime << (3 * i);
+    ((ADC_GD32_TypeDef *)base)->SAMPT0 = value;
+    ((ADC_GD32_TypeDef *)base)->SAMPT1 = value;
 #elif defined(STM32F0) || defined(STM32G0)
-    base->CHSELR = get_bitvalue(channel);
-    base->SMPR = sample_time;
-
-    set_bits(base->CR, ADC_CR_ADSTART);
-
-    while (!get_bits(base->ISR, ADC_ISR_EOC))
-        ;
+    base->SMPR = sampletime;
 #elif defined(STM32F1)
     base->SQR1 = 0;
-    base->SQR3 = channel;
 
     modify_bits(base->CR2,
                 ADC_CR2_EXTTRIG_Msk | ADC_CR2_EXTSEL_Msk,
                 ADC_CR2_EXTTRIG | ADC_CR2_EXTSEL_SWSTART);
 
-    if (channel >= 10)
-        base->SMPR1 = sample_time << (3 * (channel - 10));
-    else
-        base->SMPR2 = sample_time << (3 * channel);
-
-    set_bits(base->CR2, ADC_CR2_SWSTART);
-
-    while (!get_bits(base->SR, ADC_SR_EOC))
-        ;
+    uint32_t value = 0;
+    for (uint32_t i = 0; i < 10; i++)
+        value |= sampletime << (3 * i);
+    base->SMPR1 = value;
+    base->SMPR2 = value;
 #elif defined(STM32L4)
     base->SQR1 = (channel << ADC_SQR1_SQ1_Pos);
 
-    if (channel < 10)
-        base->SMPR1 = sample_time << (3 * channel);
-    else
-        base->SMPR2 = sample_time << (3 * (channel - 10));
-
-    set_bits(base->CR, ADC_CR_ADSTART);
-
-    while (!get_bits(base->ISR, ADC_ISR_EOC))
-        ;
+    uint32_t value = 0;
+    for (uint32_t i = 0; i < 10; i++)
+        value |= sampletime << (3 * i);
+    base->SMPR1 = value;
+    base->SMPR2 = value;
 #endif
+}
 
+__STATIC_INLINE void adc_trigger_conversion(ADC_TypeDef *base)
+{
+#if defined(STM32F0) && defined(GD32)
+    set_bits(((ADC_GD32_TypeDef *)base)->CTL1, ADC_CTL1_SWRCST);
+#elif defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
+    set_bits(base->CR, ADC_CR_ADSTART);
+#elif defined(STM32F1)
+    set_bits(base->CR2, ADC_CR2_SWSTART);
+#endif
+}
+
+__STATIC_INLINE bool adc_ready(ADC_TypeDef *base)
+{
+#if defined(STM32F0) && defined(GD32)
+    return get_bits(((ADC_GD32_TypeDef *)base)->STAT, ADC_STAT_EOC);
+#elif defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
+    return get_bits(base->ISR, ADC_ISR_EOC);
+#elif defined(STM32F1)
+    return get_bits(base->SR, ADC_SR_EOC);
+#endif
+}
+
+__STATIC_INLINE uint32_t adc_read(ADC_TypeDef *base)
+{
 #if defined(STM32F0) && defined(GD32)
     return ((ADC_GD32_TypeDef *)base)->RDATA;
 #else
@@ -1600,22 +1590,18 @@ __STATIC_INLINE void tim_generate_update(TIM_TypeDef *base)
     set_bits(base->EGR, TIM_EGR_UG);
 }
 
-__STATIC_INLINE void tim_set_period(TIM_TypeDef *base,
-                                    uint32_t value)
+__STATIC_INLINE void tim_set_period(TIM_TypeDef *base, uint32_t value)
 {
     base->ARR = value - 1;
 }
 
-__STATIC_INLINE void tim_set_prescaler_factor(TIM_TypeDef *base,
-                                              uint32_t value)
+__STATIC_INLINE void tim_set_prescaler_factor(TIM_TypeDef *base, uint32_t value)
 
 {
     base->PSC = value - 1;
 }
 
-__STATIC_INLINE void tim_set_ontime(TIM_TypeDef *base,
-                                    uint32_t channel,
-                                    uint32_t ontime)
+__STATIC_INLINE void tim_set_ontime(TIM_TypeDef *base, uint32_t channel, uint32_t ontime)
 {
     switch (channel)
     {
@@ -1644,8 +1630,7 @@ __STATIC_INLINE void tim_set_ontime(TIM_TypeDef *base,
     }
 }
 
-__STATIC_INLINE void tim_setup_pwm(TIM_TypeDef *base,
-                                   uint32_t channel)
+__STATIC_INLINE void tim_setup_pwm(TIM_TypeDef *base, uint32_t channel)
 {
     switch (channel)
     {
@@ -1692,9 +1677,14 @@ __STATIC_INLINE void tim_setup_pwm(TIM_TypeDef *base,
     }
 }
 
-__STATIC_INLINE void tim_setup_linked(TIM_TypeDef *base_master,
-                                      TIM_TypeDef *base_slave,
-                                      uint8_t trigger_connection)
+__STATIC_INLINE void tim_setup_single(TIM_TypeDef *base)
+{
+    base->ARR = 0xffff;
+
+    tim_generate_update(base);
+}
+
+__STATIC_INLINE void tim_setup_linked(TIM_TypeDef *base_master, TIM_TypeDef *base_slave, uint8_t trigger_connection)
 {
     set_bits(base_master->CR2, TIM_CR2_MMS_UPDATE);
     base_master->ARR = 0xffff;
@@ -1781,6 +1771,7 @@ __STATIC_INLINE void rtc_enter_configuration_mode(void)
     wait_until_bits_set(RTC->ISR, RTC_ISR_INITF);
 #elif defined(STM32F1)
     wait_until_bits_set(RTC->CRL, RTC_CRL_RTOFF);
+
     set_bits(RTC->CRL, RTC_CRL_CNF);
 #elif defined(STM32G0)
     RTC->WPR = 0xca;
@@ -1802,27 +1793,19 @@ __STATIC_INLINE void rtc_leave_configuration_mode(void)
 #if defined(STM32F0)
     clear_bits(RTC->ISR, RTC_ISR_INIT);
 
-    clear_bits(RTC->ISR, RTC_ISR_RSF);
-    wait_until_bits_set(RTC->ISR, RTC_ISR_RSF);
-
     RTC->WPR = 0xfe;
     RTC->WPR = 0x64;
 #elif defined(STM32F1)
     clear_bits(RTC->CRL, RTC_CRL_CNF);
+
     wait_until_bits_set(RTC->CRL, RTC_CRL_RTOFF);
 #elif defined(STM32G0)
     clear_bits(RTC->ICSR, RTC_ICSR_INIT);
-
-    clear_bits(RTC->ICSR, RTC_ICSR_RSF);
-    wait_until_bits_set(RTC->ICSR, RTC_ICSR_RSF);
 
     RTC->WPR = 0xfe;
     RTC->WPR = 0x64;
 #elif defined(STM32L4)
     clear_bits(RTC->ISR, RTC_ISR_INIT);
-
-    clear_bits(RTC->ISR, RTC_ISR_RSF);
-    wait_until_bits_set(RTC->ISR, RTC_ISR_RSF);
 
     RTC->WPR = 0xfe;
     RTC->WPR = 0x64;
@@ -1831,15 +1814,13 @@ __STATIC_INLINE void rtc_leave_configuration_mode(void)
 
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
 
-__STATIC_INLINE void rtc_get_date_time(uint32_t *dr,
-                                       uint32_t *tr)
+__STATIC_INLINE void rtc_get_date_time(uint32_t *dr, uint32_t *tr)
 {
     *tr = RTC->TR;
     *dr = RTC->DR;
 }
 
-__STATIC_INLINE void rtc_set_date_time(uint32_t dr,
-                                       uint32_t tr)
+__STATIC_INLINE void rtc_set_date_time(uint32_t dr, uint32_t tr)
 {
     RTC->TR = tr;
     RTC->DR = dr;
@@ -1857,9 +1838,9 @@ __STATIC_INLINE void rtc_set_prescaler_factor(uint32_t value)
 
 __STATIC_INLINE uint32_t rtc_get_count(void)
 {
-    uint32_t countHigh1 = RTC->CNTH;
-    uint32_t count = RTC->CNTL;
-    uint32_t countHigh2 = RTC->CNTH;
+    volatile uint32_t countHigh1 = RTC->CNTH;
+    volatile uint32_t count = RTC->CNTL;
+    volatile uint32_t countHigh2 = RTC->CNTH;
 
     if (countHigh1 == countHigh2)
         return count | (countHigh1 << 16);
@@ -1894,8 +1875,7 @@ __STATIC_INLINE void rtc_set_count(uint32_t value)
 #define USART_CR2_STOP_1_5BIT (USART_CR2_STOP_1 | USART_CR2_STOP0)
 #define USART_CR2_STOP_2BIT USART_CR2_STOP_1
 
-__STATIC_INLINE void usart_setup_8n1(USART_TypeDef *base,
-                                     uint32_t baud_rate)
+__STATIC_INLINE void usart_setup_8n1(USART_TypeDef *base, uint32_t baud_rate)
 {
     base->BRR = baud_rate;
     base->CR1 = USART_CR1_UE |       // Enable USART
@@ -2017,8 +1997,7 @@ __STATIC_INLINE uint16_t usart_receive_blocking(const USART_TypeDef *base)
     return usart_receive(base);
 }
 
-__STATIC_INLINE void usart_send(USART_TypeDef *base,
-                                uint16_t data)
+__STATIC_INLINE void usart_send(USART_TypeDef *base, uint16_t data)
 {
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
     base->TDR = data;
@@ -2027,8 +2006,7 @@ __STATIC_INLINE void usart_send(USART_TypeDef *base,
 #endif
 }
 
-__STATIC_INLINE void usart_send_blocking(USART_TypeDef *base,
-                                         uint16_t data)
+__STATIC_INLINE void usart_send_blocking(USART_TypeDef *base, uint16_t data)
 {
     while (!usart_is_send_ready(base))
         ;
@@ -2071,10 +2049,7 @@ __STATIC_INLINE void spi_enable(SPI_TypeDef *base)
 
 // DMA
 
-__STATIC_INLINE void dma_setup_memory32_to_peripheral32(DMA_Channel_TypeDef *channel,
-                                                        uint32_t *dest,
-                                                        uint32_t *source,
-                                                        uint32_t count)
+__STATIC_INLINE void dma_setup_memory32_to_peripheral32(DMA_Channel_TypeDef *channel, uint32_t *dest, uint32_t *source, uint32_t count)
 {
     channel->CCR = DMA_CCR_DIR |
                    DMA_CCR_MINC |

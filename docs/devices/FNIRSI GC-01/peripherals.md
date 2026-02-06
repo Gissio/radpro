@@ -1,7 +1,7 @@
 # FNIRSI GC-01 MCU Pinout
 
 * PA0 (Input): PWR_BAT
-* PA1 (Input, pull-down): KEY_POWER
+* PA1 (Input, pull-up): KEY_POWER
 * PA2 (Output): PWR_EN
 * PA3 (AF): TUBE_HV
 * PA4 (Input): PWR_CHRG
@@ -14,13 +14,13 @@
 
 * PB0-PB15 (Output): DISPLAY_DATA
 
-* PC0 (Input, pull-down): KEY_UP
-* PC1 (Input, pull-down): KEY_RIGHT
-* PC2 (Input, pull-down): KEY_DOWN
-* PC3 (Input, pull-down): KEY_LEFT
+* PC0 (Input, pull-up): KEY_UP
+* PC1 (Input, pull-up): KEY_RIGHT
+* PC2 (Input, pull-up): KEY_DOWN
+* PC3 (Input, pull-up): KEY_LEFT
 * PC5 (Output): DISPLAY_RESX
 * PC6 (Output): DISPLAY_RDX
 * PC7 (Output): DISPLAY_WRX
 * PC8 (Output): DISPLAY_DCX
 * PC9 (Output): DISPLAY_CSX
-* PC10 (Input, pull-down): TUBE_DET
+* PC10 (Input, pull-up): TUBE_DET

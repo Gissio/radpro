@@ -2,7 +2,7 @@
  * Rad Pro
  * CMSIS compatibility header
  *
- * (C) 2022-2025 Gissio
+ * (C) 2022-2026 Gissio
  *
  * License: MIT
  */

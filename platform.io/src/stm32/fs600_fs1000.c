@@ -1,61 +1,48 @@
 /*
  * Rad Pro
- * Bosean FS-600/FS-1000 specifics
+ * Bosean FS-600/FS-1000 driver
  *
- * (C) 2022-2025 Gissio
+ * (C) 2022-2026 Gissio
  *
  * License: MIT
  */
 
 #if defined(FS600) || defined(FS1000)
 
-#include "../display.h"
-#include "../events.h"
-#include "../keyboard.h"
-#include "../settings.h"
-#include "../system.h"
-
-#include "device.h"
-
 #include "mcu-renderer-st7565.h"
+
+#include "../devices/display.h"
+#include "../devices/keyboard.h"
+#include "../stm32/device.h"
+#include "../system/events.h"
+#include "../system/settings.h"
+#include "../system/system.h"
 
 // System
 
 void initSystem(void)
 {
-    // Set SP and VTOR for bootloader
-    setFastSystemClock(false);
-
     // Set SYSCLK to HSI16/2
-    modify_bits(RCC->CR,
-                RCC_CR_HSIDIV_Msk,
-                RCC_CR_HSIDIV_DIV2);
+    modify_bits(RCC->CR, RCC_CR_HSIDIV_Msk, RCC_CR_HSIDIV_DIV2);
+
+    // Set system clock
+    setFastSystemClock(false);
 
     // Enable SYSCFG (for EXTI, UPCD)
     set_bits(RCC->APBENR2, RCC_APBENR2_SYSCFGEN);
 
     // Disable UCPD strobes
-    set_bits(SYSCFG->CFGR1,
-             SYSCFG_CFGR1_UCPD1_STROBE |
-                 SYSCFG_CFGR1_UCPD2_STROBE);
+    set_bits(SYSCFG->CFGR1, SYSCFG_CFGR1_UCPD1_STROBE | SYSCFG_CFGR1_UCPD2_STROBE);
 
     // Enable GPIOA, GPIOB, GPIOC, GPIOD
-    set_bits(RCC->IOPENR,
-             RCC_IOPENR_GPIOAEN |
-                 RCC_IOPENR_GPIOBEN |
-                 RCC_IOPENR_GPIOCEN |
-                 RCC_IOPENR_GPIODEN);
+    set_bits(RCC->IOPENR, RCC_IOPENR_GPIOAEN | RCC_IOPENR_GPIOBEN | RCC_IOPENR_GPIOCEN | RCC_IOPENR_GPIODEN);
 }
 
 void setFastSystemClock(bool value)
 {
     // Set HSI as system clock
-    modify_bits(RCC->CFGR,
-                RCC_CFGR_SW_Msk,
-                RCC_CFGR_SW_HSI);
-    wait_until_bits_value(RCC->CFGR,
-                          RCC_CFGR_SWS_Msk,
-                          RCC_CFGR_SWS_HSISYS);
+    modify_bits(RCC->CFGR, RCC_CFGR_SW_Msk, RCC_CFGR_SW_HSI);
+    wait_until_bits_value(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_HSISYS);
 
     // Disable PLL
     clear_bits(RCC->CR, RCC_CR_PLLON);
@@ -64,9 +51,7 @@ void setFastSystemClock(bool value)
     if (value)
     {
         // Set 2 wait states for flash
-        modify_bits(FLASH->ACR,
-                    FLASH_ACR_LATENCY_Msk,
-                    FLASH_ACR_LATENCY_2WS);
+        modify_bits(FLASH->ACR, FLASH_ACR_LATENCY_Msk, FLASH_ACR_LATENCY_2WS);
 
         // Configure SW, AHB, APB
         RCC->CFGR = RCC_CFGR_SW_HSI |    // Select HSI as system clock
@@ -85,12 +70,8 @@ void setFastSystemClock(bool value)
         wait_until_bits_set(RCC->CR, RCC_CR_PLLRDY);
 
         // Set PLL as system clock
-        modify_bits(RCC->CFGR,
-                    RCC_CFGR_SW_Msk,
-                    RCC_CFGR_SW_PLL);
-        wait_until_bits_value(RCC->CFGR,
-                              RCC_CFGR_SWS_Msk,
-                              RCC_CFGR_SWS_PLLRCLK);
+        modify_bits(RCC->CFGR, RCC_CFGR_SW_Msk, RCC_CFGR_SW_PLL);
+        wait_until_bits_value(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_PLLRCLK);
 
         // Update sys tick
         SysTick->LOAD = SysTick->LOAD << 3;
@@ -98,8 +79,7 @@ void setFastSystemClock(bool value)
     else
     {
         // Set 0 wait states for flash
-        clear_bits(FLASH->ACR,
-                   FLASH_ACR_LATENCY_Msk);
+        clear_bits(FLASH->ACR, FLASH_ACR_LATENCY_Msk);
 
         // Configure SW, AHB, APB
         RCC->CFGR = RCC_CFGR_SW_HSI |    // Select HSI as system clock
@@ -111,6 +91,8 @@ void setFastSystemClock(bool value)
     }
 }
 
+// Bootloader
+
 void startBootloader(void)
 {
     // Disable interrupts
@@ -119,9 +101,7 @@ void startBootloader(void)
     SysTick->VAL = 0;
 
     // Set SYSCLK to HSI16/1
-    modify_bits(RCC->CR,
-                RCC_CR_HSIDIV_Msk,
-                RCC_CR_HSIDIV_DIV1);
+    modify_bits(RCC->CR, RCC_CR_HSIDIV_Msk, RCC_CR_HSIDIV_DIV1);
 
     // Jump to bootloader
     __set_MSP(SYSTEM_VECTOR_TABLE->sp);
@@ -141,21 +121,11 @@ const char *const commId = "Bosean FS-1000;" FIRMWARE_NAME " " FIRMWARE_VERSION 
 void initKeyboardHardware(void)
 {
     // GPIO
-    gpio_setup_input(KEY_LEFT_PORT,
-                     KEY_LEFT_PIN,
-                     GPIO_PULL_FLOATING);
-    gpio_setup_input(KEY_RIGHT_PORT,
-                     KEY_RIGHT_PIN,
-                     GPIO_PULL_FLOATING);
-    gpio_setup_input(KEY_UP_PORT,
-                     KEY_UP_PIN,
-                     GPIO_PULL_FLOATING);
-    gpio_setup_input(KEY_DOWN_PORT,
-                     KEY_DOWN_PIN,
-                     GPIO_PULL_PULLDOWN);
-    gpio_setup_input(KEY_OK_PORT,
-                     KEY_OK_PIN,
-                     GPIO_PULL_FLOATING);
+    gpio_setup_input(KEY_LEFT_PORT, KEY_LEFT_PIN, GPIO_PULL_FLOATING);
+    gpio_setup_input(KEY_RIGHT_PORT, KEY_RIGHT_PIN, GPIO_PULL_FLOATING);
+    gpio_setup_input(KEY_UP_PORT, KEY_UP_PIN, GPIO_PULL_FLOATING);
+    gpio_setup_input(KEY_DOWN_PORT, KEY_DOWN_PIN, GPIO_PULL_PULLDOWN);
+    gpio_setup_input(KEY_OK_PORT, KEY_OK_PIN, GPIO_PULL_FLOATING);
 }
 
 void getKeyboardState(bool *isKeyDown)
@@ -195,9 +165,7 @@ static void onDisplaySleep(uint32_t value)
 
 static void onDisplaySetReset(bool value)
 {
-    gpio_modify(DISPLAY_RSTB_PORT,
-                DISPLAY_RSTB_PIN,
-                !value);
+    gpio_modify(DISPLAY_RSTB_PORT, DISPLAY_RSTB_PIN, !value);
 }
 
 static void onDisplaySetChipselect(bool value)
@@ -206,9 +174,7 @@ static void onDisplaySetChipselect(bool value)
 
 static void onDisplaySetCommand(bool value)
 {
-    gpio_modify(DISPLAY_A0_PORT,
-                DISPLAY_A0_PIN,
-                !value);
+    gpio_modify(DISPLAY_A0_PORT, DISPLAY_A0_PIN, !value);
 }
 
 static void onDisplaySend(uint16_t value)
@@ -271,31 +237,11 @@ void initDisplay(void)
     gpio_set(DISPLAY_CSB_PORT, DISPLAY_CSB_PIN);
     gpio_set(DISPLAY_SCLK_PORT, DISPLAY_SCLK_PIN);
 
-    gpio_setup_output(DISPLAY_RSTB_PORT,
-                      DISPLAY_RSTB_PIN,
-                      GPIO_OUTPUTTYPE_PUSHPULL,
-                      GPIO_OUTPUTSPEED_50MHZ,
-                      GPIO_PULL_FLOATING);
-    gpio_setup_output(DISPLAY_CSB_PORT,
-                      DISPLAY_CSB_PIN,
-                      GPIO_OUTPUTTYPE_PUSHPULL,
-                      GPIO_OUTPUTSPEED_50MHZ,
-                      GPIO_PULL_FLOATING);
-    gpio_setup_output(DISPLAY_A0_PORT,
-                      DISPLAY_A0_PIN,
-                      GPIO_OUTPUTTYPE_PUSHPULL,
-                      GPIO_OUTPUTSPEED_50MHZ,
-                      GPIO_PULL_FLOATING);
-    gpio_setup_output(DISPLAY_SCLK_PORT,
-                      DISPLAY_SCLK_PIN,
-                      GPIO_OUTPUTTYPE_PUSHPULL,
-                      GPIO_OUTPUTSPEED_50MHZ,
-                      GPIO_PULL_FLOATING);
-    gpio_setup_output(DISPLAY_SDA_PORT,
-                      DISPLAY_SDA_PIN,
-                      GPIO_OUTPUTTYPE_PUSHPULL,
-                      GPIO_OUTPUTSPEED_50MHZ,
-                      GPIO_PULL_FLOATING);
+    gpio_setup_output(DISPLAY_RSTB_PORT, DISPLAY_RSTB_PIN, GPIO_OUTPUTTYPE_PUSHPULL, GPIO_OUTPUTSPEED_50MHZ, GPIO_PULL_FLOATING);
+    gpio_setup_output(DISPLAY_CSB_PORT, DISPLAY_CSB_PIN, GPIO_OUTPUTTYPE_PUSHPULL, GPIO_OUTPUTSPEED_50MHZ, GPIO_PULL_FLOATING);
+    gpio_setup_output(DISPLAY_A0_PORT, DISPLAY_A0_PIN, GPIO_OUTPUTTYPE_PUSHPULL, GPIO_OUTPUTSPEED_50MHZ, GPIO_PULL_FLOATING);
+    gpio_setup_output(DISPLAY_SCLK_PORT, DISPLAY_SCLK_PIN, GPIO_OUTPUTTYPE_PUSHPULL, GPIO_OUTPUTSPEED_50MHZ, GPIO_PULL_FLOATING);
+    gpio_setup_output(DISPLAY_SDA_PORT, DISPLAY_SDA_PIN, GPIO_OUTPUTTYPE_PUSHPULL, GPIO_OUTPUTSPEED_50MHZ, GPIO_PULL_FLOATING);
 
     // mcu-renderer
     mr_st7565_init(&mr,
@@ -316,7 +262,7 @@ void initDisplay(void)
     initBacklight();
 }
 
-void setDisplayEnable(bool value)
+void setDisplayEnabled(bool value)
 {
     mr_st7565_set_display(&mr, value);
 

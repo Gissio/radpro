@@ -4,7 +4,7 @@ Try the [Rad Pro simulator](https://gissio.github.io/radpro-simulator/)!
 
 ## Introduction
 
-Rad Pro is an advanced custom firmware designed to enhance the functionality of various commercially available Geiger counters, including the [FS2011](https://www.amazon.com/s?k=fs2011), [YT-203B](https://www.amazon.com/s?k=yt203b), [Bosean FS-600](https://bosean.net/products/nuclear_radiation_detector.html), [Bosean FS-1000](https://bosean.net/products/FS-1000_nuclear_radiation_detector.html), [Bosean FS-5000](https://bosean.net/FS-5000-Nuclear-Radiation-Detector-2.html), [FNIRSI GC-01](https://www.fnirsi.com/products/gc-01), [JOY-IT JT-RAD01](https://joy-it.net/products/JT-RAD01) and [GQ GMC-800](https://www.gqelectronicsllc.com/comersus/store/comersus_viewItem.asp?idProduct=5859).
+Rad Pro is an advanced custom firmware designed to enhance the functionality of various commercially available Geiger counters, including the FS2011, YT-203B, Bosean FS-600, FS-1000, FS-5000, FNIRSI GC-01, GC-03, JOY-IT JT-RAD01 and GQ GMC-800.
 
 With Rad Pro, you can:
 
@@ -34,7 +34,7 @@ With Rad Pro, you can:
 ## Tools & software
 
 * [GeigerLog](https://sourceforge.net/projects/geigerlog/) – Data analysis software for PC.
-* [RadPro Log Viewer](https://github.com/mayrthom/RadPro-LogViewer) – Data analysis app for Android.
+* [Rad Pro Log Viewer](https://github.com/mayrthom/RadPro-LogViewer) – Data analysis app for Android.
 
 ## Acknowledgements
 

@@ -40,13 +40,25 @@ typedef uint16_t mr_color_t;
 #define COLOR_BLEND_TABLE_SIZE ((1 << 5) + 1)
 
 /**
- * Macro that converts an RGB888 color code to an RGB565 color.
+ * Macro for converting RGB888 colors to RGB565 colors using bit truncation. Best for UIs.
  *
  * @param color_code The RGB888 color code.
  *
  * @return The RGB565 color.
  */
-#define mr_get_color(color_code)                                  \
+#define mr_get_color(color_code)                   \
+    ((((color_code >> 16) & 0xff) >> 3) << 11) |   \
+        ((((color_code >> 8) & 0xff) >> 2) << 5) | \
+        ((((color_code >> 0) & 0xff) >> 3) << 0)
+
+/**
+ * Macro for converting RGB888 colors to RGB565 colors using rounding. Best color accuracy.
+ *
+ * @param color_code The RGB888 color code.
+ *
+ * @return The RGB565 color.
+ */
+#define mr_get_color_rounding(color_code)                         \
     (((((color_code >> 16) & 0xff) * 249 + 1014) >> 11) << 11) |  \
         (((((color_code >> 8) & 0xff) * 253 + 505) >> 10) << 5) | \
         (((((color_code >> 0) & 0xff) * 249 + 1014) >> 11) << 0)

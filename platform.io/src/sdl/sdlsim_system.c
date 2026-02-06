@@ -2,7 +2,7 @@
  * Rad Pro
  * Simulator system
  *
- * (C) 2022-2025 Gissio
+ * (C) 2022-2026 Gissio
  *
  * License: MIT
  */
@@ -11,7 +11,7 @@
 
 #include <stdio.h>
 
-#include "../system.h"
+#include "../system/system.h"
 
 void initSystem(void)
 {
@@ -25,24 +25,6 @@ void getDeviceId(char *s)
 void startBootloader(void)
 {
     printf("Starting bootloader...\n");
-}
-
-// Pulse control
-
-void initPulseControl(void)
-{
-}
-
-void updatePulseControl(void)
-{
-}
-
-void setPulseControlEnabled(bool value)
-{
-}
-
-void onPulseControlTick(void)
-{
 }
 
 #endif

@@ -1,4 +1,3 @@
 pyelftools
 pyserial
-pyswd
 requests

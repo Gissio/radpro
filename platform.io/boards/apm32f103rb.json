@@ -2,16 +2,16 @@
     "build": {
         "core": "stm32",
         "cpu": "cortex-m3",
-        "extra_flags": "-D STM32 -D STM32F1 -D STM32F103xB -D APM32 -D SRAM_SIZE=20480",
+        "extra_flags": "-D STM32 -D STM32F1 -D STM32F103xB -D APM32 -D APM32F1 -D FLASH_BASE_=0x08000000 -D FLASH_SIZE_=0x20000 -D FLASH_PAGE_SIZE=0x400 -D FLASH_WORD_SIZE=0x2",
         "f_cpu": "72000000L",
-        "mcu": "stm32f103cbt6",
+        "mcu": "stm32f103rbt6",
         "product_line": "STM32F103xB"
     },
     "debug": {
         "default_tools": [
             "stlink"
         ],
-        "jlink_device": "STM32F103CB",
+        "jlink_device": "STM32F103RB",
         "openocd_target": "stm32f1x",
         "svd_path": "STM32F103xx.svd"
     },

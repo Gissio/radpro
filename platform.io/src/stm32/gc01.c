@@ -1,48 +1,92 @@
 /*
  * Rad Pro
- * FNIRSI GC-01 specifics
+ * FNIRSI GC-01 driver
  *
- * (C) 2022-2025 Gissio
+ * (C) 2022-2026 Gissio
  *
  * License: MIT
  */
 
 #if defined(GC01)
 
-#include "../display.h"
-#include "../events.h"
-#include "../keyboard.h"
-#include "../system.h"
-
-#include "device.h"
-
 #include "mcu-renderer-st7789.h"
+
+#include "../devices/display.h"
+#include "../devices/keyboard.h"
+#include "../stm32/device.h"
+#include "../system/events.h"
+#include "../system/system.h"
 
 // System
 
+void Reset_Handler(void)
+{
+    __asm__ volatile(
+        // Set SP and VTOR for bootloader
+        "   ldr     r0, =0x08004000\n"
+        "   ldr     r1, =0xe000ed08\n"
+        "   str     r0, [r1]\n"
+        "   ldr     r0, [r0]\n"
+        "   mov     sp, r0\n"
+
+        // Call the clock system initialization function
+        "   bl      SystemInit\n"
+
+        // Copy the data segment initializers from flash to SRAM
+        "   ldr     r0, =_sdata\n"
+        "   ldr     r1, =_edata\n"
+        "   ldr     r2, =_sidata\n"
+        "   movs    r3, #0\n"
+        "   b       LoopCopyDataInit\n"
+
+        "CopyDataInit:\n"
+        "   ldr     r4, [r2, r3]\n"
+        "   str     r4, [r0, r3]\n"
+        "   adds    r3, r3, #4\n"
+
+        "LoopCopyDataInit:\n"
+        "   adds    r4, r0, r3\n"
+        "   cmp     r4, r1\n"
+        "   bcc     CopyDataInit\n"
+
+        // Zero fill the bss segment
+        "   ldr     r2, =_sbss\n"
+        "   ldr     r4, =_ebss\n"
+        "   movs    r3, #0\n"
+        "   b       LoopFillZerobss\n"
+
+        "FillZerobss:\n"
+        "   str     r3, [r2]\n"
+        "   adds    r2, r2, #4\n"
+
+        "LoopFillZerobss:\n"
+        "   cmp     r2, r4\n"
+        "   bcc     FillZerobss\n"
+
+        // Call static constructors
+        "   bl      __libc_init_array\n"
+
+        // Call the application's entry point
+        "   bl      main\n"
+        "   bx      lr\n");
+}
+
 void initSystem(void)
 {
-    // Set SP and VTOR for bootloader
-    __set_MSP(*((uint32_t *)FIRMWARE_BASE));
-    NVIC_DisableAllIRQs();
-    SCB->VTOR = FIRMWARE_BASE;
-
     // Set HSI as system clock
-    modify_bits(RCC->CFGR,
-                RCC_CFGR_SW_Msk,
-                RCC_CFGR_SW_HSI);
-    wait_until_bits_value(RCC->CFGR,
-                          RCC_CFGR_SWS_Msk,
-                          RCC_CFGR_SWS_HSI);
+    modify_bits(RCC->CFGR, RCC_CFGR_SW_Msk, RCC_CFGR_SW_HSI);
+    wait_until_bits_value(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_HSI);
 
     // Disable PLL
     clear_bits(RCC->CR, RCC_CR_PLLON);
     wait_until_bits_clear(RCC->CR, RCC_CR_PLLRDY);
 
+    // Enable HSE
+    set_bits(RCC->CR, RCC_CR_HSEON);
+    wait_until_bits_set(RCC->CR, RCC_CR_HSERDY);
+
     // Set 2 wait states for flash
-    modify_bits(FLASH->ACR,
-                FLASH_ACR_LATENCY_Msk,
-                FLASH_ACR_LATENCY_2WS);
+    modify_bits(FLASH->ACR, FLASH_ACR_LATENCY_Msk, FLASH_ACR_LATENCY_2WS);
 
     // Configure AHB, APB1, APB2, ADC, PLL
     RCC->CFGR = RCC_CFGR_SW_HSI |       // Select HSI as system clock
@@ -55,40 +99,87 @@ void initSystem(void)
                 RCC_CFGR_PLLMULL9 |     // Set PLL multiplier: 9x
                 RCC_CFGR_USBPRE_DIV1_5; // Set USB prescaler: 1.5x
 
-    // Enable HSE
-    set_bits(RCC->CR, RCC_CR_HSEON);
-    wait_until_bits_set(RCC->CR, RCC_CR_HSERDY);
-
     // Enable PLL
     set_bits(RCC->CR, RCC_CR_PLLON);
     wait_until_bits_set(RCC->CR, RCC_CR_PLLRDY);
 
     // Set PLL as system clock
-    modify_bits(RCC->CFGR,
-                RCC_CFGR_SW_Msk,
-                RCC_CFGR_SW_PLL);
-    wait_until_bits_value(RCC->CFGR,
-                          RCC_CFGR_SWS_Msk,
-                          RCC_CFGR_SWS_PLL);
+    modify_bits(RCC->CFGR, RCC_CFGR_SW_Msk, RCC_CFGR_SW_PLL);
+    wait_until_bits_value(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_PLL);
 
     // Disable JTAG
     rcc_enable_afio();
-#if !defined(GC01_USART)
-    modify_bits(AFIO->MAPR,
-                AFIO_MAPR_SWJ_CFG_Msk,
-                AFIO_MAPR_SWJ_CFG_JTAGDISABLE);
-#else
-    modify_bits(AFIO->MAPR,
-                AFIO_MAPR_SWJ_CFG_Msk,
-                AFIO_MAPR_SWJ_CFG_JTAGDISABLE |
-                    AFIO_MAPR_USART1_REMAP);
-#endif
+    modify_bits(AFIO->MAPR, AFIO_MAPR_SWJ_CFG_Msk, AFIO_MAPR_SWJ_CFG_JTAGDISABLE);
 
     // Enable GPIOA, GPIOB, GPIOC
-    set_bits(RCC->APB2ENR,
-             RCC_APB2ENR_IOPAEN |
-                 RCC_APB2ENR_IOPBEN |
-                 RCC_APB2ENR_IOPCEN);
+    set_bits(RCC->APB2ENR, RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN);
+}
+
+// Bootloader
+
+#define BOOTLOADER_VECTOR_TABLE ((VectorTable *)BOOTLOADER_BASE)
+
+void startBootloader(void)
+{
+    // Disable interrupts
+    NVIC_DisableAllIRQs();
+    SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk;
+    SysTick->VAL = 0;
+
+    // Enable HSI
+    set_bits(RCC->CR, RCC_CR_HSION);
+    wait_until_bits_set(RCC->CR, RCC_CR_HSIRDY);
+
+    // Set HSI as system clock
+    modify_bits(RCC->CFGR, RCC_CFGR_SW_Msk, RCC_CFGR_SW_HSI);
+    wait_until_bits_value(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_HSI);
+
+    // Disable PLL
+    clear_bits(RCC->CR, RCC_CR_PLLON);
+    wait_until_bits_clear(RCC->CR, RCC_CR_PLLRDY);
+
+    // Reset RCC
+    RCC->CFGR = 0;
+
+    // Set 0 wait states for flash
+    modify_bits(FLASH->ACR, FLASH_ACR_LATENCY_Msk, FLASH_ACR_LATENCY_0WS);
+
+    // Jump to bootloader
+    __set_MSP(BOOTLOADER_VECTOR_TABLE->sp);
+    BOOTLOADER_VECTOR_TABLE->onReset();
+}
+
+// Tube
+
+#define TUBE_DEFAULT_SIGNATURE (*((uint8_t *)(0x08003800)))
+#define TUBE_DEFAULT_SIGNATURE_VALUE 0xeb
+#define TUBE_DEFAULT_HV_FREQUENCY (*((uint16_t *)(0x08003824)))
+#define TUBE_DEFAULT_HV_DUTYCYCLE (*((uint16_t *)(0x08003826)))
+
+float getTubeDefaultHVFrequency(void)
+{
+    float value = -1;
+
+    if (TUBE_DEFAULT_SIGNATURE == TUBE_DEFAULT_SIGNATURE_VALUE)
+    {
+        if (TUBE_DEFAULT_HV_FREQUENCY >= 100)
+            value = TUBE_DEFAULT_HV_FREQUENCY;
+    }
+
+    return value;
+}
+
+float getTubeDefaultHVDutyCycle(void)
+{
+    float value = -1;
+
+    if (TUBE_DEFAULT_SIGNATURE == TUBE_DEFAULT_SIGNATURE_VALUE)
+    {
+        if (TUBE_DEFAULT_HV_DUTYCYCLE <= 1000)
+            value = 0.001F * TUBE_DEFAULT_HV_DUTYCYCLE;
+    }
+
+    return value;
 }
 
 // Communications
@@ -104,21 +195,11 @@ const char *const commId = "FNIRSI GC-01 (APM32F103CB);" FIRMWARE_NAME " " FIRMW
 void initKeyboardHardware(void)
 {
     // GPIO
-    gpio_setup(KEY_LEFT_PORT,
-               KEY_LEFT_PIN,
-               GPIO_MODE_INPUT_PULLUP);
-    gpio_setup(KEY_RIGHT_PORT,
-               KEY_RIGHT_PIN,
-               GPIO_MODE_INPUT_PULLUP);
-    gpio_setup(KEY_UP_PORT,
-               KEY_UP_PIN,
-               GPIO_MODE_INPUT_PULLUP);
-    gpio_setup(KEY_DOWN_PORT,
-               KEY_DOWN_PIN,
-               GPIO_MODE_INPUT_PULLUP);
-    gpio_setup(KEY_OK_PORT,
-               KEY_OK_PIN,
-               GPIO_MODE_INPUT_PULLUP);
+    gpio_setup(KEY_LEFT_PORT, KEY_LEFT_PIN, GPIO_MODE_INPUT_PULLUP);
+    gpio_setup(KEY_RIGHT_PORT, KEY_RIGHT_PIN, GPIO_MODE_INPUT_PULLUP);
+    gpio_setup(KEY_UP_PORT, KEY_UP_PIN, GPIO_MODE_INPUT_PULLUP);
+    gpio_setup(KEY_DOWN_PORT, KEY_DOWN_PIN, GPIO_MODE_INPUT_PULLUP);
+    gpio_setup(KEY_OK_PORT, KEY_OK_PIN, GPIO_MODE_INPUT_PULLUP);
 }
 
 void getKeyboardState(bool *isKeyDown)
@@ -139,16 +220,13 @@ bool displayEnabled;
 static uint8_t displayTextbuffer[88 * 88];
 
 static const uint8_t displayInitSequence[] = {
-    MR_SEND_COMMAND(MR_ST7789_RAMCTRL),
-    MR_SEND_DATA(0x00),
-    MR_SEND_DATA(0xe0),
     MR_SEND_COMMAND(MR_ST7789_VCOMS),
     MR_SEND_DATA(0x36), // VCOM=1.45 V
     MR_SEND_COMMAND(MR_ST7789_VRHS),
     MR_SEND_DATA(0x12), // VRH=4.45 V
     MR_SEND_COMMAND(MR_ST7789_PWCTRL1),
-    MR_SEND_DATA(0xa4), // AVDD=6.8 V, AVCL=-4.8 V, VDDS=2.3 V
-    MR_SEND_DATA(0xa1),
+    MR_SEND_DATA(0xa4),
+    MR_SEND_DATA(0xa1), // AVCL=-4.8 V
     MR_SEND_COMMAND(MR_ST7789_PVGAMCTRL),
     MR_SEND_DATA(0xd0),
     MR_SEND_DATA(0x00),
@@ -182,8 +260,6 @@ static const uint8_t displayInitSequence[] = {
     MR_END(),
 };
 
-#if !defined(GC01_DISPLAY_SPI)
-
 static void onDisplaySleep(uint32_t value)
 {
     sleep(value);
@@ -191,23 +267,17 @@ static void onDisplaySleep(uint32_t value)
 
 static void onDisplaySetReset(bool value)
 {
-    gpio_modify(DISPLAY_RESX_PORT,
-                DISPLAY_RESX_PIN,
-                !value);
+    gpio_modify(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN, !value);
 }
 
 static void onDisplaySetChipselect(bool value)
 {
-    gpio_modify(DISPLAY_CSX_PORT,
-                DISPLAY_CSX_PIN,
-                !value);
+    gpio_modify(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN, !value);
 }
 
 static void onDisplaySetCommand(bool value)
 {
-    gpio_modify(DISPLAY_DCX_PORT,
-                DISPLAY_DCX_PIN,
-                !value);
+    gpio_modify(DISPLAY_DCX_PORT, DISPLAY_DCX_PIN, !value);
 }
 
 static void onDisplaySend(uint16_t value)
@@ -225,21 +295,11 @@ void initDisplay(void)
     gpio_set(DISPLAY_RDX_PORT, DISPLAY_RDX_PIN);
     gpio_set(DISPLAY_WRX_PORT, DISPLAY_WRX_PIN);
 
-    gpio_setup(DISPLAY_RESX_PORT,
-               DISPLAY_RESX_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_CSX_PORT,
-               DISPLAY_CSX_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_DCX_PORT,
-               DISPLAY_DCX_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_RDX_PORT,
-               DISPLAY_RDX_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_WRX_PORT,
-               DISPLAY_WRX_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+    gpio_setup(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN, GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+    gpio_setup(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN, GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+    gpio_setup(DISPLAY_DCX_PORT, DISPLAY_DCX_PIN, GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+    gpio_setup(DISPLAY_RDX_PORT, DISPLAY_RDX_PIN, GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+    gpio_setup(DISPLAY_WRX_PORT, DISPLAY_WRX_PIN, GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
 
     DISPLAY_DATA_PORT->CRL = (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 0) |
                              (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 4) |
@@ -277,7 +337,7 @@ void initDisplay(void)
     initBacklight();
 }
 
-void setDisplayEnable(bool value)
+void setDisplayEnabled(bool value)
 {
     mr_st7789_set_display(&mr, value);
     mr_st7789_set_sleep(&mr, !value);
@@ -293,122 +353,5 @@ bool isDisplayEnabled(void)
 void refreshDisplay(void)
 {
 }
-
-#else
-
-static const uint8_t displayIPSInitSequence[] = {
-    MR_SEND_COMMAND(MR_ST7789_INVON), // Inverse for IPS displays
-
-    MR_END(),
-};
-
-static void onDisplaySleep(uint32_t value)
-{
-    sleep(value);
-}
-
-static void onDisplaySetReset(bool value)
-{
-    gpio_modify(DISPLAY_RESX_PORT,
-                DISPLAY_RESX_PIN,
-                !value);
-}
-
-static void onDisplaySetChipselect(bool value)
-{
-    spi_wait_while_busy(DISPLAY_SPI);
-
-    gpio_modify(DISPLAY_CSX_PORT,
-                DISPLAY_CSX_PIN,
-                !value);
-}
-
-static void onDisplaySetCommand(bool value)
-{
-    spi_wait_while_busy(DISPLAY_SPI);
-
-    gpio_modify(DISPLAY_DCX_PORT,
-                DISPLAY_DCX_PIN,
-                !value);
-}
-
-static void onDisplaySend(uint16_t value)
-{
-    spi_send(DISPLAY_SPI, value);
-}
-
-static void onDisplaySend16(uint16_t value)
-{
-    spi_send(DISPLAY_SPI, (value >> 8) & 0xff);
-    spi_send(DISPLAY_SPI, (value >> 0) & 0xff);
-}
-
-void initDisplay(void)
-{
-    // GPIO
-    gpio_set(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN);
-    gpio_set(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN);
-
-    gpio_setup(DISPLAY_RESX_PORT,
-               DISPLAY_RESX_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_CSX_PORT,
-               DISPLAY_CSX_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_DCX_PORT,
-               DISPLAY_DCX_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_SCL_PORT,
-               DISPLAY_SCL_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL);
-    gpio_setup(DISPLAY_SDA_PORT,
-               DISPLAY_SDA_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL);
-
-    // SPI
-    rcc_reset_spi(DISPLAY_SPI);
-    rcc_enable_spi(DISPLAY_SPI);
-    spi_setup(DISPLAY_SPI);
-    spi_enable(DISPLAY_SPI);
-
-    // mcu-renderer
-    mr_st7789_init(&mr,
-                   240,
-                   320,
-                   MR_DISPLAY_ROTATION_270,
-                   displayTextbuffer,
-                   sizeof(displayTextbuffer),
-                   onDisplaySleep,
-                   onDisplaySetReset,
-                   onDisplaySetChipselect,
-                   onDisplaySetCommand,
-                   onDisplaySend,
-                   onDisplaySend16);
-
-    mr_send_sequence(&mr, displayInitSequence);
-
-    mr_send_sequence(&mr, displayIPSInitSequence);
-
-    initBacklight();
-}
-
-void setDisplayEnable(bool value)
-{
-    mr_st7789_set_display(&mr, value);
-    mr_st7789_set_sleep(&mr, !value);
-
-    displayEnabled = value;
-}
-
-bool isDisplayEnabled(void)
-{
-    return displayEnabled;
-}
-
-void refreshDisplay(void)
-{
-}
-
-#endif
 
 #endif

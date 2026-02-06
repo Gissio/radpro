@@ -1,7 +1,7 @@
 # Rad Pro
 # Signs the Rad Pro firmware
 #
-# (C) 2022-2025 Gissio
+# (C) 2022-2026 Gissio
 #
 # License: MIT
 #
@@ -19,14 +19,14 @@ def get_radpro_path():
 
 
 def get_languages():
-    strings_dir = get_radpro_path() + 'platform.io/src/strings'
+    strings_dir = get_radpro_path() + 'platform.io/src/system/strings'
     strings_files = os.listdir(strings_dir)
 
     return [file[:-2] for file in strings_files if file.endswith('.h')]
 
 
 def get_firmware_version():
-    system_file = get_radpro_path() + 'platform.io/src/system.h'
+    system_file = get_radpro_path() + 'platform.io/src/system/system.h'
     with open(system_file, 'r') as f:
         lines = f.readlines()
 
@@ -37,13 +37,8 @@ def get_firmware_version():
 
 
 def extract_elf_data(elf_file):
-    ''' Get SWD comm
-    '''
     with open(elf_file, 'rb') as f:
         elf = ELFFile(f)
-
-        symtab = elf.get_section_by_name('.symtab')
-        comm = symtab.get_symbol_by_name('comm')[0].entry['st_value']
 
         comment_data = elf.get_section_by_name('.comment').data()
         comments = {}
@@ -52,11 +47,19 @@ def extract_elf_data(elf_file):
             pair = decoded_string.split(': ', 2)
             comments[pair[0]] = pair[1]
 
-        flash_size = int(comments['FLASH_SIZE'], 16)
-        firmware_offset = int(comments['FIRMWARE_BASE'], 16) - 0x08000000
-        firmware_size = int(comments['FIRMWARE_SIZE'], 16)
+        flash_base = eval(comments['FLASH_BASE'])
+        flash_size = eval(comments['FLASH_SIZE'])
+        firmware_base = eval(comments['FIRMWARE_BASE'])
+        firmware_size = eval(comments['FIRMWARE_SIZE'])
+        state_base = eval(comments['STATE_BASE'])
+        state_size = eval(comments['STATE_SIZE'])
+        datalog_base = eval(comments['DATALOG_BASE'])
+        datalog_size = eval(comments['DATALOG_SIZE'])
 
-        return comm, flash_size, firmware_offset, firmware_size
+        firmware_offset = firmware_base - flash_base
+        image_size = (datalog_base - firmware_base) + datalog_size
+
+        return firmware_offset, firmware_size, image_size, state_base, state_size
 
     return None
 
@@ -92,38 +95,39 @@ def sign_firmware(env_name):
 
         print('Building ' + build_name + '...')
 
-        # Read compiled firmware
+        # Read firmware
         if not os.path.exists(elf_file):
             print('warning: file not found: ' + bin_file)
             continue
 
         firmware_version = get_firmware_version()
-        swd_comm_address, flash_size, firmware_offset, firmware_size = extract_elf_data(elf_file)
+        firmware_offset, firmware_size, image_size, state_base, state_size = extract_elf_data(
+            elf_file)
 
         firmware = None
         with open(bin_file, 'rb') as f:
             firmware = bytearray(f.read())
 
-        footer_size = 0x4
-        footer_index = firmware_size - footer_size
-        file_size = flash_size - firmware_offset
+        firmware_footer_size = 0x4
+        firmware_footer_offset = firmware_size - firmware_footer_size
 
-        flash = bytearray(b'\xff' * file_size)
+        image = bytearray(b'\xff' * image_size)
 
-        remaining_space = footer_index - len(firmware)
+        firmware_empty_space = firmware_footer_offset - len(firmware)
 
-        if remaining_space < 0:
+        if firmware_empty_space < 0:
             print(
-                f'warning: input file too large: remaining space {remaining_space}')
+                f'warning: input file too large: remaining space {firmware_empty_space}')
 
             continue
 
         # Sign
-        flash[0:len(firmware)] = firmware
+        image[0:len(firmware)] = firmware
 
-        write_word(flash, 0x20, 0x50444152)
-        write_word(flash, 0x24, swd_comm_address)
-        write_word(flash, footer_index, get_crc(flash[0:footer_index]))
+        write_word(image, 0x20, state_base)
+        write_word(image, 0x24, state_size)
+        write_word(image, firmware_footer_offset,
+                   get_crc(image[0:firmware_footer_offset]))
 
         # Build firmware stem
         build_stem = 'radpro-' + env_name + '-' + language + '-' + firmware_version
@@ -135,7 +139,7 @@ def sign_firmware(env_name):
 
             os.makedirs(install_path, exist_ok=True)
             with open(output_path, 'wb') as f:
-                f.write(flash)
+                f.write(image)
 
         # Build firmware binary
         firmware_path = env_name + '/' + 'firmware' + '/'
@@ -143,21 +147,26 @@ def sign_firmware(env_name):
 
         os.makedirs(firmware_path, exist_ok=True)
         with open(output_path, 'wb') as f:
-            f.write(flash[0:firmware_size])
+            f.write(image[0:firmware_size])
 
-        print(
-            f'done: remaining space {remaining_space}')
+        print(f'done: remaining space {firmware_empty_space}')
 
 
 # Sign firmware
-sign_firmware('fs2011-stm32f051c8')
-sign_firmware('fs2011-gd32f150c8')
-sign_firmware('fs2011-gd32f103c8')
-sign_firmware('bosean-fs600')
-sign_firmware('bosean-fs1000')
-sign_firmware('bosean-fs5000')
-# sign_firmware('bosean-fs5000_landscape')
-sign_firmware('fnirsi-gc01_ch32f103r8')
-sign_firmware('fnirsi-gc01_apm32f103rb')
-sign_firmware('gq-gmc800')
-# sign_firmware('gq-gmc800_landscape')
+envs = [
+    'fs2011-stm32f051c8',
+    'fs2011-gd32f150c8',
+    'fs2011-gd32f103c8',
+    'bosean-fs600',
+    'bosean-fs1000',
+    'bosean-fs5000',
+    # 'bosean-fs5000_landscape',
+    'fnirsi-gc01_ch32f103r8',
+    'fnirsi-gc01_apm32f103rb',
+    'fnirsi-gc03',
+    'gq-gmc800',
+    # 'gq-gmc800_landscape',
+]
+
+for env in envs:
+    sign_firmware(env)

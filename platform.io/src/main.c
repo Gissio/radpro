@@ -1,8 +1,8 @@
 /*
  * Rad Pro
- * STM32 Main module
+ * Main module
  *
- * (C) 2022-2025 Gissio
+ * (C) 2022-2026 Gissio
  *
  * License: MIT
  */
@@ -11,39 +11,26 @@
 #include <emscripten.h>
 #endif
 
-#include "adc.h"
-#include "comm.h"
-#include "debug.h"
-#include "display.h"
-#include "events.h"
-#include "flash.h"
-#include "game.h"
-#include "keyboard.h"
-#include "led.h"
-#include "menu.h"
-#include "power.h"
-#include "rng.h"
-#include "rtc.h"
-#include "settings.h"
-#include "sound.h"
-#include "system.h"
-#include "tube.h"
-#include "vibration.h"
-#include "view.h"
+#include "devices/adc.h"
+#include "devices/comm.h"
+#include "devices/display.h"
+#include "devices/emf.h"
+#include "devices/flash.h"
+#include "devices/keyboard.h"
+#include "devices/led.h"
+#include "devices/sound.h"
+#include "devices/tube.h"
+#include "devices/vibrator.h"
+#include "extras/game.h"
+#include "measurements/datalog.h"
+#include "system/events.h"
+#include "system/power.h"
+#include "system/settings.h"
+#include "system/system.h"
+#include "ui/view.h"
 
 #if defined(SIMULATOR)
-bool updateSDLTicks();
-
-static void simulateFrame(void)
-{
-    while (updateSDLTicks())
-    {
-#if defined(GAME)
-        dispatchGameEvents();
-#endif
-        dispatchEvents();
-    }
-}
+bool onSDLTick();
 #endif
 
 int main(void)
@@ -56,22 +43,22 @@ int main(void)
     initSettings();
     initADC();
     initTube();
+#if defined(EMFMETER)
+    initEMFMeter();
+#endif
+    initDatalog();
     initComm();
     initKeyboard();
     initDisplay();
     initView();
-#if defined(BUZZER) || defined(SOUND_EN) || defined(VOICE)
+#if defined(BUZZER) || defined(PULSESOUND_ENABLE) || defined(VOICE)
     initSound();
 #endif
-#if defined(VIBRATION)
-    initVibration();
+#if defined(VIBRATOR)
+    initVibrator();
 #endif
-#if defined(PULSE_LED) || defined(ALERT_LED) || defined(PULSE_LED_EN) || defined(ALERT_LED_EN)
+#if defined(PULSE_LED) || defined(PULSE_LED_EN)
     initLED();
-#endif
-
-#if defined(TEST_MODE)
-    runTestMode();
 #endif
 
     powerOn(true);
@@ -79,10 +66,18 @@ int main(void)
     // Main loop
 #if defined(SIMULATOR)
 #if defined(__EMSCRIPTEN__)
-    emscripten_set_main_loop(simulateFrame, 0, 1);
+    emscripten_set_main_loop(runTick, 0, 1);
 #else
     while (true)
-        simulateFrame();
+    {
+        while (onSDLTick())
+        {
+#if defined(GAME)
+            updateGame();
+#endif
+            updateEvents();
+        }
+    }
 #endif
 #else
     while (true)
@@ -90,9 +85,9 @@ int main(void)
         sleep(1);
 
 #if defined(GAME)
-        dispatchGameEvents();
+        updateGame();
 #endif
-        dispatchEvents();
+        updateEvents();
     }
 #endif
 }

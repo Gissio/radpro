@@ -613,34 +613,37 @@ def encode_font(font):
     return best_encoded_font
 
 
-def write_encoded_font(font, encoded_font, path):
+def write_encoded_font_header(file, font):
     codepoint_set = ','.join(build_codepoint_set(font.glyphs.keys()))
 
     define_name = font.variable_name.upper()
 
+    file.write(f'/**\n')
+    file.write(f' * Font: {font.name}\n')
+    file.write(f' * Copyright: {font.copyright}\n')
+    file.write(f' * Codepoints: {codepoint_set}\n')
+    file.write(f' */\n\n')
+
+    file.write(f'#include <stdint.h>\n\n')
+
+    file.write(f'#define {define_name}_SIZE {font.size}\n')
+    file.write(f'#define {define_name}_ASCENT {font.ascent}\n')
+    file.write(f'#define {define_name}_DESCENT {font.descent}\n')
+    file.write(f'#define {define_name}_CAP_HEIGHT {font.cap_height}\n')
+    file.write(
+        f'#define {define_name}_LINE_HEIGHT {font.ascent + font.descent}\n')
+    file.write(
+        f'#define {define_name}_BOUNDINGBOX_LEFT {font.boundingbox_left.min}\n')
+    file.write(
+        f'#define {define_name}_BOUNDINGBOX_BOTTOM {font.boundingbox_bottom.min}\n')
+    file.write(
+        f'#define {define_name}_BOUNDINGBOX_WIDTH {font.boundingbox_right.max - font.boundingbox_left.min}\n')
+    file.write(
+        f'#define {define_name}_BOUNDINGBOX_HEIGHT {font.boundingbox_top.max - font.boundingbox_bottom.min}\n\n')
+
+def write_encoded_font(font, encoded_font, path, extern_path):
     with open(path, 'w') as file:
-        file.write(f'/**\n')
-        file.write(f' * Font: {font.name}\n')
-        file.write(f' * Copyright: {font.copyright}\n')
-        file.write(f' * Codepoints: {codepoint_set}\n')
-        file.write(f' */\n\n')
-
-        file.write(f'#include <stdint.h>\n\n')
-
-        file.write(f'#define {define_name}_SIZE {font.size}\n')
-        file.write(f'#define {define_name}_ASCENT {font.ascent}\n')
-        file.write(f'#define {define_name}_DESCENT {font.descent}\n')
-        file.write(f'#define {define_name}_CAP_HEIGHT {font.cap_height}\n')
-        file.write(
-            f'#define {define_name}_LINE_HEIGHT {font.ascent + font.descent}\n')
-        file.write(
-            f'#define {define_name}_BOUNDINGBOX_LEFT {font.boundingbox_left.min}\n')
-        file.write(
-            f'#define {define_name}_BOUNDINGBOX_BOTTOM {font.boundingbox_bottom.min}\n')
-        file.write(
-            f'#define {define_name}_BOUNDINGBOX_WIDTH {font.boundingbox_right.max - font.boundingbox_left.min}\n')
-        file.write(
-            f'#define {define_name}_BOUNDINGBOX_HEIGHT {font.boundingbox_top.max - font.boundingbox_bottom.min}\n\n')
+        write_encoded_font_header(file, font)
 
         file.write(
             f'const uint8_t {font.variable_name}[{len(encoded_font.data)}] = {{\n')
@@ -650,6 +653,12 @@ def write_encoded_font(font, encoded_font, path):
                 '    ' + ', '.join(f'0x{byte:02x}' for byte in row) + ',\n')
         file.write(f'}};\n')
 
+    if extern_path is not None:
+        with open(extern_path, 'w') as file:
+            write_encoded_font_header(file, font)
+
+            file.write(
+                f'extern const uint8_t {font.variable_name}[{len(encoded_font.data)}];\n')
 
 def main():
     # Parse arguments
@@ -685,6 +694,9 @@ def main():
     parser.add_argument('-n', '--variable-name',
                         dest='variable_name',
                         help='override C-language font variable name')
+    parser.add_argument('-e', '--extern-filename',
+                        dest='extern_filename',
+                        help='write .h file with defines only')
     parser.add_argument('input_filename')
     parser.add_argument('output_filename')
     args = parser.parse_args()
@@ -741,7 +753,7 @@ def main():
     encoded_font = encode_font(font)
 
     # Write
-    write_encoded_font(font, encoded_font, args.output_filename)
+    write_encoded_font(font, encoded_font, args.output_filename, args.extern_filename)
 
 
 if __name__ == '__main__':

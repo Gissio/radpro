@@ -3,6 +3,9 @@
 Frame size: 78 mm x 55 mm
 Screen size: 72 mm x 50 mm
 
+FPC-3260019-A1
+2502HT
+
 ## Initialization sequence
 
     display_set_reset();

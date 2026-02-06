@@ -1,47 +1,37 @@
 /*
  * Rad Pro
- * GQ GMC-800 specifics
+ * GQ GMC-800 driver
  *
- * (C) 2022-2025 Gissio
+ * (C) 2022-2026 Gissio
  *
  * License: MIT
  */
 
 #if defined(GMC800)
 
-#include "../display.h"
-#include "../events.h"
-#include "../keyboard.h"
-#include "../system.h"
-
-#include "device.h"
-
 #include "mcu-renderer-st7789.h"
+
+#include "../devices/display.h"
+#include "../devices/keyboard.h"
+#include "../stm32/device.h"
+#include "../system/events.h"
+#include "../system/system.h"
 
 // System
 
 void initSystem(void)
 {
-    // Set SP and VTOR for bootloader
-    __set_MSP(*((uint32_t *)FIRMWARE_BASE));
-    NVIC_DisableAllIRQs();
-    SCB->VTOR = FIRMWARE_BASE;
-
-    // Enable HSI
-    set_bits(RCC->CR, RCC_CR_HSION);
-    wait_until_bits_set(RCC->CR, RCC_CR_HSIRDY);
-
     // Set HSI as system clock
-    modify_bits(RCC->CFGR,
-                RCC_CFGR_SW_Msk,
-                RCC_CFGR_SW_HSI);
-    wait_until_bits_value(RCC->CFGR,
-                          RCC_CFGR_SWS_Msk,
-                          RCC_CFGR_SWS_HSI);
+    modify_bits(RCC->CFGR, RCC_CFGR_SW_Msk, RCC_CFGR_SW_HSI);
+    wait_until_bits_value(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_HSI);
 
     // Disable PLL
     clear_bits(RCC->CR, RCC_CR_PLLON);
     wait_until_bits_clear(RCC->CR, RCC_CR_PLLRDY);
+
+    // Enable HSE
+    set_bits(RCC->CR, RCC_CR_HSEON);
+    wait_until_bits_set(RCC->CR, RCC_CR_HSERDY);
 
     // Configure AHB, APB1, APB2, ADC, PLL
     RCC->CFGR = RCC_CFGR_SW_HSI |       // Select HSI as system clock
@@ -53,46 +43,30 @@ void initSystem(void)
                 RCC_CFGR_PLLXTPRE_HSE | // Set PLL HSE predivision factor: /1
                 RCC_CFGR_PLLMULL9;      // Set PLL multiplier: 9x
 
+    // +++ To-do: Is this necessary?
     // Configure PLL
-    modify_bits(RCC->CFGR,
-                RCC_CFGR_PLLSRC_Msk |
-                    RCC_CFGR_PLLXTPRE_Msk |
-                    RCC_CFGR_PLLMULL_Msk,
-                RCC_CFGR_PLLSRC_HSE |       // Set PLL source: HSE
-                    RCC_CFGR_PLLXTPRE_HSE | // Set PLL HSE predivision factor: /1
-                    RCC_CFGR_PLLMULL9);     // Set PLL multiplier: 9x
-
-    // Enable HSE
-    set_bits(RCC->CR, RCC_CR_HSEON);
-    wait_until_bits_set(RCC->CR, RCC_CR_HSERDY);
+    // modify_bits(RCC->CFGR,
+    //             RCC_CFGR_PLLSRC_Msk |
+    //                 RCC_CFGR_PLLXTPRE_Msk |
+    //                 RCC_CFGR_PLLMULL_Msk,
+    //             RCC_CFGR_PLLSRC_HSE |       // Set PLL source: HSE
+    //                 RCC_CFGR_PLLXTPRE_HSE | // Set PLL HSE predivision factor: /1
+    //                 RCC_CFGR_PLLMULL9);     // Set PLL multiplier: 9x
 
     // Enable PLL
     set_bits(RCC->CR, RCC_CR_PLLON);
     wait_until_bits_set(RCC->CR, RCC_CR_PLLRDY);
 
     // Set PLL as system clock
-    modify_bits(RCC->CFGR,
-                RCC_CFGR_SW_Msk,
-                RCC_CFGR_SW_PLL);
-    wait_until_bits_value(RCC->CFGR,
-                          RCC_CFGR_SWS_Msk,
-                          RCC_CFGR_SWS_PLL);
-
-    // Disable HSI
-    clear_bits(RCC->CR, RCC_CR_HSION);
+    modify_bits(RCC->CFGR, RCC_CFGR_SW_Msk, RCC_CFGR_SW_PLL);
+    wait_until_bits_value(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_PLL);
 
     // Disable JTAG
     rcc_enable_afio();
-    modify_bits(AFIO->MAPR,
-                AFIO_MAPR_SWJ_CFG_Msk,
-                AFIO_MAPR_SWJ_CFG_JTAGDISABLE);
+    modify_bits(AFIO->MAPR, AFIO_MAPR_SWJ_CFG_Msk, AFIO_MAPR_SWJ_CFG_JTAGDISABLE);
 
     // Enable GPIOA, GPIOB, GPIOC, GPIOD
-    set_bits(RCC->APB2ENR,
-             RCC_APB2ENR_IOPAEN |
-                 RCC_APB2ENR_IOPBEN |
-                 RCC_APB2ENR_IOPCEN |
-                 RCC_APB2ENR_IOPDEN);
+    set_bits(RCC->APB2ENR, RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN | RCC_APB2ENR_IOPDEN);
 
     // Disable USART RTS reset
     gpio_clear(SYSTEM_RESET_EN_PORT, SYSTEM_RESET_EN_PIN);
@@ -100,6 +74,8 @@ void initSystem(void)
                SYSTEM_RESET_EN_PIN,
                GPIO_MODE_OUTPUT_2MHZ_PUSHPULL);
 }
+
+// Bootloader
 
 void startBootloader(void)
 {
@@ -113,12 +89,8 @@ void startBootloader(void)
     wait_until_bits_set(RCC->CR, RCC_CR_HSIRDY);
 
     // Set HSI as system clock
-    modify_bits(RCC->CFGR,
-                RCC_CFGR_SW_Msk,
-                RCC_CFGR_SW_HSI);
-    wait_until_bits_value(RCC->CFGR,
-                          RCC_CFGR_SWS_Msk,
-                          RCC_CFGR_SWS_HSI);
+    modify_bits(RCC->CFGR, RCC_CFGR_SW_Msk, RCC_CFGR_SW_HSI);
+    wait_until_bits_value(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_HSI);
 
     // Disable PLL
     clear_bits(RCC->CR, RCC_CR_PLLON);
@@ -128,14 +100,10 @@ void startBootloader(void)
     RCC->CFGR = 0;
 
     // Set 0 wait states for flash
-    modify_bits(FLASH->ACR,
-                FLASH_ACR_LATENCY_Msk,
-                FLASH_ACR_LATENCY_0WS);
+    modify_bits(FLASH->ACR, FLASH_ACR_LATENCY_Msk, FLASH_ACR_LATENCY_0WS);
 
     // Enable USART RTS reset
-    gpio_setup(SYSTEM_RESET_EN_PORT,
-               SYSTEM_RESET_EN_PIN,
-               GPIO_MODE_INPUT_FLOATING);
+    gpio_setup(SYSTEM_RESET_EN_PORT, SYSTEM_RESET_EN_PIN, GPIO_MODE_INPUT_FLOATING);
 
     // Jump to bootloader
     __set_MSP(SYSTEM_VECTOR_TABLE->sp);
@@ -151,26 +119,18 @@ const char *const commId = "GQ GMC-800;" FIRMWARE_NAME " " FIRMWARE_VERSION "/" 
 void initKeyboardHardware(void)
 {
     // GPIO
-    gpio_setup(KEY_LEFT_PORT,
-               KEY_LEFT_PIN,
-               GPIO_MODE_INPUT_PULLUP);
-    gpio_setup(KEY_UP_PORT,
-               KEY_UP_PIN,
-               GPIO_MODE_INPUT_PULLUP);
-    gpio_setup(KEY_DOWN_PORT,
-               KEY_DOWN_PIN,
-               GPIO_MODE_INPUT_PULLUP);
-    gpio_setup(KEY_RIGHT_PORT,
-               KEY_RIGHT_PIN,
-               GPIO_MODE_INPUT_PULLUP);
+    gpio_setup(KEY_LEFT_PORT, KEY_LEFT_PIN, GPIO_MODE_INPUT_PULLUP);
+    gpio_setup(KEY_UP_PORT, KEY_UP_PIN, GPIO_MODE_INPUT_PULLUP);
+    gpio_setup(KEY_DOWN_PORT, KEY_DOWN_PIN, GPIO_MODE_INPUT_PULLUP);
+    gpio_setup(KEY_RIGHT_PORT, KEY_RIGHT_PIN, GPIO_MODE_INPUT_PULLUP);
 }
 
 void getKeyboardState(bool *isKeyDown)
 {
     isKeyDown[KEY_LEFT] = !gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN);
+    isKeyDown[KEY_RIGHT] = !gpio_get(KEY_RIGHT_PORT, KEY_RIGHT_PIN);
     isKeyDown[KEY_UP] = !gpio_get(KEY_UP_PORT, KEY_UP_PIN);
     isKeyDown[KEY_DOWN] = !gpio_get(KEY_DOWN_PORT, KEY_DOWN_PIN);
-    isKeyDown[KEY_RIGHT] = !gpio_get(KEY_RIGHT_PORT, KEY_RIGHT_PIN);
 }
 
 // Display
@@ -184,12 +144,12 @@ static uint8_t displayTextbuffer[88 * 88];
 static const uint8_t displayInitSequence[] = {
     MR_SEND_COMMAND(MR_ST7789_INVON),
     MR_SEND_COMMAND(MR_ST7789_GCTRL),
-    MR_SEND_DATA(0x74), // // VGH 14.97 V, VGL -9.6 V
+    MR_SEND_DATA(0x74), // VGH=14.97 V, VGL=-9.6 V
     MR_SEND_COMMAND(MR_ST7789_VCOMS),
-    MR_SEND_DATA(0x1f), // VCOM=0.875 V
+    MR_SEND_DATA(0x2c), // VCOM=1.2 V
     MR_SEND_COMMAND(MR_ST7789_PWCTRL1),
-    MR_SEND_DATA(0xa4), // AVDD=6.8 V, AVCL=-4.8 V, VDDS=2.3 V
-    MR_SEND_DATA(0xa1),
+    MR_SEND_DATA(0xa4),
+    MR_SEND_DATA(0xa1), // AVCL=-4.8 V
     MR_SEND_COMMAND(MR_ST7789_PVGAMCTRL),
     MR_SEND_DATA(0xd0),
     MR_SEND_DATA(0x01),
@@ -230,27 +190,21 @@ static void onDisplaySleep(uint32_t value)
 
 static void onDisplaySetReset(bool value)
 {
-    gpio_modify(DISPLAY_RESX_PORT,
-                DISPLAY_RESX_PIN,
-                !value);
+    gpio_modify(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN, !value);
 }
 
 static void onDisplaySetChipselect(bool value)
 {
     spi_wait_while_busy(DISPLAY_SPI);
 
-    gpio_modify(DISPLAY_CSX_PORT,
-                DISPLAY_CSX_PIN,
-                !value);
+    gpio_modify(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN, !value);
 }
 
 static void onDisplaySetCommand(bool value)
 {
     spi_wait_while_busy(DISPLAY_SPI);
 
-    gpio_modify(DISPLAY_DCX_PORT,
-                DISPLAY_DCX_PIN,
-                !value);
+    gpio_modify(DISPLAY_DCX_PORT, DISPLAY_DCX_PIN, !value);
 }
 
 static void onDisplaySend(uint16_t value)
@@ -270,21 +224,11 @@ void initDisplay(void)
     gpio_set(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN);
     gpio_set(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN);
 
-    gpio_setup(DISPLAY_RESX_PORT,
-               DISPLAY_RESX_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_CSX_PORT,
-               DISPLAY_CSX_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_DCX_PORT,
-               DISPLAY_DCX_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_SCL_PORT,
-               DISPLAY_SCL_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL);
-    gpio_setup(DISPLAY_SDA_PORT,
-               DISPLAY_SDA_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL);
+    gpio_setup(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN, GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+    gpio_setup(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN, GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+    gpio_setup(DISPLAY_DCX_PORT, DISPLAY_DCX_PIN, GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+    gpio_setup(DISPLAY_SCL_PORT, DISPLAY_SCL_PIN, GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL);
+    gpio_setup(DISPLAY_SDA_PORT, DISPLAY_SDA_PIN, GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL);
 
     // SPI
     rcc_enable_spi(DISPLAY_SPI);
@@ -315,7 +259,7 @@ void initDisplay(void)
     initBacklight();
 }
 
-void setDisplayEnable(bool value)
+void setDisplayEnabled(bool value)
 {
     mr_st7789_set_display(&mr, value);
     mr_st7789_set_sleep(&mr, !value);

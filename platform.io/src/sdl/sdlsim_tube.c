@@ -2,7 +2,7 @@
  * Rad Pro
  * Simulator Geiger-Müller tube
  *
- * (C) 2022-2025 Gissio
+ * (C) 2022-2026 Gissio
  *
  * License: MIT
  */
@@ -13,28 +13,20 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "../events.h"
-#include "../settings.h"
-#include "../tube.h"
+#include "../devices/tube.h"
+#include "../system/events.h"
+#include "../system/settings.h"
 
 #if !defined(M_PI)
 #define M_PI 3.14159265F
 #endif
 
-#define SIM_SENSITIVITIY 153.8F
+#define SIM_SENSITIVITIY 120.0F
 #define SIM_USVH 0.15F
 #define SIM_CPS (SIM_USVH * SIM_SENSITIVITIY / 60.0F)
 
-static uint32_t tubeTime;
 float tubeCPS;
-
-static struct
-{
-    uint32_t pulseTime;
-
-    uint32_t pulseIndex;
-    uint32_t pulseCount;
-} tube;
+uint32_t tubeLastTick;
 
 void initTubeHardware(void)
 {
@@ -42,10 +34,10 @@ void initTubeHardware(void)
 
     tubeCPS = SIM_CPS;
 
-    updateTubeHV();
+    tubeDeadTime = (uint32_t)(0.000075F * PULSE_MEASUREMENT_FREQUENCY);
 }
 
-void setTubeHV(bool value)
+void setTubeHVEnabled(bool value)
 {
 }
 
@@ -74,37 +66,41 @@ static uint32_t getPoisson(double lambda)
     return n - 1;
 }
 
-bool getTubePulseTime(uint32_t *pulseTime)
+void onTubeTick(void)
 {
-    if (tube.pulseIndex == tube.pulseCount)
-    {
-#if defined(__EMSCRIPTEN__)
-        tubeTime++;
-        if (tubeTime > 120000)
-            tubeTime = 0;
+#if defined(SIMULATE_PULSES)
 
-        if (tubeTime == 30000)
-            tubeCPS = 100 * SIM_CPS;
-        else if (tubeTime == 31000)
-            tubeCPS = SIM_CPS;
+#if defined(__EMSCRIPTEN__)
+    uint32_t tubeTick = currentTick % 120000;
+    if (tubeTick == 30000)
+        tubeCPS = 100 * SIM_CPS;
+    else if (tubeTick == 31000)
+        tubeCPS = SIM_CPS;
 #endif
 
-        tube.pulseTime += 8000;
+    uint32_t pulseCount = getPoisson(tubeCPS / SYSTICK_FREQUENCY);
 
-        tube.pulseIndex = 0;
-        tube.pulseCount = getPoisson(tubeCPS / SYSTICK_FREQUENCY);
+    tubePulseCount += pulseCount;
 
-        return false;
+    for (uint32_t i = 0; i < pulseCount; i++)
+        tubeRandomBits = (tubeRandomBits << 1) | (getUniformRandomValue() > 0.5F);
+
+    if (pulseCount)
+    {
+        uint32_t deltaTicks = currentTick - tubeLastTick;
+        if (deltaTicks < 64)
+        {
+            uint32_t deadTime = 1000 * (deltaTicks - 1) + 1000 * getUniformRandomValue() + 80;
+            if(deadTime < tubeDeadTime)
+                tubeDeadTime = deadTime;
+        }
+        tubeLastTick = currentTick;
     }
 
-    tube.pulseIndex++;
-
-    *pulseTime = tube.pulseTime + (uint32_t)(8000 * (tube.pulseIndex + getUniformRandomValue()) / tube.pulseCount);
-
-    return true;
+#endif
 }
 
-bool getTubeDet(void)
+bool readTubeDet(void)
 {
     return false;
 }

@@ -16,25 +16,25 @@ Data is stored internally using a compressed storage format. Integer values are 
 
 ### Data encodings
 
-    0b0sxxxxxx
+    0b0xxxxxxx
 
-Encodes a differential value from -64 to 63.
+Encodes a differential value from 0 to 127.
 
-    0b10sxxxxx 0bxxxxxxxx
+    0b10xxxxxx 0bxxxxxxxx
 
-Encodes a differential value from -8192 to 8191.
+Encodes a differential value from 0 to 16383.
 
-    0b110sxxxx 0bxxxxxxxx 0bxxxxxxxx
+    0b110xxxxx 0bxxxxxxxx 0bxxxxxxxx
 
-Encodes a differential value from -1048576 to 1048575.
+Encodes a differential value from 0 to 2097151.
 
-    0b1110sxxx 0bxxxxxxxx 0bxxxxxxxx 0bxxxxxxxx
+    0b1110xxxx 0bxxxxxxxx 0bxxxxxxxx 0bxxxxxxxx
 
-Encodes a differential value from -134217728 to 134217727.
+Encodes a differential value from 0 to 268435455.
 
-    0b11110000 0bsxxxxxxx 0bxxxxxxxx 0bxxxxxxxx 0bxxxxxxxx
+    0b11110000 0bxxxxxxxx 0bxxxxxxxx 0bxxxxxxxx 0bxxxxxxxx
 
-Encodes a differential value from -2147483648 to 2147483647.
+Encodes a differential value from 0 to 4294967295.
 
     0b11110001 [32-bit timestamp] [32-bit pulse count]
 

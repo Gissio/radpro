@@ -2,7 +2,7 @@
  * Rad Pro
  * Simulator communications
  *
- * (C) 2022-2025 Gissio
+ * (C) 2022-2026 Gissio
  *
  * License: MIT
  */
@@ -11,9 +11,9 @@
 
 #include <stdio.h>
 
-#include "../comm.h"
-#include "../cstring.h"
-#include "../system.h"
+#include "../devices/comm.h"
+#include "../system/cstring.h"
+#include "../system/system.h"
 
 const char *const commId = "Rad Pro simulator;Rad Pro " FIRMWARE_VERSION "/" LANGUAGE;
 
@@ -81,7 +81,7 @@ void transmitComm(void)
     comm.state = COMM_TX;
 }
 
-void updateComm(void)
+void pollComm(void)
 {
     char receiveBuffer[COMM_BUFFER_SIZE];
     size_t receivedBytes = 0;
@@ -173,7 +173,7 @@ void transmitComm(void)
         comm.state = COMM_TX_READY;
 }
 
-void updateComm(void)
+void pollComm(void)
 {
 }
 

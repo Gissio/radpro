@@ -1,7 +1,7 @@
 # Rad Pro
 # Python tool
 #
-# (C) 2022-2025 Gissio
+# (C) 2022-2026 Gissio
 #
 # License: MIT
 #
@@ -12,7 +12,6 @@ import math
 import os
 import requests
 import serial
-import swd
 import sys
 import time
 
@@ -53,80 +52,24 @@ class RadProIO:
         self.port = port
 
         self.serial = None
-        self.swd = None
 
     def open(self):
-        if self.port == 'SWD':
-            self.swd = swd.Swd()
-
-            radpro_id_address = 0x08000020
-            swd_comm_address = 0x08000024
-
-            radpro_id = self.swd.get_mem32(radpro_id_address)
-            if radpro_id != 0x50444152:
-                raise Exception('Rad Pro not installed on device')
-
-            comm_address = self.swd.get_mem32(swd_comm_address)
-            self.comm_port_address = comm_address + 0x0
-            self.comm_state_address = comm_address + 0x1
-            self.comm_buffer_index_address = comm_address + 0x4
-            self.comm_buffer_address = comm_address + 0x8
-
-        else:
-            self.serial = serial.Serial(port=self.port,
-                                        baudrate=115200,
-                                        timeout=0.5,
-                                        write_timeout=0.5)
-
-    def wait_while_comm_state(self, comm_state_dest):
-        end_time = time.time() + 5
-
-        while True:
-            comm_state = bytes(self.swd.read_mem(
-                self.comm_state_address, 1))[0]
-
-            if comm_state != comm_state_dest:
-                return comm_state
-
-            if time.time() > end_time:
-                raise Exception('SWD request timed out')
+        self.serial = serial.Serial(port=self.port,
+                                    baudrate=115200,
+                                    timeout=0.5,
+                                    write_timeout=0.5)
 
     def query(self, request):
         response = None
         response_bytes = None
 
         try:
-            if self.port == 'SWD':
-                if self.swd == None:
-                    self.open()
+            if self.serial == None:
+                self.open()
 
-                self.swd.write_mem(
-                    self.comm_port_address, b'\x01')  # COMM_SWD
-                self.swd.write_mem(
-                    self.comm_buffer_address, request.encode('ascii') + b'\0')
-                self.swd.write_mem(
-                    self.comm_state_address, b'\x01')  # COMM_RX_READY
-                comm_state = self.wait_while_comm_state(1)  # COMM_RX_READY
+            self.serial.write(request.encode('ascii') + b'\n')
 
-                response_bytes = b''
-
-                while comm_state == 2:  # COMM_TX
-                    response_data = bytes(self.swd.read_mem(
-                        self.comm_buffer_address, 80))
-                    response_bytes += response_data.split(b'\x00', 1)[0]
-
-                    self.swd.write_mem(
-                        self.comm_state_address, b'\x03')  # COMM_TX_READY
-                    comm_state = self.wait_while_comm_state(
-                        3)  # COMM_TX_READY
-
-            else:
-                if self.serial == None:
-                    self.open()
-
-                self.serial.write(request.encode('ascii') + b'\n')
-
-                response_bytes = self.serial.readline()
+            response_bytes = self.serial.readline()
 
         except Exception as e:
             log_warning(e)
@@ -134,7 +77,6 @@ class RadProIO:
             time.sleep(5)
 
             self.serial = None
-            self.swd = None
 
         time.sleep(0.05)
 
@@ -164,10 +106,6 @@ def print_property(io, key):
 
     if value != None:
         print(f'{key}:{value}')
-
-
-def set_device_power(io, value):
-    io.set('devicePower', value)
 
 
 def reset_tube_life_stats(io):
@@ -480,11 +418,7 @@ def main():
                         help='print version information')
     parser.add_argument('-p', '--port',
                         dest='port',
-                        help='serial port device id or "SWD" (e.g. "COM13" or "/dev/ttyS0)"')
-    parser.add_argument('--set-device-power',
-                        type=int,
-                        choices=[0, 1],
-                        help='disables (0) or enables (1) device power')
+                        help='serial port device id (e.g. "COM13" or "/dev/ttyS0)"')
     parser.add_argument('--download-datalog',
                         dest='datalog_file',
                         help='download data log to a .csv file')
@@ -593,9 +527,6 @@ def main():
             e = 'could not open port'
 
         log_error(e)
-
-    if args.set_device_power:
-        set_device_power(io, args.set_device_power)
 
     if args.get_device_id:
         print_property(io, 'deviceId')

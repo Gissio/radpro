@@ -15,13 +15,13 @@
 
 * PB0 (AF): DISPLAY_BACKLIGHT (TIM3_CH3)
 * PB1 (Output): PULSE_SOUND_EN
-* PB3 (Output): PULSE_GREENLED_EN
-* PB4 (Output): PULSE_REDLED_EN
+* PB3 (Output): PULSE_LED_EN
+* PB4 (Output): ALERT_LED_EN
 * PB5 (Output): M_VIB
 * PB6 (Output): VOICE_PROG
 * PB8 (Output/AF): TUBE_HV (TIM4_CH3)
 * PB10 (Input pull-up): KEY_POWER
-* PB11 (Output): DISPLAY_DCX
+* PB11 (Output): DISPLAY_DCXz
 * PB12 (Input pull-up): PWR_CHRG
 * PB13 (Input pull-up): KEY_DOWN
 * PB14 (Input pull-up): KEY_UP
@@ -31,7 +31,7 @@
 * PC1 (Input): PWR_USB
 * PC3 (Output): PWR_EN
 * PC4 (Analog): PWR_BAT
-* PC6 (Output): DISPLAY_RESET
+* PC6 (Output): DISPLAY_RESX
 * PC7 (AF): ?
 * PC8 (AF): ?
 * PC9 (AF): ?

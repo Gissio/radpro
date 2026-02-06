@@ -2,7 +2,7 @@
  * Rad Pro
  * Simulator real-time clock
  *
- * (C) 2022-2025 Gissio
+ * (C) 2022-2026 Gissio
  *
  * License: MIT
  */
@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <time.h>
 
-#include "../rtc.h"
+#include "../devices/rtc.h"
 
 static int32_t timeDelta;
 
@@ -25,19 +25,21 @@ static uint32_t getLocalTime(void)
     return time(NULL);
 }
 
-void setDeviceTime(uint32_t value)
+bool setDeviceTime(uint32_t value)
 {
     timeDelta = value - getLocalTime();
+
+    return true;
 }
 
 uint32_t getDeviceTime(void)
 {
-    return getDeviceTimeFast();
+    return getLocalTime() + timeDelta;
 }
 
 uint32_t getDeviceTimeFast(void)
 {
-    return getLocalTime() + timeDelta;
+    return getDeviceTime();
 }
 
 #endif

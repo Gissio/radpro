@@ -1,10 +1,22 @@
 # Releases
 
-## 3.0.3 "Punctilio"
+## 3.1 "The usual suspects"
 
-* Added Lithuanian and Indonesian translations.
-* Bosean FS-5000: Enabled MCU prefetch for optimizing speed.
-* Bosean FS-600: Fixed an issue which caused start screen freezes.
+* Added **FNIRSI GC-03** support.
+* Introduced source presets to specify sensitivity settings for known radiation sources (based on [Rad Lab](https://github.com/Gissio/radlab) simulations).
+* Added **Cumulative** secondary view and removed **Time** from Instantaneous view, added **Instantaneous** secondary view to Cumulative view.
+* Added translations for **Indonesian**, **Latvian** and **Lithuanian**.
+* Implemented USB auto power-on option (on supported devices).
+* Added data submission to https://opensensemap.org.
+* Updated user interface to the **OpenBridge 6.1** design system.
+* Improved key debouncing.
+* Fixed many minor bugs.
+* Bosean FS-600: Fixed startup freezes.
+* Bosean FS-5000: Optimized MCU configuration for improved performance.
+* FNIRSI GC-01: Added USB power indicator.
+* FNIRSI GC-01 (APM32): Resolved installation issues and refined factory PWM settings.
+* GQ GMC-800: Fixed LCD ghosting issues and enhanced color calibration.
+* Removed support for SWD data communications.
 
 ## 3.0.2 "Icebreaker"
 
@@ -166,7 +178,7 @@
 
 ## 1.2.2
 
-* Added GD32 microcontroller support and data submission to gmcmap.com.
+* Added GD32 microcontroller support and data submission to https://gmcmap.com.
 
 ## 1.2.1
 
@@ -174,7 +186,7 @@
 
 ## 1.2.0
 * Added non-volatile radiation dose storage and hourly device statistics.
-* Added radmon.org client.
+* Added https://radmon.org and https://safecast.org client.
 * Improved font_tiny5, battery level calculation, flash settings, and state storage.
 * Fixed startup sequence, backlight, and SBM-20 conversion ratio bugs.
 

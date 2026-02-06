@@ -2,7 +2,7 @@
  * Rad Pro
  * Update script for OpenWRT routers
  *
- * (C) 2022-2025 Gissio
+ * (C) 2022-2026 Gissio
  *
  * License: MIT
  */

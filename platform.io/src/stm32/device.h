@@ -2,10 +2,12 @@
  * Rad Pro
  * STM32 device definitions
  *
- * (C) 2022-2025 Gissio
+ * (C) 2022-2026 Gissio
  *
  * License: MIT
  */
+
+#include <stdint.h>
 
 #if defined(FS2011)
 #include "fs2011.h"
@@ -15,6 +17,8 @@
 #include "fs5000.h"
 #elif defined(GC01)
 #include "gc01.h"
+#elif defined(GC03)
+#include "gc03.h"
 #elif defined(GMC800)
 #include "gmc800.h"
 #endif

@@ -2,20 +2,19 @@
  * Rad Pro
  * STM32 communications
  *
- * (C) 2022-2025 Gissio
+ * (C) 2022-2026 Gissio
  *
  * License: MIT
  */
 
 #if defined(STM32)
 
-#include "device.h"
-
-#include "../comm.h"
-#include "../cstring.h"
-#include "../events.h"
-#include "../power.h"
-#include "../system.h"
+#include "../devices/comm.h"
+#include "../stm32/device.h"
+#include "../system/cstring.h"
+#include "../system/events.h"
+#include "../system/power.h"
+#include "../system/system.h"
 
 #define COMM_SERIAL_BAUDRATE 115200
 
@@ -36,34 +35,18 @@ void openComm(void)
 
     // GPIO
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
-    gpio_setup_af(USART_RX_PORT,
-                  USART_RX_PIN,
-                  GPIO_OUTPUTTYPE_PUSHPULL,
-                  GPIO_OUTPUTSPEED_50MHZ,
-                  GPIO_PULL_FLOATING,
-                  USART_RX_AF);
-    gpio_setup_af(USART_TX_PORT,
-                  USART_TX_PIN,
-                  GPIO_OUTPUTTYPE_PUSHPULL,
-                  GPIO_OUTPUTSPEED_50MHZ,
-                  GPIO_PULL_FLOATING,
-                  USART_TX_AF);
+    gpio_setup_af(USART_RX_PORT, USART_RX_PIN, GPIO_OUTPUTTYPE_PUSHPULL, GPIO_OUTPUTSPEED_50MHZ, GPIO_PULL_FLOATING, USART_RX_AF);
+    gpio_setup_af(USART_TX_PORT, USART_TX_PIN, GPIO_OUTPUTTYPE_PUSHPULL, GPIO_OUTPUTSPEED_50MHZ, GPIO_PULL_FLOATING, USART_TX_AF);
 #elif defined(STM32F1)
-    gpio_setup(USART_RX_PORT,
-               USART_RX_PIN,
-               GPIO_MODE_INPUT_FLOATING);
-    gpio_setup(USART_TX_PORT,
-               USART_TX_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL);
+    gpio_setup(USART_RX_PORT, USART_RX_PIN, GPIO_MODE_INPUT_FLOATING);
+    gpio_setup(USART_TX_PORT, USART_TX_PIN, GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL);
 #endif
 
     // USART
-    usart_setup_8n1(USART_INTERFACE,
-                    (USART_APB_FREQUENCY + COMM_SERIAL_BAUDRATE / 2) /
-                        COMM_SERIAL_BAUDRATE);
+    usart_setup_8n1(USART_INTERFACE, (USART_APB_FREQUENCY + COMM_SERIAL_BAUDRATE / 2) / COMM_SERIAL_BAUDRATE);
     usart_enable_receive_interrupt(USART_INTERFACE);
 
-    NVIC_SetPriority(USART_IRQ, 0x80);
+    NVIC_SetPriority(USART_IRQ, 0x40);
     NVIC_EnableIRQ(USART_IRQ);
 
     resetComm(true);
@@ -82,19 +65,11 @@ void closeComm(void)
 
     // GPIO
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
-    gpio_setup_analog(USART_RX_PORT,
-                      USART_RX_PIN,
-                      GPIO_PULL_FLOATING);
-    gpio_setup_analog(USART_TX_PORT,
-                      USART_TX_PIN,
-                      GPIO_PULL_FLOATING);
+    gpio_setup_analog(USART_RX_PORT, USART_RX_PIN, GPIO_PULL_FLOATING);
+    gpio_setup_analog(USART_TX_PORT, USART_TX_PIN, GPIO_PULL_FLOATING);
 #elif defined(STM32F1)
-    gpio_setup(USART_RX_PORT,
-               USART_RX_PIN,
-               GPIO_MODE_INPUT_FLOATING);
-    gpio_setup(USART_TX_PORT,
-               USART_TX_PIN,
-               GPIO_MODE_INPUT_FLOATING);
+    gpio_setup(USART_RX_PORT, USART_RX_PIN, GPIO_MODE_INPUT_FLOATING);
+    gpio_setup(USART_TX_PORT, USART_TX_PIN, GPIO_MODE_INPUT_FLOATING);
 #endif
 
     // RCC
@@ -107,8 +82,7 @@ void transmitComm(void)
 {
     comm.state = COMM_TX;
 
-    if (comm.port == COMM_SERIAL)
-        usart_enable_transmit_interrupt(USART_INTERFACE);
+    usart_enable_transmit_interrupt(USART_INTERFACE);
 }
 
 void USART_IRQ_HANDLER(void)
@@ -116,11 +90,7 @@ void USART_IRQ_HANDLER(void)
     int16_t c = -1;
 
     if (usart_is_receive_ready(USART_INTERFACE))
-    {
         c = usart_receive(USART_INTERFACE);
-
-        comm.port = COMM_SERIAL;
-    }
 
     if (usart_is_overrun(USART_INTERFACE))
     {
@@ -363,9 +333,7 @@ static struct usb_cdc_line_coding cdc_line = {
     .bDataBits = 8,
 };
 
-static usbd_respond onUSBGetDescription(usbd_ctlreq *req,
-                                        void **address,
-                                        uint16_t *length)
+static usbd_respond onUSBGetDescription(usbd_ctlreq *req, void **address, uint16_t *length)
 {
     const uint8_t dtype = req->wValue >> 8;
     const uint8_t dnumber = req->wValue & 0xFF;
@@ -406,9 +374,7 @@ static usbd_respond onUSBGetDescription(usbd_ctlreq *req,
     return usbd_ack;
 }
 
-static usbd_respond onUSBControl(usbd_device *dev,
-                                 usbd_ctlreq *req,
-                                 usbd_rqc_callback *callback)
+static usbd_respond onUSBControl(usbd_device *dev, usbd_ctlreq *req, usbd_rqc_callback *callback)
 {
     if (((USB_REQ_RECIPIENT | USB_REQ_TYPE) & req->bmRequestType) == (USB_REQ_INTERFACE | USB_REQ_CLASS) &&
         req->wIndex == 0)
@@ -437,18 +403,13 @@ static usbd_respond onUSBControl(usbd_device *dev,
     return usbd_fail;
 }
 
-static void onUSBData(usbd_device *dev,
-                      uint8_t event,
-                      uint8_t ep)
+static void onUSBData(usbd_device *dev, uint8_t event, uint8_t ep)
 {
     char receiveBuffer[USB_DATA_PACKETSIZE_MAX];
     int32_t receivedBytes;
 
     if (event == usbd_evt_eprx)
-        receivedBytes = usbd_ep_read(dev,
-                                     USB_DATA_RECEIVE_ENDPOINT,
-                                     receiveBuffer,
-                                     USB_DATA_PACKETSIZE_MAX);
+        receivedBytes = usbd_ep_read(dev, USB_DATA_RECEIVE_ENDPOINT, receiveBuffer, USB_DATA_PACKETSIZE_MAX);
     else
         receivedBytes = 0;
 
@@ -477,10 +438,7 @@ static void onUSBData(usbd_device *dev,
                 comm.state = COMM_RX_READY;
 
                 // Dummy write to generate write interrupts
-                usbd_ep_write(dev,
-                              USB_DATA_TRANSMIT_ENDPOINT,
-                              NULL,
-                              0);
+                usbd_ep_write(dev, USB_DATA_TRANSMIT_ENDPOINT, NULL, 0);
             }
 
             comm.lastChar = c;
@@ -492,10 +450,7 @@ static void onUSBData(usbd_device *dev,
     {
         const char *sendBuffer = comm.buffer + comm.bufferIndex;
 
-        int32_t sentBytes = usbd_ep_write(dev,
-                                          USB_DATA_TRANSMIT_ENDPOINT,
-                                          sendBuffer,
-                                          strlen(sendBuffer));
+        int32_t sentBytes = usbd_ep_write(dev, USB_DATA_TRANSMIT_ENDPOINT, sendBuffer, strlen(sendBuffer));
 
         comm.bufferIndex += sentBytes;
 
@@ -515,17 +470,13 @@ static void onUSBData(usbd_device *dev,
 
     case COMM_RX_READY:
     case COMM_TX_READY:
-        usbd_ep_write(dev,
-                      USB_DATA_TRANSMIT_ENDPOINT,
-                      NULL,
-                      0);
+        usbd_ep_write(dev, USB_DATA_TRANSMIT_ENDPOINT, NULL, 0);
 
         break;
     }
 }
 
-static usbd_respond onUSBConfigure(usbd_device *dev,
-                                   uint8_t cfg)
+static usbd_respond onUSBConfigure(usbd_device *dev, uint8_t cfg)
 {
     switch (cfg)
     {
@@ -569,17 +520,11 @@ void USB_IRQ_HANDLER(void)
 void initCommHardware(void)
 {
     // Force USB device reenumeration
-    gpio_setup(USB_DP_PORT,
-               USB_DP_PIN,
-               GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+    gpio_setup(USB_DP_PORT, USB_DP_PIN, GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
     gpio_clear(USB_DP_PORT, USB_DP_PIN);
     sleep(50);
 
-    usbd_init(&usbdDevice,
-              &usbd_hw,
-              USB_EP0_PACKETSIZE_MAX,
-              usbdBuffer,
-              sizeof(usbdBuffer));
+    usbd_init(&usbdDevice, &usbd_hw, USB_EP0_PACKETSIZE_MAX, usbdBuffer, sizeof(usbdBuffer));
     usbd_reg_config(&usbdDevice, onUSBConfigure);
     usbd_reg_control(&usbdDevice, onUSBControl);
     usbd_reg_descr(&usbdDevice, onUSBGetDescription);
@@ -644,7 +589,7 @@ void transmitComm(void)
 
 #endif
 
-void updateComm(void)
+void pollComm(void)
 {
 }
 

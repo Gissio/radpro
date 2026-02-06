@@ -1,7 +1,7 @@
 # Rad Pro
 # Builds Rad Pro platform.io environments
 #
-# (C) 2022-2025 Gissio
+# (C) 2022-2026 Gissio
 #
 # License: MIT
 #
@@ -33,7 +33,7 @@ def build_env(env_name, font_small_type, font_medium_type,
 
     # Get list of language header files
     language_files = [f for f in os.listdir(
-        '../platform.io/src/strings') if f.endswith('.h')]
+        '../platform.io/src/system/strings') if f.endswith('.h')]
 
     for language_file in language_files:
         # Get language code by removing .h extension
@@ -93,6 +93,8 @@ env += build_env('fnirsi-gc01_ch32f103r8', 'color_21_1bpp', 'color_32_1bpp',
                  '0xa800', '0xb000', '0xb800')
 env += build_env('fnirsi-gc01_apm32f103rb', 'color_21', 'color_32',
                  '0xd800', '0xf000', '0x14000')
+env += build_env('fnirsi-gc03', 'color_21', 'color_32',
+                 '0xe000', '0xf000', '0x14000')
 env += build_env('gq-gmc800', 'color_16', 'color_24',
                  '0xd800', '0xf000', '0x14000')
 # env += build_env('gq-gmc800_landscape', 'color_12', 'color_16',

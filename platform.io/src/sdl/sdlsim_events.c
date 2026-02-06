@@ -2,7 +2,7 @@
  * Rad Pro
  * Simulator events
  *
- * (C) 2022-2025 Gissio
+ * (C) 2022-2026 Gissio
  *
  * License: MIT
  */
@@ -11,9 +11,7 @@
 
 #include <SDL.h>
 
-#include "../events.h"
-
-float timerCountToSeconds = (1.0F / PULSE_MEASUREMENT_FREQUENCY);
+#include "../system/events.h"
 
 void initEventsHardware(void)
 {

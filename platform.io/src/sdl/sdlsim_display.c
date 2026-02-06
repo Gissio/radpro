@@ -2,7 +2,7 @@
  * Rad Pro
  * Simulator display
  *
- * (C) 2022-2025 Gissio
+ * (C) 2022-2026 Gissio
  *
  * License: MIT
  */
@@ -18,12 +18,12 @@
 #include <mcu-renderer-sdl.h>
 #include <mcu-renderer-st7789.h>
 
-#include "../cstring.h"
-#include "../datalog.h"
-#include "../display.h"
-#include "../events.h"
-#include "../settings.h"
-#include "../system.h"
+#include "../devices/display.h"
+#include "../measurements/datalog.h"
+#include "../system/cstring.h"
+#include "../system/events.h"
+#include "../system/settings.h"
+#include "../system/system.h"
 
 static void updateDisplayTitle(void);
 
@@ -32,9 +32,9 @@ static void updateDisplayTitle(void);
 extern mr_t mr;
 
 bool displayEnabled;
-bool vibrationOn;
-bool pulseLEDOn;
-bool alertLEDOn;
+bool vibratorEnabled;
+bool greenLEDOn;
+bool redLEDOn;
 
 static const uint8_t displayBrightnessValues[] = {
     0x3f, 0x7f, 0xbf, 0xff};
@@ -182,7 +182,7 @@ void initDisplay(void)
     updateDisplayTitle();
 }
 
-void setDisplayEnable(bool value)
+void setDisplayEnabled(bool value)
 {
     mr_sdl_set_display(&mr_sdl, value);
 
@@ -212,8 +212,8 @@ void updateDisplay(void)
         switch (event.type)
         {
         case SDL_QUIT:
-            closeDatalogWrite();
-            writeSettings();
+            stopDatalog();
+            saveSettings();
 
             exit(0);
 
@@ -241,12 +241,11 @@ void updateDisplay(void)
     }
 }
 
-extern volatile uint32_t eventsTick;
-
-bool updateSDLTicks(void)
+bool onSDLTick(void)
 {
-    int32_t deltaTicks = SDL_GetTicks() - eventsTick;
-    eventsTick++;
+    int32_t deltaTicks = SDL_GetTicks() - currentTick;
+
+    currentTick++;
 
     onTick();
 
@@ -266,18 +265,18 @@ static void updateDisplayTitle(void)
 
     sprintf(buffer, "%s (%.2f cps)", FIRMWARE_NAME, tubeCPS);
 
-    if (vibrationOn || pulseLEDOn || alertLEDOn)
+    if (vibratorEnabled || greenLEDOn || redLEDOn)
     {
         strcat(buffer, " ");
 
-        if (vibrationOn)
+        if (vibratorEnabled)
             strcat(buffer, "📳");
 
-        if (pulseLEDOn)
-            strcat(buffer, "🔴");
+        if (greenLEDOn)
+            strcat(buffer, "🟢");
 
-        if (alertLEDOn)
-            strcat(buffer, "⚠️");
+        if (redLEDOn)
+            strcat(buffer, "🟥");
     }
 
     mr_sdl_set_title(&mr_sdl, buffer);
@@ -294,15 +293,15 @@ void setBacklight(bool value)
             : 0);
 }
 
-// Vibration
+// Vibrator
 
-void initVibration(void)
+void initVibrator(void)
 {
 }
 
-void setVibration(bool value)
+void setVibrator(bool value)
 {
-    vibrationOn = value;
+    vibratorEnabled = value;
 
     updateDisplayTitle();
 }
@@ -315,7 +314,7 @@ void initPulseLED(void)
 
 void setPulseLED(bool value)
 {
-    pulseLEDOn = value;
+    greenLEDOn = value;
 
     updateDisplayTitle();
 }
@@ -326,7 +325,29 @@ void initAlertLED(void)
 
 void setAlertLED(bool value)
 {
-    alertLEDOn = value;
+    redLEDOn = value;
+
+    updateDisplayTitle();
+}
+
+void initPulseLEDEnable(void)
+{
+}
+
+void setPulseLEDEnable(bool value)
+{
+    greenLEDOn = value;
+
+    updateDisplayTitle();
+}
+
+void initAlertLEDEnable(void)
+{
+}
+
+void setAlertLEDEnable(bool value)
+{
+    redLEDOn = value;
 
     updateDisplayTitle();
 }

@@ -2,7 +2,7 @@
  * Rad Pro
  * Simulator keyboard
  *
- * (C) 2022-2025 Gissio
+ * (C) 2022-2026 Gissio
  *
  * License: MIT
  */
@@ -11,7 +11,7 @@
 
 #include "SDL.h"
 
-#include "../keyboard.h"
+#include "../devices/keyboard.h"
 
 void initKeyboardHardware(void)
 {

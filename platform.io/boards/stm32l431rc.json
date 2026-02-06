@@ -2,8 +2,8 @@
     "build": {
         "core": "stm32",
         "cpu": "cortex-m4",
-        "extra_flags": "-D STM32 -D STM32L4 -D STM32L431xx -D SRAM_SIZE=65536",
-        "f_cpu": "80000000L",
+        "extra_flags": "-D STM32 -D STM32L4 -D STM32L431xx -D FLASH_BASE_=0x08000000 -D FLASH_SIZE_=0x40000 -D FLASH_PAGE_SIZE=0x800 -D FLASH_WORD_SIZE=0x8",
+        "f_cpu": "64000000L",
         "mcu": "stm32l431rct6",
         "product_line": "STM32L431xx"
     },
@@ -19,7 +19,7 @@
         "cmsis",
         "libopencm3"
     ],
-    "name": "STM32F051C8",
+    "name": "STM32L431RC",
     "upload": {
         "maximum_ram_size": 65536,
         "maximum_size": 262144,
