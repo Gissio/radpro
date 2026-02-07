@@ -2,20 +2,21 @@
 
 ## 3.1 "The usual suspects"
 
-* Added **FNIRSI GC-03** support.
-* Introduced source presets to specify sensitivity settings for known radiation sources (based on [Rad Lab](https://github.com/Gissio/radlab) simulations).
-* Added **Cumulative** secondary view and removed **Time** from Instantaneous view, added **Instantaneous** secondary view to Cumulative view.
-* Added translations for **Indonesian**, **Latvian** and **Lithuanian**.
-* Implemented USB auto power-on option (on supported devices).
-* Added data submission to https://opensensemap.org.
-* Updated user interface to the **OpenBridge 6.1** design system.
+* Added support for the **FNIRSI GC-03**.
+* Introduced source presets, pre-configured sensitivity settings for common radiation sources, derived from numerical simulations in [Rad Lab](https://github.com/Gissio/radlab).
+* Added **Cumulative** and **Instantaneous** secondary views.
+* Added translations for **Indonesian**, **Latvian**, and **Lithuanian**.
+* Implemented USB auto power-on (on supported devices).
+* Added option to submit measurement data to [openSenseMap.org](https://opensensemap.org).
+* Updated the user interface to the **OpenBridge 6.1** design system.
 * Improved key debouncing.
-* Fixed many minor bugs.
-* Bosean FS-600: Fixed startup freezes.
+* Resolved numerous minor bugs.
+* Bosean FS-600: Fixed startup freeze.
 * Bosean FS-5000: Optimized MCU configuration for improved performance.
-* FNIRSI GC-01: Added USB power indicator.
-* FNIRSI GC-01 (APM32): Resolved installation issues and refined factory PWM settings.
-* GQ GMC-800: Fixed LCD ghosting issues and enhanced color calibration.
+* FNIRSI GC-01: Added USB power status indicator.
+* FNIRSI GC-01 (APM32): Fixed startup crash, added reading of factory HV profile from factory flash.
+* GQ GMC-800: Eliminated LCD ghosting artifacts.
+* Removed **Time** secondary view from the Instantaneous view.
 * Removed support for SWD data communications.
 
 ## 3.0.2 "Icebreaker"

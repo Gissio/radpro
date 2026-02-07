@@ -2,7 +2,7 @@
 platform = ststm32
 framework = cmsis
 build_flags =
-    ; -flto
+    -flto
     -DQFP
     -DMCURENDERER_WITHOUT_BITMAP_SUPPORT
     -Wl,--defsym,__aeabi_fadd=qfp_fadd
@@ -32,7 +32,6 @@ build_flags =
     ${base.build_flags}
     -DFS2011
     -DFIRMWARE_BASE=0x08000000
-    -DBOOTLOADER_BASE=0x20001400
     -DFAST_SYSTEM_CLOCK
     -DBATTERY_REMOVABLE
     -DTUBE_HV_PWM
@@ -71,6 +70,7 @@ board = stm32g070cb
 build_flags =
     ${base.build_flags}
     -DFIRMWARE_BASE=0x08000000
+    -DBOOTLOADER
     -DFAST_SYSTEM_CLOCK
     -DBATTERY_REMOVABLE
     -DPWR_USB
@@ -107,6 +107,7 @@ build_flags =
     ${base.build_flags}
     -DFS5000
     -DFIRMWARE_BASE=0x08000000
+    -DBOOTLOADER
     -DSTM32_SYNC_PERIPHERALS
     -DPWR_VCC
     -DPWR_USB
@@ -140,7 +141,6 @@ build_flags =
     ${base.build_flags}
     -DGC01
     -DFIRMWARE_BASE=0x08004000
-    -DBOOTLOADER_BASE=0x20003000
     -DUSBD_ASM_DRIVER
     -DUSB_PMASIZE=0x200
     -DTUBE_HV_PWM
@@ -181,7 +181,6 @@ build_flags =
     ${base.build_flags}
     -DGC03
     -DFIRMWARE_BASE=0x08006000
-    -DBOOTLOADER_BASE=0x20003000
     -DUSBD_ASM_DRIVER
     -DUSB_PMASIZE=0x200
     -DTUBE_HV_PWM
@@ -209,6 +208,7 @@ build_flags =
     ${base.build_flags}
     -DGMC800
     -DFIRMWARE_BASE=0x08000000
+    -DBOOTLOADER
     -DSTM32_SYNC_PERIPHERALS
     -DPWR_USB
     -DTUBE_HV_PWM

@@ -285,7 +285,7 @@ static const char *onMagneticFieldAlarmMenuGetOption(uint32_t index, MenuStyle *
         return getString(STRING_OFF);
     else if (index < MAGNETIC_FIELD_NUM)
     {
-        char unitString[16];
+        char unitString[32];
 
         strclr(menuOption);
         strcpy(unitString, " ");

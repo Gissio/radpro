@@ -215,7 +215,7 @@ static void onDisplaySend16(uint16_t value)
     DISPLAY_WRX_PORT->BSRR = get_bitvalue(DISPLAY_WRX_PIN);
 }
 
-static GPIO_TypeDef *const displayPortSetup[] = {
+static GPIO_TypeDef *const displayPort[] = {
     DISPLAY_RESX_PORT,
     DISPLAY_CSX_PORT,
     DISPLAY_DCX_PORT,
@@ -231,7 +231,7 @@ static GPIO_TypeDef *const displayPortSetup[] = {
     DISPLAY_D7_PORT,
 };
 
-static const uint8_t displayPinSetup[] = {
+static const uint8_t displayPin[] = {
     DISPLAY_RESX_PIN,
     DISPLAY_CSX_PIN,
     DISPLAY_DCX_PIN,
@@ -259,8 +259,8 @@ void initDisplay(void)
     gpio_set(DISPLAY_RDX_PORT, DISPLAY_RDX_PIN);
     gpio_set(DISPLAY_WRX_PORT, DISPLAY_WRX_PIN);
 
-    for (uint32_t i = 0; i < sizeof(displayPinSetup); i++)
-        gpio_setup_output(displayPortSetup[i], displayPinSetup[i], GPIO_OUTPUTTYPE_PUSHPULL, GPIO_OUTPUTSPEED_50MHZ, GPIO_PULL_FLOATING);
+    for (uint32_t i = 0; i < sizeof(displayPin); i++)
+        gpio_setup_output(displayPort[i], displayPin[i], GPIO_OUTPUTTYPE_PUSHPULL, GPIO_OUTPUTSPEED_50MHZ, GPIO_PULL_FLOATING);
 
     // mcu-renderer
     mr_st7789_init(&mr,

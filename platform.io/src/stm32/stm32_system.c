@@ -12,6 +12,7 @@
 #include "../stm32/device.h"
 #include "../system/cmath.h"
 #include "../system/cstring.h"
+#include "../system/power.h"
 
 #if defined(DEBUG)
 

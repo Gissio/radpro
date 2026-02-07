@@ -88,8 +88,8 @@ static int16_t getHistoryY(uint32_t value, int32_t valueOffset, int32_t valueSca
 void drawHistory(float scale, const char *unitString, uint32_t timeTicksNum, const char *periodLabel, const uint8_t *logValues, uint32_t warningValue, uint32_t alarmValue)
 {
     // Pre-calculations
-    char minLabel[16];
-    char maxLabel[16];
+    char minLabel[32];
+    char maxLabel[32];
     strclr(minLabel);
     strclr(maxLabel);
 

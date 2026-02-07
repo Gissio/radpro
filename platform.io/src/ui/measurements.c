@@ -408,7 +408,7 @@ void drawMeasurementBar(float value, int32_t minExponent, float warningValue, fl
     uint32_t labelTicksIndex = 0;
     while (labelX < BAR_LABEL_WIDTH)
     {
-        char buffer[16];
+        char buffer[32];
         strclr(buffer);
         strcatMetricPower(buffer, tickExponent, -3);
 

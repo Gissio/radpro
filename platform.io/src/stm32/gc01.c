@@ -115,40 +115,6 @@ void initSystem(void)
     set_bits(RCC->APB2ENR, RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN);
 }
 
-// Bootloader
-
-#define BOOTLOADER_VECTOR_TABLE ((VectorTable *)BOOTLOADER_BASE)
-
-void startBootloader(void)
-{
-    // Disable interrupts
-    NVIC_DisableAllIRQs();
-    SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk;
-    SysTick->VAL = 0;
-
-    // Enable HSI
-    set_bits(RCC->CR, RCC_CR_HSION);
-    wait_until_bits_set(RCC->CR, RCC_CR_HSIRDY);
-
-    // Set HSI as system clock
-    modify_bits(RCC->CFGR, RCC_CFGR_SW_Msk, RCC_CFGR_SW_HSI);
-    wait_until_bits_value(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_HSI);
-
-    // Disable PLL
-    clear_bits(RCC->CR, RCC_CR_PLLON);
-    wait_until_bits_clear(RCC->CR, RCC_CR_PLLRDY);
-
-    // Reset RCC
-    RCC->CFGR = 0;
-
-    // Set 0 wait states for flash
-    modify_bits(FLASH->ACR, FLASH_ACR_LATENCY_Msk, FLASH_ACR_LATENCY_0WS);
-
-    // Jump to bootloader
-    __set_MSP(BOOTLOADER_VECTOR_TABLE->sp);
-    BOOTLOADER_VECTOR_TABLE->onReset();
-}
-
 // Tube
 
 #define TUBE_DEFAULT_SIGNATURE (*((uint8_t *)(0x08003800)))
@@ -287,19 +253,22 @@ static void onDisplaySend(uint16_t value)
     DISPLAY_WRX_PORT->BSRR = get_bitvalue(DISPLAY_WRX_PIN);
 }
 
+uint8_t displayPin[] = {
+    DISPLAY_RESX_PIN,
+    DISPLAY_CSX_PIN,
+    DISPLAY_DCX_PIN,
+    DISPLAY_RDX_PIN,
+    DISPLAY_WRX_PIN,
+};
+
 void initDisplay(void)
 {
     // GPIO
-    gpio_set(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN);
-    gpio_set(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN);
-    gpio_set(DISPLAY_RDX_PORT, DISPLAY_RDX_PIN);
-    gpio_set(DISPLAY_WRX_PORT, DISPLAY_WRX_PIN);
-
-    gpio_setup(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN, GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN, GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_DCX_PORT, DISPLAY_DCX_PIN, GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_RDX_PORT, DISPLAY_RDX_PIN, GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_WRX_PORT, DISPLAY_WRX_PIN, GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+    for (uint8_t i = 0; i < sizeof(displayPin); i++)
+    {
+        gpio_set(GPIOC, displayPin[i]);
+        gpio_setup(GPIOC, displayPin[i], GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+    }
 
     DISPLAY_DATA_PORT->CRL = (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 0) |
                              (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << 4) |

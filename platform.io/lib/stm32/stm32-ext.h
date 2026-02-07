@@ -1500,7 +1500,7 @@ __STATIC_INLINE void adc_set_sampletime(ADC_TypeDef *base, uint8_t sampletime)
     base->SMPR1 = value;
     base->SMPR2 = value;
 #elif defined(STM32L4)
-    base->SQR1 = (channel << ADC_SQR1_SQ1_Pos);
+    base->SQR1 = 0;
 
     uint32_t value = 0;
     for (uint32_t i = 0; i < 10; i++)

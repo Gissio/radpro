@@ -127,22 +127,6 @@ void setFastSystemClock(bool value)
 #endif
 }
 
-// Bootloader
-
-#define BOOTLOADER_VECTOR_TABLE ((VectorTable *)BOOTLOADER_BASE)
-
-void startBootloader(void)
-{
-    // Disable interrupts
-    NVIC_DisableAllIRQs();
-    SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk;
-    SysTick->VAL = 0;
-
-    // Jump to bootloader
-    __set_MSP(BOOTLOADER_VECTOR_TABLE->sp);
-    BOOTLOADER_VECTOR_TABLE->onReset();
-}
-
 // Communications
 
 #if defined(STM32F0) && !defined(GD32)
@@ -235,7 +219,7 @@ static void onDisplaySend(uint16_t value)
     DISPLAY_E_PORT->BRR = get_bitvalue(DISPLAY_E_PIN);
 }
 
-static GPIO_TypeDef *const displayPortSetup[] = {
+static GPIO_TypeDef *const displayPort[] = {
     DISPLAY_RSTB_PORT,
     DISPLAY_A0_PORT,
     DISPLAY_RW_PORT,
@@ -250,7 +234,7 @@ static GPIO_TypeDef *const displayPortSetup[] = {
     DISPLAY_D7_PORT,
 };
 
-static const uint8_t displayPinSetup[] = {
+static const uint8_t displayPin[] = {
     DISPLAY_RSTB_PIN,
     DISPLAY_A0_PIN,
     DISPLAY_RW_PIN,
@@ -270,12 +254,12 @@ void initDisplay(void)
     // GPIO
     gpio_set(DISPLAY_RSTB_PORT, DISPLAY_RSTB_PIN);
 
-    for (uint32_t i = 0; i < sizeof(displayPinSetup); i++)
+    for (uint32_t i = 0; i < sizeof(displayPin); i++)
     {
 #if defined(STM32F0)
-        gpio_setup_output(displayPortSetup[i], displayPinSetup[i], GPIO_OUTPUTTYPE_PUSHPULL, GPIO_OUTPUTSPEED_50MHZ, GPIO_PULL_FLOATING);
+        gpio_setup_output(displayPort[i], displayPin[i], GPIO_OUTPUTTYPE_PUSHPULL, GPIO_OUTPUTSPEED_50MHZ, GPIO_PULL_FLOATING);
 #elif defined(STM32F1)
-        gpio_setup(displayPortSetup[i], displayPinSetup[i], GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+        gpio_setup(displayPort[i], displayPin[i], GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
 #endif
     }
 

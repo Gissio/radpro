@@ -7,10 +7,10 @@
  * License: MIT
  */
 
-// Application name (should not be translated)
+// Application name
 #define STRING_APP_NAME "Rad Pro"
 
-// Styling characters (should not be translated)
+// Styling characters
 #define STRING_EMPTY ""
 #define STRING_NUMBERS "0123456789.:"
 #define STRING_ELLIPSIS "..."
@@ -19,7 +19,7 @@
 #define STRING_NONE "-"
 #define STRING_LESSTHAN "< "
 
-// Units (should not be translated)
+// Units
 #define STRING_NANO "n"
 #define STRING_MICRO "µ"
 #define STRING_MILLI "m"
@@ -189,11 +189,9 @@
 #define STRING_J305 "J305 (107 mm)"
 #define STRING_M4011 "M4011 (87 mm)"
 #define STRING_HH614 "HH614"
-#define STRING_LND7317 "LND 7317"
-
-// Geiger tube type strings that should be translated with cyrillic scripts
 #define STRING_SBM20 "SBM20"
 #define STRING_SI3BG "SI3BG"
+#define STRING_LND7317 "LND 7317"
 
 // Geiger tube sensitivity strings
 #define STRING_TUBE_DEFAULT "Predet. del tubo"

@@ -554,7 +554,7 @@ static const char *buildRateAlertMenuOption(uint32_t index)
     else
     {
         const Unit *unit = &pulseUnits[settings.doseUnits].rate;
-        char unitString[16];
+        char unitString[32];
         float value = rateAlerts[index] /
                       pulseUnits[DOSE_UNITS_SIEVERTS].rate.scale;
 
@@ -597,7 +597,7 @@ char *buildDoseAlertMenuOption(uint32_t index)
         return getString(STRING_OFF);
 
     const Unit *unit = &pulseUnits[settings.doseUnits].dose;
-    char unitString[16];
+    char unitString[32];
     float value = doseAlerts[index] / pulseUnits[DOSE_UNITS_SIEVERTS].dose.scale;
 
     strclr(menuOption);

@@ -117,7 +117,7 @@ def sign_firmware(env_name):
 
         if firmware_empty_space < 0:
             print(
-                f'warning: input file too large: remaining space {firmware_empty_space}')
+                f'warning: input file too large: size 0x{firmware_size:04x}, empty space {firmware_empty_space}')
 
             continue
 
@@ -149,7 +149,7 @@ def sign_firmware(env_name):
         with open(output_path, 'wb') as f:
             f.write(image[0:firmware_size])
 
-        print(f'done: remaining space {firmware_empty_space}')
+        print(f'done: size 0x{firmware_size:04x}, empty space {firmware_empty_space}')
 
 
 # Sign firmware

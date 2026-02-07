@@ -29,8 +29,8 @@ void onADCTick(uint32_t index)
 
 float getGaussianRandomValue(void)
 {
-    float u1 = (float)rand() / RAND_MAX;
-    float u2 = (float)rand() / RAND_MAX;
+    float u1 = (float)rand() / (float)RAND_MAX;
+    float u2 = (float)rand() / (float)RAND_MAX;
 
     return sqrtf(-2 * logf(u1)) * cosf(2 * M_PI * u2);
 }

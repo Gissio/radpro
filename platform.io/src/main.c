@@ -31,6 +31,17 @@
 
 #if defined(SIMULATOR)
 bool onSDLTick();
+
+static void simulateFrame(void)
+{
+    while (onSDLTick())
+    {
+#if defined(GAME)
+        updateGame();
+#endif
+        updateEvents();
+    }
+}
 #endif
 
 int main(void)
@@ -66,18 +77,10 @@ int main(void)
     // Main loop
 #if defined(SIMULATOR)
 #if defined(__EMSCRIPTEN__)
-    emscripten_set_main_loop(runTick, 0, 1);
+    emscripten_set_main_loop(simulateFrame, 0, 1);
 #else
     while (true)
-    {
-        while (onSDLTick())
-        {
-#if defined(GAME)
-            updateGame();
-#endif
-            updateEvents();
-        }
-    }
+        simulateFrame();
 #endif
 #else
     while (true)

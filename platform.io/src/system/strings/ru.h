@@ -7,10 +7,10 @@
  * License: MIT
  */
 
-// Application name (should not be translated)
+// Application name
 #define STRING_APP_NAME "Rad Pro"
 
-// Styling characters (should not be translated)
+// Styling characters
 #define STRING_EMPTY ""
 #define STRING_NUMBERS "0123456789.:"
 #define STRING_ELLIPSIS "..."
@@ -19,34 +19,34 @@
 #define STRING_NONE "-"
 #define STRING_LESSTHAN "< "
 
-// Units (should not be translated)
-#define STRING_NANO "n"
-#define STRING_MICRO "µ"
-#define STRING_MILLI "m"
-#define STRING_KILO "k"
-#define STRING_MEGA "M"
-#define STRING_GIGA "G"
-#define STRING_SIEVERT "Sievert"
-#define STRING_SV "Sv"
-#define STRING_SVH "Sv/h"
-#define STRING_REM "rem"
-#define STRING_REMH "rem/h"
-#define STRING_CPM "cpm"
-#define STRING_CPS "cps"
-#define STRING_CPMUSVH "cpm/µSv/h"
-#define STRING_MICROSECONDS "µs"
-#define STRING_KHZ "kHz"
-#define STRING_VOLT_UNIT "V"
-#define STRING_VOLT_PER_METER_UNIT "V/m"
-#define STRING_TESLA "Tesla"
-#define STRING_TESLA_UNIT "T"
-#define STRING_GAUSS "Gauss"
-#define STRING_GAUSS_UNIT "G"
-#define STRING_W_M2 "W/m²"
+// Units
+#define STRING_NANO "н"
+#define STRING_MICRO "мк"
+#define STRING_MILLI "м"
+#define STRING_KILO "к"
+#define STRING_MEGA "М"
+#define STRING_GIGA "Г"
+#define STRING_SIEVERT "Зиверт"
+#define STRING_SV "Зв"
+#define STRING_SVH "Зв/ч"
+#define STRING_REM "бэр"
+#define STRING_REMH "бэр/ч"
+#define STRING_CPM "имп/мин"
+#define STRING_CPS "имп/с"
+#define STRING_CPMUSVH "(имп/мин)/(мкЗв/ч)"
+#define STRING_MICROSECONDS "мкс"
+#define STRING_KHZ "кГц"
+#define STRING_VOLT_UNIT "В"
+#define STRING_VOLT_PER_METER_UNIT "В/м"
+#define STRING_TESLA "Тесла"
+#define STRING_TESLA_UNIT "Тл"
+#define STRING_GAUSS "Гаусс"
+#define STRING_GAUSS_UNIT "Гс"
+#define STRING_W_M2 "Вт/m²"
 
 // Units for indicating Geiger tube pulse count, as in "1 count" or "14 counts"
-#define STRING_COUNT "имп."
-#define STRING_COUNTS "имп."
+#define STRING_COUNT "имп"
+#define STRING_COUNTS "имп"
 
 // Time strings
 #define STRING_24_HOURS "24 часа"
@@ -186,14 +186,12 @@
 #define STRING_HVPROFILE "Профиль HV"
 
 // Geiger tube type strings
-#define STRING_J305 "J305 (107 mm)"
-#define STRING_M4011 "M4011 (87 mm)"
+#define STRING_J305 "J305 (107 мм)"
+#define STRING_M4011 "M4011 (87 мм)"
 #define STRING_HH614 "HH614"
-#define STRING_LND7317 "LND 7317"
-
-// Geiger tube type strings that should be translated with cyrillic scripts
 #define STRING_SBM20 "СБМ20"
 #define STRING_SI3BG "СИ3БГ"
+#define STRING_LND7317 "LND 7317"
 
 // Geiger tube sensitivity strings
 #define STRING_TUBE_DEFAULT "Трубка по умолчанию"

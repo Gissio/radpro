@@ -16,6 +16,9 @@
 #include "../ui/system.h"
 #include "../ui/menu.h"
 
+#define SOURCE_FACTOR_DATA_MIN 0.125F
+#define SOURCE_FACTOR_DATA_SCALE 36
+
 static Menu sourceMenu;
 
 static Menu tubeMenu;
@@ -37,9 +40,9 @@ static const float tubeTypeSensitivities[] = {
     135.115F,
     108.683F,
     38.261F,
-    100.000F,
-    100.000F,
-    350.000F,
+    106.709F,
+    4.856F,
+    350.0F,
 };
 
 static cstring sourceLabels[] = {
@@ -60,13 +63,13 @@ static cstring sourceLabels[] = {
     NULL,
 };
 
-static const uint8_t tubeTypeSourceFactors[][14] = {
-    {16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16},
-    {16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16},
-    {16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16},
-    {16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16},
-    {16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16},
-    {16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16},
+static const uint8_t tubeTypeSourceFactorCodes[][14] = {
+    {108, 113, 204, 107, 173, 236, 111, 117, 124, 123, 113, 196, 110, 161},
+    {108, 113, 204, 107, 173, 236, 111, 117, 124, 123, 113, 196, 110, 161},
+    {108, 124, 156, 93, 113, 185, 106, 108, 110, 113, 60, 153, 125, 124},
+    {108, 95, 169, 103, 126, 207, 100, 105, 110, 110, 100, 198, 91, 137},
+    {108, 125, 154, 94, 113, 77, 107, 107, 109, 113, 88, 0, 128, 88},
+    {108, 108, 162, 102, 127, 192, 106, 110, 114, 114, 107, 188, 107, 137},
 };
 
 static void setTubeMenu(void);
@@ -131,13 +134,13 @@ static float getTubeSensitivityForIndex(uint32_t index)
         return tubeTypeSensitivities[settings.tubeType];
     else
         return TUBE_SENSITIVITY_VALUE_MIN *
-               exp2f((float)(index - 1) * (TUBE_SENSITIVITY_VALUE_LOG2_MAX_MIN /
-                                           (TUBE_SENSITIVITY_VALUE_NUM - 1)));
+               exp2f((float)(index - 1) * (TUBE_SENSITIVITY_VALUE_LOG2_MAX_MIN / (TUBE_SENSITIVITY_VALUE_NUM - 1)));
 }
 
 float getTubeSensitivity(void)
 {
-    float sourceFactor = tubeTypeSourceFactors[settings.tubeType][settings.source] / 16.0F;
+    uint8_t code = tubeTypeSourceFactorCodes[settings.tubeType][settings.source];
+    float sourceFactor = SOURCE_FACTOR_DATA_MIN * exp2f(code * (1.0F / SOURCE_FACTOR_DATA_SCALE));
 
     return sourceFactor * getTubeSensitivityForIndex(settings.tubeSensitivity);
 }

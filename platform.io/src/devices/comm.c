@@ -49,24 +49,27 @@ static void pushCommOk(void)
     comm.transmitState = TRANSMIT_RESPONSE;
 }
 
-static void pushCommString(const char *value)
+static void pushCommOkSpace(void)
 {
     pushCommOk();
     strcatChar(comm.buffer, ' ');
+}
+
+static void pushCommString(const char *value)
+{
+    pushCommOkSpace();
     strcat(comm.buffer, value);
 }
 
 static void pushCommUInt32(uint32_t value)
 {
-    pushCommOk();
-    strcatChar(comm.buffer, ' ');
+    pushCommOkSpace();
     strcatUInt32(comm.buffer, value, 0);
 }
 
 static void pushCommFloat(float value, uint32_t fractionalDecimals)
 {
-    pushCommOk();
-    strcatChar(comm.buffer, ' ');
+    pushCommOkSpace();
     strcatFloat(comm.buffer, value, fractionalDecimals);
 }
 
@@ -261,9 +264,6 @@ void updateComm(void)
                 SET_TUBE_HV_FREQUENCY,
                 SET_TUBE_HV_DUTYCYCLE,
 #endif
-#if defined(BOOTLOADER_BASE)
-                SET_BOOTLOADER,
-#endif
                 SET_NONE
             };
 
@@ -276,9 +276,6 @@ void updateComm(void)
 #if defined(TUBE_HV_PWM)
                 "tubeHVFrequency",
                 "tubeHVDutyCycle",
-#endif
-#if defined(BOOTLOADER_BASE)
-                "bootloader",
 #endif
             };
 
@@ -299,7 +296,6 @@ void updateComm(void)
                             powerOn(false);
                         else
                             powerOff(true);
-
                         pushCommOk();
                     }
 
@@ -352,27 +348,6 @@ void updateComm(void)
                     break;
 #endif
 
-#if defined(BOOTLOADER_BASE)
-                case SET_BOOTLOADER:
-                {
-                    uint8_t data[32];
-                    uint32_t dataNum = parseHexData(&s, data);
-                    if (dataNum > 3)
-                    {
-                        uint8_t checksum = 0;
-                        for (uint32_t i = 0; i < (dataNum - 1); i++)
-                            checksum += data[i];
-                        if (checksum == data[dataNum - 1])
-                        {
-                            uint32_t address = (data[0] << 8) + (data[1] << 0);
-                            memcpy((uint8_t *)(BOOTLOADER_BASE + address), data + 2, dataNum - 3);
-                            pushCommOk();
-                        }
-                    }
-                    break;
-                }
-#endif
-
                 default:
                     break;
                 }
@@ -385,11 +360,13 @@ void updateComm(void)
             resetDatalog();
             pushCommOk();
         }
+#if defined(BOOTLOADER)
         else if (parseToken(&s, "START bootloader"))
         {
             pushCommOk();
             comm.transmitState = TRANSMIT_BOOTLOADER;
         }
+#endif
 #if defined(GMC800)
         else if (parseToken(&s, "<GETVER>>"))
         {
@@ -426,6 +403,7 @@ void updateComm(void)
     case COMM_TX_READY:
         switch (comm.transmitState)
         {
+#if defined(BOOTLOADER)
         case TRANSMIT_BOOTLOADER:
         {
             sleep(START_BOOTLOADER_TIME);
@@ -438,6 +416,7 @@ void updateComm(void)
 
             break;
         }
+#endif
 
         case TRANSMIT_DEVICEID:
         {

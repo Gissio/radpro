@@ -15,7 +15,7 @@
 
 void drawPowerOff(bool displayBatteryIcon)
 {
-    char buffer[8];
+    char buffer[16];
 
     setFillColor(COLOR_CONTAINER_BACKGROUND);
     if (displayBatteryIcon)
@@ -35,7 +35,7 @@ static const ColorIndex alertLevelColorIndex[] = {
 
 void drawTitleBar(const char *title)
 {
-    char buffer[8];
+    char buffer[16];
     mr_rectangle_t rectangle = {
         TITLEBAR_WIDTH,
         TITLEBAR_TOP,

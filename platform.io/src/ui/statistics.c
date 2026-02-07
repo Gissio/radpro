@@ -99,7 +99,7 @@ void drawStatistics(void)
 
     char keyString[64];
     char valueString[32];
-    char unitString[16];
+    char unitString[32];
 
     mr_rectangle_t rectangle;
     mr_point_t offset;

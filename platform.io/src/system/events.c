@@ -16,6 +16,7 @@
 #include "../devices/keyboard.h"
 #include "../devices/led.h"
 #include "../devices/pulsesoundenable.h"
+#include "../devices/tube.h"
 #include "../devices/vibrator.h"
 #include "../devices/voice.h"
 #include "../extras/rng.h"

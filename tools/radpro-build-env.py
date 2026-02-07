@@ -48,26 +48,16 @@ def build_env(env_name, font_small_type, font_medium_type,
             firmware_size = firmware_size_regular
 
         # Write environment configuration
-        env += [
-            '\n']
-        env += [
-            f'[env:{env_name}-{language}]\n']
-        env += [
-            f'extends = {env_name}\n']
-        env += [
-            'build_flags =\n']
-        env += [
-            f'    ${{{env_name}.build_flags}}\n']
-        env += [
-            f'    -DFIRMWARE_SIZE={firmware_size}\n']
-        env += [
-            f'    -DLANGUAGE=\'"{language}"\'\n']
-        env += [
-            f'    -DSTRINGS=\'"strings/{language}.h"\'\n']
-        env += [
-            f'    -DFONT_SMALL=\'"fonts/font_small_{language}_{font_small_type}.h"\'\n']
-        env += [
-            f'    -DFONT_MEDIUM=\'"fonts/font_medium_{language}_{font_medium_type}.h"\'\n']
+        env += ['\n']
+        env += [f'[env:{env_name}-{language}]\n']
+        env += [f'extends = {env_name}\n']
+        env += ['build_flags =\n']
+        env += [f'    ${{{env_name}.build_flags}}\n']
+        env += [f'    -DFIRMWARE_SIZE={firmware_size}\n']
+        env += [f'    -DLANGUAGE=\'"{language}"\'\n']
+        env += [f'    -DSTRINGS=\'"strings/{language}.h"\'\n']
+        env += [f'    -DFONT_SMALL=\'"fonts/font_small_{language}_{font_small_type}.h"\'\n']
+        env += [f'    -DFONT_MEDIUM=\'"fonts/font_medium_{language}_{font_medium_type}.h"\'\n']
 
     return env
 
@@ -75,29 +65,17 @@ def build_env(env_name, font_small_type, font_medium_type,
 # Build environments
 env = read_file(get_radpro_path() + 'tools/platformio.ini.base')
 
-env += build_env('fs2011-stm32f051c8', 'monochrome', 'monochrome',
-                 '0xa800', '0xb000', '0xc800')
-env += build_env('fs2011-gd32f150c8', 'monochrome', 'monochrome',
-                 '0xa800', '0xb000', '0xc800')
-env += build_env('fs2011-gd32f103c8', 'monochrome', 'monochrome',
-                 '0xa800', '0xb000', '0xc800')
-env += build_env('bosean-fs600', 'monochrome', 'monochrome',
-                 '0xa800', '0xb000', '0xc800')
-env += build_env('bosean-fs1000', 'monochrome', 'monochrome',
-                 '0xa800', '0xb000', '0xc800')
-env += build_env('bosean-fs5000', 'color_21', 'color_32',
-                 '0xd800', '0xf000', '0x14000')
-# env += build_env('bosean-fs5000_landscape', 'color_21','color_32',
-#                  '0x10000', '0x10000', '0x1b000')
-env += build_env('fnirsi-gc01_ch32f103r8', 'color_21_1bpp', 'color_32_1bpp',
-                 '0xa800', '0xb000', '0xb800')
-env += build_env('fnirsi-gc01_apm32f103rb', 'color_21', 'color_32',
-                 '0xd800', '0xf000', '0x14000')
-env += build_env('fnirsi-gc03', 'color_21', 'color_32',
-                 '0xe000', '0xf000', '0x14000')
-env += build_env('gq-gmc800', 'color_16', 'color_24',
-                 '0xd800', '0xf000', '0x14000')
-# env += build_env('gq-gmc800_landscape', 'color_12', 'color_16',
-#                  '0x10000', '0xd800', '0x14000')
+env += build_env('fs2011-stm32f051c8', 'monochrome', 'monochrome', '0xa800', '0xb000', '0xc800')
+env += build_env('fs2011-gd32f150c8', 'monochrome', 'monochrome', '0xa800', '0xb000', '0xc800')
+env += build_env('fs2011-gd32f103c8', 'monochrome', 'monochrome', '0xa800', '0xb000', '0xc800')
+env += build_env('bosean-fs600', 'monochrome', 'monochrome', '0xa800', '0xb000', '0xc800')
+env += build_env('bosean-fs1000', 'monochrome', 'monochrome', '0xa800', '0xb000', '0xc800')
+env += build_env('bosean-fs5000', 'color_21', 'color_32', '0xd000', '0xe000', '0x14000')
+# env += build_env('bosean-fs5000_landscape', 'color_21','color_32', '0x10000', '0x10000', '0x1b000')
+env += build_env('fnirsi-gc01_ch32f103r8', 'color_21_1bpp', 'color_32_1bpp', '0xa800', '0xb000', '0xb800')
+env += build_env('fnirsi-gc01_apm32f103rb', 'color_21', 'color_32', '0xe000', '0xf000', '0x15000')
+env += build_env('fnirsi-gc03', 'color_21', 'color_32', '0xe000', '0x10000', '0x16000')
+env += build_env('gq-gmc800', 'color_16', 'color_24', '0xd000', '0xe000', '0x13000')
+# env += build_env('gq-gmc800_landscape', 'color_12', 'color_16', '0x10000', '0xd800', '0x14000')
 
 write_file(get_radpro_path() + 'platform.io/platformio.ini', env)
