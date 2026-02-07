@@ -2,22 +2,42 @@
 
 ## 3.1 "The usual suspects"
 
-* Added support for the **FNIRSI GC-03**.
-* Introduced source presets, pre-configured sensitivity settings for common radiation sources, derived from numerical simulations in [Rad Lab](https://github.com/Gissio/radlab).
-* Added **Cumulative** and **Instantaneous** secondary views.
-* Added translations for **Indonesian**, **Latvian**, and **Lithuanian**.
-* Implemented USB auto power-on (on supported devices).
-* Added option to submit measurement data to [openSenseMap.org](https://opensensemap.org).
-* Updated the user interface to the **OpenBridge 6.1** design system.
-* Improved key debouncing.
-* Resolved numerous minor bugs.
-* Bosean FS-600: Fixed startup freeze.
-* Bosean FS-5000: Optimized MCU configuration for improved performance.
-* FNIRSI GC-01: Added USB power status indicator.
-* FNIRSI GC-01 (APM32): Fixed startup crash, added reading of factory HV profile from factory flash.
-* GQ GMC-800: Eliminated LCD ghosting artifacts.
-* Removed **Time** secondary view from the Instantaneous view.
-* Removed support for SWD data communications.
+* **New device support**
+
+  * Added support for the **FNIRSI GC-03**.
+
+* **New features**
+
+  * Introduced **source presets** — pre-configured sensitivity settings for common radiation sources, based on numerical simulations from [Rad Lab](https://github.com/Gissio/radlab).
+  * Added **Cumulative** and **Instantaneous** secondary views.
+  * Warnings now use short beeps and brief haptic feedback.
+  * Implemented **USB auto power-on** on supported hardware.
+  * Added option to submit measurement data to [openSenseMap.org](https://opensensemap.org).
+  * Upgraded the user interface to **OpenBridge 6.1**.
+
+* **Performance & optimizations**
+
+  * 4× speedup of the random number generator.
+  * Improved key debouncing for more reliable button response.
+  * Bosean FS-5000: Optimized MCU configuration for improved performance.
+  * FNIRSI GC-01 (CH32): Data mode no longer required.
+  * FNIRSI GC-01 (APM32): Added reading of factory HV profile from factory flash.
+
+* **Bug fixes & device-specific improvements**
+
+  * Bosean FS-600, FNIRSI GC-01 (APM32): Resolved startup freeze.
+  * FNIRSI GC-01: Added USB powered and battery charging status indicator.
+  * GQ GMC-800: Eliminated LCD ghosting artifacts.
+  * Fixed numerous minor bugs.
+
+* **Localization**
+
+  * Added new translations: **Indonesian**, **Latvian**, and **Lithuanian**.
+
+* **Cleanup**
+
+  * Removed **Time** secondary view from the Instantaneous view.
+  * Removed support for SWD data communications.
 
 ## 3.0.2 "Icebreaker"
 
@@ -33,9 +53,16 @@
 
 ## 3.0 "Sundry"
 
-* **Geiger counter compatibility:** Added support for the GQ GMC-800 Geiger counter with software-enhanced pulse stretching for reliable pulse sound at high radiation levels.
-* **Multilingual support:** Expanded to 27 languages, including Bulgarian, Chinese, Croatian, Czech, Danish, Dutch, English, Finnish, French, German, Greek, Hungarian, Italian, Japanese, Korean, Norwegian, Polish, Portuguese, Romanian, Russian, Slovakian, Slovenian, Spanish, Swedish, Turkish, Ukrainian, and Vietnamese.
+* **Geiger counter compatibility**
+
+  * Added support for the GQ GMC-800 Geiger counter with software-enhanced pulse stretching for reliable pulse sound at high radiation levels.
+
+* **Multilingual support**
+
+  * Expanded to 27 languages, including Bulgarian, Chinese, Croatian, Czech, Danish, Dutch, English, Finnish, French, German, Greek, Hungarian, Italian, Japanese, Korean, Norwegian, Polish, Portuguese, Romanian, Russian, Slovakian, Slovenian, Spanish, Swedish, Turkish, Ukrainian, and Vietnamese.
+
 * **User interface improvements**
+
   * Introduced history views for 1-week, 1-month, and 1-year timeframes, with data loaded from the data log on startup.
   * Added rate and dose warnings, with alert dismissal preserving alert state.
   * Highlighted warning and alarm zones in the instantaneous rate bar and history view.
@@ -46,27 +73,37 @@
   * Increased font size for dice roll display.
   * Rescaled UI for improved legibility.
   * Updated to OpenBridge 6.0 design system.
+
 * **Power management enhancements**
+
   * Prevented USB connection from powering on a turned-off device.
   * Automatic shutdown at critically low battery levels.
   * Enhanced battery indicator: green when charging, red when low (on color displays).
   * Added battery voltage statistics for all cells.
   * Improved voltage measurement accuracy for FS2011 (GD32F150R8/GD32F103R8) and FNIRSI GC-01.
+
 * **Measurements enhancements**
+
   * Expanded averaging intervals: 3, 6, 12, 24 hours, and confidence intervals of ±50%, ±20%, ±10%, ±5%, ±2% and ±1%.
   * Extended sensitivity range to 1–10,000 cpm/µSv/h for low-sensitivity Geiger tubes (e.g., SI-3BG).
   * Expanded dead-time compensation to 5-500 µs for scintillation detector compatibility.
   * Adjusted SBM-20 sensitivity to 150.5 cpm/µSv/h.
   * Implemented dynamic loss-of-count detection based on selected sensitivity.
+
 * **Data and connectivity**
+
   * Enhanced `GET datalog` command with additional options and empty records to indicate the start of new logging sessions.
   * Added `SET deviceTimeZone` and `GET deviceTimeZone` commands for timezone management.
   * Introduced `RESET datalog` command to clear data logs.
   * Upgraded `radpro-tool` with timezone synchronization and inproved error handling.
+
 * **Removed features**
+
   * Removed background compensation due to negligible intrinsic activity in common Geiger tubes.
   * Removed `GET tubeBackgroundCompensation` command.
+
 * **Bug fixes**
+
   * Fixed history and maximum value updates for 10-second, 30-second, and 60-second averaging intervals.
   * Resolved datalog writing errors when USB-powered but turned off.
   * Fixed datalog download issue causing restarts in high-radiation conditions.
@@ -76,6 +113,7 @@
 ## 2.1.1 "The dot mender"
 
 * **Updates**
+
   * Renamed **Conversion factor** to **Sensitivity** (as sensitivity is cpm/radiation rate, while conversion factor is radiation rate/cpm).
   * Renamed `GET tubeConversionFactor` to `GET tubeSensitivity`.
   * Short press of power key on 5-key devices in measurement view activates display sleep.
@@ -85,13 +123,16 @@
   * Added support for 100-sided and 10-sided die rolls and binary random number generation.
   * History calculated only when instantaneous rate confidence interval is below 75%.
   * Automatic dose saving every 60 minutes at critically low battery levels.
+
 * **Bug fixes**
+
   * Fixed missing measurement dot on color display devices.
   * Corrected battery voltage measurement on Bosean FS-5000.
 
 ## 2.1 "Delicious trifles"
 
 * **Updates**
+
   * Added alert dismissal via reset measurement key.
   * Configurable alert indications: sound, vibration, pulse LED, and display flash.
   * Added alert-enabled indicator.
@@ -103,6 +144,7 @@
   * Improved menu navigation and updated UI font to Open Sans for better readability.
 
 * **Fixes**
+
   * Fixed unsightly flash on color displays when waking from sleep.
   * Resolved alerts sounding after shutdown while externally powered.
   * Corrected secondary rate and count view display after average timer expiration.
