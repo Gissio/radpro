@@ -194,8 +194,8 @@ float getTubeHVFrequency(void)
     default:
     {
 #if defined(TUBE_DEFAULT_HVPROFILE_IN_FLASH)
-        float value = getTubeDefaultHVFrequency();
-        if (value >= 0)
+        float value;
+        if (getTubeDefaultHVFrequency(&value))
             return value;
 #endif
         return TUBE_HVPROFILE_FACTORYDEFAULT_FREQUENCY;
@@ -241,8 +241,8 @@ float getTubeHVDutyCycle(void)
     default:
     {
 #if defined(TUBE_DEFAULT_HVPROFILE_IN_FLASH)
-        float value = getTubeDefaultHVDutyCycle();
-        if (value >= 0)
+        float value;
+        if (getTubeDefaultHVDutyCycle(&value))
             return value;
 #endif
         return TUBE_HVPROFILE_FACTORYDEFAULT_DUTYCYCLE;

@@ -123,30 +123,37 @@ void initSystem(void)
 #define TUBE_DEFAULT_HV_FREQUENCY (*((uint16_t *)(0x08003824)))
 #define TUBE_DEFAULT_HV_DUTYCYCLE (*((uint16_t *)(0x08003826)))
 
-float getTubeDefaultHVFrequency(void)
+bool getTubeDefaultHVFrequency(float *value)
 {
-    float value = -1;
-
     if (TUBE_DEFAULT_SIGNATURE == TUBE_DEFAULT_SIGNATURE_VALUE)
     {
-        if (TUBE_DEFAULT_HV_FREQUENCY >= 100)
-            value = TUBE_DEFAULT_HV_FREQUENCY;
+        uint32_t intValue = TUBE_DEFAULT_HV_FREQUENCY;
+        if (intValue >= 100)
+        {
+            *value = (float)intValue;
+
+            return true;
+        }
     }
 
-    return value;
+    return false;
 }
 
-float getTubeDefaultHVDutyCycle(void)
+bool getTubeDefaultHVDutyCycle(float *value)
 {
-    float value = -1;
-
     if (TUBE_DEFAULT_SIGNATURE == TUBE_DEFAULT_SIGNATURE_VALUE)
     {
-        if (TUBE_DEFAULT_HV_DUTYCYCLE <= 1000)
-            value = 0.001F * TUBE_DEFAULT_HV_DUTYCYCLE;
+        uint32_t intValue = TUBE_DEFAULT_HV_DUTYCYCLE;
+
+        if (intValue <= 1000)
+        {
+            *value = 0.001F * (float)intValue;
+
+            return true;
+        }
     }
 
-    return value;
+    return false;
 }
 
 // Communications

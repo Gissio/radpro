@@ -33,10 +33,10 @@ uint32_t getLossOfCountTime(void);
 
 float getTubeDeadTimeCompensation(void);
 
-float getTubeDefaultHVFrequency(void);
+bool getTubeDefaultHVFrequency(float *value);
 float getTubeHVFrequency(void);
 bool setTubeHVFrequency(float value);
-float getTubeDefaultHVDutyCycle(void);
+bool getTubeDefaultHVDutyCycle(float *value);
 float getTubeHVDutyCycle(void);
 bool setTubeHVDutyCycle(float value);
 

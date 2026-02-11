@@ -78,30 +78,30 @@ void initSystem(void)
 #define TUBE_DEFAULT_HV_FREQUENCY (*((uint16_t *)(0x0803fc1a)))
 #define TUBE_DEFAULT_HV_DUTYCYCLE_PERIOD 0.0000125F
 
-float getTubeDefaultHVFrequency(void)
+bool getTubeDefaultHVFrequency(float *value)
 {
-    float value = -1;
-
     if (TUBE_DEFAULT_SIGNATURE == TUBE_DEFAULT_SIGNATURE_VALUE)
     {
         if ((TUBE_DEFAULT_HV_FREQUENCY >= 1) && (TUBE_DEFAULT_HV_FREQUENCY < 1000))
-            value = 100.0F * TUBE_DEFAULT_HV_FREQUENCY;
+        {
+            *value = 100.0F * TUBE_DEFAULT_HV_FREQUENCY;
+
+            return true;
+        }
     }
 
-    return value;
+    return false;
 }
 
-float getTubeDefaultHVDutyCycle(void)
+bool getTubeDefaultHVDutyCycle(float *value)
 {
-    float value = -1;
+    float frequency;
+    if (!getTubeDefaultHVFrequency(&frequency))
+        return false;
 
-    if (TUBE_DEFAULT_SIGNATURE == TUBE_DEFAULT_SIGNATURE_VALUE)
-    {
-        if ((TUBE_DEFAULT_HV_FREQUENCY >= 1) && (TUBE_DEFAULT_HV_FREQUENCY < 1000))
-            value = TUBE_DEFAULT_HV_DUTYCYCLE_PERIOD * TUBE_DEFAULT_HV_FREQUENCY;
-    }
+    *value = TUBE_DEFAULT_HV_DUTYCYCLE_PERIOD * frequency;
 
-    return value;
+    return true;
 }
 
 // EMF meter
