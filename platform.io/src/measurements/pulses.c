@@ -94,8 +94,6 @@ PulseUnits pulseUnits[] = {
 
 static struct
 {
-    bool measurementsEnabled;
-
     // onPulseTick
     uint32_t lastTubePulseCount;
 
@@ -196,11 +194,6 @@ float getDoseFactor(void)
     return pulseUnits[settings.doseUnits].dose.scale;
 }
 
-void setPulseMeasurementsEnabled(bool value)
-{
-    pulses.measurementsEnabled = value;
-}
-
 void updatePulseThresholdExceeded(void)
 {
     float rateSvH = pulseUnits[DOSE_UNITS_SIEVERTS].rate.scale * getInstantaneousRate();
@@ -218,9 +211,6 @@ void onPulseTick(void)
     uint32_t currentPulseCount = tubePulseCount;
     uint32_t pulseCount = currentPulseCount - pulses.lastTubePulseCount;
     pulses.lastTubePulseCount = currentPulseCount;
-
-    if (!pulses.measurementsEnabled)
-        return;
 
     if (pulseCount)
     {
@@ -247,7 +237,7 @@ void onPulseTick(void)
 
 void onPulseHeartbeat(void)
 {
-    if (!pulses.measurementsEnabled)
+    if (!isMeasurementsEnabled())
         return;
 
     // Tube dose
@@ -261,9 +251,6 @@ void onPulseHeartbeat(void)
 
 void updatePulses(void)
 {
-    if (!pulses.measurementsEnabled)
-        return;
-
     // Loss of count
     AlertLevel alertLevel = ALERTLEVEL_NONE;
     if (pulses.lastPeriod.pulseCount)

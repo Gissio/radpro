@@ -41,6 +41,8 @@ typedef enum
 
 static struct
 {
+    bool enabled;
+
     int32_t viewIndex;
 
     AlertLevel alertLevel;
@@ -88,11 +90,19 @@ void setupMeasurements(void)
 
 void setMeasurementsEnabled(bool value)
 {
-    setPulseMeasurementsEnabled(value);
+    measurements.enabled = value;
+}
+
+bool isMeasurementsEnabled(void)
+{
+    return measurements.enabled;
 }
 
 void updateMeasurements(void)
 {
+    if (!measurements.enabled)
+        return;
+
     // Measurements
     updatePulses();
 #if defined(EMFMETER)

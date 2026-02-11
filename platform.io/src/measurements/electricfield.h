@@ -23,10 +23,6 @@ extern const Unit electricFieldUnits;
 
 extern const int32_t electricFieldMinMetricPrefix;
 
-extern const Unit powerDensityUnits;
-
-extern const int32_t powerDensityMinMetricPrefix;
-
 void setupElectricField(void);
 
 void updateElectricField(void);
@@ -34,7 +30,5 @@ void updateElectricField(void);
 float getElectricField(void);
 
 AlertLevel getElectricFieldAlertLevel(void);
-
-float getPowerDensity(void);
 
 #endif

@@ -42,7 +42,6 @@
 #define STRING_TESLA_UNIT "Тл"
 #define STRING_GAUSS "Гаус"
 #define STRING_GAUSS_UNIT "Гс"
-#define STRING_W_M2 "Вт/m²"
 
 // Units for indicating Geiger tube pulse count, as in "1 count" or "14 counts"
 #define STRING_COUNT "имп"
@@ -96,7 +95,6 @@
 #define STRING_MAX "Макс"
 #define STRING_RATE "Скорост"
 #define STRING_DOSE "Доза"
-#define STRING_POWER_DENSITY "Плътност на мощността"
 
 // Measurements info strings
 #define STRING_ALERT_FAULT "ГРЕШКА"
@@ -186,8 +184,8 @@
 #define STRING_HVPROFILE "HV профил"
 
 // Geiger tube type strings
-#define STRING_J305 "J305 (107 мм)"
-#define STRING_M4011 "M4011 (87 мм)"
+#define STRING_J305 "J305"
+#define STRING_M4011 "M4011/J321"
 #define STRING_HH614 "HH614"
 #define STRING_SBM20 "СБМ20"
 #define STRING_SI3BG "СИ3БГ"

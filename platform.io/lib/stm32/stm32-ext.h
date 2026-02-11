@@ -45,9 +45,15 @@ typedef struct
 #endif
 
 #if defined(CH32F2)
+#define RCC_APB2ENR_TIM9EN_Pos (19U)
+#define RCC_APB2ENR_TIM9EN_Msk (0x1UL << RCC_APB2ENR_TIM9EN_Pos) /*!< 0x00100000 */
+#define RCC_APB2ENR_TIM9EN RCC_APB2ENR_TIM9EN_Msk                /*!< TIM9 Timer clock enable  */
 #define RCC_APB2ENR_TIM10EN_Pos (20U)
 #define RCC_APB2ENR_TIM10EN_Msk (0x1UL << RCC_APB2ENR_TIM10EN_Pos) /*!< 0x00100000 */
 #define RCC_APB2ENR_TIM10EN RCC_APB2ENR_TIM10EN_Msk                /*!< TIM10 Timer clock enable  */
+
+#define TIM9_BASE (APB2PERIPH_BASE + 0x00004c00UL)
+#define TIM9 ((TIM_TypeDef *)TIM9_BASE)
 
 #define TIM10_BASE (APB2PERIPH_BASE + 0x00005000UL)
 #define TIM10 ((TIM_TypeDef *)TIM10_BASE)
@@ -1500,8 +1506,6 @@ __STATIC_INLINE void adc_set_sampletime(ADC_TypeDef *base, uint8_t sampletime)
     base->SMPR1 = value;
     base->SMPR2 = value;
 #elif defined(STM32L4)
-    base->SQR1 = 0;
-
     uint32_t value = 0;
     for (uint32_t i = 0; i < 10; i++)
         value |= sampletime << (3 * i);
@@ -1630,7 +1634,7 @@ __STATIC_INLINE void tim_set_ontime(TIM_TypeDef *base, uint32_t channel, uint32_
     }
 }
 
-__STATIC_INLINE void tim_setup_pwm(TIM_TypeDef *base, uint32_t channel)
+__STATIC_INLINE void tim_setup_pwm(TIM_TypeDef *base, uint32_t channel, bool complementary)
 {
     switch (channel)
     {
@@ -1638,7 +1642,9 @@ __STATIC_INLINE void tim_setup_pwm(TIM_TypeDef *base, uint32_t channel)
         modify_bits(base->CCMR1,
                     TIM_CCMR1_OC1M_Msk,
                     TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1);
-        set_bits(base->CCER, TIM_CCER_CC1E);
+        modify_bits(base->CCER,
+                    TIM_CCER_CC1E_Msk | TIM_CCER_CC1P_Msk | TIM_CCER_CC1NE_Msk | TIM_CCER_CC1NP_Msk,
+                    complementary ? (TIM_CCER_CC1NE | TIM_CCER_CC1NP) : TIM_CCER_CC1E);
 
         break;
 
@@ -1646,7 +1652,9 @@ __STATIC_INLINE void tim_setup_pwm(TIM_TypeDef *base, uint32_t channel)
         modify_bits(base->CCMR1,
                     TIM_CCMR1_OC2M_Msk,
                     TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1);
-        set_bits(base->CCER, TIM_CCER_CC2E);
+        modify_bits(base->CCER,
+                    TIM_CCER_CC2E_Msk | TIM_CCER_CC2P_Msk | TIM_CCER_CC2NE_Msk | TIM_CCER_CC2NP_Msk,
+                    complementary ? (TIM_CCER_CC2NE | TIM_CCER_CC2NP) : TIM_CCER_CC2E);
 
         break;
 
@@ -1654,7 +1662,9 @@ __STATIC_INLINE void tim_setup_pwm(TIM_TypeDef *base, uint32_t channel)
         modify_bits(base->CCMR2,
                     TIM_CCMR2_OC3M_Msk,
                     TIM_CCMR2_OC3M_2 | TIM_CCMR2_OC3M_1);
-        set_bits(base->CCER, TIM_CCER_CC3E);
+        modify_bits(base->CCER,
+                    TIM_CCER_CC3E_Msk | TIM_CCER_CC3P_Msk | TIM_CCER_CC3NE_Msk | TIM_CCER_CC3NP_Msk,
+                    complementary ? (TIM_CCER_CC3NE | TIM_CCER_CC3NP) : TIM_CCER_CC3E);
 
         break;
 
@@ -1662,7 +1672,9 @@ __STATIC_INLINE void tim_setup_pwm(TIM_TypeDef *base, uint32_t channel)
         modify_bits(base->CCMR2,
                     TIM_CCMR2_OC4M_Msk,
                     TIM_CCMR2_OC4M_2 | TIM_CCMR2_OC4M_1);
-        set_bits(base->CCER, TIM_CCER_CC4E);
+        modify_bits(base->CCER,
+                    TIM_CCER_CC4E_Msk | TIM_CCER_CC4P_Msk,
+                    TIM_CCER_CC4E);
 
         break;
 
@@ -1670,7 +1682,17 @@ __STATIC_INLINE void tim_setup_pwm(TIM_TypeDef *base, uint32_t channel)
         break;
     }
 
-    if (base == TIM1)
+    if ((base == TIM1)
+#if defined(TIM8)
+        || (base == TIM8)
+#endif
+#if defined(TIM9)
+        || (base == TIM9)
+#endif
+#if defined(TIM10)
+        || (base == TIM10)
+#endif
+    )
     {
         set_bits(base->BDTR, TIM_BDTR_MOE);
         sync_peripheral(&base->BDTR);

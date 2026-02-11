@@ -15,7 +15,7 @@
 
 #define FIRMWARE_AUTHOR "Gissio"
 #define FIRMWARE_NAME "Rad Pro"
-#define FIRMWARE_VERSION "3.1beta1"
+#define FIRMWARE_VERSION "3.1test3"
 
 void initSystem(void);
 

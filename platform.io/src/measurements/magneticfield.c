@@ -25,7 +25,6 @@ typedef enum
 {
     MAGNETIC_FIELD_TAB_MAX,
     MAGNETIC_FIELD_TAB_ELECTRIC,
-    MAGNETIC_FIELD_TAB_POWERDENSITY,
 
     MAGNETIC_FIELD_TAB_NUM,
 
@@ -194,17 +193,6 @@ static void onMagneticFieldViewEvent(Event event)
                     buildValueString(valueString, unitString, electricField, &electricFieldUnits, electricFieldMinMetricPrefix);
 
                 keyString = getString(STRING_ELECTRIC_FIELD);
-
-                break;
-            }
-
-            case MAGNETIC_FIELD_TAB_POWERDENSITY:
-            {
-                float powerDensity = getPowerDensity();
-                if (powerDensity)
-                    buildValueString(valueString, unitString, powerDensity, &powerDensityUnits, powerDensityMinMetricPrefix);
-
-                keyString = getString(STRING_POWER_DENSITY);
 
                 break;
             }

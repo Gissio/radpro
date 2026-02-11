@@ -35,6 +35,7 @@ extern View measurementsMenuView;
 void setupMeasurements(void);
 
 void setMeasurementsEnabled(bool value);
+bool isMeasurementsEnabled(void);
 
 void updateMeasurements(void);
 

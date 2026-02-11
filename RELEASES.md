@@ -33,6 +33,7 @@
 * **Localization**
 
   * Added new translations: **Indonesian**, **Latvian**, and **Lithuanian**.
+  * Improved translations: **Bulgarian**, **Russian**, and **Ukrainian**.
 
 * **Cleanup**
 

@@ -48,7 +48,11 @@ void initBuzzer(void)
 #endif
 
     // Timer
-    tim_setup_pwm(BUZZER_TIMER, BUZZER_TIMER_CHANNEL);
+#if defined(BUZZER_ACTIVE_LOW)
+    tim_setup_pwm(BUZZER_TIMER, BUZZER_TIMER_CHANNEL, true);
+#else
+    tim_setup_pwm(BUZZER_TIMER, BUZZER_TIMER_CHANNEL, false);
+#endif
     tim_set_period(BUZZER_TIMER, BUZZER_TIMER_PERIOD);
     setBuzzer(false);
     tim_enable(BUZZER_TIMER);
@@ -67,18 +71,17 @@ void setBuzzer(bool value)
 #endif
 
 #if defined(BUZZER2_PORT)
-
 #if defined(BUZZER_ACTIVE_LOW)
     gpio_modify(BUZZER2_PORT, BUZZER2_PIN, !value);
 #else
     gpio_modify(BUZZER2_PORT, BUZZER2_PIN, value);
 #endif
-
 #endif
 
 #else
 
     tim_set_ontime(BUZZER_TIMER, BUZZER_TIMER_CHANNEL, value ? BUZZER_TIMER_PERIOD / 2 : 0);
+
 #endif
 }
 

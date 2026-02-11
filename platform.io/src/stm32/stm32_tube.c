@@ -78,7 +78,7 @@ void initTubeHardware(void)
 
     // HV PWM timer
 #if defined(TUBE_HV_PWM)
-    tim_setup_pwm(TUBE_HV_TIMER, TUBE_HV_TIMER_CHANNEL);
+    tim_setup_pwm(TUBE_HV_TIMER, TUBE_HV_TIMER_CHANNEL, false);
 
     updateTubeHV();
 

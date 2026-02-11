@@ -26,7 +26,6 @@ typedef enum
 {
     ELECTRIC_FIELD_TAB_MAX,
     ELECTRIC_FIELD_TAB_MAGNETIC,
-    ELECTRIC_FIELD_TAB_POWERDENSITY,
 
     ELECTRIC_FIELD_TAB_NUM,
 
@@ -38,10 +37,6 @@ static void resetElectricField(void);
 const Unit electricFieldUnits = {STRING_VOLT_PER_METER_UNIT, 1};
 
 const int32_t electricFieldMinMetricPrefix = 0;
-
-const Unit powerDensityUnits = {STRING_W_M2, 1};
-
-const int32_t powerDensityMinMetricPrefix = -2;
 
 static struct
 {
@@ -110,11 +105,6 @@ float getElectricField(void)
 AlertLevel getElectricFieldAlertLevel(void)
 {
     return electricField.alertLevel;
-}
-
-float getPowerDensity(void)
-{
-    return getElectricField() * getMagneticField() * (1.0F / (4 * 3.1415926535F * 1E-7F));
 }
 
 // Electric field view
@@ -197,17 +187,6 @@ static void onElectricFieldViewEvent(Event event)
                     buildValueString(valueString, unitString, magneticField, &magneticFieldUnits[settings.magneticFieldUnits], magneticFieldMinMetricPrefix[settings.magneticFieldUnits]);
 
                 keyString = getString(STRING_MAGNETIC_FIELD);
-
-                break;
-            }
-
-            case ELECTRIC_FIELD_TAB_POWERDENSITY:
-            {
-                float powerDensity = getPowerDensity();
-                if (powerDensity)
-                    buildValueString(valueString, unitString, powerDensity, &powerDensityUnits, powerDensityMinMetricPrefix);
-
-                keyString = getString(STRING_POWER_DENSITY);
 
                 break;
             }

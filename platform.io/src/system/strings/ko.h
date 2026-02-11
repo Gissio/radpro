@@ -42,7 +42,6 @@
 #define STRING_TESLA_UNIT "T"
 #define STRING_GAUSS "Gauss"
 #define STRING_GAUSS_UNIT "G"
-#define STRING_W_M2 "W/m²"
 
 // Units for indicating Geiger tube pulse count, as in "1 count" or "14 counts"
 #define STRING_COUNT "회"
@@ -96,7 +95,6 @@
 #define STRING_MAX "최대"
 #define STRING_RATE "속도"
 #define STRING_DOSE "선량"
-#define STRING_POWER_DENSITY "전력 밀도"
 
 // Measurements info strings
 #define STRING_ALERT_FAULT "고장"
@@ -186,8 +184,8 @@
 #define STRING_HVPROFILE "HV 프로파일"
 
 // Geiger tube type strings
-#define STRING_J305 "J305 (107 mm)"
-#define STRING_M4011 "M4011 (87 mm)"
+#define STRING_J305 "J305"
+#define STRING_M4011 "M4011/J321"
 #define STRING_HH614 "HH614"
 #define STRING_SBM20 "SBM20"
 #define STRING_SI3BG "SI3BG"

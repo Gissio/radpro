@@ -34,7 +34,7 @@ void initBacklight(void)
     gpio_setup(DISPLAY_BACKLIGHT_PORT, DISPLAY_BACKLIGHT_PIN, GPIO_MODE_OUTPUT_2MHZ_AF_PUSHPULL);
 
     // Timer
-    tim_setup_pwm(DISPLAY_BACKLIGHT_TIMER, DISPLAY_BACKLIGHT_TIMER_CHANNEL);
+    tim_setup_pwm(DISPLAY_BACKLIGHT_TIMER, DISPLAY_BACKLIGHT_TIMER_CHANNEL, false);
     tim_set_period(DISPLAY_BACKLIGHT_TIMER, DISPLAY_BACKLIGHT_TIMER_PERIOD);
     tim_enable(DISPLAY_BACKLIGHT_TIMER);
 }
@@ -73,10 +73,10 @@ void setBacklight(bool value)
         uint32_t prescalerFactor = prescalePWMParameters(&period, &onTime);
 
 #if defined(DISPLAY_BACKLIGHT_ACTIVE_LOW)
-        onTime = period - onTime;
+        tim_setup_pwm(DISPLAY_BACKLIGHT_TIMER, DISPLAY_BACKLIGHT_TIMER_CHANNEL, true);
+#else
+        tim_setup_pwm(DISPLAY_BACKLIGHT_TIMER, DISPLAY_BACKLIGHT_TIMER_CHANNEL, false);
 #endif
-
-        tim_setup_pwm(DISPLAY_BACKLIGHT_TIMER, DISPLAY_BACKLIGHT_TIMER_CHANNEL);
         tim_set_prescaler_factor(DISPLAY_BACKLIGHT_TIMER, prescalerFactor);
         tim_set_period(DISPLAY_BACKLIGHT_TIMER, period);
         tim_set_ontime(DISPLAY_BACKLIGHT_TIMER, DISPLAY_BACKLIGHT_TIMER_CHANNEL, onTime);
@@ -86,7 +86,12 @@ void setBacklight(bool value)
     else
     {
         // GPIO
+#if defined(DISPLAY_BACKLIGHT_ACTIVE_LOW)
+        gpio_set(DISPLAY_BACKLIGHT_PORT, DISPLAY_BACKLIGHT_PIN);
+#else
         gpio_clear(DISPLAY_BACKLIGHT_PORT, DISPLAY_BACKLIGHT_PIN);
+#endif
+
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
         gpio_setup_output(DISPLAY_BACKLIGHT_PORT, DISPLAY_BACKLIGHT_PIN, GPIO_OUTPUTTYPE_PUSHPULL, GPIO_OUTPUTSPEED_2MHZ, GPIO_PULL_FLOATING);
 #elif defined(STM32F1)

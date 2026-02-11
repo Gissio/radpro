@@ -94,6 +94,10 @@ static struct
     ADCStage stage;
 } adcHardware;
 
+#if defined(PWR_CHRGANALOG_PORT)
+void updateADCChrgAnalog(int32_t value);
+#endif
+
 void initADC(void)
 {
     rcc_enable_adc(ADC1);
@@ -124,7 +128,6 @@ void initADC(void)
 
     adc_enable(ADC1);
     adc_set_sampletime(ADC1, 7);
-
     adc_set_channel(ADC1, PWR_BAT_CHANNEL);
     adc_trigger_conversion(ADC1);
     while (!adc_ready(ADC1))
@@ -137,12 +140,21 @@ void initADC(void)
     while (!adc_ready(ADC1))
         ;
     int32_t value = adc_read(ADC1);
-    adcHardware.usbPowered = (value < PWR_CHRGANALOG_USB_POWERED_THRESHOLD);
-    adcHardware.batteryCharging = (value < PWR_CHRGANALOG_USB_CHARGING_THRESHOLD);
+    updateADCChrgAnalog(value);
 #endif
 
     adcHardware.initialized = true;
 }
+
+#if defined(PWR_CHRGANALOG_PORT)
+
+void updateADCChrgAnalog(int32_t value)
+{
+    adcHardware.batteryCharging = (value < PWR_CHRGANALOG_USB_CHARGING_THRESHOLD);
+    adcHardware.usbPowered = adcHardware.batteryCharging || (value > PWR_CHRGANALOG_USB_POWERED_THRESHOLD);
+}
+
+#endif
 
 void onADCTick(uint32_t index)
 {
@@ -168,8 +180,7 @@ void onADCTick(uint32_t index)
     case ADC_STAGE_PWR_CHRGANALOG:
         adcHardware.stage = ADC_STAGE_IDLE;
 
-        adcHardware.usbPowered = (value < PWR_CHRGANALOG_USB_POWERED_THRESHOLD);
-        adcHardware.batteryCharging = (value < PWR_CHRGANALOG_USB_CHARGING_THRESHOLD);
+        updateADCChrgAnalog(value);
 
         break;
 

@@ -108,12 +108,18 @@ float getTubeDefaultHVDutyCycle(void)
 
 void initEMFMeter(void)
 {
+    setEMFMeterEnabled(false);
+
     gpio_setup(EMFMETER_EN_PORT, EMFMETER_EN_PIN, GPIO_MODE_OUTPUT_2MHZ_AF_PUSHPULL);
 }
 
 void setEMFMeterEnabled(bool value)
 {
+#if defined(EMFMETER_EN_ACTIVE_LOW)
+    gpio_modify(EMFMETER_EN_PORT, EMFMETER_EN_PIN, !value);
+#else
     gpio_modify(EMFMETER_EN_PORT, EMFMETER_EN_PIN, value);
+#endif
 }
 
 // Communications

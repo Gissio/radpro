@@ -68,7 +68,6 @@ void calculateRate(Rate *rate, PulsePeriod *period);
 float getRateFactor(void);
 float getDoseFactor(void);
 
-void setPulseMeasurementsEnabled(bool value);
 void updatePulseThresholdExceeded(void);
 bool isPulseThresholdExceeded(void);
 void onPulseTick(void);
