@@ -69,7 +69,11 @@ void setBacklight(bool value)
 
         // Timer
         uint32_t period = DISPLAY_BACKLIGHT_TIMER_PERIOD;
+#if defined(DISPLAY_BACKLIGHT_ACTIVE_LOW)
+        uint32_t onTime = period - ((displayBrightnessValue[settings.displayBrightness] * DISPLAY_BACKLIGHT_TIMER_PERIOD) >> 16);
+#else
         uint32_t onTime = ((displayBrightnessValue[settings.displayBrightness] * DISPLAY_BACKLIGHT_TIMER_PERIOD) >> 16);
+#endif
         uint32_t prescalerFactor = prescalePWMParameters(&period, &onTime);
 
 #if defined(DISPLAY_BACKLIGHT_ACTIVE_LOW)
@@ -86,11 +90,7 @@ void setBacklight(bool value)
     else
     {
         // GPIO
-#if defined(DISPLAY_BACKLIGHT_ACTIVE_LOW)
-        gpio_set(DISPLAY_BACKLIGHT_PORT, DISPLAY_BACKLIGHT_PIN);
-#else
         gpio_clear(DISPLAY_BACKLIGHT_PORT, DISPLAY_BACKLIGHT_PIN);
-#endif
 
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
         gpio_setup_output(DISPLAY_BACKLIGHT_PORT, DISPLAY_BACKLIGHT_PIN, GPIO_OUTPUTTYPE_PUSHPULL, GPIO_OUTPUTSPEED_2MHZ, GPIO_PULL_FLOATING);
