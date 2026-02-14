@@ -29,6 +29,7 @@ static Menu tubeDeadTimeCompensationMenu;
 static cstring tubeTypeLabels[] = {
     STRING_J305,
     STRING_M4011,
+    STRING_J321,
     STRING_HH614,
     STRING_SBM20,
     STRING_SI3BG,
@@ -131,7 +132,12 @@ void setupTube(void)
 static float getTubeSensitivityForIndex(uint32_t index)
 {
     if (index == 0)
-        return tubeTypeSensitivities[settings.tubeType];
+    {
+        uint32_t tubeTypeIndex = index;
+        if (tubeTypeIndex > TUBE_TYPE_M4011)
+            tubeTypeIndex--;
+        return tubeTypeSensitivities[tubeTypeIndex];
+    }
     else
         return TUBE_SENSITIVITY_VALUE_MIN *
                exp2f((float)(index - 1) * (TUBE_SENSITIVITY_VALUE_LOG2_MAX_MIN / (TUBE_SENSITIVITY_VALUE_NUM - 1)));
@@ -139,7 +145,10 @@ static float getTubeSensitivityForIndex(uint32_t index)
 
 float getTubeSensitivity(void)
 {
-    uint8_t code = tubeTypeSourceFactorCodes[settings.tubeType][settings.source];
+    uint32_t tubeTypeIndex = settings.tubeType;
+    if (tubeTypeIndex > TUBE_TYPE_M4011)
+        tubeTypeIndex--;
+    uint8_t code = tubeTypeSourceFactorCodes[tubeTypeIndex][settings.source];
     float sourceFactor = SOURCE_FACTOR_DATA_MIN * exp2f(code * (1.0F / SOURCE_FACTOR_DATA_SCALE));
 
     return sourceFactor * getTubeSensitivityForIndex(settings.tubeSensitivity);

@@ -183,7 +183,8 @@
 
 // Geiger tube type strings
 #define STRING_J305 "J305"
-#define STRING_M4011 "M4011/J321"
+#define STRING_M4011 "M4011"
+#define STRING_J321 "J321"
 #define STRING_HH614 "HH614"
 #define STRING_SBM20 "СБМ20"
 #define STRING_SI3BG "СИ3БГ"
