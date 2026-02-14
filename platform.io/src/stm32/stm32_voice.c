@@ -11,11 +11,11 @@
 
 #if defined(VOICE)
 
-#include "../devices/voice.h"
 #include "../measurements/average.h"
 #include "../measurements/cumulative.h"
 #include "../measurements/instantaneous.h"
 #include "../measurements/pulses.h"
+#include "../peripherals/voice.h"
 #include "../system/cmath.h"
 #include "../system/events.h"
 #include "../system/settings.h"

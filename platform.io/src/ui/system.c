@@ -7,8 +7,8 @@
  * License: MIT
  */
 
-#include "../devices/rtc.h"
 #include "../measurements/measurements.h"
+#include "../peripherals/rtc.h"
 #include "../system/settings.h"
 #include "../ui/draw.h"
 #include "../ui/system.h"

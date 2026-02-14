@@ -11,7 +11,7 @@
 
 #if defined(VIBRATOR)
 
-#include "../devices/vibrator.h"
+#include "../peripherals/vibrator.h"
 #include "../stm32/device.h"
 
 void initVibrator(void)

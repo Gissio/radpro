@@ -7,9 +7,9 @@
  * License: MIT
  */
 
-#include "../devices/display.h"
-#include "../devices/keyboard.h"
 #include "../measurements/measurements.h"
+#include "../peripherals/display.h"
+#include "../peripherals/keyboard.h"
 #include "../system/events.h"
 #include "../system/power.h"
 #include "../system/settings.h"

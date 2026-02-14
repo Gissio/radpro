@@ -17,7 +17,7 @@
 
 #include <SDL.h>
 
-#include "../devices/sound.h"
+#include "../peripherals/sound.h"
 #include "../system/events.h"
 
 // Voice

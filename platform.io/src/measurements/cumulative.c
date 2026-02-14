@@ -7,9 +7,9 @@
  * License: MIT
  */
 
-#include "../devices/voice.h"
 #include "../measurements/cumulative.h"
 #include "../measurements/instantaneous.h"
+#include "../peripherals/voice.h"
 #include "../system/cmath.h"
 #include "../system/events.h"
 #include "../system/settings.h"
@@ -75,18 +75,18 @@ void updateCumulativeDose(PulsePeriod *period)
         alertLevel = ALERTLEVEL_ALARM;
     else if (settings.doseWarning && (doseSv >= doseAlerts[settings.doseWarning]))
         alertLevel = ALERTLEVEL_WARNING;
-
     bool alertTriggered = (alertLevel > cumulative.alertLevel);
     cumulative.alertLevel = alertLevel;
 
     if (alertTriggered)
         setAlertPending(true);
 
+    // Alert view
     if (isTubeFaultAlertTriggered())
         cumulativeTab = CUMULATIVE_TAB_ALERT;
     else if (cumulativeTab == CUMULATIVE_TAB_ALERT)
     {
-        if (!getTubeFaultAlertLevel() && !alertLevel)
+        if (!getTubeFaultAlertLevel())
             cumulativeTab = CUMULATIVE_TAB_TIME;
     }
 }
@@ -123,14 +123,11 @@ static void onCumulativeDoseViewEvent(Event event)
     if (onMeasurementViewEvent(event))
         return;
 
-    bool max = (cumulative.dose.time == UINT32_MAX) ||
-               (cumulative.dose.pulseCount == UINT32_MAX);
+    bool done = (cumulative.dose.time == UINT32_MAX) || (cumulative.dose.pulseCount == UINT32_MAX);
 
     const char *alertString;
     if (getTubeFaultAlertLevel())
         alertString = getString(STRING_ALERT_FAULT);
-    else if (max)
-        alertString = getString(STRING_ALERT_MAX);
     else
         alertString = NULL;
 
@@ -139,9 +136,7 @@ static void onCumulativeDoseViewEvent(Event event)
     case EVENT_KEY_BACK:
         cumulativeTab++;
 
-        if (alertString
-                ? cumulativeTab >= (CUMULATIVE_TAB_NUM + 1)
-                : cumulativeTab >= CUMULATIVE_TAB_NUM)
+        if (alertString ? cumulativeTab >= (CUMULATIVE_TAB_NUM + 1) : cumulativeTab >= CUMULATIVE_TAB_NUM)
             cumulativeTab = 0;
 
         requestViewUpdate();
@@ -178,7 +173,7 @@ static void onCumulativeDoseViewEvent(Event event)
             style = MEASUREMENTSTYLE_ALARM;
         else if (cumulative.alertLevel == ALERTLEVEL_WARNING)
             style = MEASUREMENTSTYLE_WARNING;
-        else if (max)
+        else if (done)
             style = MEASUREMENTSTYLE_DONE;
         else
             style = MEASUREMENTSTYLE_NORMAL;
@@ -204,16 +199,14 @@ static void onCumulativeDoseViewEvent(Event event)
                 break;
 
             case CUMULATIVE_TAB_DOSE:
-                if (cumulative.dose.pulseCount > 0)
-                    buildValueString(valueString, unitString, cumulative.dose.pulseCount, &pulseUnits[settings.secondaryDoseUnits].dose, doseUnitsMinMetricPrefix[settings.secondaryDoseUnits]);
+                buildValueString(valueString, unitString, cumulative.dose.pulseCount, &pulseUnits[settings.secondaryDoseUnits].dose, doseUnitsMinMetricPrefix[settings.secondaryDoseUnits]);
 
                 keyString = getString(STRING_DOSE);
 
                 break;
 
             case CUMULATIVE_TAB_INSTANTANEOUS:
-                if (getInstantaneousRate() != 0)
-                    buildValueString(valueString, unitString, getInstantaneousRate(), &pulseUnits[settings.doseUnits].rate, doseUnitsMinMetricPrefix[settings.doseUnits]);
+                buildValueString(valueString, unitString, getInstantaneousRate(), &pulseUnits[settings.doseUnits].rate, doseUnitsMinMetricPrefix[settings.doseUnits]);
 
                 keyString = getString(STRING_INSTANTANEOUS);
 

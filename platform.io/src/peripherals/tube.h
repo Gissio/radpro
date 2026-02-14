@@ -41,7 +41,6 @@ float getTubeHVDutyCycle(void);
 bool setTubeHVDutyCycle(float value);
 
 void setTubeHVEnabled(bool value);
-bool getTubeHVEnabled(void);
 void updateTubeHV(void);
 
 void onTubeTick(void);

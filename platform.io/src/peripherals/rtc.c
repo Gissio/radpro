@@ -7,8 +7,8 @@
  * License: MIT
  */
 
-#include "../devices/rtc.h"
 #include "../measurements/datalog.h"
+#include "../peripherals/rtc.h"
 #include "../system/settings.h"
 #include "../ui/menu.h"
 
@@ -145,7 +145,7 @@ static RTCDateTime rtcCurrentDateTime;
 
 typedef const struct
 {
-    uint32_t dumpPageBase;
+    uint32_t readPageBase;
     uint32_t maxIndex;
 } RTCMenuOptionSetting;
 
@@ -206,7 +206,7 @@ static const char *onRTCOptionMenuGetOption(uint32_t index, MenuStyle *menuStyle
             strcat(menuOption, index < 12 ? getString(STRING_AM) : getString(STRING_PM));
         }
         else
-            strcatUInt32(menuOption, rtcMenuOptionSetting->dumpPageBase + index, 0);
+            strcatUInt32(menuOption, rtcMenuOptionSetting->readPageBase + index, 0);
 
         return menuOption;
     }
@@ -252,7 +252,7 @@ static void onRTCOptionMenuSelect(uint32_t index)
     setDeviceDateTime(&dateTime);
     rtcCurrentDateTime = dateTime;
 
-    logDatalogTimeChange();
+    writeDatalogTimeChange();
 }
 
 static MenuState rtcItemMenuState;

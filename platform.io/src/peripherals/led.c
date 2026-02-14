@@ -7,9 +7,9 @@
  * License: MIT
  */
 
-#include "../devices/led.h"
 #include "../measurements/measurements.h"
 #include "../measurements/pulses.h"
+#include "../peripherals/led.h"
 #include "../system/events.h"
 #include "../system/power.h"
 #include "../system/settings.h"

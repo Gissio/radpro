@@ -219,6 +219,28 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   OK
   ```
 
+### Get electric field (supported devices)
+- **Request**: `GET electricField\r\n`
+- **Response**: `OK [value]\r\n`
+- **Description**: Returns the electric field in volts per meter, with three decimal places.
+- **Example**:
+
+  ```
+  GET electricField
+  OK 16.231
+  ```
+
+### Get magnetic field (supported devices)
+- **Request**: `GET magneticField\r\n`
+- **Response**: `OK [value]\r\n`
+- **Description**: Returns the magnetic field in Tesla, with nine decimal places.
+- **Example**:
+
+  ```
+  GET magneticField
+  OK 0.000000025
+  ```
+
 ### Retrieve data log
 - **Request**: `GET datalog [start-time] [end-time] [max-record-num]\r\n`
 - **Response**: `OK [data]\r\n`

@@ -11,7 +11,7 @@
 
 #include "SDL.h"
 
-#include "../devices/keyboard.h"
+#include "../peripherals/keyboard.h"
 
 void initKeyboardHardware(void)
 {

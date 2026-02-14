@@ -12,7 +12,7 @@
 
 // Styling characters
 #define STRING_EMPTY ""
-#define STRING_NUMBERS "0123456789.:"
+#define STRING_NUMBERS "0123456789.:‒"
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
 #define STRING_PERCENT "%"
@@ -98,9 +98,7 @@
 
 // Measurements info strings
 #define STRING_ALERT_FAULT "고장"
-#define STRING_ALERT_MAX "최대"
 #define STRING_ALERT_DONE "완료"
-#define STRING_ALERT_UNAVAILABLE "사용 불가"
 
 // History period strings
 #define STRING_HISTORY_10_MINUTES "10분"

@@ -9,8 +9,8 @@
 
 #if defined(BUZZER)
 
-#include "../devices/buzzer.h"
-#include "../devices/sound.h"
+#include "../peripherals/buzzer.h"
+#include "../peripherals/sound.h"
 #include "../system/settings.h"
 #include "../ui/menu.h"
 

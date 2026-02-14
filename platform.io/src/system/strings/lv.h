@@ -13,7 +13,7 @@
 
 // Styling characters
 #define STRING_EMPTY ""
-#define STRING_NUMBERS "0123456789.:"
+#define STRING_NUMBERS "0123456789.:‒"
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
 #define STRING_PERCENT "%"
@@ -99,9 +99,7 @@
 
 // Measurements info strings
 #define STRING_ALERT_FAULT "KĻŪDA"
-#define STRING_ALERT_MAX "MAKS"
 #define STRING_ALERT_DONE "GATAVS"
-#define STRING_ALERT_UNAVAILABLE "NAV PIEEJAMS"
 
 // History period strings
 #define STRING_HISTORY_10_MINUTES "10 min"

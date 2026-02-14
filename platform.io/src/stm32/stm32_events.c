@@ -9,7 +9,7 @@
 
 #if defined(STM32)
 
-#include "../devices/comm.h"
+#include "../peripherals/comm.h"
 #include "../stm32/device.h"
 #include "../system/events.h"
 #include "../system/power.h"

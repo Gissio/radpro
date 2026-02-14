@@ -1551,6 +1551,9 @@ __STATIC_INLINE uint32_t adc_read(ADC_TypeDef *base)
 #define TIM_CH2 1
 #define TIM_CH3 2
 #define TIM_CH4 3
+#define TIM_CH1N 4
+#define TIM_CH2N 5
+#define TIM_CH3N 6
 
 #define TIM_CR2_MMS_RESET (0b000 << TIM_CR2_MMS_Pos)
 #define TIM_CR2_MMS_ENABLE (0b001 << TIM_CR2_MMS_Pos)
@@ -1610,16 +1613,19 @@ __STATIC_INLINE void tim_set_ontime(TIM_TypeDef *base, uint32_t channel, uint32_
     switch (channel)
     {
     case TIM_CH1:
+    case TIM_CH1N:
         base->CCR1 = ontime;
 
         break;
 
     case TIM_CH2:
+    case TIM_CH2N:
         base->CCR2 = ontime;
 
         break;
 
     case TIM_CH3:
+    case TIM_CH3N:
         base->CCR3 = ontime;
 
         break;
@@ -1634,7 +1640,7 @@ __STATIC_INLINE void tim_set_ontime(TIM_TypeDef *base, uint32_t channel, uint32_
     }
 }
 
-__STATIC_INLINE void tim_setup_pwm(TIM_TypeDef *base, uint32_t channel, bool complementary)
+__STATIC_INLINE void tim_setup_pwm(TIM_TypeDef *base, uint32_t channel)
 {
     switch (channel)
     {
@@ -1644,7 +1650,7 @@ __STATIC_INLINE void tim_setup_pwm(TIM_TypeDef *base, uint32_t channel, bool com
                     TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1);
         modify_bits(base->CCER,
                     TIM_CCER_CC1E_Msk | TIM_CCER_CC1P_Msk | TIM_CCER_CC1NE_Msk | TIM_CCER_CC1NP_Msk,
-                    complementary ? (TIM_CCER_CC1NE | TIM_CCER_CC1NP) : TIM_CCER_CC1E);
+                    TIM_CCER_CC1E);
 
         break;
 
@@ -1654,7 +1660,7 @@ __STATIC_INLINE void tim_setup_pwm(TIM_TypeDef *base, uint32_t channel, bool com
                     TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1);
         modify_bits(base->CCER,
                     TIM_CCER_CC2E_Msk | TIM_CCER_CC2P_Msk | TIM_CCER_CC2NE_Msk | TIM_CCER_CC2NP_Msk,
-                    complementary ? (TIM_CCER_CC2NE | TIM_CCER_CC2NP) : TIM_CCER_CC2E);
+                    TIM_CCER_CC2E);
 
         break;
 
@@ -1664,7 +1670,7 @@ __STATIC_INLINE void tim_setup_pwm(TIM_TypeDef *base, uint32_t channel, bool com
                     TIM_CCMR2_OC3M_2 | TIM_CCMR2_OC3M_1);
         modify_bits(base->CCER,
                     TIM_CCER_CC3E_Msk | TIM_CCER_CC3P_Msk | TIM_CCER_CC3NE_Msk | TIM_CCER_CC3NP_Msk,
-                    complementary ? (TIM_CCER_CC3NE | TIM_CCER_CC3NP) : TIM_CCER_CC3E);
+                    TIM_CCER_CC3E);
 
         break;
 
@@ -1675,6 +1681,36 @@ __STATIC_INLINE void tim_setup_pwm(TIM_TypeDef *base, uint32_t channel, bool com
         modify_bits(base->CCER,
                     TIM_CCER_CC4E_Msk | TIM_CCER_CC4P_Msk,
                     TIM_CCER_CC4E);
+
+        break;
+
+    case TIM_CH1N:
+        modify_bits(base->CCMR1,
+                    TIM_CCMR1_OC1M_Msk,
+                    TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1);
+        modify_bits(base->CCER,
+                    TIM_CCER_CC1E_Msk | TIM_CCER_CC1P_Msk | TIM_CCER_CC1NE_Msk | TIM_CCER_CC1NP_Msk,
+                    TIM_CCER_CC1NE);
+
+        break;
+
+    case TIM_CH2N:
+        modify_bits(base->CCMR1,
+                    TIM_CCMR1_OC2M_Msk,
+                    TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1);
+        modify_bits(base->CCER,
+                    TIM_CCER_CC2E_Msk | TIM_CCER_CC2P_Msk | TIM_CCER_CC2NE_Msk | TIM_CCER_CC2NP_Msk,
+                    TIM_CCER_CC2NE);
+
+        break;
+
+    case TIM_CH3N:
+        modify_bits(base->CCMR2,
+                    TIM_CCMR2_OC3M_Msk,
+                    TIM_CCMR2_OC3M_2 | TIM_CCMR2_OC3M_1);
+        modify_bits(base->CCER,
+                    TIM_CCER_CC3E_Msk | TIM_CCER_CC3P_Msk | TIM_CCER_CC3NE_Msk | TIM_CCER_CC3NP_Msk,
+                    TIM_CCER_CC3NE);
 
         break;
 

@@ -13,6 +13,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "../measurements/datalog.h"
+
 #define COMM_BUFFER_SIZE 64
 
 extern const char *const commId;
@@ -50,6 +52,7 @@ typedef struct
     uint32_t datalogEndTime;
     uint32_t datalogMaxRecordNum;
     uint32_t datalogRecordNum;
+    DatalogRecord datalogRecord;
 } Comm;
 
 extern Comm comm;

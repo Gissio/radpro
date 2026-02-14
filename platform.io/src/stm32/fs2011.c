@@ -11,8 +11,8 @@
 
 #include "mcu-renderer-st7565.h"
 
-#include "../devices/display.h"
-#include "../devices/keyboard.h"
+#include "../peripherals/display.h"
+#include "../peripherals/keyboard.h"
 #include "../stm32/device.h"
 #include "../system/events.h"
 #include "../system/settings.h"

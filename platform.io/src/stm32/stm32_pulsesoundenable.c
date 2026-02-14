@@ -11,7 +11,7 @@
 
 #if defined(PULSESOUND_ENABLE)
 
-#include "../devices/pulsesoundenable.h"
+#include "../peripherals/pulsesoundenable.h"
 #include "../system/events.h"
 #include "../stm32/device.h"
 

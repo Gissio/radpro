@@ -19,10 +19,10 @@
 #define getFlashPageNumber(value) (value / FLASH_PAGE_SIZE)
 #define getFlashPageOffset(value) (value & (FLASH_PAGE_SIZE - 1))
 
-#define STATE_BASE (FIRMWARE_BASE + FIRMWARE_SIZE)
-#define STATE_SIZE FLASH_PAGE_SIZE
-#define STATE_END (STATE_BASE + STATE_SIZE)
-#define DATALOG_BASE STATE_END
+#define STATES_BASE (FIRMWARE_BASE + FIRMWARE_SIZE)
+#define STATES_SIZE FLASH_PAGE_SIZE
+#define STATES_END (STATES_BASE + STATES_SIZE)
+#define DATALOG_BASE STATES_END
 #if defined(GC03)
 #define DATALOG_SIZE (FLASH_END_ - DATALOG_BASE - FLASH_PAGE_SIZE)
 #else
@@ -39,7 +39,7 @@ void initFlash(void);
 bool verifyFlash(void);
 
 const uint8_t *readFlash(uint32_t source, uint32_t count);
-void writeFlash(uint32_t dest, const uint8_t *source, uint32_t count);
+bool writeFlash(uint32_t dest, const uint8_t *source, uint32_t count);
 void eraseFlash(uint32_t dest);
 
 #endif

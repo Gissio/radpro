@@ -17,7 +17,7 @@
 
 #include <SDL.h>
 
-#include "../devices/sound.h"
+#include "../peripherals/sound.h"
 #include "../system/events.h"
 
 #define AUDIO_SAMPLE_FREQUENCY 48000

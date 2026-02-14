@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <time.h>
 
-#include "../devices/rtc.h"
+#include "../peripherals/rtc.h"
 
 static int32_t timeDelta;
 

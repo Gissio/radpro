@@ -9,7 +9,7 @@
 
 #if defined(STM32)
 
-#include "../devices/display.h"
+#include "../peripherals/display.h"
 #include "../stm32/device.h"
 #include "../system/settings.h"
 
@@ -34,7 +34,7 @@ void initBacklight(void)
     gpio_setup(DISPLAY_BACKLIGHT_PORT, DISPLAY_BACKLIGHT_PIN, GPIO_MODE_OUTPUT_2MHZ_AF_PUSHPULL);
 
     // Timer
-    tim_setup_pwm(DISPLAY_BACKLIGHT_TIMER, DISPLAY_BACKLIGHT_TIMER_CHANNEL, false);
+    tim_setup_pwm(DISPLAY_BACKLIGHT_TIMER, DISPLAY_BACKLIGHT_TIMER_CHANNEL);
     tim_set_period(DISPLAY_BACKLIGHT_TIMER, DISPLAY_BACKLIGHT_TIMER_PERIOD);
     tim_enable(DISPLAY_BACKLIGHT_TIMER);
 }
@@ -72,11 +72,7 @@ void setBacklight(bool value)
         uint32_t onTime = ((displayBrightnessValue[settings.displayBrightness] * DISPLAY_BACKLIGHT_TIMER_PERIOD) >> 16);
         uint32_t prescalerFactor = prescalePWMParameters(&period, &onTime);
 
-#if defined(DISPLAY_BACKLIGHT_ACTIVE_LOW)
-        tim_setup_pwm(DISPLAY_BACKLIGHT_TIMER, DISPLAY_BACKLIGHT_TIMER_CHANNEL, true);
-#else
-        tim_setup_pwm(DISPLAY_BACKLIGHT_TIMER, DISPLAY_BACKLIGHT_TIMER_CHANNEL, false);
-#endif
+        tim_setup_pwm(DISPLAY_BACKLIGHT_TIMER, DISPLAY_BACKLIGHT_TIMER_CHANNEL);
         tim_set_prescaler_factor(DISPLAY_BACKLIGHT_TIMER, prescalerFactor);
         tim_set_period(DISPLAY_BACKLIGHT_TIMER, period);
         tim_set_ontime(DISPLAY_BACKLIGHT_TIMER, DISPLAY_BACKLIGHT_TIMER_CHANNEL, onTime);

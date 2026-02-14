@@ -29,11 +29,11 @@ void setupDatalog(void);
 
 void startDatalog(void);
 void stopDatalog(void);
-void logDatalogTimeChange(void);
+void writeDatalogTimeChange(void);
 void resetDatalog(void);
 void updateDatalog(void);
 
-bool startDatalogDump(void);
+bool startDatalogRead(void);
 bool readDatalog(DatalogRecord *record);
 
 #endif

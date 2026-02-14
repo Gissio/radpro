@@ -51,15 +51,15 @@ def extract_elf_data(elf_file):
         flash_size = eval(comments['FLASH_SIZE'])
         firmware_base = eval(comments['FIRMWARE_BASE'])
         firmware_size = eval(comments['FIRMWARE_SIZE'])
-        state_base = eval(comments['STATE_BASE'])
-        state_size = eval(comments['STATE_SIZE'])
+        states_base = eval(comments['STATES_BASE'])
+        states_size = eval(comments['STATES_SIZE'])
         datalog_base = eval(comments['DATALOG_BASE'])
         datalog_size = eval(comments['DATALOG_SIZE'])
 
         firmware_offset = firmware_base - flash_base
         image_size = (datalog_base - firmware_base) + datalog_size
 
-        return firmware_offset, firmware_size, image_size, state_base, state_size
+        return firmware_offset, firmware_size, image_size, states_base, states_size
 
     return None
 
@@ -101,7 +101,7 @@ def sign_firmware(env_name):
             continue
 
         firmware_version = get_firmware_version()
-        firmware_offset, firmware_size, image_size, state_base, state_size = extract_elf_data(
+        firmware_offset, firmware_size, image_size, states_base, states_size = extract_elf_data(
             elf_file)
 
         firmware = None
@@ -124,8 +124,8 @@ def sign_firmware(env_name):
         # Sign
         image[0:len(firmware)] = firmware
 
-        write_word(image, 0x20, state_base)
-        write_word(image, 0x24, state_size)
+        write_word(image, 0x20, states_base)
+        write_word(image, 0x24, states_size)
         write_word(image, firmware_footer_offset,
                    get_crc(image[0:firmware_footer_offset]))
 
@@ -133,13 +133,13 @@ def sign_firmware(env_name):
         build_stem = 'radpro-' + env_name + '-' + language + '-' + firmware_version
 
         # Build install binary
-        if firmware_offset != 0:
-            install_path = env_name + '/' + 'install' + '/'
-            output_path = install_path + build_stem + '-install.bin'
+        # if firmware_offset != 0:
+        #     install_path = env_name + '/' + 'install' + '/'
+        #     output_path = install_path + build_stem + '-install.bin'
 
-            os.makedirs(install_path, exist_ok=True)
-            with open(output_path, 'wb') as f:
-                f.write(image)
+        #     os.makedirs(install_path, exist_ok=True)
+        #     with open(output_path, 'wb') as f:
+        #         f.write(image)
 
         # Build firmware binary
         firmware_path = env_name + '/' + 'firmware' + '/'

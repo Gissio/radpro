@@ -9,8 +9,8 @@
 
 #if defined(PULSESOUND_ENABLE)
 
-#include "../devices/pulsesoundenable.h"
 #include "../measurements/instantaneous.h"
+#include "../peripherals/pulsesoundenable.h"
 #include "../system/cmath.h"
 #include "../system/power.h"
 #include "../system/settings.h"

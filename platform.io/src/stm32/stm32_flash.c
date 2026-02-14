@@ -9,11 +9,11 @@
 
 #if defined(STM32)
 
-#include "../devices/flash.h"
+#include "../peripherals/flash.h"
 #include "../system/cstring.h"
 #include "../stm32/device.h"
 
-#define FIRMWARE_CRC (FIRMWARE_BASE + FIRMWARE_SIZE - 0x4)
+#define FIRMWARE_CRC (*(uint32_t *)(FIRMWARE_BASE + FIRMWARE_SIZE - 0x4))
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
@@ -23,8 +23,8 @@ __asm__(".section .comment\n"
         ".string \"FLASH_SIZE: " TOSTRING(FLASH_SIZE_) "\"\n"
         ".string \"FIRMWARE_BASE: " TOSTRING(FIRMWARE_BASE) "\"\n"
         ".string \"FIRMWARE_SIZE: " TOSTRING(FIRMWARE_SIZE) "\"\n"
-        ".string \"STATE_BASE: " TOSTRING(STATE_BASE) "\"\n"
-        ".string \"STATE_SIZE: " TOSTRING(STATE_SIZE) "\"\n"
+        ".string \"STATES_BASE: " TOSTRING(STATES_BASE) "\"\n"
+        ".string \"STATES_SIZE: " TOSTRING(STATES_SIZE) "\"\n"
         ".string \"DATALOG_BASE: " TOSTRING(DATALOG_BASE) "\"\n"
         ".string \"DATALOG_SIZE: " TOSTRING(DATALOG_SIZE) "\"\n"
         ".section .text\n");
@@ -45,7 +45,7 @@ bool verifyFlash(void)
 
     rcc_disable_crc();
 
-    return (crc == (*(uint32_t *)FIRMWARE_CRC));
+    return (crc == FIRMWARE_CRC);
 }
 
 const uint8_t *readFlash(uint32_t source, uint32_t count)
@@ -53,20 +53,32 @@ const uint8_t *readFlash(uint32_t source, uint32_t count)
     return (uint8_t *)source;
 }
 
-void writeFlash(uint32_t dest,
+bool writeFlash(uint32_t dest,
                 const uint8_t *source,
                 uint32_t count)
 {
     flash_unlock();
 
+    bool success = true;
+
     for (uint32_t i = 0; i < count; i += FLASH_WORD_SIZE)
     {
         // Try twice
-        if (!flash_program((uint8_t *)dest + i, source + i))
-            flash_program((uint8_t *)dest + i, source + i);
+        for (uint32_t j = 0; j < 2; j++)
+        {
+            success = flash_program((uint8_t *)dest + i, source + i);
+
+            if (success)
+                break;
+        }
+
+        if (!success)
+            break;
     }
 
     flash_lock();
+
+    return success;
 }
 
 void eraseFlash(uint32_t dest)

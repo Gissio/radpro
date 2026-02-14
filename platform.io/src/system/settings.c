@@ -13,16 +13,16 @@
 #include <time.h>
 #endif
 
-#include "../devices/display.h"
-#include "../devices/flash.h"
-#include "../devices/rtc.h"
-#include "../devices/sound.h"
-#include "../devices/tube.h"
 #include "../extras/game.h"
 #include "../extras/rng.h"
 #include "../measurements/cumulative.h"
 #include "../measurements/datalog.h"
 #include "../measurements/measurements.h"
+#include "../peripherals/display.h"
+#include "../peripherals/flash.h"
+#include "../peripherals/rtc.h"
+#include "../peripherals/sound.h"
+#include "../peripherals/tube.h"
 #include "../system/power.h"
 #include "../system/settings.h"
 #include "../system/statistics.h"
@@ -95,10 +95,10 @@ static bool isStateEmpty(const State *state)
 
 static State *loadState(void)
 {
-    const uint8_t *statePage = readFlash(STATE_BASE, STATE_SIZE);
+    const uint8_t *statePage = readFlash(STATES_BASE, STATES_SIZE);
     State *lastState = NULL;
 
-    for (uint32_t offset = 0; offset < STATE_SIZE; offset += sizeof(State))
+    for (uint32_t offset = 0; offset < STATES_SIZE; offset += sizeof(State))
     {
         State *state = (State *)(statePage + offset);
 
@@ -115,16 +115,28 @@ static State *loadState(void)
 
 static void saveState(State *state)
 {
-    if (stateOffset >= STATE_SIZE)
+    if (stateOffset >= STATES_SIZE)
     {
-        eraseFlash(STATE_BASE);
+        eraseFlash(STATES_BASE);
 
         stateOffset = 0;
     }
 
-    writeFlash(STATE_BASE + stateOffset, (uint8_t *)state, sizeof(State));
+    for (uint32_t i = 0; i < 2; i++)
+    {
+        if (writeFlash(STATES_BASE + stateOffset, (uint8_t *)state, sizeof(State)))
+        {
+            stateOffset += sizeof(State);
 
-    stateOffset += sizeof(State);
+            break;
+        }
+        else
+        {
+            eraseFlash(STATES_BASE);
+
+            stateOffset = 0;
+        }
+    }
 }
 
 static bool validateState(const State *state)

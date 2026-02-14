@@ -9,8 +9,8 @@
 
 #include <limits.h>
 
-#include "../devices/tube.h"
 #include "../measurements/pulses.h"
+#include "../peripherals/tube.h"
 #include "../system/cmath.h"
 #include "../system/settings.h"
 #include "../ui/system.h"

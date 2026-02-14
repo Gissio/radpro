@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../devices/flash.h"
+#include "../peripherals/flash.h"
 
 #define FLASH_FILENAME "radpro-settings.bin"
 
@@ -55,7 +55,7 @@ const uint8_t *readFlash(uint32_t source, uint32_t count)
     return flashImage + source;
 }
 
-void writeFlash(uint32_t dest, const uint8_t *source, uint32_t count)
+bool writeFlash(uint32_t dest, const uint8_t *source, uint32_t count)
 {
     printf("writeFlash(%08x, %08x)\n", dest, count);
 
@@ -64,12 +64,14 @@ void writeFlash(uint32_t dest, const uint8_t *source, uint32_t count)
         {
             printf("writeFlash: writing to non-erased memory: 0x%08x\n", dest);
 
-            return;
+            return false;
         }
 
     memcpy(flashImage + dest, source, count);
 
     saveFlashImage();
+
+    return true;
 }
 
 void eraseFlash(uint32_t dest)

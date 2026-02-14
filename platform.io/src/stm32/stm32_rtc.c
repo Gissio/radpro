@@ -9,7 +9,7 @@
 
 #if defined(STM32)
 
-#include "../devices/rtc.h"
+#include "../peripherals/rtc.h"
 #include "../system/events.h"
 #include "../stm32/device.h"
 

@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "../devices/tube.h"
+#include "../peripherals/tube.h"
 #include "../system/events.h"
 #include "../system/settings.h"
 

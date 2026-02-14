@@ -9,7 +9,7 @@
 
 #include <limits.h>
 
-#include "../devices/display.h"
+#include "../peripherals/display.h"
 #include "../system/settings.h"
 #include "../ui/menu.h"
 

@@ -11,7 +11,7 @@
 
 #if defined(BUZZER)
 
-#include "../devices/buzzer.h"
+#include "../peripherals/buzzer.h"
 #include "../system/events.h"
 #include "../stm32/device.h"
 
@@ -48,11 +48,7 @@ void initBuzzer(void)
 #endif
 
     // Timer
-#if defined(BUZZER_ACTIVE_LOW)
-    tim_setup_pwm(BUZZER_TIMER, BUZZER_TIMER_CHANNEL, true);
-#else
-    tim_setup_pwm(BUZZER_TIMER, BUZZER_TIMER_CHANNEL, false);
-#endif
+    tim_setup_pwm(BUZZER_TIMER, BUZZER_TIMER_CHANNEL);
     tim_set_period(BUZZER_TIMER, BUZZER_TIMER_PERIOD);
     setBuzzer(false);
     tim_enable(BUZZER_TIMER);

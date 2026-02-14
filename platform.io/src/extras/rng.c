@@ -9,9 +9,9 @@
 
 #include <stdbool.h>
 
-#include "../devices/tube.h"
-#include "../devices/voice.h"
 #include "../extras/rng.h"
+#include "../peripherals/tube.h"
+#include "../peripherals/voice.h"
 #include "../system/events.h"
 #include "../system/settings.h"
 #include "../ui/menu.h"

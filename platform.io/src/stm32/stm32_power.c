@@ -9,8 +9,8 @@
 
 #if defined(STM32)
 
-#include "../devices/adc.h"
-#include "../devices/keyboard.h"
+#include "../peripherals/adc.h"
+#include "../peripherals/keyboard.h"
 #include "../system/power.h"
 #include "../stm32/device.h"
 

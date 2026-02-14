@@ -13,7 +13,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "../devices/adc.h"
+#include "../peripherals/adc.h"
 
 #if !defined(M_PI)
 #define M_PI 3.1415926535F

@@ -9,18 +9,18 @@
 
 #include <stdint.h>
 
-#include "../devices/adc.h"
-#include "../devices/buzzer.h"
-#include "../devices/comm.h"
-#include "../devices/display.h"
-#include "../devices/keyboard.h"
-#include "../devices/led.h"
-#include "../devices/pulsesoundenable.h"
-#include "../devices/tube.h"
-#include "../devices/vibrator.h"
-#include "../devices/voice.h"
 #include "../extras/rng.h"
 #include "../measurements/datalog.h"
+#include "../measurements/pulses.h"
+#include "../peripherals/adc.h"
+#include "../peripherals/buzzer.h"
+#include "../peripherals/comm.h"
+#include "../peripherals/display.h"
+#include "../peripherals/keyboard.h"
+#include "../peripherals/led.h"
+#include "../peripherals/pulsesoundenable.h"
+#include "../peripherals/vibrator.h"
+#include "../peripherals/voice.h"
 #include "../system/cmath.h"
 #include "../system/events.h"
 #include "../system/power.h"
@@ -154,11 +154,6 @@ static TimerState tickTimer(volatile int32_t *timer)
 
 void onTick(void)
 {
-    // Measurement
-#if defined(SIMULATOR)
-    onTubeTick();
-#endif
-
     // Pulses
     onPulseTick();
 

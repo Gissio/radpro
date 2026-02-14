@@ -9,7 +9,7 @@
 
 #if defined(STM32)
 
-#include "../devices/led.h"
+#include "../peripherals/led.h"
 #include "../stm32/device.h"
 
 #if defined(PULSE_LED)

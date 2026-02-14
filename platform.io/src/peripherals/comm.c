@@ -9,16 +9,16 @@
 
 #include <stdio.h>
 
-#include "../devices/display.h"
-#include "../devices/comm.h"
-#include "../devices/rtc.h"
-#include "../devices/tube.h"
 #include "../extras/rng.h"
 #include "../measurements/datalog.h"
 #include "../measurements/electricfield.h"
 #include "../measurements/magneticfield.h"
 #include "../measurements/instantaneous.h"
 #include "../measurements/measurements.h"
+#include "../peripherals/display.h"
+#include "../peripherals/comm.h"
+#include "../peripherals/rtc.h"
+#include "../peripherals/tube.h"
 #include "../system/events.h"
 #include "../system/power.h"
 #include "../system/settings.h"
@@ -116,6 +116,10 @@ void updateComm(void)
                 GET_TUBE_HV_FREQUENCY,
                 GET_TUBE_HV_DUTY_CYCLE,
 #endif
+#if defined(EMFMETER)
+                GET_ELECTRIC_FIELD,
+                GET_MAGNETIC_FIELD,
+#endif
                 GET_DATALOG,
                 GET_RANDOM_DATA
             };
@@ -135,6 +139,10 @@ void updateComm(void)
 #if defined(TUBE_HV_PWM)
                 "tubeHVFrequency",
                 "tubeHVDutyCycle",
+#endif
+#if defined(EMFMETER)
+                "electricField",
+                "magneticField",
 #endif
                 "datalog",
                 "randomData"};
@@ -215,8 +223,20 @@ void updateComm(void)
                     break;
 #endif
 
+#if defined(EMFMETER)
+                case GET_ELECTRIC_FIELD:
+                    pushCommFloat(getElectricField(), 3);
+
+                    break;
+
+                case GET_MAGNETIC_FIELD:
+                    pushCommFloat(getMagneticField(), 9);
+
+                    break;
+#endif
+
                 case GET_DATALOG:
-                    if (startDatalogDump())
+                    if (startDatalogRead())
                     {
                         comm.datalogStartTime = 0;
                         comm.datalogEndTime = UINT32_MAX;
@@ -304,7 +324,7 @@ void updateComm(void)
                 case SET_DEVICE_TIME:
                     if (parseUInt32(&s, &intValue) && setDeviceTime(intValue))
                     {
-                        logDatalogTimeChange();
+                        writeDatalogTimeChange();
                         pushCommOk();
                     }
 
@@ -436,12 +456,10 @@ void updateComm(void)
             uint32_t sentRecordNum = 0;
             uint32_t readRecordNum = 0;
 
-            DatalogRecord datalogRecord;
-
             while ((sentRecordNum < 2) &&
                    (readRecordNum < 1000))
             {
-                if (!readDatalog(&datalogRecord))
+                if (!readDatalog(&comm.datalogRecord))
                 {
                     strcat(comm.buffer, "\r\n");
                     comm.transmitState = TRANSMIT_RESPONSE;
@@ -449,16 +467,16 @@ void updateComm(void)
                     break;
                 }
 
-                if ((datalogRecord.dose.time >= comm.datalogStartTime) &&
-                    (datalogRecord.dose.time <= comm.datalogEndTime) &&
+                if ((comm.datalogRecord.dose.time >= comm.datalogStartTime) &&
+                    (comm.datalogRecord.dose.time <= comm.datalogEndTime) &&
                     (comm.datalogRecordNum < comm.datalogMaxRecordNum))
                 {
-                    if (datalogRecord.sessionStart)
+                    if (comm.datalogRecord.sessionStart)
                         strcatChar(comm.buffer, ';');
                     strcatChar(comm.buffer, ';');
-                    strcatUInt32(comm.buffer, datalogRecord.dose.time, 0);
+                    strcatUInt32(comm.buffer, comm.datalogRecord.dose.time, 0);
                     strcatChar(comm.buffer, ',');
-                    strcatUInt32(comm.buffer, datalogRecord.dose.pulseCount, 0);
+                    strcatUInt32(comm.buffer, comm.datalogRecord.dose.pulseCount, 0);
 
                     sentRecordNum++;
                     comm.datalogRecordNum++;

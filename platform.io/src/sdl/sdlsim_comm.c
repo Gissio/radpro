@@ -11,7 +11,7 @@
 
 #include <stdio.h>
 
-#include "../devices/comm.h"
+#include "../peripherals/comm.h"
 #include "../system/cstring.h"
 #include "../system/system.h"
 

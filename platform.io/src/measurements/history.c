@@ -9,11 +9,11 @@
 
 #include <limits.h>
 
-#include "../devices/rtc.h"
-#include "../devices/voice.h"
 #include "../measurements/datalog.h"
 #include "../measurements/history.h"
 #include "../measurements/instantaneous.h"
+#include "../peripherals/rtc.h"
+#include "../peripherals/voice.h"
 #include "../system/cmath.h"
 #include "../system/events.h"
 #include "../system/settings.h"
@@ -133,13 +133,15 @@ void loadHistory(void)
     setFastSystemClock(true);
 #endif
 
-    if (startDatalogDump())
+    if (startDatalogRead())
     {
-        DatalogRecord prevRecord;
+        Dose prevDose;
         DatalogRecord record;
 
-        if (readDatalog(&prevRecord))
+        if (readDatalog(&record))
         {
+            prevDose = record.dose;
+
             while (readDatalog(&record))
             {
                 resetWatchdog();
@@ -152,13 +154,13 @@ void loadHistory(void)
                         LoadHistoryState *state = &states[historyIndex];
 
                         // Overlap record interval with history interval
-                        uint32_t recordStart = (prevRecord.dose.time > historyStart) ? prevRecord.dose.time : historyStart;
+                        uint32_t recordStart = (prevDose.time > historyStart) ? prevDose.time : historyStart;
                         uint32_t recordEnd = (record.dose.time < historyEnd) ? record.dose.time : historyEnd;
 
                         if (recordStart < recordEnd)
                         {
-                            int32_t intervalTime = record.dose.time - prevRecord.dose.time;
-                            uint32_t intervalPulseCount = record.dose.pulseCount - prevRecord.dose.pulseCount;
+                            int32_t intervalTime = record.dose.time - prevDose.time;
+                            uint32_t intervalPulseCount = record.dose.pulseCount - prevDose.pulseCount;
 
                             if ((record.dose.time > state->binStart) &&
                                 (record.dose.time <= state->binEnd))
@@ -207,7 +209,7 @@ void loadHistory(void)
                     }
                 }
 
-                prevRecord.dose = record.dose;
+                prevDose = record.dose;
             }
 
             for (uint32_t historyIndex = 0; historyIndex < HISTORY_TAB_NUM; historyIndex++)

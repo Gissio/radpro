@@ -11,7 +11,7 @@
 
 #include <string.h>
 
-#include "../devices/adc.h"
+#include "../peripherals/adc.h"
 #include "../stm32/device.h"
 #include "../system/cmath.h"
 #include "../system/events.h"
@@ -299,14 +299,24 @@ float readElectricFieldStrength(void)
 {
     float rmsValue = sqrtf((float)adcHardware.snapshot.electricField / ELECTRIC_FIELD_SAMPLE_NUM);
 
-    return ELECTRIC_FIELD_SCALE * rmsValue;
+    float value = ELECTRIC_FIELD_SCALE * rmsValue;
+
+    if (value < 1E-6F)
+        value = 1E-6F;
+
+    return value;
 }
 
 float readMagneticFieldStrength(void)
 {
     float rmsValue = sqrtf((float)adcHardware.snapshot.magneticField / MAGNETIC_FIELD_SAMPLE_NUM);
 
-    return MAGNETIC_FIELD_LINEAR_SCALE * rmsValue + MAGNETIC_FIELD_QUADRATIC_SCALE * rmsValue * rmsValue;
+    float value = MAGNETIC_FIELD_LINEAR_SCALE * rmsValue + MAGNETIC_FIELD_QUADRATIC_SCALE * rmsValue * rmsValue;
+
+    if (value < 1E-12F)
+        value = 1E-12F;
+
+    return value;
 }
 
 #endif

@@ -16,8 +16,8 @@
 
 #if defined(DEBUG)
 
-#include "../devices/buzzer.h"
-#include "../devices/led.h"
+#include "../peripherals/buzzer.h"
+#include "../peripherals/led.h"
 #include "../system/events.h"
 
 #define DEBUG_BIT_LENGTH 100

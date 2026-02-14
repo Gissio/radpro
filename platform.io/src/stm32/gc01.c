@@ -11,8 +11,8 @@
 
 #include "mcu-renderer-st7789.h"
 
-#include "../devices/display.h"
-#include "../devices/keyboard.h"
+#include "../peripherals/display.h"
+#include "../peripherals/keyboard.h"
 #include "../stm32/device.h"
 #include "../system/events.h"
 #include "../system/system.h"
@@ -22,10 +22,8 @@
 void Reset_Handler(void)
 {
     __asm__ volatile(
-        // Set SP and VTOR for bootloader
+        // Set SP for bootloader
         "   ldr     r0, =0x08004000\n"
-        "   ldr     r1, =0xe000ed08\n"
-        "   str     r0, [r1]\n"
         "   ldr     r0, [r0]\n"
         "   mov     sp, r0\n"
 
@@ -73,6 +71,18 @@ void Reset_Handler(void)
 
 void initSystem(void)
 {
+    // Fix bootloader
+    NVIC_DisableAllIRQs();
+    SCB->VTOR = FIRMWARE_BASE;
+
+    // Set HSI as system clock
+    modify_bits(RCC->CFGR, RCC_CFGR_SW_Msk, RCC_CFGR_SW_HSI);
+    wait_until_bits_value(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_HSI);
+
+    // Disable PLL
+    clear_bits(RCC->CR, RCC_CR_PLLON);
+    wait_until_bits_clear(RCC->CR, RCC_CR_PLLRDY);
+
     // Enable HSE
     set_bits(RCC->CR, RCC_CR_HSEON);
     wait_until_bits_set(RCC->CR, RCC_CR_HSERDY);
@@ -80,25 +90,16 @@ void initSystem(void)
     // Set 2 wait states for flash
     modify_bits(FLASH->ACR, FLASH_ACR_LATENCY_Msk, FLASH_ACR_LATENCY_2WS);
 
-    // Configure ADC, USBPRE
-    modify_bits(RCC->CFGR,
-                RCC_CFGR_HPRE_Msk |
-                    RCC_CFGR_PPRE1_Msk |
-                    RCC_CFGR_PPRE2_Msk |
-                    RCC_CFGR_ADCPRE_Msk |
-                    RCC_CFGR_PLLSRC_Msk |
-                    RCC_CFGR_PLLXTPRE_Msk |
-                    RCC_CFGR_PLLMULL_Msk |
-                    RCC_CFGR_USBPRE_Msk,
-                RCC_CFGR_HPRE_DIV1 |        // Set AHB clock: 72 MHz / 1 = 72 MHz
-                    RCC_CFGR_PPRE1_DIV2 |   // Set APB1 clock: 72 MHz / 2 = 36 MHz
-                    RCC_CFGR_PPRE2_DIV1 |   // Set APB2 clock: 72 MHz / 1 = 72 MHz
-                    RCC_CFGR_ADCPRE_DIV6 |  // Set ADC clock: 72 MHz / 6 = 12 MHz
-                    RCC_CFGR_PLLSRC_HSE |   // Set PLL source: HSE
-                    RCC_CFGR_PLLXTPRE_HSE | // Set PLL HSE predivision factor: /1
-                    RCC_CFGR_PLLMULL9 |     // Set PLL multiplier: 9x
-                    RCC_CFGR_USBPRE_DIV1_5  // Set USB prescaler: 1.5x
-    );
+    // Configure AHB, APB1, APB2, ADC, PLL, USB
+    RCC->CFGR = RCC_CFGR_SW_HSI |       // Select HSI as system clock
+                RCC_CFGR_HPRE_DIV1 |    // Set AHB clock: 72 MHz / 1 = 72 MHz
+                RCC_CFGR_PPRE1_DIV2 |   // Set APB1 clock: 72 MHz / 2 = 36 MHz
+                RCC_CFGR_PPRE2_DIV1 |   // Set APB2 clock: 72 MHz / 1 = 72 MHz
+                RCC_CFGR_ADCPRE_DIV6 |  // Set ADC clock: 72 MHz / 6 = 12 MHz
+                RCC_CFGR_PLLSRC_HSE |   // Set PLL source: HSE
+                RCC_CFGR_PLLXTPRE_HSE | // Set PLL HSE predivision factor: /1
+                RCC_CFGR_PLLMULL9 |     // Set PLL multiplier: 9x
+                RCC_CFGR_USBPRE_DIV1_5; // Set USB prescaler: 1.5x
 
     // Enable PLL
     set_bits(RCC->CR, RCC_CR_PLLON);

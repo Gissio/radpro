@@ -20,7 +20,4 @@ void setEMFMeterEnabled(bool value);
 
 void updateEMFMeter(void);
 
-bool isEMFMeterAvailable(void);
-bool isEMFMeterUnavailableTriggered(void);
-
 #endif

@@ -9,7 +9,7 @@
 
 #include <stdint.h>
 
-#include "../devices/keyboard.h"
+#include "../peripherals/keyboard.h"
 #include "../system/cmath.h"
 #include "../system/events.h"
 #include "../system/power.h"

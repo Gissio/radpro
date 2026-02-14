@@ -12,7 +12,7 @@
 
 // Styling characters
 #define STRING_EMPTY ""
-#define STRING_NUMBERS "0123456789.:"
+#define STRING_NUMBERS "0123456789.:‒"
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
 #define STRING_PERCENT "%"
@@ -98,9 +98,7 @@
 
 // Measurements info strings
 #define STRING_ALERT_FAULT "НЕИСПРАВНОСТЬ"
-#define STRING_ALERT_MAX "МАКС"
 #define STRING_ALERT_DONE "ГОТОВО"
-#define STRING_ALERT_UNAVAILABLE "НЕДОСТУПНО"
 
 // History period strings
 #define STRING_HISTORY_10_MINUTES "10 мин"

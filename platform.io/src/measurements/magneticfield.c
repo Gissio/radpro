@@ -9,11 +9,11 @@
 
 #if defined(EMFMETER)
 
-#include "../devices/adc.h"
-#include "../devices/emf.h"
 #include "../measurements/electricfield.h"
 #include "../measurements/magneticfield.h"
 #include "../measurements/pulses.h"
+#include "../peripherals/adc.h"
+#include "../peripherals/emf.h"
 #include "../system/events.h"
 #include "../system/power.h"
 #include "../system/settings.h"
@@ -27,8 +27,6 @@ typedef enum
     MAGNETIC_FIELD_TAB_ELECTRIC,
 
     MAGNETIC_FIELD_TAB_NUM,
-
-    MAGNETIC_FIELD_TAB_ALERT = MAGNETIC_FIELD_TAB_NUM,
 } MagneticFieldTab;
 
 static Menu magneticFieldUnitsMenu;
@@ -57,10 +55,7 @@ void setupMagneticField(void)
 {
     resetMagneticField();
 
-    if (isEMFMeterAvailable())
-        magneticFieldTab = MAGNETIC_FIELD_TAB_MAX;
-    else
-        magneticFieldTab = MAGNETIC_FIELD_TAB_ALERT;
+    magneticFieldTab = MAGNETIC_FIELD_TAB_MAX;
 
     selectMenuItem(&magneticFieldUnitsMenu, settings.magneticFieldUnits, MAGNETIC_FIELD_UNITS_NUM);
 }
@@ -68,39 +63,24 @@ void setupMagneticField(void)
 static void resetMagneticField(void)
 {
     memset(&magneticField, 0, sizeof(magneticField));
-
-    if (magneticFieldTab == MAGNETIC_FIELD_TAB_ALERT)
-        magneticFieldTab = MAGNETIC_FIELD_TAB_MAX;
 }
 
 void updateMagneticField(void)
 {
     // Value
-    if (isEMFMeterAvailable())
-    {
-        magneticField.value = readMagneticFieldStrength();
-        if (magneticField.value > magneticField.maxValue)
-            magneticField.maxValue = magneticField.value;
-    }
+    magneticField.value = readMagneticFieldStrength();
+    if (magneticField.value > magneticField.maxValue)
+        magneticField.maxValue = magneticField.value;
 
     // Alerts
     AlertLevel alertLevel = ALERTLEVEL_NONE;
     if (settings.magneticFieldAlarm && (magneticField.value >= magneticFieldAlerts[settings.magneticFieldAlarm]))
         alertLevel = ALERTLEVEL_ALARM;
-
     bool alertTriggered = (alertLevel > magneticField.alertLevel);
     magneticField.alertLevel = alertLevel;
 
     if (alertTriggered)
         setAlertPending(true);
-
-    if (isTubeFaultAlertTriggered() || isEMFMeterUnavailableTriggered())
-        magneticFieldTab = MAGNETIC_FIELD_TAB_ALERT;
-    else if (magneticFieldTab == MAGNETIC_FIELD_TAB_ALERT)
-    {
-        if (!getTubeFaultAlertLevel() && isEMFMeterAvailable())
-            magneticFieldTab = MAGNETIC_FIELD_TAB_MAX;
-    }
 }
 
 float getMagneticField(void)
@@ -120,21 +100,11 @@ static void onMagneticFieldViewEvent(Event event)
     if (onMeasurementViewEvent(event))
         return;
 
-    const char *alertString;
-    if (getTubeFaultAlertLevel() > ALERTLEVEL_NONE)
-        alertString = getString(STRING_ALERT_FAULT);
-    else if (!isEMFMeterAvailable())
-        alertString = getString(STRING_ALERT_UNAVAILABLE);
-    else
-        alertString = NULL;
-
     switch (event)
     {
     case EVENT_KEY_BACK:
         magneticFieldTab++;
-        if (alertString
-                ? magneticFieldTab >= (MAGNETIC_FIELD_TAB_NUM + 1)
-                : magneticFieldTab >= MAGNETIC_FIELD_TAB_NUM)
+        if (magneticFieldTab >= MAGNETIC_FIELD_TAB_NUM)
             magneticFieldTab = MAGNETIC_FIELD_TAB_MAX;
 
         requestViewUpdate();
@@ -168,41 +138,33 @@ static void onMagneticFieldViewEvent(Event event)
         drawTitleBar(getString(STRING_MAGNETIC_FIELD));
         drawMeasurementValue(valueString, unitString, 0, style);
 
-        if (magneticFieldTab == MAGNETIC_FIELD_TAB_ALERT)
-            drawMeasurementAlert(alertString);
-        else
+        const char *keyString = NULL;
+        strclr(valueString);
+        strcpy(unitString, " ");
+
+        switch (magneticFieldTab)
         {
-            const char *keyString = NULL;
-            strclr(valueString);
-            strcpy(unitString, " ");
+        case MAGNETIC_FIELD_TAB_MAX:
+            buildValueString(valueString, unitString, magneticField.maxValue, &magneticFieldUnits[settings.magneticFieldUnits], magneticFieldMinMetricPrefix[settings.magneticFieldUnits]);
 
-            switch (magneticFieldTab)
-            {
-            case MAGNETIC_FIELD_TAB_MAX:
-                if (magneticField.maxValue != 0)
-                    buildValueString(valueString, unitString, magneticField.maxValue, &magneticFieldUnits[settings.magneticFieldUnits], magneticFieldMinMetricPrefix[settings.magneticFieldUnits]);
+            keyString = getString(STRING_MAX);
 
-                keyString = getString(STRING_MAX);
+            break;
 
-                break;
+        case MAGNETIC_FIELD_TAB_ELECTRIC:
+        {
+            buildValueString(valueString, unitString, getElectricField(), &electricFieldUnits, electricFieldMinMetricPrefix);
 
-            case MAGNETIC_FIELD_TAB_ELECTRIC:
-            {
-                float electricField = getElectricField();
-                if (electricField)
-                    buildValueString(valueString, unitString, electricField, &electricFieldUnits, electricFieldMinMetricPrefix);
+            keyString = getString(STRING_ELECTRIC_FIELD);
 
-                keyString = getString(STRING_ELECTRIC_FIELD);
-
-                break;
-            }
-
-            default:
-                break;
-            }
-
-            drawMeasurementInfo(keyString, valueString, unitString, MEASUREMENTSTYLE_NORMAL);
+            break;
         }
+
+        default:
+            break;
+        }
+
+        drawMeasurementInfo(keyString, valueString, unitString, MEASUREMENTSTYLE_NORMAL);
 
         break;
     }

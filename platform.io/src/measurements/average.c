@@ -7,8 +7,8 @@
  * License: MIT
  */
 
-#include "../devices/voice.h"
 #include "../measurements/average.h"
+#include "../peripherals/voice.h"
 #include "../system/cmath.h"
 #include "../system/events.h"
 #include "../system/settings.h"
@@ -127,11 +127,12 @@ void updateAverageRate(PulsePeriod *period)
     else if (average.done && !done)
         average.done = false;
 
+    // Alert view
     if (isTubeFaultAlertTriggered())
         averageTab = AVERAGE_TAB_ALERT;
     else if (averageTab == AVERAGE_TAB_ALERT)
     {
-        if (!getTubeFaultAlertLevel() && !done)
+        if (!getTubeFaultAlertLevel())
             averageTab = AVERAGE_TAB_TIME;
     }
 }
@@ -148,14 +149,11 @@ static void onAverageRateViewEvent(Event event)
     if (onMeasurementViewEvent(event))
         return;
 
-    bool done = (average.timedPulseCount == UINT32_MAX) ||
-                average.done;
+    bool done = (average.rate.time == UINT32_MAX) || (average.period.pulseCount == UINT32_MAX) || average.done;
 
     const char *alertString;
     if (getTubeFaultAlertLevel())
         alertString = getString(STRING_ALERT_FAULT);
-    else if ((average.rate.time == UINT32_MAX) || (average.period.pulseCount == UINT32_MAX))
-        alertString = getString(STRING_ALERT_MAX);
     else if (done)
         alertString = getString(STRING_ALERT_DONE);
     else
@@ -165,9 +163,7 @@ static void onAverageRateViewEvent(Event event)
     {
     case EVENT_KEY_BACK:
         averageTab++;
-        if (alertString
-                ? averageTab >= (AVERAGE_TAB_NUM + 1)
-                : averageTab >= AVERAGE_TAB_NUM)
+        if (averageTab >= (alertString ? (AVERAGE_TAB_NUM + 1) : AVERAGE_TAB_NUM))
             averageTab = AVERAGE_TAB_TIME;
 
         requestViewUpdate();
@@ -226,16 +222,14 @@ static void onAverageRateViewEvent(Event event)
                 break;
 
             case AVERAGE_TAB_RATE:
-                if (average.timedRate.value > 0)
-                    buildValueString(valueString, unitString, average.timedRate.value, &pulseUnits[settings.secondaryDoseUnits].rate, doseUnitsMinMetricPrefix[settings.secondaryDoseUnits]);
+                buildValueString(valueString, unitString, average.timedRate.value, &pulseUnits[settings.secondaryDoseUnits].rate, doseUnitsMinMetricPrefix[settings.secondaryDoseUnits]);
 
                 keyString = getString(STRING_RATE);
 
                 break;
 
             case AVERAGE_TAB_DOSE:
-                if (average.timedPulseCount > 0)
-                    buildValueString(valueString, unitString, average.timedPulseCount, &pulseUnits[DOSE_UNITS_CPM].dose, doseUnitsMinMetricPrefix[DOSE_UNITS_CPM]);
+                buildValueString(valueString, unitString, average.timedPulseCount, &pulseUnits[DOSE_UNITS_CPM].dose, doseUnitsMinMetricPrefix[DOSE_UNITS_CPM]);
 
                 keyString = getString(STRING_DOSE);
 

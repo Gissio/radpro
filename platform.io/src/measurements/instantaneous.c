@@ -7,9 +7,9 @@
  * License: MIT
  */
 
-#include "../devices/tube.h"
-#include "../devices/voice.h"
 #include "../measurements/instantaneous.h"
+#include "../peripherals/tube.h"
+#include "../peripherals/voice.h"
 #include "../system/events.h"
 #include "../system/settings.h"
 #include "../ui/measurements.h"
@@ -121,13 +121,11 @@ void updateInstantaneousRate(uint32_t periodTick, PulsePeriod *period)
         instantaneous.rate.value *= instantaneous.compensationFactor;
     }
 
-    // Secondary variables
-    bool confidenceGood = isInstantaneousRateConfidenceGood();
-
     // Pulse threshold
     updatePulseThresholdExceeded();
 
     // Max value
+    bool confidenceGood = isInstantaneousRateConfidenceGood();
     if (confidenceGood && (instantaneous.rate.value > instantaneous.maxValue))
         instantaneous.maxValue = instantaneous.rate.value;
 
@@ -147,6 +145,7 @@ void updateInstantaneousRate(uint32_t periodTick, PulsePeriod *period)
     if (alertTriggered)
         setAlertPending(true);
 
+    // Alert view
     if (isTubeFaultAlertTriggered())
         instantaneousTab = INSTANTANEOUS_TAB_ALERT;
     else if (instantaneousTab == INSTANTANEOUS_TAB_ALERT)
@@ -195,9 +194,7 @@ static void onInstantaneousRateViewEvent(Event event)
     {
     case EVENT_KEY_BACK:
         instantaneousTab++;
-        if (alertString
-                ? instantaneousTab >= (INSTANTANEOUS_TAB_NUM + 1)
-                : instantaneousTab >= INSTANTANEOUS_TAB_NUM)
+        if (instantaneousTab >= (alertString ? (INSTANTANEOUS_TAB_NUM + 1) : INSTANTANEOUS_TAB_NUM))
             instantaneousTab = INSTANTANEOUS_TAB_BAR;
 
         requestViewUpdate();
@@ -241,7 +238,7 @@ static void onInstantaneousRateViewEvent(Event event)
         drawMeasurementValue(valueString, unitString, instantaneous.rate.confidence, style);
 
         if (instantaneousTab == INSTANTANEOUS_TAB_ALERT)
-            drawMeasurementAlert(alertString);
+            drawMeasurementAlert(getString(STRING_ALERT_FAULT));
         else if (instantaneousTab != INSTANTANEOUS_TAB_BAR)
         {
             const char *keyString = NULL;
@@ -251,24 +248,21 @@ static void onInstantaneousRateViewEvent(Event event)
             switch (instantaneousTab)
             {
             case INSTANTANEOUS_TAB_MAX:
-                if (instantaneous.maxValue != 0)
-                    buildValueString(valueString, unitString, instantaneous.maxValue, &pulseUnits[settings.doseUnits].rate, doseUnitsMinMetricPrefix[settings.doseUnits]);
+                buildValueString(valueString, unitString, instantaneous.maxValue, &pulseUnits[settings.doseUnits].rate, doseUnitsMinMetricPrefix[settings.doseUnits]);
 
                 keyString = getString(STRING_MAX);
 
                 break;
 
             case INSTANTANEOUS_TAB_RATE:
-                if (instantaneous.rate.value != 0)
-                    buildValueString(valueString, unitString, instantaneous.rate.value, &pulseUnits[settings.secondaryDoseUnits].rate, doseUnitsMinMetricPrefix[settings.secondaryDoseUnits]);
+                buildValueString(valueString, unitString, instantaneous.rate.value, &pulseUnits[settings.secondaryDoseUnits].rate, doseUnitsMinMetricPrefix[settings.secondaryDoseUnits]);
 
                 keyString = getString(STRING_RATE);
 
                 break;
 
             case INSTANTANEOUS_TAB_CUMULATIVE:
-                if (getCumulativeDosePulseCount() != 0)
-                    buildValueString(valueString, unitString, getCumulativeDosePulseCount(), &pulseUnits[settings.doseUnits].dose, doseUnitsMinMetricPrefix[settings.doseUnits]);
+                buildValueString(valueString, unitString, getCumulativeDosePulseCount(), &pulseUnits[settings.doseUnits].dose, doseUnitsMinMetricPrefix[settings.doseUnits]);
 
                 keyString = getString(STRING_CUMULATIVE);
 

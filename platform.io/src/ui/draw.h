@@ -12,7 +12,7 @@
 
 #include <mcu-renderer.h>
 
-#include "../devices/display.h"
+#include "../peripherals/display.h"
 
 // Colors
 

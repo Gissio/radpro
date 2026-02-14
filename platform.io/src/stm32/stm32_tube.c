@@ -9,7 +9,7 @@
 
 #if defined(STM32)
 
-#include "../devices/tube.h"
+#include "../peripherals/tube.h"
 #include "../system/events.h"
 #include "../system/settings.h"
 #include "../stm32/device.h"
@@ -78,7 +78,7 @@ void initTubeHardware(void)
 
     // HV PWM timer
 #if defined(TUBE_HV_PWM)
-    tim_setup_pwm(TUBE_HV_TIMER, TUBE_HV_TIMER_CHANNEL, false);
+    tim_setup_pwm(TUBE_HV_TIMER, TUBE_HV_TIMER_CHANNEL);
 
     updateTubeHV();
 

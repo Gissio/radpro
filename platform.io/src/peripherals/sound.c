@@ -9,10 +9,10 @@
 
 #if defined(BUZZER) || defined(PULSESOUND_ENABLE) || defined(VOICE)
 
-#include "../devices/buzzer.h"
-#include "../devices/pulsesoundenable.h"
-#include "../devices/sound.h"
-#include "../devices/voice.h"
+#include "../peripherals/buzzer.h"
+#include "../peripherals/pulsesoundenable.h"
+#include "../peripherals/sound.h"
+#include "../peripherals/voice.h"
 #include "../system/events.h"
 #include "../system/settings.h"
 #include "../ui/menu.h"

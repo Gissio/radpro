@@ -11,7 +11,7 @@
 
 #if defined(EMFMETER)
 
-#include "../devices/emf.h"
+#include "../peripherals/emf.h"
 
 void initEMFMeter(void)
 {

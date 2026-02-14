@@ -18,8 +18,8 @@
 #include <mcu-renderer-sdl.h>
 #include <mcu-renderer-st7789.h>
 
-#include "../devices/display.h"
 #include "../measurements/datalog.h"
+#include "../peripherals/display.h"
 #include "../system/cstring.h"
 #include "../system/events.h"
 #include "../system/settings.h"

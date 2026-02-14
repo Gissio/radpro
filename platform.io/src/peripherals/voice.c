@@ -9,8 +9,8 @@
 
 #if defined(VOICE)
 
-#include "../devices/sound.h"
-#include "../devices/voice.h"
+#include "../peripherals/sound.h"
+#include "../peripherals/voice.h"
 #include "../system/settings.h"
 #include "../ui/menu.h"
 

@@ -11,10 +11,10 @@
 
 #include "mcu-renderer-st7789.h"
 
-#include "../devices/display.h"
-#include "../devices/emf.h"
-#include "../devices/keyboard.h"
-#include "../devices/tube.h"
+#include "../peripherals/display.h"
+#include "../peripherals/emf.h"
+#include "../peripherals/keyboard.h"
+#include "../peripherals/tube.h"
 #include "../stm32/device.h"
 #include "../system/events.h"
 #include "../system/system.h"
@@ -23,6 +23,9 @@
 
 void initSystem(void)
 {
+    // Disable TIM7 (left on by bootloader)
+    rcc_disable_tim(TIM7);
+
     // Set HSI as system clock
     modify_bits(RCC->CFGR, RCC_CFGR_SW_Msk, RCC_CFGR_SW_HSI);
     wait_until_bits_value(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_HSI);
@@ -38,7 +41,7 @@ void initSystem(void)
     // Set 2 wait states for flash
     modify_bits(FLASH->ACR, FLASH_ACR_LATENCY_Msk, FLASH_ACR_LATENCY_2WS);
 
-    // Configure AHB, APB1, APB2, ADC, PLL
+    // Configure AHB, APB1, APB2, ADC, PLL, USB
     RCC->CFGR = RCC_CFGR_SW_HSI |       // Select HSI as system clock
                 RCC_CFGR_HPRE_DIV1 |    // Set AHB clock: 96 MHz / 1 = 96 MHz
                 RCC_CFGR_PPRE1_DIV2 |   // Set APB1 clock: 96 MHz / 2 = 48 MHz
@@ -63,9 +66,6 @@ void initSystem(void)
 
     // Enable GPIOA, GPIOB, GPIOC
     set_bits(RCC->APB2ENR, RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN);
-
-    // Disable TIM7 (left on by bootloader)
-    rcc_disable_tim(TIM7);
 
     // Setup PB12 (from original firmware)
     gpio_setup(GPIOB, 12, GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
@@ -115,11 +115,7 @@ void initEMFMeter(void)
 
 void setEMFMeterEnabled(bool value)
 {
-#if defined(EMFMETER_EN_ACTIVE_LOW)
     gpio_modify(EMFMETER_EN_PORT, EMFMETER_EN_PIN, !value);
-#else
-    gpio_modify(EMFMETER_EN_PORT, EMFMETER_EN_PIN, value);
-#endif
 }
 
 // Communications

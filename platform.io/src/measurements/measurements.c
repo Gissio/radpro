@@ -9,18 +9,18 @@
 
 #include <float.h>
 
-#include "../devices/display.h"
-#include "../devices/emf.h"
-#include "../devices/keyboard.h"
-#include "../devices/led.h"
-#include "../devices/pulsesoundenable.h"
-#include "../devices/tube.h"
 #include "../measurements/average.h"
 #include "../measurements/cumulative.h"
 #include "../measurements/electricfield.h"
 #include "../measurements/history.h"
 #include "../measurements/instantaneous.h"
 #include "../measurements/magneticfield.h"
+#include "../peripherals/display.h"
+#include "../peripherals/emf.h"
+#include "../peripherals/keyboard.h"
+#include "../peripherals/led.h"
+#include "../peripherals/pulsesoundenable.h"
+#include "../peripherals/tube.h"
 #include "../system/events.h"
 #include "../system/settings.h"
 #include "../ui/menu.h"
@@ -45,7 +45,7 @@ static struct
 
     int32_t viewIndex;
 
-    AlertLevel alertLevel;
+    AlertLevel faultAlertLevel;
     bool alertPending;
     bool alertFlashing;
     bool soundIconActive;
@@ -91,6 +91,11 @@ void setupMeasurements(void)
 void setMeasurementsEnabled(bool value)
 {
     measurements.enabled = value;
+
+    setTubeHVEnabled(value);
+#if defined(EMFMETER)
+    setEMFMeterEnabled(value);
+#endif
 }
 
 bool isMeasurementsEnabled(void)
@@ -113,9 +118,9 @@ void updateMeasurements(void)
     AlertLevel alertLevel;
     AlertLevel alertLevelSource;
 
-    alertLevelSource = getTubeFaultAlertLevel();
+    alertLevel = getTubeFaultAlertLevel();
 
-    alertLevel = getInstantaneousRateAlertLevel();
+    alertLevelSource = getInstantaneousRateAlertLevel();
     if (alertLevelSource > alertLevel)
         alertLevel = alertLevelSource;
 
@@ -138,7 +143,7 @@ void updateMeasurements(void)
         if (measurements.alertPending)
             triggerAlert(alertLevel == ALERTLEVEL_ALARM);
 
-        if (!measurements.alertLevel)
+        if (!measurements.faultAlertLevel)
             measurements.alertFlashing = true;
         else
             measurements.alertFlashing = !measurements.alertFlashing;
@@ -148,7 +153,7 @@ void updateMeasurements(void)
         measurements.alertPending = false;
         measurements.alertFlashing = false;
     }
-    measurements.alertLevel = alertLevel;
+    measurements.faultAlertLevel = alertLevel;
 
     // Sound control
 #if defined(PULSESOUND_ENABLE)
@@ -192,7 +197,7 @@ bool isAlertEnabled(void)
 
 AlertLevel getAlertLevel(void)
 {
-    return measurements.alertLevel;
+    return measurements.faultAlertLevel;
 }
 
 void setAlertPending(bool value)

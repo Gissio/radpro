@@ -7,21 +7,21 @@
  * License: MIT
  */
 
-#include "../devices/adc.h"
-#include "../devices/display.h"
-#include "../devices/flash.h"
-#include "../devices/keyboard.h"
-#include "../devices/led.h"
-#include "../devices/pulsesoundenable.h"
-#include "../devices/rtc.h"
-#include "../devices/tube.h"
-#include "../devices/sound.h"
-#include "../devices/voice.h"
 #include "../extras/game.h"
 #include "../extras/rng.h"
 #include "../measurements/datalog.h"
 #include "../measurements/history.h"
 #include "../measurements/measurements.h"
+#include "../peripherals/adc.h"
+#include "../peripherals/display.h"
+#include "../peripherals/flash.h"
+#include "../peripherals/keyboard.h"
+#include "../peripherals/led.h"
+#include "../peripherals/pulsesoundenable.h"
+#include "../peripherals/rtc.h"
+#include "../peripherals/tube.h"
+#include "../peripherals/sound.h"
+#include "../peripherals/voice.h"
 #include "../system/events.h"
 #include "../system/power.h"
 #include "../system/settings.h"
@@ -109,7 +109,6 @@ static void onPowerOnViewEvent(Event event)
 #if defined(PULSE_LED) || defined(PULSE_LED_EN)
             updateLED();
 #endif
-            setTubeHVEnabled(true);
             setMeasurementsEnabled(true);
             if (settings.loggingMode != DATALOG_LOGGINGMODE_OFF)
                 startDatalog();
@@ -241,7 +240,6 @@ void powerOff(bool showBatteryIndicator)
 #if defined(PULSE_LED) || defined(PULSE_LED_EN)
         updateLED();
 #endif
-        setTubeHVEnabled(false);
         stopDatalog();
         setKeyboardMode(KEYBOARD_MODE_MEASUREMENT);
 #if defined(VOICE)

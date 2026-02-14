@@ -7,13 +7,13 @@
  * License: MIT
  */
 
-#include "../devices/led.h"
-#include "../devices/pulsesoundenable.h"
-#include "../devices/tube.h"
 #include "../measurements/average.h"
 #include "../measurements/cumulative.h"
 #include "../measurements/history.h"
 #include "../measurements/instantaneous.h"
+#include "../peripherals/led.h"
+#include "../peripherals/pulsesoundenable.h"
+#include "../peripherals/tube.h"
 #include "../system/cmath.h"
 #include "../system/events.h"
 #include "../system/settings.h"
@@ -113,16 +113,18 @@ static struct
     // updatePulses
     uint32_t lossOfCountTimer;
     bool lastTubeShorted;
-    AlertLevel alertLevel;
-    bool alertTriggered;
+    AlertLevel faultAlertLevel;
+    bool faultAlertTriggered;
 
     float deadTimeCompensationRemainder;
 } pulses;
 
 void setupPulses(void)
 {
+    syncTick();
     Dose tubeDose = pulses.tubeDose;
     memset(&pulses, 0, sizeof(pulses));
+    pulses.lastTubePulseCount = tubePulseCount;
     pulses.tubeDose = tubeDose;
 
     updateDoseUnits();
@@ -208,6 +210,11 @@ bool isPulseThresholdExceeded(void)
 
 void onPulseTick(void)
 {
+    // Measurement
+#if defined(SIMULATOR)
+    onTubeTick();
+#endif
+
     uint32_t currentPulseCount = tubePulseCount;
     uint32_t pulseCount = currentPulseCount - pulses.lastTubePulseCount;
     pulses.lastTubePulseCount = currentPulseCount;
@@ -251,26 +258,23 @@ void onPulseHeartbeat(void)
 
 void updatePulses(void)
 {
-    // Loss of count
-    AlertLevel alertLevel = ALERTLEVEL_NONE;
+    // Fault alert
+    AlertLevel faultAlertLevel = ALERTLEVEL_NONE;
     if (pulses.lastPeriod.pulseCount)
         pulses.lossOfCountTimer = 0;
     else
         pulses.lossOfCountTimer++;
     if (pulses.lossOfCountTimer >= getLossOfCountTime())
-        alertLevel = ALERTLEVEL_ALARM;
+        faultAlertLevel = ALERTLEVEL_ALARM;
 
-    // Tube shorted
     bool tubeShorted = (!pulses.lastPeriod.pulseCount && readTubeDet());
     if (pulses.lastTubeShorted && tubeShorted)
-        alertLevel = ALERTLEVEL_ALARM;
+        faultAlertLevel = ALERTLEVEL_ALARM;
     pulses.lastTubeShorted = tubeShorted;
 
-    // Fault alert
-    pulses.alertTriggered = (alertLevel > pulses.alertLevel);
-    pulses.alertLevel = alertLevel;
-
-    if (pulses.alertTriggered)
+    pulses.faultAlertTriggered = (faultAlertLevel > pulses.faultAlertLevel);
+    pulses.faultAlertLevel = faultAlertLevel;
+    if (pulses.faultAlertTriggered)
         setAlertPending(true);
 
     // Instantaneous rate
@@ -325,12 +329,12 @@ float getTubeDeadTime(void)
 
 AlertLevel getTubeFaultAlertLevel(void)
 {
-    return pulses.alertLevel;
+    return pulses.faultAlertLevel;
 }
 
 bool isTubeFaultAlertTriggered(void)
 {
-    return pulses.alertTriggered;
+    return pulses.faultAlertTriggered;
 }
 
 // Pulses indication menu
