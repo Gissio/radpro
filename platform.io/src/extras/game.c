@@ -110,22 +110,12 @@ static void updateGameBoard(void)
         {
             mcumax_square square = ((0x10 * y) + x);
 
-            uint8_t xb, yb;
-            if (game.playerIndex)
-            {
-                xb = 7 - x;
-                yb = 7 - y;
-            }
-            else
-            {
-                xb = x;
-                yb = y;
-            }
+            uint8_t xb = game.playerIndex ? (7 - x) : x;
+            uint8_t yb = game.playerIndex ? (7 - y) : y;
 
             uint8_t piece = mcumax_get_piece(square);
 
-            if ((square == move.from) ||
-                (square == move.to))
+            if ((square == move.from) || (square == move.to))
                 piece |= 0x10;
 
             game.board[yb][xb] = piece;
@@ -356,10 +346,7 @@ static void onGameViewEvent(Event event)
 
     case EVENT_HEARTBEAT:
         if (game.state != GAME_OVER)
-        {
-            uint32_t side = (game.moveIndex & 0x1);
-            game.playerTime[side] = game.playerTime[side] + 1;
-        }
+            game.playerTime[game.moveIndex & 0x1]++;
 
         break;
 

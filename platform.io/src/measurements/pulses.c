@@ -219,18 +219,18 @@ void onPulseTick(void)
     uint32_t pulseCount = currentPulseCount - pulses.lastTubePulseCount;
     pulses.lastTubePulseCount = currentPulseCount;
 
-    if (pulseCount)
+    // Tube dose
+    pulses.tubeDose.pulseCount += pulseCount;
+
+    // Current period
+    if (!pulses.currentPeriod.pulseCount)
+        pulses.currentPeriod.firstTick = currentTick;
+    pulses.currentPeriod.lastTick = currentTick;
+    pulses.currentPeriod.pulseCount += pulseCount;
+
+    // Pulse indication
+    if (pulseCount && isMeasurementsEnabled())
     {
-        // Tube dose
-        pulses.tubeDose.pulseCount += pulseCount;
-
-        // Current period
-        if (!pulses.currentPeriod.pulseCount)
-            pulses.currentPeriod.firstTick = currentTick;
-        pulses.currentPeriod.lastTick = currentTick;
-        pulses.currentPeriod.pulseCount += pulseCount;
-
-        // Pulse indication
         pulses.indicationRemainder += pulseCount * pulses.indicationFactor;
         if (pulses.indicationRemainder >= PULSE_INDICATION_FACTOR_UNIT)
         {

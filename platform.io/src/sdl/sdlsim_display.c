@@ -31,10 +31,10 @@ static void updateDisplayTitle(void);
 
 extern mr_t mr;
 
-bool displayEnabled;
-bool vibratorEnabled;
-bool greenLEDOn;
-bool redLEDOn;
+static bool displayEnabled;
+static bool vibratorEnabled;
+static bool greenLEDOn;
+static bool redLEDOn;
 
 static const uint8_t displayBrightnessValues[] = {
     0x3f, 0x7f, 0xbf, 0xff};

@@ -55,9 +55,9 @@ static InstantaneousTab instantaneousTab;
 
 void setupInstantaneousRate(void)
 {
-    resetInstantaneousRate();
-
     instantaneousTab = INSTANTANEOUS_TAB_BAR;
+
+    resetInstantaneousRate();
 
     selectMenuItem(&instantaneousMenu, settings.instantaneousAveraging, INSTANTANEOUSAVERAGING_NUM);
 }

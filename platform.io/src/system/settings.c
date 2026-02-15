@@ -34,7 +34,7 @@ static Menu settingsMenu;
 
 Settings settings;
 
-const Settings defaultSettings = {
+static const Settings defaultSettings = {
     .pulseSound = true,
     .pulseLED = true,
 
@@ -71,7 +71,13 @@ const Settings defaultSettings = {
 
 // State
 
-typedef struct
+typedef
+#if defined(__GNUC__)
+    __attribute__((aligned(8)))
+#elif defined(_MSC_VER)
+    __declspec(align(8))
+#endif
+    struct
 {
     Dose tube;
     Dose dose;
@@ -79,75 +85,40 @@ typedef struct
 } State;
 
 static uint32_t stateOffset;
+static bool settingsLoaded;
 
-static bool isStateEmpty(const State *state)
+#define STATES_PAGE_SIZE FLASH_PAGE_SIZE
+#define STATES_PAGE_LASTSTATE_OFFSET ((STATES_PAGE_ID_OFFSET / sizeof(State)) * sizeof(State))
+#define STATES_PAGE_ID_OFFSET (STATES_PAGE_SIZE - STATES_PAGE_ID_SIZE)
+#define STATES_PAGE_ID_SIZE 8
+
+static const uint8_t statesPageId[STATES_PAGE_ID_SIZE] = {
+    'R',
+    'a',
+    'd',
+    'P',
+    'r',
+    'o',
+    SETTINGS_VERSION,
+    0,
+};
+
+static bool validateStatesPage(const uint8_t *statesPage)
 {
-    const uint8_t *p = (const uint8_t *)state;
-
-    for (uint32_t i = 0; i < sizeof(State); i++)
-    {
-        if (p[i] != 0xff)
-            return false;
-    }
-
-    return true;
+    return memcmp(statesPage + STATES_PAGE_ID_OFFSET, statesPageId, STATES_PAGE_ID_SIZE) == 0;
 }
 
-static State *loadState(void)
+static void resetStatesPage(void)
 {
-    const uint8_t *statePage = readFlash(STATES_BASE, STATES_SIZE);
-    State *lastState = NULL;
+    eraseFlash(STATES_BASE);
+    writeFlash(STATES_BASE + STATES_PAGE_ID_OFFSET, statesPageId, STATES_PAGE_ID_SIZE);
 
-    for (uint32_t offset = 0; offset < STATES_SIZE; offset += sizeof(State))
-    {
-        State *state = (State *)(statePage + offset);
-
-        if (!isStateEmpty(state))
-        {
-            lastState = state;
-
-            stateOffset = offset + sizeof(State);
-        }
-    }
-
-    return lastState;
-}
-
-static void saveState(State *state)
-{
-    if (stateOffset >= STATES_SIZE)
-    {
-        eraseFlash(STATES_BASE);
-
-        stateOffset = 0;
-    }
-
-    for (uint32_t i = 0; i < 2; i++)
-    {
-        if (writeFlash(STATES_BASE + stateOffset, (uint8_t *)state, sizeof(State)))
-        {
-            stateOffset += sizeof(State);
-
-            break;
-        }
-        else
-        {
-            eraseFlash(STATES_BASE);
-
-            stateOffset = 0;
-        }
-    }
+    stateOffset = 0;
 }
 
 static bool validateState(const State *state)
 {
-    if (!state)
-        return false;
-
     const Settings *s = &state->settings;
-
-    if (s->empty)
-        return false;
 
     return (!s->empty &&
             (s->source < SOURCE_NUM) &&
@@ -174,6 +145,46 @@ static bool validateState(const State *state)
             true);
 }
 
+static const State *loadLatestState(void)
+{
+    const uint8_t *statesPage = readFlash(STATES_BASE, STATES_SIZE);
+    const State *lastState = NULL;
+
+    if (validateStatesPage(statesPage))
+    {
+        // Find last state
+        for (uint32_t offset = 0; offset < STATES_PAGE_LASTSTATE_OFFSET; offset += sizeof(State))
+        {
+            const State *state = (const State *)(statesPage + offset);
+            if (validateState(state))
+            {
+                lastState = state;
+
+                stateOffset = offset + sizeof(State);
+            }
+        }
+    }
+    else
+        stateOffset = STATES_PAGE_LASTSTATE_OFFSET;
+
+    return lastState;
+}
+
+static void appendState(State *state)
+{
+    // Try twice
+    for (uint32_t i = 0; i < 2; i++)
+    {
+        if ((stateOffset < STATES_PAGE_LASTSTATE_OFFSET) &&
+            writeFlash(STATES_BASE + stateOffset, (uint8_t *)state, sizeof(State)))
+            break;
+        else
+            resetStatesPage();
+    }
+
+    stateOffset += sizeof(State);
+}
+
 void initSettings(void)
 {
     // Default settings
@@ -187,9 +198,8 @@ void initSettings(void)
 #endif
 
     // Load state
-    State *state = loadState();
-
-    if (validateState(state))
+    const State *state = loadLatestState();
+    if (state)
     {
         setCumulativeDoseTime(state->dose.time);
         setCumulativeDosePulseCount(state->dose.pulseCount);
@@ -197,12 +207,19 @@ void initSettings(void)
         setTubePulseCount(state->tube.pulseCount);
 
         settings = state->settings;
+
+        settingsLoaded = true;
     }
 }
 
 void setupSettings(void)
 {
     selectMenuItem(&settingsMenu, 0, 0);
+}
+
+bool isSettingsLoaded(void)
+{
+    return settingsLoaded;
 }
 
 void saveSettings(void)
@@ -217,7 +234,7 @@ void saveSettings(void)
 
     state.settings = settings;
 
-    saveState(&state);
+    appendState(&state);
 }
 
 // Settings menu
@@ -247,12 +264,15 @@ static MenuOption settingsMenuOptions[] = {
     {NULL},
 };
 
+#define SETTINGS_MENU_COUNT (sizeof(settingsMenuOptions)/sizeof(MenuOption))
+#define DATA_MODE_INDEX (SETTINGS_MENU_COUNT - 2)
+
 static const char *onSettingsMenuGetOption(uint32_t index, MenuStyle *menuStyle)
 {
 #if !defined(DATA_MODE)
     *menuStyle = MENUSTYLE_SUBMENU;
 #else
-    if (index < ((sizeof(settingsMenuOptions) / sizeof(MenuOption)) - 2))
+    if (index < DATA_MODE_INDEX)
         *menuStyle = MENUSTYLE_SUBMENU;
     else
         *menuStyle = settings.dataMode;
@@ -266,7 +286,7 @@ static void onSettingsMenuSelect(uint32_t index)
 #if !defined(DATA_MODE)
     setView(settingsMenuOptions[index].view);
 #else
-    if (index < ((sizeof(settingsMenuOptions) / sizeof(MenuOption)) - 2))
+    if (index < DATA_MODE_INDEX)
         setView(settingsMenuOptions[index].view);
     else
         settings.dataMode = !settings.dataMode;

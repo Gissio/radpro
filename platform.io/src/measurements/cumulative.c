@@ -40,11 +40,11 @@ static CumulativeTab cumulativeTab;
 
 void setupCumulativeDose(void)
 {
+    cumulativeTab = CUMULATIVE_TAB_TIME;
+
     Dose tubeDose = cumulative.dose;
     resetCumulativeDose();
     cumulative.dose = tubeDose;
-
-    cumulativeTab = CUMULATIVE_TAB_TIME;
 }
 
 static void resetCumulativeDose(void)
@@ -53,6 +53,17 @@ static void resetCumulativeDose(void)
 
     if (cumulativeTab == CUMULATIVE_TAB_ALERT)
         cumulativeTab = CUMULATIVE_TAB_TIME;
+}
+
+static AlertLevel computeCumulativeAlertLevel(float doseSv)
+{
+    if (settings.doseAlarm && (doseSv >= doseAlerts[settings.doseAlarm]))
+        return ALERTLEVEL_ALARM;
+    
+    if (settings.doseWarning && (doseSv >= doseAlerts[settings.doseWarning]))
+        return ALERTLEVEL_WARNING;
+
+    return ALERTLEVEL_NONE;
 }
 
 void updateCumulativeDose(PulsePeriod *period)
@@ -70,16 +81,10 @@ void updateCumulativeDose(PulsePeriod *period)
                    cumulative.dose.pulseCount;
 
     // Alerts
-    AlertLevel alertLevel = ALERTLEVEL_NONE;
-    if (settings.doseAlarm && (doseSv >= doseAlerts[settings.doseAlarm]))
-        alertLevel = ALERTLEVEL_ALARM;
-    else if (settings.doseWarning && (doseSv >= doseAlerts[settings.doseWarning]))
-        alertLevel = ALERTLEVEL_WARNING;
-    bool alertTriggered = (alertLevel > cumulative.alertLevel);
-    cumulative.alertLevel = alertLevel;
-
-    if (alertTriggered)
+    AlertLevel newAlertLevel = computeCumulativeAlertLevel(doseSv);
+    if (newAlertLevel > cumulative.alertLevel)
         setAlertPending(true);
+    cumulative.alertLevel = newAlertLevel;
 
     // Alert view
     if (isTubeFaultAlertTriggered())

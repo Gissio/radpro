@@ -190,7 +190,7 @@ void getKeyboardState(bool *isKeyDown)
 
 extern mr_t mr;
 
-bool displayEnabled;
+static bool displayEnabled;
 
 static uint8_t displayTextbuffer[88 * 88];
 

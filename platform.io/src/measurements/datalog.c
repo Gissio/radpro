@@ -15,32 +15,54 @@
 #include "../ui/menu.h"
 #include "../ui/system.h"
 
+#define DATALOG_PAGE_SIZE FLASH_PAGE_SIZE
+#define DATALOG_PAGE_STATE_OFFSET (DATALOG_PAGE_SIZE - DATALOG_PAGE_STATE_SIZE)
+#define DATALOG_PAGE_STATE_SIZE FLASH_WORD_SIZE
+
 #define DATALOG_BUFFER_SIZE 16
+
+#define DATALOG_ENTRY_RELATIVE_2BYTES 0x80
+#define DATALOG_ENTRY_RELATIVE_3BYTES 0xc0
+#define DATALOG_ENTRY_RELATIVE_4BYTES 0xe0
+#define DATALOG_ENTRY_RELATIVE_5BYTES 0xf0
+#define DATALOG_ENTRY_ABSOLUTE 0xf1
+#define DATALOG_ENTRY_SESSION_START 0xf8
+#define DATALOG_ENTRY_FILLER 0xfe
+#define DATALOG_ENTRY_EMPTY 0xff
 
 static Menu datalogMenu;
 static Menu datalogModeMenu;
 
 static void setDatalogMenu(void);
 
+typedef struct
+{
+    bool active;
+    uint32_t pageBase;
+    uint32_t pageOffset;
+    Dose dose;
+    uint8_t buffer[DATALOG_BUFFER_SIZE];
+    size_t bufferLength;
+} DatalogWrite;
+
+typedef struct
+{
+    bool active;
+    uint32_t pageBase;
+    const uint8_t *page;
+    uint32_t pageOffset;
+    uint32_t timeInterval;
+} DatalogRead;
+
 static struct
 {
     uint32_t lastTimeFast;
 
-    bool writing;
-    uint32_t writePageBase;
-    uint32_t writePageOffset;
-    Dose writeDose;
-    uint8_t writeBuffer[DATALOG_BUFFER_SIZE];
-    uint32_t writeBufferLength;
-
-    bool reading;
-    uint32_t readPageBase;
-    const uint8_t *readPage;
-    uint32_t readPageOffset;
-    uint32_t readTimeInterval;
+    DatalogWrite write;
+    DatalogRead read;
 } datalog;
 
-static const uint8_t datalogEndOfRead = 0xff;
+static const uint8_t datalogEndOfRead = DATALOG_ENTRY_EMPTY;
 
 static cstring loggingModeMenuOptions[] = {
     STRING_OFF,
@@ -94,55 +116,79 @@ static uint32_t getNextPage(uint32_t pageBase)
 
 static void readPage(void)
 {
-    datalog.readPage = readFlash(datalog.readPageBase, DATALOG_PAGE_SIZE);
-    datalog.readPageOffset = 0;
+    datalog.read.page = readFlash(datalog.read.pageBase, DATALOG_PAGE_SIZE);
+    datalog.read.pageOffset = 0;
 }
 
-static PageState getPageState(uint32_t pageBase)
+static bool isPageEmpty(void)
 {
-    return *readFlash(pageBase + DATALOG_PAGESTATE_OFFSET, DATALOG_PAGESTATE_SIZE);
-}
+    const uint8_t *pageData = readFlash(datalog.write.pageBase, DATALOG_PAGE_SIZE);
 
-static void setPageState(PageState pageState)
-{
-    // Move to next page
-    uint32_t previousPageBase = datalog.writePageBase;
-    datalog.writePageBase = getNextPage(datalog.writePageBase);
-    datalog.writePageOffset = 0;
-
-    // Erase if not empty
-    const uint8_t *page = readFlash(datalog.writePageBase, DATALOG_PAGE_SIZE);
     for (uint32_t i = 0; i < FLASH_PAGE_SIZE; i++)
     {
-        if (page[i] != 0xff)
-        {
-            eraseFlash(datalog.writePageBase);
-
-            break;
-        }
+        if (pageData[i] != 0xff)
+            return false;
     }
 
+    return true;
+}
+
+static PageState readPageState(uint32_t pageBase)
+{
+    const uint8_t *pageStateData = readFlash(pageBase + DATALOG_PAGE_STATE_OFFSET, DATALOG_PAGE_STATE_SIZE);
+
+    // Check bytes 1 to (DATALOG_PAGE_STATE_SIZE - 1)
+    for (uint8_t i = 1; i < DATALOG_PAGE_STATE_SIZE; i++)
+    {
+        if (pageStateData[i] != 0xff)
+            return PAGESTATE_RESET;
+    }
+
+    // Check byte 0
+    PageState pageState = pageStateData[0];
+    switch (pageState)
+    {
+    case PAGESTATE_FULL:
+    case PAGESTATE_WRITABLE:
+        return pageState;
+
+    default:
+        return PAGESTATE_RESET;
+    }
+}
+
+static void writePageStateAndAdvance(PageState pageState)
+{
+    // Move to next page
+    uint32_t previousPageBase = datalog.write.pageBase;
+    datalog.write.pageBase = getNextPage(datalog.write.pageBase);
+    datalog.write.pageOffset = 0;
+
+    // Erase if not empty
+    if (!isPageEmpty())
+        eraseFlash(datalog.write.pageBase);
+
     // Mark previous page
-    uint8_t buffer[FLASH_PAGE_SIZE];
-    memset(buffer, 0, sizeof(buffer));
+    uint8_t buffer[DATALOG_PAGE_STATE_SIZE];
+    memset(buffer, 0xff, sizeof(buffer));
     buffer[0] = pageState;
-    writeFlash(previousPageBase + DATALOG_PAGESTATE_OFFSET, buffer, DATALOG_PAGESTATE_SIZE);
+    writeFlash(previousPageBase + DATALOG_PAGE_STATE_OFFSET, buffer, DATALOG_PAGE_STATE_SIZE);
 }
 
 static bool setDatalogTail(void)
 {
-    // Returns most recent datalog page
+    // Gets most recent datalog page
     for (uint32_t pageBase = DATALOG_BASE; pageBase < DATALOG_END; pageBase += DATALOG_PAGE_SIZE)
     {
-        if (getPageState(pageBase) == PAGESTATE_WRITABLE)
+        if (readPageState(pageBase) == PAGESTATE_WRITABLE)
         {
-            datalog.readPageBase = pageBase;
+            datalog.read.pageBase = pageBase;
 
             return true;
         }
     }
 
-    datalog.readPageBase = DATALOG_BASE;
+    datalog.read.pageBase = DATALOG_BASE;
 
     return false;
 }
@@ -153,21 +199,21 @@ static bool setDatalogHead(void)
     if (!setDatalogTail())
         return false;
 
-    // Returns oldest datalog page
+    // Move back to oldest datalog page
     while (true)
     {
-        uint32_t previousPageBase = getPreviousPage(datalog.readPageBase);
+        uint32_t previousPageBase = getPreviousPage(datalog.read.pageBase);
 
-        if (getPageState(previousPageBase) != PAGESTATE_FULL)
+        if (readPageState(previousPageBase) != PAGESTATE_FULL)
             return true;
 
-        datalog.readPageBase = previousPageBase;
+        datalog.read.pageBase = previousPageBase;
     }
 }
 
 // Datalog entries
 
-static void writeDoubleWord(uint8_t *p, uint32_t value)
+static void encodeFixedUInt32(uint8_t *p, uint32_t value)
 {
     p[0] = (value >> 24) & 0xff;
     p[1] = (value >> 16) & 0xff;
@@ -175,130 +221,180 @@ static void writeDoubleWord(uint8_t *p, uint32_t value)
     p[3] = (value >> 0) & 0xff;
 }
 
-static uint32_t readDoubleWord(void)
+static uint32_t decodeFixedUInt32(void)
 {
-    const uint8_t *p = datalog.readPage + datalog.readPageOffset;
+    const uint8_t *p = datalog.read.page + datalog.read.pageOffset;
 
-    datalog.readPageOffset += 4;
+    datalog.read.pageOffset += 4;
 
-    return (p[0] << 24) |
-           (p[1] << 16) |
-           (p[2] << 8) |
-           (p[3] << 0);
+    return (p[0] << 24) | (p[1] << 16) | (p[2] << 8) | (p[3] << 0);
+}
+
+static uint32_t encodeVariableUInt32(uint8_t *p, uint32_t value)
+{
+    if (value < 0x80)
+    {
+        // 7-bit value
+        p[0] = value;
+
+        return 1;
+    }
+    else if (value < 0x4000)
+    {
+        // 14-bit value
+        p[0] = DATALOG_ENTRY_RELATIVE_2BYTES | (value >> 8);
+        p[1] = (value >> 0) & 0xff;
+
+        return 2;
+    }
+    else if (value < 0x200000)
+    {
+        // 21-bit value
+        p[0] = DATALOG_ENTRY_RELATIVE_3BYTES | (value >> 16);
+        p[1] = (value >> 8) & 0xff;
+        p[2] = (value >> 0) & 0xff;
+
+        return 3;
+    }
+    else if (value < 0x10000000)
+    {
+        // 28-bit value
+        p[0] = DATALOG_ENTRY_RELATIVE_4BYTES | (value >> 24);
+        p[1] = (value >> 16) & 0xff;
+        p[2] = (value >> 8) & 0xff;
+        p[3] = (value >> 0) & 0xff;
+
+        return 4;
+    }
+    else
+    {
+        // 32-bit value
+        p[0] = DATALOG_ENTRY_RELATIVE_5BYTES;
+        encodeFixedUInt32(p + 1, value);
+
+        return 5;
+    }
+}
+
+static bool decodeVariableUInt32(uint32_t *value)
+{
+    const uint8_t *p = datalog.read.page + datalog.read.pageOffset;
+    uint8_t c = p[0];
+    if (c < DATALOG_ENTRY_RELATIVE_2BYTES)
+    {
+        // 7-bit value
+        *value = c;
+        datalog.read.pageOffset += 1;
+    }
+    else if (c < DATALOG_ENTRY_RELATIVE_3BYTES)
+    {
+        // 14-bit value
+        *value = ((c & 0x3f) << 8) | p[1];
+        datalog.read.pageOffset += 2;
+    }
+    else if (c < DATALOG_ENTRY_RELATIVE_4BYTES)
+    {
+        // 21-bit value
+        *value = ((c & 0x1f) << 16) | (p[1] << 8) | p[2];
+        datalog.read.pageOffset += 3;
+    }
+    else if (c < DATALOG_ENTRY_RELATIVE_5BYTES)
+    {
+        // 28-bit value
+        *value = ((c & 0x0f) << 24) | (p[1] << 16) | (p[2] << 8) | p[3];
+        datalog.read.pageOffset += 4;
+    }
+    else if (c == DATALOG_ENTRY_RELATIVE_5BYTES)
+    {
+        // 32-bit value
+        datalog.read.pageOffset += 1;
+        *value = decodeFixedUInt32();
+    }
+    else
+        return false;
+
+    return true;
+}
+
+static uint32_t alignDatalogBufferLength(uint32_t value)
+{
+    return (value + FLASH_WORD_SIZE - 1) & ~(FLASH_WORD_SIZE - 1);
 }
 
 static void flushDatalogBuffer(void)
 {
-    uint32_t alignedCount = (datalog.writeBufferLength + FLASH_WORD_SIZE - 1) & (~(FLASH_WORD_SIZE - 1));
-    memset(datalog.writeBuffer + datalog.writeBufferLength, 0xfe, alignedCount - datalog.writeBufferLength);
+    uint32_t alignedCount = alignDatalogBufferLength(datalog.write.bufferLength);
+    memset(datalog.write.buffer + datalog.write.bufferLength, DATALOG_ENTRY_FILLER, alignedCount - datalog.write.bufferLength);
 
-    writeFlash(datalog.writePageBase + datalog.writePageOffset, datalog.writeBuffer, alignedCount);
+    writeFlash(datalog.write.pageBase + datalog.write.pageOffset, datalog.write.buffer, alignedCount);
 
-    datalog.writePageOffset += alignedCount;
-    datalog.writeBufferLength = 0;
+    datalog.write.pageOffset += alignedCount;
+    datalog.write.bufferLength = 0;
 }
 
-static bool writeDatalogEntryToPage(const uint8_t *entry, uint32_t count)
+static bool appendDatalogEntryToCurrentPage(const uint8_t *entry, uint32_t count)
 {
     // Fail if entry does not fit in page
-    if ((datalog.writePageOffset + datalog.writeBufferLength + count) > DATALOG_PAGESTATE_OFFSET)
+    if ((datalog.write.pageOffset + datalog.write.bufferLength + count) > DATALOG_PAGE_STATE_OFFSET)
         return false;
 
     // Enqueue
-    memcpy(datalog.writeBuffer + datalog.writeBufferLength, entry, count);
-    datalog.writeBufferLength += count;
+    memcpy(datalog.write.buffer + datalog.write.bufferLength, entry, count);
+    datalog.write.bufferLength += count;
 
     // Flush if buffer full
-    if (datalog.writeBufferLength >= FLASH_WORD_SIZE)
+    if (datalog.write.bufferLength >= FLASH_WORD_SIZE)
         flushDatalogBuffer();
 
     return true;
 }
 
-static bool writeDatalogEntry(const uint8_t *entry, uint32_t count)
+static bool appendDatalogEntryWithPageRollover(const uint8_t *entry, uint32_t count)
 {
-    if (writeDatalogEntryToPage(entry, count))
+    if (appendDatalogEntryToCurrentPage(entry, count))
         return true;
 
-    setPageState(PAGESTATE_FULL);
+    writePageStateAndAdvance(PAGESTATE_FULL);
 
-    return writeDatalogEntryToPage(entry, count);
+    return appendDatalogEntryToCurrentPage(entry, count);
 }
 
 static void writeDatalogSessionStart(void)
 {
-    const uint8_t sessionStartEntry[] = {0xf8};
+    const uint8_t sessionStartEntry[] = {DATALOG_ENTRY_SESSION_START};
 
-    writeDatalogEntry(sessionStartEntry, sizeof(sessionStartEntry));
+    appendDatalogEntryWithPageRollover(sessionStartEntry, sizeof(sessionStartEntry));
 }
 
-static void writeDatalogAbsoluteEntry(void)
+static void appendDatalogAbsoluteEntry(void)
 {
-    datalog.writeDose.time = getDeviceTime();
-    datalog.writeDose.pulseCount = getTubePulseCount();
+    datalog.write.dose.time = getDeviceTime();
+    datalog.write.dose.pulseCount = getTubePulseCount();
 
     uint8_t absoluteEntry[9];
-    absoluteEntry[0] = 0xf0 + settings.loggingMode;
-    writeDoubleWord(absoluteEntry + 1, datalog.writeDose.time);
-    writeDoubleWord(absoluteEntry + 5, datalog.writeDose.pulseCount);
-    writeDatalogEntry(absoluteEntry, sizeof(absoluteEntry));
+    absoluteEntry[0] = DATALOG_ENTRY_ABSOLUTE + (settings.loggingMode - 1);
+    encodeFixedUInt32(absoluteEntry + 1, datalog.write.dose.time);
+    encodeFixedUInt32(absoluteEntry + 5, datalog.write.dose.pulseCount);
+    appendDatalogEntryWithPageRollover(absoluteEntry, sizeof(absoluteEntry));
 
     // Stop datalog read
-    datalog.readPage = &datalogEndOfRead;
-    datalog.readPageOffset = 0;
+    datalog.read.page = &datalogEndOfRead;
+    datalog.read.pageOffset = 0;
 }
 
-static uint32_t writeDatalogRelativeEntry(void)
+static bool appendDatalogRelativeEntry(void)
 {
     uint32_t pulseCount = getTubePulseCount();
-    uint32_t value = pulseCount - datalog.writeDose.pulseCount;
+    uint32_t value = pulseCount - datalog.write.dose.pulseCount;
 
     uint8_t entry[5];
-    uint32_t entrySize;
+    uint32_t entrySize = encodeVariableUInt32(entry, value);
 
-    if (value < 0x80)
-    {
-        entry[0] = value;
-
-        entrySize = 1;
-    }
-    else if (value < 0x4000)
-    {
-        entry[0] = 0x80 | (value >> 8);
-        entry[1] = (value >> 0) & 0xff;
-
-        entrySize = 2;
-    }
-    else if (value < 0x200000)
-    {
-        entry[0] = 0xc0 | (value >> 16);
-        entry[1] = (value >> 8) & 0xff;
-        entry[2] = (value >> 0) & 0xff;
-
-        entrySize = 3;
-    }
-    else if (value < 0x10000000)
-    {
-        entry[0] = 0xe0 | (value >> 24);
-        entry[1] = (value >> 16) & 0xff;
-        entry[2] = (value >> 8) & 0xff;
-        entry[3] = (value >> 0) & 0xff;
-
-        entrySize = 4;
-    }
-    else
-    {
-        entry[0] = 0xf0;
-        writeDoubleWord(entry + 1, value);
-
-        entrySize = 5;
-    }
-
-    if (!writeDatalogEntryToPage(entry, entrySize))
+    if (!appendDatalogEntryToCurrentPage(entry, entrySize))
         return false;
 
-    datalog.writeDose.pulseCount = pulseCount;
-    datalog.writeDose.time += loggingModeIntervals[settings.loggingMode];
+    datalog.write.dose.pulseCount = pulseCount;
+    datalog.write.dose.time += loggingModeIntervals[settings.loggingMode];
 
     return true;
 }
@@ -314,55 +410,73 @@ void initDatalog(void)
         eraseFlash(DATALOG_BASE);
     }
 
+    // Reset when settings were not loaded
+    if (!isSettingsLoaded())
+        resetDatalog();
+
     // Get most recent record
     readPage();
 
     DatalogRecord record;
+    uint32_t readPageBase = datalog.read.pageBase;
     while (readDatalog(&record))
     {
-        // Stop at end of page
-        if (datalog.readPageOffset >= DATALOG_PAGESTATE_OFFSET)
+        // Recover from page rollover
+        if (datalog.read.pageBase != readPageBase)
             break;
     }
 
-    datalog.writePageBase = datalog.readPageBase;
+    // Validate rest of page empty
+    for (uint32_t i = datalog.read.pageOffset; i < DATALOG_PAGE_STATE_OFFSET; i++)
+    {
+        if (datalog.read.page[i] != 0xff)
+        {
+            eraseFlash(datalog.read.pageBase);
+            datalog.read.pageOffset = 0;
+
+            break;
+        }
+    }
+
+    // Set write head
+    datalog.write.pageBase = datalog.read.pageBase;
     // Recover non-aligned offset
-    datalog.writePageOffset = datalog.readPageOffset & (~(FLASH_WORD_SIZE - 1));
+    datalog.write.pageOffset = datalog.read.pageOffset & (~(FLASH_WORD_SIZE - 1));
 }
 
 void startDatalog(void)
 {
-    datalog.writing = true;
+    datalog.write.active = true;
 
     writeDatalogSessionStart();
-    writeDatalogAbsoluteEntry();
+    appendDatalogAbsoluteEntry();
 }
 
 void stopDatalog(void)
 {
-    if (datalog.writing)
+    if (datalog.write.active)
     {
-        writeDatalogAbsoluteEntry();
+        appendDatalogAbsoluteEntry();
 
-        datalog.writing = false;
+        datalog.write.active = false;
     }
 }
 
 void writeDatalogTimeChange(void)
 {
-    if (datalog.writing)
-        writeDatalogAbsoluteEntry();
+    if (datalog.write.active)
+        appendDatalogAbsoluteEntry();
 }
 
 void resetDatalog(void)
 {
     flushDatalogBuffer();
-    setPageState(PAGESTATE_RESET);
+    writePageStateAndAdvance(PAGESTATE_RESET);
     resetHistory();
 
     // Stop datalog read
-    datalog.readPage = &datalogEndOfRead;
-    datalog.readPageOffset = 0;
+    datalog.read.page = &datalogEndOfRead;
+    datalog.read.pageOffset = 0;
 }
 
 void updateDatalog(void)
@@ -372,26 +486,26 @@ void updateDatalog(void)
     {
         datalog.lastTimeFast = timeFast;
 
-        if (datalog.writing && !datalog.reading)
+        if (datalog.write.active && !datalog.read.active)
         {
             uint32_t time = getDeviceTime();
-            uint32_t elapsedTime = time - datalog.writeDose.time;
+            uint32_t elapsedTime = time - datalog.write.dose.time;
             uint32_t loggingInterval = loggingModeIntervals[settings.loggingMode];
 
             if (elapsedTime == loggingInterval)
             {
-                if (!writeDatalogRelativeEntry())
-                    writeDatalogAbsoluteEntry();
+                if (!appendDatalogRelativeEntry())
+                    appendDatalogAbsoluteEntry();
             }
             else if (elapsedTime > loggingInterval)
-                writeDatalogAbsoluteEntry();
+                appendDatalogAbsoluteEntry();
         }
     }
 }
 
 bool startDatalogRead(void)
 {
-    if (datalog.reading)
+    if (datalog.read.active)
         return false;
 
     if (!setDatalogHead())
@@ -399,7 +513,7 @@ bool startDatalogRead(void)
 
     readPage();
 
-    datalog.reading = true;
+    datalog.read.active = true;
 
     return true;
 }
@@ -411,95 +525,65 @@ bool readDatalog(DatalogRecord *record)
     while (true)
     {
         // Out of data?
-        if (datalog.readPageOffset >= DATALOG_PAGESTATE_OFFSET)
+        if (datalog.read.pageOffset >= DATALOG_PAGE_STATE_OFFSET)
         {
-            if (datalog.readPage[DATALOG_PAGESTATE_OFFSET] == PAGESTATE_WRITABLE)
+            if (datalog.read.page[DATALOG_PAGE_STATE_OFFSET] == PAGESTATE_WRITABLE)
                 break;
 
-            datalog.readPageBase = getNextPage(datalog.readPageBase);
+            datalog.read.pageBase = getNextPage(datalog.read.pageBase);
             readPage();
         }
 
-        uint8_t byte1 = datalog.readPage[datalog.readPageOffset++];
-        if (byte1 < 0x80)
+        uint32_t value;
+        if (decodeVariableUInt32(&value))
         {
-            // 7-bit differential value
-            record->dose.pulseCount += byte1;
-            record->dose.time += datalog.readTimeInterval;
+            record->dose.pulseCount += value;
+            record->dose.time += datalog.read.timeInterval;
 
             return true;
         }
-        else if (byte1 < 0xc0)
+        else
         {
-            // 14-bit differential value
-            uint8_t byte2 = datalog.readPage[datalog.readPageOffset++];
-
-            record->dose.pulseCount += ((byte1 & 0x3f) << 8) | byte2;
-            record->dose.time += datalog.readTimeInterval;
-
-            return true;
-        }
-        else if (byte1 < 0xe0)
-        {
-            // 21-bit differential value
-            uint8_t byte2 = datalog.readPage[datalog.readPageOffset++];
-            uint8_t byte3 = datalog.readPage[datalog.readPageOffset++];
-
-            record->dose.pulseCount += ((byte1 & 0x1f) << 16) | (byte2 << 8) | byte3;
-            record->dose.time += datalog.readTimeInterval;
-
-            return true;
-        }
-        else if (byte1 < 0xf0)
-        {
-            // 28-bit differential value
-            uint8_t byte2 = datalog.readPage[datalog.readPageOffset++];
-            uint8_t byte3 = datalog.readPage[datalog.readPageOffset++];
-            uint8_t byte4 = datalog.readPage[datalog.readPageOffset++];
-
-            record->dose.pulseCount += ((byte1 & 0x0f) << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
-            record->dose.time += datalog.readTimeInterval;
-
-            return true;
-        }
-        else if (byte1 == 0xf0)
-        {
-            // 32-bit differential value
-            record->dose.pulseCount += readDoubleWord();
-            record->dose.time += datalog.readTimeInterval;
-
-            return true;
-        }
-        else if (byte1 < (0xf0 + DATALOG_LOGGINGMODE_NUM))
-        {
-            // Time interval, absolute timestamp and pulse count value
-            datalog.readTimeInterval = loggingModeIntervals[byte1 - 0xf0];
-
-            record->dose.time = readDoubleWord();
-            record->dose.pulseCount = readDoubleWord();
-
-            return true;
-        }
-        else if (byte1 == 0xf8)
-        {
-            // Session start
-            record->sessionStart = true;
-        }
-        else if (byte1 == 0xff)
-        {
-            if (datalog.readPage[DATALOG_PAGESTATE_OFFSET] == PAGESTATE_WRITABLE)
+            const uint8_t *p = datalog.read.page + datalog.read.pageOffset;
+            uint8_t c = p[0];
+            if (c < (DATALOG_ENTRY_ABSOLUTE + (DATALOG_LOGGINGMODE_NUM - 1)))
             {
-                // End of data
-                datalog.readPageOffset--;
+                // Time interval, absolute timestamp and pulse count value
+                uint32_t mode = (c - DATALOG_ENTRY_ABSOLUTE) + 1;
+                datalog.read.timeInterval = loggingModeIntervals[mode];
 
-                break;
+                datalog.read.pageOffset++;
+                record->dose.time = decodeFixedUInt32();
+                record->dose.pulseCount = decodeFixedUInt32();
+
+                return true;
+            }
+            else if (c == DATALOG_ENTRY_SESSION_START)
+            {
+                // Session start
+                record->sessionStart = true;
+
+                datalog.read.pageOffset++;
+            }
+            else if (c < DATALOG_ENTRY_EMPTY)
+            {
+                // Fill bytes
+                datalog.read.pageOffset++;
+            }
+            else // if (c == DATALOG_ENTRY_EMPTY)
+            {
+                if (datalog.read.page[DATALOG_PAGE_STATE_OFFSET] != PAGESTATE_WRITABLE)
+                    datalog.read.pageOffset++;
+                else
+                {
+                    // End of data
+                    datalog.read.active = false;
+
+                    return false;
+                }
             }
         }
     }
-
-    datalog.reading = false;
-
-    return false;
 }
 
 // Logging mode menu

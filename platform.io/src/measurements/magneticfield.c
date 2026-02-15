@@ -53,9 +53,9 @@ static MagneticFieldTab magneticFieldTab;
 
 void setupMagneticField(void)
 {
-    resetMagneticField();
-
     magneticFieldTab = MAGNETIC_FIELD_TAB_MAX;
+
+    resetMagneticField();
 
     selectMenuItem(&magneticFieldUnitsMenu, settings.magneticFieldUnits, MAGNETIC_FIELD_UNITS_NUM);
 }

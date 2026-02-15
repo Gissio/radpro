@@ -32,7 +32,7 @@ static Menu averageMenu;
 static void resetAverageRate(void);
 
 static const int32_t averagingTimes[] = {
-    30 * 24 * 60 * 60, // Off (actually 30 days)
+    30 * 24 * 60 * 60, // Off (30 days)
     24 * 60 * 60,      // 24 hours
     12 * 60 * 60,      // 12 hours
     6 * 60 * 60,       // 6 hours
@@ -71,9 +71,9 @@ static AverageTab averageTab;
 
 void setupAverageRate(void)
 {
-    resetAverageRate();
-
     averageTab = AVERAGE_TAB_TIME;
+
+    resetAverageRate();
 
     selectMenuItem(&averageMenu, settings.averaging, AVERAGING_NUM);
 }
@@ -86,12 +86,30 @@ static void resetAverageRate(void)
         averageTab = AVERAGE_TAB_TIME;
 }
 
-void updateAverageRate(PulsePeriod *period)
+static bool isTimeAveraging(void)
+{
+    return settings.averaging < AVERAGING_TIME_NUM;
+}
+
+static bool isAverageDone(void)
 {
     if ((average.rate.time == UINT32_MAX) ||
         (average.period.pulseCount == UINT32_MAX))
-        return;
+        return true;
 
+    if (isTimeAveraging())
+        return average.rate.time >= averagingTimes[settings.averaging];
+
+    float confidence = average.rate.confidence;
+
+    if (confidence == 0.0F)
+        return false;
+    else
+        return (confidence < averagingConfidences[settings.averaging - AVERAGING_TIME_NUM]);
+}
+
+void updateAverageRate(PulsePeriod *period)
+{
     // Update average rate
     average.rate.time = addClamped(average.rate.time, 1);
     if (period->pulseCount)
@@ -105,34 +123,23 @@ void updateAverageRate(PulsePeriod *period)
     }
 
     // Timer
-    bool done = (settings.averaging < AVERAGING_TIME_NUM)
-                    ? (average.rate.time >= averagingTimes[settings.averaging])
-                    : (average.rate.confidence != 0.0F) && (average.rate.confidence < averagingConfidences[settings.averaging - AVERAGING_TIME_NUM]);
-
-    if (!done)
+    bool done = isAverageDone();
+    if (!(average.done && done))
     {
         average.timedPulseCount = average.period.pulseCount;
         average.timedRate = average.rate;
     }
-
-    if (!average.done && done)
-    {
-        average.done = true;
-
-        average.timedPulseCount = average.period.pulseCount;
-        average.timedRate = average.rate;
-
+    bool doneTriggered = (!average.done && done);
+    if (doneTriggered)
         triggerAlert(true);
-    }
-    else if (average.done && !done)
-        average.done = false;
+    average.done = done;
 
     // Alert view
-    if (isTubeFaultAlertTriggered())
+    if (isTubeFaultAlertTriggered() || doneTriggered)
         averageTab = AVERAGE_TAB_ALERT;
     else if (averageTab == AVERAGE_TAB_ALERT)
     {
-        if (!getTubeFaultAlertLevel())
+        if (!getTubeFaultAlertLevel() && !done)
             averageTab = AVERAGE_TAB_TIME;
     }
 }
@@ -149,12 +156,10 @@ static void onAverageRateViewEvent(Event event)
     if (onMeasurementViewEvent(event))
         return;
 
-    bool done = (average.rate.time == UINT32_MAX) || (average.period.pulseCount == UINT32_MAX) || average.done;
-
     const char *alertString;
     if (getTubeFaultAlertLevel())
         alertString = getString(STRING_ALERT_FAULT);
-    else if (done)
+    else if (average.done)
         alertString = getString(STRING_ALERT_DONE);
     else
         alertString = NULL;
@@ -196,7 +201,7 @@ static void onAverageRateViewEvent(Event event)
         strclr(unitString);
         buildValueString(valueString, unitString, average.timedRate.value, &pulseUnits[settings.doseUnits].rate, doseUnitsMinMetricPrefix[settings.doseUnits]);
 
-        if (done)
+        if (average.done)
             style = MEASUREMENTSTYLE_DONE;
         else
             style = MEASUREMENTSTYLE_NORMAL;

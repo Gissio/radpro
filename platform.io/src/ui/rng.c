@@ -23,7 +23,7 @@
 #define RNG_STATE_WIDTH CONTENT_WIDTH
 #define RNG_STATE_HEIGHT (CONTENT_BOTTOM - RNG_STATE_TOP)
 #define RNG_STATE_OFFSETX (CONTENT_WIDTH / 2)
-#define RNG_STATE_OFFSETY ((RNG_STATE_HEIGHT - FONT_MEDIUM_LINE_HEIGHT) / 2)
+#define RNG_STATE_OFFSETY ((RNG_STATE_HEIGHT - FONT_SMALL_LINE_HEIGHT) / 2)
 
 void drawRNG(const char *title, bool isLarge, const char *rngString, const char *infoString)
 {
@@ -40,7 +40,6 @@ void drawRNG(const char *title, bool isLarge, const char *rngString, const char 
                  &(mr_point_t){RNG_STRING_OFFSETX, RNG_STRING_OFFSETY});
 
         // State
-        setFont(font_medium);
         setStrokeColor(COLOR_ELEMENT_ACTIVE);
         drawCenteredText(infoString,
                          &(mr_rectangle_t){RNG_STATE_LEFT, RNG_STATE_TOP, RNG_STATE_WIDTH, RNG_STATE_HEIGHT},

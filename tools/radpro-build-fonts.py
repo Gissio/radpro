@@ -116,7 +116,6 @@ for language_file in Path('../platform.io/src/system/strings').glob('*.h'):
     language_text = open(language_file, 'rt', encoding='utf-8').readlines()
 
     font_medium_1bpp_matches = [
-        'STRING_ELLIPSIS',
         'STRING_NANO',
         'STRING_MICRO',
         'STRING_MILLI',

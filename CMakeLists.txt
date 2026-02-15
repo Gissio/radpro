@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(radpro)
 
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD 23)
 
 set(LANGUAGE "en")
 
@@ -19,7 +19,7 @@ add_definitions(-DSIMULATOR)
 
 add_definitions(-DSIMULATOR)
 add_definitions(-DFLASH_BASE_=0x0)
-add_definitions(-DFLASH_SIZE_=0x10000)
+add_definitions(-DFLASH_SIZE_=0x1400)
 add_definitions(-DFLASH_PAGE_SIZE=0x400)
 add_definitions(-DFLASH_WORD_SIZE=0x2)
 add_definitions(-DFIRMWARE_BASE=0)

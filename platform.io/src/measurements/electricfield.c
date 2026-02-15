@@ -49,9 +49,9 @@ static ElectricFieldTab electricFieldTab;
 
 void setupElectricField(void)
 {
-    resetElectricField();
-
     electricFieldTab = ELECTRIC_FIELD_TAB_MAX;
+
+    resetElectricField();
 }
 
 static void resetElectricField(void)

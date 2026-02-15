@@ -175,7 +175,7 @@ void getKeyboardState(bool *isKeyDown)
 
 extern mr_t mr;
 
-bool displayEnabled;
+static bool displayEnabled;
 
 static uint8_t displayFramebuffer[DISPLAY_WIDTH * DISPLAY_HEIGHT / 8];
 

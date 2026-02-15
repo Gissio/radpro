@@ -10,9 +10,12 @@
 #if !defined(SETTINGS_H)
 #define SETTINGS_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 // Settings
+
+#define SETTINGS_VERSION 3
 
 enum
 {
@@ -96,7 +99,8 @@ enum
     DOSE_UNITS_NUM,
 };
 
-enum {
+enum
+{
     SOURCE_CS137,
     SOURCE_CO60,
     SOURCE_TC99M,
@@ -468,16 +472,14 @@ typedef struct
     unsigned int dataMode : 1;
 
     unsigned int gameStrength : 3;
-} Settings
-#if defined(__GNUC__)
-    __attribute__((aligned(8)))
-#endif
-    ;
+} Settings;
 
 extern Settings settings;
 
 void initSettings(void);
 void setupSettings(void);
+
+bool isSettingsLoaded(void);
 
 void saveSettings(void);
 

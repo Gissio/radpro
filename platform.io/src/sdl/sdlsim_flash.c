@@ -43,6 +43,12 @@ void initFlash(void)
     memset(flashImage, 0xff, sizeof(flashImage));
 
     loadFlashImage();
+
+    // +++ TEST
+    // srand(0);
+    // for (uint32_t i = 0; i < sizeof(flashImage); i++)
+    //     flashImage[i] = rand() & 0xff;
+    // +++ TEST
 }
 
 bool verifyFlash(void)
