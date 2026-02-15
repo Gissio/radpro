@@ -179,8 +179,6 @@ void KNOB_IRQ_HANDLER(void)
 
     int8_t currABState = (gpio_get(KNOB_A_PORT, KNOB_A_PIN) << 1) | gpio_get(KNOB_B_PORT, KNOB_B_PIN);
     
-    if (currABState == keyboardKnob.prevABState) return;
-
     int8_t subStepsDelta = knobQuadratureLUT[(keyboardKnob.prevABState << 2) | currABState];
     keyboardKnob.prevABState = currABState;
 
@@ -376,3 +374,4 @@ void refreshDisplay(void)
 }
 
 #endif
+
