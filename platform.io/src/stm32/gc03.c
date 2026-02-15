@@ -372,4 +372,3 @@ void refreshDisplay(void)
 
 #endif
 
-
