@@ -19,8 +19,6 @@
 #include "../system/events.h"
 #include "../system/system.h"
 
-bool displayEnabled;
-
 // System
 
 void initSystem(void)
@@ -173,12 +171,9 @@ void KNOB_IRQ_HANDLER(void)
     exti_clear_pending_interrupt(KNOB_A_PIN);
     exti_clear_pending_interrupt(KNOB_B_PIN);
 
-    if (!displayEnabled) return;
-
     uint32_t now = currentTick;
 
     int8_t currABState = (gpio_get(KNOB_A_PORT, KNOB_A_PIN) << 1) | gpio_get(KNOB_B_PORT, KNOB_B_PIN);
-    
     int8_t subStepsDelta = knobQuadratureLUT[(keyboardKnob.prevABState << 2) | currABState];
     keyboardKnob.prevABState = currABState;
 
@@ -207,7 +202,7 @@ void getKeyboardState(bool *isKeyDown)
     bool keyUp = false;
     bool keyDown = false;
 
-    if (!keyboardKnob.keyPressed)
+    if (isDisplayAwake() && !keyboardKnob.keyPressed)
     {
         int32_t detentDelta = keyboardKnob.detentSteps - keyboardKnob.prevDetentSteps;
         if (detentDelta > 0)
@@ -236,6 +231,8 @@ void getKeyboardState(bool *isKeyDown)
 // Display
 
 extern mr_t mr;
+
+static bool displayEnabled;
 
 static uint8_t displayTextbuffer[88 * 88];
 
@@ -374,4 +371,5 @@ void refreshDisplay(void)
 }
 
 #endif
+
 
