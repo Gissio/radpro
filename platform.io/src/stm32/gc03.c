@@ -202,20 +202,22 @@ void getKeyboardState(bool *isKeyDown)
     bool keyUp = false;
     bool keyDown = false;
 
-    if (isDisplayAwake() && !keyboardKnob.keyPressed)
+    if (!keyboardKnob.keyPressed)
     {
         int32_t detentDelta = keyboardKnob.detentSteps - keyboardKnob.prevDetentSteps;
-        if (detentDelta > 0)
+        if (detentDelta)
         {
-            keyDown = true;
+            if (isDisplayAwake())
+            {
+                if (detentDelta > 0)
+                    keyDown = true:
+                else
+                    keyUp = true;
+    
+                keyboardKnob.keyPressed = true;
+            }
+
             keyboardKnob.prevDetentSteps = keyboardKnob.detentSteps;
-            keyboardKnob.keyPressed = true;
-        }
-        else if (detentDelta < 0)
-        {
-            keyUp = true;
-            keyboardKnob.prevDetentSteps = keyboardKnob.detentSteps;
-            keyboardKnob.keyPressed = true;
         }
     }
     else
@@ -371,3 +373,4 @@ void refreshDisplay(void)
 }
 
 #endif
+
