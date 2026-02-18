@@ -170,12 +170,17 @@ void KNOB_IRQ_HANDLER(void)
     exti_clear_pending_interrupt(KNOB_B_PIN);
 
     int8_t currABState = (gpio_get(KNOB_A_PORT, KNOB_A_PIN) << 1) | gpio_get(KNOB_B_PORT, KNOB_B_PIN);
+
+    if (currABState == keyboardKnob.prevABState) return;
+
     int8_t subStepsDelta = knobQuadratureLUT[(keyboardKnob.prevABState << 2) | currABState];
+
     keyboardKnob.prevABState = currABState;
 
-    keyboardKnob.subSteps += subStepsDelta;
-    if ((currABState == 0b00) || (currABState == 0b11))
+    if (subStepsDelta != 0)
     {
+        keyboardKnob.subSteps += subStepsDelta;
+
         if (keyboardKnob.subSteps >= 2)
         {
             keyboardKnob.detentSteps++;
@@ -197,17 +202,19 @@ void getKeyboardState(bool *isKeyDown)
     if (!keyboardKnob.keyPressed)
     {
         int32_t detentDelta = keyboardKnob.detentSteps - keyboardKnob.prevDetentSteps;
-        if (detentDelta > 0)
+        if (detentDelta != 0)
         {
-            keyDown = true;
-            keyboardKnob.prevDetentSteps++;
-            keyboardKnob.keyPressed = true;
-        }
-        else if (detentDelta < 0)
-        {
-            keyUp = true;
-            keyboardKnob.prevDetentSteps--;
-            keyboardKnob.keyPressed = true;
+            if (isDisplayAwake())
+            {
+                if (detentDelta > 0)
+                    keyDown = true;
+                else
+                    keyUp = true;
+
+                keyboardKnob.keyPressed = true;
+            }
+
+            keyboardKnob.prevDetentSteps = keyboardKnob.detentSteps;
         }
     }
     else
@@ -363,3 +370,4 @@ void refreshDisplay(void)
 }
 
 #endif
+
