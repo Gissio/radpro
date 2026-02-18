@@ -10,13 +10,10 @@
 #if !defined(GAME_H)
 #define GAME_H
 
-#include "../ui/view.h"
-
-extern View gameMenuView;
-
 void setupGame(void);
 
 void updateGame(void);
-void updateGame(void);
+
+void showGameMenu(void);
 
 #endif

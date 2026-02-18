@@ -40,7 +40,7 @@ static struct
 
     volatile uint32_t eventQueueHead;
     volatile uint32_t eventQueueTail;
-    volatile Event eventQueue[EVENT_QUEUE_SIZE];
+    volatile ViewEvent eventQueue[EVENT_QUEUE_SIZE];
 } keyboard;
 
 void initKeyboard(void)
@@ -84,7 +84,7 @@ void onKeyboardTick(void)
     bool isKeyPressed[KEY_NUM];
     getKeyboardState(isKeyPressed);
 
-    Event event = EVENT_NONE;
+    ViewEvent event = EVENT_NONE;
 
     for (int32_t i = 0; i < KEY_NUM; i++)
     {
@@ -103,7 +103,7 @@ void onKeyboardTick(void)
 #if defined(KEYBOARD_4_KEYS) || defined(KEYBOARD_5_KEYS)
                 if (keyboard.mode == KEYBOARD_MODE_MENU)
                     if ((i == KEY_UP) || (i == KEY_DOWN))
-                        event = i;
+                        event = EVENT_KEY_START + i;
 #endif
 
                 keyboard.pressedTicks = 0;
@@ -327,7 +327,7 @@ void onKeyboardTick(void)
                 {
                     uint32_t repeatTicks = (keyboard.pressedTicks - KEY_REPEAT_START) % KEY_REPEAT_PERIOD;
                     if (repeatTicks == 0)
-                        event = (Event)keyboard.pressedKey;
+                        event = EVENT_KEY_START + keyboard.pressedKey;
                 }
             }
 #if defined(KEYBOARD_4_KEYS)
@@ -371,12 +371,12 @@ void setKeyboardMode(KeyboardMode mode)
     keyboard.mode = mode;
 }
 
-Event getKeyboardEvent(void)
+ViewEvent getKeyboardEvent(void)
 {
     if (keyboard.eventQueueHead != keyboard.eventQueueTail)
     {
         // Dequeue event
-        Event event = keyboard.eventQueue[keyboard.eventQueueTail];
+        ViewEvent event = keyboard.eventQueue[keyboard.eventQueueTail];
         keyboard.eventQueueTail = (keyboard.eventQueueTail + 1) & EVENT_QUEUE_MASK;
 
         return event;

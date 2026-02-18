@@ -269,7 +269,7 @@
 
 // Power menu items
 #define STRING_BATTERY "Batterij"
-#define STRING_USB_AUTO_POWER_ON "USB auto inschakelen"
+#define STRING_USB_AUTOPOWER_ON "USB auto inschakelen"
 
 // Battery type menu items
 #define STRING_NI_MH "Ni-MH"

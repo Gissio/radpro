@@ -22,6 +22,7 @@
 #include "../peripherals/tube.h"
 #include "../peripherals/sound.h"
 #include "../peripherals/voice.h"
+#include "../system/cmath.h"
 #include "../system/events.h"
 #include "../system/power.h"
 #include "../system/settings.h"
@@ -55,27 +56,28 @@ static struct
     bool usbPoweredLast;
 } power;
 
-#if defined(BATTERY_REMOVABLE) || !defined(START_POWERED)
-static Menu powerMenu;
+static void onPowerOffViewEvent(ViewEvent event);
+
+#if defined(POWER_MENU)
+static const Menu powerMenu;
 #endif
-
 #if defined(BATTERY_REMOVABLE)
-static Menu powerBatteryTypeMenu;
-
-static void setPowerMenu(void);
+static const Menu powerBatteryTypeMenu;
 #endif
 
 static void setupPower(void)
 {
+#if defined(POWER_MENU)
+    selectMenuItem(&powerMenu, 0);
+#endif
 #if defined(BATTERY_REMOVABLE)
-    selectMenuItem(&powerMenu, 0, 0);
-    selectMenuItem(&powerBatteryTypeMenu, settings.powerBatteryType, BATTERYTYPE_NUM);
+    selectMenuItem(&powerBatteryTypeMenu, settings.powerBatteryType);
 #endif
 }
 
 // Power on
 
-static void onPowerOnViewEvent(Event event)
+static void onPowerOnViewEvent(ViewEvent event)
 {
     switch (event)
     {
@@ -87,7 +89,7 @@ static void onPowerOnViewEvent(Event event)
 
         break;
 
-    case EVENT_POST_DRAW:
+    case EVENT_POSTDRAW:
         if (power.onViewState == POWERON_VIEW_SPLASH)
         {
             initRTC();
@@ -113,18 +115,13 @@ static void onPowerOnViewEvent(Event event)
             if (settings.loggingMode != DATALOG_LOGGINGMODE_OFF)
                 startDatalog();
 
-            setMeasurementViewCurrent();
+            setMeasurementView();
         }
 
     default:
         break;
     }
 }
-
-View powerOnView = {
-    onPowerOnViewEvent,
-    NULL,
-};
 
 void powerOn(bool isBoot)
 {
@@ -137,7 +134,7 @@ void powerOn(bool isBoot)
 
         if (!powerKeyDown && !settings.powerUSBAutoPowerOn)
         {
-            setView(&powerOffView);
+            showView(onPowerOffViewEvent);
             powerOff(true);
 
             return;
@@ -157,7 +154,7 @@ void powerOn(bool isBoot)
     setupTube();
     setupDatalog();
     setupDisplay();
-#if defined(BUZZER) || defined(PULSESOUND_ENABLE) || defined(VOICE)
+#if defined(SOUND)
     setupSound();
 #endif
     setupRTC();
@@ -178,12 +175,12 @@ void powerOn(bool isBoot)
     requestBacklightTrigger();
     triggerVibration();
 
-    setView(&powerOnView);
+    showView(onPowerOnViewEvent);
 }
 
 // Power off
 
-static void onPowerOffViewEvent(Event event)
+static void onPowerOffViewEvent(ViewEvent event)
 {
     switch (event)
     {
@@ -216,11 +213,6 @@ static void onPowerOffViewEvent(Event event)
         break;
     }
 }
-
-View powerOffView = {
-    onPowerOffViewEvent,
-    NULL,
-};
 
 void powerOff(bool showBatteryIndicator)
 {
@@ -259,7 +251,7 @@ void powerOff(bool showBatteryIndicator)
         setPowerEnabled(false);
     }
 
-    setView(&powerOffView);
+    showView(onPowerOffViewEvent);
 }
 
 // Powered on
@@ -365,118 +357,132 @@ uint8_t getBatteryLevel(void)
 static cstring powerBatteryTypeMenuOptions[] = {
     STRING_NI_MH,
     STRING_ALKALINE,
-    NULL,
 };
 
-static const char *onPowerBatteryTypeMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+static const char *onPowerBatteryTypeMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.powerBatteryType);
 
     return getString(powerBatteryTypeMenuOptions[index]);
 }
 
-static void onPowerBatteryTypeMenuSelect(uint32_t index)
+static void onPowerBatteryTypeMenuSelect(menu_size_t index)
 {
     settings.powerBatteryType = index;
 }
 
 static MenuState powerBatteryTypeMenuState;
 
-static Menu powerBatteryTypeMenu = {
+static const Menu powerBatteryTypeMenu = {
     STRING_BATTERY,
     &powerBatteryTypeMenuState,
+    ARRAY_SIZE(powerBatteryTypeMenuOptions),
     onPowerBatteryTypeMenuGetOption,
     onPowerBatteryTypeMenuSelect,
-    setPowerMenu,
-};
-
-static View powerBatteryTypeMenuView = {
-    onMenuEvent,
-    &powerBatteryTypeMenu,
+    showPowerMenu,
 };
 
 #endif
 
 // Power menu
 
-#if defined(BATTERY_REMOVABLE) || !defined(START_POWERED)
+#if defined(POWER_MENU)
+
+enum
+{
+#if defined(BATTERY_REMOVABLE)
+    POWER_BATTERY,
+#endif
+#if defined(USB_AUTOPOWER_ON)
+    POWER_USB_AUTO_POWER_ON,
+#endif
+#if defined(DATA_MODE)
+    POWER_DATA_MODE,
+#endif
+};
 
 static cstring powerMenuOptions[] = {
 #if defined(BATTERY_REMOVABLE)
     STRING_BATTERY,
 #endif
-#if !defined(START_POWERED)
-    STRING_USB_AUTO_POWER_ON,
+#if defined(USB_AUTOPOWER_ON)
+    STRING_USB_AUTOPOWER_ON,
 #endif
-    NULL,
+#if defined(DATA_MODE)
+    STRING_DATAMODE,
+#endif
 };
 
-static const char *onPowerMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+static const char *onPowerMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
-#if defined(BATTERY_REMOVABLE) && !defined(START_POWERED)
     switch (index)
     {
-    case 0:
+#if defined(BATTERY_REMOVABLE)
+    case POWER_BATTERY:
         *menuStyle = MENUSTYLE_SUBMENU;
 
         break;
+#endif
 
-    case 1:
+#if defined(USB_AUTOPOWER_ON)
+    case POWER_USB_AUTO_POWER_ON:
         *menuStyle = settings.powerUSBAutoPowerOn;
 
         break;
-    }
-#elif defined(BATTERY_REMOVABLE)
-    *menuStyle = MENUSTYLE_SUBMENU;
-#elif !defined(START_POWERED)
-    *menuStyle = settings.powerUSBAutoPowerOn;
 #endif
+
+#if defined(DATA_MODE)
+    case POWER_DATA_MODE:
+        *menuStyle = settings.dataMode;
+
+        break;
+#endif
+    }
 
     return getString(powerMenuOptions[index]);
 }
 
-static void onPowerMenuSelect(uint32_t index)
+static void onPowerMenuSelect(menu_size_t index)
 {
-#if defined(BATTERY_REMOVABLE) && !defined(START_POWERED)
     switch (index)
     {
-    case 0:
-        setView(&powerBatteryTypeMenuView);
+#if defined(BATTERY_REMOVABLE)
+    case POWER_BATTERY:
+        showMenu(&powerBatteryTypeMenu);
 
         break;
+#endif
 
-    case 1:
+#if defined(USB_AUTOPOWER_ON)
+    case POWER_USB_AUTO_POWER_ON:
         settings.powerUSBAutoPowerOn = !settings.powerUSBAutoPowerOn;
 
         break;
-    }
-#elif defined(BATTERY_REMOVABLE)
-    setView(&powerBatteryTypeMenuView);
-#elif !defined(START_POWERED)
-    settings.powerUSBAutoPowerOn = !settings.powerUSBAutoPowerOn;
 #endif
+
+#if defined(DATA_MODE)
+    case POWER_DATA_MODE:
+        settings.dataMode = !settings.dataMode;
+
+        break;
+#endif
+    }
 }
 
 static MenuState powerMenuState;
 
-static Menu powerMenu = {
+static const Menu powerMenu = {
     STRING_POWER,
     &powerMenuState,
+    ARRAY_SIZE(powerMenuOptions),
     onPowerMenuGetOption,
     onPowerMenuSelect,
-    setSettingsMenu,
+    showSettingsMenu,
 };
 
-View powerMenuView = {
-    onMenuEvent,
-    &powerMenu,
-};
-
-#if defined(BATTERY_REMOVABLE)
-static void setPowerMenu(void)
+void showPowerMenu(void)
 {
-    setView(&powerMenuView);
+    showMenu(&powerMenu);
 }
-#endif
 
 #endif

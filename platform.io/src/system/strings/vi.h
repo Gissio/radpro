@@ -269,7 +269,7 @@
 
 // Power menu items
 #define STRING_BATTERY "Pin"
-#define STRING_USB_AUTO_POWER_ON "USB tự động bật"
+#define STRING_USB_AUTOPOWER_ON "USB tự động bật"
 
 // Battery type menu items
 #define STRING_NI_MH "Ni-MH"

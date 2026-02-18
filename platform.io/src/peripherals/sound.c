@@ -13,12 +13,13 @@
 #include "../peripherals/pulsesoundenable.h"
 #include "../peripherals/sound.h"
 #include "../peripherals/voice.h"
+#include "../system/cmath.h"
 #include "../system/events.h"
 #include "../system/settings.h"
 #include "../ui/menu.h"
 
-static Menu soundMenu;
-static Menu soundAlertStyleMenu;
+static const Menu soundMenu;
+static const Menu soundAlertStyleMenu;
 
 void initSound(void)
 {
@@ -36,11 +37,11 @@ void initSound(void)
 
 void setupSound(void)
 {
-    selectMenuItem(&soundMenu, 0, 0);
+    selectMenuItem(&soundMenu, 0);
 #if defined(BUZZER)
     setupBuzzer();
 #endif
-    selectMenuItem(&soundAlertStyleMenu, settings.soundAlertStyle, SOUND_ALERTSTYLE_NUM);
+    selectMenuItem(&soundAlertStyleMenu, settings.soundAlertStyle);
 #if defined(VOICE)
     setupVoice();
 #endif
@@ -53,17 +54,16 @@ void setupSound(void)
 static cstring soundAlertStyleMenuOptions[] = {
     STRING_SHORT,
     STRING_LONG,
-    NULL,
 };
 
-static const char *onSoundAlertStyleMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+static const char *onSoundAlertStyleMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.soundAlertStyle);
 
     return getString(soundAlertStyleMenuOptions[index]);
 }
 
-static void onSoundAlertStyleMenuSelect(uint32_t index)
+static void onSoundAlertStyleMenuSelect(menu_size_t index)
 {
     settings.soundAlertStyle = index;
 
@@ -72,65 +72,56 @@ static void onSoundAlertStyleMenuSelect(uint32_t index)
 
 static MenuState soundAlertStyleMenuState;
 
-static Menu soundAlertStyleMenu = {
+static const Menu soundAlertStyleMenu = {
     STRING_ALERTSTYLE,
     &soundAlertStyleMenuState,
+    ARRAY_SIZE(soundAlertStyleMenuOptions),
     onSoundAlertStyleMenuGetOption,
     onSoundAlertStyleMenuSelect,
-    setSoundMenu,
-};
-
-static View soundAlertStyleMenuView = {
-    onMenuEvent,
-    &soundAlertStyleMenu,
+    showSoundMenu,
 };
 
 #endif
 
 // Sound menu
 
-static MenuOption soundMenuOptions[] = {
+static const MenuOption soundMenuOptions[] = {
 #if defined(BUZZER)
-    {STRING_PULSES, &soundPulsesMenuView},
+    {STRING_PULSES, &soundPulsesMenu},
 #endif
-    {STRING_ALERTSTYLE, &soundAlertStyleMenuView},
+    {STRING_ALERTSTYLE, &soundAlertStyleMenu},
 #if defined(VOICE)
-    {STRING_ALERTVOLUME, &soundAlertVolumeMenuView},
-    {STRING_VOICEVOLUME, &soundVoiceVolumeMenuView},
+    {STRING_ALERTVOLUME, &soundAlertVolumeMenu},
+    {STRING_VOICEVOLUME, &soundVoiceVolumeMenu},
 #endif
-    {NULL},
 };
 
-static const char *onSoundMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+static const char *onSoundMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     *menuStyle = MENUSTYLE_SUBMENU;
 
     return getString(soundMenuOptions[index].title);
 }
 
-static void onSoundMenuSelect(uint32_t index)
+static void onSoundMenuSelect(menu_size_t index)
 {
-    setView(soundMenuOptions[index].view);
+    showMenu(soundMenuOptions[index].menu);
 }
 
 static MenuState soundMenuState;
 
-static Menu soundMenu = {
+static const Menu soundMenu = {
     STRING_SOUND,
     &soundMenuState,
+    ARRAY_SIZE(soundMenuOptions),
     onSoundMenuGetOption,
     onSoundMenuSelect,
-    setSettingsMenu,
+    showSettingsMenu,
 };
 
-View soundMenuView = {
-    onMenuEvent,
-    &soundMenu,
-};
-
-void setSoundMenu(void)
+void showSoundMenu(void)
 {
-    setView(&soundMenuView);
+    showMenu(&soundMenu);
 }
 
 #endif

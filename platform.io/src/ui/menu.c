@@ -16,28 +16,51 @@
 
 #define MENU_LINE_NUM (CONTENT_HEIGHT / MENU_LINE_HEIGHT)
 
-char menuOption[MENU_OPTION_SIZE];
+char menuOption[MENU_OPTION_STRING_SIZE];
 
-void drawMenu(Menu *menu)
+static const Menu *currentMenu;
+
+void selectMenuItem(const Menu *menu, menu_size_t index)
 {
-    drawTitleBar(menu->title);
+    MenuState *menuState = menu->state;
 
-    uint32_t startIndex = menu->state->startIndex;
-    uint32_t selectedIndex = menu->state->selectedIndex;
+    menuState->selectedIndex = index;
+
+    if (index < MENU_LINE_NUM)
+        menuState->startIndex = 0;
+    else
+    {
+        menu_size_t firstVisibleIndex = (menu->itemCount - MENU_LINE_NUM);
+
+        if (index < firstVisibleIndex)
+            menuState->startIndex = index;
+        else
+            menuState->startIndex = firstVisibleIndex;
+    }
+}
+
+void drawMenu()
+{
+    drawTitleBar(currentMenu->title);
+
+    MenuState *menuState = currentMenu->state;
+
+    menu_size_t startIndex = menuState->startIndex;
+    menu_size_t selectedIndex = menuState->selectedIndex;
 
     mr_rectangle_t rectangle;
     rectangle.height = MENU_LINE_HEIGHT;
     rectangle.y = CONTENT_TOP;
 
-    for (uint32_t i = 0; i < MENU_LINE_NUM; i++)
+    for (menu_size_t i = 0; i < MENU_LINE_NUM; i++)
     {
-        uint32_t index = startIndex + i;
+        menu_size_t index = startIndex + i;
+
+        if (index >= currentMenu->itemCount)
+            break;
 
         MenuStyle menuStyle;
-        const char *menuItem = menu->onGetOption(index, &menuStyle);
-
-        if (!menuItem)
-            break;
+        const char *menuItem = currentMenu->onGetOption(index, &menuStyle);
 
         rectangle.x = CONTENT_WIDTH;
         setFont(font_symbols);
@@ -77,77 +100,61 @@ void drawMenu(Menu *menu)
     drawRectangle(&rectangle);
 }
 
-void selectMenuItem(Menu *menu, uint32_t index, uint32_t optionsNum)
+static void onMenuViewEvent(ViewEvent event)
 {
-    menu->state->selectedIndex = index;
-    if (index < MENU_LINE_NUM)
-        menu->state->startIndex = 0;
-    else if (index < (uint32_t)(optionsNum - MENU_LINE_NUM))
-        menu->state->startIndex = index;
-    else
-        menu->state->startIndex = optionsNum - MENU_LINE_NUM;
-}
-
-void onMenuEvent(Event event)
-{
-    Menu *menu = (Menu *)getView()->userdata;
-    MenuState *menuState = menu->state;
-    MenuStyle menuStyle;
+    MenuState *menuState = currentMenu->state;
 
     switch (event)
     {
     case EVENT_KEY_BACK:
-        if (menu->onBack)
-            menu->onBack();
+        if (currentMenu->onBack)
+            currentMenu->onBack();
 
         break;
 
     case EVENT_KEY_SELECT:
-        if (menu->onSelect)
-            menu->onSelect(menu->state->selectedIndex);
+        if (currentMenu->onSelect)
+            currentMenu->onSelect(menuState->selectedIndex);
 
         requestViewUpdate();
 
         break;
 
     case EVENT_KEY_UP:
-    case EVENT_KEY_DOWN:
-        if (event == EVENT_KEY_UP)
+        if (menuState->selectedIndex > 0)
         {
-            if (menuState->selectedIndex > 0)
-            {
-                menuState->selectedIndex--;
+            menuState->selectedIndex--;
 
-                if (menuState->selectedIndex < menuState->startIndex)
-                    menuState->startIndex--;
-            }
-            else
-            {
-                uint32_t index = 0;
-                while (menu->onGetOption(index, &menuStyle))
-                    index++;
-
-                menuState->selectedIndex = index - 1;
-                if (index > MENU_LINE_NUM)
-                    menuState->startIndex = index - MENU_LINE_NUM;
-                else
-                    menuState->startIndex = 0;
-            }
+            if (menuState->selectedIndex < menuState->startIndex)
+                menuState->startIndex--;
         }
-        else if (event == EVENT_KEY_DOWN)
+        else
         {
-            if (menu->onGetOption(menuState->selectedIndex + 1, &menuStyle))
-            {
-                menuState->selectedIndex++;
+            menu_size_t index = currentMenu->itemCount;
 
-                if (menuState->selectedIndex > (menuState->startIndex + MENU_LINE_NUM - 1))
-                    menuState->startIndex++;
-            }
+            menuState->selectedIndex = index - 1;
+            if (index > MENU_LINE_NUM)
+                menuState->startIndex = index - MENU_LINE_NUM;
             else
-            {
-                menuState->selectedIndex = 0;
                 menuState->startIndex = 0;
-            }
+        }
+
+        requestViewUpdate();
+
+        break;
+
+    case EVENT_KEY_DOWN:
+        if (menuState->selectedIndex < (currentMenu->itemCount - 1))
+        {
+            menuState->selectedIndex++;
+
+            if (menuState->selectedIndex > (menuState->startIndex + (MENU_LINE_NUM - 1)))
+                menuState->startIndex++;
+        }
+        else
+        {
+            menuState->selectedIndex = 0;
+            menuState->startIndex = 0;
         }
 
         requestViewUpdate();
@@ -156,7 +163,7 @@ void onMenuEvent(Event event)
 
     case EVENT_DRAW:
     {
-        drawMenu(menu);
+        drawMenu();
 
         break;
     }
@@ -164,4 +171,11 @@ void onMenuEvent(Event event)
     default:
         break;
     }
+}
+
+void showMenu(const Menu *menu)
+{
+    currentMenu = menu;
+
+    showView(onMenuViewEvent);
 }

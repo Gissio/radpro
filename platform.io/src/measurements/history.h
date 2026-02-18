@@ -12,8 +12,6 @@
 
 #include "../ui/view.h"
 
-extern View historyView;
-
 void setupHistory(void);
 
 void resetHistory(void);
@@ -21,5 +19,7 @@ void resetHistory(void);
 void loadHistory(void);
 
 void updateHistory(void);
+
+void onHistoryViewEvent(ViewEvent event);
 
 #endif

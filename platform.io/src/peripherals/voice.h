@@ -12,10 +12,10 @@
 
 #include <stdint.h>
 
-#include "../ui/view.h"
+#include "../ui/menu.h"
 
-extern View soundAlertVolumeMenuView;
-extern View soundVoiceVolumeMenuView;
+extern const Menu soundAlertVolumeMenu;
+extern const Menu soundVoiceVolumeMenu;
 
 void initVoice(void);
 

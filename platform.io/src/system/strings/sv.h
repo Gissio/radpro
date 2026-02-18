@@ -269,7 +269,7 @@
 
 // Power menu items
 #define STRING_BATTERY "Batteri"
-#define STRING_USB_AUTO_POWER_ON "USB automatisk påslagning"
+#define STRING_USB_AUTOPOWER_ON "USB automatisk påslagning"
 
 // Battery type menu items
 #define STRING_NI_MH "Ni-MH"

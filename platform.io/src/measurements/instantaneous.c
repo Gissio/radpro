@@ -10,6 +10,7 @@
 #include "../measurements/instantaneous.h"
 #include "../peripherals/tube.h"
 #include "../peripherals/voice.h"
+#include "../system/cmath.h"
 #include "../system/events.h"
 #include "../system/settings.h"
 #include "../ui/measurements.h"
@@ -18,6 +19,8 @@
 
 #define INSTANTANEOUS_RATE_PERIODS_NUM 60
 #define INSTANTANEOUS_RATE_PULSE_COUNT_MIN 19 // For 50% confidence interval
+
+#define INSTANTANEOUS_RATE_CONFIDENCE_THRESHOLD 0.75F
 
 typedef enum
 {
@@ -30,8 +33,6 @@ typedef enum
 
     INSTANTANEOUS_TAB_ALERT = INSTANTANEOUS_TAB_NUM,
 } InstantaneousTab;
-
-static Menu instantaneousMenu;
 
 static void resetInstantaneousRate(void);
 
@@ -59,7 +60,7 @@ void setupInstantaneousRate(void)
 
     resetInstantaneousRate();
 
-    selectMenuItem(&instantaneousMenu, settings.instantaneousAveraging, INSTANTANEOUSAVERAGING_NUM);
+    selectMenuItem(&instantaneousMenu, settings.instantaneousAveraging);
 }
 
 static void resetInstantaneousRate(void)
@@ -68,6 +69,62 @@ static void resetInstantaneousRate(void)
 
     if (instantaneousTab == INSTANTANEOUS_TAB_ALERT)
         instantaneousTab = INSTANTANEOUS_TAB_BAR;
+}
+
+static bool isTimedAveraging(void)
+{
+    return (settings.instantaneousAveraging >= INSTANTANEOUSAVERAGING_60_SECONDS);
+}
+
+static void applyDeadTimeCompensation(void)
+{
+    if (!settings.tubeDeadTimeCompensation)
+    {
+        instantaneous.compensationFactor = 1.0F;
+
+        return;
+    }
+
+    float tau = getTubeDeadTimeCompensation();
+    float denominator = 1.0F - instantaneous.rate.value * tau;
+
+    if (denominator < 0.1F)
+        denominator = 0.1F;
+
+    instantaneous.compensationFactor = 1.0F / denominator;
+    instantaneous.rate.value *= instantaneous.compensationFactor;
+}
+
+static void updateInstantaneousRateAlerts(void)
+{
+    AlertLevel alertLevel = ALERTLEVEL_NONE;
+    float rateSievertsPerHour = pulseUnits[DOSE_UNITS_SIEVERTS].rate.scale * instantaneous.rate.value;
+
+    if (isInstantaneousRateConfidenceGood())
+    {
+        if (settings.rateAlarm && (rateSievertsPerHour >= rateAlerts[settings.rateAlarm]))
+            alertLevel = ALERTLEVEL_ALARM;
+        else if (settings.rateWarning && (rateSievertsPerHour >= rateAlerts[settings.rateWarning]))
+            alertLevel = ALERTLEVEL_WARNING;
+    }
+
+    bool previousAlertLevel = instantaneous.alertLevel;
+    instantaneous.alertLevel = alertLevel;
+
+    bool alertTriggered = (alertLevel > previousAlertLevel);
+    if (alertTriggered)
+        setAlertPending(true);
+}
+
+static void updateInstantaneousRateTab(void)
+{
+    if (isTubeFaultAlertTriggered())
+        instantaneousTab = INSTANTANEOUS_TAB_ALERT;
+    else if (instantaneousTab == INSTANTANEOUS_TAB_ALERT)
+    {
+        if (!getTubeFaultAlertLevel())
+            instantaneousTab = INSTANTANEOUS_TAB_BAR;
+    }
 }
 
 void updateInstantaneousRate(uint32_t periodTick, PulsePeriod *period)
@@ -95,7 +152,9 @@ void updateInstantaneousRate(uint32_t periodTick, PulsePeriod *period)
     {
         uint32_t time = ((periodTick - instantaneous.periods[i].firstTick) / SYSTICK_FREQUENCY) + 1;
 
-        if ((time > minTime) && (averagingPeriod.pulseCount > minPulseCount))
+        bool timeSatisfied = (time > minTime);
+        bool pulseSatisfied = (averagingPeriod.pulseCount > minPulseCount);
+        if (timeSatisfied && pulseSatisfied)
             break;
 
         averagingPeriod.firstTick = instantaneous.periods[i].firstTick;
@@ -108,51 +167,18 @@ void updateInstantaneousRate(uint32_t periodTick, PulsePeriod *period)
 
     calculateRate(&instantaneous.rate, &averagingPeriod);
 
-    // Dead-time compensation
-    if (!settings.tubeDeadTimeCompensation)
-        instantaneous.compensationFactor = 1.0F;
-    else
-    {
-        float denominator = 1 - instantaneous.rate.value * getTubeDeadTimeCompensation();
-        if (denominator < 0.1F)
-            denominator = 0.1F;
-        instantaneous.compensationFactor = 1.0F / denominator;
+    applyDeadTimeCompensation();
 
-        instantaneous.rate.value *= instantaneous.compensationFactor;
-    }
-
-    // Pulse threshold
     updatePulseThresholdExceeded();
 
     // Max value
-    bool confidenceGood = isInstantaneousRateConfidenceGood();
-    if (confidenceGood && (instantaneous.rate.value > instantaneous.maxValue))
+    if (isInstantaneousRateConfidenceGood() &&
+        (instantaneous.rate.value > instantaneous.maxValue))
         instantaneous.maxValue = instantaneous.rate.value;
 
-    // Alerts
-    AlertLevel alertLevel = ALERTLEVEL_NONE;
-    float rateSvH = pulseUnits[DOSE_UNITS_SIEVERTS].rate.scale * instantaneous.rate.value;
-    if (confidenceGood)
-    {
-        if (settings.rateAlarm && (rateSvH >= rateAlerts[settings.rateAlarm]))
-            alertLevel = ALERTLEVEL_ALARM;
-        else if (settings.rateWarning && (rateSvH >= rateAlerts[settings.rateWarning]))
-            alertLevel = ALERTLEVEL_WARNING;
-    }
-    bool alertTriggered = (alertLevel > instantaneous.alertLevel);
-    instantaneous.alertLevel = alertLevel;
+    updateInstantaneousRateAlerts();
 
-    if (alertTriggered)
-        setAlertPending(true);
-
-    // Alert view
-    if (isTubeFaultAlertTriggered())
-        instantaneousTab = INSTANTANEOUS_TAB_ALERT;
-    else if (instantaneousTab == INSTANTANEOUS_TAB_ALERT)
-    {
-        if (!getTubeFaultAlertLevel())
-            instantaneousTab = INSTANTANEOUS_TAB_BAR;
-    }
+    updateInstantaneousRateTab();
 }
 
 float getInstantaneousRate(void)
@@ -167,9 +193,8 @@ float getDeadTimeCompensationFactor(void)
 
 bool isInstantaneousRateConfidenceGood(void)
 {
-    return (settings.instantaneousAveraging >= INSTANTANEOUSAVERAGING_60_SECONDS) ||
-           ((instantaneous.rate.confidence > 0.0F) &&
-            (instantaneous.rate.confidence < 0.75F));
+    return isTimedAveraging() ||
+           ((instantaneous.rate.confidence > 0.0F) && (instantaneous.rate.confidence < INSTANTANEOUS_RATE_CONFIDENCE_THRESHOLD));
 }
 
 AlertLevel getInstantaneousRateAlertLevel(void)
@@ -179,23 +204,100 @@ AlertLevel getInstantaneousRateAlertLevel(void)
 
 // Instantaneous rate view
 
-static void onInstantaneousRateViewEvent(Event event)
+static void advanceInstantaneousRateTab(void)
+{
+    uint32_t tabNum = getTubeFaultAlertLevel() ? (INSTANTANEOUS_TAB_NUM + 1) : INSTANTANEOUS_TAB_NUM;
+
+    instantaneousTab++;
+    if (instantaneousTab >= tabNum)
+        instantaneousTab = INSTANTANEOUS_TAB_BAR;
+}
+
+static MeasurementStyle getInstantaneousRateMeasurementStyle(void)
+{
+    if (instantaneous.alertLevel == ALERTLEVEL_ALARM)
+        return MEASUREMENTSTYLE_ALARM;
+    else if (instantaneous.alertLevel == ALERTLEVEL_WARNING)
+        return MEASUREMENTSTYLE_WARNING;
+    else
+        return MEASUREMENTSTYLE_NORMAL;
+}
+
+static void drawInstantaneousRateValue(void)
+{
+    char valueString[32] = "";
+    char unitString[32] = "";
+    buildValueString(valueString, unitString, instantaneous.rate.value, &pulseUnits[settings.doseUnits].rate, doseUnitsMinMetricPrefix[settings.doseUnits]);
+
+    drawTitleBar(getString(STRING_INSTANTANEOUS));
+    drawMeasurementValue(valueString, unitString, instantaneous.rate.confidence, getInstantaneousRateMeasurementStyle());
+}
+
+static void drawInstantaneousRateTab(void)
+{
+    char valueString[32] = "";
+    char unitString[32] = " ";
+    const char *keyString = NULL;
+
+    switch (instantaneousTab)
+    {
+    case INSTANTANEOUS_TAB_MAX:
+        buildValueString(valueString, unitString, instantaneous.maxValue, &pulseUnits[settings.doseUnits].rate, doseUnitsMinMetricPrefix[settings.doseUnits]);
+
+        keyString = getString(STRING_MAX);
+
+        break;
+
+    case INSTANTANEOUS_TAB_RATE:
+        buildValueString(valueString, unitString, instantaneous.rate.value, &pulseUnits[settings.secondaryDoseUnits].rate, doseUnitsMinMetricPrefix[settings.secondaryDoseUnits]);
+
+        keyString = getString(STRING_RATE);
+
+        break;
+
+    case INSTANTANEOUS_TAB_CUMULATIVE:
+        buildValueString(valueString, unitString, getCumulativeDosePulseCount(), &pulseUnits[settings.doseUnits].dose, doseUnitsMinMetricPrefix[settings.doseUnits]);
+
+        keyString = getString(STRING_CUMULATIVE);
+
+        break;
+
+    default:
+        break;
+    }
+
+    drawMeasurementInfo(keyString, valueString, unitString, getInstantaneousRateMeasurementStyle());
+}
+
+static void drawInstantaneousRateView(void)
+{
+    drawInstantaneousRateValue();
+
+    if (instantaneousTab == INSTANTANEOUS_TAB_BAR)
+    {
+        float scale = pulseUnits[settings.doseUnits].rate.scale;
+        float microSievertPerHourScale = scale / pulseUnits[DOSE_UNITS_SIEVERTS].rate.scale;
+
+        drawMeasurementBar(instantaneous.rate.value * scale,
+                           doseUnitsBarMinExponent[settings.doseUnits],
+                           rateAlerts[settings.rateWarning] * microSievertPerHourScale,
+                           rateAlerts[settings.rateAlarm] * microSievertPerHourScale);
+    }
+    else if (instantaneousTab != INSTANTANEOUS_TAB_ALERT)
+        drawInstantaneousRateTab();
+    else
+        drawMeasurementAlert(getString(STRING_ALERT_FAULT));
+}
+
+void onInstantaneousRateViewEvent(ViewEvent event)
 {
     if (onMeasurementViewEvent(event))
         return;
 
-    const char *alertString;
-    if (getTubeFaultAlertLevel())
-        alertString = getString(STRING_ALERT_FAULT);
-    else
-        alertString = NULL;
-
     switch (event)
     {
     case EVENT_KEY_BACK:
-        instantaneousTab++;
-        if (instantaneousTab >= (alertString ? (INSTANTANEOUS_TAB_NUM + 1) : INSTANTANEOUS_TAB_NUM))
-            instantaneousTab = INSTANTANEOUS_TAB_BAR;
+        advanceInstantaneousRateTab();
 
         requestViewUpdate();
 
@@ -218,81 +320,14 @@ static void onInstantaneousRateViewEvent(Event event)
 #endif
 
     case EVENT_DRAW:
-    {
-        char valueString[32];
-        char unitString[32];
-        MeasurementStyle style;
-
-        strclr(valueString);
-        strclr(unitString);
-        buildValueString(valueString, unitString, instantaneous.rate.value, &pulseUnits[settings.doseUnits].rate, doseUnitsMinMetricPrefix[settings.doseUnits]);
-
-        if (instantaneous.alertLevel == ALERTLEVEL_ALARM)
-            style = MEASUREMENTSTYLE_ALARM;
-        else if (instantaneous.alertLevel == ALERTLEVEL_WARNING)
-            style = MEASUREMENTSTYLE_WARNING;
-        else
-            style = MEASUREMENTSTYLE_NORMAL;
-
-        drawTitleBar(getString(STRING_INSTANTANEOUS));
-        drawMeasurementValue(valueString, unitString, instantaneous.rate.confidence, style);
-
-        if (instantaneousTab == INSTANTANEOUS_TAB_ALERT)
-            drawMeasurementAlert(getString(STRING_ALERT_FAULT));
-        else if (instantaneousTab != INSTANTANEOUS_TAB_BAR)
-        {
-            const char *keyString = NULL;
-            strclr(valueString);
-            strcpy(unitString, " ");
-
-            switch (instantaneousTab)
-            {
-            case INSTANTANEOUS_TAB_MAX:
-                buildValueString(valueString, unitString, instantaneous.maxValue, &pulseUnits[settings.doseUnits].rate, doseUnitsMinMetricPrefix[settings.doseUnits]);
-
-                keyString = getString(STRING_MAX);
-
-                break;
-
-            case INSTANTANEOUS_TAB_RATE:
-                buildValueString(valueString, unitString, instantaneous.rate.value, &pulseUnits[settings.secondaryDoseUnits].rate, doseUnitsMinMetricPrefix[settings.secondaryDoseUnits]);
-
-                keyString = getString(STRING_RATE);
-
-                break;
-
-            case INSTANTANEOUS_TAB_CUMULATIVE:
-                buildValueString(valueString, unitString, getCumulativeDosePulseCount(), &pulseUnits[settings.doseUnits].dose, doseUnitsMinMetricPrefix[settings.doseUnits]);
-
-                keyString = getString(STRING_CUMULATIVE);
-
-                break;
-
-            default:
-                break;
-            }
-
-            drawMeasurementInfo(keyString, valueString, unitString, style);
-        }
-        else
-        {
-            float scale = pulseUnits[settings.doseUnits].rate.scale;
-            float uSvHScale = scale / pulseUnits[DOSE_UNITS_SIEVERTS].rate.scale;
-            drawMeasurementBar(instantaneous.rate.value * scale, doseUnitsBarMinExponent[settings.doseUnits], rateAlerts[settings.rateWarning] * uSvHScale, rateAlerts[settings.rateAlarm] * uSvHScale);
-        }
+        drawInstantaneousRateView();
 
         break;
-    }
 
     default:
         break;
     }
 }
-
-View instantaneousRateView = {
-    onInstantaneousRateViewEvent,
-    NULL,
-};
 
 // Instantaneous menu
 
@@ -302,32 +337,27 @@ static cstring instantaneousMenuOptions[] = {
     STRING_1_MINUTE,
     STRING_30_SECONDS,
     STRING_10_SECONDS,
-    NULL,
 };
 
-static const char *onInstantaneousMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+static const char *onInstantaneousMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.instantaneousAveraging);
 
     return getString(instantaneousMenuOptions[index]);
 }
 
-static void onInstantaneousMenuSelect(uint32_t index)
+static void onInstantaneousMenuSelect(menu_size_t index)
 {
     settings.instantaneousAveraging = index;
 }
 
 static MenuState instantaneousMenuState;
 
-static Menu instantaneousMenu = {
+const Menu instantaneousMenu = {
     STRING_INSTANTANEOUS,
     &instantaneousMenuState,
+    ARRAY_SIZE(instantaneousMenuOptions),
     onInstantaneousMenuGetOption,
     onInstantaneousMenuSelect,
-    setMeasurementsMenu,
-};
-
-View instantaneousMenuView = {
-    onMenuEvent,
-    &instantaneousMenu,
+    showMeasurementsMenu,
 };

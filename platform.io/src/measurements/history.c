@@ -33,7 +33,7 @@ typedef enum
     HISTORY_TAB_NUM,
 } HistoryTab;
 
-typedef const struct
+typedef struct
 {
     cstring name;
     uint32_t binInterval;
@@ -50,7 +50,7 @@ typedef struct
     uint8_t logValues[HISTORY_BIN_NUM];
 } HistoryState;
 
-static History histories[] = {
+static const History histories[] = {
     {STRING_HISTORY_10_MINUTES, 10 * 60 / (HISTORY_BIN_NUM - 1), 10},
     {STRING_HISTORY_1_HOUR, 60 * 60 / (HISTORY_BIN_NUM - 1), 6},
     {STRING_HISTORY_1_DAY, 24 * 60 * 60 / (HISTORY_BIN_NUM - 1), 8},
@@ -61,7 +61,7 @@ static History histories[] = {
 
 static HistoryState historyStates[HISTORY_TAB_NUM];
 
-HistoryTab historyTab;
+static HistoryTab historyTab;
 
 void setupHistory(void)
 {
@@ -88,14 +88,13 @@ uint8_t getHistoryLogValue(float value)
 {
     if (value < HISTORY_VALUE_MIN)
         return 0;
-    else {
-        uint32_t logValue = (int32_t)(HISTORY_DECADE * log10f(value / HISTORY_VALUE_MIN));
 
-        if (logValue > UCHAR_MAX)
-            logValue = UCHAR_MAX;
+    uint32_t logValue = (int32_t)(HISTORY_DECADE * log10f(value / HISTORY_VALUE_MIN));
 
-        return logValue;
-    }
+    if (logValue > UCHAR_MAX)
+        logValue = UCHAR_MAX;
+
+    return logValue;
 }
 
 static void updateLoadHistory(LoadHistoryState *state, uint8_t *logValues)
@@ -150,6 +149,9 @@ void loadHistory(void)
                 {
                     for (uint32_t historyIndex = 0; historyIndex < HISTORY_TAB_NUM; historyIndex++)
                     {
+                        const History *history = &histories[historyIndex];
+                        HistoryState *historyState = &historyStates[historyIndex];
+
                         uint32_t historyStart = historiesStart[historyIndex];
                         LoadHistoryState *state = &states[historyIndex];
 
@@ -168,10 +170,12 @@ void loadHistory(void)
                                 state->cumulativeTime += intervalTime;
                                 state->cumulativePulseCountInt += intervalPulseCount;
                             }
-                            else
+                            else if (intervalTime > 0)
                             {
-                                uint32_t binInterval = histories[historyIndex].binInterval;
-                                uint8_t *logValues = historyStates[historyIndex].logValues;
+                                float intervalRate = (float)intervalPulseCount / (float)intervalTime;
+
+                                uint32_t binInterval = history->binInterval;
+                                uint8_t *logValues = historyState->logValues;
 
                                 uint32_t binIndexStart = (recordStart - historyStart) / binInterval;
                                 uint32_t binIndexEnd = (recordEnd - 1 - historyStart) / binInterval + 1;
@@ -186,7 +190,7 @@ void loadHistory(void)
                                     uint32_t overlapEnd = (binEnd < recordEnd) ? binEnd : recordEnd;
 
                                     uint32_t overlapTime = overlapEnd - overlapStart;
-                                    float overlapPulseCount = (float)intervalPulseCount * (float)overlapTime / (float)intervalTime;
+                                    float overlapPulseCount = intervalRate * (float)overlapTime;
 
                                     if (binIndex != state->binIndex)
                                     {
@@ -231,7 +235,7 @@ void updateHistory(void)
 {
     for (uint32_t historyIndex = 0; historyIndex < HISTORY_TAB_NUM; historyIndex++)
     {
-        History *history = &histories[historyIndex];
+        const History *history = &histories[historyIndex];
         HistoryState *historyState = &historyStates[historyIndex];
 
         if (isInstantaneousRateConfidenceGood() && (getInstantaneousRate() >= 0))
@@ -258,7 +262,29 @@ void updateHistory(void)
 
 // History view
 
-static void onHistoryViewEvent(Event event)
+static void advanceHistoryTab(void)
+{
+    historyTab++;
+    if (historyTab >= HISTORY_TAB_NUM)
+        historyTab = HISTORY_TAB_10_MINUTES;
+}
+
+static void drawHistoryView(void)
+{
+    const HistoryState *historyState = &historyStates[historyTab];
+    const Unit *rateUnit = &pulseUnits[settings.doseUnits].rate;
+
+    drawTitleBar(getString(STRING_HISTORY));
+    drawHistory(rateUnit->scale,
+                rateUnit->name,
+                histories[historyTab].timeTicksNum,
+                histories[historyTab].name,
+                historyState->logValues,
+                getHistoryLogValue(rateAlerts[settings.rateWarning] / pulseUnits[DOSE_UNITS_SIEVERTS].rate.scale),
+                getHistoryLogValue(rateAlerts[settings.rateAlarm] / pulseUnits[DOSE_UNITS_SIEVERTS].rate.scale));
+}
+
+void onHistoryViewEvent(ViewEvent event)
 {
     if (onMeasurementViewEvent(event))
         return;
@@ -266,10 +292,7 @@ static void onHistoryViewEvent(Event event)
     switch (event)
     {
     case EVENT_KEY_BACK:
-        historyTab++;
-
-        if (historyTab >= HISTORY_TAB_NUM)
-            historyTab = HISTORY_TAB_10_MINUTES;
+        advanceHistoryTab();
 
         requestViewUpdate();
 
@@ -283,28 +306,11 @@ static void onHistoryViewEvent(Event event)
 #endif
 
     case EVENT_DRAW:
-    {
-        const HistoryState *historyState = &historyStates[historyTab];
-        const Unit *rateUnit = &pulseUnits[settings.doseUnits].rate;
-
-        drawTitleBar(getString(STRING_HISTORY));
-        drawHistory(rateUnit->scale,
-                    rateUnit->name,
-                    histories[historyTab].timeTicksNum,
-                    histories[historyTab].name,
-                    historyState->logValues,
-                    getHistoryLogValue(rateAlerts[settings.rateWarning] / pulseUnits[DOSE_UNITS_SIEVERTS].rate.scale),
-                    getHistoryLogValue(rateAlerts[settings.rateAlarm] / pulseUnits[DOSE_UNITS_SIEVERTS].rate.scale));
+        drawHistoryView();
 
         break;
-    }
 
     default:
         break;
     }
 }
-
-View historyView = {
-    onHistoryViewEvent,
-    NULL,
-};

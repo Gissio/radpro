@@ -13,8 +13,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../ui/view.h"
-
 #define RTC_YEAR_MIN 2025
 #define RTC_YEAR_MAX 2099
 #define RTC_YEAR_NUM (RTC_YEAR_MAX - RTC_YEAR_MIN + 1)
@@ -29,14 +27,11 @@ typedef struct
     uint8_t second;
 } RTCDateTime;
 
-extern View rtcMenuView;
-
 void initRTC(void);
 void setupRTC(void);
 
 uint32_t getTimeFromDateTime(const RTCDateTime *dateTime);
 void getDateTimeFromTime(uint32_t value, RTCDateTime *dateTime);
-uint32_t getTimeZoneOffset(void);
 
 void setDeviceDateTime(const RTCDateTime *dateTime);
 void getDeviceDateTime(RTCDateTime *dateTime);
@@ -47,5 +42,7 @@ uint32_t getDeviceTimeFast(void);
 
 bool setDeviceTimeZone(float value);
 float getDeviceTimeZone(void);
+
+void showRTCMenu(void);
 
 #endif

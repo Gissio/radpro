@@ -23,12 +23,13 @@
 #include "../peripherals/rtc.h"
 #include "../peripherals/sound.h"
 #include "../peripherals/tube.h"
+#include "../system/cmath.h"
 #include "../system/power.h"
 #include "../system/settings.h"
 #include "../system/statistics.h"
 #include "../ui/menu.h"
 
-static Menu settingsMenu;
+static const Menu settingsMenu;
 
 // Settings
 
@@ -178,8 +179,8 @@ static void appendState(State *state)
         if ((stateOffset < STATES_PAGE_LASTSTATE_OFFSET) &&
             writeFlash(STATES_BASE + stateOffset, (uint8_t *)state, sizeof(State)))
             break;
-        else
-            resetStatesPage();
+
+        resetStatesPage();
     }
 
     stateOffset += sizeof(State);
@@ -214,7 +215,7 @@ void initSettings(void)
 
 void setupSettings(void)
 {
-    selectMenuItem(&settingsMenu, 0, 0);
+    selectMenuItem(&settingsMenu, 0);
 }
 
 bool isSettingsLoaded(void)
@@ -239,76 +240,54 @@ void saveSettings(void)
 
 // Settings menu
 
-static MenuOption settingsMenuOptions[] = {
-    {STRING_PULSES, &pulsesMenuView},
-    {STRING_ALERTS, &alertsMenuView},
-    {STRING_MEASUREMENTS, &measurementsMenuView},
-    {STRING_GEIGER_TUBE, &tubeMenuView},
-    {STRING_DATALOG, &datalogMenuView},
-    {STRING_DISPLAY, &displayMenuView},
-#if defined(BUZZER) || defined(PULSESOUND_ENABLE) || defined(VOICE)
-    {STRING_SOUND, &soundMenuView},
+static ViewOption settingsMenuOptions[] = {
+    {STRING_PULSES, showPulsesMenu},
+    {STRING_ALERTS, showAlertsMenu},
+    {STRING_MEASUREMENTS, showMeasurementsMenu},
+    {STRING_GEIGER_TUBE, showTubeMenu},
+    {STRING_DATALOG, showDatalogMenu},
+    {STRING_DISPLAY, showDisplayMenu},
+#if defined(SOUND)
+    {STRING_SOUND, showSoundMenu},
 #endif
-    {STRING_DATE_AND_TIME, &rtcMenuView},
-#if defined(BATTERY_REMOVABLE) || !defined(START_POWERED)
-    {STRING_POWER, &powerMenuView},
+    {STRING_DATE_AND_TIME, showRTCMenu},
+#if defined(POWER_MENU)
+    {STRING_POWER, showPowerMenu},
 #endif
-    {STRING_RANDOM_GENERATOR, &rngMenuView},
+    {STRING_RANDOM_GENERATOR, showRNGMenu},
 #if defined(GAME)
-    {STRING_GAME, &gameMenuView},
+    {STRING_GAME, showGameMenu},
 #endif
-    {STRING_STATISTICS, &statisticsView},
-#if defined(DATA_MODE)
-    {STRING_DATAMODE, NULL},
-#endif
-    {NULL},
+    {STRING_STATISTICS, showStatisticsView},
 };
 
-#define SETTINGS_MENU_COUNT (sizeof(settingsMenuOptions)/sizeof(MenuOption))
+#define SETTINGS_MENU_COUNT (sizeof(settingsMenuOptions) / sizeof(ViewOption))
 #define DATA_MODE_INDEX (SETTINGS_MENU_COUNT - 2)
 
-static const char *onSettingsMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+static const char *onSettingsMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
-#if !defined(DATA_MODE)
     *menuStyle = MENUSTYLE_SUBMENU;
-#else
-    if (index < DATA_MODE_INDEX)
-        *menuStyle = MENUSTYLE_SUBMENU;
-    else
-        *menuStyle = settings.dataMode;
-#endif
 
     return getString(settingsMenuOptions[index].title);
 }
 
-static void onSettingsMenuSelect(uint32_t index)
+static void onSettingsMenuSelect(menu_size_t index)
 {
-#if !defined(DATA_MODE)
-    setView(settingsMenuOptions[index].view);
-#else
-    if (index < DATA_MODE_INDEX)
-        setView(settingsMenuOptions[index].view);
-    else
-        settings.dataMode = !settings.dataMode;
-#endif
+    settingsMenuOptions[index].setView();
 }
 
 static MenuState settingsMenuState;
 
-static Menu settingsMenu = {
+static const Menu settingsMenu = {
     STRING_SETTINGS,
     &settingsMenuState,
+    ARRAY_SIZE(settingsMenuOptions),
     onSettingsMenuGetOption,
     onSettingsMenuSelect,
-    setMeasurementViewCurrent,
+    setMeasurementView,
 };
 
-View settingsMenuView = {
-    onMenuEvent,
-    &settingsMenu,
-};
-
-void setSettingsMenu(void)
+void showSettingsMenu(void)
 {
-    setView(&settingsMenuView);
+    showMenu(&settingsMenu);
 }

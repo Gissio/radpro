@@ -14,11 +14,10 @@
 
 #include "../measurements/cumulative.h"
 #include "../measurements/pulses.h"
+#include "../ui/menu.h"
 #include "../ui/view.h"
 
-extern View instantaneousRateView;
-
-extern View instantaneousMenuView;
+extern const Menu instantaneousMenu;
 
 void setupInstantaneousRate(void);
 
@@ -31,5 +30,7 @@ float getInstantaneousRate(void);
 bool isInstantaneousRateConfidenceGood(void);
 
 AlertLevel getInstantaneousRateAlertLevel(void);
+
+void onInstantaneousRateViewEvent(ViewEvent event);
 
 #endif

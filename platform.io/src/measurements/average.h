@@ -11,16 +11,17 @@
 #define AVERAGE_H
 
 #include "../measurements/pulses.h"
+#include "../ui/menu.h"
 #include "../ui/view.h"
 
-extern View averageRateView;
-
-extern View averageMenuView;
+extern const Menu averageMenu;
 
 void setupAverageRate(void);
 
 void updateAverageRate(PulsePeriod *period);
 
 float getAverageRate(void);
+
+void onAverageRateViewEvent(ViewEvent event);
 
 #endif

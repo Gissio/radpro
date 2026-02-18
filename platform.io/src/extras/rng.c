@@ -12,10 +12,12 @@
 #include "../extras/rng.h"
 #include "../peripherals/tube.h"
 #include "../peripherals/voice.h"
+#include "../system/cmath.h"
 #include "../system/events.h"
 #include "../system/settings.h"
 #include "../ui/menu.h"
 #include "../ui/rng.h"
+#include "../ui/view.h"
 
 #define RNG_STACK_BITNUM 128
 #define RNG_STACK_UINT32NUM (RNG_STACK_BITNUM / 32)
@@ -42,27 +44,11 @@ typedef enum
 
 #define RNG_IS_THROW(mode) ((mode) > RNG_MODE_BINARY)
 
-static Menu rngMenu;
+static const Menu rngMenu;
 
 static void pushRNGBit(bool bit);
 static bool popRNGBit(void);
 static uint32_t getRNGBitCount(void);
-
-static const uint8_t rngModeRanges[] = {
-    94,
-    62,
-    16,
-    10,
-    2,
-    100,
-    20,
-    12,
-    10,
-    8,
-    6,
-    4,
-    2,
-};
 
 static cstring rngModeMenuOptions[] = {
     STRING_ASCII,
@@ -78,7 +64,22 @@ static cstring rngModeMenuOptions[] = {
     STRING_6_SIDED_DIE,
     STRING_4_SIDED_DIE,
     STRING_COIN_FLIP,
-    NULL,
+};
+
+static const uint8_t rngModeRanges[] = {
+    94,
+    62,
+    16,
+    10,
+    2,
+    100,
+    20,
+    12,
+    10,
+    8,
+    6,
+    4,
+    2,
 };
 
 typedef struct {
@@ -109,7 +110,7 @@ static struct
 
 void setupRNG(void)
 {
-    selectMenuItem(&rngMenu, 0, 0);
+    selectMenuItem(&rngMenu, 0);
 
     rng.stack.index = 0;
 }
@@ -277,12 +278,12 @@ static void updateFastDiceRollerText(void)
 
 // RNG view
 
-static void onRNGViewEvent(Event event)
+static void onRNGViewEvent(ViewEvent event)
 {
     switch (event)
     {
     case EVENT_KEY_BACK:
-        setView(&rngMenuView);
+        showRNGMenu();
 
         break;
 
@@ -319,38 +320,34 @@ static void onRNGViewEvent(Event event)
     }
 }
 
-static View rngView = {
-    onRNGViewEvent,
-    NULL,
-};
-
 // RNG menu
 
-static const char *onRNGMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+static const char *onRNGMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     *menuStyle = MENUSTYLE_SUBMENU;
 
     return getString(rngModeMenuOptions[index]);
 }
 
-static void onRNGMenuSelect(uint32_t index)
+static void onRNGMenuSelect(menu_size_t index)
 {
     initFastDiceRoller(index);
 
-    setView(&rngView);
+    showView(onRNGViewEvent);
 }
 
 static MenuState rngMenuState;
 
-static Menu rngMenu = {
+static const Menu rngMenu = {
     getString(STRING_RANDOM_GENERATOR),
     &rngMenuState,
+    ARRAY_SIZE(rngModeMenuOptions),
     onRNGMenuGetOption,
     onRNGMenuSelect,
-    setSettingsMenu,
+    showSettingsMenu,
 };
 
-View rngMenuView = {
-    onMenuEvent,
-    &rngMenu,
-};
+void showRNGMenu(void)
+{
+    showMenu(&rngMenu);
+}

@@ -10,8 +10,6 @@
 #if !defined(STATISTICS_H)
 #define STATISTICS_H
 
-#include "../ui/view.h"
-
-extern View statisticsView;
+void showStatisticsView(void);
 
 #endif

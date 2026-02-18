@@ -55,38 +55,37 @@ static void resetCumulativeDose(void)
         cumulativeTab = CUMULATIVE_TAB_TIME;
 }
 
-static AlertLevel computeCumulativeAlertLevel(float doseSv)
+static AlertLevel computeCumulativeDoseAlertLevel(float doseSieverts)
 {
-    if (settings.doseAlarm && (doseSv >= doseAlerts[settings.doseAlarm]))
+    if (settings.doseAlarm && (doseSieverts >= doseAlerts[settings.doseAlarm]))
         return ALERTLEVEL_ALARM;
-    
-    if (settings.doseWarning && (doseSv >= doseAlerts[settings.doseWarning]))
+
+    if (settings.doseWarning && (doseSieverts >= doseAlerts[settings.doseWarning]))
         return ALERTLEVEL_WARNING;
 
     return ALERTLEVEL_NONE;
 }
 
-void updateCumulativeDose(PulsePeriod *period)
+static bool isCumulativeDoseSaturated(void)
 {
-    if ((cumulative.dose.time == UINT32_MAX) ||
-        (cumulative.dose.pulseCount == UINT32_MAX))
-        return;
+    return (cumulative.dose.time == UINT32_MAX) || (cumulative.dose.pulseCount == UINT32_MAX);
+}
 
-    // Update cumulative dose
-    cumulative.dose.time = addClamped(cumulative.dose.time, 1);
-    cumulative.dose.pulseCount = addClamped(cumulative.dose.pulseCount, period->pulseCount);
+static void updateCumulativeDoseAlerts(void)
+{
+    float doseSieverts = pulseUnits[DOSE_UNITS_SIEVERTS].dose.scale * cumulative.dose.pulseCount;
+    AlertLevel alertLevel = computeCumulativeDoseAlertLevel(doseSieverts);
 
-    // Secondary variables
-    float doseSv = pulseUnits[DOSE_UNITS_SIEVERTS].dose.scale *
-                   cumulative.dose.pulseCount;
+    AlertLevel previousAlertLevel = cumulative.alertLevel;
+    cumulative.alertLevel = alertLevel;
 
-    // Alerts
-    AlertLevel newAlertLevel = computeCumulativeAlertLevel(doseSv);
-    if (newAlertLevel > cumulative.alertLevel)
+    bool alertTriggered = (alertLevel > previousAlertLevel);
+    if (alertTriggered)
         setAlertPending(true);
-    cumulative.alertLevel = newAlertLevel;
+}
 
-    // Alert view
+static void updateCumulativeDoseTab(void)
+{
     if (isTubeFaultAlertTriggered())
         cumulativeTab = CUMULATIVE_TAB_ALERT;
     else if (cumulativeTab == CUMULATIVE_TAB_ALERT)
@@ -94,6 +93,20 @@ void updateCumulativeDose(PulsePeriod *period)
         if (!getTubeFaultAlertLevel())
             cumulativeTab = CUMULATIVE_TAB_TIME;
     }
+}
+
+void updateCumulativeDose(PulsePeriod *period)
+{
+    if (isCumulativeDoseSaturated())
+        return;
+
+    // Update cumulative dose
+    cumulative.dose.time = addClamped(cumulative.dose.time, 1);
+    cumulative.dose.pulseCount = addClamped(cumulative.dose.pulseCount, period->pulseCount);
+
+    updateCumulativeDoseAlerts();
+
+    updateCumulativeDoseTab();
 }
 
 void setCumulativeDoseTime(uint32_t value)
@@ -123,26 +136,94 @@ AlertLevel getCumulativeDoseAlertLevel(void)
 
 // Cumulative dose view
 
-static void onCumulativeDoseViewEvent(Event event)
+static void advanceCumulativeDoseTab(void)
+{
+    uint32_t tabNum = getTubeFaultAlertLevel() ? (CUMULATIVE_TAB_NUM + 1) : CUMULATIVE_TAB_NUM;
+
+    cumulativeTab++;
+    if (cumulativeTab >= tabNum)
+        cumulativeTab = 0;
+}
+
+static MeasurementStyle getCumulativeDoseMeasurementStyle(void)
+{
+    if (cumulative.alertLevel == ALERTLEVEL_ALARM)
+        return MEASUREMENTSTYLE_ALARM;
+
+    if (cumulative.alertLevel == ALERTLEVEL_WARNING)
+        return MEASUREMENTSTYLE_WARNING;
+
+    if (isCumulativeDoseSaturated())
+        return MEASUREMENTSTYLE_DONE;
+
+    return MEASUREMENTSTYLE_NORMAL;
+}
+
+static void drawCumulativeDoseValue(void)
+{
+    char valueString[32] = "";
+    char unitString[32] = "";
+    buildValueString(valueString, unitString, cumulative.dose.pulseCount, &pulseUnits[settings.doseUnits].dose, doseUnitsMinMetricPrefix[settings.doseUnits]);
+
+    drawTitleBar(getString(STRING_CUMULATIVE));
+    drawMeasurementValue(valueString, unitString, 0, getCumulativeDoseMeasurementStyle());
+}
+
+static void drawCumulativeDoseTab(void)
+{
+    char valueString[32] = "";
+    char unitString[32] = " ";
+    const char *keyString = NULL;
+
+    switch (cumulativeTab)
+    {
+    case CUMULATIVE_TAB_TIME:
+        strcatTime(valueString, cumulative.dose.time);
+
+        keyString = getString(STRING_TIME);
+
+        break;
+
+    case CUMULATIVE_TAB_DOSE:
+        buildValueString(valueString, unitString, cumulative.dose.pulseCount, &pulseUnits[settings.secondaryDoseUnits].dose, doseUnitsMinMetricPrefix[settings.secondaryDoseUnits]);
+
+        keyString = getString(STRING_DOSE);
+
+        break;
+
+    case CUMULATIVE_TAB_INSTANTANEOUS:
+        buildValueString(valueString, unitString, getInstantaneousRate(), &pulseUnits[settings.doseUnits].rate, doseUnitsMinMetricPrefix[settings.doseUnits]);
+
+        keyString = getString(STRING_INSTANTANEOUS);
+
+        break;
+
+    default:
+        return;
+    }
+
+    drawMeasurementInfo(keyString, valueString, unitString, getCumulativeDoseMeasurementStyle());
+}
+
+static void drawCumulativeDoseView(void)
+{
+    drawCumulativeDoseValue();
+
+    if (cumulativeTab == CUMULATIVE_TAB_ALERT)
+        drawMeasurementAlert(getString(STRING_ALERT_FAULT));
+    else
+        drawCumulativeDoseTab();
+}
+
+void onCumulativeDoseViewEvent(ViewEvent event)
 {
     if (onMeasurementViewEvent(event))
         return;
 
-    bool done = (cumulative.dose.time == UINT32_MAX) || (cumulative.dose.pulseCount == UINT32_MAX);
-
-    const char *alertString;
-    if (getTubeFaultAlertLevel())
-        alertString = getString(STRING_ALERT_FAULT);
-    else
-        alertString = NULL;
-
     switch (event)
     {
     case EVENT_KEY_BACK:
-        cumulativeTab++;
-
-        if (alertString ? cumulativeTab >= (CUMULATIVE_TAB_NUM + 1) : cumulativeTab >= CUMULATIVE_TAB_NUM)
-            cumulativeTab = 0;
+        advanceCumulativeDoseTab();
 
         requestViewUpdate();
 
@@ -165,74 +246,11 @@ static void onCumulativeDoseViewEvent(Event event)
 #endif
 
     case EVENT_DRAW:
-    {
-        char valueString[32];
-        char unitString[32];
-        MeasurementStyle style;
-
-        strclr(valueString);
-        strclr(unitString);
-        buildValueString(valueString, unitString, cumulative.dose.pulseCount, &pulseUnits[settings.doseUnits].dose, doseUnitsMinMetricPrefix[settings.doseUnits]);
-
-        if (cumulative.alertLevel == ALERTLEVEL_ALARM)
-            style = MEASUREMENTSTYLE_ALARM;
-        else if (cumulative.alertLevel == ALERTLEVEL_WARNING)
-            style = MEASUREMENTSTYLE_WARNING;
-        else if (done)
-            style = MEASUREMENTSTYLE_DONE;
-        else
-            style = MEASUREMENTSTYLE_NORMAL;
-
-        drawTitleBar(getString(STRING_CUMULATIVE));
-        drawMeasurementValue(valueString, unitString, 0, style);
-
-        if (cumulativeTab == CUMULATIVE_TAB_ALERT)
-            drawMeasurementAlert(alertString);
-        else
-        {
-            const char *keyString = NULL;
-            strclr(valueString);
-            strcpy(unitString, " ");
-
-            switch (cumulativeTab)
-            {
-            case CUMULATIVE_TAB_TIME:
-                strcatTime(valueString, cumulative.dose.time);
-
-                keyString = getString(STRING_TIME);
-
-                break;
-
-            case CUMULATIVE_TAB_DOSE:
-                buildValueString(valueString, unitString, cumulative.dose.pulseCount, &pulseUnits[settings.secondaryDoseUnits].dose, doseUnitsMinMetricPrefix[settings.secondaryDoseUnits]);
-
-                keyString = getString(STRING_DOSE);
-
-                break;
-
-            case CUMULATIVE_TAB_INSTANTANEOUS:
-                buildValueString(valueString, unitString, getInstantaneousRate(), &pulseUnits[settings.doseUnits].rate, doseUnitsMinMetricPrefix[settings.doseUnits]);
-
-                keyString = getString(STRING_INSTANTANEOUS);
-
-                break;
-
-            default:
-                break;
-            }
-
-            drawMeasurementInfo(keyString, valueString, unitString, style);
-        }
+        drawCumulativeDoseView();
 
         break;
-    }
 
     default:
         break;
     }
 }
-
-View cumulativeDoseView = {
-    onCumulativeDoseViewEvent,
-    NULL,
-};

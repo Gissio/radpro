@@ -269,7 +269,7 @@
 
 // Power menu items
 #define STRING_BATTERY "Μπαταρία"
-#define STRING_USB_AUTO_POWER_ON "Αυτόματη ενεργοποίηση USB"
+#define STRING_USB_AUTOPOWER_ON "Αυτόματη ενεργοποίηση USB"
 
 // Battery type menu items
 #define STRING_NI_MH "Ni-MH"

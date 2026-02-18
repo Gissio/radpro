@@ -11,14 +11,12 @@
 
 #include "../peripherals/buzzer.h"
 #include "../peripherals/sound.h"
+#include "../system/cmath.h"
 #include "../system/settings.h"
-#include "../ui/menu.h"
-
-static Menu soundPulsesMenu;
 
 void setupBuzzer(void)
 {
-    selectMenuItem(&soundPulsesMenu, settings.soundPulseType, SOUND_PULSETYPE_NUM);
+    selectMenuItem(&soundPulsesMenu, settings.soundPulseType);
 }
 
 // Sound pulses menu
@@ -27,34 +25,29 @@ static cstring soundPulsesMenuOptions[] = {
     STRING_CLICKS,
     STRING_CHIRPS,
     STRING_BEEPS,
-    NULL,
 };
 
-static const char *onSoundPulsesMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+static const char *onSoundPulsesMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.soundPulseType);
 
     return getString(soundPulsesMenuOptions[index]);
 }
 
-static void onSoundPulsesMenuSelect(uint32_t index)
+static void onSoundPulsesMenuSelect(menu_size_t index)
 {
     settings.soundPulseType = index;
 }
 
 static MenuState soundPulsesMenuState;
 
-static Menu soundPulsesMenu = {
+const Menu soundPulsesMenu = {
     STRING_PULSES,
     &soundPulsesMenuState,
+    ARRAY_SIZE(soundPulsesMenuOptions),
     onSoundPulsesMenuGetOption,
     onSoundPulsesMenuSelect,
-    setSoundMenu,
-};
-
-View soundPulsesMenuView = {
-    onMenuEvent,
-    &soundPulsesMenu,
+    showSoundMenu,
 };
 
 #endif

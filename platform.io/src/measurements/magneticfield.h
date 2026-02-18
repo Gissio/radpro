@@ -11,13 +11,11 @@
 #define MAGNETIC_FIELD_H
 
 #include "../measurements/measurements.h"
+#include "../ui/menu.h"
 #include "../ui/view.h"
 
-extern View magneticFieldView;
-
-extern View magneticFieldUnitsMenuView;
-
-extern View magneticFieldAlarmMenuView;
+extern const Menu magneticFieldUnitsMenu;
+extern const Menu magneticFieldAlarmMenu;
 
 extern const float magneticFieldAlerts[];
 
@@ -32,5 +30,7 @@ void updateMagneticField(void);
 float getMagneticField(void);
 
 AlertLevel getMagneticFieldAlertLevel(void);
+
+void onMagneticFieldViewEvent(ViewEvent event);
 
 #endif

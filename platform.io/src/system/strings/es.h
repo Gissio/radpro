@@ -269,7 +269,7 @@
 
 // Power menu items
 #define STRING_BATTERY "Batería"
-#define STRING_USB_AUTO_POWER_ON "Encendido automático USB"
+#define STRING_USB_AUTOPOWER_ON "Encendido automático USB"
 
 // Battery type menu items
 #define STRING_NI_MH "Ni-MH"

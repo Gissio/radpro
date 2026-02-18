@@ -13,10 +13,12 @@
 #include <mcu-max.h>
 
 #include "../extras/game.h"
+#include "../system/cmath.h"
 #include "../system/events.h"
 #include "../system/settings.h"
 #include "../ui/game.h"
 #include "../ui/menu.h"
+#include "../ui/view.h"
 
 #if defined(STM32F0)
 #define GAME_DEPTH_MAX 16
@@ -62,18 +64,17 @@ static const uint32_t gameStrengthToNodesCount[] = {
     262144,
 };
 
-static Menu gameMenu;
-static Menu gameStrengthMenu;
-
-static void onGameCallback(void *userdata);
-static void setGameMenu(void);
+static const Menu gameStartMenu;
+static const Menu gameContinueMenu;
+static const Menu gameStrengthMenu;
 
 void setupGame(void)
 {
     memset(&game, 0, sizeof(game));
 
-    selectMenuItem(&gameMenu, 0, 0);
-    selectMenuItem(&gameStrengthMenu, settings.gameStrength, GAME_STRENGTH_NUM);
+    selectMenuItem(&gameStartMenu, 0);
+    selectMenuItem(&gameContinueMenu, 0);
+    selectMenuItem(&gameStrengthMenu, settings.gameStrength);
 }
 
 static void updateGameBoard(void)
@@ -170,7 +171,7 @@ void updateGame(void)
         mcumax_set_callback(NULL, NULL);
 
         if (game.state == GAME_SEARCH_STOPPED)
-            setView(&gameMenuView);
+            showGameMenu();
         else
         {
             if (move.from == MCUMAX_SQUARE_INVALID)
@@ -251,7 +252,7 @@ static void selectNextMoveTo(int32_t direction)
 
 // Game view
 
-static void onGameViewEvent(Event event)
+static void onGameViewEvent(ViewEvent event)
 {
     switch (event)
     {
@@ -269,7 +270,7 @@ static void onGameViewEvent(Event event)
             updateGameBoard();
         }
         else if (game.state != GAME_SEARCH_STOPPED)
-            setView(&gameMenuView);
+            showGameMenu();
 
         break;
 
@@ -355,66 +356,89 @@ static void onGameViewEvent(Event event)
     }
 }
 
-static View gameView = {
-    onGameViewEvent,
-    NULL,
-};
-
 // Game strength menu
 
-static const char *onGameStrengthMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+static const char *onGameStrengthMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.gameStrength);
 
-    if (index < GAME_STRENGTH_NUM)
-    {
-        strcpy(menuOption, getString(STRING_GAME_LEVEL));
-        strcatChar(menuOption, ' ');
-        strcatUInt32(menuOption, index + 1, 0);
+    strcpy(menuOption, getString(STRING_GAME_LEVEL));
+    strcatChar(menuOption, ' ');
+    strcatUInt32(menuOption, index + 1, 0);
 
-        return menuOption;
-    }
-    else
-        return NULL;
+    return menuOption;
 }
 
-static void onGameStrengthMenuSelect(uint32_t index)
+static void onGameStrengthMenuSelect(menu_size_t index)
 {
     settings.gameStrength = index;
 }
 
 static MenuState gameStrengthMenuState;
 
-static Menu gameStrengthMenu = {
+static const Menu gameStrengthMenu = {
     STRING_STRENGTH,
     &gameStrengthMenuState,
+    GAME_STRENGTH_NUM,
     onGameStrengthMenuGetOption,
     onGameStrengthMenuSelect,
-    setGameMenu,
+    showGameMenu,
 };
 
-static View gameStrengthMenuView = {
-    onMenuEvent,
-    &gameStrengthMenu,
-};
-
-// Game menu
+// Game start menu
 
 static cstring gameStartMenuOptions[] = {
     STRING_PLAY_WHITE,
     STRING_PLAY_BLACK,
     STRING_STRENGTH,
-    NULL,
 };
+
+static const char *onGameStartMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
+{
+    *menuStyle = MENUSTYLE_SUBMENU;
+
+    return getString(gameStartMenuOptions[index]);
+}
+
+static void onGameStartMenuSelect(menu_size_t index)
+{
+    switch (index)
+    {
+    case 0:
+    case 1:
+        startGame(index);
+
+        showView(onGameViewEvent);
+
+        break;
+
+    case 2:
+        showMenu(&gameStrengthMenu);
+
+        break;
+    }
+}
+
+static MenuState gameStartMenuState;
+
+static const Menu gameStartMenu = {
+    STRING_GAME,
+    &gameStartMenuState,
+    ARRAY_SIZE(gameStartMenuOptions),
+    onGameStartMenuGetOption,
+    onGameStartMenuSelect,
+    showSettingsMenu,
+};
+
+// Game continue menu
 
 static cstring gameContinueMenuOptions[] = {
     STRING_CONTINUE_GAME,
     STRING_NEW_GAME,
     STRING_STRENGTH,
-    NULL,
 };
 
-static const char *onGameMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+static const char *onGameContinueMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     *menuStyle = MENUSTYLE_SUBMENU;
 
@@ -424,64 +448,47 @@ static const char *onGameMenuGetOption(uint32_t index, MenuStyle *menuStyle)
         return getString(gameContinueMenuOptions[index]);
 }
 
-static void onGameMenuSelect(uint32_t index)
+static void onGameContinueMenuSelect(menu_size_t index)
 {
     switch (index)
     {
     case 0:
-        if (game.moveIndex)
-        {
-            if (game.state == GAME_SEARCH_STOPPED)
-                game.state = GAME_SEARCHING;
-        }
-        else
-            startGame(0);
+        if (game.state == GAME_SEARCH_STOPPED)
+            game.state = GAME_SEARCHING;
 
-        setView(&gameView);
+        showView(onGameViewEvent);
 
         break;
 
     case 1:
-        selectMenuItem(&gameMenu, 0, 0);
-
-        if (!game.moveIndex)
-        {
-            startGame(1);
-
-            setView(&gameView);
-        }
-        else
-        {
-            startGame(0);
-
-            setView(&gameMenuView);
-        }
+        showMenu(&gameStartMenu);
 
         break;
 
     case 2:
-        setView(&gameStrengthMenuView);
+        showMenu(&gameStrengthMenu);
 
         break;
     }
 }
 
-static MenuState gameMenuState;
+static MenuState gameContinueMenuState;
 
-static Menu gameMenu = {
+static const Menu gameContinueMenu = {
     STRING_GAME,
-    &gameMenuState,
-    onGameMenuGetOption,
-    onGameMenuSelect,
-    setSettingsMenu,
+    &gameContinueMenuState,
+    ARRAY_SIZE(gameStartMenuOptions),
+    onGameContinueMenuGetOption,
+    onGameContinueMenuSelect,
+    showSettingsMenu,
 };
 
-View gameMenuView = {
-    onMenuEvent,
-    &gameMenu,
-};
+// Game menu
 
-static void setGameMenu(void)
+void showGameMenu(void)
 {
-    setView(&gameMenuView);
+    if (!game.moveIndex)
+        showMenu(&gameStartMenu);
+    else
+        showMenu(&gameContinueMenu);
 }

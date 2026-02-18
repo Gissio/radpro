@@ -9,16 +9,15 @@
 
 #include "../measurements/datalog.h"
 #include "../peripherals/rtc.h"
+#include "../system/cmath.h"
 #include "../system/settings.h"
 #include "../ui/menu.h"
 
-static Menu rtcMenu;
-
-static void setRTCMenu(void);
+static const Menu rtcMenu;
 
 void setupRTC(void)
 {
-    selectMenuItem(&rtcMenu, 0, 0);
+    selectMenuItem(&rtcMenu, 0);
 }
 
 static void normalizeDateTime(RTCDateTime *dateTime)
@@ -29,7 +28,7 @@ static void normalizeDateTime(RTCDateTime *dateTime)
         dateTime->year = RTC_YEAR_MAX;
 }
 
-uint32_t getTimeZoneOffset(void)
+static int32_t getTimeZoneOffset(void)
 {
     return 3600 * (settings.rtcTimeZone - 12);
 }
@@ -98,12 +97,12 @@ void getDeviceDateTime(RTCDateTime *dateTime)
 
 bool setDeviceTimeZone(float value)
 {
-    value += RTC_TIMEZONE_P0000;
+    int32_t index = (int32_t)(value + RTC_TIMEZONE_P0000);
 
-    if ((value < 0) || (value >= RTC_TIMEZONE_NUM))
+    if ((index < 0) || (index >= RTC_TIMEZONE_NUM))
         return false;
 
-    settings.rtcTimeZone = value;
+    settings.rtcTimeZone = (uint32_t)index;
 
     return true;
 }
@@ -128,25 +127,14 @@ enum
     DATETIME_FORMAT,
 };
 
-static cstring rtcMenuOptions[] = {
-    STRING_TIME_ZONE,
-    STRING_YEAR,
-    STRING_MONTH,
-    STRING_DAY,
-    STRING_HOUR,
-    STRING_MINUTE,
-    STRING_TIME_FORMAT,
-    NULL,
-};
-
 static MenuState rtcMenuState;
 
 static RTCDateTime rtcCurrentDateTime;
 
 typedef const struct
 {
-    uint32_t readPageBase;
-    uint32_t maxIndex;
+    uint32_t offset;
+    uint32_t itemCount;
 } RTCMenuOptionSetting;
 
 static RTCMenuOptionSetting rtcMenuOptionSettings[] = {
@@ -157,7 +145,7 @@ static RTCMenuOptionSetting rtcMenuOptionSettings[] = {
     {0, 60},
 };
 
-static const char *onRTCOptionMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+static const char *onRTCOptionMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     switch (rtcMenuState.selectedIndex)
     {
@@ -189,11 +177,11 @@ static const char *onRTCOptionMenuGetOption(uint32_t index, MenuStyle *menuStyle
 
     RTCMenuOptionSetting *rtcMenuOptionSetting = &rtcMenuOptionSettings[rtcMenuState.selectedIndex - 1];
 
-    uint32_t maxIndex = rtcMenuOptionSetting->maxIndex;
+    uint32_t itemCount = rtcMenuOptionSetting->itemCount;
     if (rtcMenuState.selectedIndex == DATETIME_DAY)
-        maxIndex = getDaysInMonth(rtcCurrentDateTime.year, rtcCurrentDateTime.month);
+        itemCount = getDaysInMonth(rtcCurrentDateTime.year, rtcCurrentDateTime.month);
 
-    if (index < maxIndex)
+    if (index < itemCount)
     {
         strclr(menuOption);
 
@@ -206,7 +194,7 @@ static const char *onRTCOptionMenuGetOption(uint32_t index, MenuStyle *menuStyle
             strcat(menuOption, index < 12 ? getString(STRING_AM) : getString(STRING_PM));
         }
         else
-            strcatUInt32(menuOption, rtcMenuOptionSetting->readPageBase + index, 0);
+            strcatUInt32(menuOption, rtcMenuOptionSetting->offset + index, 0);
 
         return menuOption;
     }
@@ -214,7 +202,7 @@ static const char *onRTCOptionMenuGetOption(uint32_t index, MenuStyle *menuStyle
         return NULL;
 }
 
-static void onRTCOptionMenuSelect(uint32_t index)
+static void onRTCOptionMenuSelect(menu_size_t index)
 {
     RTCDateTime dateTime;
     getDeviceDateTime(&dateTime);
@@ -259,14 +247,11 @@ static MenuState rtcItemMenuState;
 
 // Time zone menu
 
-static const char *onRTCTimeZoneMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+static const char *onRTCTimeZoneMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
-    if (index >= RTC_TIMEZONE_NUM)
-        return NULL;
-
     *menuStyle = (index == settings.rtcTimeZone);
 
-    int32_t deltaTimeMinutes = 60 * (index - 12);
+    int32_t deltaTimeMinutes = 60 * (index - RTC_TIMEZONE_P0000);
 
     if (deltaTimeMinutes < 0)
     {
@@ -282,52 +267,40 @@ static const char *onRTCTimeZoneMenuGetOption(uint32_t index, MenuStyle *menuSty
     return menuOption;
 }
 
-static void onRTCTimeZoneMenuSelect(uint32_t index)
+static void onRTCTimeZoneMenuSelect(menu_size_t index)
 {
     settings.rtcTimeZone = index;
 }
 
-static Menu rtcTimeZoneMenu = {
+static const Menu rtcTimeZoneMenu = {
     STRING_TIME_ZONE,
     &rtcItemMenuState,
+    RTC_TIMEZONE_NUM,
     onRTCTimeZoneMenuGetOption,
     onRTCTimeZoneMenuSelect,
-    setRTCMenu,
-};
-
-static View rtcTimeZoneMenuView = {
-    onMenuEvent,
-    &rtcTimeZoneMenu,
+    showRTCMenu,
 };
 
 // Year menu
 
-static Menu rtcYearMenu = {
+static const Menu rtcYearMenu = {
     STRING_YEAR,
     &rtcItemMenuState,
+    RTC_YEAR_NUM,
     onRTCOptionMenuGetOption,
     onRTCOptionMenuSelect,
-    setRTCMenu,
-};
-
-static View rtcYearMenuView = {
-    onMenuEvent,
-    &rtcYearMenu,
+    showRTCMenu,
 };
 
 // Month menu
 
-static Menu rtcMonthMenu = {
+static const Menu rtcMonthMenu = {
     STRING_MONTH,
     &rtcItemMenuState,
+    12,
     onRTCOptionMenuGetOption,
     onRTCOptionMenuSelect,
-    setRTCMenu,
-};
-
-static View rtcMonthMenuView = {
-    onMenuEvent,
-    &rtcMonthMenu,
+    showRTCMenu,
 };
 
 // Day menu
@@ -335,44 +308,32 @@ static View rtcMonthMenuView = {
 static Menu rtcDayMenu = {
     STRING_DAY,
     &rtcItemMenuState,
+    0,
     onRTCOptionMenuGetOption,
     onRTCOptionMenuSelect,
-    setRTCMenu,
-};
-
-static View rtcDayMenuView = {
-    onMenuEvent,
-    &rtcDayMenu,
+    showRTCMenu,
 };
 
 // Hour menu
 
-static Menu rtcHourMenu = {
+static const Menu rtcHourMenu = {
     STRING_HOUR,
     &rtcItemMenuState,
+    24,
     onRTCOptionMenuGetOption,
     onRTCOptionMenuSelect,
-    setRTCMenu,
-};
-
-static View rtcHourMenuView = {
-    onMenuEvent,
-    &rtcHourMenu,
+    showRTCMenu,
 };
 
 // Minute menu
 
-static Menu rtcMinuteMenu = {
+static const Menu rtcMinuteMenu = {
     STRING_MINUTE,
     &rtcItemMenuState,
+    60,
     onRTCOptionMenuGetOption,
     onRTCOptionMenuSelect,
-    setRTCMenu,
-};
-
-static View rtcMinuteMenuView = {
-    onMenuEvent,
-    &rtcMinuteMenu,
+    showRTCMenu,
 };
 
 // Time format menu
@@ -380,122 +341,119 @@ static View rtcMinuteMenuView = {
 static cstring rtcTimeFormatMenuOptions[] = {
     STRING_24_HOUR,
     STRING_12_HOUR,
-    NULL,
 };
 
-static const char *onRTCTimeFormatMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+static const char *onRTCTimeFormatMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.rtcTimeFormat);
 
     return getString(rtcTimeFormatMenuOptions[index]);
 }
 
-static void onRTCTimeFormatMenuSelect(uint32_t index)
+static void onRTCTimeFormatMenuSelect(menu_size_t index)
 {
     settings.rtcTimeFormat = index;
 }
 
-static Menu rtcTimeFormatMenu = {
+static const Menu rtcTimeFormatMenu = {
     STRING_TIME_FORMAT,
     &rtcItemMenuState,
+    ARRAY_SIZE(rtcTimeFormatMenuOptions),
     onRTCTimeFormatMenuGetOption,
     onRTCTimeFormatMenuSelect,
-    setRTCMenu,
-};
-
-static View rtcTimeFormatMenuView = {
-    onMenuEvent,
-    &rtcTimeFormatMenu,
+    showRTCMenu,
 };
 
 // RTC menu
 
-static const char *onRTCMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+static cstring rtcMenuOptions[] = {
+    STRING_TIME_ZONE,
+    STRING_YEAR,
+    STRING_MONTH,
+    STRING_DAY,
+    STRING_HOUR,
+    STRING_MINUTE,
+    STRING_TIME_FORMAT,
+};
+
+static const Menu *rtcMenus[] = {
+    &rtcTimeZoneMenu,
+    &rtcYearMenu,
+    &rtcMonthMenu,
+    &rtcDayMenu,
+    &rtcHourMenu,
+    &rtcMinuteMenu,
+    &rtcTimeFormatMenu,
+};
+
+static const char *onRTCMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     *menuStyle = MENUSTYLE_SUBMENU;
 
     return getString(rtcMenuOptions[index]);
 }
 
-static void onRTCMenuSelect(uint32_t index)
+static void onRTCMenuSelect(menu_size_t index)
 {
     getDeviceDateTime(&rtcCurrentDateTime);
     normalizeDateTime(&rtcCurrentDateTime);
 
-    View *view = NULL;
+    const Menu *menu = rtcMenus[index];
     uint32_t menuIndex = 0;
-    uint32_t optionsNum = 0;
 
     switch (rtcMenuState.selectedIndex)
     {
     case DATETIME_ZONE:
-        view = &rtcTimeZoneMenuView;
         menuIndex = settings.rtcTimeZone;
-        optionsNum = RTC_TIMEZONE_NUM;
 
         break;
 
     case DATETIME_YEAR:
-        view = &rtcYearMenuView;
         menuIndex = rtcCurrentDateTime.year - RTC_YEAR_MIN;
-        optionsNum = RTC_YEAR_NUM;
 
         break;
 
     case DATETIME_MONTH:
-        view = &rtcMonthMenuView;
         menuIndex = rtcCurrentDateTime.month - 1;
-        optionsNum = 12;
 
         break;
 
     case DATETIME_DAY:
-        view = &rtcDayMenuView;
         menuIndex = rtcCurrentDateTime.day - 1;
-        optionsNum = getDaysInMonth(rtcCurrentDateTime.year, rtcCurrentDateTime.month);
+        rtcDayMenu.itemCount = getDaysInMonth(rtcCurrentDateTime.year, rtcCurrentDateTime.month);
 
         break;
 
     case DATETIME_HOUR:
-        view = &rtcHourMenuView;
         menuIndex = rtcCurrentDateTime.hour;
-        optionsNum = 24;
 
         break;
 
     case DATETIME_MINUTE:
-        view = &rtcMinuteMenuView;
         menuIndex = rtcCurrentDateTime.minute;
-        optionsNum = 60;
 
         break;
 
     case DATETIME_FORMAT:
-        view = &rtcTimeFormatMenuView;
         menuIndex = settings.rtcTimeFormat;
-        optionsNum = RTC_TIMEFORMAT_NUM;
 
         break;
     }
 
-    selectMenuItem((Menu *)view->userdata, menuIndex, optionsNum);
-    setView(view);
+    selectMenuItem(menu, menuIndex);
+    showMenu(menu);
 }
 
-static Menu rtcMenu = {
+static const Menu rtcMenu = {
     STRING_DATE_AND_TIME,
     &rtcMenuState,
+    ARRAY_SIZE(rtcMenuOptions),
     onRTCMenuGetOption,
     onRTCMenuSelect,
-    setSettingsMenu,
+    showSettingsMenu,
 };
 
-View rtcMenuView = {
-    onMenuEvent,
-    &rtcMenu,
-};
-
-static void setRTCMenu(void)
+void showRTCMenu(void)
 {
-    setView(&rtcMenuView);
+    showMenu(&rtcMenu);
 }

@@ -269,7 +269,7 @@
 
 // Power menu items
 #define STRING_BATTERY "Batterie"
-#define STRING_USB_AUTO_POWER_ON "Mise sous tension auto USB"
+#define STRING_USB_AUTOPOWER_ON "Mise sous tension auto USB"
 
 // Battery type menu items
 #define STRING_NI_MH "Ni-MH"

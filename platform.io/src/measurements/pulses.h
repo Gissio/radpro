@@ -14,7 +14,15 @@
 #include <stdint.h>
 
 #include "../measurements/measurements.h"
-#include "../ui/view.h"
+#include "../ui/menu.h"
+
+extern const Menu rateWarningMenu;
+extern const Menu rateAlarmMenu;
+extern const Menu doseWarningMenu;
+extern const Menu doseAlarmMenu;
+
+extern const Menu doseUnitsMenu;
+extern const Menu secondaryDoseUnitsMenu;
 
 typedef struct
 {
@@ -51,16 +59,6 @@ extern const int8_t doseUnitsMinMetricPrefix[];
 
 extern const int8_t doseUnitsBarMinExponent[];
 
-extern View pulsesMenuView;
-
-extern View rateWarningMenuView;
-extern View rateAlarmMenuView;
-extern View doseWarningMenuView;
-extern View doseAlarmMenuView;
-
-extern View doseUnitsMenuView;
-extern View secondaryDoseUnitsMenuView;
-
 void setupPulses(void);
 
 void updateDoseUnits(void);
@@ -81,5 +79,7 @@ uint32_t getTubePulseCount(void);
 float getTubeDeadTime(void);
 AlertLevel getTubeFaultAlertLevel(void);
 bool isTubeFaultAlertTriggered(void);
+
+void showPulsesMenu(void);
 
 #endif

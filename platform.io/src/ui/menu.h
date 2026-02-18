@@ -15,7 +15,7 @@
 #include "../system/cstring.h"
 #include "../ui/view.h"
 
-#define MENU_OPTION_SIZE 64
+#define MENU_OPTION_STRING_SIZE 64
 
 #if defined(DISPLAY_128X64)
 #define MENU_LINE_HEIGHT 14
@@ -29,41 +29,46 @@
 #define MENUSTYLE_SUBMENU (1 << 1)
 #define MENUSTYLE_NUM 2
 
-typedef const struct Menu_ Menu;
+typedef uint16_t menu_size_t;
 
 typedef uint32_t MenuStyle;
 
-typedef const char *OnMenuGetOption(uint32_t index, MenuStyle *menuStyle);
-typedef void OnMenuSelect(uint32_t index);
+typedef const char *OnMenuGetOption(menu_size_t index, MenuStyle *menuStyle);
+typedef void OnMenuSelect(menu_size_t index);
 typedef void OnMenuBack(void);
 
 typedef struct
 {
-    uint16_t startIndex;
-    uint16_t selectedIndex;
+    menu_size_t startIndex;
+    menu_size_t selectedIndex;
 } MenuState;
 
-struct Menu_
+typedef struct
 {
     cstring title;
     MenuState *state;
+    menu_size_t itemCount;
     OnMenuGetOption *onGetOption;
     OnMenuSelect *onSelect;
     OnMenuBack *onBack;
-};
+} Menu;
 
-typedef const struct
+typedef struct
 {
     cstring title;
-    ViewPointer view;
+    SetView *setView;
+} ViewOption;
+
+typedef struct
+{
+    cstring title;
+    const Menu *menu;
 } MenuOption;
 
-extern char menuOption[MENU_OPTION_SIZE];
+extern char menuOption[MENU_OPTION_STRING_SIZE];
 
-void drawMenu(Menu *menu);
+void selectMenuItem(const Menu *menu, menu_size_t index);
 
-void selectMenuItem(Menu *menu, uint32_t index, uint32_t optionsNum);
-
-void onMenuEvent(Event event);
+void showMenu(const Menu *menu);
 
 #endif

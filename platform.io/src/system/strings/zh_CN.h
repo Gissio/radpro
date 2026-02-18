@@ -269,7 +269,7 @@
 
 // Power menu items
 #define STRING_BATTERY "电池"
-#define STRING_USB_AUTO_POWER_ON "USB自动开机"
+#define STRING_USB_AUTOPOWER_ON "USB自动开机"
 
 // Battery type menu items
 #define STRING_NI_MH "镍氢"

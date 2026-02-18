@@ -269,7 +269,7 @@
 
 // Power menu items
 #define STRING_BATTERY "Akku"
-#define STRING_USB_AUTO_POWER_ON "USB automaattikäynnistys"
+#define STRING_USB_AUTOPOWER_ON "USB automaattikäynnistys"
 
 // Battery type menu items
 #define STRING_NI_MH "Ni-MH"

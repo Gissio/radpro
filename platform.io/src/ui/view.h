@@ -14,7 +14,10 @@
 
 typedef enum
 {
-    EVENT_KEY_BACK,
+    EVENT_NONE,
+
+    EVENT_KEY_START,
+    EVENT_KEY_BACK = EVENT_KEY_START,
     EVENT_KEY_SELECT,
     EVENT_KEY_UP,
     EVENT_KEY_DOWN,
@@ -26,30 +29,20 @@ typedef enum
     EVENT_KEY_PLAY,
 
     EVENT_DRAW,
-    EVENT_POST_DRAW,
+    EVENT_POSTDRAW,
 
     EVENT_HEARTBEAT,
+} ViewEvent;
 
-    EVENT_NONE,
-} Event;
+typedef void OnViewEvent(ViewEvent event);
 
-typedef void OnEvent(Event event);
-
-struct View_
-{
-    OnEvent *onEvent;
-    const void *userdata;
-};
-
-typedef const struct View_ View;
-typedef View *const ViewPointer;
+typedef void SetView(void);
 
 void initView(void);
 
 void updateView(void);
 
-void setView(View *view);
-View *getView(void);
+void showView(OnViewEvent *onViewEvent);
 
 void requestViewUpdate(void);
 void updateViewHeartbeat(void);

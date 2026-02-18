@@ -269,7 +269,7 @@
 
 // Power menu items
 #define STRING_BATTERY "Batéria"
-#define STRING_USB_AUTO_POWER_ON "USB automatické zapnutie"
+#define STRING_USB_AUTOPOWER_ON "USB automatické zapnutie"
 
 // Battery type menu items
 #define STRING_NI_MH "Ni-MH"

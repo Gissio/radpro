@@ -10,14 +10,14 @@
 #if !defined(SOUND_H)
 #define SOUND_H
 
-#include "../ui/view.h"
-
-extern View soundMenuView;
+#if defined(BUZZER) || defined(PULSESOUND_ENABLE) || defined(VOICE)
+#define SOUND
+#endif
 
 void initSound(void);
 
 void setupSound(void);
 
-void setSoundMenu(void);
+void showSoundMenu(void);
 
 #endif

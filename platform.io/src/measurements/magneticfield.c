@@ -14,6 +14,7 @@
 #include "../measurements/pulses.h"
 #include "../peripherals/adc.h"
 #include "../peripherals/emf.h"
+#include "../system/cmath.h"
 #include "../system/events.h"
 #include "../system/power.h"
 #include "../system/settings.h"
@@ -28,8 +29,6 @@ typedef enum
 
     MAGNETIC_FIELD_TAB_NUM,
 } MagneticFieldTab;
-
-static Menu magneticFieldUnitsMenu;
 
 static void resetMagneticField(void);
 
@@ -57,7 +56,7 @@ void setupMagneticField(void)
 
     resetMagneticField();
 
-    selectMenuItem(&magneticFieldUnitsMenu, settings.magneticFieldUnits, MAGNETIC_FIELD_UNITS_NUM);
+    selectMenuItem(&magneticFieldUnitsMenu, settings.magneticFieldUnits);
 }
 
 static void resetMagneticField(void)
@@ -65,22 +64,29 @@ static void resetMagneticField(void)
     memset(&magneticField, 0, sizeof(magneticField));
 }
 
-void updateMagneticField(void)
+static void updateMagneticFieldAlerts(void)
 {
-    // Value
-    magneticField.value = readMagneticFieldStrength();
-    if (magneticField.value > magneticField.maxValue)
-        magneticField.maxValue = magneticField.value;
-
-    // Alerts
     AlertLevel alertLevel = ALERTLEVEL_NONE;
     if (settings.magneticFieldAlarm && (magneticField.value >= magneticFieldAlerts[settings.magneticFieldAlarm]))
         alertLevel = ALERTLEVEL_ALARM;
-    bool alertTriggered = (alertLevel > magneticField.alertLevel);
+
+    AlertLevel previousAlertLevel = magneticField.alertLevel;
     magneticField.alertLevel = alertLevel;
 
+    bool alertTriggered = (alertLevel > previousAlertLevel);
     if (alertTriggered)
         setAlertPending(true);
+}
+
+void updateMagneticField(void)
+{
+    // Update magnetic field strength
+    magneticField.value = readMagneticFieldStrength();
+
+    if (magneticField.value > magneticField.maxValue)
+        magneticField.maxValue = magneticField.value;
+
+    updateMagneticFieldAlerts();
 }
 
 float getMagneticField(void)
@@ -95,7 +101,68 @@ AlertLevel getMagneticFieldAlertLevel(void)
 
 // Magnetic field view
 
-static void onMagneticFieldViewEvent(Event event)
+static void advanceMagneticFieldTab(void)
+{
+    magneticFieldTab++;
+    if (magneticFieldTab >= MAGNETIC_FIELD_TAB_NUM)
+        magneticFieldTab = MAGNETIC_FIELD_TAB_MAX;
+}
+
+static MeasurementStyle getMagneticFieldMeasurementStyle(void)
+{
+    if (magneticField.alertLevel == ALERTLEVEL_ALARM)
+        return MEASUREMENTSTYLE_ALARM;
+
+    return MEASUREMENTSTYLE_NORMAL;
+}
+static void drawMagneticFieldValue(void)
+{
+    char valueString[32] = "";
+    char unitString[32] = "";
+    buildValueString(valueString, unitString, magneticField.value, &magneticFieldUnits[settings.magneticFieldUnits], magneticFieldMinMetricPrefix[settings.magneticFieldUnits]);
+
+    drawTitleBar(getString(STRING_MAGNETIC_FIELD));
+    drawMeasurementValue(valueString, unitString, 0, getMagneticFieldMeasurementStyle());
+}
+
+static void drawMagneticFieldTab(void)
+{
+    char valueString[32] = "";
+    char unitString[32] = " ";
+    const char *keyString = NULL;
+
+    switch (magneticFieldTab)
+    {
+    case MAGNETIC_FIELD_TAB_MAX:
+        buildValueString(valueString, unitString, magneticField.maxValue, &magneticFieldUnits[settings.magneticFieldUnits], magneticFieldMinMetricPrefix[settings.magneticFieldUnits]);
+
+        keyString = getString(STRING_MAX);
+
+        break;
+
+    case MAGNETIC_FIELD_TAB_ELECTRIC:
+    {
+        buildValueString(valueString, unitString, getElectricField(), &electricFieldUnits, electricFieldMinMetricPrefix);
+
+        keyString = getString(STRING_ELECTRIC_FIELD);
+
+        break;
+    }
+
+    default:
+        break;
+    }
+
+    drawMeasurementInfo(keyString, valueString, unitString, MEASUREMENTSTYLE_NORMAL);
+}
+
+static void drawMagneticFieldView(void)
+{
+    drawMagneticFieldValue();
+    drawMagneticFieldTab();
+}
+
+void onMagneticFieldViewEvent(ViewEvent event)
 {
     if (onMeasurementViewEvent(event))
         return;
@@ -103,9 +170,7 @@ static void onMagneticFieldViewEvent(Event event)
     switch (event)
     {
     case EVENT_KEY_BACK:
-        magneticFieldTab++;
-        if (magneticFieldTab >= MAGNETIC_FIELD_TAB_NUM)
-            magneticFieldTab = MAGNETIC_FIELD_TAB_MAX;
+        advanceMagneticFieldTab();
 
         requestViewUpdate();
 
@@ -121,97 +186,43 @@ static void onMagneticFieldViewEvent(Event event)
         break;
 
     case EVENT_DRAW:
-    {
-        char valueString[32];
-        char unitString[32];
-        MeasurementStyle style;
-
-        strclr(valueString);
-        strclr(unitString);
-        buildValueString(valueString, unitString, magneticField.value, &magneticFieldUnits[settings.magneticFieldUnits], magneticFieldMinMetricPrefix[settings.magneticFieldUnits]);
-
-        if (magneticField.alertLevel == ALERTLEVEL_ALARM)
-            style = MEASUREMENTSTYLE_ALARM;
-        else
-            style = MEASUREMENTSTYLE_NORMAL;
-
-        drawTitleBar(getString(STRING_MAGNETIC_FIELD));
-        drawMeasurementValue(valueString, unitString, 0, style);
-
-        const char *keyString = NULL;
-        strclr(valueString);
-        strcpy(unitString, " ");
-
-        switch (magneticFieldTab)
-        {
-        case MAGNETIC_FIELD_TAB_MAX:
-            buildValueString(valueString, unitString, magneticField.maxValue, &magneticFieldUnits[settings.magneticFieldUnits], magneticFieldMinMetricPrefix[settings.magneticFieldUnits]);
-
-            keyString = getString(STRING_MAX);
-
-            break;
-
-        case MAGNETIC_FIELD_TAB_ELECTRIC:
-        {
-            buildValueString(valueString, unitString, getElectricField(), &electricFieldUnits, electricFieldMinMetricPrefix);
-
-            keyString = getString(STRING_ELECTRIC_FIELD);
-
-            break;
-        }
-
-        default:
-            break;
-        }
-
-        drawMeasurementInfo(keyString, valueString, unitString, MEASUREMENTSTYLE_NORMAL);
+        drawMagneticFieldView();
 
         break;
-    }
 
     default:
         break;
     }
 }
 
-View magneticFieldView = {
-    onMagneticFieldViewEvent,
-    NULL,
-};
-
 // Magnetic field units menu
 
 static cstring magneticFieldUnitsMenuOptions[] = {
     STRING_TESLA,
     STRING_GAUSS,
-    NULL,
 };
 
-static const char *onMagneticFieldUnitsMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+static const char *onMagneticFieldUnitsMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.magneticFieldUnits);
 
     return getString(magneticFieldUnitsMenuOptions[index]);
 }
 
-static void onMagneticFieldUnitsMenuSelect(uint32_t index)
+static void onMagneticFieldUnitsMenuSelect(menu_size_t index)
 {
     settings.magneticFieldUnits = index;
 }
 
 static MenuState magneticFieldUnitsMenuState;
 
-static Menu magneticFieldUnitsMenu = {
+const Menu magneticFieldUnitsMenu = {
     STRING_MAGNETIC_FIELD_UNITS,
     &magneticFieldUnitsMenuState,
+    ARRAY_SIZE(magneticFieldUnitsMenuOptions),
     onMagneticFieldUnitsMenuGetOption,
     onMagneticFieldUnitsMenuSelect,
-    setMeasurementsMenu,
-};
-
-View magneticFieldUnitsMenuView = {
-    onMenuEvent,
-    &magneticFieldUnitsMenu,
+    showMeasurementsMenu,
 };
 
 // Magnetic field alarm view
@@ -227,46 +238,35 @@ const float magneticFieldAlerts[] = {
     20E-6F,
 };
 
-static const char *onMagneticFieldAlarmMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+static const char *onMagneticFieldAlarmMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.magneticFieldAlarm);
 
     if (index == 0)
         return getString(STRING_OFF);
-    else if (index < MAGNETIC_FIELD_NUM)
-    {
-        char unitString[32];
 
-        strclr(menuOption);
-        strcpy(unitString, " ");
+    char unitString[32] = " ";
+    strclr(menuOption);
+    buildValueString(menuOption, unitString, magneticFieldAlerts[index], &magneticFieldUnits[settings.magneticFieldUnits], magneticFieldMinMetricPrefix[settings.magneticFieldUnits]);
+    strcat(menuOption, unitString);
 
-        buildValueString(menuOption, unitString, magneticFieldAlerts[index], &magneticFieldUnits[settings.magneticFieldUnits], magneticFieldMinMetricPrefix[settings.magneticFieldUnits]);
-        strcat(menuOption, unitString);
-
-        return menuOption;
-    }
-    else
-        return NULL;
+    return menuOption;
 }
 
-static void onMagneticFieldAlarmMenuSelect(uint32_t index)
+static void onMagneticFieldAlarmMenuSelect(menu_size_t index)
 {
     settings.magneticFieldAlarm = index;
 }
 
 static MenuState magneticFieldAlarmMenuState;
 
-static Menu magneticFieldAlarmMenu = {
+const Menu magneticFieldAlarmMenu = {
     STRING_MAGNETIC_FIELD_ALARM,
     &magneticFieldAlarmMenuState,
+    ARRAY_SIZE(magneticFieldAlerts),
     onMagneticFieldAlarmMenuGetOption,
     onMagneticFieldAlarmMenuSelect,
-    setAlertsMenu,
-};
-
-View magneticFieldAlarmMenuView = {
-    onMenuEvent,
-    &magneticFieldAlarmMenu,
+    showAlertsMenu,
 };
 
 #endif

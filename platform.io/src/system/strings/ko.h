@@ -269,7 +269,7 @@
 
 // Power menu items
 #define STRING_BATTERY "배터리"
-#define STRING_USB_AUTO_POWER_ON "USB 자동 전원 켜기"
+#define STRING_USB_AUTOPOWER_ON "USB 자동 전원 켜기"
 
 // Battery type menu items
 #define STRING_NI_MH "니켈-금속수소"

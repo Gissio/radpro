@@ -17,27 +17,16 @@
 #include "../system/cmath.h"
 #include "../system/events.h"
 #include "../system/settings.h"
-#include "../ui/menu.h"
 
 #define PULSE_INDICATION_SENSITIVITY_MAX 600.0F
 #define PULSE_INDICATION_FACTOR_UNIT 0x10000
 #define PULSE_INDICATION_FACTOR_MASK (PULSE_INDICATION_FACTOR_UNIT - 1)
 
-static Menu pulsesMenu;
-static Menu pulsesIndicationMenu;
-static Menu pulsesThresholdMenu;
+static const Menu pulsesMenu;
+static const Menu pulsesIndicationMenu;
+static const Menu pulsesThresholdMenu;
 
-static Menu rateWarningMenu;
-static Menu doseWarningMenu;
-static Menu rateAlarmMenu;
-static Menu doseAlarmMenu;
-
-static Menu doseUnitsMenu;
-static Menu secondaryDoseUnitsMenu;
-
-static const char *buildRateAlertMenuOption(uint32_t index);
-
-static void setPulsesMenu(void);
+static const char *buildRateAlertMenuOption(menu_size_t index);
 
 const float rateAlerts[] = {
     0,
@@ -117,6 +106,9 @@ static struct
     bool faultAlertTriggered;
 
     float deadTimeCompensationRemainder;
+
+    // Selected menu
+    menu_size_t alertsMenuIndex;
 } pulses;
 
 void setupPulses(void)
@@ -134,17 +126,17 @@ void setupPulses(void)
     setupCumulativeDose();
     setupHistory();
 
-    selectMenuItem(&pulsesMenu, 0, 0);
-    selectMenuItem(&pulsesIndicationMenu, 0, 0);
-    selectMenuItem(&pulsesThresholdMenu, settings.pulseThreshold, RATE_NUM);
+    selectMenuItem(&pulsesMenu, 0);
+    selectMenuItem(&pulsesIndicationMenu, 0);
+    selectMenuItem(&pulsesThresholdMenu, settings.pulseThreshold);
 
-    selectMenuItem(&rateWarningMenu, settings.rateWarning, RATE_NUM);
-    selectMenuItem(&doseWarningMenu, settings.doseWarning, DOSE_NUM);
-    selectMenuItem(&rateAlarmMenu, settings.rateAlarm, RATE_NUM);
-    selectMenuItem(&doseAlarmMenu, settings.doseAlarm, DOSE_NUM);
+    selectMenuItem(&rateWarningMenu, settings.rateWarning);
+    selectMenuItem(&doseWarningMenu, settings.doseWarning);
+    selectMenuItem(&rateAlarmMenu, settings.rateAlarm);
+    selectMenuItem(&doseAlarmMenu, settings.doseAlarm);
 
-    selectMenuItem(&doseUnitsMenu, settings.doseUnits, DOSE_UNITS_NUM);
-    selectMenuItem(&secondaryDoseUnitsMenu, settings.secondaryDoseUnits, DOSE_UNITS_NUM);
+    selectMenuItem(&doseUnitsMenu, settings.doseUnits);
+    selectMenuItem(&secondaryDoseUnitsMenu, settings.secondaryDoseUnits);
 }
 
 void updateDoseUnits(void)
@@ -198,9 +190,9 @@ float getDoseFactor(void)
 
 void updatePulseThresholdExceeded(void)
 {
-    float rateSvH = pulseUnits[DOSE_UNITS_SIEVERTS].rate.scale * getInstantaneousRate();
+    float rateSievertsPerHour = pulseUnits[DOSE_UNITS_SIEVERTS].rate.scale * getInstantaneousRate();
 
-    pulses.rateOverThreshold = settings.pulseThreshold ? rateSvH >= rateAlerts[settings.pulseThreshold] : true;
+    pulses.rateOverThreshold = settings.pulseThreshold ? rateSievertsPerHour >= rateAlerts[settings.pulseThreshold] : true;
 }
 
 bool isPulseThresholdExceeded(void)
@@ -286,8 +278,7 @@ void updatePulses(void)
     {
         pulses.deadTimeCompensationRemainder += getDeadTimeCompensationFactor() * pulses.lastPeriod.pulseCount;
         compensatedPeriod.pulseCount = (uint32_t)pulses.deadTimeCompensationRemainder;
-        if (pulses.deadTimeCompensationRemainder >= 1)
-            pulses.deadTimeCompensationRemainder -= compensatedPeriod.pulseCount;
+        pulses.deadTimeCompensationRemainder -= compensatedPeriod.pulseCount;
     }
 
     // Average rate, cumulative dose, history
@@ -364,10 +355,9 @@ static cstring pulsesIndicationMenuOptions[] = {
     STRING_PULSE_LED,
 #endif
     STRING_DISPLAY_FLASH,
-    NULL,
 };
 
-static const char *onPulsesIndicationMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+static const char *onPulsesIndicationMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     switch (index)
     {
@@ -401,7 +391,7 @@ static const char *onPulsesIndicationMenuGetOption(uint32_t index, MenuStyle *me
     return getString(pulsesIndicationMenuOptions[index]);
 }
 
-static void onPulsesIndicationMenuSelect(uint32_t index)
+static void onPulsesIndicationMenuSelect(menu_size_t index)
 {
     switch (index)
     {
@@ -441,34 +431,25 @@ static void onPulsesIndicationMenuSelect(uint32_t index)
 
 static MenuState pulsesIndicationMenuState;
 
-static Menu pulsesIndicationMenu = {
+static const Menu pulsesIndicationMenu = {
     STRING_INDICATION,
     &pulsesIndicationMenuState,
+    ARRAY_SIZE(pulsesIndicationMenuOptions),
     onPulsesIndicationMenuGetOption,
     onPulsesIndicationMenuSelect,
-    setPulsesMenu,
-};
-
-static View pulsesIndicationMenuView = {
-    onMenuEvent,
-    &pulsesIndicationMenu,
+    showPulsesMenu,
 };
 
 // Pulses threshold menu
 
-static const char *onPulsesThresholdMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+static const char *onPulsesThresholdMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.pulseThreshold);
 
-    if (index == 0)
-        return getString(STRING_OFF);
-    else if (index < RATE_NUM)
-        return buildRateAlertMenuOption(index);
-    else
-        return NULL;
+    return buildRateAlertMenuOption(index);
 }
 
-static void onPulsesThresholdMenuSelect(uint32_t index)
+static void onPulsesThresholdMenuSelect(menu_size_t index)
 {
     settings.pulseThreshold = index;
 
@@ -483,210 +464,180 @@ static void onPulsesThresholdMenuSelect(uint32_t index)
 
 static MenuState pulsesThresholdMenuState;
 
-static Menu pulsesThresholdMenu = {
+static const Menu pulsesThresholdMenu = {
     STRING_THRESHOLD,
     &pulsesThresholdMenuState,
+    ARRAY_SIZE(rateAlerts),
     onPulsesThresholdMenuGetOption,
     onPulsesThresholdMenuSelect,
-    setPulsesMenu,
-};
-
-static View pulsesThresholdMenuView = {
-    onMenuEvent,
-    &pulsesThresholdMenu,
+    showPulsesMenu,
 };
 
 // Pulses menu
 
-static MenuOption pulsesMenuOptions[] = {
-    {STRING_INDICATION, &pulsesIndicationMenuView},
-    {STRING_THRESHOLD, &pulsesThresholdMenuView},
-    {NULL},
+static const MenuOption pulsesMenuOptions[] = {
+    {STRING_INDICATION, &pulsesIndicationMenu},
+    {STRING_THRESHOLD, &pulsesThresholdMenu},
 };
 
-static const char *onPulsesMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+static const char *onPulsesMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     *menuStyle = MENUSTYLE_SUBMENU;
 
     return getString(pulsesMenuOptions[index].title);
 }
 
-static void onPulsesMenuSelect(uint32_t index)
+static void onPulsesMenuSelect(menu_size_t index)
 {
-    setView(pulsesMenuOptions[index].view);
+    showMenu(pulsesMenuOptions[index].menu);
 }
 
 static MenuState pulsesMenuState;
 
-static Menu pulsesMenu = {
+static const Menu pulsesMenu = {
     STRING_PULSES,
     &pulsesMenuState,
+    ARRAY_SIZE(pulsesMenuOptions),
     onPulsesMenuGetOption,
     onPulsesMenuSelect,
-    setSettingsMenu,
+    showSettingsMenu,
 };
 
-View pulsesMenuView = {
-    onMenuEvent,
-    &pulsesMenu,
-};
-
-static void setPulsesMenu(void)
+void showPulsesMenu(void)
 {
-    setView(&pulsesMenuView);
+    showMenu(&pulsesMenu);
 }
 
-// Rate alerts
+// Alerts
 
-static const char *buildRateAlertMenuOption(uint32_t index)
-{
-    if (index == 0)
-        return getString(STRING_OFF);
-    else
-    {
-        const Unit *unit = &pulseUnits[settings.doseUnits].rate;
-        char unitString[32];
-        float value = rateAlerts[index] /
-                      pulseUnits[DOSE_UNITS_SIEVERTS].rate.scale;
-
-        strclr(menuOption);
-        strcpy(unitString, " ");
-
-        buildValueString(menuOption, unitString, value, unit, doseUnitsMinMetricPrefix[settings.doseUnits]);
-        strcat(menuOption, unitString);
-
-        return menuOption;
-    }
-}
-
-static const char *onRateAlertMenuGetOption(uint32_t index, MenuStyle *menuStyle)
-{
-    if (getView() == &rateAlarmMenuView)
-        *menuStyle = (index == settings.rateAlarm);
-    else
-        *menuStyle = (index == settings.rateWarning);
-
-    if (index < RATE_NUM)
-        return buildRateAlertMenuOption(index);
-    else
-        return NULL;
-}
-
-static void onRateAlertMenuSelect(uint32_t index)
-{
-    if (getView() == &rateAlarmMenuView)
-        settings.rateAlarm = index;
-    else
-        settings.rateWarning = index;
-}
-
-// Dose alerts
-
-char *buildDoseAlertMenuOption(uint32_t index)
+static const char *buildAlertMenuOption(menu_size_t index, const float *alerts, const Unit *unit, float scale)
 {
     if (index == 0)
         return getString(STRING_OFF);
 
-    const Unit *unit = &pulseUnits[settings.doseUnits].dose;
     char unitString[32];
-    float value = doseAlerts[index] / pulseUnits[DOSE_UNITS_SIEVERTS].dose.scale;
+    float value = alerts[index] / scale;
 
     strclr(menuOption);
     strcpy(unitString, " ");
-
     buildValueString(menuOption, unitString, value, unit, doseUnitsMinMetricPrefix[settings.doseUnits]);
     strcat(menuOption, unitString);
 
     return menuOption;
 }
 
-static const char *onDoseAlertMenuGetOption(uint32_t index, MenuStyle *menuStyle)
-{
-    if (getView() == &doseAlarmMenuView)
-        *menuStyle = (index == settings.doseAlarm);
-    else
-        *menuStyle = (index == settings.doseWarning);
+// Rate alerts
 
-    if (index < DOSE_NUM)
-        return buildDoseAlertMenuOption(index);
-    else
-        return NULL;
+static const char *buildRateAlertMenuOption(menu_size_t index)
+{
+    return buildAlertMenuOption(index, rateAlerts, &pulseUnits[settings.doseUnits].rate, pulseUnits[DOSE_UNITS_SIEVERTS].rate.scale);
 }
 
-static void onDoseAlertMenuSelect(uint32_t index)
+// Dose alerts
+
+static const char *buildDoseAlertMenuOption(menu_size_t index)
 {
-    if (getView() == &doseAlarmMenuView)
-        settings.doseAlarm = index;
-    else
-        settings.doseWarning = index;
+    return buildAlertMenuOption(index, doseAlerts, &pulseUnits[settings.doseUnits].dose, pulseUnits[DOSE_UNITS_SIEVERTS].dose.scale);
 }
 
 // Rate warning menu
 
+static const char *onRateWarningMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
+{
+    *menuStyle = (index == settings.rateWarning);
+
+    return buildRateAlertMenuOption(index);
+}
+
+static void onRateWarningMenuSelect(menu_size_t index)
+{
+    settings.rateWarning = index;
+}
+
 static MenuState rateWarningMenuState;
 
-static Menu rateWarningMenu = {
+const Menu rateWarningMenu = {
     STRING_RATE_WARNING,
     &rateWarningMenuState,
-    onRateAlertMenuGetOption,
-    onRateAlertMenuSelect,
-    setAlertsMenu,
-};
-
-View rateWarningMenuView = {
-    onMenuEvent,
-    &rateWarningMenu,
+    ARRAY_SIZE(rateAlerts),
+    onRateWarningMenuGetOption,
+    onRateWarningMenuSelect,
+    showAlertsMenu,
 };
 
 // Rate alarm menu
 
+static const char *onRateAlarmMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
+{
+    *menuStyle = (index == settings.rateAlarm);
+
+    return buildRateAlertMenuOption(index);
+}
+
+static void onRateAlarmMenuSelect(menu_size_t index)
+{
+    settings.rateAlarm = index;
+}
+
 static MenuState rateAlarmMenuState;
 
-static Menu rateAlarmMenu = {
+const Menu rateAlarmMenu = {
     STRING_RATE_ALARM,
     &rateAlarmMenuState,
-    onRateAlertMenuGetOption,
-    onRateAlertMenuSelect,
-    setAlertsMenu,
-};
-
-View rateAlarmMenuView = {
-    onMenuEvent,
-    &rateAlarmMenu,
+    ARRAY_SIZE(rateAlerts),
+    onRateAlarmMenuGetOption,
+    onRateAlarmMenuSelect,
+    showAlertsMenu,
 };
 
 // Dose warning menu
 
+static const char *onDoseWarningMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
+{
+    *menuStyle = (index == settings.doseWarning);
+
+    return buildDoseAlertMenuOption(index);
+}
+
+static void onDoseWarningMenuSelect(menu_size_t index)
+{
+    settings.doseWarning = index;
+}
+
 static MenuState doseWarningMenuState;
 
-static Menu doseWarningMenu = {
+const Menu doseWarningMenu = {
     STRING_DOSE_WARNING,
     &doseWarningMenuState,
-    onDoseAlertMenuGetOption,
-    onDoseAlertMenuSelect,
-    setAlertsMenu,
-};
-
-View doseWarningMenuView = {
-    onMenuEvent,
-    &doseWarningMenu,
+    ARRAY_SIZE(doseAlerts),
+    onDoseWarningMenuGetOption,
+    onDoseWarningMenuSelect,
+    showAlertsMenu,
 };
 
 // Dose alarm menu
 
+static const char *onDoseAlarmMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
+{
+    *menuStyle = (index == settings.doseAlarm);
+
+    return buildDoseAlertMenuOption(index);
+}
+
+static void onDoseAlarmMenuSelect(menu_size_t index)
+{
+    settings.doseAlarm = index;
+}
+
 static MenuState doseAlarmMenuState;
 
-static Menu doseAlarmMenu = {
+const Menu doseAlarmMenu = {
     STRING_DOSE_ALARM,
     &doseAlarmMenuState,
-    onDoseAlertMenuGetOption,
-    onDoseAlertMenuSelect,
-    setAlertsMenu,
-};
-
-View doseAlarmMenuView = {
-    onMenuEvent,
-    &doseAlarmMenu,
+    ARRAY_SIZE(doseAlerts),
+    onDoseAlarmMenuGetOption,
+    onDoseAlarmMenuSelect,
+    showAlertsMenu,
 };
 
 // Dose units menu
@@ -696,61 +647,52 @@ static cstring doseUnitsMenuOptions[] = {
     STRING_REM,
     STRING_CPM,
     STRING_CPS,
-    NULL,
 };
 
-static const char *onDoseUnitsMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+static const char *onDoseUnitsMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.doseUnits);
 
     return getString(doseUnitsMenuOptions[index]);
 }
 
-static void onDoseUnitsMenuSelect(uint32_t index)
+static void onDoseUnitsMenuSelect(menu_size_t index)
 {
     settings.doseUnits = index;
 }
 
 static MenuState doseUnitsMenuState;
 
-static Menu doseUnitsMenu = {
+const Menu doseUnitsMenu = {
     STRING_DOSE_UNITS,
     &doseUnitsMenuState,
+    ARRAY_SIZE(doseUnitsMenuOptions),
     onDoseUnitsMenuGetOption,
     onDoseUnitsMenuSelect,
-    setMeasurementsMenu,
-};
-
-View doseUnitsMenuView = {
-    onMenuEvent,
-    &doseUnitsMenu,
+    showMeasurementsMenu,
 };
 
 // Secondary dose units menu
 
-static const char *onSecondaryDoseUnitsMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+static const char *onSecondaryDoseUnitsMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.secondaryDoseUnits);
 
     return getString(doseUnitsMenuOptions[index]);
 }
 
-static void onSecondaryDoseUnitsMenuSelect(uint32_t index)
+static void onSecondaryDoseUnitsMenuSelect(menu_size_t index)
 {
     settings.secondaryDoseUnits = index;
 }
 
 static MenuState secondaryUnitsMenuState;
 
-static Menu secondaryDoseUnitsMenu = {
+const Menu secondaryDoseUnitsMenu = {
     STRING_SECONDARY_DOSE_UNITS,
     &secondaryUnitsMenuState,
+    ARRAY_SIZE(doseUnitsMenuOptions),
     onSecondaryDoseUnitsMenuGetOption,
     onSecondaryDoseUnitsMenuSelect,
-    setMeasurementsMenu,
-};
-
-View secondaryDoseUnitsMenuView = {
-    onMenuEvent,
-    &secondaryDoseUnitsMenu,
+    showMeasurementsMenu,
 };

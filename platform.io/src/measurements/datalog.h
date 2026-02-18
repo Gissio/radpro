@@ -14,14 +14,11 @@
 #include <stdint.h>
 
 #include "../measurements/pulses.h"
-#include "../ui/view.h"
 
 typedef struct {
     bool sessionStart;
     Dose dose;
 } DatalogRecord;
-
-extern View datalogMenuView;
 
 void initDatalog(void);
 
@@ -35,5 +32,7 @@ void updateDatalog(void);
 
 bool startDatalogRead(void);
 bool readDatalog(DatalogRecord *record);
+
+void showDatalogMenu(void);
 
 #endif

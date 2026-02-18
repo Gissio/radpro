@@ -21,13 +21,14 @@
 #include "../peripherals/led.h"
 #include "../peripherals/pulsesoundenable.h"
 #include "../peripherals/tube.h"
+#include "../system/cmath.h"
 #include "../system/events.h"
 #include "../system/settings.h"
 #include "../ui/menu.h"
 
 typedef enum
 {
-    MEASUREMENTS_VIEW_INSTANTANTANEOUS_RATE,
+    MEASUREMENTS_VIEW_INSTANTANEOUS_RATE,
     MEASUREMENTS_VIEW_AVERAGE_RATE,
     MEASUREMENTS_VIEW_CUMULATIVE_DOSE,
 #if defined(EMFMETER)
@@ -37,7 +38,7 @@ typedef enum
     MEASUREMENTS_VIEW_HISTORY,
 
     MEASUREMENTS_VIEW_NUM,
-} AverageTab;
+} MeasurementView;
 
 static struct
 {
@@ -45,35 +46,35 @@ static struct
 
     int32_t viewIndex;
 
-    AlertLevel faultAlertLevel;
+    AlertLevel alertLevel;
     bool alertPending;
     bool alertFlashing;
     bool soundIconActive;
 } measurements;
 
-static Menu alertsMenu;
-static Menu alertIndicationMenu;
+static const Menu alertsMenu;
+static const Menu alertIndicationMenu;
 
-static Menu measurementsMenu;
+static const Menu measurementsMenu;
 
 // Measurements
 
-static ViewPointer measurementViews[] = {
-    &instantaneousRateView,
-    &averageRateView,
-    &cumulativeDoseView,
+static OnViewEvent *const measurementViews[] = {
+    onInstantaneousRateViewEvent,
+    onAverageRateViewEvent,
+    onCumulativeDoseViewEvent,
 #if defined(EMFMETER)
-    &electricFieldView,
-    &magneticFieldView,
+    onElectricFieldViewEvent,
+    onMagneticFieldViewEvent,
 #endif
-    &historyView,
+    onHistoryViewEvent,
 };
 
-static void setMeasurementView(int32_t index);
+static void setMeasurementViewSelect(MeasurementView index);
 
 void setupMeasurements(void)
 {
-    measurements.viewIndex = MEASUREMENTS_VIEW_INSTANTANTANEOUS_RATE;
+    measurements.viewIndex = MEASUREMENTS_VIEW_INSTANTANEOUS_RATE;
 
     setupPulses();
 
@@ -82,10 +83,10 @@ void setupMeasurements(void)
     setupMagneticField();
 #endif
 
-    selectMenuItem(&alertsMenu, 0, 0);
-    selectMenuItem(&alertIndicationMenu, 0, 0);
+    selectMenuItem(&alertsMenu, 0);
+    selectMenuItem(&alertIndicationMenu, 0);
 
-    selectMenuItem(&measurementsMenu, 0, 0);
+    selectMenuItem(&measurementsMenu, 0);
 }
 
 void setMeasurementsEnabled(bool value)
@@ -103,6 +104,11 @@ bool isMeasurementsEnabled(void)
     return measurements.enabled;
 }
 
+static AlertLevel getMaxAlertLevel(AlertLevel a, AlertLevel b)
+{
+    return (b > a) ? b : a;
+}
+
 void updateMeasurements(void)
 {
     if (!measurements.enabled)
@@ -115,27 +121,12 @@ void updateMeasurements(void)
 #endif
 
     // Alerts
-    AlertLevel alertLevel;
-    AlertLevel alertLevelSource;
-
-    alertLevel = getTubeFaultAlertLevel();
-
-    alertLevelSource = getInstantaneousRateAlertLevel();
-    if (alertLevelSource > alertLevel)
-        alertLevel = alertLevelSource;
-
-    alertLevelSource = getCumulativeDoseAlertLevel();
-    if (alertLevelSource > alertLevel)
-        alertLevel = alertLevelSource;
-
+    AlertLevel alertLevel = getTubeFaultAlertLevel();
+    alertLevel = getMaxAlertLevel(alertLevel, getInstantaneousRateAlertLevel());
+    alertLevel = getMaxAlertLevel(alertLevel, getCumulativeDoseAlertLevel());
 #if defined(EMFMETER)
-    alertLevelSource = getElectricFieldAlertLevel();
-    if (alertLevelSource > alertLevel)
-        alertLevel = alertLevelSource;
-
-    alertLevelSource = getMagneticFieldAlertLevel();
-    if (alertLevelSource > alertLevel)
-        alertLevel = alertLevelSource;
+    alertLevel = getMaxAlertLevel(alertLevel, getElectricFieldAlertLevel());
+    alertLevel = getMaxAlertLevel(alertLevel, getMagneticFieldAlertLevel());
 #endif
 
     if (alertLevel)
@@ -143,17 +134,17 @@ void updateMeasurements(void)
         if (measurements.alertPending)
             triggerAlert(alertLevel == ALERTLEVEL_ALARM);
 
-        if (!measurements.faultAlertLevel)
-            measurements.alertFlashing = true;
-        else
-            measurements.alertFlashing = !measurements.alertFlashing;
+        bool alertTriggered = (alertLevel && !measurements.alertLevel);
+        measurements.alertFlashing = alertTriggered ? true : !measurements.alertFlashing;
     }
     else
     {
         measurements.alertPending = false;
+
         measurements.alertFlashing = false;
     }
-    measurements.faultAlertLevel = alertLevel;
+
+    measurements.alertLevel = alertLevel;
 
     // Sound control
 #if defined(PULSESOUND_ENABLE)
@@ -169,14 +160,14 @@ void updateMeasurements(void)
     if (!isDisplayEnabled() && measurements.alertPending)
     {
         if (getInstantaneousRateAlertLevel())
-            setMeasurementView(MEASUREMENTS_VIEW_INSTANTANTANEOUS_RATE);
+            setMeasurementViewSelect(MEASUREMENTS_VIEW_INSTANTANEOUS_RATE);
         else if (getCumulativeDoseAlertLevel())
-            setMeasurementView(MEASUREMENTS_VIEW_CUMULATIVE_DOSE);
+            setMeasurementViewSelect(MEASUREMENTS_VIEW_CUMULATIVE_DOSE);
 #if defined(EMFMETER)
         else if (getElectricFieldAlertLevel())
-            setMeasurementView(MEASUREMENTS_VIEW_ELECTRIC_FIELD);
+            setMeasurementViewSelect(MEASUREMENTS_VIEW_ELECTRIC_FIELD);
         else if (getMagneticFieldAlertLevel())
-            setMeasurementView(MEASUREMENTS_VIEW_MAGNETIC_FIELD);
+            setMeasurementViewSelect(MEASUREMENTS_VIEW_MAGNETIC_FIELD);
 #endif
     }
 }
@@ -197,7 +188,7 @@ bool isAlertEnabled(void)
 
 AlertLevel getAlertLevel(void)
 {
-    return measurements.faultAlertLevel;
+    return measurements.alertLevel;
 }
 
 void setAlertPending(bool value)
@@ -243,22 +234,21 @@ void buildValueString(char *valueString, char *unitString, float value, const Un
     }
 }
 
-static void setMeasurementView(int32_t index)
+static void setMeasurementViewSelect(MeasurementView index)
 {
-    if (index >= 0)
-        measurements.viewIndex = index;
+    measurements.viewIndex = index;
 
+    setMeasurementView();
+}
+
+void setMeasurementView(void)
+{
     setKeyboardMode(KEYBOARD_MODE_MEASUREMENT);
 
-    setView(measurementViews[measurements.viewIndex]);
+    showView(measurementViews[measurements.viewIndex]);
 }
 
-void setMeasurementViewCurrent(void)
-{
-    setMeasurementView(-1);
-}
-
-bool onMeasurementViewEvent(Event event)
+bool onMeasurementViewEvent(ViewEvent event)
 {
     switch (event)
     {
@@ -269,7 +259,7 @@ bool onMeasurementViewEvent(Event event)
 
             setKeyboardMode(KEYBOARD_MODE_MENU);
 
-            setSettingsMenu();
+            showSettingsMenu();
         }
 
         break;
@@ -279,7 +269,7 @@ bool onMeasurementViewEvent(Event event)
         if (measurements.viewIndex < 0)
             measurements.viewIndex = MEASUREMENTS_VIEW_NUM - 1;
 
-        setMeasurementView(measurements.viewIndex);
+        setMeasurementView();
 
         break;
 
@@ -288,7 +278,7 @@ bool onMeasurementViewEvent(Event event)
         if (measurements.viewIndex >= MEASUREMENTS_VIEW_NUM)
             measurements.viewIndex = 0;
 
-        setMeasurementView(measurements.viewIndex);
+        setMeasurementView();
 
         break;
 
@@ -353,10 +343,9 @@ static cstring alertIndicationMenuOptions[] = {
     STRING_PULSE_LED,
 #endif
     STRING_DISPLAY_FLASH,
-    NULL,
 };
 
-static const char *onAlertIndicationMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+static const char *onAlertIndicationMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     switch (index)
     {
@@ -397,7 +386,7 @@ static const char *onAlertIndicationMenuGetOption(uint32_t index, MenuStyle *men
     return getString(alertIndicationMenuOptions[index]);
 }
 
-static void onAlertIndicationMenuSelect(uint32_t index)
+static void onAlertIndicationMenuSelect(menu_size_t index)
 {
     switch (index)
     {
@@ -440,108 +429,94 @@ static void onAlertIndicationMenuSelect(uint32_t index)
 
 static MenuState alertIndicationMenuState;
 
-static Menu alertIndicationMenu = {
+static const Menu alertIndicationMenu = {
     STRING_INDICATION,
     &alertIndicationMenuState,
+    ARRAY_SIZE(alertIndicationMenuOptions),
     onAlertIndicationMenuGetOption,
     onAlertIndicationMenuSelect,
-    setAlertsMenu,
-};
-
-static View alertIndicationMenuView = {
-    onMenuEvent,
-    &alertIndicationMenu,
+    showAlertsMenu,
 };
 
 // Alerts menu
 
-static MenuOption alertsMenuOptions[] = {
-    {STRING_INDICATION, &alertIndicationMenuView},
-    {STRING_RATE_WARNING, &rateWarningMenuView},
-    {STRING_RATE_ALARM, &rateAlarmMenuView},
-    {STRING_DOSE_WARNING, &doseWarningMenuView},
-    {STRING_DOSE_ALARM, &doseAlarmMenuView},
+static const MenuOption alertsMenuOptions[] = {
+    {STRING_INDICATION, &alertIndicationMenu},
+    {STRING_RATE_WARNING, &rateWarningMenu},
+    {STRING_RATE_ALARM, &rateAlarmMenu},
+    {STRING_DOSE_WARNING, &doseWarningMenu},
+    {STRING_DOSE_ALARM, &doseAlarmMenu},
 #if defined(EMFMETER)
-    {STRING_ELECTRIC_FIELD_ALARM, &electricFieldAlarmMenuView},
-    {STRING_MAGNETIC_FIELD_ALARM, &magneticFieldAlarmMenuView},
+    {STRING_ELECTRIC_FIELD_ALARM, &electricFieldAlarmMenu},
+    {STRING_MAGNETIC_FIELD_ALARM, &magneticFieldAlarmMenu},
 #endif
-    {NULL},
 };
 
-static const char *onAlertsMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+static const char *onAlertsMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     *menuStyle = MENUSTYLE_SUBMENU;
 
     return getString(alertsMenuOptions[index].title);
 }
 
-static void onAlertsMenuSelect(uint32_t index)
+static void onAlertsMenuSelect(menu_size_t index)
 {
-    setView(alertsMenuOptions[index].view);
+    showMenu(alertsMenuOptions[index].menu);
 }
 
 static MenuState alertsMenuState;
 
-static Menu alertsMenu = {
+static const Menu alertsMenu = {
     STRING_ALERTS,
     &alertsMenuState,
+    ARRAY_SIZE(alertsMenuOptions),
     onAlertsMenuGetOption,
     onAlertsMenuSelect,
-    setSettingsMenu,
+    showSettingsMenu,
 };
 
-View alertsMenuView = {
-    onMenuEvent,
-    &alertsMenu,
-};
-
-void setAlertsMenu(void)
+void showAlertsMenu(void)
 {
-    setView(&alertsMenuView);
+    showMenu(&alertsMenu);
 }
 
 // Measurements menu
 
-static MenuOption measurementsMenuOptions[] = {
-    {STRING_SOURCE, &sourceMenuView},
-    {STRING_DOSE_UNITS, &doseUnitsMenuView},
-    {STRING_SECONDARY_DOSE_UNITS, &secondaryDoseUnitsMenuView},
+static const MenuOption measurementsMenuOptions[] = {
+    {STRING_SOURCE, &sourceMenu},
+    {STRING_DOSE_UNITS, &doseUnitsMenu},
+    {STRING_SECONDARY_DOSE_UNITS, &secondaryDoseUnitsMenu},
 #if defined(EMFMETER)
-    {STRING_MAGNETIC_FIELD_UNITS, &magneticFieldUnitsMenuView},
+    {STRING_MAGNETIC_FIELD_UNITS, &magneticFieldUnitsMenu},
 #endif
-    {STRING_INSTANTANEOUS, &instantaneousMenuView},
-    {STRING_AVERAGE, &averageMenuView},
-    {NULL},
+    {STRING_INSTANTANEOUS, &instantaneousMenu},
+    {STRING_AVERAGE, &averageMenu},
 };
 
-static const char *onMeasurementsMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+static const char *onMeasurementsMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     *menuStyle = MENUSTYLE_SUBMENU;
 
     return getString(measurementsMenuOptions[index].title);
 }
 
-static void onMeasurementsMenuSelect(uint32_t index)
+static void onMeasurementsMenuSelect(menu_size_t index)
 {
-    setView(measurementsMenuOptions[index].view);
+    showMenu(measurementsMenuOptions[index].menu);
 }
 
 static MenuState measurementsMenuState;
 
-static Menu measurementsMenu = {
+static const Menu measurementsMenu = {
     STRING_MEASUREMENTS,
     &measurementsMenuState,
+    ARRAY_SIZE(measurementsMenuOptions),
     onMeasurementsMenuGetOption,
     onMeasurementsMenuSelect,
-    setSettingsMenu,
+    showSettingsMenu,
 };
 
-View measurementsMenuView = {
-    onMenuEvent,
-    &measurementsMenu,
-};
-
-void setMeasurementsMenu(void)
+void showMeasurementsMenu(void)
 {
-    setView(&measurementsMenuView);
+    showMenu(&measurementsMenu);
 }

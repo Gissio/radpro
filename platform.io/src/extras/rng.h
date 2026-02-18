@@ -12,14 +12,12 @@
 
 #include <stdint.h>
 
-#include "../ui/view.h"
-
-extern View rngMenuView;
-
 void setupRNG(void);
 
 void updateRNG();
 
 int32_t getRNGByte(void);
+
+void showRNGMenu(void);
 
 #endif

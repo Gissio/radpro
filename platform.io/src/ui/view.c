@@ -17,15 +17,13 @@
 
 static struct
 {
-    View *currentView;
+    OnViewEvent *onViewEvent;
 
     bool drawUpdate;
 } view;
 
 void initView(void)
 {
-    view.currentView = &powerOffView;
-
 #if defined(DISPLAY_MONOCHROME)
     refreshDisplay();
     setDisplayEnabled(true);
@@ -37,7 +35,7 @@ void updateView(void)
     // Key events
     while (true)
     {
-        Event event = getKeyboardEvent();
+        ViewEvent event = getKeyboardEvent();
 
         if (event == EVENT_NONE)
             break;
@@ -47,7 +45,7 @@ void updateView(void)
             if (event == EVENT_KEY_POWER)
                 powerOn(false);
             else
-                view.currentView->onEvent(EVENT_KEY_TOGGLEBACKLIGHT);
+                view.onViewEvent(EVENT_KEY_TOGGLEBACKLIGHT);
         }
         else
         {
@@ -62,7 +60,7 @@ void updateView(void)
                 {
                     if (!isInLockMode())
                     {
-                        setMeasurementViewCurrent();
+                        setMeasurementView();
                         setLockMode(true);
 
                         event = EVENT_KEY_TOGGLEBACKLIGHT;
@@ -71,7 +69,7 @@ void updateView(void)
                         setLockMode(false);
                 }
                 else
-                    view.currentView->onEvent(event);
+                    view.onViewEvent(event);
 
                 if ((event == EVENT_KEY_TOGGLEBACKLIGHT) && isDisplayAwake())
                     cancelBacklight();
@@ -103,7 +101,7 @@ void updateView(void)
     {
         view.drawUpdate = false;
 
-        view.currentView->onEvent(EVENT_DRAW);
+        view.onViewEvent(EVENT_DRAW);
 
 #if defined(DISPLAY_MONOCHROME)
         refreshDisplay();
@@ -116,20 +114,15 @@ void updateView(void)
             triggerBacklight();
 
         // Post-draw
-        view.currentView->onEvent(EVENT_POST_DRAW);
+        view.onViewEvent(EVENT_POSTDRAW);
     }
 }
 
-void setView(View *newView)
+void showView(OnViewEvent *onViewEvent)
 {
-    view.currentView = newView;
+    view.onViewEvent = onViewEvent;
 
     requestViewUpdate();
-}
-
-View *getView(void)
-{
-    return view.currentView;
 }
 
 void requestViewUpdate(void)
@@ -139,7 +132,7 @@ void requestViewUpdate(void)
 
 void updateViewHeartbeat(void)
 {
-    view.currentView->onEvent(EVENT_HEARTBEAT);
+    view.onViewEvent(EVENT_HEARTBEAT);
 
     view.drawUpdate = true;
 }

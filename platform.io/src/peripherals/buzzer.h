@@ -12,9 +12,9 @@
 
 #include <stdbool.h>
 
-#include "../ui/view.h"
+#include "../ui/menu.h"
 
-extern View soundPulsesMenuView;
+extern const Menu soundPulsesMenu;
 
 void initBuzzer(void);
 

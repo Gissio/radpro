@@ -38,8 +38,6 @@ build_flags =
     -DKEYBOARD_5_KEYS
     -DDISPLAY_128X64
     -DDISPLAY_MONOCHROME
-    -DFONT_SYMBOLS='"fonts/font_symbols_monochrome.h"'
-    -DFONT_LARGE='"fonts/font_large_monochrome.h"'
     -DBUZZER
     -DVIBRATOR
     -DDATA_MODE
@@ -77,8 +75,6 @@ build_flags =
     -DTUBE_HV_PWM
     -DDISPLAY_128X64
     -DDISPLAY_MONOCHROME
-    -DFONT_SYMBOLS='"fonts/font_symbols_monochrome.h"'
-    -DFONT_LARGE='"fonts/font_large_monochrome.h"'
     -DBUZZER
     -DPULSE_LED
     -DGAME
@@ -113,7 +109,6 @@ build_flags =
     -DPWR_USB
     -DKEYBOARD_3_KEYS
     -DDISPLAY_COLOR
-    -DFONT_SYMBOLS='"fonts/font_symbols_color.h"'
     -DBUZZER
     -DVIBRATOR
     -DPULSE_LED
@@ -126,14 +121,12 @@ extends = bosean-fs5000_common
 build_flags =
     ${bosean-fs5000_common.build_flags}
     -DDISPLAY_240X320
-    -DFONT_LARGE='"fonts/font_large_color_84.h"'
 
 [bosean-fs5000_landscape]
 extends = bosean-fs5000_common
 build_flags =
     ${bosean-fs5000_common.build_flags}
     -DDISPLAY_320X240
-    -DFONT_LARGE='"fonts/font_large_color_115.h"'
 
 [fnirsi-gc01]
 extends = base
@@ -161,8 +154,6 @@ extends = fnirsi-gc01
 board = ch32f103r8
 build_flags =
     ${fnirsi-gc01.build_flags}
-    -DFONT_SYMBOLS='"fonts/font_symbols_color_1bpp.h"'
-    -DFONT_LARGE='"fonts/font_large_color_115_1bpp.h"'
 
 [fnirsi-gc01_apm32f103rb]
 extends = fnirsi-gc01
@@ -170,8 +161,6 @@ board = apm32f103rb
 build_flags =
     ${fnirsi-gc01.build_flags}
     -DTUBE_DEFAULT_HVPROFILE_IN_FLASH
-    -DFONT_SYMBOLS='"fonts/font_symbols_color.h"'
-    -DFONT_LARGE='"fonts/font_large_color_115.h"'
     -DGAME
 
 [fnirsi-gc03]
@@ -190,8 +179,6 @@ build_flags =
     -DKEYBOARD_KNOB
     -DDISPLAY_240X320
     -DDISPLAY_COLOR
-    -DFONT_SYMBOLS='"fonts/font_symbols_color.h"'
-    -DFONT_LARGE='"fonts/font_large_color_84.h"'
     -DBUZZER
     -DVIBRATOR
     -DPULSE_LED
@@ -215,7 +202,6 @@ build_flags =
     -DKEYBOARD_4_KEYS
     -DDISPLAY_COLOR
     -DDISPLAY_125PPI
-    -DFONT_SYMBOLS='"fonts/font_symbols_color.h"'
     -DPULSE_LED_EN
     -DALERT_LED_EN
     -DPULSESOUND_ENABLE
@@ -230,11 +216,9 @@ extends = gq-gmc800_common
 build_flags =
     ${gq-gmc800_common.build_flags}
     -DDISPLAY_240X320
-    -DFONT_LARGE='"fonts/font_large_color_84.h"'
 
 [gq-gmc800_landscape]
 extends = gq-gmc800_common
 build_flags =
     ${gq-gmc800_common.build_flags}
     -DDISPLAY_320X240
-    -DFONT_LARGE='"fonts/font_large_color_115.h"'

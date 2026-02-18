@@ -257,10 +257,10 @@ enum
 #define TUBE_HVDUTYCYCLE_MIN 0.0025F
 #define TUBE_HVDUTYCYCLE_MAX 0.9F
 #define TUBE_HVDUTYCYCLE_STEP 0.0025F
-#define TUBE_HVDUTYCYCLE_NUM ((uint32_t)((TUBE_HVDUTYCYCLE_MAX -   \
-                                          TUBE_HVDUTYCYCLE_MIN +   \
-                                          TUBE_HVDUTYCYCLE_STEP) / \
-                                         TUBE_HVDUTYCYCLE_STEP))
+#define TUBE_HVDUTYCYCLE_NUM ((menu_size_t)((TUBE_HVDUTYCYCLE_MAX -   \
+                                             TUBE_HVDUTYCYCLE_MIN +   \
+                                             TUBE_HVDUTYCYCLE_STEP) / \
+                                            TUBE_HVDUTYCYCLE_STEP))
 
 enum
 {
@@ -391,7 +391,7 @@ enum
 
 enum
 {
-#if defined BATTERY_REMOVABLE
+#if defined(BATTERY_REMOVABLE)
     BATTERYTYPE_NI_MH,
     BATTERYTYPE_ALKALINE,
 #else
@@ -400,6 +400,10 @@ enum
 
     BATTERYTYPE_NUM,
 };
+
+#if !defined(START_POWERED)
+#define USB_AUTOPOWER_ON
+#endif
 
 enum
 {
@@ -483,6 +487,6 @@ bool isSettingsLoaded(void);
 
 void saveSettings(void);
 
-void setSettingsMenu(void);
+void showSettingsMenu(void);
 
 #endif

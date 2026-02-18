@@ -28,10 +28,6 @@ typedef enum {
     ALERTLEVEL_ALARM,
 } AlertLevel;
 
-extern View alertsMenuView;
-
-extern View measurementsMenuView;
-
 void setupMeasurements(void);
 
 void setMeasurementsEnabled(bool value);
@@ -47,11 +43,11 @@ bool isAlertFlashing(void);
 bool isSoundIconActive(void);
 
 void buildValueString(char *valueString, char *unitString, float value, const Unit *unit, int32_t minMetricPrefixIndex);
-void setMeasurementViewCurrent(void);
-bool onMeasurementViewEvent(Event event);
+void setMeasurementView(void);
+bool onMeasurementViewEvent(ViewEvent event);
 
-void setAlertsMenu(void);
+void showAlertsMenu(void);
 
-void setMeasurementsMenu(void);
+void showMeasurementsMenu(void);
 
 #endif

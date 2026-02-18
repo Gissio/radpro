@@ -11,11 +11,10 @@
 #define ELECTRIC_FIELD_H
 
 #include "../measurements/measurements.h"
+#include "../ui/menu.h"
 #include "../ui/view.h"
 
-extern View electricFieldView;
-
-extern View electricFieldAlarmMenuView;
+extern const Menu electricFieldAlarmMenu;
 
 extern const float electricFieldAlerts[];
 
@@ -30,5 +29,7 @@ void updateElectricField(void);
 float getElectricField(void);
 
 AlertLevel getElectricFieldAlertLevel(void);
+
+void onElectricFieldViewEvent(ViewEvent event);
 
 #endif

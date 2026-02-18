@@ -269,7 +269,7 @@
 
 // Power menu items
 #define STRING_BATTERY "Akkumulátor"
-#define STRING_USB_AUTO_POWER_ON "USB automatikus bekapcsolás"
+#define STRING_USB_AUTOPOWER_ON "USB automatikus bekapcsolás"
 
 // Battery type menu items
 #define STRING_NI_MH "Ni-MH"

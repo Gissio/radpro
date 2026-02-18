@@ -13,7 +13,6 @@
 #include "../system/events.h"
 #include "../system/settings.h"
 #include "../ui/measurements.h"
-#include "../ui/menu.h"
 #include "../ui/system.h"
 
 typedef enum
@@ -26,8 +25,6 @@ typedef enum
 
     AVERAGE_TAB_ALERT = AVERAGE_TAB_NUM,
 } AverageTab;
-
-static Menu averageMenu;
 
 static void resetAverageRate(void);
 
@@ -42,7 +39,7 @@ static const int32_t averagingTimes[] = {
     10 * 60,           // 10 minutes
     5 * 60,            // 5 minutes
     60,                // 1 minute
-    30,                // 30 minute
+    30,                // 30 seconds
     10,                // 10 seconds
     5,                 // 5 seconds
     1,                 // 1 second
@@ -62,8 +59,8 @@ static struct
     PulsePeriod period;
     Rate rate;
 
-    uint32_t timedPulseCount;
-    Rate timedRate;
+    uint32_t snapshotPulseCount;
+    Rate snapshotRate;
     bool done;
 } average;
 
@@ -75,7 +72,7 @@ void setupAverageRate(void)
 
     resetAverageRate();
 
-    selectMenuItem(&averageMenu, settings.averaging, AVERAGING_NUM);
+    selectMenuItem(&averageMenu, settings.averaging);
 }
 
 static void resetAverageRate(void)
@@ -88,28 +85,74 @@ static void resetAverageRate(void)
 
 static bool isTimeAveraging(void)
 {
-    return settings.averaging < AVERAGING_TIME_NUM;
+    return (settings.averaging < AVERAGING_TIME_NUM);
+}
+
+static uint32_t getAveragingTime(void)
+{
+    return averagingTimes[settings.averaging];
+}
+
+static uint32_t getAveragingConfidenceThreshold(void)
+{
+    return averagingConfidences[settings.averaging - AVERAGING_TIME_NUM];
+}
+
+static bool isAverageSaturated(void)
+{
+    return (average.rate.time == UINT32_MAX) || (average.period.pulseCount == UINT32_MAX);
 }
 
 static bool isAverageDone(void)
 {
-    if ((average.rate.time == UINT32_MAX) ||
-        (average.period.pulseCount == UINT32_MAX))
+    if (isAverageSaturated())
         return true;
 
     if (isTimeAveraging())
-        return average.rate.time >= averagingTimes[settings.averaging];
+        return average.rate.time >= getAveragingTime();
 
-    float confidence = average.rate.confidence;
+    float confidenceThreshold = getAveragingConfidenceThreshold();
 
-    if (confidence == 0.0F)
-        return false;
-    else
-        return (confidence < averagingConfidences[settings.averaging - AVERAGING_TIME_NUM]);
+    return (average.rate.confidence > 0.0F) &&
+           (average.rate.confidence < confidenceThreshold);
+}
+
+static bool updateAverageRateTimer()
+{
+    bool done = isAverageDone();
+
+    bool previousDone = average.done;
+    average.done = done;
+
+    if (!(previousDone && done))
+    {
+        average.snapshotPulseCount = average.period.pulseCount;
+        average.snapshotRate = average.rate;
+    }
+
+    bool doneTriggered = (!previousDone && done);
+    if (doneTriggered)
+        triggerAlert(true);
+
+    return doneTriggered;
+}
+
+static void updateAverageRateTab(bool doneTriggered)
+{
+    if (isTubeFaultAlertTriggered() || doneTriggered)
+        averageTab = AVERAGE_TAB_ALERT;
+    else if (averageTab == AVERAGE_TAB_ALERT)
+    {
+        if (!getTubeFaultAlertLevel() && !average.done)
+            averageTab = AVERAGE_TAB_TIME;
+    }
 }
 
 void updateAverageRate(PulsePeriod *period)
 {
+    if (isAverageSaturated())
+        return;
+
     // Update average rate
     average.rate.time = addClamped(average.rate.time, 1);
     if (period->pulseCount)
@@ -122,54 +165,110 @@ void updateAverageRate(PulsePeriod *period)
         calculateRate(&average.rate, &average.period);
     }
 
-    // Timer
-    bool done = isAverageDone();
-    if (!(average.done && done))
-    {
-        average.timedPulseCount = average.period.pulseCount;
-        average.timedRate = average.rate;
-    }
-    bool doneTriggered = (!average.done && done);
-    if (doneTriggered)
-        triggerAlert(true);
-    average.done = done;
+    bool doneTriggered = updateAverageRateTimer();
 
-    // Alert view
-    if (isTubeFaultAlertTriggered() || doneTriggered)
-        averageTab = AVERAGE_TAB_ALERT;
-    else if (averageTab == AVERAGE_TAB_ALERT)
-    {
-        if (!getTubeFaultAlertLevel() && !done)
-            averageTab = AVERAGE_TAB_TIME;
-    }
+    updateAverageRateTab(doneTriggered);
 }
 
 float getAverageRate(void)
 {
-    return average.timedRate.value;
+    return average.snapshotRate.value;
 }
 
 // Average rate view
 
-static void onAverageRateViewEvent(Event event)
+static const char *getAverageRateAlertString(void)
+{
+    if (getTubeFaultAlertLevel())
+        return getString(STRING_ALERT_FAULT);
+    else if (average.done)
+        return getString(STRING_ALERT_DONE);
+    else
+        return NULL;
+}
+
+static void advanceAverageRateTab(void)
+{
+    uint32_t tabNum = getAverageRateAlertString() ? (AVERAGE_TAB_NUM + 1) : AVERAGE_TAB_NUM;
+
+    averageTab++;
+    if (averageTab >= tabNum)
+        averageTab = AVERAGE_TAB_TIME;
+}
+
+static MeasurementStyle getAverageRateMeasurementStyle(void)
+{
+    if (average.done)
+        return MEASUREMENTSTYLE_DONE;
+
+    return MEASUREMENTSTYLE_NORMAL;
+}
+
+static void drawAverageRateValue(void)
+{
+    char valueString[32] = "";
+    char unitString[32] = "";
+    buildValueString(valueString, unitString, average.snapshotRate.value, &pulseUnits[settings.doseUnits].rate, doseUnitsMinMetricPrefix[settings.doseUnits]);
+
+    drawTitleBar(getString(STRING_AVERAGE));
+    drawMeasurementValue(valueString, unitString, average.snapshotRate.confidence, getAverageRateMeasurementStyle());
+}
+
+static void drawAverageRateTab(void)
+{
+    char valueString[32] = "";
+    char unitString[32] = " ";
+    const char *keyString = NULL;
+
+    switch (averageTab)
+    {
+    case AVERAGE_TAB_TIME:
+        strcatTime(valueString, average.snapshotRate.time);
+
+        keyString = getString(STRING_TIME);
+
+        break;
+
+    case AVERAGE_TAB_RATE:
+        buildValueString(valueString, unitString, average.snapshotRate.value, &pulseUnits[settings.secondaryDoseUnits].rate, doseUnitsMinMetricPrefix[settings.secondaryDoseUnits]);
+
+        keyString = getString(STRING_RATE);
+
+        break;
+
+    case AVERAGE_TAB_DOSE:
+        buildValueString(valueString, unitString, average.snapshotPulseCount, &pulseUnits[DOSE_UNITS_CPM].dose, doseUnitsMinMetricPrefix[DOSE_UNITS_CPM]);
+
+        keyString = getString(STRING_DOSE);
+
+        break;
+
+    default:
+        break;
+    }
+
+    drawMeasurementInfo(keyString, valueString, unitString, getAverageRateMeasurementStyle());
+}
+
+static void drawAverageRateView(void)
+{
+    drawAverageRateValue();
+
+    if (averageTab == AVERAGE_TAB_ALERT)
+        drawMeasurementAlert(getAverageRateAlertString());
+    else
+        drawAverageRateTab();
+}
+
+void onAverageRateViewEvent(ViewEvent event)
 {
     if (onMeasurementViewEvent(event))
         return;
 
-    const char *alertString;
-    if (getTubeFaultAlertLevel())
-        alertString = getString(STRING_ALERT_FAULT);
-    else if (average.done)
-        alertString = getString(STRING_ALERT_DONE);
-    else
-        alertString = NULL;
-
     switch (event)
     {
     case EVENT_KEY_BACK:
-        averageTab++;
-        if (averageTab >= (alertString ? (AVERAGE_TAB_NUM + 1) : AVERAGE_TAB_NUM))
-            averageTab = AVERAGE_TAB_TIME;
+        advanceAverageRateTab();
 
         requestViewUpdate();
 
@@ -192,73 +291,14 @@ static void onAverageRateViewEvent(Event event)
 #endif
 
     case EVENT_DRAW:
-    {
-        char valueString[32];
-        char unitString[32];
-        MeasurementStyle style;
-
-        strclr(valueString);
-        strclr(unitString);
-        buildValueString(valueString, unitString, average.timedRate.value, &pulseUnits[settings.doseUnits].rate, doseUnitsMinMetricPrefix[settings.doseUnits]);
-
-        if (average.done)
-            style = MEASUREMENTSTYLE_DONE;
-        else
-            style = MEASUREMENTSTYLE_NORMAL;
-
-        drawTitleBar(getString(STRING_AVERAGE));
-        drawMeasurementValue(valueString, unitString, average.timedRate.confidence, style);
-
-        if (averageTab == AVERAGE_TAB_ALERT)
-            drawMeasurementAlert(alertString);
-        else
-        {
-            const char *keyString = NULL;
-            strclr(valueString);
-            strcpy(unitString, " ");
-
-            switch (averageTab)
-            {
-            case AVERAGE_TAB_TIME:
-                strcatTime(valueString, average.timedRate.time);
-
-                keyString = getString(STRING_TIME);
-
-                break;
-
-            case AVERAGE_TAB_RATE:
-                buildValueString(valueString, unitString, average.timedRate.value, &pulseUnits[settings.secondaryDoseUnits].rate, doseUnitsMinMetricPrefix[settings.secondaryDoseUnits]);
-
-                keyString = getString(STRING_RATE);
-
-                break;
-
-            case AVERAGE_TAB_DOSE:
-                buildValueString(valueString, unitString, average.timedPulseCount, &pulseUnits[DOSE_UNITS_CPM].dose, doseUnitsMinMetricPrefix[DOSE_UNITS_CPM]);
-
-                keyString = getString(STRING_DOSE);
-
-                break;
-
-            default:
-                break;
-            }
-
-            drawMeasurementInfo(keyString, valueString, unitString, style);
-        }
+        drawAverageRateView();
 
         break;
-    }
 
     default:
         break;
     }
 }
-
-View averageRateView = {
-    onAverageRateViewEvent,
-    NULL,
-};
 
 // Average menu
 
@@ -283,32 +323,27 @@ static cstring averageMenuOptions[] = {
     STRING_5_CONFIDENCE,
     STRING_2_CONFIDENCE,
     STRING_1_CONFIDENCE,
-    NULL,
 };
 
-static const char *onAverageMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+static const char *onAverageMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.averaging);
 
     return getString(averageMenuOptions[index]);
 }
 
-static void onAverageMenuSelect(uint32_t index)
+static void onAverageMenuSelect(menu_size_t index)
 {
     settings.averaging = index;
 }
 
 static MenuState averageMenuState;
 
-static Menu averageMenu = {
+const Menu averageMenu = {
     STRING_AVERAGE,
     &averageMenuState,
+    ARRAY_SIZE(averageMenuOptions),
     onAverageMenuGetOption,
     onAverageMenuSelect,
-    setMeasurementsMenu,
-};
-
-View averageMenuView = {
-    onMenuEvent,
-    &averageMenu,
+    showMeasurementsMenu,
 };

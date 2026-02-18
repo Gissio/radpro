@@ -13,11 +13,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../ui/view.h"
+#include "../ui/menu.h"
 
-extern View sourceMenuView;
-
-extern View tubeMenuView;
+extern const Menu sourceMenu;
 
 extern volatile uint32_t tubePulseCount;
 extern volatile uint32_t tubeRandomBits;
@@ -45,5 +43,7 @@ void updateTubeHV(void);
 
 void onTubeTick(void);
 bool readTubeDet(void);
+
+void showTubeMenu(void);
 
 #endif

@@ -269,7 +269,7 @@
 
 // Power menu items
 #define STRING_BATTERY "バッテリー"
-#define STRING_USB_AUTO_POWER_ON "USB自動電源オン"
+#define STRING_USB_AUTOPOWER_ON "USB自動電源オン"
 
 // Battery type menu items
 #define STRING_NI_MH "ニッケル水素"

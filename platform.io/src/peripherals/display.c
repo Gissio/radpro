@@ -10,41 +10,39 @@
 #include <limits.h>
 
 #include "../peripherals/display.h"
+#include "../system/cmath.h"
 #include "../system/settings.h"
 #include "../ui/menu.h"
 
-void setDisplayMenu(void);
+void showDisplayMenu(void);
 
-static Menu displayMenu;
+static const Menu displayMenu;
 #if defined(DISPLAY_MONOCHROME)
-static Menu displayContrastMenu;
+static const Menu displayContrastMenu;
 #elif defined(DISPLAY_COLOR)
-static Menu displayThemeMenu;
+static const Menu displayThemeMenu;
 #endif
-static Menu displayBrightnessMenu;
-static Menu displaySleepMenu;
+static const Menu displayBrightnessMenu;
+static const Menu displaySleepMenu;
 
 void setupDisplay(void)
 {
-    selectMenuItem(&displayMenu, 0, 0);
+    selectMenuItem(&displayMenu, 0);
 #if defined(DISPLAY_MONOCHROME)
-    selectMenuItem(&displayContrastMenu, settings.displayContrast, DISPLAY_CONTRAST_NUM);
+    selectMenuItem(&displayContrastMenu, settings.displayContrast);
 #elif defined(DISPLAY_COLOR)
-    selectMenuItem(&displayThemeMenu, settings.displayTheme, DISPLAY_THEME_NUM);
+    selectMenuItem(&displayThemeMenu, settings.displayTheme);
 #endif
-    selectMenuItem(&displaySleepMenu, settings.displaySleep, DISPLAY_SLEEP_NUM);
-    selectMenuItem(&displayBrightnessMenu, settings.displayBrightness, DISPLAY_BRIGHTNESS_NUM);
+    selectMenuItem(&displaySleepMenu, settings.displaySleep);
+    selectMenuItem(&displayBrightnessMenu, settings.displayBrightness);
 }
 
 // Display contrast level menu
 
 #if defined(DISPLAY_MONOCHROME)
 
-static const char *onDisplayContrastMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+static const char *onDisplayContrastMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
-    if (index >= DISPLAY_CONTRAST_NUM)
-        return NULL;
-
     *menuStyle = (index == settings.displayContrast);
 
     strcpy(menuOption, getString(STRING_CONTRAST_LEVEL));
@@ -54,7 +52,7 @@ static const char *onDisplayContrastMenuGetOption(uint32_t index, MenuStyle *men
     return menuOption;
 }
 
-static void onDisplayContrastMenuSelect(uint32_t index)
+static void onDisplayContrastMenuSelect(menu_size_t index)
 {
     settings.displayContrast = index;
 
@@ -63,17 +61,13 @@ static void onDisplayContrastMenuSelect(uint32_t index)
 
 static MenuState displayContrastMenuState;
 
-static Menu displayContrastMenu = {
+static const Menu displayContrastMenu = {
     STRING_CONTRAST,
     &displayContrastMenuState,
+    DISPLAY_CONTRAST_NUM,
     onDisplayContrastMenuGetOption,
     onDisplayContrastMenuSelect,
-    setDisplayMenu,
-};
-
-View displayContrastMenuView = {
-    onMenuEvent,
-    &displayContrastMenu,
+    showDisplayMenu,
 };
 
 #endif
@@ -86,17 +80,16 @@ static cstring displayThemeMenuOptions[] = {
     STRING_THEME_DAY,
     STRING_THEME_DUSK,
     STRING_THEME_NIGHT,
-    NULL,
 };
 
-static const char *onDisplayThemeMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+static const char *onDisplayThemeMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.displayTheme);
 
     return getString(displayThemeMenuOptions[index]);
 }
 
-static void onDisplayThemeMenuSelect(uint32_t index)
+static void onDisplayThemeMenuSelect(menu_size_t index)
 {
     settings.displayTheme = index;
 
@@ -105,17 +98,13 @@ static void onDisplayThemeMenuSelect(uint32_t index)
 
 static MenuState displayThemeMenuState;
 
-static Menu displayThemeMenu = {
+static const Menu displayThemeMenu = {
     STRING_THEME,
     &displayThemeMenuState,
+    ARRAY_SIZE(displayThemeMenuOptions),
     onDisplayThemeMenuGetOption,
     onDisplayThemeMenuSelect,
-    setDisplayMenu,
-};
-
-View displayThemeMenuView = {
-    onMenuEvent,
-    &displayThemeMenu,
+    showDisplayMenu,
 };
 
 #endif
@@ -127,34 +116,29 @@ static cstring displayBrightnessMenuOptions[] = {
     STRING_LOW,
     STRING_MEDIUM,
     STRING_HIGH,
-    NULL,
 };
 
-static const char *onDisplayBrightnessMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+static const char *onDisplayBrightnessMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.displayBrightness);
 
     return getString(displayBrightnessMenuOptions[index]);
 }
 
-static void onDisplayBrightnessMenuSelect(uint32_t index)
+static void onDisplayBrightnessMenuSelect(menu_size_t index)
 {
     settings.displayBrightness = index;
 }
 
 static MenuState displayBrightnessMenuState;
 
-static Menu displayBrightnessMenu = {
+static const Menu displayBrightnessMenu = {
     STRING_BRIGHTNESS,
     &displayBrightnessMenuState,
+    ARRAY_SIZE(displayBrightnessMenuOptions),
     onDisplayBrightnessMenuGetOption,
     onDisplayBrightnessMenuSelect,
-    setDisplayMenu,
-};
-
-View displayBrightnessMenuView = {
-    onMenuEvent,
-    &displayBrightnessMenu,
+    showDisplayMenu,
 };
 
 // Display sleep menu
@@ -169,78 +153,68 @@ static cstring displaySleepMenuOptions[] = {
     STRING_2_MINUTES,
     STRING_5_MINUTES,
     STRING_ALWAYS_ON,
-    NULL,
 };
 
-static const char *onDisplaySleepMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+static const char *onDisplaySleepMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.displaySleep);
 
     return getString(displaySleepMenuOptions[index]);
 }
 
-static void onDisplaySleepMenuSelect(uint32_t index)
+static void onDisplaySleepMenuSelect(menu_size_t index)
 {
     settings.displaySleep = index;
 }
 
 static MenuState displaySleepMenuState;
 
-static Menu displaySleepMenu = {
+static const Menu displaySleepMenu = {
     STRING_SLEEP,
     &displaySleepMenuState,
+    ARRAY_SIZE(displaySleepMenuOptions),
     onDisplaySleepMenuGetOption,
     onDisplaySleepMenuSelect,
-    setDisplayMenu,
-};
-
-View displaySleepMenuView = {
-    onMenuEvent,
-    &displaySleepMenu,
+    showDisplayMenu,
 };
 
 // Display menu
 
-static MenuOption displayMenuOptions[] = {
+static const MenuOption displayMenuOptions[] = {
 #if defined(DISPLAY_COLOR)
-    {STRING_THEME, &displayThemeMenuView},
+    {STRING_THEME, &displayThemeMenu},
 #endif
-    {STRING_BRIGHTNESS, &displayBrightnessMenuView},
+    {STRING_BRIGHTNESS, &displayBrightnessMenu},
 #if defined(DISPLAY_MONOCHROME)
-    {STRING_CONTRAST, &displayContrastMenuView},
+    {STRING_CONTRAST, &displayContrastMenu},
 #endif
-    {STRING_SLEEP, &displaySleepMenuView},
-    {NULL},
+    {STRING_SLEEP, &displaySleepMenu},
 };
 
-static const char *onDisplayMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+static const char *onDisplayMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     *menuStyle = MENUSTYLE_SUBMENU;
 
     return getString(displayMenuOptions[index].title);
 }
 
-static void onDisplayMenuSelect(uint32_t index)
+static void onDisplayMenuSelect(menu_size_t index)
 {
-    setView(displayMenuOptions[index].view);
+    showMenu(displayMenuOptions[index].menu);
 }
 
 static MenuState displayMenuState;
 
-static Menu displayMenu = {
+static const Menu displayMenu = {
     STRING_DISPLAY,
     &displayMenuState,
+    ARRAY_SIZE(displayMenuOptions),
     onDisplayMenuGetOption,
     onDisplayMenuSelect,
-    setSettingsMenu,
+    showSettingsMenu,
 };
 
-View displayMenuView = {
-    onMenuEvent,
-    &displayMenu,
-};
-
-void setDisplayMenu(void)
+void showDisplayMenu(void)
 {
-    setView(&displayMenuView);
+    showMenu(&displayMenu);
 }

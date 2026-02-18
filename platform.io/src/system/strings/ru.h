@@ -269,7 +269,7 @@
 
 // Power menu items
 #define STRING_BATTERY "Батарея"
-#define STRING_USB_AUTO_POWER_ON "USB автовключение"
+#define STRING_USB_AUTOPOWER_ON "USB автовключение"
 
 // Battery type menu items
 #define STRING_NI_MH "Ni-MH"

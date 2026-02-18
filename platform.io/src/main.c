@@ -62,7 +62,7 @@ int main(void)
     initKeyboard();
     initDisplay();
     initView();
-#if defined(BUZZER) || defined(PULSESOUND_ENABLE) || defined(VOICE)
+#if defined(SOUND)
     initSound();
 #endif
 #if defined(VIBRATOR)

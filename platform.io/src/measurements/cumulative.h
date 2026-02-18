@@ -15,8 +15,6 @@
 #include "../measurements/pulses.h"
 #include "../ui/view.h"
 
-extern View cumulativeDoseView;
-
 void setupCumulativeDose(void);
 
 void updateCumulativeDose(PulsePeriod *period);
@@ -28,5 +26,7 @@ uint32_t getCumulativeDosePulseCount(void);
 
 AlertLevel getCumulativeDoseAlertLevel(void);
 bool isCumulativeDoseAlertTriggered(void);
+
+void onCumulativeDoseViewEvent(ViewEvent viewEvent);
 
 #endif

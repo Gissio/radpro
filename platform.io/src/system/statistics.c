@@ -12,15 +12,16 @@
 #include "../system/settings.h"
 #include "../system/statistics.h"
 #include "../ui/statistics.h"
+#include "../ui/view.h"
 
 // Statistics view
 
-static void onStatisticsViewEvent(Event event)
+static void onStatisticsViewEvent(ViewEvent event)
 {
     switch (event)
     {
     case EVENT_KEY_BACK:
-        setSettingsMenu();
+        showSettingsMenu();
 
         break;
 
@@ -34,7 +35,7 @@ static void onStatisticsViewEvent(Event event)
     }
 }
 
-View statisticsView = {
-    onStatisticsViewEvent,
-    NULL,
-};
+void showStatisticsView(void)
+{
+    showView(onStatisticsViewEvent);
+}

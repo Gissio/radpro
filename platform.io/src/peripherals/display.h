@@ -12,8 +12,6 @@
 
 #include <stdbool.h>
 
-#include "../ui/view.h"
-
 #if defined(DISPLAY_128X64)
 #define DISPLAY_WIDTH 128
 #define DISPLAY_HEIGHT 64
@@ -28,8 +26,6 @@
 #define DISPLAY_UPSCALE 1
 #endif
 
-extern View displayMenuView;
-
 void initDisplay(void);
 void initBacklight(void);
 
@@ -43,5 +39,7 @@ void setBacklight(bool value);
 void updateDisplayContrast(void);
 
 void refreshDisplay(void);
+
+void showDisplayMenu(void);
 
 #endif

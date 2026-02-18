@@ -269,7 +269,7 @@
 
 // Power menu items
 #define STRING_BATTERY "Pil"
-#define STRING_USB_AUTO_POWER_ON "USB otomatik açılış"
+#define STRING_USB_AUTOPOWER_ON "USB otomatik açılış"
 
 // Battery type menu items
 #define STRING_NI_MH "Ni-MH"

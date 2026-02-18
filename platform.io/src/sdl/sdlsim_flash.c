@@ -43,12 +43,6 @@ void initFlash(void)
     memset(flashImage, 0xff, sizeof(flashImage));
 
     loadFlashImage();
-
-    // +++ TEST
-    // srand(0);
-    // for (uint32_t i = 0; i < sizeof(flashImage); i++)
-    //     flashImage[i] = rand() & 0xff;
-    // +++ TEST
 }
 
 bool verifyFlash(void)
@@ -63,7 +57,7 @@ const uint8_t *readFlash(uint32_t source, uint32_t count)
 
 bool writeFlash(uint32_t dest, const uint8_t *source, uint32_t count)
 {
-    printf("writeFlash(%08x, %08x)\n", dest, count);
+    // printf("writeFlash(%08x, %08x)\n", dest, count);
 
     for (uint32_t i = 0; i < count; i++)
         if (flashImage[dest + i] != 0xff)
@@ -82,7 +76,7 @@ bool writeFlash(uint32_t dest, const uint8_t *source, uint32_t count)
 
 void eraseFlash(uint32_t dest)
 {
-    printf("eraseFlash(%08x)\n", dest);
+    // printf("eraseFlash(%08x)\n", dest);
 
     dest &= ~(FLASH_PAGE_SIZE - 1);
 

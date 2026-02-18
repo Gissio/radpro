@@ -11,36 +11,34 @@
 
 #include "../peripherals/sound.h"
 #include "../peripherals/voice.h"
+#include "../system/cmath.h"
 #include "../system/settings.h"
-#include "../ui/menu.h"
-
-static Menu soundAlertVolumeMenu;
-static Menu soundVoiceVolumeMenu;
 
 void setupVoice(void)
 {
-    selectMenuItem(&soundAlertVolumeMenu, settings.soundAlertVolume, SOUND_ALERTVOLUME_NUM);
-    selectMenuItem(&soundVoiceVolumeMenu, settings.soundVoiceVolume, SOUND_VOICEVOLUME_NUM);
+    selectMenuItem(&soundAlertVolumeMenu, settings.soundAlertVolume);
+    selectMenuItem(&soundVoiceVolumeMenu, settings.soundVoiceVolume);
 }
 
-// Alert volume menu
+// Volume options
 
 static cstring volumeMenuOptions[] = {
     STRING_VERY_LOW,
     STRING_LOW,
     STRING_MEDIUM,
     STRING_HIGH,
-    NULL,
 };
 
-const char *onAlertVolumeMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+// Alert volume menu
+
+const char *onAlertVolumeMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.soundAlertVolume);
 
     return getString(volumeMenuOptions[index]);
 }
 
-static void onAlertVolumeMenuSelect(uint32_t index)
+static void onAlertVolumeMenuSelect(menu_size_t index)
 {
     settings.soundAlertVolume = index;
 
@@ -49,29 +47,25 @@ static void onAlertVolumeMenuSelect(uint32_t index)
 
 static MenuState soundAlertVolumeMenuState;
 
-static Menu soundAlertVolumeMenu = {
+const Menu soundAlertVolumeMenu = {
     STRING_ALERTVOLUME,
     &soundAlertVolumeMenuState,
+    ARRAY_SIZE(volumeMenuOptions),
     onAlertVolumeMenuGetOption,
     onAlertVolumeMenuSelect,
-    setSoundMenu,
-};
-
-View soundAlertVolumeMenuView = {
-    onMenuEvent,
-    &soundAlertVolumeMenu,
+    showSoundMenu,
 };
 
 // Voice volume menu
 
-const char *onVoiceVolumeMenuGetOption(uint32_t index, MenuStyle *menuStyle)
+const char *onVoiceVolumeMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.soundVoiceVolume);
 
     return getString(volumeMenuOptions[index]);
 }
 
-static void onVoiceVolumeMenuSelect(uint32_t index)
+static void onVoiceVolumeMenuSelect(menu_size_t index)
 {
     settings.soundVoiceVolume = index;
 
@@ -80,17 +74,13 @@ static void onVoiceVolumeMenuSelect(uint32_t index)
 
 static MenuState soundVoiceVolumeMenuState;
 
-static Menu soundVoiceVolumeMenu = {
+const Menu soundVoiceVolumeMenu = {
     STRING_VOICEVOLUME,
     &soundVoiceVolumeMenuState,
+    ARRAY_SIZE(volumeMenuOptions),
     onVoiceVolumeMenuGetOption,
     onVoiceVolumeMenuSelect,
-    setSoundMenu,
-};
-
-View soundVoiceVolumeMenuView = {
-    onMenuEvent,
-    &soundVoiceVolumeMenu,
+    showSoundMenu,
 };
 
 #endif

@@ -269,7 +269,7 @@
 
 // Power menu items
 #define STRING_BATTERY "Baterija"
-#define STRING_USB_AUTO_POWER_ON "USB samodejni vklop"
+#define STRING_USB_AUTOPOWER_ON "USB samodejni vklop"
 
 // Battery type menu items
 #define STRING_NI_MH "Ni-MH"

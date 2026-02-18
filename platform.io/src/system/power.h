@@ -15,11 +15,8 @@
 
 #include "../ui/view.h"
 
-extern View powerOnView;
-extern View powerOffView;
-
-#if defined(BATTERY_REMOVABLE) || !defined(START_POWERED)
-extern View powerMenuView;
+#if defined(BATTERY_REMOVABLE) || defined(USB_AUTOPOWER_ON) || defined(DATA_MODE)
+#define POWER_MENU
 #endif
 
 void initPower(void);
@@ -37,5 +34,7 @@ void updatePowerState(void);
 
 float getBatteryVoltage(void);
 uint8_t getBatteryLevel(void);
+
+void showPowerMenu(void);
 
 #endif
