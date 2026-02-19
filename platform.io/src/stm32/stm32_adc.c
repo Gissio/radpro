@@ -290,13 +290,15 @@ bool isBatteryCharging(void)
 float readBatteryVoltage(void)
 {
 #if (defined(STM32F0) && !defined(GD32)) || defined(STM32G0) || defined(STM32L4)
-    // +++ TEST
-    return ((ADC_VDD / ADC_VALUE_MAX / PWR_BAT_SAMPLE_NUM) * PWR_BAT_SCALE_FACTOR) * adcHardware.snapshot.battery;
-    // return ((VREFINT_CAL_VOLTAGE / ADC_VALUE_MAX) * PWR_BAT_SCALE_FACTOR / PWR_BAT_SAMPLE_NUM) * VREFINT_CAL_VALUE * adcHardware.snapshot.battery / adcHardware.snapshot.vref;
-    // +++ TEST
+    float value = (VREFINT_CAL_VOLTAGE / ADC_VALUE_MAX * PWR_BAT_SCALE_FACTOR * VREF_SAMPLE_NUM / PWR_BAT_SAMPLE_NUM);
+    value *= (float)(uint32_t)VREFINT_CAL_VALUE;
 #else
-    // return (VREFINT_VOLTAGE * PWR_BAT_SCALE_FACTOR * VREF_SAMPLE_NUM / PWR_BAT_SAMPLE_NUM) * adcHardware.snapshot.battery / adcHardware.snapshot.vref;
+    float value = (VREFINT_VOLTAGE * PWR_BAT_SCALE_FACTOR * VREF_SAMPLE_NUM / PWR_BAT_SAMPLE_NUM);
 #endif
+    value *= (float)adcHardware.snapshot.battery;
+    value /= (float)adcHardware.snapshot.vref;
+
+    return value;
 }
 
 #if defined(EMFMETER)
