@@ -91,6 +91,10 @@ void setPowerEnabled(bool value)
 
 bool isUSBPowered(void)
 {
+    // +++ TEST
+    return true;
+    // +++ TEST
+
     bool value = false;
 #if defined(PWR_CHRG_PORT)
     value |= isBatteryCharging();

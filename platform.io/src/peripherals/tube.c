@@ -18,7 +18,7 @@
 #define SOURCE_FACTOR_DATA_MIN 0.125F
 #define SOURCE_FACTOR_DATA_SCALE 36
 
-static const float tubeTypeSensitivities[] = {
+static const float tubeSensitivities[] = {
     135.200F,
     108.345F,
     30.157F,
@@ -27,7 +27,7 @@ static const float tubeTypeSensitivities[] = {
     252.567F,
 };
 
-static const uint8_t tubeTypeSourceFactorCodes[][14] = {
+static const uint8_t tubeSourceFactors[][14] = {
     {108, 113, 204, 107, 172, 236, 111, 117, 124, 123, 113, 196, 110, 123},
     {108, 113, 204, 107, 173, 236, 111, 118, 124, 123, 113, 196, 110, 123},
     {108, 124, 156, 93, 113, 185, 106, 106, 106, 112, 62, 153, 125, 112},
@@ -95,18 +95,18 @@ void setupTube(void)
 
 // Tube sensitivity
 
-static uint32_t getTubeIndex(uint32_t type)
+static uint32_t getTubeIndex()
 {
-    if (type > TUBE_TYPE_M4011)
-        type--;
-
-    return type;
+    if (settings.tubeType > TUBE_TYPE_M4011)
+        return settings.tubeType - 1;
+    
+    return settings.tubeType;
 }
 
 static float getTubeSensitivityForIndex(uint32_t index)
 {
     if (index == 0)
-        return tubeTypeSensitivities[getTubeIndex(index)];
+        return tubeSensitivities[getTubeIndex()];
     else
         return TUBE_SENSITIVITY_VALUE_MIN *
                exp2f((float)(index - 1) * (TUBE_SENSITIVITY_VALUE_LOG2_MAX_MIN / (TUBE_SENSITIVITY_VALUE_NUM - 1)));
@@ -114,7 +114,7 @@ static float getTubeSensitivityForIndex(uint32_t index)
 
 float getTubeSensitivity(void)
 {
-    uint8_t code = tubeTypeSourceFactorCodes[getTubeIndex(settings.tubeType)][settings.source];
+    uint8_t code = tubeSourceFactors[getTubeIndex()][settings.source];
     float sourceFactor = SOURCE_FACTOR_DATA_MIN * exp2f(code * (1.0F / SOURCE_FACTOR_DATA_SCALE));
 
     return sourceFactor * getTubeSensitivityForIndex(settings.tubeSensitivity);
