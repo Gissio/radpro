@@ -194,7 +194,7 @@ void onElectricFieldViewEvent(ViewEvent event)
 
 // Electric field alarm view
 
-static const float electricFieldAlerts[] = {
+const float electricFieldAlerts[] = {
     0,
     50,
     100,

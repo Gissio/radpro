@@ -39,9 +39,17 @@ void initPower(void)
 
 #if defined(PWR_USB_PORT)
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
+#if defined(PWR_USB_PULLUP)
+    gpio_setup_input(PWR_USB_PORT, PWR_USB_PIN, GPIO_PULL_PULLUP);
+#else
     gpio_setup_input(PWR_USB_PORT, PWR_USB_PIN, GPIO_PULL_FLOATING);
+#endif
 #elif defined(STM32F1)
+#if defined(PWR_USB_PULLUP)
+    gpio_setup(PWR_USB_PORT, PWR_USB_PIN, GPIO_MODE_INPUT_PULLUP);
+#else
     gpio_setup(PWR_USB_PORT, PWR_USB_PIN, GPIO_MODE_INPUT_FLOATING);
+#endif
 #endif
 #endif
 
@@ -79,15 +87,26 @@ void setPowerEnabled(bool value)
 #endif
 }
 
-#if !defined(PWR_CHRGANALOG_PORT)
+#if !defined(PWR_CHRG_CHANNEL)
 
 bool isUSBPowered(void)
 {
-#if defined(PWR_USB_PORT)
-    return gpio_get(PWR_USB_PORT, PWR_USB_PIN);
-#else
-    return false;
+    // +++ TEST
+    return true;
+    // +++ TEST
+
+    bool value = false;
+#if defined(PWR_CHRG_PORT)
+    value |= isBatteryCharging();
 #endif
+#if defined(PWR_USB_PORT)
+#if defined(PWR_USB_ACTIVE_LOW)
+    return !gpio_get(PWR_USB_PORT, PWR_USB_PIN);
+#else
+    return gpio_get(PWR_USB_PORT, PWR_USB_PIN);
+#endif
+#endif
+    return value;
 }
 
 bool isBatteryCharging(void)

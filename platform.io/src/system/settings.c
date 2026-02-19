@@ -86,7 +86,6 @@ typedef
 } State;
 
 static uint32_t stateOffset;
-static bool settingsLoaded;
 
 #define STATES_PAGE_SIZE FLASH_PAGE_SIZE
 #define STATES_PAGE_LASTSTATE_OFFSET ((STATES_PAGE_ID_OFFSET / sizeof(State)) * sizeof(State))
@@ -208,19 +207,12 @@ void initSettings(void)
         setTubePulseCount(state->tube.pulseCount);
 
         settings = state->settings;
-
-        settingsLoaded = true;
     }
 }
 
 void setupSettings(void)
 {
     selectMenuItem(&settingsMenu, 0);
-}
-
-bool isSettingsLoaded(void)
-{
-    return settingsLoaded;
 }
 
 void saveSettings(void)

@@ -22,10 +22,10 @@
 #define PWR_BAT_SAMPLE_NUM 16
 #define VREF_SAMPLE_NUM 16
 
-#if defined(PWR_CHRGANALOG_PORT)
-#define PWR_CHRGANALOG_SAMPLE_NUM 1
-#define PWR_CHRGANALOG_USB_CHARGING_THRESHOLD 500
-#define PWR_CHRGANALOG_USB_POWERED_THRESHOLD 2500
+#if defined(PWR_CHRG_CHANNEL)
+#define PWR_CHRG_SAMPLE_NUM 1
+#define PWR_CHRG_USB_CHARGING_THRESHOLD 500
+#define PWR_CHRG_USB_POWERED_THRESHOLD 2500
 #elif defined(EMFMETER)
 // 400 samples @ 1 kHz fit whole cycles of both 50 Hz and 60 Hz
 #define ELECTRIC_FIELD_SAMPLE_NUM 400
@@ -44,10 +44,9 @@
 #define ADC_END_SAMPLE 1
 #define ADC_PWR_BAT_SAMPLE (ADC_END_SAMPLE + PWR_BAT_SAMPLE_NUM)
 #define ADC_VREF_SAMPLE (ADC_PWR_BAT_SAMPLE + VREF_SAMPLE_NUM)
-#if defined(PWR_CHRGANALOG_PORT)
-#define ADC_PWR_CHRGANALOG1_SAMPLE (ADC_VREF_SAMPLE + PWR_CHRGANALOG_SAMPLE_NUM)
-#define ADC_PWR_CHRGANALOG2_SAMPLE (SYSTICK_FREQUENCY / 2)
-#define ADC_START_SAMPLE ADC_PWR_CHRGANALOG2_SAMPLE
+#if defined(PWR_CHRG_CHANNEL)
+#define ADC_PWR_CHRG_SAMPLE (ADC_VREF_SAMPLE + PWR_CHRG_SAMPLE_NUM)
+#define ADC_START_SAMPLE ADC_PWR_CHRG_SAMPLE
 #elif defined(EMFMETER)
 #define ADC_MAGNETIC_FIELD_SAMPLE (ADC_VREF_SAMPLE + MAGNETIC_FIELD_SAMPLE_NUM)
 #define ADC_ELECTRIC_FIELD_SAMPLE (ADC_MAGNETIC_FIELD_SAMPLE + ELECTRIC_FIELD_SAMPLE_NUM)
@@ -59,8 +58,8 @@
 typedef enum
 {
     ADC_STAGE_IDLE,
-#if defined(PWR_CHRGANALOG_PORT)
-    ADC_STAGE_PWR_CHRGANALOG,
+#if defined(PWR_CHRG_CHANNEL)
+    ADC_STAGE_PWR_CHRG,
 #elif defined(EMFMETER)
     ADC_STAGE_ELECTRIC_FIELD,
     ADC_STAGE_MAGNETIC_FIELD,
@@ -84,7 +83,7 @@ static struct
     ADCValues live;
     ADCValues snapshot;
 
-#if defined(PWR_CHRGANALOG_PORT)
+#if defined(PWR_CHRG_CHANNEL)
     volatile bool usbPowered;
     volatile bool batteryCharging;
 #endif
@@ -94,8 +93,14 @@ static struct
     ADCStage stage;
 } adcHardware;
 
-#if defined(PWR_CHRGANALOG_PORT)
-void updateADCChrgAnalog(int32_t value);
+#if defined(PWR_CHRG_CHANNEL)
+
+void updateADCPowerCharge(int32_t value)
+{
+    adcHardware.batteryCharging = (value < PWR_CHRG_USB_CHARGING_THRESHOLD);
+    adcHardware.usbPowered = adcHardware.batteryCharging || (value > PWR_CHRG_USB_POWERED_THRESHOLD);
+}
+
 #endif
 
 void initADC(void)
@@ -110,9 +115,7 @@ void initADC(void)
 #endif
 #endif
 
-#if defined(PWR_CHRGANALOG_PORT)
-    gpio_setup(PWR_CHRGANALOG_PORT, PWR_CHRGANALOG_PIN, GPIO_MODE_INPUT_ANALOG);
-#elif defined(EMFMETER)
+#if defined(EMFMETER)
     gpio_setup(ELECTRIC_FIELD_PORT, ELECTRIC_FIELD_PIN, GPIO_MODE_INPUT_ANALOG);
     gpio_setup(MAGNETIC_FIELD_PORT, MAGNETIC_FIELD_PIN, GPIO_MODE_INPUT_ANALOG);
 #endif
@@ -127,6 +130,7 @@ void initADC(void)
     adc_calibrate(ADC1);
 
     adc_enable(ADC1);
+
     adc_set_sampletime(ADC1, 7);
     adc_set_channel(ADC1, PWR_BAT_CHANNEL);
     adc_trigger_conversion(ADC1);
@@ -134,27 +138,19 @@ void initADC(void)
         ;
     adcHardware.snapshot.battery = PWR_BAT_SAMPLE_NUM * adc_read(ADC1);
 
-#if defined(PWR_CHRGANALOG_PORT)
-    adc_set_channel(ADC1, PWR_CHRGANALOG_CHANNEL);
+#if defined(PWR_CHRG_CHANNEL)
+    adc_set_channel(ADC1, PWR_CHRG_CHANNEL);
     adc_trigger_conversion(ADC1);
     while (!adc_ready(ADC1))
         ;
     int32_t value = adc_read(ADC1);
-    updateADCChrgAnalog(value);
+    updateADCPowerCharge(value);
 #endif
+
+    adc_disable(ADC1);
 
     adcHardware.initialized = true;
 }
-
-#if defined(PWR_CHRGANALOG_PORT)
-
-void updateADCChrgAnalog(int32_t value)
-{
-    adcHardware.batteryCharging = (value < PWR_CHRGANALOG_USB_CHARGING_THRESHOLD);
-    adcHardware.usbPowered = adcHardware.batteryCharging || (value > PWR_CHRGANALOG_USB_POWERED_THRESHOLD);
-}
-
-#endif
 
 void onADCTick(uint32_t index)
 {
@@ -176,11 +172,9 @@ void onADCTick(uint32_t index)
     case ADC_STAGE_IDLE:
         break;
 
-#if defined(PWR_CHRGANALOG_PORT)
-    case ADC_STAGE_PWR_CHRGANALOG:
-        adcHardware.stage = ADC_STAGE_IDLE;
-
-        updateADCChrgAnalog(value);
+#if defined(PWR_CHRG_CHANNEL)
+    case ADC_STAGE_PWR_CHRG:
+        updateADCPowerCharge(value);
 
         break;
 
@@ -214,18 +208,21 @@ void onADCTick(uint32_t index)
     // Stage setup
     switch (index)
     {
-#if defined(PWR_CHRGANALOG_PORT)
-    case ADC_PWR_CHRGANALOG1_SAMPLE:
-    case ADC_PWR_CHRGANALOG2_SAMPLE:
-        adcHardware.stage = ADC_STAGE_PWR_CHRGANALOG;
+#if defined(PWR_CHRG_CHANNEL)
+    case ADC_PWR_CHRG_SAMPLE:
+        adcHardware.stage = ADC_STAGE_PWR_CHRG;
 
-        adc_set_channel(ADC1, PWR_CHRGANALOG_CHANNEL);
+        adc_enable(ADC1);
+
+        adc_set_channel(ADC1, PWR_CHRG_CHANNEL);
 
         break;
 
 #elif defined(EMFMETER)
     case ADC_ELECTRIC_FIELD_SAMPLE:
         adcHardware.stage = ADC_STAGE_ELECTRIC_FIELD;
+
+        adc_enable(ADC1);
 
         adc_set_channel(ADC1, ELECTRIC_FIELD_CHANNEL);
 
@@ -241,6 +238,10 @@ void onADCTick(uint32_t index)
 
     case ADC_VREF_SAMPLE:
         adcHardware.stage = ADC_STAGE_VREF;
+
+#if !defined(PWR_CHRG_CHANNEL) && !defined(EMFMETER)
+        adc_enable(ADC1);
+#endif
 
         adc_enable_vref_channel(ADC1);
         adc_enable_temperature_vref_channel(ADC1);
@@ -258,6 +259,8 @@ void onADCTick(uint32_t index)
         break;
 
     case ADC_END_SAMPLE:
+        adc_disable(ADC1);
+
         adcHardware.stage = ADC_STAGE_IDLE;
 
         adcHardware.snapshot = adcHardware.live;
@@ -270,7 +273,7 @@ void onADCTick(uint32_t index)
     adc_trigger_conversion(ADC1);
 }
 
-#if defined(PWR_CHRGANALOG_PORT)
+#if defined(PWR_CHRG_CHANNEL)
 
 bool isUSBPowered(void)
 {

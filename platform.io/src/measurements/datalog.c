@@ -559,8 +559,8 @@ bool readDatalog(DatalogRecord *record)
 
 void initDatalog(void)
 {
-    // Get most recent datalog page if settings not loaded
-    if (!isSettingsLoaded() || !setDatalogTail())
+    // Get most recent datalog page
+    if (!setDatalogTail())
     {
         eraseFlash(DATALOG_BASE);
 

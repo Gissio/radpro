@@ -18,6 +18,8 @@
 #define MAX_SYSCLK 48000000
 #elif defined(STM32F0) && defined(GD32)
 #define MAX_SYSCLK 72000000
+#elif defined(STM32F1) && defined(CH32F2)
+#define MAX_SYSCLK 144000000
 #elif defined(STM32F1)
 #define MAX_SYSCLK 72000000
 #elif defined(STM32G0)

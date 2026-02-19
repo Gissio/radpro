@@ -26,9 +26,11 @@
 #define PWR_BAT_SCALE_FACTOR 2.0F
 #define PWR_BAT_NUM 1.0F
 #define PWR_USB_PORT GPIOC
-#define PWR_USB_PIN 7
+#define PWR_USB_PIN 6
+#define PWR_USB_PULLUP
+#define PWR_USB_ACTIVE_LOW
 #define PWR_CHRG_PORT GPIOC
-#define PWR_CHRG_PIN 6
+#define PWR_CHRG_PIN 7
 #define PWR_CHRG_PULLUP
 #define PWR_CHRG_ACTIVE_LOW
 

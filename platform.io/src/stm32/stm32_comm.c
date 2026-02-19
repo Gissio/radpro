@@ -30,7 +30,7 @@ void openComm(void)
         return;
 
     // RCC
-    rcc_reset_usart(USART_INTERFACE); // +++ CHECK: can we remove this?
+    rcc_reset_usart(USART_INTERFACE);
     rcc_enable_usart(USART_INTERFACE);
 
     // GPIO
