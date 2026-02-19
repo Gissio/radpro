@@ -84,7 +84,7 @@ PulseUnits pulseUnits[] = {
 static struct
 {
     // onPulseTick
-    uint32_t lastTubePulseCount;
+    uint32_t previousTubePulseCount;
 
     Dose tubeDose;
 
@@ -96,12 +96,12 @@ static struct
     bool rateOverThreshold;
 
     // onPulseHeartbeat
-    PulsePeriod lastPeriod;
-    uint32_t lastPeriodTick;
+    PulsePeriod previousPeriod;
+    uint32_t previousPeriodTick;
 
     // updatePulses
     uint32_t lossOfCountTimer;
-    bool lastTubeShorted;
+    bool previousTubeShorted;
     AlertLevel faultAlertLevel;
     bool faultAlertTriggered;
 
@@ -116,7 +116,7 @@ void setupPulses(void)
     syncTick();
     Dose tubeDose = pulses.tubeDose;
     memset(&pulses, 0, sizeof(pulses));
-    pulses.lastTubePulseCount = tubePulseCount;
+    pulses.previousTubePulseCount = tubePulseCount;
     pulses.tubeDose = tubeDose;
 
     updateDoseUnits();
@@ -208,8 +208,8 @@ void onPulseTick(void)
 #endif
 
     uint32_t currentPulseCount = tubePulseCount;
-    uint32_t pulseCount = currentPulseCount - pulses.lastTubePulseCount;
-    pulses.lastTubePulseCount = currentPulseCount;
+    uint32_t pulseCount = currentPulseCount - pulses.previousTubePulseCount;
+    pulses.previousTubePulseCount = currentPulseCount;
 
     // Tube dose
     pulses.tubeDose.pulseCount += pulseCount;
@@ -242,9 +242,9 @@ void onPulseHeartbeat(void)
     // Tube dose
     pulses.tubeDose.time += 1;
 
-    // Last period
-    pulses.lastPeriod = pulses.currentPeriod;
-    pulses.lastPeriodTick = currentTick;
+    // Previous period
+    pulses.previousPeriod = pulses.currentPeriod;
+    pulses.previousPeriodTick = currentTick;
     pulses.currentPeriod.pulseCount = 0;
 }
 
@@ -252,17 +252,17 @@ void updatePulses(void)
 {
     // Fault alert
     AlertLevel faultAlertLevel = ALERTLEVEL_NONE;
-    if (pulses.lastPeriod.pulseCount)
+    if (pulses.previousPeriod.pulseCount)
         pulses.lossOfCountTimer = 0;
     else
         pulses.lossOfCountTimer++;
     if (pulses.lossOfCountTimer >= getLossOfCountTime())
         faultAlertLevel = ALERTLEVEL_ALARM;
 
-    bool tubeShorted = (!pulses.lastPeriod.pulseCount && readTubeDet());
-    if (pulses.lastTubeShorted && tubeShorted)
+    bool tubeShorted = (!pulses.previousPeriod.pulseCount && readTubeDet());
+    if (pulses.previousTubeShorted && tubeShorted)
         faultAlertLevel = ALERTLEVEL_ALARM;
-    pulses.lastTubeShorted = tubeShorted;
+    pulses.previousTubeShorted = tubeShorted;
 
     pulses.faultAlertTriggered = (faultAlertLevel > pulses.faultAlertLevel);
     pulses.faultAlertLevel = faultAlertLevel;
@@ -270,13 +270,13 @@ void updatePulses(void)
         setAlertPending(true);
 
     // Instantaneous rate
-    updateInstantaneousRate(pulses.lastPeriodTick, &pulses.lastPeriod);
+    updateInstantaneousRate(pulses.previousPeriodTick, &pulses.previousPeriod);
 
     // Compensate period
-    PulsePeriod compensatedPeriod = pulses.lastPeriod;
+    PulsePeriod compensatedPeriod = pulses.previousPeriod;
     if (settings.tubeDeadTimeCompensation)
     {
-        pulses.deadTimeCompensationRemainder += getDeadTimeCompensationFactor() * pulses.lastPeriod.pulseCount;
+        pulses.deadTimeCompensationRemainder += getDeadTimeCompensationFactor() * pulses.previousPeriod.pulseCount;
         compensatedPeriod.pulseCount = (uint32_t)pulses.deadTimeCompensationRemainder;
         pulses.deadTimeCompensationRemainder -= compensatedPeriod.pulseCount;
     }

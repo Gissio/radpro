@@ -169,7 +169,7 @@ void drawHistory(float scale, const char *unitString, uint32_t timeTicksNum, con
     mr_color_t line[HISTORY_IMAGEBUFFER_HEIGHT];
     uint32_t timeTickIndex = 0;
     int16_t nextTimeTick = 0;
-    int16_t lastY = 0;
+    int16_t previousY = 0;
     FillSpan fillSpansContent[32];
     for (int16_t x = 0; x < HISTORY_IMAGEBUFFER_WIDTH; x++)
     {
@@ -185,12 +185,12 @@ void drawHistory(float scale, const char *unitString, uint32_t timeTicksNum, con
             int16_t y = getHistoryY(logValues[bin], valueOffset, valueScale);
 
             if (bin == 0)
-                lastY = y;
-            int16_t minY = (y < lastY) ? y : lastY;
-            int16_t maxY = (y > lastY) ? y : lastY;
+                previousY = y;
+            int16_t minY = (y < previousY) ? y : previousY;
+            int16_t maxY = (y > previousY) ? y : previousY;
             if (minY > HISTORY_CONTENT_TOP)
                 minY--;
-            lastY = y;
+            previousY = y;
 
             // Fill spans
             uint32_t fillSpanIndex = 0;

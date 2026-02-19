@@ -109,7 +109,7 @@ void pollComm(void)
                 comm.buffer[comm.bufferIndex++] = c;
             else if ((c == '\r') ||
                      ((c == '\n') &&
-                      (comm.lastChar != '\r')))
+                      (comm.previousChar != '\r')))
             {
                 comm.buffer[comm.bufferIndex] = '\0';
 
@@ -117,7 +117,7 @@ void pollComm(void)
                 comm.state = COMM_RX_READY;
             }
 
-            comm.lastChar = c;
+            comm.previousChar = c;
         }
 
         break;

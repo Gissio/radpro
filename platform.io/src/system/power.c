@@ -53,7 +53,7 @@ static struct
 
     float batteryVoltage;
     uint8_t batteryLevel;
-    bool usbPoweredLast;
+    bool previousUSBPowered;
 } power;
 
 static void onPowerOffViewEvent(ViewEvent event);
@@ -218,12 +218,12 @@ void powerOff(bool showBatteryIndicator)
 {
     setupEvents();
 
-    bool poweredOnLast = power.poweredOn;
+    bool previousPoweredOn = power.poweredOn;
     power.poweredOn = false;
 
     setMeasurementsEnabled(false);
 
-    if (poweredOnLast)
+    if (previousPoweredOn)
     {
         saveSettings();
 #if defined(PULSESOUND_ENABLE)
@@ -331,13 +331,13 @@ void updatePowerState(void)
             powerOff(true);
     }
 
-    if (!power.usbPoweredLast && usbPowered)
+    if (!power.previousUSBPowered && usbPowered)
     {
         requestBacklightTrigger();
         triggerVibration();
     }
 
-    power.usbPoweredLast = usbPowered;
+    power.previousUSBPowered = usbPowered;
 }
 
 float getBatteryVoltage(void)

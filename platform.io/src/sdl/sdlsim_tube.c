@@ -26,7 +26,7 @@
 #define SIM_CPS (SIM_USVH * SIM_SENSITIVITIY / 60.0F)
 
 float tubeCPS;
-uint32_t tubeLastTick;
+uint32_t previousTubeTick;
 
 void initTubeHardware(void)
 {
@@ -87,14 +87,16 @@ void onTubeTick(void)
 
     if (pulseCount)
     {
-        uint32_t deltaTicks = currentTick - tubeLastTick;
+        uint32_t deltaTicks = currentTick - previousTubeTick;
+
         if (deltaTicks < 64)
         {
             uint32_t deadTime = 1000 * (deltaTicks - 1) + 1000 * getUniformRandomValue() + 80;
             if(deadTime < tubeDeadTime)
                 tubeDeadTime = deadTime;
         }
-        tubeLastTick = currentTick;
+
+        previousTubeTick = currentTick;
     }
 
 #endif

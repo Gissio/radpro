@@ -50,7 +50,7 @@ static struct
     int32_t validMovesIndex;
     mcumax_move validMoves[GAME_VALID_MOVES_NUM_MAX];
 
-    mcumax_move lastMove;
+    mcumax_move previousMove;
 } game;
 
 static const uint32_t gameStrengthToNodesCount[] = {
@@ -84,8 +84,8 @@ static void updateGameBoard(void)
     switch (game.state)
     {
     case GAME_SHOWING_LAST_MOVE:
-        if (game.lastMove.from != MCUMAX_SQUARE_INVALID)
-            move = game.lastMove;
+        if (game.previousMove.from != MCUMAX_SQUARE_INVALID)
+            move = game.previousMove;
 
         break;
 
@@ -148,7 +148,7 @@ static void startGame(uint32_t playerIndex)
     game.playerTime[0] = 0;
     game.playerTime[1] = 0;
 
-    game.lastMove = MCUMAX_MOVE_INVALID;
+    game.previousMove = MCUMAX_MOVE_INVALID;
 
     if (playerIndex == 0)
     {
@@ -181,7 +181,7 @@ void updateGame(void)
                 mcumax_play_move(move);
 
                 game.moveIndex++;
-                game.lastMove = move;
+                game.previousMove = move;
 
                 updateValidMoves();
 
@@ -297,7 +297,7 @@ static void onGameViewEvent(ViewEvent event)
             mcumax_play_move(move);
 
             game.moveIndex++;
-            game.lastMove = move;
+            game.previousMove = move;
 
             game.state = GAME_SEARCHING;
 

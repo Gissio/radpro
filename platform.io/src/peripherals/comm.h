@@ -45,7 +45,7 @@ typedef struct
     char buffer[COMM_BUFFER_SIZE];
 
     volatile bool open;
-    char lastChar;
+    char previousChar;
 
     volatile TransmitState transmitState;
     uint32_t datalogStartTime;

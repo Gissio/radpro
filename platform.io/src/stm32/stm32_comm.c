@@ -113,7 +113,7 @@ void USART_IRQ_HANDLER(void)
             comm.buffer[comm.bufferIndex++] = c;
 
 #if defined(GMC800)
-            if ((c == '>') && (comm.lastChar == '>'))
+            if ((c == '>') && (comm.previousChar == '>'))
             {
                 comm.buffer[comm.bufferIndex] = '\0';
 
@@ -124,7 +124,7 @@ void USART_IRQ_HANDLER(void)
         }
         else if ((c == '\r') ||
                  ((c == '\n') &&
-                  (comm.lastChar != '\r')))
+                  (comm.previousChar != '\r')))
         {
             comm.buffer[comm.bufferIndex] = '\0';
 
@@ -132,7 +132,7 @@ void USART_IRQ_HANDLER(void)
             comm.state = COMM_RX_READY;
         }
 
-        comm.lastChar = c;
+        comm.previousChar = c;
 
         break;
 
@@ -430,7 +430,7 @@ static void onUSBData(usbd_device *dev, uint8_t event, uint8_t ep)
                 comm.buffer[comm.bufferIndex++] = c;
             else if ((c == '\r') ||
                      ((c == '\n') &&
-                      (comm.lastChar != '\r')))
+                      (comm.previousChar != '\r')))
             {
                 comm.buffer[comm.bufferIndex] = '\0';
 
@@ -441,7 +441,7 @@ static void onUSBData(usbd_device *dev, uint8_t event, uint8_t ep)
                 usbd_ep_write(dev, USB_DATA_TRANSMIT_ENDPOINT, NULL, 0);
             }
 
-            comm.lastChar = c;
+            comm.previousChar = c;
         }
 
         break;

@@ -100,7 +100,7 @@ typedef struct {
 
 static struct
 {
-    uint32_t lastPulseCount;
+    uint32_t previousPulseCount;
 
     RNGStack stack;
     RNGFastDiceRoller fastDiceRoller;
@@ -120,8 +120,8 @@ void updateRNG(void)
     uint32_t pulseCount = tubePulseCount;
     uint32_t randomBits = tubeRandomBits;
 
-    uint32_t bitCount = 2 * (pulseCount - rng.lastPulseCount);
-    rng.lastPulseCount = pulseCount;
+    uint32_t bitCount = 2 * (pulseCount - rng.previousPulseCount);
+    rng.previousPulseCount = pulseCount;
 
     if (bitCount > 32)
         bitCount = 32;

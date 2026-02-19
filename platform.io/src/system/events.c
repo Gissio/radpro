@@ -79,7 +79,7 @@ static struct
 
     int32_t heartbeatTimer;
     volatile uint32_t heartbeatCount;
-    uint32_t lastHeartbeatCount;
+    uint32_t previousHeartbeatCount;
 } events;
 
 volatile uint32_t currentTick;
@@ -127,7 +127,7 @@ void setupEvents(void)
     syncTick();
 
     events.heartbeatTimer = SYSTICK_FREQUENCY;
-    events.lastHeartbeatCount = events.heartbeatCount;
+    events.previousHeartbeatCount = events.heartbeatCount;
 }
 
 // Timer
@@ -257,9 +257,9 @@ void updateEvents(void)
     updateComm();
 
     uint32_t heartbeatCount = events.heartbeatCount;
-    if (events.lastHeartbeatCount != heartbeatCount)
+    if (events.previousHeartbeatCount != heartbeatCount)
     {
-        events.lastHeartbeatCount = heartbeatCount;
+        events.previousHeartbeatCount = heartbeatCount;
 
         updateMeasurements();
         updateViewHeartbeat();

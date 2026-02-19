@@ -68,7 +68,7 @@ typedef struct
 
 static struct
 {
-    uint32_t lastTimeFast;
+    uint32_t previousTimeFast;
 
     DatalogWrite write;
     DatalogRead read;
@@ -397,9 +397,9 @@ void resetDatalog(void)
 void updateDatalog(void)
 {
     uint32_t timeFast = getDeviceTimeFast();
-    if (timeFast != datalog.lastTimeFast)
+    if (timeFast != datalog.previousTimeFast)
     {
-        datalog.lastTimeFast = timeFast;
+        datalog.previousTimeFast = timeFast;
 
         if (datalog.write.active && !datalog.read.active)
         {

@@ -27,8 +27,8 @@ struct
 {
     bool enabled;
 
-    uint32_t lastTick;
-    uint32_t lastTimerCount;
+    uint32_t previousTick;
+    uint32_t previousTimerCount;
 } tubeHardware;
 
 void initTubeHardware(void)
@@ -131,12 +131,12 @@ void TUBE_DET_IRQ_HANDLER(void)
 
     tubeRandomBits = (tubeRandomBits << TUBE_BITS_PER_PULSE) | (timerCount & TUBE_BITS_PER_PULSE_MASK);
 
-    uint32_t tickTime = currentTick - tubeHardware.lastTick;
+    uint32_t tickTime = currentTick - tubeHardware.previousTick;
     if (tickTime < 64)
-        tubeDeadTime = timerCount - tubeHardware.lastTimerCount;
+        tubeDeadTime = timerCount - tubeHardware.previousTimerCount;
 
-    tubeHardware.lastTick = currentTick;
-    tubeHardware.lastTimerCount = timerCount;
+    tubeHardware.previousTick = currentTick;
+    tubeHardware.previousTimerCount = timerCount;
 }
 
 bool readTubeDet(void)
