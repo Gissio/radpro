@@ -103,9 +103,11 @@ static const uint8_t statesPageId[STATES_PAGE_ID_SIZE] = {
     0,
 };
 
-static bool validateStatesPage(const uint8_t *statesPage)
+static bool validateStatesPage(void)
 {
-    return memcmp(statesPage + STATES_PAGE_ID_OFFSET, statesPageId, STATES_PAGE_ID_SIZE) == 0;
+    const uint8_t *page = readFlash(STATES_BASE, STATES_SIZE);
+
+    return memcmp(page + STATES_PAGE_ID_OFFSET, statesPageId, STATES_PAGE_ID_SIZE) == 0;
 }
 
 static void resetStatesPage(void)
@@ -147,25 +149,23 @@ static bool validateState(const State *state)
 
 static const State *loadLatestState(void)
 {
-    const uint8_t *statesPage = readFlash(STATES_BASE, STATES_SIZE);
+    if (!validateStatesPage())
+        resetStatesPage();
+
+    // Find last state
+    const uint8_t *page = readFlash(STATES_BASE, STATES_SIZE);
+
     const State *lastState = NULL;
-
-    if (validateStatesPage(statesPage))
+    for (uint32_t offset = 0; offset < STATES_PAGE_LASTSTATE_OFFSET; offset += sizeof(State))
     {
-        // Find last state
-        for (uint32_t offset = 0; offset < STATES_PAGE_LASTSTATE_OFFSET; offset += sizeof(State))
+        const State *state = (const State *)(page + offset);
+        if (validateState(state))
         {
-            const State *state = (const State *)(statesPage + offset);
-            if (validateState(state))
-            {
-                lastState = state;
+            lastState = state;
 
-                stateOffset = offset + sizeof(State);
-            }
+            stateOffset = offset + sizeof(State);
         }
     }
-    else
-        stateOffset = STATES_PAGE_LASTSTATE_OFFSET;
 
     return lastState;
 }
