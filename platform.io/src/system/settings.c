@@ -65,6 +65,7 @@ static const Settings defaultSettings = {
     .soundAlertStyle = SOUND_ALERTSTYLE_LONG,
 #endif
     .soundAlertVolume = SOUND_ALERTVOLUME_VERYHIGH,
+    .soundPulseVolume = SOUND_PULSEVOLUME_HIGH,
     .soundVoiceVolume = SOUND_VOICEVOLUME_VERYHIGH,
 
     .rtcTimeZone = RTC_TIMEZONE_P0000,
@@ -140,6 +141,7 @@ static bool validateState(const State *state)
 #endif
             (s->displaySleep < DISPLAY_SLEEP_NUM) &&
             (s->soundPulseType < SOUND_PULSETYPE_NUM) &&
+            (s->soundPulseVolume < SOUND_PULSEVOLUME_NUM) &&
             (s->rtcTimeZone < RTC_TIMEZONE_NUM) &&
 #if defined(BATTERY_REMOVABLE)
             (s->powerBatteryType < BATTERYTYPE_NUM) &&

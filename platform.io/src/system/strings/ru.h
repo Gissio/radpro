@@ -236,6 +236,7 @@
 #define STRING_ALERTSTYLE "Стиль оповещения"
 #define STRING_ALERTVOLUME "Громкость оповещения"
 #define STRING_VOICEVOLUME "Громкость голоса"
+#define STRING_PULSEVOLUME "Громкость пульсации"
 
 // Sound alert style menu items
 #define STRING_SHORT "Короткий"

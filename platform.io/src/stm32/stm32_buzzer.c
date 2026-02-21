@@ -13,6 +13,7 @@
 
 #include "../peripherals/buzzer.h"
 #include "../system/events.h"
+#include "../system/settings.h"
 #include "../stm32/device.h"
 
 void initBuzzer(void)
@@ -76,7 +77,17 @@ void setBuzzer(bool value)
 
 #else
 
-    tim_set_ontime(BUZZER_TIMER, BUZZER_TIMER_CHANNEL, value ? BUZZER_TIMER_PERIOD / 2 : 0);
+    static const uint32_t buzzerVolumeLevels[] = {
+        BUZZER_TIMER_PERIOD / 64,
+        BUZZER_TIMER_PERIOD / 16,
+        BUZZER_TIMER_PERIOD / 2,
+    };
+
+    uint32_t onTime = 0;
+    if (value)
+        onTime = buzzerVolumeLevels[settings.soundPulseVolume];
+
+    tim_set_ontime(BUZZER_TIMER, BUZZER_TIMER_CHANNEL, onTime);
 
 #endif
 }

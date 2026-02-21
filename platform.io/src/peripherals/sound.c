@@ -88,6 +88,7 @@ static const Menu soundAlertStyleMenu = {
 static const MenuOption soundMenuOptions[] = {
 #if defined(BUZZER)
     {STRING_PULSES, &soundPulsesMenu},
+    {STRING_PULSEVOLUME, &soundPulsesVolumeMenu},
 #endif
     {STRING_ALERTSTYLE, &soundAlertStyleMenu},
 #if defined(VOICE)

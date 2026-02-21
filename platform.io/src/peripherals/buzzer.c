@@ -17,6 +17,7 @@
 void setupBuzzer(void)
 {
     selectMenuItem(&soundPulsesMenu, settings.soundPulseType);
+    selectMenuItem(&soundPulsesVolumeMenu, settings.soundPulseVolume);
 }
 
 // Sound pulses menu
@@ -47,6 +48,37 @@ const Menu soundPulsesMenu = {
     ARRAY_SIZE(soundPulsesMenuOptions),
     onSoundPulsesMenuGetOption,
     onSoundPulsesMenuSelect,
+    showSoundMenu,
+};
+
+// Sound pulse volume menu
+
+static cstring soundPulseVolumeOptions[] = {
+    STRING_LOW,
+    STRING_MEDIUM,
+    STRING_HIGH,
+};
+
+static const char *onSoundPulsesVolumeMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
+{
+    *menuStyle = (index == settings.soundPulseVolume);
+
+    return getString(soundPulseVolumeOptions[index]);
+}
+
+static void onSoundPulsesVolumeMenuSelect(menu_size_t index)
+{
+    settings.soundPulseVolume = index;
+}
+
+static MenuState soundPulsesVolumeMenuState;
+
+const Menu soundPulsesVolumeMenu = {
+    STRING_PULSEVOLUME,
+    &soundPulsesVolumeMenuState,
+    ARRAY_SIZE(soundPulseVolumeOptions),
+    onSoundPulsesVolumeMenuGetOption,
+    onSoundPulsesVolumeMenuSelect,
     showSoundMenu,
 };
 
