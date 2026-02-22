@@ -122,11 +122,18 @@ void initKeyboardHardware(void)
     gpio_setup_input(KEY_RIGHT_PORT, KEY_RIGHT_PIN, GPIO_PULL_PULLUP);
 }
 
-void getKeyboardState(bool *isKeyDown)
+void onKeyboardTick(void)
 {
-    isKeyDown[KEY_LEFT] = !gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN);
-    isKeyDown[KEY_OK] = !gpio_get(KEY_OK_PORT, KEY_OK_PIN);
-    isKeyDown[KEY_RIGHT] = !gpio_get(KEY_RIGHT_PORT, KEY_RIGHT_PIN);
+    for (uint32_t i = 0; i < KEY_NUM; i++)
+        keyboardKeyDown[i] <<= 1;
+
+    keyboardKeyDown[KEY_LEFT] |= !gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN);
+    keyboardKeyDown[KEY_OK] |= !gpio_get(KEY_OK_PORT, KEY_OK_PIN);
+    keyboardKeyDown[KEY_RIGHT] |= !gpio_get(KEY_RIGHT_PORT, KEY_RIGHT_PIN);
+}
+
+void updateKeyboardState(void)
+{
 }
 
 // Display

@@ -125,6 +125,9 @@ static void onPowerOnViewEvent(ViewEvent event)
 
 void powerOn(bool isBoot)
 {
+    if (power.poweredOn)
+        return;
+
 #if !defined(START_POWERED)
     if (isBoot)
     {
@@ -216,6 +219,9 @@ static void onPowerOffViewEvent(ViewEvent event)
 
 void powerOff(bool showBatteryIndicator)
 {
+    if (!power.poweredOn)
+        return;
+
     setupEvents();
 
     bool previousPoweredOn = power.poweredOn;

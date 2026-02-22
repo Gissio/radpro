@@ -115,16 +115,16 @@ static uint32_t getPreviousPage(uint32_t pageBase)
 {
     if (pageBase >= (DATALOG_BASE + DATALOG_PAGE_SIZE))
         return pageBase - DATALOG_PAGE_SIZE;
-    else
-        return DATALOG_END - DATALOG_PAGE_SIZE;
+
+    return DATALOG_END - DATALOG_PAGE_SIZE;
 }
 
 static uint32_t getNextPage(uint32_t pageBase)
 {
     if (pageBase < (DATALOG_END - DATALOG_PAGE_SIZE))
         return pageBase + DATALOG_PAGE_SIZE;
-    else
-        return DATALOG_BASE;
+
+    return DATALOG_BASE;
 }
 
 static PageState readPageState(uint32_t pageBase)
@@ -133,10 +133,8 @@ static PageState readPageState(uint32_t pageBase)
 
     // Check page state trailing bytes
     for (uint8_t i = 1; i < DATALOG_PAGE_STATE_SIZE; i++)
-    {
         if (pageStateData[i] != 0xff)
             return PAGESTATE_RESET;
-    }
 
     // Check page state first byte
     PageState pageState = pageStateData[0];

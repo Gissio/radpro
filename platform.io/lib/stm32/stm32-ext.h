@@ -1737,7 +1737,7 @@ __STATIC_INLINE void tim_setup_pwm(TIM_TypeDef *base, uint32_t channel)
     }
 }
 
-__STATIC_INLINE void tim_setup_single(TIM_TypeDef *base)
+__STATIC_INLINE void tim_setup_freerunning(TIM_TypeDef *base)
 {
     base->ARR = 0xffff;
 

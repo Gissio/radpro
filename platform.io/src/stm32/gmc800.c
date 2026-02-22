@@ -36,7 +36,7 @@ void initSystem(void)
     // Configure AHB, APB1, APB2, ADC, PLL
     RCC->CFGR = RCC_CFGR_SW_HSI |       // Select HSI as system clock
                 RCC_CFGR_HPRE_DIV1 |    // Set AHB clock: 72 MHz / 1 = 72 MHz
-                RCC_CFGR_PPRE1_DIV2 |   // Set APB1 clock: 72 MHz / 2 = 36 MHz
+                RCC_CFGR_PPRE1_DIV16 |  // Set APB1 clock: 72 MHz / 16 = 4.5 MHz
                 RCC_CFGR_PPRE2_DIV1 |   // Set APB2 clock: 72 MHz / 1 = 72 MHz
                 RCC_CFGR_ADCPRE_DIV6 |  // Set ADC clock: 72 MHz / 6 = 12 MHz
                 RCC_CFGR_PLLSRC_HSE |   // Set PLL source: HSE
@@ -115,12 +115,19 @@ void initKeyboardHardware(void)
     gpio_setup(KEY_RIGHT_PORT, KEY_RIGHT_PIN, GPIO_MODE_INPUT_PULLUP);
 }
 
-void getKeyboardState(bool *isKeyDown)
+void onKeyboardTick(void)
 {
-    isKeyDown[KEY_LEFT] = !gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN);
-    isKeyDown[KEY_RIGHT] = !gpio_get(KEY_RIGHT_PORT, KEY_RIGHT_PIN);
-    isKeyDown[KEY_UP] = !gpio_get(KEY_UP_PORT, KEY_UP_PIN);
-    isKeyDown[KEY_DOWN] = !gpio_get(KEY_DOWN_PORT, KEY_DOWN_PIN);
+    for (uint32_t i = 0; i < KEY_NUM; i++)
+        keyboardKeyDown[i] <<= 1;
+
+    keyboardKeyDown[KEY_LEFT] |= !gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN);
+    keyboardKeyDown[KEY_RIGHT] |= !gpio_get(KEY_RIGHT_PORT, KEY_RIGHT_PIN);
+    keyboardKeyDown[KEY_UP] |= !gpio_get(KEY_UP_PORT, KEY_UP_PIN);
+    keyboardKeyDown[KEY_DOWN] |= !gpio_get(KEY_DOWN_PORT, KEY_DOWN_PIN);
+}
+
+void updateKeyboardState(void)
+{
 }
 
 // Display

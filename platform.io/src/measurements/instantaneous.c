@@ -108,7 +108,7 @@ static void updateInstantaneousRateAlerts(void)
             alertLevel = ALERTLEVEL_WARNING;
     }
 
-    bool previousAlertLevel = instantaneous.alertLevel;
+    AlertLevel previousAlertLevel = instantaneous.alertLevel;
     instantaneous.alertLevel = alertLevel;
 
     bool alertTriggered = (alertLevel > previousAlertLevel);

@@ -167,23 +167,34 @@ const char *const commId = "FNIRSI GC-01 (APM32F103CB);" FIRMWARE_NAME " " FIRMW
 
 // Keyboard
 
+static uint8_t keyboardPin[] = {
+    KEY_LEFT_PIN,
+    KEY_RIGHT_PIN,
+    KEY_UP_PIN,
+    KEY_DOWN_PIN,
+    KEY_OK_PIN
+};
+
 void initKeyboardHardware(void)
 {
     // GPIO
-    gpio_setup(KEY_LEFT_PORT, KEY_LEFT_PIN, GPIO_MODE_INPUT_PULLUP);
-    gpio_setup(KEY_RIGHT_PORT, KEY_RIGHT_PIN, GPIO_MODE_INPUT_PULLUP);
-    gpio_setup(KEY_UP_PORT, KEY_UP_PIN, GPIO_MODE_INPUT_PULLUP);
-    gpio_setup(KEY_DOWN_PORT, KEY_DOWN_PIN, GPIO_MODE_INPUT_PULLUP);
-    gpio_setup(KEY_OK_PORT, KEY_OK_PIN, GPIO_MODE_INPUT_PULLUP);
+    for (uint32_t i = 0; i < KEY_NUM; i++)
+    {
+        if (i != KEY_OK)
+            gpio_setup(GPIOC, keyboardPin[i], GPIO_MODE_INPUT_PULLUP);
+        else
+            gpio_setup(GPIOA, keyboardPin[i], GPIO_MODE_INPUT_PULLUP);
+    }
 }
 
-void getKeyboardState(bool *isKeyDown)
+void onKeyboardTick(void)
 {
-    isKeyDown[KEY_LEFT] = !gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN);
-    isKeyDown[KEY_RIGHT] = !gpio_get(KEY_RIGHT_PORT, KEY_RIGHT_PIN);
-    isKeyDown[KEY_UP] = !gpio_get(KEY_UP_PORT, KEY_UP_PIN);
-    isKeyDown[KEY_DOWN] = !gpio_get(KEY_DOWN_PORT, KEY_DOWN_PIN);
-    isKeyDown[KEY_OK] = !gpio_get(KEY_OK_PORT, KEY_OK_PIN);
+    for (uint32_t i = 0; i < KEY_NUM; i++)
+        keyboardKeyDown[i] = (keyboardKeyDown[i] << 1) | (!gpio_get((i != KEY_OK) ? GPIOC : GPIOA, keyboardPin[i]));
+}
+
+void updateKeyboardState(void)
+{
 }
 
 // Display
@@ -262,7 +273,7 @@ static void onDisplaySend(uint16_t value)
     DISPLAY_WRX_PORT->BSRR = get_bitvalue(DISPLAY_WRX_PIN);
 }
 
-uint8_t displayPin[] = {
+static uint8_t displayPin[] = {
     DISPLAY_RESX_PIN,
     DISPLAY_CSX_PIN,
     DISPLAY_DCX_PIN,

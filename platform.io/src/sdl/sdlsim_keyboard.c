@@ -17,29 +17,33 @@ void initKeyboardHardware(void)
 {
 }
 
-void getKeyboardState(bool *isKeyDown)
+void onKeyboardTick(void)
 {
     const Uint8 *state = SDL_GetKeyboardState(NULL);
 
 #if defined(KEYBOARD_5_KEYS)
-    isKeyDown[KEY_LEFT] = state[SDL_SCANCODE_LEFT];
-    isKeyDown[KEY_RIGHT] = state[SDL_SCANCODE_RIGHT];
-    isKeyDown[KEY_UP] = state[SDL_SCANCODE_UP];
-    isKeyDown[KEY_DOWN] = state[SDL_SCANCODE_DOWN];
-    isKeyDown[KEY_OK] = state[SDL_SCANCODE_RETURN];
+    keyboardKeyDown[KEY_LEFT] = state[SDL_SCANCODE_LEFT];
+    keyboardKeyDown[KEY_RIGHT] = state[SDL_SCANCODE_RIGHT];
+    keyboardKeyDown[KEY_UP] = state[SDL_SCANCODE_UP];
+    keyboardKeyDown[KEY_DOWN] = state[SDL_SCANCODE_DOWN];
+    keyboardKeyDown[KEY_OK] = state[SDL_SCANCODE_RETURN];
 #elif defined(KEYBOARD_4_KEYS)
-    isKeyDown[KEY_LEFT] = state[SDL_SCANCODE_LEFT];
-    isKeyDown[KEY_RIGHT] = state[SDL_SCANCODE_RIGHT];
-    isKeyDown[KEY_UP] = state[SDL_SCANCODE_UP];
-    isKeyDown[KEY_DOWN] = state[SDL_SCANCODE_DOWN];
+    keyboardKeyDown[KEY_LEFT] = state[SDL_SCANCODE_LEFT];
+    keyboardKeyDown[KEY_RIGHT] = state[SDL_SCANCODE_RIGHT];
+    keyboardKeyDown[KEY_UP] = state[SDL_SCANCODE_UP];
+    keyboardKeyDown[KEY_DOWN] = state[SDL_SCANCODE_DOWN];
 #elif defined(KEYBOARD_3_KEYS)
-    isKeyDown[KEY_LEFT] = state[SDL_SCANCODE_LEFT];
-    isKeyDown[KEY_RIGHT] = state[SDL_SCANCODE_RIGHT];
-    isKeyDown[KEY_OK] = state[SDL_SCANCODE_DOWN];
+    keyboardKeyDown[KEY_LEFT] = state[SDL_SCANCODE_LEFT];
+    keyboardKeyDown[KEY_RIGHT] = state[SDL_SCANCODE_RIGHT];
+    keyboardKeyDown[KEY_OK] = state[SDL_SCANCODE_DOWN];
 #elif defined(KEYBOARD_2_KEYS)
-    isKeyDown[KEY_LEFT] = state[SDL_SCANCODE_LEFT];
-    isKeyDown[KEY_RIGHT] = state[SDL_SCANCODE_RIGHT];
+    keyboardKeyDown[KEY_LEFT] = state[SDL_SCANCODE_LEFT];
+    keyboardKeyDown[KEY_RIGHT] = state[SDL_SCANCODE_RIGHT];
 #endif
+}
+
+void updateKeyboardState(void)
+{
 }
 
 #endif

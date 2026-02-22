@@ -157,18 +157,25 @@ void initKeyboardHardware(void)
 #endif
 }
 
-void getKeyboardState(bool *isKeyDown)
+void onKeyboardTick(void)
 {
+    for (uint32_t i = 0; i < KEY_NUM; i++)
+        keyboardKeyDown[i] <<= 1;
+
 #if defined(KEYBOARD_2lKEYS)
-    isKeyDown[KEY_LEFT] = !gpio_get(KEY_PLAYPAUSE_PORT, KEY_PLAYPAUSE_PIN);
-    isKeyDown[KEY_RIGHT] = !gpio_get(KEY_POWER_PORT, KEY_POWER_PIN);
+    keyboardKeyDown[KEY_LEFT] |= !gpio_get(KEY_PLAYPAUSE_PORT, KEY_PLAYPAUSE_PIN);
+    keyboardKeyDown[KEY_RIGHT] |= !gpio_get(KEY_POWER_PORT, KEY_POWER_PIN);
 #elif defined(KEYBOARD_5_KEYS)
-    isKeyDown[KEY_LEFT] = !gpio_get(KEY_PLAYPAUSE_PORT, KEY_PLAYPAUSE_PIN);
-    isKeyDown[KEY_RIGHT] = !gpio_get(KEY_MENUOK_PORT, KEY_MENUOK_PIN);
-    isKeyDown[KEY_UP] = !gpio_get(KEY_UP_PORT, KEY_UP_PIN);
-    isKeyDown[KEY_DOWN] = !gpio_get(KEY_DOWN_PORT, KEY_DOWN_PIN);
-    isKeyDown[KEY_OK] = !gpio_get(KEY_POWER_PORT, KEY_POWER_PIN);
+    keyboardKeyDown[KEY_LEFT] |= !gpio_get(KEY_PLAYPAUSE_PORT, KEY_PLAYPAUSE_PIN);
+    keyboardKeyDown[KEY_RIGHT] |= !gpio_get(KEY_MENUOK_PORT, KEY_MENUOK_PIN);
+    keyboardKeyDown[KEY_UP] |= !gpio_get(KEY_UP_PORT, KEY_UP_PIN);
+    keyboardKeyDown[KEY_DOWN] |= !gpio_get(KEY_DOWN_PORT, KEY_DOWN_PIN);
+    keyboardKeyDown[KEY_OK] |= !gpio_get(KEY_POWER_PORT, KEY_POWER_PIN);
 #endif
+}
+
+void updateKeyboardState(void)
+{
 }
 
 // Display

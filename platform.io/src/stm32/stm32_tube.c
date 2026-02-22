@@ -46,9 +46,7 @@ void initTubeHardware(void)
 #elif defined(STM32F1)
     gpio_setup(TUBE_HV_PORT, TUBE_HV_PIN, GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL);
 #endif
-#endif
-
-#if !defined(TUBE_HV_PWM)
+#else
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
     gpio_setup_output(TUBE_HV_PORT, TUBE_HV_PIN, GPIO_OUTPUTTYPE_PUSHPULL, GPIO_OUTPUTSPEED_2MHZ, GPIO_PULL_FLOATING);
 #elif defined(STM32F1)
@@ -62,18 +60,6 @@ void initTubeHardware(void)
 #elif defined(STM32F1)
     gpio_setup(TUBE_DET_PORT, TUBE_DET_PIN, GPIO_MODE_INPUT_PULLUP);
 #endif
-#elif defined(TUBE_DET_PULLDOWN)
-#if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
-    gpio_setup_input(TUBE_DET_PORT, TUBE_DET_PIN, GPIO_PULL_PULLDOWN);
-#elif defined(STM32F1)
-    gpio_setup(TUBE_DET_PORT, TUBE_DET_PIN, GPIO_MODE_INPUT_PULLDOWN);
-#endif
-#else
-#if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
-    gpio_setup_input(TUBE_DET_PORT, TUBE_DET_PIN, GPIO_PULL_FLOATING);
-#elif defined(STM32F1)
-    gpio_setup(TUBE_DET_PORT, TUBE_DET_PIN, GPIO_MODE_INPUT_FLOATING);
-#endif
 #endif
 
     // HV PWM timer
@@ -86,7 +72,7 @@ void initTubeHardware(void)
 #endif
 
     // Pulse detection timer
-    tim_setup_single(TUBE_DET_TIMER);
+    tim_setup_freerunning(TUBE_DET_TIMER);
     tim_set_prescaler_factor(TUBE_DET_TIMER, TUBE_DET_FREQUENCY / PULSE_MEASUREMENT_FREQUENCY);
     tim_enable(TUBE_DET_TIMER);
 

@@ -133,8 +133,8 @@ static RTCDateTime rtcCurrentDateTime;
 
 typedef const struct
 {
-    uint32_t offset;
-    uint32_t itemCount;
+    uint16_t offset;
+    uint16_t itemCount;
 } RTCMenuOptionSetting;
 
 static RTCMenuOptionSetting rtcMenuOptionSettings[] = {

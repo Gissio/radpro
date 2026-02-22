@@ -16,7 +16,7 @@
 #define SYSTICK_FREQUENCY 1000
 #define PULSE_MEASUREMENT_FREQUENCY 1000000
 
-#define KEY_TICKS ((uint32_t)(0.020 * SYSTICK_FREQUENCY))
+#define KEY_TICKS ((uint32_t)(0.025 * SYSTICK_FREQUENCY))
 
 extern volatile uint32_t currentTick;
 

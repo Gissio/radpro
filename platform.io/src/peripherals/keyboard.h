@@ -11,6 +11,7 @@
 #define KEYBOARD_H
 
 #include <stdbool.h>
+#include <stdint.h>
 
 #include "../ui/view.h"
 
@@ -64,17 +65,20 @@ typedef enum
 } Key;
 #endif
 
+extern uint32_t keyboardKeyDown[KEY_NUM];
+
 void initKeyboard(void);
 void initKeyboardHardware(void);
 
-void getKeyboardState(bool *);
+void onKeyboardTick(void);
+void updateKeyboardState(void);
 
 bool isPowerKeyDown(void);
 void waitLongKeyPress(void);
 
 void setKeyboardMode(KeyboardMode mode);
 
-void onKeyboardTick(void);
+void updateKeyboard(void);
 
 ViewEvent getKeyboardEvent(void);
 void clearKeyboardEvents();

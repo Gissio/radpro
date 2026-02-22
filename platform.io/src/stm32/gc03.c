@@ -133,7 +133,7 @@ static struct
     volatile int8_t detentSteps;
 
     int8_t prevDetentSteps;
-    bool keyPressed;
+    bool keyDown;
 } keyboardKnob;
 
 static const int8_t knobQuadratureLUT[16] = {
@@ -192,12 +192,22 @@ void KNOB_IRQ_HANDLER(void)
     }
 }
 
-void getKeyboardState(bool *isKeyDown)
+void onKeyboardTick(void)
 {
-    bool keyUp = false;
-    bool keyDown = false;
+    for (uint32_t i = 0; i < KEY_NUM; i++)
+        keyboardKeyDown[i] <<= 1;
 
-    if (!keyboardKnob.keyPressed)
+    keyboardKeyDown[KEY_LEFT] |= !gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN);
+    keyboardKeyDown[KEY_RIGHT] |= !gpio_get(KEY_RIGHT_PORT, KEY_RIGHT_PIN);
+    keyboardKeyDown[KEY_OK] |= !gpio_get(KEY_POWER_PORT, KEY_POWER_PIN);
+}
+
+void updateKeyboardState(void)
+{
+    keyboardKeyDown[KEY_UP] = false;
+    keyboardKeyDown[KEY_DOWN] = false;
+
+    if (!keyboardKnob.keyDown)
     {
         int32_t detentDelta = keyboardKnob.detentSteps - keyboardKnob.prevDetentSteps;
         if (detentDelta != 0)
@@ -205,24 +215,18 @@ void getKeyboardState(bool *isKeyDown)
             if (isDisplayAwake())
             {
                 if (detentDelta > 0)
-                    keyDown = true;
+                    keyboardKeyDown[KEY_DOWN] = true;
                 else
-                    keyUp = true;
+                    keyboardKeyDown[KEY_UP] = true;
 
-                keyboardKnob.keyPressed = true;
+                keyboardKnob.keyDown = true;
             }
 
             keyboardKnob.prevDetentSteps = keyboardKnob.detentSteps;
         }
     }
     else
-        keyboardKnob.keyPressed = false;
-
-    isKeyDown[KEY_LEFT] = !gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN);
-    isKeyDown[KEY_RIGHT] = !gpio_get(KEY_RIGHT_PORT, KEY_RIGHT_PIN);
-    isKeyDown[KEY_UP] = keyUp;
-    isKeyDown[KEY_DOWN] = keyDown;
-    isKeyDown[KEY_OK] = !gpio_get(KEY_POWER_PORT, KEY_POWER_PIN);
+        keyboardKnob.keyDown = false;
 }
 
 // Display

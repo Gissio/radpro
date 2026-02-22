@@ -97,7 +97,7 @@ static const int32_t displayTimerValues[] = {
 };
 
 #if defined(BUZZER)
-static const uint32_t pulseSoundTicks[] = {
+static const uint8_t pulseSoundTicks[] = {
     PULSE_SOUND_CLICKS_TICKS,
     PULSE_SOUND_CHIRPS_TICKS,
     PULSE_SOUND_BEEPS_TICKS,
@@ -170,11 +170,12 @@ void onTick(void)
     }
 
     // Keyboard
+    onKeyboardTick();
     if (tickTimer(&events.keyboardTimer) == TIMER_ELAPSED)
     {
         events.keyboardTimer = KEY_TICKS;
 
-        onKeyboardTick();
+        updateKeyboard();
     }
 
     // Display

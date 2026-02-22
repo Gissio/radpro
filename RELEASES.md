@@ -17,16 +17,16 @@
 
 * **Performance & optimizations**
 
-  * 4× speedup of the random number generator.
+  * 4× faster random number generator.
   * Improved key debouncing for more reliable button response.
   * Bosean FS-5000: Optimized MCU configuration for improved performance.
-  * FNIRSI GC-01 (CH32): Data mode no longer required.
-  * FNIRSI GC-01 (APM32): Added reading of factory HV profile from factory flash.
+  * FNIRSI GC-01 (CH32): Removed data mode as USB communications are now automatically enabled.
+  * FNIRSI GC-01 (APM32): Now reads factory HV profile from factory flash.
 
-* **Bug fixes & device-specific improvements**
+* **Bug fixes**
 
-  * Bosean FS-600, FNIRSI GC-01 (APM32): Resolved startup freeze.
-  * FNIRSI GC-01: Added USB powered and battery charging status indicator.
+  * Bosean FS-600, FNIRSI GC-01 (APM32): Fixed startup freeze.
+  * FNIRSI GC-01: Added USB-powered and charging indicator.
   * GQ GMC-800: Eliminated LCD ghosting artifacts.
   * Fixed numerous minor bugs.
 
