@@ -119,7 +119,11 @@ void TUBE_DET_IRQ_HANDLER(void)
 
     uint32_t tickTime = currentTick - tubeHardware.previousTick;
     if (tickTime < 64)
-        tubeDeadTime = timerCount - tubeHardware.previousTimerCount;
+    {
+        uint32_t deadTime = timerCount - tubeHardware.previousTimerCount;
+        if (deadTime < tubeDeadTime)
+            tubeDeadTime = deadTime;
+    }
 
     tubeHardware.previousTick = currentTick;
     tubeHardware.previousTimerCount = timerCount;

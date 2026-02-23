@@ -158,7 +158,9 @@ void onTick(void)
     onPulseTick();
 
     // ADC
+#if defined(EMFMETER)
     onADCTick(events.heartbeatTimer);
+#endif
 
     // Heartbeat
     if (tickTimer(&events.heartbeatTimer) == TIMER_ELAPSED)

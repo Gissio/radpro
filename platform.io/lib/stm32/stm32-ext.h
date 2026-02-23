@@ -28,9 +28,11 @@
 #define MAX_SYSCLK 80000000
 #endif
 
-#define STM32_EXT_USLEEP(value)                                                        \
-    for (volatile uint32_t i = 0; i < (uint32_t)(value * (MAX_SYSCLK / 1000000)); i++) \
+__STATIC_INLINE void stm32ExtUsleep(uint32_t value)
+{
+    for (volatile uint32_t i = 0; i < (uint32_t)(value * (MAX_SYSCLK / 1000000)); i++)
         ;
+}
 
 typedef struct
 {
@@ -1075,10 +1077,7 @@ __STATIC_INLINE void gpio_clear(GPIO_TypeDef *base, uint8_t pin)
 
 __STATIC_INLINE void gpio_modify(GPIO_TypeDef *base, uint8_t pin, bool value)
 {
-    if (value)
-        gpio_set(base, pin);
-    else
-        gpio_clear(base, pin);
+    base->BSRR = get_bitvalue(pin + (value ? 0 : 16));
 }
 
 // NVIC
@@ -1306,7 +1305,7 @@ __STATIC_INLINE void adc_enable_vreg(ADC_TypeDef *base)
 {
     set_bits(base->CR, ADC_CR_ADVREGEN);
 
-    STM32_EXT_USLEEP(20);
+    stm32ExtUsleep(20);
 }
 
 __STATIC_INLINE void adc_disable_vreg(ADC_TypeDef *base)
@@ -1323,19 +1322,18 @@ __STATIC_INLINE void adc_enable(ADC_TypeDef *base)
     {
         set_bits(((ADC_GD32_TypeDef *)base)->CTL1, ADC_CTL1_ADCON);
 
-        STM32_EXT_USLEEP(1);
+        stm32ExtUsleep(1);
     }
 #elif defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
     set_bits(base->ISR, ADC_ISR_ADRDY);
     set_bits(base->CR, ADC_CR_ADEN);
-    while (!get_bits(base->ISR, ADC_ISR_ADRDY))
-        ;
+    wait_until_bits_set(base->ISR, ADC_ISR_ADRDY);
 #elif defined(STM32F1)
     if (!get_bits(base->CR2, ADC_CR2_ADON))
     {
         set_bits(base->CR2, ADC_CR2_ADON);
 
-        STM32_EXT_USLEEP(1);
+        stm32ExtUsleep(1);
     }
 #endif
 }
@@ -1346,8 +1344,7 @@ __STATIC_INLINE void adc_disable(ADC_TypeDef *base)
     clear_bits(((ADC_GD32_TypeDef *)base)->CTL1, ADC_CTL1_ADCON);
 #elif defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
     set_bits(base->CR, ADC_CR_ADDIS);
-    while (get_bits(base->CR, ADC_CR_ADEN))
-        ;
+    wait_until_bits_clear(base->CR, ADC_CR_ADEN);
 #elif defined(STM32F1)
     clear_bits(base->CR2, ADC_CR2_ADON);
 #endif
@@ -1383,11 +1380,11 @@ __STATIC_INLINE void adc_enable_vref_channel(ADC_TypeDef *base)
 #if defined(STM32F0) || defined(STM32G0)
     set_bits(((ADC_Common_TypeDef *)((uint8_t *)base + 0x308))->CCR, ADC_CCR_VREFEN);
 
-    STM32_EXT_USLEEP(12);
+    stm32ExtUsleep(12);
 #elif defined(STM32L4)
     set_bits(((ADC_Common_TypeDef *)((uint8_t *)base + 0x300))->CCR, ADC_CCR_VREFEN);
 
-    STM32_EXT_USLEEP(12);
+    stm32ExtUsleep(12);
 #endif
 }
 
@@ -1427,11 +1424,11 @@ __STATIC_INLINE void adc_enable_temperature_channel(ADC_TypeDef *base)
 #if defined(STM32F0) || defined(STM32G0)
     set_bits(((ADC_Common_TypeDef *)((uint8_t *)base + 0x308))->CCR, ADC_CCR_TSEN);
 
-    STM32_EXT_USLEEP(12);
+    stm32ExtUsleep(12);
 #elif defined(STM32L4)
     set_bits(((ADC_Common_TypeDef *)((uint8_t *)base + 0x300))->CCR, ADC_CCR_TSEN);
 
-    STM32_EXT_USLEEP(12);
+    stm32ExtUsleep(12);
 #endif
 }
 
@@ -1449,11 +1446,11 @@ __STATIC_INLINE void adc_enable_temperature_vref_channel(ADC_TypeDef *base)
 #if defined(STM32F0) && defined(GD32)
     set_bits(((ADC_GD32_TypeDef *)base)->CTL1, ADC_CTL1_TSVREN);
 
-    STM32_EXT_USLEEP(12);
+    stm32ExtUsleep(12);
 #elif defined(STM32F1)
     set_bits(base->CR2, ADC_CR2_TSVREFE);
 
-    STM32_EXT_USLEEP(12);
+    stm32ExtUsleep(12);
 #endif
 }
 
@@ -1512,7 +1509,7 @@ __STATIC_INLINE void adc_set_sampletime(ADC_TypeDef *base, uint8_t sampletime)
     for (uint32_t i = 0; i < 10; i++)
         value |= sampletime << (3 * i);
     base->SMPR1 = value;
-    base->SMPR2 = value;
+    base->SMPR2 = value & 0b00000111111111111111111111111111;
 #endif
 }
 
