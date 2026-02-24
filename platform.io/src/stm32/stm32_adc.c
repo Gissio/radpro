@@ -29,18 +29,16 @@
 #endif
 
 #if defined(EMFMETER)
-// 400 samples @ 1 kHz fit whole cycles of both 50 Hz and 60 Hz
+#define SQRT2 1.41421356237F
+// 400 samples @ 1 kHz to fit whole cycles of both 50 Hz and 60 Hz
 #define ELECTRIC_FIELD_SAMPLE_NUM 400
 #define ELECTRIC_FIELD_OFFSET 126
-// 0.9/sqrt(2)
-#define ELECTRIC_FIELD_SCALE 0.63639610306F
+#define ELECTRIC_FIELD_SCALE (0.9F)
+// 400 samples @ 1 kHz to fit whole cycles of both 50 Hz and 60 Hz
 #define MAGNETIC_FIELD_SAMPLE_NUM 400
 #define MAGNETIC_FIELD_OFFSET 120
-// 0.000000005*2.8583/sqrt(2)
-#define MAGNETIC_FIELD_LINEAR_SCALE 1.01056166E-8F
-// 0.000000005*0.0072/sqrt(2)
-#define MAGNETIC_FIELD_QUADRATIC_SCALE 2.5455844E-11
-// #define MAGNETIC_FIELD_QUADRATIC_SCALE 36E-9F
+#define MAGNETIC_FIELD_LINEAR_SCALE (0.000000005F * 2.8583F)
+#define MAGNETIC_FIELD_QUADRATIC_SCALE (0.000000005F * 0.0072F)
 
 #define ADC_END_SAMPLE 1
 #define ADC_PWR_BAT_SAMPLE (ADC_END_SAMPLE + PWR_BAT_SAMPLE_NUM)
@@ -51,6 +49,7 @@
 
 typedef enum
 {
+    ADC_STAGE_IDLE,
     ADC_STAGE_ELECTRIC_FIELD,
     ADC_STAGE_MAGNETIC_FIELD,
     ADC_STAGE_VREF,
@@ -151,13 +150,6 @@ void onADCTick(uint32_t index)
     int32_t value = adc_read(ADC1);
     switch (adcHardware.stage)
     {
-#if defined(PWR_CHRG_CHANNEL)
-    case ADC_STAGE_PWR_CHRG:
-        updateADCPowerCharge(value);
-
-        break;
-
-#elif defined(EMFMETER)
     case ADC_STAGE_ELECTRIC_FIELD:
         value -= ELECTRIC_FIELD_OFFSET;
         if (value > 0)
@@ -171,7 +163,6 @@ void onADCTick(uint32_t index)
             adcHardware.live.magneticField = addClamped(adcHardware.live.magneticField, value * value);
 
         break;
-#endif
 
     case ADC_STAGE_VREF:
         adcHardware.live.vref += value;
@@ -187,11 +178,11 @@ void onADCTick(uint32_t index)
     // Setup
     switch (index)
     {
+    case ADC_STAGE_IDLE:
+        break;
 
     case ADC_ELECTRIC_FIELD_SAMPLE:
         adcHardware.stage = ADC_STAGE_ELECTRIC_FIELD;
-
-        adc_enable(ADC1);
 
         adc_set_channel(ADC1, ELECTRIC_FIELD_CHANNEL);
 
@@ -207,7 +198,6 @@ void onADCTick(uint32_t index)
     case ADC_VREF_SAMPLE:
         adcHardware.stage = ADC_STAGE_VREF;
 
-        adc_enable_vref_channel(ADC1);
         adc_enable_temperature_vref_channel(ADC1);
         adc_set_channel(ADC1, ADC_VREF_CHANNEL);
 
@@ -216,14 +206,13 @@ void onADCTick(uint32_t index)
     case ADC_PWR_BAT_SAMPLE:
         adcHardware.stage = ADC_STAGE_PWR_BAT;
 
-        adc_disable_vref_channel(ADC1);
         adc_disable_temperature_vref_channel(ADC1);
         adc_set_channel(ADC1, PWR_BAT_CHANNEL);
 
         break;
 
     case ADC_END_SAMPLE:
-        adcHardware.stage = ADC_STAGE_ELECTRIC_FIELD;
+        adcHardware.stage = ADC_STAGE_IDLE;
 
         adcHardware.snapshot = adcHardware.live;
         memset(&adcHardware.live, 0, sizeof(adcHardware.live));
