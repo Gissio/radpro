@@ -38,6 +38,7 @@ Settings settings;
 static const Settings defaultSettings = {
     .pulseSound = true,
     .pulseLED = true,
+    .pulseLEDColor = PULSE_LED_COLOR_GREEN,
 
     .secondaryDoseUnits = DOSE_UNITS_CPM,
 
@@ -123,6 +124,7 @@ static bool validateState(const State *state)
     const Settings *s = &state->settings;
 
     return (!s->empty &&
+            (s->pulseLEDColor < PULSE_LED_COLOR_NUM) &&
             (s->source < SOURCE_NUM) &&
             (s->instantaneousAveraging < INSTANTANEOUSAVERAGING_NUM) &&
             (s->averaging < AVERAGING_NUM) &&

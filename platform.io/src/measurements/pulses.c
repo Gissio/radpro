@@ -25,6 +25,9 @@
 static const Menu pulsesMenu;
 static const Menu pulsesIndicationMenu;
 static const Menu pulsesThresholdMenu;
+#if defined(GC03)
+static const Menu pulseLEDColorMenu;
+#endif
 
 static const char *buildRateAlertMenuOption(menu_size_t index);
 
@@ -328,6 +331,51 @@ bool isTubeFaultAlertTriggered(void)
     return pulses.faultAlertTriggered;
 }
 
+// Pulse LED color menu
+
+static const char *onPulseLEDColorMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
+{
+    *menuStyle = (index == settings.pulseLEDColor);
+
+    switch (index)
+    {
+    case PULSE_LED_COLOR_RED:
+        return "Red";
+    case PULSE_LED_COLOR_GREEN:
+        return "Green";
+    case PULSE_LED_COLOR_BLUE:
+        return "Blue";
+    case PULSE_LED_COLOR_CYAN:
+        return "Cyan";
+    case PULSE_LED_COLOR_MAGENTA:
+        return "Magenta";
+    case PULSE_LED_COLOR_YELLOW:
+        return "Yellow";
+    case PULSE_LED_COLOR_WHITE:
+        return "White";
+    case PULSE_LED_COLOR_RAINBOW:
+        return "Rainbow";
+    default:
+        return NULL;
+    }
+}
+
+static void onPulseLEDColorMenuSelect(menu_size_t index)
+{
+    settings.pulseLEDColor = index;
+}
+
+static MenuState pulseLEDColorMenuState;
+
+static const Menu pulseLEDColorMenu = {
+    "LED Color",
+    &pulseLEDColorMenuState,
+    PULSE_LED_COLOR_NUM,
+    onPulseLEDColorMenuGetOption,
+    onPulseLEDColorMenuSelect,
+    showPulsesMenu,
+};
+
 // Pulses indication menu
 
 enum
@@ -340,6 +388,9 @@ enum
 #endif
 #if defined(PULSE_LED) || defined(PULSE_LED_EN)
     PULSEINDICATION_MENU_PULSE_LED,
+#if defined(GC03)
+    PULSEINDICATION_MENU_PULSE_LED_COLOR,
+#endif
 #endif
     PULSEINDICATION_MENU_DISPLAY_FLASH,
 };
@@ -353,6 +404,9 @@ static cstring pulsesIndicationMenuOptions[] = {
 #endif
 #if defined(PULSE_LED) || defined(PULSE_LED_EN)
     STRING_PULSE_LED,
+#if defined(GC03)
+    "LED Color",
+#endif
 #endif
     STRING_DISPLAY_FLASH,
 };
@@ -380,6 +434,13 @@ static const char *onPulsesIndicationMenuGetOption(menu_size_t index, MenuStyle 
         *menuStyle = settings.pulseLED;
 
         break;
+
+#if defined(GC03)
+    case PULSEINDICATION_MENU_PULSE_LED_COLOR:
+        *menuStyle = MENUSTYLE_SUBMENU;
+
+        return "LED Color";
+#endif
 #endif
 
     case PULSEINDICATION_MENU_DISPLAY_FLASH:
@@ -420,6 +481,13 @@ static void onPulsesIndicationMenuSelect(menu_size_t index)
         updateLED();
 
         break;
+
+#if defined(GC03)
+    case PULSEINDICATION_MENU_PULSE_LED_COLOR:
+        showMenu(&pulseLEDColorMenu);
+
+        break;
+#endif
 #endif
 
     case PULSEINDICATION_MENU_DISPLAY_FLASH:

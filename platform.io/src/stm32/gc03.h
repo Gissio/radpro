@@ -97,8 +97,26 @@
 #define VIBRATOR_PORT GPIOB
 #define VIBRATOR_PIN 1
 
-#define PULSE_LED_PORT GPIOB
-#define PULSE_LED_PIN 15
+// Pulse LED is an RGB LED on GC-03
+#define PULSE_LED_R_PORT GPIOB
+#define PULSE_LED_R_PIN 15
+#define PULSE_LED_R_TIMER TIM8
+#define PULSE_LED_R_TIMER_CHANNEL TIM_CH3N
+
+#define PULSE_LED_G_PORT GPIOB
+#define PULSE_LED_G_PIN 14
+#define PULSE_LED_G_TIMER TIM8
+#define PULSE_LED_G_TIMER_CHANNEL TIM_CH2N
+
+#define PULSE_LED_B_PORT GPIOC
+#define PULSE_LED_B_PIN 8
+#define PULSE_LED_B_TIMER TIM8
+#define PULSE_LED_B_TIMER_CHANNEL TIM_CH3
+
+// For compatibility with stm32_led.c, we keep PULSE_LED defined.
+// It will be used to enable/disable the feature.
+#define PULSE_LED_PORT PULSE_LED_R_PORT
+#define PULSE_LED_PIN PULSE_LED_R_PIN
 #define PULSE_LED_ACTIVE_LOW
 
 #define USB_INTERFACE USB

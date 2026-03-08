@@ -415,6 +415,20 @@ enum
     GAME_STRENGTH_NUM,
 };
 
+enum
+{
+    PULSE_LED_COLOR_RED,
+    PULSE_LED_COLOR_GREEN,
+    PULSE_LED_COLOR_BLUE,
+    PULSE_LED_COLOR_CYAN,
+    PULSE_LED_COLOR_MAGENTA,
+    PULSE_LED_COLOR_YELLOW,
+    PULSE_LED_COLOR_WHITE,
+    PULSE_LED_COLOR_RAINBOW,
+
+    PULSE_LED_COLOR_NUM,
+};
+
 typedef struct
 {
     unsigned int empty : 1;
@@ -422,6 +436,7 @@ typedef struct
     unsigned int pulseSound : 1;
     unsigned int pulseVibration : 1;
     unsigned int pulseLED : 1;
+    unsigned int pulseLEDColor : 3;
     unsigned int pulseDisplayFlash : 1;
     unsigned int pulseThreshold : 4;
 
