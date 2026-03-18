@@ -15,6 +15,7 @@
 #include "../ui/menu.h"
 
 extern const Menu soundPulsesMenu;
+extern const Menu soundPulsesVolumeMenu;
 
 void initBuzzer(void);
 

@@ -236,6 +236,7 @@
 #define STRING_ALERTSTYLE "Alert style"
 #define STRING_ALERTVOLUME "Alert volume"
 #define STRING_VOICEVOLUME "Voice volume"
+#define STRING_PULSEVOLUME "Pulse volume"
 
 // Sound alert style menu items
 #define STRING_SHORT "Short"

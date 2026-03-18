@@ -326,6 +326,16 @@ enum
 
 enum
 {
+    SOUND_PULSEVOLUME_LOW,
+    SOUND_PULSEVOLUME_MEDIUM,
+    SOUND_PULSEVOLUME_HIGH,
+
+    SOUND_PULSEVOLUME_NUM,
+};
+
+
+enum
+{
     SOUND_ALERTVOLUME_LOW,
     SOUND_ALERTVOLUME_MEDIUM,
     SOUND_ALERTVOLUME_HIGH,
@@ -459,6 +469,7 @@ typedef struct
     unsigned int displaySleep : 3;
 
     unsigned int soundPulseType : 2;
+    unsigned int soundPulseVolume : 2;
     unsigned int soundAlertStyle : 1;
     unsigned int soundAlertVolume : 2;
     unsigned int soundVoiceVolume : 2;
