@@ -16,7 +16,7 @@
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
 #define STRING_PERCENT "%"
-#define STRING_NONE "-"
+#define STRING_NOVALUE "‒"
 #define STRING_LESSTHAN "< "
 
 // Units
@@ -141,25 +141,25 @@
 #define STRING_MAGNETIC_FIELD_ALARM "자기장 경보"
 
 // Measurements menu items
-#define STRING_SOURCE "선원"
+#define STRING_SOURCE_COMPENSATION "선원 보정"
 #define STRING_DOSE_UNITS "선량 단위"
 #define STRING_SECONDARY_DOSE_UNITS "보조 선량 단위"
 #define STRING_MAGNETIC_FIELD_UNITS "자기장 단위"
 
-// Source menu items
-#define STRING_CS137 "기본값: Cs-137 (γ)"
-#define STRING_CO60 "Co-60 (γ)"
-#define STRING_TC99M "Tc-99m (γ)"
-#define STRING_I131 "I-131 (γ)"
-#define STRING_LU177 "Lu-177 (γ)"
-#define STRING_AM241 "Am-241 (γ)"
-#define STRING_RADIUM "라듐 (γ)"
-#define STRING_URANIUM_ORE "우라늄 광석 (γ)"
-#define STRING_URANIUM_GLASS "우라늄 유리 (γ)"
-#define STRING_DEPLETED_URANIUM "감손 우라늄 (γ)"
-#define STRING_THORIUM_ORE "토륨 광석 (γ)"
+// Source menu compensation items
+#define STRING_CS137 "없음 (Cs-137)"
+#define STRING_CO60 "Co-60"
+#define STRING_TC99M "Tc-99m"
+#define STRING_I131 "I-131"
+#define STRING_LU177 "Lu-177"
+#define STRING_AM241 "Am-241"
+#define STRING_RADIUM "라듐"
+#define STRING_URANIUM_ORE "우라늄 광석"
+#define STRING_URANIUM_GLASS "우라늄 유리"
+#define STRING_DEPLETED_URANIUM "감손 우라늄"
+#define STRING_THORIUM_ORE "토륨 광석"
 #define STRING_XRAYS "엑스선 (60 kV)"
-#define STRING_K40 "K-40 (γ)"
+#define STRING_K40 "K-40"
 #define STRING_BACKGROUND_RADIATION "자연방사선"
 
 // Instantaneous menu items
@@ -177,7 +177,7 @@
 
 // Geiger tube menu items
 #define STRING_TUBE_TYPE "튜브 유형"
-#define STRING_SENSITIVITY "감도 (Cs-137)"
+#define STRING_SENSITIVITY "감도"
 #define STRING_DEAD_TIME_COMPENSATION "데드 타임 보상"
 #define STRING_HVPROFILE "HV 프로파일"
 
@@ -233,6 +233,8 @@
 #define STRING_ALWAYS_ON "항상 켜짐"
 
 // Sound menu items
+#define STRING_PULSESTYLE "펄스 스타일"
+#define STRING_PULSEVOLUME "펄스 음량"
 #define STRING_ALERTSTYLE "알림 스타일"
 #define STRING_ALERTVOLUME "알림 음량"
 #define STRING_VOICEVOLUME "음성 음량"

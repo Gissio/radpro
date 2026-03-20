@@ -16,7 +16,7 @@
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
 #define STRING_PERCENT "%"
-#define STRING_NONE "-"
+#define STRING_NOVALUE "‒"
 #define STRING_LESSTHAN "< "
 
 // Units
@@ -44,8 +44,8 @@
 #define STRING_GAUSS_UNIT "G"
 
 // Units for indicating Geiger tube pulse count, as in "1 count" or "14 counts"
-#define STRING_COUNT "imp."
-#define STRING_COUNTS "imp."
+#define STRING_COUNT "imp"
+#define STRING_COUNTS "imp"
 
 // Time strings
 #define STRING_24_HOURS "24 heures"
@@ -141,25 +141,25 @@
 #define STRING_MAGNETIC_FIELD_ALARM "Alarme de champ magnétique"
 
 // Measurements menu items
-#define STRING_SOURCE "Source"
+#define STRING_SOURCE_COMPENSATION "Comp. de source"
 #define STRING_DOSE_UNITS "Unités de dose"
 #define STRING_SECONDARY_DOSE_UNITS "Unités de dose secondaires"
 #define STRING_MAGNETIC_FIELD_UNITS "Unités de champ magnétique"
 
-// Source menu items
-#define STRING_CS137 "Par défaut : Cs-137 (γ)"
-#define STRING_CO60 "Co-60 (γ)"
-#define STRING_TC99M "Tc-99m (γ)"
-#define STRING_I131 "I-131 (γ)"
-#define STRING_LU177 "Lu-177 (γ)"
-#define STRING_AM241 "Am-241 (γ)"
-#define STRING_RADIUM "Radium (γ)"
-#define STRING_URANIUM_ORE "Minerai d'uranium (γ)"
-#define STRING_URANIUM_GLASS "Ouraline (γ)"
-#define STRING_DEPLETED_URANIUM "Uranium appauvri (γ)"
-#define STRING_THORIUM_ORE "Minerai de thorium (γ)"
+// Source menu compensation items
+#define STRING_CS137 "Aucune (Cs-137)"
+#define STRING_CO60 "Co-60"
+#define STRING_TC99M "Tc-99m"
+#define STRING_I131 "I-131"
+#define STRING_LU177 "Lu-177"
+#define STRING_AM241 "Am-241"
+#define STRING_RADIUM "Radium"
+#define STRING_URANIUM_ORE "Minerai d'uranium"
+#define STRING_URANIUM_GLASS "Ouraline"
+#define STRING_DEPLETED_URANIUM "Uranium appauvri"
+#define STRING_THORIUM_ORE "Minerai de thorium"
 #define STRING_XRAYS "Rayons X (60 kV)"
-#define STRING_K40 "K-40 (γ)"
+#define STRING_K40 "K-40"
 #define STRING_BACKGROUND_RADIATION "Rayonnement de fond"
 
 // Instantaneous menu items
@@ -177,7 +177,7 @@
 
 // Geiger tube menu items
 #define STRING_TUBE_TYPE "Type de tube"
-#define STRING_SENSITIVITY "Sensibilité (Cs-137)"
+#define STRING_SENSITIVITY "Sensibilité"
 #define STRING_DEAD_TIME_COMPENSATION "Comp. temps mort"
 #define STRING_HVPROFILE "Profil HV"
 
@@ -233,6 +233,8 @@
 #define STRING_ALWAYS_ON "Toujours allumé"
 
 // Sound menu items
+#define STRING_PULSESTYLE "Style d'impulsion"
+#define STRING_PULSEVOLUME "Volume d'impulsion"
 #define STRING_ALERTSTYLE "Style d'alerte"
 #define STRING_ALERTVOLUME "Volume de l'alerte"
 #define STRING_VOICEVOLUME "Volume de la voix"

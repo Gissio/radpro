@@ -16,7 +16,7 @@
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
 #define STRING_PERCENT "%"
-#define STRING_NONE "-"
+#define STRING_NOVALUE "‒"
 #define STRING_LESSTHAN "< "
 
 // Units
@@ -141,25 +141,25 @@
 #define STRING_MAGNETIC_FIELD_ALARM "Magneettikenttähälytys"
 
 // Measurements menu items
-#define STRING_SOURCE "Lähde"
+#define STRING_SOURCE_COMPENSATION "Lähdekompensointi"
 #define STRING_DOSE_UNITS "Annosvksiköt"
 #define STRING_SECONDARY_DOSE_UNITS "Toissijaiset annosvksiköt"
 #define STRING_MAGNETIC_FIELD_UNITS "Magneettikentän yksiköt"
 
-// Source menu items
-#define STRING_CS137 "Oletus: Cs-137 (γ)"
-#define STRING_CO60 "Co-60 (γ)"
-#define STRING_TC99M "Tc-99m (γ)"
-#define STRING_I131 "I-131 (γ)"
-#define STRING_LU177 "Lu-177 (γ)"
-#define STRING_AM241 "Am-241 (γ)"
-#define STRING_RADIUM "Radium (γ)"
-#define STRING_URANIUM_ORE "Uraanimalmi (γ)"
-#define STRING_URANIUM_GLASS "Uraanilasi (γ)"
-#define STRING_DEPLETED_URANIUM "Köyhdytetty uraani (γ)"
-#define STRING_THORIUM_ORE "Toriummalmi (γ)"
+// Source menu compensation items
+#define STRING_CS137 "Ei mitään (Cs-137)"
+#define STRING_CO60 "Co-60"
+#define STRING_TC99M "Tc-99m"
+#define STRING_I131 "I-131"
+#define STRING_LU177 "Lu-177"
+#define STRING_AM241 "Am-241"
+#define STRING_RADIUM "Radium"
+#define STRING_URANIUM_ORE "Uraanimalmi"
+#define STRING_URANIUM_GLASS "Uraanilasi"
+#define STRING_DEPLETED_URANIUM "Köyhdytetty uraani"
+#define STRING_THORIUM_ORE "Toriummalmi"
 #define STRING_XRAYS "Röntgen (60 kV)"
-#define STRING_K40 "K-40 (γ)"
+#define STRING_K40 "K-40"
 #define STRING_BACKGROUND_RADIATION "Luonnon taustasäteily"
 
 // Instantaneous menu items
@@ -177,7 +177,7 @@
 
 // Geiger tube menu items
 #define STRING_TUBE_TYPE "Putken tyyppi"
-#define STRING_SENSITIVITY "Herkkyys (Cs-137)"
+#define STRING_SENSITIVITY "Herkkyys"
 #define STRING_DEAD_TIME_COMPENSATION "Kuolleen ajan kompensointi"
 #define STRING_HVPROFILE "HV-profiili"
 
@@ -233,6 +233,8 @@
 #define STRING_ALWAYS_ON "Aina päällä"
 
 // Sound menu items
+#define STRING_PULSESTYLE "Pulssityyli"
+#define STRING_PULSEVOLUME "Pulssinäänenvoimakkuus"
 #define STRING_ALERTSTYLE "Hälytystyyli"
 #define STRING_ALERTVOLUME "Hälytysäänenvoimakkuus"
 #define STRING_VOICEVOLUME "Puheäänenvoimakkuus"

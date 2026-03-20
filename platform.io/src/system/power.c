@@ -400,7 +400,7 @@ enum
     POWER_BATTERY,
 #endif
 #if defined(USB_AUTOPOWER_ON)
-    POWER_USB_AUTO_POWER_ON,
+    POWER_USB_AUTOPOWER_ON,
 #endif
 #if defined(DATA_MODE)
     POWER_DATA_MODE,
@@ -431,7 +431,7 @@ static const char *onPowerMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 #endif
 
 #if defined(USB_AUTOPOWER_ON)
-    case POWER_USB_AUTO_POWER_ON:
+    case POWER_USB_AUTOPOWER_ON:
         *menuStyle = settings.powerUSBAutoPowerOn;
 
         break;
@@ -460,7 +460,7 @@ static void onPowerMenuSelect(menu_size_t index)
 #endif
 
 #if defined(USB_AUTOPOWER_ON)
-    case POWER_USB_AUTO_POWER_ON:
+    case POWER_USB_AUTOPOWER_ON:
         settings.powerUSBAutoPowerOn = !settings.powerUSBAutoPowerOn;
 
         break;

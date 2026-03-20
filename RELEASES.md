@@ -8,32 +8,38 @@
 
 * **New features**
 
-  * Introduced **source presets** — pre-configured sensitivity settings for common radiation sources, based on numerical simulations from [Rad Lab](https://github.com/Gissio/radlab).
-  * Added **Cumulative** and **Instantaneous** secondary views.
+  * Default sensitivity settings for Geiger-Müller tubes are now based on numerical simulations from [Rad Lab](https://github.com/Gissio/radlab).
+  * Introduced **source presets** — pre-configured sensitivity settings for common radiation sources (also based on Rad Lab).
+  * Added **Cumulative** and **Instantaneous** secondary measurement views.
   * Warnings now use short beeps and brief haptic feedback.
+  * Random generator “die throws” can now be re-rolled using the select key.
   * Implemented **USB auto power-on** on supported hardware.
   * Added option to submit measurement data to [openSenseMap.org](https://opensensemap.org).
-  * Upgraded the user interface to **OpenBridge 6.1**.
+  * User interface updated to **OpenBridge 6.1**.
 
 * **Performance & optimizations**
 
   * 4× faster random number generator.
   * Improved key debouncing for more reliable button response.
+  * Various performance and memory optimizations throughout the firmware
+
+* **Device-specific improvements**
+
   * Bosean FS-5000: Optimized MCU configuration for improved performance.
+  * FNIRSI GC-01: Added USB-powered / charging status indicator.
   * FNIRSI GC-01 (CH32): Removed data mode as USB communications are now automatically enabled.
   * FNIRSI GC-01 (APM32): Now reads factory HV profile from factory flash.
 
 * **Bug fixes**
 
   * Bosean FS-600, FNIRSI GC-01 (APM32): Fixed startup freeze.
-  * FNIRSI GC-01: Added USB-powered and charging indicator.
   * GQ GMC-800: Eliminated LCD ghosting artifacts.
   * Fixed numerous minor bugs.
 
 * **Localization**
 
   * Added new translations: **Indonesian**, **Latvian**, and **Lithuanian**.
-  * Improved translations: **Bulgarian**, **Russian**, and **Ukrainian**.
+  * Improved existing translations: **Bulgarian**, **Russian**, and **Ukrainian**.
 
 * **Cleanup**
 

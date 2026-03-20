@@ -15,7 +15,7 @@
 
 #include "../ui/menu.h"
 
-extern const Menu sourceMenu;
+extern const Menu sourceCompensationMenu;
 
 extern volatile uint32_t tubePulseCount;
 extern volatile uint32_t tubeRandomBits;

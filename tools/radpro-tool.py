@@ -8,7 +8,8 @@
 
 import argparse
 from datetime import datetime
-import math
+import json
+import logging
 import os
 import requests
 import serial
@@ -20,6 +21,14 @@ import time
 
 radpro_tool_version = '2.2'
 log_warnings = False
+
+
+# Logging configuration
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)s: %(message)s'
+)
 
 
 # Errors
@@ -64,15 +73,15 @@ class RadProIO:
         response_bytes = None
 
         try:
-            if self.serial == None:
+            if self.serial is None:
                 self.open()
 
             self.serial.write(request.encode('ascii') + b'\n')
 
             response_bytes = self.serial.readline()
 
-        except Exception as e:
-            log_warning(e)
+        except (serial.SerialException, OSError) as e:
+            log_warning(f'Serial communication error: {e}')
 
             time.sleep(5)
 
@@ -80,10 +89,14 @@ class RadProIO:
 
         time.sleep(0.05)
 
-        if response_bytes == None:
+        if response_bytes is None:
             return None
 
-        response = response_bytes.decode('ascii').strip()
+        try:
+            response = response_bytes.decode('ascii').strip()
+        except UnicodeDecodeError as e:
+            log_warning(f'Failed to decode response: {e}')
+            return None
 
         if response.startswith('OK'):
             return response[3:]
@@ -102,18 +115,21 @@ class RadProIO:
 # Helper functions
 
 def print_property(io, key):
+    """Get and print a device property."""
     value = io.get(key)
 
-    if value != None:
+    if value is not None:
         print(f'{key}:{value}')
 
 
 def reset_tube_life_stats(io):
+    """Reset tube life statistics to zero."""
     io.set('tubeTime', 0)
     io.set('tubePulseCount', 0)
 
 
 def sync_time(io):
+    """Synchronize device time and timezone with system."""
     current_time = int(time.time())
     if time.localtime().tm_isdst:
         current_timezone = time.altzone
@@ -125,14 +141,15 @@ def sync_time(io):
 
 
 def get_sensitivity(io):
+    """Get tube sensitivity values from device."""
     response = io.get('tubeSensitivity')
 
-    if response != None:
+    if response is not None:
         try:
             return float(response)
-        except:
+        except ValueError:
             log_error(
-                f'could not decode tube sensitivity: response "f{response}"')
+                f'could not decode tube sensitivity: response "{response}"')
 
     log_error(f'could not get tube sensitivity')
 
@@ -143,43 +160,46 @@ def get_datalog(io,
                 start_datetime,
                 end_datetime,
                 max_record_num):
-    if start_datetime != None:
+    """Retrieve data log from device within optional time range."""
+    if start_datetime is not None:
         start_time = int(datetime.fromisoformat(
             start_datetime).timestamp())
     else:
         start_time = 0
 
-    if end_datetime != None:
+    if end_datetime is not None:
         end_time = int(datetime.fromisoformat(
             end_datetime).timestamp())
     else:
         end_time = 4294967295
 
-    if max_record_num != None:
+    if max_record_num is not None:
         return io.get(f'datalog {start_time} {end_time} {max_record_num}')
     else:
         return io.get(f'datalog {start_time} {end_time}')
 
 
 def get_pulsecount(io):
+    """Get current pulse count from device."""
     response = io.get('tubePulseCount')
 
-    if response != None:
+    if response is not None:
         try:
             return int(response)
-        except:
+        except ValueError:
             log_warning(f'could not decode pulse count: "{response}"')
 
     return None
 
 
 def get_randomdata(io):
+    """Get randomly generated data from device."""
     response = io.get('randomData')
 
-    if response != None and len(response) > 0:
+    if response is not None and len(response) > 0:
         try:
             return bytes.fromhex(response)
-        except:
+        except ValueError:
             log_warning(f'could not decode random data: "{response}"')
 
     return None
@@ -190,13 +210,14 @@ def download_datalog(io,
                      start_datetime,
                      end_datetime,
                      max_record_num):
+    """Download and process data log to CSV file."""
     sensitivity = get_sensitivity(io)
 
     datalog = get_datalog(io,
                           start_datetime,
                           end_datetime,
                           max_record_num)
-    if datalog == None:
+    if datalog is None:
         return
 
     records = datalog.split(';')
@@ -238,7 +259,7 @@ def download_datalog(io,
             continue
 
         cpm = None
-        if prev_timestamp != None:
+        if prev_timestamp is not None:
             curr_deltatime = curr_timestamp - prev_timestamp
 
             if curr_deltatime < 0:
@@ -256,7 +277,7 @@ def download_datalog(io,
         prev_timestamp = curr_timestamp
         prev_pulsecount = curr_pulsecount
 
-        if cpm != None:
+        if cpm is not None:
             lines.append(
                 f'{curr_timestamp},{curr_datetime},{curr_pulsecount},{cpm:.1f},{uSvH:.3f}\n')
         else:
@@ -264,15 +285,19 @@ def download_datalog(io,
                 f'{curr_timestamp},{curr_datetime},{curr_pulsecount},,\n')
 
     try:
-        f = open(path, 'w')
-        f.write('# timestamp,date time,pulse count,cpm,uSvH\n')
-        f.writelines(lines)
-    except Exception as e:
-        log_warning(f'could not write {path}')
+        with open(path, 'w') as f:
+            f.write('# timestamp,date time,pulse count,cpm,uSvH\n')
+            f.writelines(lines)
+    except IOError as e:
+        log_warning(f'could not write {path}: {e}')
 
 
-def send_http_request(url, method='get', json=None, data=None):
-    headers = {'User-Agent': 'radpro-tool/' + radpro_tool_version}
+def send_http_request(url, method='get', json=None, data=None, headers=None):
+    """Send HTTP request with proper error handling."""
+    if headers is None:
+        headers = {}
+    if 'User-Agent' not in headers:
+        headers['User-Agent'] = 'radpro-tool/' + radpro_tool_version
 
     try:
         if method == 'get':
@@ -284,24 +309,26 @@ def send_http_request(url, method='get', json=None, data=None):
                 requests.post(url=url, data=data, timeout=60, headers=headers)
             else:
                 requests.post(url=url, timeout=60, headers=headers)
-    except Exception as e:
+    except requests.RequestException as e:
         log_warning(f'could not submit HTTP data: url "{url}": {e}')
 
 
 def stream_datalog(io, args):
+    """Stream live data and submit to configured platforms."""
     sensitivity = get_sensitivity(io)
 
-    log_pulsecounts = args.pulsedata_file != None or\
-        args.submit_gmcmap != None or\
-        args.submit_radmon != None or\
-        args.submit_safecast != None
+    log_pulsecounts = args.pulsedata_file is not None or\
+        args.submit_gmcmap is not None or\
+        args.submit_radmon is not None or\
+        args.submit_safecast is not None or\
+        args.submit_opensensemap is not None
 
-    if args.pulsedata_file != None:
+    if args.pulsedata_file is not None:
         if not os.path.exists(args.pulsedata_file):
             try:
-                open(args.pulsedata_file, 'wt').write(
-                    '# timestamp,date time,pulse count,cpm,uSvH\n')
-            except Exception as e:
+                with open(args.pulsedata_file, 'wt') as f:
+                    f.write('# timestamp,date time,pulse count,cpm,uSvH\n')
+            except IOError as e:
                 log_error(
                     f'could not create file: "{args.pulsedata_file}": {e}')
 
@@ -316,12 +343,12 @@ def stream_datalog(io, args):
             curr_pulsecount = get_pulsecount(io)
             curr_timestamp = int(time.time())
 
-            if curr_pulsecount == None:
+            if curr_pulsecount is None:
                 while next_event < curr_timestamp:
                     next_event += args.period
 
             cpm = None
-            if curr_pulsecount != None and prev_pulsecount != None:
+            if curr_pulsecount is not None and prev_pulsecount is not None:
                 curr_deltatime = curr_timestamp - prev_timestamp
 
                 delta_pulsecount = curr_pulsecount - prev_pulsecount
@@ -338,20 +365,21 @@ def stream_datalog(io, args):
 
             curr_datetime = datetime.fromtimestamp(curr_timestamp)
 
-            if args.pulsedata_file != None and curr_pulsecount != None:
+            if args.pulsedata_file is not None and curr_pulsecount is not None:
                 curr_datetime_str = str(curr_datetime)
-                if cpm != None:
+                if cpm is not None:
                     line = f'{curr_timestamp},{curr_datetime_str},{curr_pulsecount},{cpm:.1f},{uSvH:.3f}\n'
                 else:
                     line = f'{curr_timestamp},{curr_datetime_str},{curr_pulsecount},,\n'
 
                 try:
-                    open(args.pulsedata_file, 'at').write(line)
-                except Exception as e:
+                    with open(args.pulsedata_file, 'at') as f:
+                        f.write(line)
+                except IOError as e:
                     log_error(
                         f'could not write file: "{args.pulsedata_file}": {e}')
 
-            if args.submit_gmcmap != None and cpm != None:
+            if args.submit_gmcmap is not None and cpm is not None:
                 url = 'https://www.gmcmap.com/log2.asp' + \
                     f'?AID={args.submit_gmcmap[0]}' + f'&GID={args.submit_gmcmap[1]}' + \
                     f'&CPM={cpm:.0f}' + f'&ACPM={cpm:.3f}' + \
@@ -360,7 +388,7 @@ def stream_datalog(io, args):
                 print(
                     f'GMCMap submission: {curr_datetime} CPM:{cpm:.3f} uSv/h:{uSvH:.3f}')
 
-            if args.submit_radmon != None and cpm != None:
+            if args.submit_radmon is not None and cpm is not None:
                 url = 'https://radmon.org/radmon.php?function=submit' + \
                     f'&user={args.submit_radmon[0]}' + \
                     f'&password={args.submit_radmon[1]}' + \
@@ -369,10 +397,10 @@ def stream_datalog(io, args):
                 print(
                     f'Radmon submission: {curr_datetime} CPM:{cpm:.3f} uSv/h:{uSvH:.3f}')
 
-            if args.submit_safecast != None and cpm != None:
+            if args.submit_safecast is not None and cpm is not None:
                 url = 'https://api.safecast.org/measurements.json?api_key=' + \
                     args.submit_safecast[0]
-                json = {
+                json_data = {
                     'value': f'{cpm:.3f}',
                     'unit': 'cpm',
                     'device_id': args.submit_safecast[1],
@@ -381,9 +409,32 @@ def stream_datalog(io, args):
                     'longitude': str(args.safecast_longitude),
                     'height': str(args.safecast_height),
                 }
-                send_http_request(url, 'post', json=json)
+                send_http_request(url, 'post', json=json_data)
                 print(
                     f'Safecast submission: {curr_datetime} CPM:{cpm:.3f} uSv/h:{uSvH:.3f}')
+
+            if args.submit_opensensemap is not None and cpm is not None:
+                box_id = args.submit_opensensemap[0]
+                api_key = args.submit_opensensemap[1]
+                sensor_id = args.opensensemap_sensor_id if args.opensensemap_sensor_id else 'cpm'
+                
+                url = f'https://api.opensensemap.org/boxes/{box_id}/measurements'
+                json_data = {
+                    'sensors': [
+                        {
+                            'sensor': sensor_id,
+                            'value': f'{cpm:.3f}'
+                        }
+                    ]
+                }
+                headers_osm = {
+                    'Authorization': f'Bearer {api_key}',
+                    'Content-Type': 'application/json',
+                }
+                send_http_request(url, 'post', json=json_data, headers=headers_osm)
+                print(
+                    f'OpenSenseMap submission: {curr_datetime} CPM:{cpm:.3f} uSv/h:{uSvH:.3f}')
+
 
         # Wait for next measurement
         next_event += args.period
@@ -397,10 +448,11 @@ def stream_datalog(io, args):
             while time.time() < next_event:
                 data = get_randomdata(io)
 
-                if data != None:
+                if data is not None:
                     try:
-                        open(args.randomdata_file, 'ab').write(data)
-                    except Exception as e:
+                        with open(args.randomdata_file, 'ab') as f:
+                            f.write(data)
+                    except IOError as e:
                         log_error(
                             f'could not write file: "{args.randomdata_file}": {e}')
 
@@ -410,6 +462,7 @@ def stream_datalog(io, args):
 # Main
 
 def main():
+    """Main entry point for the RadPro tool."""
     parser = argparse.ArgumentParser(
         description='Tool for interfacing with a Rad Pro device.')
     parser.add_argument('--version',
@@ -467,6 +520,14 @@ def main():
                         type=float,
                         default=0.0,
                         help='height (altitude) in meters for Safecast submissions (default: 0.0)')
+    parser.add_argument('--submit-opensensemap',
+                        nargs=2,
+                        metavar=('SENSE_BOX_ID', 'API_KEY'),
+                        action='store',
+                        help='submit live data to https://opensensemap.org')
+    parser.add_argument('--opensensemap-sensor-id',
+                        default='cpm',
+                        help='sensor ID for OpenSenseMap measurements (default: "cpm")')
     parser.add_argument('--log-randomdata',
                         dest='randomdata_file',
                         help='log live randomly generated data to a binary file')
@@ -554,7 +615,7 @@ def main():
         print_property(io, 'tubePulseCount')
 
     if args.reset_tube_life_stats:
-        print('Resettings tube life stats...')
+        print('Resetting tube life stats...')
 
         reset_tube_life_stats(io)
 
@@ -585,11 +646,12 @@ def main():
                          args.datalog_datetime_end,
                          args.datalog_max_record_num)
 
-    if args.pulsedata_file != None or\
-            args.randomdata_file != None or\
-            args.submit_gmcmap != None or\
-            args.submit_radmon != None or\
-            args.submit_safecast != None:
+    if args.pulsedata_file is not None or\
+            args.randomdata_file is not None or\
+            args.submit_gmcmap is not None or\
+            args.submit_radmon is not None or\
+            args.submit_safecast is not None or\
+            args.submit_opensensemap is not None:
         print('Logging live...')
 
         stream_datalog(io, args)

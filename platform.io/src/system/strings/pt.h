@@ -16,7 +16,7 @@
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
 #define STRING_PERCENT "%"
-#define STRING_NONE "-"
+#define STRING_NOVALUE "‒"
 #define STRING_LESSTHAN "< "
 
 // Units
@@ -141,25 +141,25 @@
 #define STRING_MAGNETIC_FIELD_ALARM "Alarme de campo magnético"
 
 // Measurements menu items
-#define STRING_SOURCE "Fonte"
+#define STRING_SOURCE_COMPENSATION "Comp. da fonte"
 #define STRING_DOSE_UNITS "Unidades de dose"
 #define STRING_SECONDARY_DOSE_UNITS "Unidades de dose secundárias"
 #define STRING_MAGNETIC_FIELD_UNITS "Unidades de campo magnético"
 
-// Source menu items
-#define STRING_CS137 "Padrão: Cs-137 (γ)"
-#define STRING_CO60 "Co-60 (γ)"
-#define STRING_TC99M "Tc-99m (γ)"
-#define STRING_I131 "I-131 (γ)"
-#define STRING_LU177 "Lu-177 (γ)"
-#define STRING_AM241 "Am-241 (γ)"
-#define STRING_RADIUM "Rádio (γ)"
-#define STRING_URANIUM_ORE "Minério de urânio (γ)"
-#define STRING_URANIUM_GLASS "Vidro de urânio (γ)"
-#define STRING_DEPLETED_URANIUM "Urânio empobrecido (γ)"
-#define STRING_THORIUM_ORE "Minério de tório (γ)"
+// Source menu compensation items
+#define STRING_CS137 "Nenhuma (Cs-137)"
+#define STRING_CO60 "Co-60"
+#define STRING_TC99M "Tc-99m"
+#define STRING_I131 "I-131"
+#define STRING_LU177 "Lu-177"
+#define STRING_AM241 "Am-241"
+#define STRING_RADIUM "Rádio"
+#define STRING_URANIUM_ORE "Minério de urânio"
+#define STRING_URANIUM_GLASS "Vidro de urânio"
+#define STRING_DEPLETED_URANIUM "Urânio empobrecido"
+#define STRING_THORIUM_ORE "Minério de tório"
 #define STRING_XRAYS "Raios X (60 kV)"
-#define STRING_K40 "K-40 (γ)"
+#define STRING_K40 "K-40"
 #define STRING_BACKGROUND_RADIATION "Radiação de fundo"
 
 // Instantaneous menu items
@@ -177,7 +177,7 @@
 
 // Geiger tube menu items
 #define STRING_TUBE_TYPE "Tipo de tubo"
-#define STRING_SENSITIVITY "Sensibilidade (Cs-137)"
+#define STRING_SENSITIVITY "Sensibilidade"
 #define STRING_DEAD_TIME_COMPENSATION "Comp. tempo morto"
 #define STRING_HVPROFILE "Perfil HV"
 
@@ -233,6 +233,8 @@
 #define STRING_ALWAYS_ON "Sempre ligado"
 
 // Sound menu items
+#define STRING_PULSESTYLE "Estilo de pulso"
+#define STRING_PULSEVOLUME "Volume do pulso"
 #define STRING_ALERTSTYLE "Estilo de alerta"
 #define STRING_ALERTVOLUME "Volume do alerta"
 #define STRING_VOICEVOLUME "Volume da voz"

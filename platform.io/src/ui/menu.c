@@ -86,7 +86,7 @@ void drawMenu()
 #elif defined(DISPLAY_COLOR)
         setFont(font_small);
 #endif
-        setStrokeColor(COLOR_ON_FLAT_ACTIVE);
+        setStrokeColor((index == selectedIndex) ? COLOR_ON_AMPLIFIED_ACTIVE : COLOR_ON_FLAT_ACTIVE);
         drawRowLeft(menuItem, &rectangle);
 
         rectangle.y += MENU_LINE_HEIGHT;

@@ -18,9 +18,7 @@ This guide explains how to install the Rad Pro firmware on FS2011 and YT-203B Ge
 2. Unscrew the back case and carefully open the device.
 3. Confirm the circuit board matches the image above (Geiger-Müller tube may vary). If it differs, you may have a different hardware revision, and Rad Pro may not work correctly. Report issues on the [Rad Pro GitHub issues page](https://github.com/Gissio/radpro/issues).
 4. Identify the microprocessor (square chip), either **STM32F051C8**, **GD32F150C8**, or **GD32F103C8**.
-4. Identify the Geiger-Müller tube, marked as **J305**, **J321**, **J613**, **J614**, or **M4011**. For unmarked tubes:
-   * **55 mm tubes:** Assume J614.
-   * **65 mm tubes:** Assume J613.
+4. Identify the Geiger-Müller tube, marked as **J305**, **J321**, **J613**, **HH614**, or **M4011**. For unmarked tubes 55 mm or 65 mm long, assume HH614.
 
 ## Step 2: Connect the programmer
 
@@ -66,10 +64,11 @@ Use the following controls to operate your device:
 * **Select option:** Press the Menu/OK or Power key.
 * **Go back:** Prses the Play/Pause key.
 * **Toggle lock mode:** Press and hold both the Play/Pause and Power keys.
+* **Restart random generator:** Press the Menu/O key.
 
 To configure the device:
 
-1. Go to **Settings > Geiger tube > Sensitivity** and select the option that matches your Geiger-Müller tube.
+1. Go to **Settings > Geiger tube > Tube type** and select the option that matches your Geiger-Müller tube.
 2. Go to **Geiger tube > HV Profile** and select:
   * **Energy-saving:** Lowest power use, best for background radiation.
   * **Accuracy:** Higher power use, ideal for elevated radiation levels.

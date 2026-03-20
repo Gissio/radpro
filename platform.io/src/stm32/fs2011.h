@@ -34,10 +34,11 @@
 #define PWR_BAT_SCALE_FACTOR 1.0F
 #endif
 #define PWR_BAT_NUM 2.0F
-#define PWR_CHRG_PORT GPIOA
-#define PWR_CHRG_PIN 5
-#define PWR_CHRG_PULLUP
-#define PWR_CHRG_ACTIVE_LOW
+// Most FS2011 counters are not connected to a Li-ion battery
+// #define PWR_CHRG_PORT GPIOA
+// #define PWR_CHRG_PIN 5
+// #define PWR_CHRG_PULLUP
+// #define PWR_CHRG_ACTIVE_LOW
 
 #define TUBE_HV_PORT GPIOB
 #define TUBE_HV_PIN 4

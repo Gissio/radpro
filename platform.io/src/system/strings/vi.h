@@ -16,7 +16,7 @@
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
 #define STRING_PERCENT "%"
-#define STRING_NONE "-"
+#define STRING_NOVALUE "‒"
 #define STRING_LESSTHAN "< "
 
 // Units
@@ -141,25 +141,25 @@
 #define STRING_MAGNETIC_FIELD_ALARM "Cảnh báo từ trường"
 
 // Measurements menu items
-#define STRING_SOURCE "Nguồn"
+#define STRING_SOURCE_COMPENSATION "Bù nguồn"
 #define STRING_DOSE_UNITS "Đơn vị liều"
 #define STRING_SECONDARY_DOSE_UNITS "Đơn vị liều phụ"
 #define STRING_MAGNETIC_FIELD_UNITS "Đơn vị từ trường"
 
-// Source menu items
-#define STRING_CS137 "Mặc định: Cs-137 (γ)"
-#define STRING_CO60 "Co-60 (γ)"
-#define STRING_TC99M "Tc-99m (γ)"
-#define STRING_I131 "I-131 (γ)"
-#define STRING_LU177 "Lu-177 (γ)"
-#define STRING_AM241 "Am-241 (γ)"
-#define STRING_RADIUM "Radi (γ)"
-#define STRING_URANIUM_ORE "Quặng uranium (γ)"
-#define STRING_URANIUM_GLASS "Thủy tinh urani (γ)"
-#define STRING_DEPLETED_URANIUM "Uranium nghèo (γ)"
-#define STRING_THORIUM_ORE "Quặng thorium (γ)"
+// Source menu compensation items
+#define STRING_CS137 "Không (Cs-137)"
+#define STRING_CO60 "Co-60"
+#define STRING_TC99M "Tc-99m"
+#define STRING_I131 "I-131"
+#define STRING_LU177 "Lu-177"
+#define STRING_AM241 "Am-241"
+#define STRING_RADIUM "Radi"
+#define STRING_URANIUM_ORE "Quặng uranium"
+#define STRING_URANIUM_GLASS "Thủy tinh urani"
+#define STRING_DEPLETED_URANIUM "Uranium nghèo"
+#define STRING_THORIUM_ORE "Quặng thorium"
 #define STRING_XRAYS "Tia X (60 kV)"
-#define STRING_K40 "K-40 (γ)"
+#define STRING_K40 "K-40"
 #define STRING_BACKGROUND_RADIATION "Phông phóng xạ"
 
 // Instantaneous menu items
@@ -177,7 +177,7 @@
 
 // Geiger tube menu items
 #define STRING_TUBE_TYPE "Loại ống"
-#define STRING_SENSITIVITY "Độ nhạy (Cs-137)"
+#define STRING_SENSITIVITY "Độ nhạy"
 #define STRING_DEAD_TIME_COMPENSATION "Bù thời gian chết"
 #define STRING_HVPROFILE "Hồ sơ HV"
 
@@ -233,6 +233,8 @@
 #define STRING_ALWAYS_ON "Luôn bật"
 
 // Sound menu items
+#define STRING_PULSESTYLE "Kiểu xung"
+#define STRING_PULSEVOLUME "Âm lượng xung"
 #define STRING_ALERTSTYLE "Kiểu cảnh báo"
 #define STRING_ALERTVOLUME "Âm lượng cảnh báo"
 #define STRING_VOICEVOLUME "Âm lượng giọng nói"

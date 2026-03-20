@@ -16,7 +16,7 @@
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
 #define STRING_PERCENT "%"
-#define STRING_NONE "-"
+#define STRING_NOVALUE "‒"
 #define STRING_LESSTHAN "< "
 
 // Units
@@ -141,25 +141,25 @@
 #define STRING_MAGNETIC_FIELD_ALARM "Mágneses tér riasztás"
 
 // Measurements menu items
-#define STRING_SOURCE "Forrás"
+#define STRING_SOURCE_COMPENSATION "Forráskompenzáció"
 #define STRING_DOSE_UNITS "Dózis mértékegységek"
 #define STRING_SECONDARY_DOSE_UNITS "Másodlagos dózis mértékegységek"
 #define STRING_MAGNETIC_FIELD_UNITS "Mágneses tér mértékegységek"
 
-// Source menu items
-#define STRING_CS137 "Alapértelmezett: Cs-137 (γ)"
-#define STRING_CO60 "Co-60 (γ)"
-#define STRING_TC99M "Tc-99m (γ)"
-#define STRING_I131 "I-131 (γ)"
-#define STRING_LU177 "Lu-177 (γ)"
-#define STRING_AM241 "Am-241 (γ)"
-#define STRING_RADIUM "Rádium (γ)"
-#define STRING_URANIUM_ORE "Uránérc (γ)"
-#define STRING_URANIUM_GLASS "Uránüveg (γ)"
-#define STRING_DEPLETED_URANIUM "Szegényített urán (γ)"
-#define STRING_THORIUM_ORE "Tóriumérc (γ)"
+// Source menu compensation items
+#define STRING_CS137 "Nincs (Cs-137)"
+#define STRING_CO60 "Co-60"
+#define STRING_TC99M "Tc-99m"
+#define STRING_I131 "I-131"
+#define STRING_LU177 "Lu-177"
+#define STRING_AM241 "Am-241"
+#define STRING_RADIUM "Rádium"
+#define STRING_URANIUM_ORE "Uránérc"
+#define STRING_URANIUM_GLASS "Uránüveg"
+#define STRING_DEPLETED_URANIUM "Szegényített urán"
+#define STRING_THORIUM_ORE "Tóriumérc"
 #define STRING_XRAYS "Röntgen (60 kV)"
-#define STRING_K40 "K-40 (γ)"
+#define STRING_K40 "K-40"
 #define STRING_BACKGROUND_RADIATION "Háttérsugárzás"
 
 // Instantaneous menu items
@@ -177,7 +177,7 @@
 
 // Geiger tube menu items
 #define STRING_TUBE_TYPE "Cső típusa"
-#define STRING_SENSITIVITY "Érzékenység (Cs-137)"
+#define STRING_SENSITIVITY "Érzékenység"
 #define STRING_DEAD_TIME_COMPENSATION "Holtidő-kompenzáció"
 #define STRING_HVPROFILE "HV profil"
 
@@ -233,6 +233,8 @@
 #define STRING_ALWAYS_ON "Mindig be"
 
 // Sound menu items
+#define STRING_PULSESTYLE "Impulzus stílus"
+#define STRING_PULSEVOLUME "Impulzus hangerő"
 #define STRING_ALERTSTYLE "Riasztási stílus"
 #define STRING_ALERTVOLUME "Riasztási hangerő"
 #define STRING_VOICEVOLUME "Beszédhangerő"

@@ -16,7 +16,7 @@
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
 #define STRING_PERCENT "%"
-#define STRING_NONE "-"
+#define STRING_NOVALUE "‒"
 #define STRING_LESSTHAN "< "
 
 // Units
@@ -141,25 +141,25 @@
 #define STRING_MAGNETIC_FIELD_ALARM "磁场报警"
 
 // Measurements menu items
-#define STRING_SOURCE "源"
+#define STRING_SOURCE_COMPENSATION "源补偿"
 #define STRING_DOSE_UNITS "剂量单位"
 #define STRING_SECONDARY_DOSE_UNITS "次要剂量单位"
 #define STRING_MAGNETIC_FIELD_UNITS "磁场单位"
 
-// Source menu items
-#define STRING_CS137 "默认：Cs-137 (γ)"
-#define STRING_CO60 "Co-60 (γ)"
-#define STRING_TC99M "Tc-99m (γ)"
-#define STRING_I131 "I-131 (γ)"
-#define STRING_LU177 "Lu-177 (γ)"
-#define STRING_AM241 "Am-241 (γ)"
-#define STRING_RADIUM "镭 (γ)"
-#define STRING_URANIUM_ORE "铀矿石 (γ)"
-#define STRING_URANIUM_GLASS "鈾玻璃 (γ)"
-#define STRING_DEPLETED_URANIUM "貧鈾 (γ)"
-#define STRING_THORIUM_ORE "钍矿石 (γ)"
+// Source menu compensation items
+#define STRING_CS137 "无 (Cs-137)"
+#define STRING_CO60 "Co-60"
+#define STRING_TC99M "Tc-99m"
+#define STRING_I131 "I-131"
+#define STRING_LU177 "Lu-177"
+#define STRING_AM241 "Am-241"
+#define STRING_RADIUM "镭"
+#define STRING_URANIUM_ORE "铀矿石"
+#define STRING_URANIUM_GLASS "鈾玻璃"
+#define STRING_DEPLETED_URANIUM "貧鈾"
+#define STRING_THORIUM_ORE "钍矿石"
 #define STRING_XRAYS "X射线 (60 kV)"
-#define STRING_K40 "K-40 (γ)"
+#define STRING_K40 "K-40"
 #define STRING_BACKGROUND_RADIATION "本底辐射"
 
 // Instantaneous menu items
@@ -177,7 +177,7 @@
 
 // Geiger tube menu items
 #define STRING_TUBE_TYPE "管型"
-#define STRING_SENSITIVITY "灵敏度 (Cs-137)"
+#define STRING_SENSITIVITY "灵敏度"
 #define STRING_DEAD_TIME_COMPENSATION "死区时间补偿"
 #define STRING_HVPROFILE "高压配置"
 
@@ -233,6 +233,8 @@
 #define STRING_ALWAYS_ON "始终开启"
 
 // Sound menu items
+#define STRING_PULSESTYLE "脉冲音效样式"
+#define STRING_PULSEVOLUME "脉冲音量"
 #define STRING_ALERTSTYLE "警报样式"
 #define STRING_ALERTVOLUME "警报音量"
 #define STRING_VOICEVOLUME "语音音量"

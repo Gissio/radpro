@@ -131,7 +131,7 @@ void drawStatistics(void)
         {
             float deadTime = getTubeDeadTime();
             if (deadTime >= 0.064F)
-                strcpy(valueString, getString(STRING_NONE));
+                strcpy(valueString, getString(STRING_NOVALUE));
             else
             {
                 strcpy(valueString, getString(STRING_LESSTHAN));

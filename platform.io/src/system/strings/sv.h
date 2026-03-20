@@ -16,7 +16,7 @@
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
 #define STRING_PERCENT "%"
-#define STRING_NONE "-"
+#define STRING_NOVALUE "‒"
 #define STRING_LESSTHAN "< "
 
 // Units
@@ -141,25 +141,25 @@
 #define STRING_MAGNETIC_FIELD_ALARM "Magnetfält-larm"
 
 // Measurements menu items
-#define STRING_SOURCE "Källa"
+#define STRING_SOURCE_COMPENSATION "Källkompensation"
 #define STRING_DOSE_UNITS "Dosenheter"
 #define STRING_SECONDARY_DOSE_UNITS "Sekundära dosenheter"
 #define STRING_MAGNETIC_FIELD_UNITS "Magnetfältenheter"
 
-// Source menu items
-#define STRING_CS137 "Standard: Cs-137 (γ)"
-#define STRING_CO60 "Co-60 (γ)"
-#define STRING_TC99M "Tc-99m (γ)"
-#define STRING_I131 "I-131 (γ)"
-#define STRING_LU177 "Lu-177 (γ)"
-#define STRING_AM241 "Am-241 (γ)"
-#define STRING_RADIUM "Radium (γ)"
-#define STRING_URANIUM_ORE "Uranmalm (γ)"
-#define STRING_URANIUM_GLASS "Uranglas (γ)"
-#define STRING_DEPLETED_URANIUM "Utarmat uran (γ)"
-#define STRING_THORIUM_ORE "Toriummalm (γ)"
+// Source menu compensation items
+#define STRING_CS137 "Ingen (Cs-137)"
+#define STRING_CO60 "Co-60"
+#define STRING_TC99M "Tc-99m"
+#define STRING_I131 "I-131"
+#define STRING_LU177 "Lu-177"
+#define STRING_AM241 "Am-241"
+#define STRING_RADIUM "Radium"
+#define STRING_URANIUM_ORE "Uranmalm"
+#define STRING_URANIUM_GLASS "Uranglas"
+#define STRING_DEPLETED_URANIUM "Utarmat uran"
+#define STRING_THORIUM_ORE "Toriummalm"
 #define STRING_XRAYS "Röntgen (60 kV)"
-#define STRING_K40 "K-40 (γ)"
+#define STRING_K40 "K-40"
 #define STRING_BACKGROUND_RADIATION "Bakgrundsstrålning"
 
 // Instantaneous menu items
@@ -177,7 +177,7 @@
 
 // Geiger tube menu items
 #define STRING_TUBE_TYPE "Rörtyp"
-#define STRING_SENSITIVITY "Känslighet (Cs-137)"
+#define STRING_SENSITIVITY "Känslighet"
 #define STRING_DEAD_TIME_COMPENSATION "Dödtidskompensation"
 #define STRING_HVPROFILE "HV-profil"
 
@@ -233,6 +233,8 @@
 #define STRING_ALWAYS_ON "Alltid på"
 
 // Sound menu items
+#define STRING_PULSESTYLE "Pulsstil"
+#define STRING_PULSEVOLUME "Pulsvolym"
 #define STRING_ALERTSTYLE "Varningsstil"
 #define STRING_ALERTVOLUME "Varningsvolym"
 #define STRING_VOICEVOLUME "Röstvolym"

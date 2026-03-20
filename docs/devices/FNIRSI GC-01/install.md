@@ -14,17 +14,15 @@ This guide explains how to install the Rad Pro firmware on FNIRSI GC-01 and JOY-
 1. Power off the device.
 2. Unscrew the back case and carefully open the device.
 3. Identify the microprocessor (square chip): either **CH32F103R8T6 (WCH)** or **APM32F103RBT6 (Geehy)**. If unmarked, proceed to the next step.
-4. Identify the Geiger-Müller tube, marked as **J305**, **J321**, **J613**, **J614**, or **M4011**. For unmarked tubes:
-   * **55 mm tubes:** Assume J614.
-   * **65 mm tubes:** Assume J613.
+4. Identify the Geiger-Müller tube, marked as **J305**, **J321**, **J613**, **HH614**, or **M4011**. For unmarked tubes 55 mm or 65 mm long, assume HH614.
 5. Reassemble the device.
 
 ## Step 2: Flash the firmware
 
 1. Download and extract the latest `radpro-[version].zip` from [Rad Pro releases](https://github.com/Gissio/radpro/releases).
-2. Connect the device to a **Windows computer** using a **USB 2.0 port** and the USB data cable. **Note:** Installation may fail on macOS, Linux, or USB 3.0 ports.
+2. Connect the device to a **Windows 11 computer** using a **USB 2.0 port** and the USB data cable. **Note:** Installation may fail on macOS, Linux, or USB 3.0 ports.
 3. Power on the device. A USB drive should appear on your computer. If it does not, the device may be incompatible with Rad Pro.
-4. If you identified the microprocessor, navigate to the `fnirsi-gc01_[micropreocessor]/install` folder. Select the appropriate firmware file: `radpro-fnirsi-gc01_[microprocessor]-[language]-x.y.z-install.bin`.
+4. If you identified the microprocessor, navigate to the `fnirsi-gc01_[micropreocessor]/firmware` folder. Select the appropriate firmware file: `radpro-fnirsi-gc01_[microprocessor]-[language]-x.y.z-install.bin`.
    * `[microprocessor]`: `ch32f103r8t6` or `apm32f103rbt6`.
    * `[language]` Two-letter code for your preferred language (e.g., `en` for English).
 5. If the microprocessor is unmarked, try `apm32f103rbt6` firmware first. If a **Drive full** error occurs, disconnect the device, then retry with `ch32f103r8t6`.
@@ -58,15 +56,11 @@ Use the following controls to operate your device:
 * **Select option:** Press the OK/Power or Right/Settings key.
 * **Go back:** Press the Left/Back key.
 * **Toggle lock mode:** Press and hold both the Left/Back and OK/Power keys.
+* **Restart random generator:** Press the Right/Settings key.
 
 To configure the device:
 
-1. Go to **Settings > Geiger tube > Sensitivity** and select the option that matches your Geiger-Müller tube.
-2. Go to **Geiger tube > HV Profile** and select:
-  * **Energy-saving:** Lowest power use, best for background radiation.
-  * **Accuracy:** Higher power use, ideal for elevated radiation levels.
-  * **Factory default:** Highest power use, matches original firmware settings.
-3. If the device registers unintended key presses, select the **Energy-saving** HV profile or configure a custom HV profile to resolve the issue.
+1. Go to **Settings > Geiger tube > Tube type** and select the option that matches your Geiger-Müller tube.
 
 ## Step 4: Support Rad Pro
 

@@ -16,7 +16,7 @@
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
 #define STRING_PERCENT "%"
-#define STRING_NONE "-"
+#define STRING_NOVALUE "‒"
 #define STRING_LESSTHAN "< "
 
 // Units
@@ -141,25 +141,25 @@
 #define STRING_MAGNETIC_FIELD_ALARM "Тревога магн. поля"
 
 // Measurements menu items
-#define STRING_SOURCE "Источник"
+#define STRING_SOURCE_COMPENSATION "Комп. источника"
 #define STRING_DOSE_UNITS "Единицы дозы"
 #define STRING_SECONDARY_DOSE_UNITS "Вторичные единицы дозы"
 #define STRING_MAGNETIC_FIELD_UNITS "Единицы магн. поля"
 
-// Source menu items
-#define STRING_CS137 "По умолч.: Cs-137 (γ)"
-#define STRING_CO60 "Co-60 (γ)"
-#define STRING_TC99M "Tc-99m (γ)"
-#define STRING_I131 "I-131 (γ)"
-#define STRING_LU177 "Lu-177 (γ)"
-#define STRING_AM241 "Am-241 (γ)"
-#define STRING_RADIUM "Радий (γ)"
-#define STRING_URANIUM_ORE "Урановая руда (γ)"
-#define STRING_URANIUM_GLASS "Урановое стекло (γ)"
-#define STRING_DEPLETED_URANIUM "Обеднённый уран (γ)"
-#define STRING_THORIUM_ORE "Ториевая руда (γ)"
+// Source menu compensation items
+#define STRING_CS137 "Нет (Cs-137)"
+#define STRING_CO60 "Co-60"
+#define STRING_TC99M "Tc-99m"
+#define STRING_I131 "I-131"
+#define STRING_LU177 "Lu-177"
+#define STRING_AM241 "Am-241"
+#define STRING_RADIUM "Радий"
+#define STRING_URANIUM_ORE "Урановая руда"
+#define STRING_URANIUM_GLASS "Урановое стекло"
+#define STRING_DEPLETED_URANIUM "Обеднённый уран"
+#define STRING_THORIUM_ORE "Ториевая руда"
 #define STRING_XRAYS "Рентген (60 кВ)"
-#define STRING_K40 "K-40 (γ)"
+#define STRING_K40 "K-40"
 #define STRING_BACKGROUND_RADIATION "Радиационный фон"
 
 // Instantaneous menu items
@@ -177,7 +177,7 @@
 
 // Geiger tube menu items
 #define STRING_TUBE_TYPE "Тип трубки"
-#define STRING_SENSITIVITY "Чувствительность (Cs-137)"
+#define STRING_SENSITIVITY "Чувствительность"
 #define STRING_DEAD_TIME_COMPENSATION "Комп. мёртвого времени"
 #define STRING_HVPROFILE "Профиль HV"
 
@@ -233,10 +233,11 @@
 #define STRING_ALWAYS_ON "Всегда вкл"
 
 // Sound menu items
+#define STRING_PULSESTYLE "Стиль импульса"
+#define STRING_PULSEVOLUME "Громкость импульса"
 #define STRING_ALERTSTYLE "Стиль оповещения"
 #define STRING_ALERTVOLUME "Громкость оповещения"
 #define STRING_VOICEVOLUME "Громкость голоса"
-#define STRING_PULSEVOLUME "Громкость пульсации"
 
 // Sound alert style menu items
 #define STRING_SHORT "Короткий"

@@ -37,12 +37,7 @@ static const mr_color_t displayColors[][3] = {
      mr_get_color(0xb0b0b0),
      mr_get_color(0xc78842)},
 
-    // Container background [global background]
-    {mr_get_color(0xf7f7f7),
-     mr_get_color(0x1f1f1f),
-     mr_get_color(0x000000)},
-
-    // Container global [title bar background]
+    // Container global (title bar background)
     {mr_get_color(0xfcfcfc),
      mr_get_color(0x2e2e2e),
      mr_get_color(0x000000)},
@@ -52,15 +47,25 @@ static const mr_color_t displayColors[][3] = {
      mr_get_color(0x161616),
      mr_get_color(0x000000)},
 
-    // Amplified enabled background [menu item selected background]
-    {mr_get_color(0xcadefc),
-     mr_get_color(0x2b3849),
-     mr_get_color(0x09140f)},
+    // Container background (content background)
+    {mr_get_color(0xf7f7f7),
+     mr_get_color(0x1f1f1f),
+     mr_get_color(0x000000)},
 
-    // On flat active [menu item selected foreground]
+    // On flat active (menu item foreground)
     {mr_get_color(0x1f1f1f),
      mr_get_color(0xe9e9e9),
      mr_get_color(0xeaa75e)},
+
+    // Amplified enabled background (selected menu item background)
+    {mr_get_color(0xb2cff9),
+     mr_get_color(0x3b4f69),
+     mr_get_color(0x10211a)},
+
+    // On amplified active (selected menu item foreground)
+    {mr_get_color(0x1d3c67),
+     mr_get_color(0xcae4ff),
+     mr_get_color(0x58c8a2)},
 
     // Running (green)
     {mr_get_color(0x008300),
@@ -94,7 +99,7 @@ static const mr_color_t displayColors[][3] = {
 
     // Instrument enhanced secondary
     {mr_get_color(0x2d548b),
-     mr_get_color(0x84b3ef), 
+     mr_get_color(0x84b3ef),
      mr_get_color(0x38a784)},
 
     // Instrument enhanced tertiary
@@ -131,12 +136,12 @@ static const mr_color_t displayColors[][3] = {
     // Game square black
     {mr_get_color(0xb89070),
      mr_get_color(0xb89070),
-     mr_get_color(0x352618)},
+     mr_get_color(0x48341f)},
 
     // Game square white
     {mr_get_color(0xd0b088),
      mr_get_color(0xd0b088),
-     mr_get_color(0x48341f)},
+     mr_get_color(0x78532c)},
 
     // Game piece black
     {mr_get_color(0x000000),

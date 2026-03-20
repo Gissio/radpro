@@ -54,9 +54,6 @@ int main(void)
     initSettings();
     initADC();
     initTube();
-#if defined(EMFMETER)
-    initEMFMeter();
-#endif
     initDatalog();
     initComm();
     initKeyboard();

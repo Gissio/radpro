@@ -172,7 +172,7 @@ static uint8_t keyboardPin[] = {
     KEY_RIGHT_PIN,
     KEY_UP_PIN,
     KEY_DOWN_PIN,
-    KEY_OK_PIN
+    KEY_OK_PIN,
 };
 
 void initKeyboardHardware(void)

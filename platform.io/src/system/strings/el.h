@@ -16,7 +16,7 @@
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
 #define STRING_PERCENT "%"
-#define STRING_NONE "-"
+#define STRING_NOVALUE "‒"
 #define STRING_LESSTHAN "< "
 
 // Units
@@ -141,25 +141,25 @@
 #define STRING_MAGNETIC_FIELD_ALARM "Συναγερμός μαγνητικού πεδίου"
 
 // Measurements menu items
-#define STRING_SOURCE "Πηγή"
+#define STRING_SOURCE_COMPENSATION "Αντιστάθμιση πηγής"
 #define STRING_DOSE_UNITS "Μονάδες δόσης"
 #define STRING_SECONDARY_DOSE_UNITS "Δευτερεύουσες μονάδες δόσης"
 #define STRING_MAGNETIC_FIELD_UNITS "Μονάδες μαγνητικού πεδίου"
 
-// Source menu items
-#define STRING_CS137 "Προεπιλογή: Cs-137 (γ)"
-#define STRING_CO60 "Co-60 (γ)"
-#define STRING_TC99M "Tc-99m (γ)"
-#define STRING_I131 "I-131 (γ)"
-#define STRING_LU177 "Lu-177 (γ)"
-#define STRING_AM241 "Am-241 (γ)"
-#define STRING_RADIUM "Ράδιο (γ)"
-#define STRING_URANIUM_ORE "Μετάλλευμα ουρανίου (γ)"
-#define STRING_URANIUM_GLASS "Γυαλί ουρανίου (γ)"
-#define STRING_DEPLETED_URANIUM "Απεμπλουτισμένο ουράνιο (γ)"
-#define STRING_THORIUM_ORE "Μετάλλευμα θορίου (γ)"
+// Source menu compensation items
+#define STRING_CS137 "Καμία (Cs-137)"
+#define STRING_CO60 "Co-60"
+#define STRING_TC99M "Tc-99m"
+#define STRING_I131 "I-131"
+#define STRING_LU177 "Lu-177"
+#define STRING_AM241 "Am-241"
+#define STRING_RADIUM "Ράδιο"
+#define STRING_URANIUM_ORE "Μετάλλευμα ουρανίου"
+#define STRING_URANIUM_GLASS "Γυαλί ουρανίου"
+#define STRING_DEPLETED_URANIUM "Απεμπλουτισμένο ουράνιο"
+#define STRING_THORIUM_ORE "Μετάλλευμα θορίου"
 #define STRING_XRAYS "Ακτίνες Χ (60 kV)"
-#define STRING_K40 "K-40 (γ)"
+#define STRING_K40 "K-40"
 #define STRING_BACKGROUND_RADIATION "Φόντο ακτινοβολίας"
 
 // Instantaneous menu items
@@ -177,7 +177,7 @@
 
 // Geiger tube menu items
 #define STRING_TUBE_TYPE "Τύπος σωλήνα"
-#define STRING_SENSITIVITY "Ευαισθησία (Cs-137)"
+#define STRING_SENSITIVITY "Ευαισθησία"
 #define STRING_DEAD_TIME_COMPENSATION "Αντιστάθμιση νεκρού χρόνου"
 #define STRING_HVPROFILE "Προφίλ HV"
 
@@ -233,6 +233,8 @@
 #define STRING_ALWAYS_ON "Πάντα ενεργοποιημένη"
 
 // Sound menu items
+#define STRING_PULSESTYLE "Στυλ παλμού"
+#define STRING_PULSEVOLUME "Ένταση παλμών"
 #define STRING_ALERTSTYLE "Στυλ ειδοποίησης"
 #define STRING_ALERTVOLUME "Ένταση ειδοποίησης"
 #define STRING_VOICEVOLUME "Ένταση φωνής"

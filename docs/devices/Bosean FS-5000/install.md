@@ -19,9 +19,7 @@ To update the firmware, use the [Rad Pro web installer](https://gissio.github.io
 1. Power off the device.
 2. Unscrew the back case and carefully open the device.
 3. Confirm the circuit board matches the image above (Geiger-Müller tube may vary). If it differs, you may have a different hardware revision, and Rad Pro may not work correctly. Report issues on the [Rad Pro GitHub issues page](https://github.com/Gissio/radpro/issues).
-4. Identify the Geiger-Müller tube, marked as **J305**, **J321**, **J613**, **J614**, or **M4011**. For unmarked tubes:
-   * **55 mm tubes:** Assume J614.
-   * **65 mm tubes:** Assume J613.
+4. Identify the Geiger-Müller tube, marked as **J305**, **J321**, **J613**, **HH614**, or **M4011**. For unmarked tubes 55 mm or 65 mm long, assume HH614.
 
 ## Step 2: Connect the programmer
 
@@ -68,10 +66,11 @@ Use the following controls to operate your device:
 * **Select option:** Press and short hold the Right/Settings key or press the OK/Power key.
 * **Go back:** Press and short hold the Up/Back key.
 * **Toggle lock mode:** Press and long hold both the Up/Back and OK/Power keys.
+* **Restart random generator:** Press the Right/Settings key.
 
 To configure the device:
 
-1. Go to **Settings > Geiger tube > Sensitivity** and select the option that matches your Geiger-Müller tube.
+1. Go to **Settings > Geiger tube > Tube type** and select the option that matches your Geiger-Müller tube.
 2. For USB data connections on Windows, install the [CH340 driver](https://www.catalog.update.microsoft.com/Search.aspx?q=USB%5CVID_1A86%26PID_7523).
 
 For detailed usage, see the [Rad Pro User Manual](../../manual.md) and the [ionizing radiation field guide](https://github.com/Gissio/ionizing-radiation-field-guide).

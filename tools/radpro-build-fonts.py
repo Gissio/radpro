@@ -128,7 +128,7 @@ for language_file in Path('../platform.io/src/system/strings').glob('*.h'):
     # Get codepoint sets using textproc
     language_text = open(language_file, 'rt', encoding='utf-8').readlines()
 
-    font_medium_1bpp_matches = [
+    font_medium_bpp_low_matches = [
         'STRING_NANO',
         'STRING_MICRO',
         'STRING_MILLI',
@@ -142,10 +142,10 @@ for language_file in Path('../platform.io/src/system/strings').glob('*.h'):
         'STRING_CPM',
         'STRING_CPS',
         'STRING_COUNT',
-        'STRING_COUNTS'
+        'STRING_COUNTS',
     ]
 
-    font_medium_matches = font_medium_1bpp_matches.copy() + [
+    font_medium_matches = font_medium_bpp_low_matches.copy() + [
         'STRING_VOLT_PER_METER_UNIT',
         'STRING_TESLA_UNIT',
         'STRING_GAUSS_UNIT',
@@ -155,7 +155,7 @@ for language_file in Path('../platform.io/src/system/strings').glob('*.h'):
                    if any(match in line for match in font_medium_matches)]
 
     medium_1bpp_text = [line for line in language_text
-                        if any(match in line for match in font_medium_1bpp_matches)]
+                        if any(match in line for match in font_medium_bpp_low_matches)]
     
     codepoint_set_small = get_codepoint_set(language_text, '0x20-0x7e')
     codepoint_set_monochrome_medium = get_codepoint_set(language_text)

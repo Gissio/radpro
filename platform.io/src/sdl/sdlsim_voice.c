@@ -42,10 +42,6 @@ void playVoiceCumulativeDose(void)
 {
 }
 
-void playAlertTest(void)
-{
-}
-
 void playVoiceTest(void)
 {
 }

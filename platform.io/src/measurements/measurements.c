@@ -94,9 +94,6 @@ void setMeasurementsEnabled(bool value)
     measurements.enabled = value;
 
     setTubeHVEnabled(value);
-#if defined(EMFMETER)
-    setEMFMeterEnabled(value);
-#endif
 }
 
 bool isMeasurementsEnabled(void)
@@ -483,7 +480,7 @@ void showAlertsMenu(void)
 // Measurements menu
 
 static const MenuOption measurementsMenuOptions[] = {
-    {STRING_SOURCE, &sourceMenu},
+    {STRING_SOURCE_COMPENSATION, &sourceCompensationMenu},
     {STRING_DOSE_UNITS, &doseUnitsMenu},
     {STRING_SECONDARY_DOSE_UNITS, &secondaryDoseUnitsMenu},
 #if defined(EMFMETER)

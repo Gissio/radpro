@@ -19,6 +19,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
 ## Commands
 
 ### Get device identification
+
 - **Request**: `GET deviceId\r\n`
 - **Response**: `OK [hardware-id];[software-id];[device-id]\r\n`
 - **Description**: Retrieves the device's hardware and software details.
@@ -33,6 +34,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   ```
 
 ### Get device battery voltage
+
 - **Request**: `GET deviceBatteryVoltage\r\n`
 - **Response**: `OK [value]\r\n`
 - **Description**: Returns the battery voltage (all cells) in volts, with three decimal places.
@@ -44,6 +46,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   ```
 
 ### Get device date and time
+
 - **Request**: `GET deviceTime\r\n`
 - **Response**: `OK [value]\r\n`
 - **Description**: Returns the device's current UNIX timestamp (seconds since 1/1/1970).
@@ -55,6 +58,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   ```
 
 ### Set device date and time
+
 - **Request**: `SET deviceTime [value]\r\n`
 - **Response**: `OK\r\n`
 - **Description**: Sets the device's date and time using a UNIX timestamp.
@@ -66,6 +70,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   ```
 
 ### Get device time zone
+
 - **Request**: `GET deviceTimeZone\r\n`
 - **Response**: `OK [value]\r\n`
 - **Description**: Returns the device's time zone offset from UTC (in hours).
@@ -77,6 +82,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   ```
 
 ### Set device time zone
+
 - **Request**: `SET deviceTimeZone [value]\r\n`
 - **Response**: `OK\r\n`
 - **Description**: Sets the device's time zone offset from UTC (in hours).
@@ -88,6 +94,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   ```
 
 ### Get tube lifetime
+
 - **Request**: `GET tubeTime\r\n`
 - **Response**: `OK [value]\r\n`
 - **Description**: Returns the tube's operational lifetime in seconds.
@@ -99,6 +106,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   ```
 
 ### Set tube lifetime
+
 - **Request**: `SET tubeTime [value]\r\n`
 - **Response**: `OK\r\n`
 - **Description**: Sets the tube's operational lifetime in seconds.
@@ -110,6 +118,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   ```
 
 ### Get tube pulse count
+
 - **Request**: `GET tubePulseCount\r\n`
 - **Response**: `OK [value]\r\n`
 - **Description**: Returns the tube's lifetime pulse count, which overflows to 0 after 2³²-1. Updated continuously.
@@ -121,6 +130,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   ```
 
 ### Set tube pulse count
+
 - **Request**: `SET tubePulseCount [value]\r\n`
 - **Response**: `OK\r\n`
 - **Description**: Sets the tube's lifetime pulse count.
@@ -132,6 +142,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   ```
 
 ### Get tube rate
+
 - **Request**: `GET tubeRate\r\n`
 - **Response**: `OK [value]\r\n`
 - **Description**: Returns the tube's instantaneous rate in counts per minute (cpm), with three decimal places, updated every second. For better precision, calculate the rate using two `GET tubePulseCount` measurements over a time interval: `(pulse_count_end - pulse_count_start) / time_interval_in_minutes`.
@@ -143,6 +154,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   ```
 
 ### Get tube sensitivity
+
 - **Request**: `GET tubeSensitivity\r\n`
 - **Response**: `OK [value]\r\n`
 - **Description**: Returns the tube's sensitivity in cpm/µSv/h, with three decimal places.
@@ -154,6 +166,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   ```
 
 ### Get tube dead time
+
 - **Request**: `GET tubeDeadTime\r\n`
 - **Response**: `OK [value]\r\n`
 - **Description**: Returns an upper bound of the tube's dead time in seconds, with seven decimal places.
@@ -165,6 +178,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   ```
 
 ### Get tube dead-time compensation
+
 - **Request**: `GET tubeDeadTimeCompensation\r\n`
 - **Response**: `OK [value]\r\n`
 - **Description**: Returns the tube's dead-time compensation in seconds, with seven decimal places. Returns `0.0000000` if disabled.
@@ -176,6 +190,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   ```
 
 ### Get tube PWM frequency (supported devices)
+
 - **Request**: `GET tubeHVFrequency\r\n`
 - **Response**: `OK [value]\r\n`
 - **Description**: Returns the PWM frequency of the high-voltage generator in Hz, with two decimal places.
@@ -187,6 +202,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   ```
 
 ### Set tube PWM frequency (supported devices)
+
 - **Request**: `SET tubeHVFrequency [value]\r\n`
 - **Response**: `OK\r\n`
 - **Description**: Sets the PWM frequency of the high-voltage generator (100 to 100000 Hz), with up to two decimal places.
@@ -198,6 +214,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   ```
 
 ### Get tube PWM duty cycle (supported devices)
+
 - **Request**: `GET tubeHVDutyCycle\r\n`
 - **Response**: `OK [value]\r\n`
 - **Description**: Returns the PWM duty cycle of the high-voltage generator, with five decimal places.
@@ -209,6 +226,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   ```
 
 ### Set tube PWM duty cycle (supported devices)
+
 - **Request**: `SET tubeHVDutyCycle [value]\r\n`
 - **Response**: `OK\r\n`
 - **Description**: Sets the PWM duty cycle (0.0 to 1.0), with up to five decimal places.
@@ -220,6 +238,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   ```
 
 ### Get electric field (supported devices)
+
 - **Request**: `GET electricField\r\n`
 - **Response**: `OK [value]\r\n`
 - **Description**: Returns the electric field in volts per meter, with three decimal places.
@@ -231,6 +250,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   ```
 
 ### Get magnetic field (supported devices)
+
 - **Request**: `GET magneticField\r\n`
 - **Response**: `OK [value]\r\n`
 - **Description**: Returns the magnetic field in Tesla, with nine decimal places.
@@ -242,6 +262,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   ```
 
 ### Retrieve data log
+
 - **Request**: `GET datalog [start-time] [end-time] [max-record-num]\r\n`
 - **Response**: `OK [data]\r\n`
 - **Description**: Fetches data log records stored in flash memory. All parameters are optional.
@@ -258,6 +279,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   ```
 
 ### Reset data log
+
 - **Request**: `RESET datalog\r\n`
 - **Response**: `OK\r\n`
 - **Description**: Clears the data log in flash memory.
@@ -269,6 +291,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   ```
 
 ### Retrieve random data
+
 - **Request**: `GET randomData\r\n`
 - **Response**: `OK [value]\r\n`
 - **Description**: Returns up to 16 bytes from the random generator, in hexadecimal (0-9, a-f).
@@ -280,6 +303,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   ```
 
 ### Start bootloader (supported devices)
+
 - **Request**: `START bootloader\r\n`
 - **Response**: `OK\r\n`
 - **Description**: Initiates the system bootloader for device updates.
@@ -291,6 +315,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   ```
 
 ### Error handling
+
 - **Response**: `ERROR\r\n`
 - **Description**: Returned for invalid or erroneous requests.
 - **Example**:

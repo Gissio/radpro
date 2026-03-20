@@ -64,6 +64,7 @@ To update the firmware, use the [Rad Pro web installer](https://gissio.github.io
 * **Select option:** Press the Right/Settings or OK/Power key.
 * **Go back:** Prses the Back key.
 * **Toggle lock mode:** Press and hold both the Back and OK/Power keys.
+* **Restart random generator:** Press the Right/Settings key.
 
 ### FS-1000 controls
 
@@ -76,6 +77,7 @@ To update the firmware, use the [Rad Pro web installer](https://gissio.github.io
 * **Select option:** Press and short hold the Set/Power key.
 * **Go back:** Press and short hold the Mode key.
 * **Toggle lock mode:** Press and long hold both the Set/Power and Mode keys.
+* **Restart random generator:** Press and short hold the Set/Power key.
 
 ### Configuration steps
 

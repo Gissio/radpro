@@ -18,10 +18,11 @@ Use the following controls to operate your device:
 * **Select option:** Press and short hold the Right/Settings key or press the OK/Power key.
 * **Go back:** Press and short hold the Up/Back key.
 * **Toggle lock mode:** Press and long hold both the OK/Power and Up/Back keys.
+* **Restart random generator:** Press the Down/Settings key.
 
 To configure the device:
 
-1. Go to **Settings > Geiger tube > Sensitivity** and select the option matching your Geiger-Müller tube.
+1. Go to **Settings > Geiger tube > Tube type** and select the option that matches your Geiger-Müller tube.
 2. For USB data connections on Windows, install the [CH340 driver](https://www.catalog.update.microsoft.com/Search.aspx?q=USB%5CVID_1A86%26PID_7523).
 
 ## Hardware-specific notes

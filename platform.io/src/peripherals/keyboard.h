@@ -26,6 +26,7 @@ typedef enum
 {
     KEY_LEFT,
     KEY_RIGHT,
+    KEY_POWER = KEY_RIGHT,
 
     KEY_NUM,
     KEY_NONE = KEY_NUM,
@@ -36,6 +37,7 @@ typedef enum
     KEY_LEFT,
     KEY_RIGHT,
     KEY_OK,
+    KEY_POWER = KEY_OK,
 
     KEY_NUM,
     KEY_NONE = KEY_NUM,
@@ -45,6 +47,7 @@ typedef enum
 {
     KEY_LEFT,
     KEY_RIGHT,
+    KEY_POWER = KEY_RIGHT,
     KEY_UP,
     KEY_DOWN,
 
@@ -59,6 +62,7 @@ typedef enum
     KEY_UP,
     KEY_DOWN,
     KEY_OK,
+    KEY_POWER = KEY_OK,
 
     KEY_NUM,
     KEY_NONE = KEY_NUM,

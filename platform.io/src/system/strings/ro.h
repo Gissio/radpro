@@ -16,7 +16,7 @@
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
 #define STRING_PERCENT "%"
-#define STRING_NONE "-"
+#define STRING_NOVALUE "‒"
 #define STRING_LESSTHAN "< "
 
 // Units
@@ -44,8 +44,8 @@
 #define STRING_GAUSS_UNIT "G"
 
 // Units for indicating Geiger tube pulse count, as in "1 count" or "14 counts"
-#define STRING_COUNT "imp."
-#define STRING_COUNTS "imp."
+#define STRING_COUNT "imp"
+#define STRING_COUNTS "imp"
 
 // Time strings
 #define STRING_24_HOURS "24 ore"
@@ -141,25 +141,25 @@
 #define STRING_MAGNETIC_FIELD_ALARM "Alarm câmp magnetic"
 
 // Measurements menu items
-#define STRING_SOURCE "Sursă"
+#define STRING_SOURCE_COMPENSATION "Comp. sursă"
 #define STRING_DOSE_UNITS "Unități de doză"
 #define STRING_SECONDARY_DOSE_UNITS "Unități de doză secundare"
 #define STRING_MAGNETIC_FIELD_UNITS "Unități de câmp magnetic"
 
-// Source menu items
-#define STRING_CS137 "Implicit: Cs-137 (γ)"
-#define STRING_CO60 "Co-60 (γ)"
-#define STRING_TC99M "Tc-99m (γ)"
-#define STRING_I131 "I-131 (γ)"
-#define STRING_LU177 "Lu-177 (γ)"
-#define STRING_AM241 "Am-241 (γ)"
-#define STRING_RADIUM "Radiu (γ)"
-#define STRING_URANIUM_ORE "Minereu de uraniu (γ)"
-#define STRING_URANIUM_GLASS "Sticlă cu uraniu (γ)"
-#define STRING_DEPLETED_URANIUM "Uran sărăcit (γ)"
-#define STRING_THORIUM_ORE "Minereu de toriu (γ)"
+// Source menu compensation items
+#define STRING_CS137 "Niciuna (Cs-137)"
+#define STRING_CO60 "Co-60"
+#define STRING_TC99M "Tc-99m"
+#define STRING_I131 "I-131"
+#define STRING_LU177 "Lu-177"
+#define STRING_AM241 "Am-241"
+#define STRING_RADIUM "Radiu"
+#define STRING_URANIUM_ORE "Minereu de uraniu"
+#define STRING_URANIUM_GLASS "Sticlă cu uraniu"
+#define STRING_DEPLETED_URANIUM "Uran sărăcit"
+#define STRING_THORIUM_ORE "Minereu de toriu"
 #define STRING_XRAYS "Radiație X (60 kV)"
-#define STRING_K40 "K-40 (γ)"
+#define STRING_K40 "K-40"
 #define STRING_BACKGROUND_RADIATION "Radiație de fond"
 
 // Instantaneous menu items
@@ -177,7 +177,7 @@
 
 // Geiger tube menu items
 #define STRING_TUBE_TYPE "Tipul tubului"
-#define STRING_SENSITIVITY "Sensibilitate (Cs-137)"
+#define STRING_SENSITIVITY "Sensibilitate"
 #define STRING_DEAD_TIME_COMPENSATION "Comp. timp mort"
 #define STRING_HVPROFILE "Profil HV"
 
@@ -233,6 +233,8 @@
 #define STRING_ALWAYS_ON "Întotdeauna pornit"
 
 // Sound menu items
+#define STRING_PULSESTYLE "Stil impuls"
+#define STRING_PULSEVOLUME "Volum impuls"
 #define STRING_ALERTSTYLE "Stil de alertă"
 #define STRING_ALERTVOLUME "Volum alertă"
 #define STRING_VOICEVOLUME "Volum voce"

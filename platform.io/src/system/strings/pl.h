@@ -16,7 +16,7 @@
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
 #define STRING_PERCENT "%"
-#define STRING_NONE "-"
+#define STRING_NOVALUE "‒"
 #define STRING_LESSTHAN "< "
 
 // Units
@@ -44,8 +44,8 @@
 #define STRING_GAUSS_UNIT "G"
 
 // Units for indicating Geiger tube pulse count, as in "1 count" or "14 counts"
-#define STRING_COUNT "imp."
-#define STRING_COUNTS "imp."
+#define STRING_COUNT "imp"
+#define STRING_COUNTS "imp"
 
 // Time strings
 #define STRING_24_HOURS "24 godziny"
@@ -141,25 +141,25 @@
 #define STRING_MAGNETIC_FIELD_ALARM "Alarm pola magnetycznego"
 
 // Measurements menu items
-#define STRING_SOURCE "Źródło"
+#define STRING_SOURCE_COMPENSATION "Komp. źródła"
 #define STRING_DOSE_UNITS "Jednostki dawki"
 #define STRING_SECONDARY_DOSE_UNITS "Drugorzędne jednostki dawki"
 #define STRING_MAGNETIC_FIELD_UNITS "Jednostki pola magnetycznego"
 
-// Source menu items
-#define STRING_CS137 "Domyślny: Cs-137 (γ)"
-#define STRING_CO60 "Co-60 (γ)"
-#define STRING_TC99M "Tc-99m (γ)"
-#define STRING_I131 "I-131 (γ)"
-#define STRING_LU177 "Lu-177 (γ)"
-#define STRING_AM241 "Am-241 (γ)"
-#define STRING_RADIUM "Rad (γ)"
-#define STRING_URANIUM_ORE "Ruda uranu (γ)"
-#define STRING_URANIUM_GLASS "Szkło uranowe (γ)"
-#define STRING_DEPLETED_URANIUM "Uran zubożony (γ)"
-#define STRING_THORIUM_ORE "Ruda toru (γ)"
+// Source menu compensation items
+#define STRING_CS137 "Brak (Cs-137)"
+#define STRING_CO60 "Co-60"
+#define STRING_TC99M "Tc-99m"
+#define STRING_I131 "I-131"
+#define STRING_LU177 "Lu-177"
+#define STRING_AM241 "Am-241"
+#define STRING_RADIUM "Rad"
+#define STRING_URANIUM_ORE "Ruda uranu"
+#define STRING_URANIUM_GLASS "Szkło uranowe"
+#define STRING_DEPLETED_URANIUM "Uran zubożony"
+#define STRING_THORIUM_ORE "Ruda toru"
 #define STRING_XRAYS "X-ray (60 kV)"
-#define STRING_K40 "K-40 (γ)"
+#define STRING_K40 "K-40"
 #define STRING_BACKGROUND_RADIATION "Promieniotwórczość naturalna"
 
 // Instantaneous menu items
@@ -177,7 +177,7 @@
 
 // Geiger tube menu items
 #define STRING_TUBE_TYPE "Typ rury"
-#define STRING_SENSITIVITY "Czułość (Cs-137)"
+#define STRING_SENSITIVITY "Czułość"
 #define STRING_DEAD_TIME_COMPENSATION "Komp. czasu martwego"
 #define STRING_HVPROFILE "Profil HV"
 
@@ -233,6 +233,8 @@
 #define STRING_ALWAYS_ON "Zawsze włączony"
 
 // Sound menu items
+#define STRING_PULSESTYLE "Styl impulsu"
+#define STRING_PULSEVOLUME "Głośność impulsu"
 #define STRING_ALERTSTYLE "Styl alertu"
 #define STRING_ALERTVOLUME "Głośność alertu"
 #define STRING_VOICEVOLUME "Głośność głosu"

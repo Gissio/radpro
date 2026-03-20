@@ -26,7 +26,6 @@ void onVoiceTick(void);
 void playVoiceInstantaneousRate(void);
 void playVoiceAverageRate(void);
 void playVoiceCumulativeDose(void);
-void playAlertTest(void);
 void playVoiceTest(void);
 void playNumber(uint32_t value);
 

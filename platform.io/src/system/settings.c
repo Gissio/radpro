@@ -61,12 +61,15 @@ static const Settings defaultSettings = {
 #endif
     .displaySleep = DISPLAY_SLEEP_30_SECONDS,
 
+#if defined(BUZZER_VOLUME)
+    .soundPulseVolume = SOUND_PULSEVOLUME_HIGH,
+    .soundAlertVolume = SOUND_ALERTVOLUME_VERYHIGH,
+#endif
 #if defined(VOICE)
     .soundAlertStyle = SOUND_ALERTSTYLE_LONG,
-#endif
     .soundAlertVolume = SOUND_ALERTVOLUME_VERYHIGH,
-    .soundPulseVolume = SOUND_PULSEVOLUME_HIGH,
     .soundVoiceVolume = SOUND_VOICEVOLUME_VERYHIGH,
+#endif
 
     .rtcTimeZone = RTC_TIMEZONE_P0000,
 };
@@ -140,8 +143,7 @@ static bool validateState(const State *state)
             (s->displayTheme < DISPLAY_THEME_NUM) &&
 #endif
             (s->displaySleep < DISPLAY_SLEEP_NUM) &&
-            (s->soundPulseType < SOUND_PULSETYPE_NUM) &&
-            (s->soundPulseVolume < SOUND_PULSEVOLUME_NUM) &&
+            (s->soundPulseStyle < SOUND_PULSETYPE_NUM) &&
             (s->rtcTimeZone < RTC_TIMEZONE_NUM) &&
 #if defined(BATTERY_REMOVABLE)
             (s->powerBatteryType < BATTERYTYPE_NUM) &&

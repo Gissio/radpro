@@ -318,21 +318,21 @@ enum
 
 enum
 {
+    SOUND_PULSEVOLUME_LOW,
+    SOUND_PULSEVOLUME_MEDIUM,
+    SOUND_PULSEVOLUME_HIGH,
+    SOUND_PULSEVOLUME_VERYHIGH,
+
+    SOUND_PULSEVOLUME_NUM,
+};
+
+enum
+{
     SOUND_ALERTSTYLE_SHORT,
     SOUND_ALERTSTYLE_LONG,
 
     SOUND_ALERTSTYLE_NUM,
 };
-
-enum
-{
-    SOUND_PULSEVOLUME_LOW,
-    SOUND_PULSEVOLUME_MEDIUM,
-    SOUND_PULSEVOLUME_HIGH,
-
-    SOUND_PULSEVOLUME_NUM,
-};
-
 
 enum
 {
@@ -407,10 +407,6 @@ enum
     BATTERYTYPE_NUM,
 };
 
-#if !defined(START_POWERED)
-#define USB_AUTOPOWER_ON
-#endif
-
 enum
 {
     GAME_STRENGTH_1,
@@ -468,7 +464,7 @@ typedef struct
     unsigned int displayBrightness : 2;
     unsigned int displaySleep : 3;
 
-    unsigned int soundPulseType : 2;
+    unsigned int soundPulseStyle : 2;
     unsigned int soundPulseVolume : 2;
     unsigned int soundAlertStyle : 1;
     unsigned int soundAlertVolume : 2;

@@ -16,7 +16,7 @@
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
 #define STRING_PERCENT "%"
-#define STRING_NONE "-"
+#define STRING_NOVALUE "‒"
 #define STRING_LESSTHAN "< "
 
 // Units
@@ -141,25 +141,25 @@
 #define STRING_MAGNETIC_FIELD_ALARM "Magnetic field alarm"
 
 // Measurements menu items
-#define STRING_SOURCE "Source"
+#define STRING_SOURCE_COMPENSATION "Source compensation"
 #define STRING_DOSE_UNITS "Dose units"
 #define STRING_SECONDARY_DOSE_UNITS "Secondary dose units"
 #define STRING_MAGNETIC_FIELD_UNITS "Magnetic field units"
 
-// Source menu items
-#define STRING_CS137 "Default: Cs-137 (γ)"
-#define STRING_CO60 "Co-60 (γ)"
-#define STRING_TC99M "Tc-99m (γ)"
-#define STRING_I131 "I-131 (γ)"
-#define STRING_LU177 "Lu-177 (γ)"
-#define STRING_AM241 "Am-241 (γ)"
-#define STRING_RADIUM "Radium (γ)"
-#define STRING_URANIUM_ORE "Uranium ore (γ)"
-#define STRING_URANIUM_GLASS "Uranium glass (γ)"
-#define STRING_DEPLETED_URANIUM "Depleted uranium (γ)"
-#define STRING_THORIUM_ORE "Thorium ore (γ)"
+// Source menu compensation items
+#define STRING_CS137 "None (Cs-137)"
+#define STRING_CO60 "Co-60"
+#define STRING_TC99M "Tc-99m"
+#define STRING_I131 "I-131"
+#define STRING_LU177 "Lu-177"
+#define STRING_AM241 "Am-241"
+#define STRING_RADIUM "Radium"
+#define STRING_URANIUM_ORE "Uranium ore"
+#define STRING_URANIUM_GLASS "Uranium glass"
+#define STRING_DEPLETED_URANIUM "Depleted uranium"
+#define STRING_THORIUM_ORE "Thorium ore"
 #define STRING_XRAYS "X-rays (60 kV)"
-#define STRING_K40 "K-40 (γ)"
+#define STRING_K40 "K-40"
 #define STRING_BACKGROUND_RADIATION "Background radiation"
 
 // Instantaneous menu items
@@ -177,7 +177,7 @@
 
 // Geiger tube menu items
 #define STRING_TUBE_TYPE "Tube type"
-#define STRING_SENSITIVITY "Sensitivity (Cs-137)"
+#define STRING_SENSITIVITY "Sensitivity"
 #define STRING_DEAD_TIME_COMPENSATION "Dead-time compensation"
 #define STRING_HVPROFILE "HV profile"
 
@@ -233,10 +233,11 @@
 #define STRING_ALWAYS_ON "Always on"
 
 // Sound menu items
+#define STRING_PULSESTYLE "Pulse style"
+#define STRING_PULSEVOLUME "Pulse volume"
 #define STRING_ALERTSTYLE "Alert style"
 #define STRING_ALERTVOLUME "Alert volume"
 #define STRING_VOICEVOLUME "Voice volume"
-#define STRING_PULSEVOLUME "Pulse volume"
 
 // Sound alert style menu items
 #define STRING_SHORT "Short"

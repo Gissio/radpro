@@ -16,7 +16,7 @@
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
 #define STRING_PERCENT "%"
-#define STRING_NONE "-"
+#define STRING_NOVALUE "‒"
 #define STRING_LESSTHAN "< "
 
 // Units
@@ -44,8 +44,8 @@
 #define STRING_GAUSS_UNIT "G"
 
 // Units for indicating Geiger tube pulse count, as in "1 count" or "14 counts"
-#define STRING_COUNT "imp."
-#define STRING_COUNTS "imp."
+#define STRING_COUNT "imp"
+#define STRING_COUNTS "imp"
 
 // Time strings
 #define STRING_24_HOURS "24 hodín"
@@ -141,25 +141,25 @@
 #define STRING_MAGNETIC_FIELD_ALARM "Alarm magnetického poľa"
 
 // Measurements menu items
-#define STRING_SOURCE "Zdroj"
+#define STRING_SOURCE_COMPENSATION "Komp. zdroja"
 #define STRING_DOSE_UNITS "Jednotky dávky"
 #define STRING_SECONDARY_DOSE_UNITS "Sekundárne jednotky dávky"
 #define STRING_MAGNETIC_FIELD_UNITS "Jednotky magnetického poľa"
 
-// Source menu items
-#define STRING_CS137 "Predvolené: Cs-137 (γ)"
-#define STRING_CO60 "Co-60 (γ)"
-#define STRING_TC99M "Tc-99m (γ)"
-#define STRING_I131 "I-131 (γ)"
-#define STRING_LU177 "Lu-177 (γ)"
-#define STRING_AM241 "Am-241 (γ)"
-#define STRING_RADIUM "Rádium (γ)"
-#define STRING_URANIUM_ORE "Uránová ruda (γ)"
-#define STRING_URANIUM_GLASS "Uránové sklo (γ)"
-#define STRING_DEPLETED_URANIUM "Ochudobnený urán (γ)"
-#define STRING_THORIUM_ORE "Tóriová ruda (γ)"
+// Source menu compensation items
+#define STRING_CS137 "Žiadna (Cs-137)"
+#define STRING_CO60 "Co-60"
+#define STRING_TC99M "Tc-99m"
+#define STRING_I131 "I-131"
+#define STRING_LU177 "Lu-177"
+#define STRING_AM241 "Am-241"
+#define STRING_RADIUM "Rádium"
+#define STRING_URANIUM_ORE "Uránová ruda"
+#define STRING_URANIUM_GLASS "Uránové sklo"
+#define STRING_DEPLETED_URANIUM "Ochudobnený urán"
+#define STRING_THORIUM_ORE "Tóriová ruda"
 #define STRING_XRAYS "Rentgen (60 kV)"
-#define STRING_K40 "K-40 (γ)"
+#define STRING_K40 "K-40"
 #define STRING_BACKGROUND_RADIATION "Pozadie žiarenia"
 
 // Instantaneous menu items
@@ -177,7 +177,7 @@
 
 // Geiger tube menu items
 #define STRING_TUBE_TYPE "Typ trubice"
-#define STRING_SENSITIVITY "Citlivosť (Cs-137)"
+#define STRING_SENSITIVITY "Citlivosť"
 #define STRING_DEAD_TIME_COMPENSATION "Komp. mŕtveho času"
 #define STRING_HVPROFILE "HV profil"
 
@@ -233,6 +233,8 @@
 #define STRING_ALWAYS_ON "Vždy zapnuté"
 
 // Sound menu items
+#define STRING_PULSESTYLE "Štýl impulzu"
+#define STRING_PULSEVOLUME "Hlasitosť impulzu"
 #define STRING_ALERTSTYLE "Štýl upozornenia"
 #define STRING_ALERTVOLUME "Hlasitosť upozornenia"
 #define STRING_VOICEVOLUME "Hlasitosť hlasu"

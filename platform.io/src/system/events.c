@@ -347,12 +347,16 @@ bool isDisplayAwake(void)
 // Buzzer
 
 #if defined(BUZZER)
-static void setBuzzerTimer(int32_t ticks, int32_t noiseTicks)
+static void setBuzzerTimer(int32_t ticks, int32_t noiseTicks, uint8_t volume)
 {
     if (ticks > events.buzzerTimer)
     {
         events.buzzerTimer = ticks;
         events.buzzerNoiseTimer = noiseTicks;
+
+#if defined(BUZZER_VOLUME)
+        setBuzzerVolume(volume);
+#endif
     }
 }
 #endif
@@ -417,7 +421,9 @@ void indicatePulse(void)
 
 #if defined(BUZZER)
     if (settings.pulseSound)
-        setBuzzerTimer(pulseSoundTicks[settings.soundPulseType] + 1, events.buzzerTimer + 1);
+        setBuzzerTimer(pulseSoundTicks[settings.soundPulseStyle] + 1,
+                       events.buzzerTimer + 1,
+                       settings.soundPulseVolume);
 #endif
 
 #if defined(VIBRATOR)
@@ -444,7 +450,7 @@ void triggerAlert(bool alarm)
 
 #if defined(BUZZER)
     if (settings.alertSound)
-        setBuzzerTimer(alertTicks, 1);
+        setBuzzerTimer(alertTicks, 1, settings.soundAlertVolume);
 #endif
 
 #if defined(VOICE)

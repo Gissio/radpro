@@ -14,11 +14,13 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 #include <SDL.h>
 
 #include "../peripherals/sound.h"
 #include "../system/events.h"
+#include "../system/settings.h"
 
 #define AUDIO_SAMPLE_FREQUENCY 48000
 #define AUDIO_BUFFER_SIZE 4096
@@ -30,11 +32,21 @@
 #define PULSE_BUFFER_SIZE 512
 #define PULSE_BUFFER_MASK (PULSE_BUFFER_SIZE - 1)
 
+#define VOLUME_GAIN_MAX 0.25F
+
+static const float buzzerVolumeGains[] = {
+    VOLUME_GAIN_MAX / 64.0F,
+    VOLUME_GAIN_MAX / 16.0F,
+    VOLUME_GAIN_MAX / 4.0F,
+    VOLUME_GAIN_MAX / 1.0F,
+};
+
 static void onAudioBuffer(void *userdata, Uint8 *stream, int len);
 
 static struct
 {
     bool value;
+    float gain;
 
     uint32_t pulseTicksHead;
     uint32_t pulseTicksTail;
@@ -46,6 +58,8 @@ static struct
 
 void initBuzzer(void)
 {
+    buzzer.gain = VOLUME_GAIN_MAX;
+
     SDL_AudioSpec audioSpec;
     audioSpec.freq = AUDIO_SAMPLE_FREQUENCY;
     audioSpec.format = AUDIO_S16;
@@ -97,7 +111,7 @@ static void onAudioBuffer(void *userdata, Uint8 *stream, int len)
 
             uint32_t pulseTicksIndex = (buzzer.pulseTicksTail + i * pulseTicksSize / AUDIO_BUFFER_SIZE) & PULSE_BUFFER_MASK;
 
-            float gain = 0.25F * buzzer.pulseTicks[pulseTicksIndex];
+            float gain = buzzer.gain * buzzer.pulseTicks[pulseTicksIndex];
 
             samples[i] = (int16_t)((INT16_MAX * gain) * amplitude);
         }
@@ -114,6 +128,11 @@ void onBuzzerTick(void)
     buzzer.pulseTicksHead = (buzzer.pulseTicksHead + 1) & PULSE_BUFFER_MASK;
 
     SDL_UnlockAudioDevice(buzzer.audioDeviceId);
+}
+
+void setBuzzerVolume(uint8_t volume)
+{
+    buzzer.gain = buzzerVolumeGains[volume];
 }
 
 void setBuzzer(bool value)

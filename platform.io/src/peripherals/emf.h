@@ -14,10 +14,6 @@
 
 #include "../ui/view.h"
 
-void initEMFMeter(void);
-
-void setEMFMeterEnabled(bool value);
-
 void updateEMFMeter(void);
 
 #endif

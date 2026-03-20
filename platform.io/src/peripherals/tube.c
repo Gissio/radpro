@@ -27,13 +27,13 @@ static const float tubeSensitivities[] = {
     252.567F,
 };
 
-static const uint8_t tubeSourceFactors[][14] = {
-    {108, 113, 204, 107, 172, 236, 111, 117, 124, 123, 113, 196, 110, 123},
-    {108, 113, 204, 107, 173, 236, 111, 118, 124, 123, 113, 196, 110, 123},
-    {108, 124, 156, 93, 113, 185, 106, 106, 106, 112, 62, 153, 125, 112},
-    {108, 95, 169, 103, 126, 207, 100, 105, 110, 110, 100, 198, 92, 108},
-    {108, 125, 153, 93, 113, 77, 107, 106, 108, 112, 89, 0, 128, 109},
-    {108, 107, 154, 104, 127, 167, 107, 111, 114, 113, 108, 161, 107, 115},
+static const uint8_t tubeSourceFactors[][15] = {
+    {108, 108, 113, 204, 107, 172, 236, 111, 117, 124, 123, 113, 196, 110, 123},
+    {108, 108, 113, 204, 107, 173, 236, 111, 118, 124, 123, 113, 196, 110, 123},
+    {108, 108, 124, 156, 93, 113, 185, 106, 106, 106, 112, 62, 153, 125, 112},
+    {108, 108, 95, 169, 103, 126, 207, 100, 105, 110, 110, 100, 198, 92, 108},
+    {108, 108, 125, 153, 93, 113, 77, 107, 106, 108, 112, 89, 0, 128, 109},
+    {108, 108, 107, 154, 104, 127, 167, 107, 111, 114, 113, 108, 161, 107, 115},
 };
 
 static const Menu tubeMenu;
@@ -78,7 +78,7 @@ void initTube(void)
 
 void setupTube(void)
 {
-    selectMenuItem(&sourceMenu, settings.source);
+    selectMenuItem(&sourceCompensationMenu, settings.source);
 
     selectMenuItem(&tubeMenu, 0);
     selectMenuItem(&tubeTypeMenu, settings.tubeType);
@@ -264,9 +264,9 @@ bool setTubeHVDutyCycle(float value)
 
 #endif
 
-// Measurements source menu
+// Measurements source compensation menu
 
-static cstring sourceMenuOptions[] = {
+static cstring sourceCompensationMenuOptions[] = {
     STRING_CS137,
     STRING_CO60,
     STRING_TC99M,
@@ -283,14 +283,14 @@ static cstring sourceMenuOptions[] = {
     STRING_BACKGROUND_RADIATION,
 };
 
-static const char *onSourceMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
+static const char *onSourceCompensationMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.source);
 
-    return getString(sourceMenuOptions[index]);
+    return getString(sourceCompensationMenuOptions[index]);
 }
 
-static void onSourceMenuSelect(menu_size_t index)
+static void onSourceCompensationMenuSelect(menu_size_t index)
 {
     settings.source = index;
 
@@ -299,18 +299,18 @@ static void onSourceMenuSelect(menu_size_t index)
 
 static MenuState sourceMenuState;
 
-const Menu sourceMenu = {
-    STRING_SOURCE,
+const Menu sourceCompensationMenu = {
+    STRING_SOURCE_COMPENSATION,
     &sourceMenuState,
-    ARRAY_SIZE(sourceMenuOptions),
-    onSourceMenuGetOption,
-    onSourceMenuSelect,
+    ARRAY_SIZE(sourceCompensationMenuOptions),
+    onSourceCompensationMenuGetOption,
+    onSourceCompensationMenuSelect,
     showMeasurementsMenu,
 };
 
-void showSourceMenu(void)
+void showSourceCompensationMenu(void)
 {
-    showMenu(&sourceMenu);
+    showMenu(&sourceCompensationMenu);
 }
 
 // Tube type menu

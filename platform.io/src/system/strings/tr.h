@@ -16,7 +16,7 @@
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
 #define STRING_PERCENT "%"
-#define STRING_NONE "-"
+#define STRING_NOVALUE "‒"
 #define STRING_LESSTHAN "< "
 
 // Units
@@ -110,7 +110,7 @@
 
 // Settings menu items
 #define STRING_SETTINGS "Ayarlar"
-#define STRING_PULSES "Naberler"
+#define STRING_PULSES "Darbeler"
 #define STRING_ALERTS "Uyarılar"
 #define STRING_MEASUREMENTS "Ölçümler"
 #define STRING_GEIGER_TUBE "Geiger tüpü"
@@ -127,7 +127,7 @@
 #define STRING_SOUND "Ses"
 #define STRING_VOICE "Konuşma"
 #define STRING_VIBRATION "Titreşim"
-#define STRING_PULSE_LED "Naber LED'i"
+#define STRING_PULSE_LED "Darbe LED'i"
 #define STRING_DISPLAY_FLASH "Ekran flaşı"
 #define STRING_THRESHOLD "Eşik"
 
@@ -141,25 +141,25 @@
 #define STRING_MAGNETIC_FIELD_ALARM "Manyetik alan alarmı"
 
 // Measurements menu items
-#define STRING_SOURCE "Kaynak"
+#define STRING_SOURCE_COMPENSATION "Kaynak telafisi"
 #define STRING_DOSE_UNITS "Doz birimleri"
 #define STRING_SECONDARY_DOSE_UNITS "İkincil doz birimleri"
 #define STRING_MAGNETIC_FIELD_UNITS "Manyetik alan birimleri"
 
-// Source menu items
-#define STRING_CS137 "Varsayılan: Cs-137 (γ)"
-#define STRING_CO60 "Co-60 (γ)"
-#define STRING_TC99M "Tc-99m (γ)"
-#define STRING_I131 "I-131 (γ)"
-#define STRING_LU177 "Lu-177 (γ)"
-#define STRING_AM241 "Am-241 (γ)"
-#define STRING_RADIUM "Radyum (γ)"
-#define STRING_URANIUM_ORE "Uranyum cevheri (γ)"
-#define STRING_URANIUM_GLASS "Uranyum camı (γ)"
-#define STRING_DEPLETED_URANIUM "Zayıflatılmış uranyum (γ)"
-#define STRING_THORIUM_ORE "Toryum cevheri (γ)"
+// Source menu compensation items
+#define STRING_CS137 "Yok (Cs-137)"
+#define STRING_CO60 "Co-60"
+#define STRING_TC99M "Tc-99m"
+#define STRING_I131 "I-131"
+#define STRING_LU177 "Lu-177"
+#define STRING_AM241 "Am-241"
+#define STRING_RADIUM "Radyum"
+#define STRING_URANIUM_ORE "Uranyum cevheri"
+#define STRING_URANIUM_GLASS "Uranyum camı"
+#define STRING_DEPLETED_URANIUM "Zayıflatılmış uranyum"
+#define STRING_THORIUM_ORE "Toryum cevheri"
 #define STRING_XRAYS "X ışını (60 kV)"
-#define STRING_K40 "K-40 (γ)"
+#define STRING_K40 "K-40"
 #define STRING_BACKGROUND_RADIATION "Arka plan radyasyonu"
 
 // Instantaneous menu items
@@ -177,7 +177,7 @@
 
 // Geiger tube menu items
 #define STRING_TUBE_TYPE "Tüp tipi"
-#define STRING_SENSITIVITY "Hassasiyet (Cs-137)"
+#define STRING_SENSITIVITY "Hassasiyet"
 #define STRING_DEAD_TIME_COMPENSATION "Ölü zaman telafisi"
 #define STRING_HVPROFILE "HV profili"
 
@@ -233,6 +233,8 @@
 #define STRING_ALWAYS_ON "Her zaman açık"
 
 // Sound menu items
+#define STRING_PULSESTYLE "Darbe sesi stili"
+#define STRING_PULSEVOLUME "Darbe ses seviyesi"
 #define STRING_ALERTSTYLE "Uyarı stili"
 #define STRING_ALERTVOLUME "Uyarı ses seviyesi"
 #define STRING_VOICEVOLUME "Ses seviyesi"

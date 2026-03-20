@@ -16,7 +16,7 @@
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
 #define STRING_PERCENT "%"
-#define STRING_NONE "-"
+#define STRING_NOVALUE "‒"
 #define STRING_LESSTHAN "< "
 
 // Units
@@ -44,8 +44,8 @@
 #define STRING_GAUSS_UNIT "G"
 
 // Units for indicating Geiger tube pulse count, as in "1 count" or "14 counts"
-#define STRING_COUNT "imp."
-#define STRING_COUNTS "imp."
+#define STRING_COUNT "imp"
+#define STRING_COUNTS "imp"
 
 // Time strings
 #define STRING_24_HOURS "24 valandos"
@@ -141,25 +141,25 @@
 #define STRING_MAGNETIC_FIELD_ALARM "Magnetinio lauko signalas"
 
 // Measurements menu items
-#define STRING_SOURCE "Šaltinis"
+#define STRING_SOURCE_COMPENSATION "Šaltinio kompensavimas"
 #define STRING_DOSE_UNITS "Dozės vienetai"
 #define STRING_SECONDARY_DOSE_UNITS "Antriniai dozės vienetai"
 #define STRING_MAGNETIC_FIELD_UNITS "Magnetinio lauko vienetai"
 
-// Source menu items
-#define STRING_CS137 "Numatyta: Cs-137 (γ)"
-#define STRING_CO60 "Co-60 (γ)"
-#define STRING_TC99M "Tc-99m (γ)"
-#define STRING_I131 "I-131 (γ)"
-#define STRING_LU177 "Lu-177 (γ)"
-#define STRING_AM241 "Am-241 (γ)"
-#define STRING_RADIUM "Radis (γ)"
-#define STRING_URANIUM_ORE "Urano rūda (γ)"
-#define STRING_URANIUM_GLASS "Urano stiklas (γ)"
-#define STRING_DEPLETED_URANIUM "Skurdintas uranas (γ)"
-#define STRING_THORIUM_ORE "Torio rūda (γ)"
+// Source menu compensation items
+#define STRING_CS137 "Nėra (Cs-137)"
+#define STRING_CO60 "Co-60"
+#define STRING_TC99M "Tc-99m"
+#define STRING_I131 "I-131"
+#define STRING_LU177 "Lu-177"
+#define STRING_AM241 "Am-241"
+#define STRING_RADIUM "Radis"
+#define STRING_URANIUM_ORE "Urano rūda"
+#define STRING_URANIUM_GLASS "Urano stiklas"
+#define STRING_DEPLETED_URANIUM "Skurdintas uranas"
+#define STRING_THORIUM_ORE "Torio rūda"
 #define STRING_XRAYS "Rentgeno (60 kV)"
-#define STRING_K40 "K-40 (γ)"
+#define STRING_K40 "K-40"
 #define STRING_BACKGROUND_RADIATION "Foninė spinduliuotė"
 
 // Instantaneous menu items
@@ -177,7 +177,7 @@
 
 // Geiger tube menu items
 #define STRING_TUBE_TYPE "Vamzdžio tipas"
-#define STRING_SENSITIVITY "Jautrumas (Cs-137)"
+#define STRING_SENSITIVITY "Jautrumas"
 #define STRING_DEAD_TIME_COMPENSATION "Mirusio laiko kompensacija"
 #define STRING_HVPROFILE "HV profilis"
 
@@ -233,6 +233,8 @@
 #define STRING_ALWAYS_ON "Visada įjungtas"
 
 // Sound menu items
+#define STRING_PULSESTYLE "Impulso stilius"
+#define STRING_PULSEVOLUME "Impulso garsumas"
 #define STRING_ALERTSTYLE "Įspėjimo stilius"
 #define STRING_ALERTVOLUME "Įspėjimo garsumas"
 #define STRING_VOICEVOLUME "Balso garsumas"

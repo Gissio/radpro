@@ -17,8 +17,8 @@
   * Power-on self-test and safety watchdog.
   * `radpro-tool` for low-level computer access.
   * Game.
-* **Language support:** 29 languages, including English, Spanish, Chinese, and more.
-* **User interface:** Based on the [OpenBridge 6.0](https://www.openbridge.no/) design standard with anti-aliased text.
+* **Language support:** 30 languages, including English, Spanish, Chinese, and more.
+* **User interface:** Based on the [OpenBridge 6.1](https://www.openbridge.no/) design standard with anti-aliased text.
 
 ## Measurements
 
@@ -33,9 +33,9 @@ Calculates the instantaneous radiation rate by dividing the number of pulses, mi
 The secondary view can be switched between:
 
 * **Bar view:** Shows radiation levels on a [logarithmic](https://en.wikipedia.org/wiki/Logarithmic_scale) scale, with each tick representing a tenfold increase in radiation, highlighting warning and alarm zones.
-* **Time view:** Displays the averaging time.
 * **Max view:** Shows the highest measured rate.
 * **Rate view:** Displays the instantaneous rate in secondary units.
+* **Cumulative view:** Displays the cumulative dose.
 
 The [confidence interval](https://en.wikipedia.org/wiki/Confidence_interval) indicates the range where the true rate lies with 95% probability, assuming stable radiation levels. For example, a rate of 1.000 µSv/h with a ±40% interval means the true rate is likely between 0.600 µSv/h and 1.400 µSv/h. A narrower interval reflects higher precision.
 
@@ -65,6 +65,7 @@ The secondary view can be switched between:
 
 * **Time view:** Shows the measurement time.
 * **Dose view:** Displays the cumulative dose in secondary units.
+* **Instantaneous view:** Displays the instantaneous rate.
 
 To reset the cumulative dose or dismiss alerts, refer to the device’s installation instructions.
 
@@ -76,17 +77,81 @@ The view can be switched between 10-minute, 1-hour, 1-day, 1-week, 1-month, or 1
 
 To clear the history, reset the data log.
 
+### Electric field (supported devices)
+
+Calculates the electric field strength over a 400 ms window.
+
+The secondary view can be switched between:
+
+* **Max view:** Shows the highest measured value.
+* **Magnetic field:** Shows the magnetic field strength.
+
+To reset the electric field measurements or dismiss alerts, refer to the device’s installation instructions.
+
+**Important:** The device's built-in **buzzer** and **USB connection** can interfere with electric field measurements. For highest accuracy, disable audio feedback and disconnect USB during measurements.
+
+### Magnetic field (supported devices)
+
+Calculates the magnetic field strength over a 400 ms window.
+
+The secondary view can be switched between:
+
+* **Max view:** Shows the highest measured value.
+* **Electric field:** Shows the electric field strength.
+
+To reset the magnetic field measurements or dismiss alerts, refer to the device’s installation instructions.
+
 ## Sensitivity
 
-**Sensitivity** measures how effectively a Geiger-Müller tube detects radiation, expressed as counts per minute (cpm) per microsievert per hour (µSv/h). Rad Pro provides default sensitivity settings for common tubes:
+**Sensitivity** indicates how effectively a Geiger-Müller tube detects ionizing radiation. It is usually expressed in **counts per minute (cpm) per microsievert per hour (µSv/h)** — in other words, how many counts are registered for a given rate.
 
-* J305, J321, M4011: 153.8 cpm/µSv/h
-* J613, J614: 60.0 cpm/µSv/h
-* SBM-20: 150.5 cpm/µSv/h
+Rad Pro includes default sensitivity values derived from numerical simulations using [Rad Lab](https://github.com/Gissio/radlab). These values are calculated for a standard Cs-137 gamma source and apply to the most commonly used GM tubes:
 
-To set a custom sensitivity, go to **Settings** > **Geiger tube** > **Sensitivity**, and select a value. Accurate measurements require the correct sensitivity for the radiation type; otherwise, results may be inaccurate.
+* J305: 135.200 cpm/µSv/h
+* M4011: 108.345 cpm/µSv/h
+* J321: 108.345 cpm/µSv/h
+* HH614: 30.157 cpm/µSv/h
+* СБМ20 (SBM20): 106.105 cpm/µSv/h
+* СИЗБГ (SI3BG): 3.267 cpm/µSv/h
+* LND 7317: 252.567 cpm/µSv/h
 
-**Note:** For tubes with sensitivity ≥600 cpm/µSv/h, pulse indication is capped at 600 cpm/µSv/h to avoid excessive audio feedback, without affecting measurement accuracy.
+To set a custom sensitivity value, go to **Settings > Geiger tube > Sensitivity** and select the appropriate value.
+
+**Important:** Accurate dose-rate readings require the correct sensitivity for the radiation type and energy being measured. Using an incorrect value will lead to inaccurate results.
+
+**Note:** For high sensitivity tubes (≥ 600 cpm/µSv/h), pulse indication is capped at the equivalent of 600 cpm/µSv/h to prevent uncomfortable clicking. This limit affects sound feedback only and does not reduce the accuracy of the measurements.
+
+## Source compensation
+
+When the source of ionizing radiation is known, **Rad Pro** can improve measurement accuracy by applying **source compensation**. This corrects for the energy-dependent response of Geiger–Müller tubes.
+
+To enable it, go to **Settings > Measurements >w Source compensation** and select the appropriate source from the list.
+
+Notes:
+
+* Compensation assumes **gamma-only** emissions (or situations where beta is negligible).
+* To exclude beta radiation (especially important for mixed sources), place a metal shield between the source and the detector. For casual or home use, a simple and effective option is to place the detector inside a **stainless steel pan**: this typically blocks most beta particles while transmitting gamma rays with only minor attenuation.
+* All compensation factors are relative to **Cs-137** (set as 1.0).
+* Values are derived from numerical simulations performed with **[Rad Lab](https://github.com/Gissio/radlab)**.
+
+### Compensation factors by tube and source
+
+|Source|J305|M4011/J321|HH614|СБМ20 (SBM20)|СИЗБГ (SI3BG)|LND 7317|
+|-|-|-|-|-|-|-|
+|Cs-137|1|1|1|1|1|1|
+|Co-60|1.114|1.119|1.371|0.791|1.397|0.998|
+|Tc-99m|6.38|6.401|2.567|3.267|2.419|2.466|
+|I-131|0.99|0.998|0.761|0.918|0.762|0.943|
+|Lu-177|3.487|3.516|1.109|1.424|1.104|1.443|
+|Am-241|11.925|11.88|4.468|6.774|0.554|3.123|
+|Radium|1.062|1.066|0.979|0.869|0.991|0.99|
+|Uranium ore|1.21|1.214|0.973|0.961|0.978|1.068|
+|Uranium glaze|1.367|1.37|0.973|1.054|1.015|1.123|
+|Depleted uranium|1.353|1.356|1.089|1.05|1.1|1.118|
+|Thorium ore|1.113|1.118|0.416|0.858|0.697|1.011|
+|X-rays (60 kV)|5.486|5.465|2.424|5.686|0.125|2.806|
+|K-40|1.052|1.058|1.398|0.735|1.478|0.987|
+|Radiation background|1.338|1.345|1.099|1.012|1.028|1.15|
 
 ## Data logging
 
@@ -120,7 +185,7 @@ Alerts trigger only when the confidence interval falls below 75% to reduce false
 
 [Dead time](https://en.wikipedia.org/wiki/Geiger%E2%80%93M%C3%BCller_tube#Quenching_and_dead_time) is the brief interval (50–200 µs) after a radiation event during which a Geiger-Müller tube cannot detect another event, leading to undercounting at high radiation levels. Rad Pro can compensate for these missed counts.
 
-To measure dead time, go to **Settings** > **Statistics** and monitor the **Dead time** value. Measure several hours at normal radiation levels for accuracy, or use a radioactive source to speed up the process.
+To measure dead time, go to **Settings > Statistics** and monitor the **Dead time** value. Measure several hours at normal radiation levels for accuracy, or use a radioactive source to speed up the process.
 
 Rad Pro compensates dead time using the non-paralyzable model:
 
@@ -165,14 +230,26 @@ The [random generator](https://en.wikipedia.org/wiki/Hardware_random_number_gene
 * **ASCII**, **alphanumeric**, **hexadecimal**, **decimal** and **binary**: up to 16 outcomes per run.
 * **Die rolls**, **coin flips**: one outcome per run.
 
+To restart the generator, refer to the device's installation instructions.
+
 **Generation process:**
 
-1. Measures time intervals between pulses, inverting every second bit to eliminate bias.
-2. Stores bits in a 128-bit buffer.
-3. Processes bits using the Fast Dice Roller algorithm.
-4. Bit usage varies: ~7 bits (ASCII, 100-sided die), ~6 bits (alphanumeric), ~4 bits (hexadecimal, decimal, 10/12-sided die), ~3 bits (6/8-sided die), ~2 bits (4-sided die), or 1 bit (binary, coin flip).
+1. Measures time of pulses with microsecond precision.
+2. Extracts randomness from the two least significant bits of each timing measurement.
+3. Stores bits in a 128-bit buffer.
+4. Processes bits using the Fast Dice Roller algorithm.
+5. Bit consumption depends on output format:
+    * ~7 bits: ASCII, 100-sided die
+    * ~6 bits: alphanumeric
+    * ~4 bits: hexadecimal, decimal, 10/12-sided die
+    * ~3 bits: 6/8-sided die
+    * ~2 bits: 4-sided die
+    * 1 bit: binary, coin flip
 
-**Tip:** Use a radioactive source for faster bit generation.
+**Tips:**
+
+* Use a radioactive source for faster bit generation.
+* Disable sound/vibration notifications in **Settings > Alerts** if you want silent operation when the generator runs to completion.
 
 ## radpro-tool
 
@@ -189,48 +266,58 @@ The [random generator](https://en.wikipedia.org/wiki/Hardware_random_number_gene
 
 **Commands**:
 
-- Get help:
+* Get help:
 
   ```bash
   python tools/radpro-tool.py --help
   ```
-- Sync clock (e.g., COM13):
+
+* Sync clock (e.g., COM13):
 
   ```bash
   python tools/radpro-tool.py --port COM13
   ```
-- Download data log to `datalog.csv`:
+
+* Download data log to `datalog.csv`:
 
   ```bash
   python tools/radpro-tool.py --port COM13 --download-datalog datalog.csv
   ```
-- Log pulse data live to `live.csv` every minute:
+
+* Log pulse data live to `live.csv` every minute:
 
   ```bash
   python tools/radpro-tool.py --port COM13 --log-pulsedata live.csv --period 60
   ```
-- Submit data to [gmcmap.com](https://gmcmap.com):
+
+* Submit data to [gmcmap.com](https://gmcmap.com):
 
   ```bash
   python tools/radpro-tool.py --port COM13 --submit-gmcmap [USER_ACCOUNT_ID] [GEIGER_COUNTER_ID]
   ```
 
-- Submit data to [radmon.org](https://radmon.org):
+* Submit data to [radmon.org](https://radmon.org):
 
   ```bash
   python tools/radpro-tool.py --port COM13 --submit-radmon [USERNAME] [DATA_SENDING_PASSWORD]
   ```
 
-- Submit data to [safecast.org](https://safecast.org):
+* Submit data to [safecast.org](https://safecast.org):
 
   ```bash
   python tools/radpro-tool.py --port COM13 --submit-safecast [API_KEY] [DEVICE_ID]
   ```
 
-- Submit data to [safecast.org](https://safecast.org) with location data:
+* Submit data to [safecast.org](https://safecast.org) with location data:
 
   ```bash
   python tools/radpro-tool.py --port COM13 --submit-safecast [API_KEY] [DEVICE_ID] --safecast-latitude 37.7749 --safecast-longitude -122.4194 --safecast-height 100.5
+  ```
+
+* Submit data to [opensensemap.org](https://opensensemap.org):
+
+  ```bash
+  python tools/radpro-tool.py --port COM13 --submit-opensensemap [SENSE_BOX_ID] [API_KEY] --opensensemap-sensor-id [SENSOR_ID]
   ```
 
 ## Data communications
@@ -257,7 +344,7 @@ Refer to the [communications protocol description](comm.md) for USB serial port 
 
 **Q: Why don’t I hear clicks?**
 
-**A:** If a pulse threshold is set, clicks only occur above it. Disable the threshold in Settings to hear all counts.
+**A:** If a pulse threshold is set, clicks only occur above it. Disable **Settings > Pulses > Threshold** to hear all counts.
 
 **Q: Why aren’t rate alerts triggering?**
 
@@ -265,5 +352,4 @@ Refer to the [communications protocol description](comm.md) for USB serial port 
 
 **Q: Why doesn’t the device click for every count?**
 
-**A:** For tubes with sensitivity ≥600 cpm/µSv/h, pulse indication is capped at 600 cpm/µSv/h to prevent excessive audio feedback, without affecting measurements.
-
+**A:** For tubes with sensitivity ≥600 cpm/µSv/h, pulse indication is capped at 600 cpm/µSv/h to prevent excessive audio feedback.

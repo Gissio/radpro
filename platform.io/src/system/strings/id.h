@@ -16,7 +16,7 @@
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
 #define STRING_PERCENT "%"
-#define STRING_NONE "-"
+#define STRING_NOVALUE "‒"
 #define STRING_LESSTHAN "< "
 
 // Units
@@ -141,25 +141,25 @@
 #define STRING_MAGNETIC_FIELD_ALARM "Alarm medan magnet"
 
 // Measurements menu items
-#define STRING_SOURCE "Sumber"
+#define STRING_SOURCE_COMPENSATION "Kompensasi sumber"
 #define STRING_DOSE_UNITS "Satuan dosis"
 #define STRING_SECONDARY_DOSE_UNITS "Satuan dosis sekunder"
 #define STRING_MAGNETIC_FIELD_UNITS "Satuan medan magnet"
 
-// Source menu items
-#define STRING_CS137 "Bawaan: Cs-137 (γ)s"
-#define STRING_CO60 "Co-60 (γ)"
-#define STRING_TC99M "Tc-99m (γ)"
-#define STRING_I131 "I-131 (γ)"
-#define STRING_LU177 "Lu-177 (γ)"
-#define STRING_AM241 "Am-241 (γ)"
-#define STRING_RADIUM "Radium (γ)"
-#define STRING_URANIUM_ORE "Bijih uranium (γ)"
-#define STRING_URANIUM_GLASS "Kaca uranium (γ)"
-#define STRING_DEPLETED_URANIUM "Uranium terdeplesi (γ)"
-#define STRING_THORIUM_ORE "Bijih torium (γ)"
+// Source menu compensation items
+#define STRING_CS137 "Tidak ada (Cs-137s)"
+#define STRING_CO60 "Co-60"
+#define STRING_TC99M "Tc-99m"
+#define STRING_I131 "I-131"
+#define STRING_LU177 "Lu-177"
+#define STRING_AM241 "Am-241"
+#define STRING_RADIUM "Radium"
+#define STRING_URANIUM_ORE "Bijih uranium"
+#define STRING_URANIUM_GLASS "Kaca uranium"
+#define STRING_DEPLETED_URANIUM "Uranium terdeplesi"
+#define STRING_THORIUM_ORE "Bijih torium"
 #define STRING_XRAYS "Sinar-X (60 kV)"
-#define STRING_K40 "K-40 (γ)"
+#define STRING_K40 "K-40"
 #define STRING_BACKGROUND_RADIATION "Radiasi alam"
 
 // Instantaneous menu items
@@ -177,7 +177,7 @@
 
 // Geiger tube menu items
 #define STRING_TUBE_TYPE "Jenis tabung"
-#define STRING_SENSITIVITY "Sensitivitas (Cs-137)"
+#define STRING_SENSITIVITY "Sensitivitas"
 #define STRING_DEAD_TIME_COMPENSATION "Kompensasi waktu mati"
 #define STRING_HVPROFILE "Profil HV"
 
@@ -233,6 +233,8 @@
 #define STRING_ALWAYS_ON "Selalu nyala"
 
 // Sound menu items
+#define STRING_PULSESTYLE "Gaya pulsa"
+#define STRING_PULSEVOLUME "Volume pulsa"
 #define STRING_ALERTSTYLE "Gaya peringatan"
 #define STRING_ALERTVOLUME "Volume peringatan"
 #define STRING_VOICEVOLUME "Volume suara"

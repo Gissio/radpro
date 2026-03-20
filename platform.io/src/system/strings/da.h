@@ -16,7 +16,7 @@
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
 #define STRING_PERCENT "%"
-#define STRING_NONE "-"
+#define STRING_NOVALUE "‒"
 #define STRING_LESSTHAN "< "
 
 // Units
@@ -44,8 +44,8 @@
 #define STRING_GAUSS_UNIT "G"
 
 // Units for indicating Geiger tube pulse count, as in "1 count" or "14 counts"
-#define STRING_COUNT "tæl."
-#define STRING_COUNTS "tæl."
+#define STRING_COUNT "tæl"
+#define STRING_COUNTS "tæl"
 
 // Time strings
 #define STRING_24_HOURS "24 timer"
@@ -127,7 +127,7 @@
 #define STRING_SOUND "Lyd"
 #define STRING_VOICE "Stemme"
 #define STRING_VIBRATION "Vibration"
-#define STRING_PULSE_LED "Puls-LED"
+#define STRING_PULSE_LED "Impuls-LED"
 #define STRING_DISPLAY_FLASH "Skærmblink"
 #define STRING_THRESHOLD "Tærskel"
 
@@ -141,25 +141,25 @@
 #define STRING_MAGNETIC_FIELD_ALARM "Alarm for magnetisk felt"
 
 // Measurements menu items
-#define STRING_SOURCE "Kilde"
+#define STRING_SOURCE_COMPENSATION "Kildekompensation"
 #define STRING_DOSE_UNITS "Doseenheder"
 #define STRING_SECONDARY_DOSE_UNITS "Sekundære doseenheder"
 #define STRING_MAGNETIC_FIELD_UNITS "Magnetfeltenheder"
 
-// Source menu items
-#define STRING_CS137 "Standard: Cs-137 (γ)"
-#define STRING_CO60 "Co-60 (γ)"
-#define STRING_TC99M "Tc-99m (γ)"
-#define STRING_I131 "I-131 (γ)"
-#define STRING_LU177 "Lu-177 (γ)"
-#define STRING_AM241 "Am-241 (γ)"
-#define STRING_RADIUM "Radium (γ)"
-#define STRING_URANIUM_ORE "Uranmalm (γ)"
-#define STRING_URANIUM_GLASS "Uranglas (γ)"
-#define STRING_DEPLETED_URANIUM "Forarmet uran (γ)"
-#define STRING_THORIUM_ORE "Thoriummalm (γ)"
+// Source menu compensation items
+#define STRING_CS137 "Ingen (Cs-137)"
+#define STRING_CO60 "Co-60"
+#define STRING_TC99M "Tc-99m"
+#define STRING_I131 "I-131"
+#define STRING_LU177 "Lu-177"
+#define STRING_AM241 "Am-241"
+#define STRING_RADIUM "Radium"
+#define STRING_URANIUM_ORE "Uranmalm"
+#define STRING_URANIUM_GLASS "Uranglas"
+#define STRING_DEPLETED_URANIUM "Forarmet uran"
+#define STRING_THORIUM_ORE "Thoriummalm"
 #define STRING_XRAYS "Røntgen (60 kV)"
-#define STRING_K40 "K-40 (γ)"
+#define STRING_K40 "K-40"
 #define STRING_BACKGROUND_RADIATION "Baggrundsstråling"
 
 // Instantaneous menu items
@@ -177,7 +177,7 @@
 
 // Geiger tube menu items
 #define STRING_TUBE_TYPE "Rørtype"
-#define STRING_SENSITIVITY "Følsomhed (Cs-137)"
+#define STRING_SENSITIVITY "Følsomhed"
 #define STRING_DEAD_TIME_COMPENSATION "Dødtidskompensation"
 #define STRING_HVPROFILE "HV-profil"
 
@@ -233,6 +233,8 @@
 #define STRING_ALWAYS_ON "Altid tændt"
 
 // Sound menu items
+#define STRING_PULSESTYLE "Impulsstil"
+#define STRING_PULSEVOLUME "Impulsvolumen"
 #define STRING_ALERTSTYLE "Alarmstil"
 #define STRING_ALERTVOLUME "Alarmvolumen"
 #define STRING_VOICEVOLUME "Stemmevolumen"

@@ -137,7 +137,7 @@ void onADCTick(uint32_t index)
 {
     if (!adcHardware.enabled)
     {
-        if ((index == ADC_END_SAMPLE) && adcHardware.initialized)
+        if ((index == ADC_START_SAMPLE) && adcHardware.initialized)
             adcHardware.enabled = true;
 
         return;

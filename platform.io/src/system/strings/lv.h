@@ -17,7 +17,7 @@
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
 #define STRING_PERCENT "%"
-#define STRING_NONE "-"
+#define STRING_NOVALUE "‒"
 #define STRING_LESSTHAN "< "
 
 // Units
@@ -45,8 +45,8 @@
 #define STRING_GAUSS_UNIT "G"
 
 // Units for indicating Geiger tube pulse count, as in "1 count" or "14 counts"
-#define STRING_COUNT "imp."
-#define STRING_COUNTS "imp."
+#define STRING_COUNT "imp"
+#define STRING_COUNTS "imp"
 
 // Common time menu items
 #define STRING_24_HOURS "24 stundas"
@@ -128,7 +128,7 @@
 #define STRING_SOUND "Skaņa"
 #define STRING_VOICE "Balss"
 #define STRING_VIBRATION "Vibrācija"
-#define STRING_PULSE_LED "Pulsējošs LED"
+#define STRING_PULSE_LED "Impulsu LED"
 #define STRING_DISPLAY_FLASH "Zibsnīgs ekrāns"
 #define STRING_THRESHOLD "Slieksnis"
 
@@ -142,25 +142,25 @@
 #define STRING_MAGNETIC_FIELD_ALARM "Magnētiskā lauka trauksme"
 
 // Measurements menu items
-#define STRING_SOURCE "Avots"
+#define STRING_SOURCE_COMPENSATION "Avota kompensācija"
 #define STRING_DOSE_UNITS "Devas vienības"
 #define STRING_SECONDARY_DOSE_UNITS "Sekundārās devas vienības"
 #define STRING_MAGNETIC_FIELD_UNITS "Magnētiskā lauka vienības"
 
-// Source menu items
-#define STRING_CS137 "Noklusējums: Cs-137 (γ)"
-#define STRING_CO60 "Co-60 (γ)"
-#define STRING_TC99M "Tc-99m (γ)"
-#define STRING_I131 "I-131 (γ)"
-#define STRING_LU177 "Lu-177 (γ)"
-#define STRING_AM241 "Am-241 (γ)"
-#define STRING_RADIUM "Rādijs (γ)"
-#define STRING_URANIUM_ORE "Urāna rūda (γ)"
-#define STRING_URANIUM_GLASS "Urāna stikls (γ)"
-#define STRING_DEPLETED_URANIUM "Nabadzīgais urāns (γ)"
-#define STRING_THORIUM_ORE "Torija rūda (γ)"
+// Source menu compensation items
+#define STRING_CS137 "Nav (Cs-137)"
+#define STRING_CO60 "Co-60"
+#define STRING_TC99M "Tc-99m"
+#define STRING_I131 "I-131"
+#define STRING_LU177 "Lu-177"
+#define STRING_AM241 "Am-241"
+#define STRING_RADIUM "Rādijs"
+#define STRING_URANIUM_ORE "Urāna rūda"
+#define STRING_URANIUM_GLASS "Urāna stikls"
+#define STRING_DEPLETED_URANIUM "Nabadzīgais urāns"
+#define STRING_THORIUM_ORE "Torija rūda"
 #define STRING_XRAYS "Rentgen (60 kV)"
-#define STRING_K40 "K-40 (γ)"
+#define STRING_K40 "K-40"
 #define STRING_BACKGROUND_RADIATION "Fona starojums"
 
 // Instantaneous menu items
@@ -178,7 +178,7 @@
 
 // Geiger tube menu items
 #define STRING_TUBE_TYPE "Caurules tips"
-#define STRING_SENSITIVITY "Jutība (Cs-137)"
+#define STRING_SENSITIVITY "Jutība"
 #define STRING_DEAD_TIME_COMPENSATION "Mirušā laika kompensācija"
 #define STRING_HVPROFILE "HV profils"
 
@@ -234,7 +234,9 @@
 #define STRING_ALWAYS_ON "Vienmēr ieslēgts"
 
 // Sound menu items
-#define STRING_ALERTSTYLE "Brīdinājuma veids"
+#define STRING_PULSESTYLE "Impulsa stils"
+#define STRING_PULSEVOLUME "Impulsu skaļums"
+#define STRING_ALERTSTYLE "Brīdinājuma stils"
 #define STRING_ALERTVOLUME "Brīdinājuma skaļums"
 #define STRING_VOICEVOLUME "Balss skaļums"
 

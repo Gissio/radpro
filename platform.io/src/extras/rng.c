@@ -287,6 +287,11 @@ static void onRNGViewEvent(ViewEvent event)
 
         break;
 
+    case EVENT_KEY_SELECT:
+        initFastDiceRoller(rng.mode);
+
+        break;
+
     case EVENT_HEARTBEAT:
         if (rng.ui.activity)
         {

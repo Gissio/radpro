@@ -441,19 +441,6 @@ void playVoiceCumulativeDose(void)
     sendVoiceQueue();
 }
 
-void playAlertTest(void)
-{
-    clearVoiceAlert();
-
-    clearVoiceQueue();
-    pushVoiceQueue(VOICE_STOP);
-    pushVoiceQueue(voiceVolume[settings.soundAlertVolume]);
-    pushVoiceQueue(VOICE_ALERT);
-    if (settings.soundAlertStyle == SOUND_ALERTSTYLE_LONG)
-        pushVoiceQueue(VOICE_ALERT);
-    sendVoiceQueue();
-}
-
 void playVoiceTest(void)
 {
     clearVoiceAlert();

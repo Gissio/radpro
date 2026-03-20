@@ -18,6 +18,10 @@ To recover your Bosean FS-5000 Geiger counter, follow the [installation instruct
 
 To recover your FNIRSI GC-01 Geiger counter, follow the [installation instructions](devices/FNIRSI_GC-01/install.md).
 
+## FNIRSI GC-03
+
+To recover your FNIRSI GC-03 Geiger counter, follow the [installation instructions](devices/FNIRSI_GC-01/install.md).
+
 ## GQ GMC-800
 
 To recover your GQ GMC-800 Geiger counter, try the following steps:

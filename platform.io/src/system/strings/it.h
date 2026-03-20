@@ -16,7 +16,7 @@
 #define STRING_ELLIPSIS "..."
 #define STRING_PLUSMINUS "±"
 #define STRING_PERCENT "%"
-#define STRING_NONE "-"
+#define STRING_NOVALUE "‒"
 #define STRING_LESSTHAN "< "
 
 // Units
@@ -44,8 +44,8 @@
 #define STRING_GAUSS_UNIT "G"
 
 // Units for indicating Geiger tube pulse count, as in "1 count" or "14 counts"
-#define STRING_COUNT "imp."
-#define STRING_COUNTS "imp."
+#define STRING_COUNT "imp"
+#define STRING_COUNTS "imp"
 
 // Time strings
 #define STRING_24_HOURS "24 ore"
@@ -141,25 +141,25 @@
 #define STRING_MAGNETIC_FIELD_ALARM "Allarme campo magnetico"
 
 // Measurements menu items
-#define STRING_SOURCE "Sorgente"
+#define STRING_SOURCE_COMPENSATION "Comp. della sorgente"
 #define STRING_DOSE_UNITS "Unità di dose"
 #define STRING_SECONDARY_DOSE_UNITS "Unità di dose secondarie"
 #define STRING_MAGNETIC_FIELD_UNITS "Unità di campo magnetico"
 
-// Source menu items
-#define STRING_CS137 "Predefinito: Cs-137 (γ)"
-#define STRING_CO60 "Co-60 (γ)"
-#define STRING_TC99M "Tc-99m (γ)"
-#define STRING_I131 "I-131 (γ)"
-#define STRING_LU177 "Lu-177 (γ)"
-#define STRING_AM241 "Am-241 (γ)"
-#define STRING_RADIUM "Radio (γ)"
-#define STRING_URANIUM_ORE "Minerale di uranio (γ)"
-#define STRING_URANIUM_GLASS "Vetro all'uranio (γ)"
-#define STRING_DEPLETED_URANIUM "Uranio impoverito (γ)"
-#define STRING_THORIUM_ORE "Minerale di torio (γ)"
+// Source menu compensation items
+#define STRING_CS137 "Nessuna (Cs-137)"
+#define STRING_CO60 "Co-60"
+#define STRING_TC99M "Tc-99m"
+#define STRING_I131 "I-131"
+#define STRING_LU177 "Lu-177"
+#define STRING_AM241 "Am-241"
+#define STRING_RADIUM "Radio"
+#define STRING_URANIUM_ORE "Minerale di uranio"
+#define STRING_URANIUM_GLASS "Vetro all'uranio"
+#define STRING_DEPLETED_URANIUM "Uranio impoverito"
+#define STRING_THORIUM_ORE "Minerale di torio"
 #define STRING_XRAYS "Raggi X (60 kV)"
-#define STRING_K40 "K-40 (γ)"
+#define STRING_K40 "K-40"
 #define STRING_BACKGROUND_RADIATION "Radiazione di fondo"
 
 // Instantaneous menu items
@@ -177,7 +177,7 @@
 
 // Geiger tube menu items
 #define STRING_TUBE_TYPE "Tipo di tubo"
-#define STRING_SENSITIVITY "Sensibilità (Cs-137)"
+#define STRING_SENSITIVITY "Sensibilità"
 #define STRING_DEAD_TIME_COMPENSATION "Comp. tempo morto"
 #define STRING_HVPROFILE "Profilo alta tensione"
 
@@ -233,6 +233,8 @@
 #define STRING_ALWAYS_ON "Sempre acceso"
 
 // Sound menu items
+#define STRING_PULSESTYLE "Stile impulso"
+#define STRING_PULSEVOLUME "Volume impulso"
 #define STRING_ALERTSTYLE "Stile avviso"
 #define STRING_ALERTVOLUME "Volume avviso"
 #define STRING_VOICEVOLUME "Volume voce"

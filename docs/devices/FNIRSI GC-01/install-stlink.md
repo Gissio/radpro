@@ -20,9 +20,7 @@ This guide explains how to install the Rad Pro firmware on an FNIRSI GC-01 or JO
 1. Power off the device.
 2. Unscrew the back case and carefully open the device.
 3. Identify the microprocessor type (square chip), which should be CH32F103R8T6 (WCH) or APM32F103RBT6 (Geehy). **Warning:** Rad Pro is not compatible with devices using unmarked chips.
-4. Identify the Geiger-Müller tube, marked as **J305**, **J321**, **J613**, **J614**, or **M4011**. For unmarked tubes:
-   * **55 mm tubes:** Assume J614.
-   * **65 mm tubes:** Assume J613.
+4. Identify the Geiger-Müller tube, marked as **J305**, **J321**, **J613**, **HH614**, or **M4011**. For unmarked tubes 55 mm or 65 mm long, assume HH614.
 5. Reassemble the device.
 
 ## Step 2: Connect the programmer
