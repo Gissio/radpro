@@ -93,7 +93,7 @@ void setBuzzer(bool value)
 #endif
 
 #else
-#if !defined(BUFFER_VOLUME)
+#if !defined(BUZZER_VOLUME)
     uint32_t onTime = value ? (BUZZER_TIMER_PERIOD / 2) : 0;
 #else
     uint32_t onTime = value ? buzzerOnTime : 0;
