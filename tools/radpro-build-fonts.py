@@ -176,7 +176,7 @@ for language_file in Path('../platform.io/src/system/strings').glob('*.h'):
         font_medium_monochrome = 'FusionPixel-12.bdf'
         font_color = 'NotoSansSC-SemiBold.ttf'
     else:
-        font_small_monochrome = 'Tiny5-Regular.bdf'
+        font_small_monochrome = 'Tiny5.bdf'
         font_medium_monochrome = 'RadPro-Sans8.bdf'
         font_color = 'NotoSans-SemiBold.ttf'
 

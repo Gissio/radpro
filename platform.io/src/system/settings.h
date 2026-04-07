@@ -15,8 +15,6 @@
 
 // Settings
 
-#define SETTINGS_VERSION 3
-
 enum
 {
     RATE_OFF,

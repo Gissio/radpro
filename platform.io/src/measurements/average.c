@@ -93,7 +93,7 @@ static uint32_t getAveragingTime(void)
     return averagingTimes[settings.averaging];
 }
 
-static uint32_t getAveragingConfidenceThreshold(void)
+static float getAveragingConfidenceThreshold(void)
 {
     return averagingConfidences[settings.averaging - AVERAGING_TIME_NUM];
 }

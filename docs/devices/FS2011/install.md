@@ -64,7 +64,7 @@ Use the following controls to operate your device:
 * **Select option:** Press the Menu/OK or Power key.
 * **Go back:** Prses the Play/Pause key.
 * **Toggle lock mode:** Press and hold both the Play/Pause and Power keys.
-* **Restart random generator:** Press the Menu/O key.
+* **Restart random generator:** Press the Menu/OK key.
 
 To configure the device:
 

@@ -23,6 +23,7 @@ With Rad Pro, you can:
 * [Bosean FS-600/Bosean FS-1000 installation guide](docs/devices/Bosean%20FS-600,%20FS-1000/install.md)
 * [Bosean FS-5000 installation guide](docs/devices/Bosean%20FS-5000/install.md)
 * [FNIRSI GC-01/JOY-IT JT-RAD01 installation guide](docs/devices/FNIRSI%20GC-01/install.md)
+* [FNIRSI GC-03 installation guide](docs/devices/FNIRSI%20GC-03/install.md)
 * [GQ GMC-800 installation guide](docs/devices/GQ%20GMC-800/install.md)
 
 ## Documentation

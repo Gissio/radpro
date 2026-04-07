@@ -32,13 +32,11 @@
 #define SQRT2 1.41421356237F
 // 400 samples @ 1 kHz to fit whole cycles of both 50 Hz and 60 Hz
 #define ELECTRIC_FIELD_SAMPLE_NUM 400
-#define ELECTRIC_FIELD_OFFSET 126
-#define ELECTRIC_FIELD_SCALE (0.9F)
+#define ELECTRIC_FIELD_SCALE (SQRT2 * 0.9F)
 // 400 samples @ 1 kHz to fit whole cycles of both 50 Hz and 60 Hz
 #define MAGNETIC_FIELD_SAMPLE_NUM 400
-#define MAGNETIC_FIELD_OFFSET 120
-#define MAGNETIC_FIELD_LINEAR_SCALE (0.000000005F * 2.8583F)
-#define MAGNETIC_FIELD_QUADRATIC_SCALE (0.000000005F * 0.0072F)
+#define MAGNETIC_FIELD_LINEAR_SCALE (SQRT2 * 0.000000005F * 2.8583F)
+#define MAGNETIC_FIELD_QUADRATIC_SCALE (SQRT2 * 0.000000005F * 0.0072F)
 
 #define ADC_END_SAMPLE 1
 #define ADC_PWR_BAT_SAMPLE (ADC_END_SAMPLE + PWR_BAT_SAMPLE_NUM)
@@ -62,8 +60,10 @@ typedef struct
     uint32_t battery;
     uint32_t vref;
 #if defined(EMFMETER)
-    uint32_t electricField;
-    uint32_t magneticField;
+    uint16_t electricField[ELECTRIC_FIELD_SAMPLE_NUM];
+    uint16_t magneticField[MAGNETIC_FIELD_SAMPLE_NUM];
+    uint32_t electricFieldIndex;
+    uint32_t magneticFieldIndex;
 #endif
 } ADCValues;
 
@@ -150,17 +150,16 @@ void onADCTick(uint32_t index)
     int32_t value = adc_read(ADC1);
     switch (adcHardware.stage)
     {
+    case ADC_STAGE_IDLE:
+        break;
+
     case ADC_STAGE_ELECTRIC_FIELD:
-        value -= ELECTRIC_FIELD_OFFSET;
-        if (value > 0)
-            adcHardware.live.electricField = addClamped(adcHardware.live.electricField, value * value);
+        adcHardware.live.electricField[adcHardware.live.electricFieldIndex++] = value;
 
         break;
 
     case ADC_STAGE_MAGNETIC_FIELD:
-        value -= MAGNETIC_FIELD_OFFSET;
-        if (value > 0)
-            adcHardware.live.magneticField = addClamped(adcHardware.live.magneticField, value * value);
+        adcHardware.live.magneticField[adcHardware.live.magneticFieldIndex++] = value;
 
         break;
 
@@ -215,7 +214,9 @@ void onADCTick(uint32_t index)
         adcHardware.stage = ADC_STAGE_IDLE;
 
         adcHardware.snapshot = adcHardware.live;
-        memset(&adcHardware.live, 0, sizeof(adcHardware.live));
+
+        adcHardware.live.electricFieldIndex = 0;
+        adcHardware.live.magneticFieldIndex = 0;
 
         break;
     }
@@ -299,28 +300,71 @@ float readBatteryVoltage()
 
 #if defined(EMFMETER)
 
+float calculateRMSValue(uint16_t *values, uint32_t count)
+{
+    if (count == 0)
+        return 0;
+
+    // Calculate mean value
+    uint32_t meanValue = 0;
+    for (uint32_t i = 0; i < count; i++)
+        meanValue += values[i];
+    meanValue /= count;
+
+    // Filter by mean, and calculate low and high RMS values
+    uint32_t squaredLow = 0;
+    uint32_t squaredLowNum = 0;
+    uint32_t squaredHigh = 0;
+    uint32_t squaredHighNum = 0;
+    for (uint32_t i = 0; i < count; i++)
+    {
+        uint32_t value = values[i];
+        if (value < meanValue)
+        {
+            squaredLow = addClamped(squaredLow, value * value);
+            squaredLowNum++;
+        }
+        else
+        {
+            squaredHigh = addClamped(squaredHigh, value * value);
+            squaredHighNum++;
+        }
+    }
+
+    if (squaredLowNum == 0 || squaredHighNum == 0)
+        return 0;
+
+    float rmsLow = sqrtf(squaredLow / squaredLowNum);
+    float rmsHigh = sqrtf(squaredHigh / squaredHighNum);
+
+    // Effective RMS value is the difference of high and low RMS values
+    return rmsHigh - rmsLow;
+}
+
 float readElectricFieldStrength(void)
 {
-    float rmsValue = sqrtf((float)adcHardware.snapshot.electricField / ELECTRIC_FIELD_SAMPLE_NUM);
+    float rmsValue = calculateRMSValue(adcHardware.snapshot.electricField,
+                                       adcHardware.snapshot.electricFieldIndex);
 
-    float value = ELECTRIC_FIELD_SCALE * rmsValue;
+    float electricFieldStrength = ELECTRIC_FIELD_SCALE * rmsValue;
 
-    if (value < 1E-6F)
-        value = 1E-6F;
+    if (electricFieldStrength < 1E-6F)
+        electricFieldStrength = 1E-6F;
 
-    return value;
+    return electricFieldStrength;
 }
 
 float readMagneticFieldStrength(void)
 {
-    float rmsValue = sqrtf((float)adcHardware.snapshot.magneticField / MAGNETIC_FIELD_SAMPLE_NUM);
+    float rmsValue = calculateRMSValue(adcHardware.snapshot.magneticField,
+                                       adcHardware.snapshot.magneticFieldIndex);
 
-    float value = MAGNETIC_FIELD_LINEAR_SCALE * rmsValue + MAGNETIC_FIELD_QUADRATIC_SCALE * rmsValue * rmsValue;
+    float magneticFieldStrength = MAGNETIC_FIELD_LINEAR_SCALE * rmsValue + MAGNETIC_FIELD_QUADRATIC_SCALE * rmsValue * rmsValue;
 
-    if (value < 1E-12F)
-        value = 1E-12F;
+    if (magneticFieldStrength < 1E-12F)
+        magneticFieldStrength = 1E-12F;
 
-    return value;
+    return magneticFieldStrength;
 }
 
 #endif

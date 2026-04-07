@@ -93,7 +93,7 @@
 // Measurements secondary view strings
 #define STRING_TIME "时间"
 #define STRING_MAX "最大"
-#define STRING_RATE "速率"
+#define STRING_RATE "计数率"
 #define STRING_DOSE "剂量"
 
 // Measurements info strings
@@ -133,8 +133,8 @@
 
 // Alerts menu items
 #define STRING_INDICATION "指示"
-#define STRING_RATE_WARNING "速率警告"
-#define STRING_RATE_ALARM "速率报警"
+#define STRING_RATE_WARNING "计数率警告"
+#define STRING_RATE_ALARM "计数率报警"
 #define STRING_DOSE_WARNING "剂量警告"
 #define STRING_DOSE_ALARM "剂量报警"
 #define STRING_ELECTRIC_FIELD_ALARM "电场报警"
@@ -147,7 +147,7 @@
 #define STRING_MAGNETIC_FIELD_UNITS "磁场单位"
 
 // Source menu compensation items
-#define STRING_CS137 "无 (Cs-137)"
+#define STRING_CS137 "默认 (Cs-137)"
 #define STRING_CO60 "Co-60"
 #define STRING_TC99M "Tc-99m"
 #define STRING_I131 "I-131"
@@ -163,8 +163,8 @@
 #define STRING_BACKGROUND_RADIATION "本底辐射"
 
 // Instantaneous menu items
-#define STRING_ADAPTIVE_FAST "自适应快速"
-#define STRING_ADAPTIVE_PRECISION "自适应精确"
+#define STRING_ADAPTIVE_FAST "快速自适应"
+#define STRING_ADAPTIVE_PRECISION "精确自适应"
 
 // Average menu items
 #define STRING_UNLIMITED "无限制"

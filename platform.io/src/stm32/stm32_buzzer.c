@@ -23,7 +23,7 @@ static const uint16_t buzzerVolumeOnTimes[] = {
     BUZZER_TIMER_PERIOD / 2,
 };
 
-static uint16_t buzzerOnTime = BUZZER_TIMER_PERIOD / 2;
+static uint16_t buzzerOnTime;
 #endif
 
 void initBuzzer(void)
@@ -93,10 +93,10 @@ void setBuzzer(bool value)
 #endif
 
 #else
-#if !defined(BUFFER_VOLUME)
-    uint32_t onTime = value ? (BUZZER_TIMER_PERIOD / 2) : 0;
-#else
+#if defined(BUZZER_VOLUME)
     uint32_t onTime = value ? buzzerOnTime : 0;
+#else
+    uint32_t onTime = value ? (BUZZER_TIMER_PERIOD / 2) : 0;
 #endif
 
     tim_set_ontime(BUZZER_TIMER, BUZZER_TIMER_CHANNEL, onTime);

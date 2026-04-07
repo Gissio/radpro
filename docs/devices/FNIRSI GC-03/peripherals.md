@@ -31,4 +31,5 @@
 * PC5 (Output): DISPLAY_RESX
 * PC6 (Input, pull-up): PWR_USB (inverted)
 * PC7 (Input, pull-up): PWR_CHRG (inverted)
+* PC8 (Output): STATUS_LED (inverted)
 * PC11 (AF): BUZZ

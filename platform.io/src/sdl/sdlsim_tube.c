@@ -89,11 +89,11 @@ void onTubeTick(void)
     {
         uint32_t deltaTicks = currentTick - previousTubeTick;
 
-        if (deltaTicks < 64)
+        if (deltaTicks < 50)
         {
-            uint32_t deadTime = 1000 * (deltaTicks - 1) + 1000 * getUniformRandomValue() + 80;
-            if(deadTime < tubeDeadTime)
-                tubeDeadTime = deadTime;
+            uint32_t pulseIntervalMs = 1000 * (deltaTicks - 1) + 1000 * getUniformRandomValue() + 93;
+            if(pulseIntervalMs < tubeDeadTime)
+                tubeDeadTime = pulseIntervalMs;
         }
 
         previousTubeTick = currentTick;

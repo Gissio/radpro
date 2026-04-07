@@ -159,7 +159,7 @@ void calculateRate(Rate *rate, PulsePeriod *period)
     uint32_t ticks = period->lastTick - period->firstTick;
     uint32_t pulseCount = period->pulseCount;
 
-    if (ticks < 2)
+    if (pulseCount < 2)
     {
         rate->value = 0;
         rate->confidence = 0;

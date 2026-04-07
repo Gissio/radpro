@@ -111,22 +111,23 @@ void TUBE_DET_IRQ_HANDLER(void)
 {
     exti_clear_pending_interrupt(TUBE_DET_PIN);
 
-    tubePulseCount++;
+    uint64_t timerCount = TUBE_DET_TIMER->CNT;
+    uint32_t timerTick = currentTick;
 
-    uint32_t timerCount = TUBE_DET_TIMER->CNT;
+    tubePulseCount++;
 
     tubeRandomBits = (tubeRandomBits << TUBE_BITS_PER_PULSE) | (timerCount & TUBE_BITS_PER_PULSE_MASK);
 
-    uint32_t tickTime = currentTick - tubeHardware.previousTick;
-    if (tickTime < 64)
+    uint32_t pulseIntervalTicks = timerTick - tubeHardware.previousTick;
+    if (pulseIntervalTicks < 50)
     {
-        uint32_t deadTime = timerCount - tubeHardware.previousTimerCount;
-        if (deadTime < tubeDeadTime)
-            tubeDeadTime = deadTime;
+        uint16_t pulseInterval = timerCount - tubeHardware.previousTimerCount;
+        if (pulseInterval < tubeDeadTime)
+            tubeDeadTime = pulseInterval;
     }
 
-    tubeHardware.previousTick = currentTick;
     tubeHardware.previousTimerCount = timerCount;
+    tubeHardware.previousTick = timerTick;
 }
 
 bool readTubeDet(void)

@@ -27,6 +27,7 @@
 #include "../system/power.h"
 #include "../system/settings.h"
 #include "../system/statistics.h"
+#include "../system/system.h"
 #include "../ui/menu.h"
 
 static const Menu settingsMenu;
@@ -62,7 +63,7 @@ static const Settings defaultSettings = {
     .displaySleep = DISPLAY_SLEEP_30_SECONDS,
 
 #if defined(BUZZER_VOLUME)
-    .soundPulseVolume = SOUND_PULSEVOLUME_HIGH,
+    .soundPulseVolume = SOUND_PULSEVOLUME_VERYHIGH,
     .soundAlertVolume = SOUND_ALERTVOLUME_VERYHIGH,
 #endif
 #if defined(VOICE)
@@ -96,16 +97,7 @@ static uint32_t stateOffset;
 #define STATES_PAGE_ID_OFFSET (STATES_PAGE_SIZE - STATES_PAGE_ID_SIZE)
 #define STATES_PAGE_ID_SIZE 8
 
-static const uint8_t statesPageId[STATES_PAGE_ID_SIZE] = {
-    'R',
-    'a',
-    'd',
-    'P',
-    'r',
-    'o',
-    SETTINGS_VERSION,
-    0,
-};
+static const uint8_t statesPageId[STATES_PAGE_ID_SIZE] = SETTINGS_VERSION;
 
 static bool validateStatesPage(void)
 {
