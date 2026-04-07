@@ -9,10 +9,12 @@ This guide explains how to install the Rad Pro firmware on FNIRSI GC-03 Geiger c
 ## Step 1: Flash the firmware
 
 1. Download and extract the latest `radpro-[version].zip` from [Rad Pro releases](https://github.com/Gissio/radpro/releases).
-2. Power on the device. A USB drive should appear on your computer. If it does not, the device may be incompatible with Rad Pro.
-3. Navigate to the `fnirsi-gc03/install` folder. Select the appropriate firmware file: `radpro-fnirsi-gc03-[language]-x.y.z-install.bin`.
+2. Disconnect the device from USB.
+3. Power on the device while holding the "OK" button. The screen should show "update".
+4. Connect the device to the PC. A USB drive should appear on your computer. If it does not, the device may be incompatible with Rad Pro.
+5. Navigate to the `fnirsi-gc03/install` folder. Select the appropriate firmware file: `radpro-fnirsi-gc03-[language]-x.y.z-install.bin`.
    * `[language]` Two-letter code for your preferred language (e.g., `en` for English).
-4. Copy the selected firmware file to the USB drive. The device should restart automatically with Rad Pro installed.
+6. Copy the selected firmware file to the USB drive. The device should restart automatically with Rad Pro installed.
 
 **Troubleshooting:**
 

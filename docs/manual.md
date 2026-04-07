@@ -205,7 +205,7 @@ High-voltage (HV) profiles control the voltage supplied to the Geiger-Müller tu
 
 **Warning:** Incorrect HV settings may damage the tube or switching transistor due to overvoltage or overcurrent.
 
-Tu measure high voltage:
+To measure high voltage:
 
 1. Use a high-quality multimeter (10 MΩ input impedance) set to the 20 V range.
 2. Connect a clean 1 GΩ resistor in series to the multimeter’s positive terminal.
