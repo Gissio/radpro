@@ -62,6 +62,8 @@
 #define KEY_POWER_PIN 9
 #define KNOB_A_PORT GPIOB
 #define KNOB_A_PIN 5
+#define KNOB_BUTTON_PORT GPIOB
+#define KNOB_BUTTON_PIN 6
 #define KNOB_B_PORT GPIOB
 #define KNOB_B_PIN 7
 #define KNOB_IRQ EXTI9_5_IRQn

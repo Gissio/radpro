@@ -135,6 +135,7 @@ void initKeyboardHardware(void)
     gpio_setup(KEY_LEFT_PORT, KEY_LEFT_PIN, GPIO_MODE_INPUT_PULLUP);
     gpio_setup(KEY_RIGHT_PORT, KEY_RIGHT_PIN, GPIO_MODE_INPUT_PULLUP);
     gpio_setup(KNOB_A_PORT, KNOB_A_PIN, GPIO_MODE_INPUT_PULLUP);
+    gpio_setup(KNOB_BUTTON_PORT, KNOB_BUTTON_PIN, GPIO_MODE_INPUT_PULLUP);
     gpio_setup(KNOB_B_PORT, KNOB_B_PIN, GPIO_MODE_INPUT_PULLUP);
 
     KNOB_IRQ_HANDLER();
@@ -185,6 +186,7 @@ void onKeyboardTick(void)
 
     keyboardKeyDown[KEY_LEFT] |= !gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN);
     keyboardKeyDown[KEY_RIGHT] |= !gpio_get(KEY_RIGHT_PORT, KEY_RIGHT_PIN);
+    keyboardKeyDown[KEY_RIGHT] |= !gpio_get(KNOB_BUTTON_PORT, KNOB_BUTTON_PIN);
     keyboardKeyDown[KEY_OK] |= !gpio_get(KEY_POWER_PORT, KEY_POWER_PIN);
 }
 
