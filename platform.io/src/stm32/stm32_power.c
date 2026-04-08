@@ -97,9 +97,9 @@ bool isUSBPowered(void)
 #endif
 #if defined(PWR_USB_PORT)
 #if defined(PWR_USB_ACTIVE_LOW)
-    return !gpio_get(PWR_USB_PORT, PWR_USB_PIN);
+    value |= !gpio_get(PWR_USB_PORT, PWR_USB_PIN);
 #else
-    return gpio_get(PWR_USB_PORT, PWR_USB_PIN);
+    value |= gpio_get(PWR_USB_PORT, PWR_USB_PIN);
 #endif
 #endif
     return value;
