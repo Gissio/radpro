@@ -16,6 +16,10 @@ This guide explains how to install the Rad Pro firmware on FNIRSI GC-03 Geiger c
    * `[language]` Two-letter code for your preferred language (e.g., `en` for English).
 6. Copy the selected firmware file to the USB drive. The device should restart automatically with Rad Pro installed.
 
+**Linux users:**
+
+The USB storage mode of the GC-03 boot loader is fragile. Mounting the GC-03 using `mount` or `pmount` seems to be more robust than using file explorers based on [GVfs](https://en.wikipedia.org/wiki/GVfs). Sometimes it helps to copy the file twice, with a `sync` call in between. When the GC-03 powers off and shows a white screen, the update was accepted.
+
 **Troubleshooting:**
 
 * To restore the original firmware, copy the [original firmware](firmware) to the USB drive.
@@ -34,7 +38,7 @@ Use the following controls to operate your device:
 * **Navigate options:** Use the rotary knob.
 * **Select option:** Press the OK/Settings key.
 * **Go back:** Press the Back key.
-* **Toggle lock mode:** Press and hold both the Back and OK/Settings keys.
+* **Toggle lock mode:** Press and hold both the Back and Power keys.
 * **Restart random generator:** Press the OK/Settings key.
 
 ## Step 3: Support Rad Pro
