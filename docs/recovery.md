@@ -20,7 +20,7 @@ To recover your FNIRSI GC-01 Geiger counter, follow the [installation instructio
 
 ## FNIRSI GC-03
 
-To recover your FNIRSI GC-03 Geiger counter, follow the [installation instructions](devices/FNIRSI_GC-01/install.md).
+To recover your FNIRSI GC-03 Geiger counter, follow the [installation instructions](devices/FNIRSI_GC-03/install.md).
 
 ## GQ GMC-800
 

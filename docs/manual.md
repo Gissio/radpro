@@ -9,6 +9,7 @@
 * **Measurement units:** Primary and secondary units, including Sievert, rem, cpm (counts per minute), and cps (counts per second).
 * **Averaging options:** Instantaneous rate averaging (adaptive fast, adaptive precision, 1 minute, 30 seconds, 10 seconds) and configurable survey timer.
 * **Geiger-Müller tube settings:** Adjustable sensitivity, dead-time compensation, and high-voltage settings.
+* **Source compensation:** Pre-configured compensation for common gamma-emitting sources (Cs-137, Co-60, Am-241, etc.) to improve dose-rate accuracy when the source is known.
 * **Data Logging:** Offline and live logging with data compression, compatible with GeigerLog.
 * **Additional Features:**
   * Keyboard lock mode.
@@ -18,7 +19,7 @@
   * `radpro-tool` for low-level computer access.
   * Game.
 * **Language support:** 30 languages, including English, Spanish, Chinese, and more.
-* **User interface:** Based on the [OpenBridge 6.1](https://www.openbridge.no/) design standard with anti-aliased text.
+* **User interface:** Based on the [OpenBridge 6.1](https://www.openbridge.no/) design standard, with anti-aliased text.
 
 ## Measurements
 
@@ -125,7 +126,9 @@ To set a custom sensitivity value, go to **Settings > Geiger tube > Sensitivity*
 
 When the source of ionizing radiation is known, **Rad Pro** can improve measurement accuracy by applying **source compensation**. This corrects for the energy-dependent response of Geiger–Müller tubes.
 
-To enable it, go to **Settings > Measurements >w Source compensation** and select the appropriate source from the list.
+**This works only for gamma emitters** because beta radiation changes the spectrum with distance (beta particles are attenuated and their energy spectrum shifts as they travel through air, whereas gamma rays are far more penetrating and maintain a more consistent spectrum).
+
+To use it, go to **Settings > Measurements >w Source compensation** and select the appropriate source from the list.
 
 Notes:
 
@@ -146,12 +149,12 @@ Notes:
 |Am-241|11.925|11.88|4.468|6.774|0.554|3.123|
 |Radium|1.062|1.066|0.979|0.869|0.991|0.99|
 |Uranium ore|1.21|1.214|0.973|0.961|0.978|1.068|
-|Uranium glaze|1.367|1.37|0.973|1.054|1.015|1.123|
+|Uranium glass|1.367|1.37|0.973|1.054|1.015|1.123|
 |Depleted uranium|1.353|1.356|1.089|1.05|1.1|1.118|
 |Thorium ore|1.113|1.118|0.416|0.858|0.697|1.011|
 |X-rays (60 kV)|5.486|5.465|2.424|5.686|0.125|2.806|
 |K-40|1.052|1.058|1.398|0.735|1.478|0.987|
-|Radiation background|1.338|1.345|1.099|1.012|1.028|1.15|
+|Background radiation|1.338|1.345|1.099|1.012|1.028|1.15|
 
 ## Data logging
 

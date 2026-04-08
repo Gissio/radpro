@@ -1,6 +1,6 @@
 # Releases
 
-## 3.1 "The usual suspects"
+## 3.1 "Sources"
 
 * **New device support**
 
@@ -15,7 +15,7 @@
   * Random generator “die throws” can now be re-rolled using the select key.
   * Implemented **USB auto power-on** on supported hardware.
   * Added option to submit measurement data to [openSenseMap.org](https://opensensemap.org).
-  * User interface updated to **OpenBridge 6.1**.
+  * Updated user interface to **OpenBridge 6.1**.
 
 * **Performance & optimizations**
 
