@@ -185,8 +185,8 @@ void onKeyboardTick(void)
         keyboardKeyDown[i] <<= 1;
 
     keyboardKeyDown[KEY_LEFT] |= !gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN);
-    keyboardKeyDown[KEY_RIGHT] |= !gpio_get(KEY_RIGHT_PORT, KEY_RIGHT_PIN);
-    keyboardKeyDown[KEY_RIGHT] |= !gpio_get(KNOB_BUTTON_PORT, KNOB_BUTTON_PIN);
+    keyboardKeyDown[KEY_RIGHT] |= !gpio_get(KEY_RIGHT_PORT, KEY_RIGHT_PIN) |
+                                  !gpio_get(KNOB_BUTTON_PORT, KNOB_BUTTON_PIN);
     keyboardKeyDown[KEY_OK] |= !gpio_get(KEY_POWER_PORT, KEY_POWER_PIN);
 }
 
