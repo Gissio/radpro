@@ -2,6 +2,11 @@
 
 Try the [Rad Pro simulator](https://gissio.github.io/radpro-simulator/)!
 
+[![License](https://img.shields.io/github/license/Gissio/radpro)](https://github.com/Gissio/radpro/blob/main/LICENSE)
+[![Last Commit](https://img.shields.io/github/last-commit/Gissio/radpro)](https://github.com/Gissio/radpro/commits/main/)
+[![Build Status](https://github.com/Gissio/radpro/actions/workflows/build-all.yml/badge.svg)](https://github.com/Gissio/radpro/actions/workflows/build-all.yml)
+[![GitHub release](https://img.shields.io/github/v/release/Gissio/radpro)](https://github.com/Gissio/radpro/releases)
+
 ## Introduction
 
 Rad Pro is an advanced custom firmware designed to enhance the functionality of various commercially available Geiger counters, including the FS2011, YT-203B, Bosean FS-600, FS-1000, FS-5000, FNIRSI GC-01, GC-03, JOY-IT JT-RAD01 and GQ GMC-800.

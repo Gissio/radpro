@@ -93,16 +93,10 @@ void setBuzzer(bool value)
 #endif
 
 #else
-<<<<<<< HEAD
-#if defined(BUZZER_VOLUME)
-=======
 #if !defined(BUZZER_VOLUME)
     uint32_t onTime = value ? (BUZZER_TIMER_PERIOD / 2) : 0;
 #else
->>>>>>> 02bea164fa884e52eaf1b8d27b40d365f972a732
     uint32_t onTime = value ? buzzerOnTime : 0;
-#else
-    uint32_t onTime = value ? (BUZZER_TIMER_PERIOD / 2) : 0;
 #endif
 
     tim_set_ontime(BUZZER_TIMER, BUZZER_TIMER_CHANNEL, onTime);
