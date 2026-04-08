@@ -34,7 +34,7 @@ Use the following controls to operate your device:
 * **Navigate options:** Use the rotary knob.
 * **Select option:** Press the OK/Settings key.
 * **Go back:** Press the Back key.
-* **Toggle lock mode:** Press and hold both the Back and OK/Settings keys.
+* **Toggle lock mode:** Press and hold both the Back and Power keys.
 * **Restart random generator:** Press the OK/Settings key.
 
 ## Step 3: Support Rad Pro
