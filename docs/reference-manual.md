@@ -1,106 +1,32 @@
-# User's manual
+# Rad Pro Reference Manual
 
-## Features
-
-* **Measurement display:** Large-digit view optimized for field use.
-* **Pulse indication:** Configurable with sound, voice, vibration, pulse LED, and display flash, with optional threshold.
-* **Alert indication:** Configurable with sound, voice, vibration, pulse LED, and display flash, with dismissible alerts.
-* **Tube fault alarm:** Detects tube malfunction or saturation.
-* **Measurement units:** Primary and secondary units, including Sievert, rem, cpm (counts per minute), and cps (counts per second).
-* **Averaging options:** Instantaneous rate averaging (adaptive fast, adaptive precision, 1 minute, 30 seconds, 10 seconds) and configurable survey timer.
-* **Geiger-Müller tube settings:** Adjustable sensitivity, dead-time compensation, and high-voltage settings.
-* **Source compensation:** Pre-configured compensation for common gamma-emitting sources (Cs-137, Co-60, Am-241, etc.) to improve dose-rate accuracy when the source is known.
-* **Data Logging:** Offline and live logging with data compression, compatible with GeigerLog.
-* **Additional Features:**
-  * Keyboard lock mode.
-  * Usage and performance statistics.
-  * Geiger tube dead-time measurement.
-  * Power-on self-test and safety watchdog.
-  * `radpro-tool` for low-level computer access.
-  * Game.
-* **Language support:** 30 languages, including English, Spanish, Chinese, and more.
-* **User interface:** Based on the [OpenBridge 6.1](https://www.openbridge.no/) design standard, with anti-aliased text.
+This manual provides technical reference for the **Rad Pro** custom firmware.
 
 ## Measurements
 
-**Important:** Always power off the device using the keyboard to ensure accurate dose tracking. Avoid removing batteries to turn off the device.
+### Instantaneous Rate
 
-Rad Pro supports the following measurement modes:
+The instantaneous radiation rate is calculated by dividing the number of pulses, minus one, by the time interval between the first and last pulse within the averaging window.
 
-### Instantaneous rate
-
-Calculates the instantaneous radiation rate by dividing the number of pulses, minus one, by the time interval between the first and last pulse within the averaging window.
-
-The secondary view can be switched between:
-
-* **Bar view:** Shows radiation levels on a [logarithmic](https://en.wikipedia.org/wiki/Logarithmic_scale) scale, with each tick representing a tenfold increase in radiation, highlighting warning and alarm zones.
-* **Max view:** Shows the highest measured rate.
-* **Rate view:** Displays the instantaneous rate in secondary units.
-* **Cumulative view:** Displays the cumulative dose.
-
-The [confidence interval](https://en.wikipedia.org/wiki/Confidence_interval) indicates the range where the true rate lies with 95% probability, assuming stable radiation levels. For example, a rate of 1.000 µSv/h with a ±40% interval means the true rate is likely between 0.600 µSv/h and 1.400 µSv/h. A narrower interval reflects higher precision.
-
-To reset the instantaneous rate or dismiss alerts, refer to the device's installation instructions.
-
-### Average rate
+### Average Rate
 
 Calculates the average radiation rate over a time window, using the same formula as the instantaneous rate.
 
-The secondary view can be switched between:
-
-* **Time view:** Shows the averaging time.
-* **Rate view:** Displays the average rate in secondary units.
-* **Dose view:** Shows the dose accumulated during the averaging time.
-
-The confidence interval reflects the range where the true average rate lies with 95% probability, assuming stable radiation. Averaging can be indefinite or limited by time or confidence level. An alert signals when averaging completes.
-
-For example, a 1-minute background radiation measurement might show 0.210 µSv/h with a ±36% interval (0.134–0.286 µSv/h). A 30-minute measurement could yield 0.154 µSv/h with a ±7.7% interval with greater precision.
-
-To reset the average rate, refer to the device’s installation instructions.
-
-### Cumulative dose
+### Cumulative Dose
 
 The cumulative dose tracks the total number of pulses recorded during the measurement time.
 
-The secondary view can be switched between:
-
-* **Time view:** Shows the measurement time.
-* **Dose view:** Displays the cumulative dose in secondary units.
-* **Instantaneous view:** Displays the instantaneous rate.
-
-To reset the cumulative dose or dismiss alerts, refer to the device’s installation instructions.
-
 ### History
 
-At startup, the history is loaded from the data log and updates every second using the instantaneous rate. The plot uses a [logarithmic scale](https://en.wikipedia.org/wiki/Logarithmic_scale), with each division representing a tenfold increase in radiation, and includes warning and alarm zones.
+At startup, the history is loaded from the data log and updates every second using the instantaneous rate.
 
-The view can be switched between 10-minute, 1-hour, 1-day, 1-week, 1-month, or 1-year views.
+To clear the history, go to **Settings > Data log > Reset**.
 
-To clear the history, reset the data log.
+### Electric and Magnetic Field Strength (If Supported)
 
-### Electric field (supported devices)
-
-Calculates the electric field strength over a 400 ms window.
-
-The secondary view can be switched between:
-
-* **Max view:** Shows the highest measured value.
-* **Magnetic field:** Shows the magnetic field strength.
-
-To reset the electric field measurements or dismiss alerts, refer to the device’s installation instructions.
+Calculates the electric and magnetic field strength over a 400 ms window.
 
 **Important:** The device's built-in **buzzer** and **USB connection** can interfere with electric field measurements. For highest accuracy, disable audio feedback and disconnect USB during measurements.
-
-### Magnetic field (supported devices)
-
-Calculates the magnetic field strength over a 400 ms window.
-
-The secondary view can be switched between:
-
-* **Max view:** Shows the highest measured value.
-* **Electric field:** Shows the electric field strength.
-
-To reset the magnetic field measurements or dismiss alerts, refer to the device’s installation instructions.
 
 ## Sensitivity
 
@@ -122,22 +48,22 @@ To set a custom sensitivity value, go to **Settings > Geiger tube > Sensitivity*
 
 **Note:** For high sensitivity tubes (≥ 600 cpm/µSv/h), pulse indication is capped at the equivalent of 600 cpm/µSv/h to prevent uncomfortable clicking. This limit affects sound feedback only and does not reduce the accuracy of the measurements.
 
-## Source compensation
+## Source Compensation
 
 When the source of ionizing radiation is known, **Rad Pro** can improve measurement accuracy by applying **source compensation**. This corrects for the energy-dependent response of Geiger–Müller tubes.
 
 **This works only for gamma emitters** because beta radiation changes the spectrum with distance (beta particles are attenuated and their energy spectrum shifts as they travel through air, whereas gamma rays are far more penetrating and maintain a more consistent spectrum).
 
-To use it, go to **Settings > Measurements >w Source compensation** and select the appropriate source from the list.
+To use it, go to **Settings > Measurements > Source compensation** and select the appropriate source from the list.
 
-Notes:
+**Notes:**
 
 * Compensation assumes **gamma-only** emissions (or situations where beta is negligible).
 * To exclude beta radiation (especially important for mixed sources), place a metal shield between the source and the detector. For casual or home use, a simple and effective option is to place the detector inside a **stainless steel pan**: this typically blocks most beta particles while transmitting gamma rays with only minor attenuation.
-* All compensation factors are relative to **Cs-137** (set as 1.0).
+* All compensation factors are relative to **Cs-137**.
 * Values are derived from numerical simulations performed with **[Rad Lab](https://github.com/Gissio/radlab)**.
 
-### Compensation factors by tube and source
+### Compensation Factors by Tube and Source
 
 |Source|J305|M4011/J321|HH614|СБМ20 (SBM20)|СИЗБГ (SI3BG)|LND 7317|
 |-|-|-|-|-|-|-|
@@ -156,9 +82,7 @@ Notes:
 |K-40|1.052|1.058|1.398|0.735|1.478|0.987|
 |Background radiation|1.338|1.345|1.099|1.012|1.028|1.15|
 
-## Data logging
-
-Rad Pro logs cumulative dose count, from which rate and dose can be derived.
+## Data Logging
 
 To start logging:
 
@@ -172,7 +96,7 @@ To start logging:
 
 **Note:** Data logging pauses during downloads.
 
-## Instantaneous rate averaging
+## Instantaneous Rate Averaging
 
 Choose from these averaging options to balance response speed and precision:
 
@@ -180,11 +104,11 @@ Choose from these averaging options to balance response speed and precision:
 * **Adaptive precision:** Extends **Adaptive fast** with a minimum 5-second averaging time for greater precision at high radiation levels, but slower response. See response curves: [instantaneousaveraging-adaptiveprecision.ipynb](../tests/instantaneousaveraging-adaptiveprecision.ipynb)
 * **Fixed intervals (1 minute, 30 seconds and 10 seconds):** Uses a fixed averaging window. If zero or one pulse is detected during the averaging interval, the rate registers as zero.
 
-## Instantaneous rate alerts
+## Instantaneous Rate Alerts
 
 Alerts trigger only when the confidence interval falls below 75% to reduce false alarms.
 
-## Dead-time compensation
+## Dead-Time Compensation
 
 [Dead time](https://en.wikipedia.org/wiki/Geiger%E2%80%93M%C3%BCller_tube#Quenching_and_dead_time) is the brief interval (50–200 µs) after a radiation event during which a Geiger-Müller tube cannot detect another event, leading to undercounting at high radiation levels. Rad Pro can compensate for these missed counts.
 
@@ -202,7 +126,7 @@ Where:
   
 The compensation factor is capped at 10 to prevent overflow. Compensation applies to instantaneous rate, average rate, cumulative dose, and history but not to tube life pulse count or data logs.
 
-## HV profiles (supported devices)
+## HV Profiles (If Supported)
 
 High-voltage (HV) profiles control the voltage supplied to the Geiger-Müller tube, balancing power consumption and accuracy. Preconfigured profiles are included, or you can create a custom profile.
 
@@ -218,7 +142,7 @@ To measure high voltage:
 
 **Custom HV Profile:** Set the [PWM](https://en.wikipedia.org/wiki/Pulse-width_modulation) frequency and duty cycle. Higher frequencies reduce voltage ripple but increase power use; lower frequencies save power but may reduce accuracy.
 
-## Tube fault alarm
+## Tube Fault Alarm
 
 The device triggers an alarm if:
 
@@ -226,14 +150,12 @@ The device triggers an alarm if:
 $t_s = \frac{12000}{S}$, where $S$ is the tube’s sensitivity (cpm/µSv/h).
 * The tube is saturated (due to high radiation) or shorted (due to malfunction).
 
-## Random generator
+## Random Generator
 
 The [random generator](https://en.wikipedia.org/wiki/Hardware_random_number_generator) uses pulse timing to produce random outcomes in multiple formats:
 
 * **ASCII**, **alphanumeric**, **hexadecimal**, **decimal** and **binary**: up to 16 outcomes per run.
 * **Die rolls**, **coin flips**: one outcome per run.
-
-To restart the generator, refer to the device's installation instructions.
 
 **Generation process:**
 
@@ -323,36 +245,6 @@ To restart the generator, refer to the device's installation instructions.
   python tools/radpro-tool.py --port COM13 --submit-opensensemap [SENSE_BOX_ID] [API_KEY] --opensensemap-sensor-id [SENSOR_ID]
   ```
 
-## Data communications
+## Data Communications
 
 Refer to the [communications protocol description](comm.md) for USB serial port communication details.
-
-## FAQ
-
-**Q: How do I reset average rate or cumulative dose?**
-
-**A:** Check the keyboard mapping in your device’s installation instructions.
-
-**Q: Why does my device’s date and time reset on power-on?**
-
-**A:** The real-time clock (RTC) may lose power. For example, on the FNIRSI GC-01, replace the CR1220 backup battery.
-
-**Q: Why does the splash screen last up to 60 seconds?**
-
-**A:** The microprocessor may be initializing the RTC. If persistent, check the RTC battery (see above).
-
-**Q: Why are instantaneous rate measurements noisy?**
-
-**A:** Noise is inherent in short averaging intervals. Select a longer averaging window (e.g., 1 minute) for smoother results, at the cost of slower response.
-
-**Q: Why don’t I hear clicks?**
-
-**A:** If a pulse threshold is set, clicks only occur above it. Disable **Settings > Pulses > Threshold** to hear all counts.
-
-**Q: Why aren’t rate alerts triggering?**
-
-**A:** Alerts trigger only when the confidence interval is below 75% to avoid false alarms.
-
-**Q: Why doesn’t the device click for every count?**
-
-**A:** For tubes with sensitivity ≥600 cpm/µSv/h, pulse indication is capped at 600 cpm/µSv/h to prevent excessive audio feedback.

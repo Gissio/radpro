@@ -1,6 +1,6 @@
-# FNIRSI GC-01 connections
+# FNIRSI GC-01 Connections
 
-## 4-pin SWD connector
+## 4-Pin SWD Connector
 
 On boards marked "GC01" (below the tube), with unlabeled pads next to the button cell, on the back side of the device, from right to left:
 
@@ -16,7 +16,7 @@ On PCBs marked "GC01 V0.2" (below the tube), with labeled pads next to the butto
 * Pin 3: SWDIO (MCU PA13)
 * Pin 4: SWCLK (MCU PA14)
 
-## 40-pin display connector
+## 40-Pin Display Connector
 
 * Pin 1: X-
 * Pin 2: Y-

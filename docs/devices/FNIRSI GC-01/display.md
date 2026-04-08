@@ -1,6 +1,6 @@
-# FNIRSI GC-01 240x320 LCD display (ST7789V)
+# FNIRSI GC-01 240x320 LCD Display (ST7789V)
 
-## Initialization sequence
+## Initialization Sequence
 
     display_set_reset();
     sleep(10);
@@ -71,7 +71,7 @@
     display_send_command(0x29);   // DISPON: Display on
     display_send_command(0x2c);   // RAMWR: Memory write
 
-## Data write
+## Data Write
 
     display_send_command(0x36);   // MADCTL: Memory access control
     display_send_data(0xa0);

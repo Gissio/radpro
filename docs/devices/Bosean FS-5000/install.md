@@ -1,10 +1,10 @@
-# Installing Rad Pro on Bosean FS-5000 Geiger counters
+# Installing Rad Pro on Bosean FS-5000 Geiger Counters
 
 This guide explains how to install the Rad Pro firmware on Bosean FS-5000 Geiger counters.
 
 To update the firmware, use the [Rad Pro web installer](https://gissio.github.io/radpro-installer/).
 
-## What you'll need
+## What You'll Need
 
 * **ST-LINK V2 USB dongle** (or compatible clone): Available on [Amazon](https://www.amazon.com/s?k=st-link+v2).
 * **4-pin header**: For the SWD connection.
@@ -12,7 +12,7 @@ To update the firmware, use the [Rad Pro web installer](https://gissio.github.io
 * **Optional:** Soldering iron and solder for a secure connection.
 * **Windows users:** [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html)
 
-## Step 1: Open the device
+## Step 1: Open the Device
 
 ![Bosean FS-5000 circuit board](img/fs5000-board.jpg)
 
@@ -21,7 +21,7 @@ To update the firmware, use the [Rad Pro web installer](https://gissio.github.io
 3. Confirm the circuit board matches the image above (Geiger-Müller tube may vary). If it differs, you may have a different hardware revision, and Rad Pro may not work correctly. Report issues on the [Rad Pro GitHub issues page](https://github.com/Gissio/radpro/issues).
 4. Identify the Geiger-Müller tube, marked as **J305**, **J321**, **J613**, **HH614**, or **M4011**. For unmarked tubes 55 mm or 65 mm long, assume HH614.
 
-## Step 2: Connect the programmer
+## Step 2: Connect the Programmer
 
 ![Bosean FS-5000 connectors](img/fs5000-swd.jpg)
 
@@ -36,7 +36,7 @@ To update the firmware, use the [Rad Pro web installer](https://gissio.github.io
 
 **WARNING:** Double-check connections to avoid damaging the device.
 
-## Step 3: Flash the firmware
+## Step 3: Flash the Firmware
 
 1. Windows users: install the [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html).
 2. Download and extract the latest `radpro-[version].zip` from [Rad Pro releases](https://github.com/Gissio/radpro/releases).
@@ -52,7 +52,7 @@ To update the firmware, use the [Rad Pro web installer](https://gissio.github.io
 
 <!-- Note: check this [video](https://youtu.be/Ney8Cb1XnZk) for alternative installation instructions. -->
 
-## Step 4: Configure the device
+## Step 4: Configure the Device
 
 Use the following controls to operate your device:
 
@@ -82,23 +82,23 @@ If you find Rad Pro useful:
 * Watch the [Rad Pro GitHub repository](https://github.com/Gissio/radpro) for release updates.
 * Star the project to show your support.
 
-## Hardware-specific notes
+## Hardware-Specific Notes
 
 <!-- Calculated as follows:
 
-* With 1-byte differential values: [100 pages * (1 timestamp record/page [16 bytes] + 2024 differential records/page [1 byte each])] = 202500 records
-* With 2-byte differential values: [100 pages * (1 timestamp record/page [16 bytes] + 1012 differential records/page [2 byte each])] = 101300 records
+* With 1-byte differential values: [101 pages * (1 timestamp record/page [16 bytes] + 2032 differential records/page [1 byte each])] = 205333 records
+* With 2-byte differential values: [101 pages * (1 timestamp record/page [16 bytes] + 1016 differential records/page [2 byte each])] = 102717 records
 
 * 60-minute and 10-minute intervals require 2-byte differential values.
 * 1-minute intervals and less require 1-byte differential values.
 
  -->
 
-* **Data storage:** Stores up to 202,500 data points. At 20 cpm (normal radiation levels), this supports:
-  * 4220 days at 60-minute intervals
-  * 703 days at 10-minute intervals
-  * 140 days at 1-minute intervals
+* **Data storage:** Stores up to 205,333 data points. At 20 cpm (normal radiation levels), this supports:
+  * 4279 days at 60-minute intervals
+  * 713 days at 10-minute intervals
+  * 142 days at 1-minute intervals
   * 23 days at 10-second intervals
-  * 56 hours at 1-second intervals
+  * 57 hours at 1-second intervals
 
 * **HV profiles:** Not supported.

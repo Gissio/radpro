@@ -1,6 +1,6 @@
-# FS2011 connections
+# FS2011 Connections
 
-## 4-pin SWD connector
+## 4-Pin SWD Connector
 
 From top to bottom:
 
@@ -9,7 +9,7 @@ From top to bottom:
 * Pin 3: SWDIO (MCU PA13)
 * Pin 4: +3V3
 
-## 6-pin keyboard connector
+## 6-Pin Keyboard Connector
 
 From left to right (on PCB, from side opposite to display):
 
@@ -20,7 +20,7 @@ From left to right (on PCB, from side opposite to display):
 * Pin 5: KEY_SELECT (to PB1)
 * Pin 6: KEY_POWER (to PB11 via D13 (digital input) & PROG)
 
-## 22-pin display connector
+## 22-Pin Display Connector
 
 From left to right (on PCB, from side opposite to display):
 

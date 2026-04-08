@@ -6,7 +6,7 @@ Screen size: 72 mm x 50 mm
 FPC-3260019-A1
 2502HT
 
-## Initialization sequence
+## Initialization Sequence
 
     display_set_reset();
     sleep(1);

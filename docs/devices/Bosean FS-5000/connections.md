@@ -1,6 +1,6 @@
-# Bosean FS-600 (Board KL7.820.403A) connections
+# Bosean FS-600 (Board KL7.820.403A) Connections
 
-## 4-pin SWD connector
+## 4-Pin SWD Connector
 
 From top to bottom (on PCB, from same side of display):
 
@@ -9,7 +9,7 @@ From top to bottom (on PCB, from same side of display):
 * Pin 3: SWCLK
 * Pin 4: GND
 
-## 32-pin display connector
+## 32-Pin Display Connector
 
 From left to right (on PCB, from same side of display):
 

@@ -1,4 +1,4 @@
-# Developers's manual
+# Rad Pro Developers's Manual
 
 ## Build
 
@@ -10,11 +10,11 @@ To build the software, follow these steps:
 * Once you've built the firmware, sign the resulting binaries with the `tools/radpro-sign.py` script: from a terminal, install the [requirements](https://github.com/Gissio/radpro/blob/main/docs/manual.md#radpro-tool), go to the `tools` folder and start the `radpro-sign.py` script. The signed `.bin` firmware files should appear in the `tools` folder.
 * You can also build the software as a simulator by opening the project's root folder from Visual Studio Code. You'll need the [libsdl2](https://github.com/libsdl-org/SDL) and [libsercomm](https://github.com/ingeniamc/sercomm) library, which you can install using the [vcpkg](https://vcpkg.io/en/getting-started.html) package manager.
 
-## Internal storage format
+## Internal Storage Format
 
 Data is stored internally using a compressed storage format. Integer values are represented in big-endian byte order.
 
-### Data encodings
+### Data Encodings
 
     0b0xxxxxxx
 

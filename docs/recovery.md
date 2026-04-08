@@ -1,4 +1,4 @@
-# Device recovery
+# Device Recovery
 
 This guide provides recovery instructions for various Geiger counter models. Follow the specific steps for your device to ensure proper recovery.
 

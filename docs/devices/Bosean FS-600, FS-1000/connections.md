@@ -1,6 +1,6 @@
-# Bosean FS-600 (Board KL7.820.403A) connections
+# Bosean FS-600 (Board KL7.820.403A) Connections
 
-## 4-pin SWD connector
+## 4-Pin SWD Connector
 
 From left to right (on PCB, from side opposite to LCD):
 
@@ -9,7 +9,7 @@ From left to right (on PCB, from side opposite to LCD):
 * Pin 3: SWCLK
 * Pin 4: GND
 
-## 8-pin keyboard connector (Bosean FS-600)
+## 8-Pin Keyboard Connector (Bosean FS-600)
 
 From left to right (on PCB, from side opposite to LCD):
 
@@ -22,7 +22,7 @@ From left to right (on PCB, from side opposite to LCD):
 * Pin 7: KEY_POWER
 * Pin 8: KEY_POWER_GND
 
-## 8-pin keyboard connector (Bosean FS-1000)
+## 8-Pin Keyboard Connector (Bosean FS-1000)
 
 From left to right (on PCB, from side opposite to LCD):
 
@@ -35,7 +35,7 @@ From left to right (on PCB, from side opposite to LCD):
 * Pin 7: KEY_POWER
 * Pin 8: KEY_POWER_GND
 
-## 20-pin LCD connector
+## 20-Pin LCD Connector
 
 From left to right (on PCB, from side opposite to LCD):
 

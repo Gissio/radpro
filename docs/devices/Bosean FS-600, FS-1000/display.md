@@ -1,6 +1,6 @@
-# Bosean FS-600 128x64 LCD display (ST7567)
+# Bosean FS-600 128x64 LCD Display (ST7567)
 
-## Initialization sequence
+## Initialization Sequence
 
     display_clear_en();
     sleep(20);

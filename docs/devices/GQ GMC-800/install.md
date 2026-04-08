@@ -1,10 +1,10 @@
-# Installing Rad Pro on GQ GMC-800 Geiger counters
+# Installing Rad Pro on GQ GMC-800 Geiger Counters
 
 To install the Rad Pro firmware on GQ GMC-800 Geiger counters use the [Rad Pro web installer](https://gissio.github.io/radpro-installer/).
 
 To revert to the original firmware after installing Rad Pro, contact GQ Electronics at <a href="mailto:support@gqelectronicsllc.com">support@gqelectronicsllc.com</a>. Provide your device model and serial number, and request the latest firmware update.
 
-## Device configuration
+## Device Configuration
 
 Use the following controls to operate your device:
 
@@ -25,12 +25,12 @@ To configure the device:
 1. Go to **Settings > Geiger tube > Tube type** and select the option that matches your Geiger-Müller tube.
 2. For USB data connections on Windows, install the [CH340 driver](https://www.catalog.update.microsoft.com/Search.aspx?q=USB%5CVID_1A86%26PID_7523).
 
-## Hardware-specific notes
+## Hardware-Specific Notes
 
 <!-- Calculated as follows:
 
-* With 1-byte differential values: [100 pages * (1 timestamp record/page [16 bytes] + 2024 differential records/page [1 byte each])] = 202500 records
-* With 2-byte differential values: [100 pages * (1 timestamp record/page [16 bytes] + 1012 differential records/page [2 byte each])] = 101300 records
+* With 1-byte differential values: [101 pages * (1 timestamp record/page [16 bytes] + 2032 differential records/page [1 byte each])] = 205333 records
+* With 2-byte differential values: [101 pages * (1 timestamp record/page [16 bytes] + 1016 differential records/page [2 byte each])] = 102717 records
 
 * 60-minute and 10-minute intervals require 2-byte differential values.
 * 1-minute intervals and less require 1-byte differential values.
@@ -38,11 +38,11 @@ To configure the device:
  -->
 
 * **Data storage:** Stores up to 202,500 data points. At 20 cpm (normal radiation levels), this supports:
-  * 4220 days at 60-minute intervals
-  * 703 days at 10-minute intervals
-  * 140 days at 1-minute intervals
+  * 4279 days at 60-minute intervals
+  * 713 days at 10-minute intervals
+  * 142 days at 1-minute intervals
   * 23 days at 10-second intervals
-  * 56 hours at 1-second intervals
+  * 57 hours at 1-second intervals
 
 * **HV profile settings:**
   * Factory default: 2.5 kHz frequency, 16.3% duty cycle.

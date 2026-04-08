@@ -1,12 +1,12 @@
-# Installing Rad Pro on FNIRSI GC-03 Geiger counters
+# Installing Rad Pro on FNIRSI GC-03 Geiger Counters
 
 This guide explains how to install the Rad Pro firmware on FNIRSI GC-03 Geiger counters.
 
-## What you'll need
+## What You'll Need
 
 * **USB data cable:** Must support data transfer, not just charging.
 
-## Step 1: Flash the firmware
+## Step 1: Flash the Firmware
 
 1. Download and extract the latest `radpro-[version].zip` from [Rad Pro releases](https://github.com/Gissio/radpro/releases).
 2. Disconnect the device from USB.
@@ -20,7 +20,7 @@ This guide explains how to install the Rad Pro firmware on FNIRSI GC-03 Geiger c
 
 * To restore the original firmware, copy the [original firmware](firmware) to the USB drive.
 
-## Step 2: Configure the device
+## Step 2: Configure the Device
 
 Use the following controls to operate your device:
 
@@ -44,24 +44,24 @@ If you find Rad Pro useful:
 * Watch the [Rad Pro GitHub repository](https://github.com/Gissio/radpro) for release updates.
 * Star the project to show your support.
 
-## Hardware-specific notes
+## Hardware-Specific Notes
 
 <!-- Calculated as follows:
 
-* With 1-byte differential values: [73 pages * (1 timestamp record/page [10 bytes] + 1012 differential records/page [1 byte each])] = 73949 records
-* With 2-byte differential values: [73 pages * (1 timestamp record/page [10 bytes] + 506 differential records/page [2 byte each])] = 37011 records
+* With 1-byte differential values: [47 pages * (1 timestamp record/page [10 bytes] + 4086 differential records/page [1 byte each])] = 192089 records
+* With 2-byte differential values: [47 pages * (1 timestamp record/page [10 bytes] + 2043 differential records/page [2 byte each])] = 96068 records
 
 * 60-minute and 10-minute intervals require 2-byte differential values.
 * 1-minute intervals and less require 1-byte differential values.
 
  -->
 
-* **Data storage:** Stores up to 67,871 data points. At 20 cpm (normal radiation levels), this supports:
-  * 1542 days at 60-minute intervals
-  * 257 days at 10-minute intervals
-  * 51 days at 1-minute intervals
-  * 8 days at 10-second intervals
-  * 20 hours at 1-second intervals
+* **Data storage:** Stores up to 192,089 data points. At 20 cpm (normal radiation levels), this supports:
+  * 4002 days at 60-minute intervals
+  * 667 days at 10-minute intervals
+  * 133 days at 1-minute intervals
+  * 22 days at 10-second intervals
+  * 53 hours at 1-second intervals
 
 * **HV profile settings:**
   * Factory default: 47.058 kHz frequency, 50% duty cycle.

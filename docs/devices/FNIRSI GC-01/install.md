@@ -1,13 +1,13 @@
-# Installing Rad Pro on FNIRSI GC-01/JOY-IT JT-RAD01 Geiger counters
+# Installing Rad Pro on FNIRSI GC-01/JOY-IT JT-RAD01 Geiger Counters
 
 This guide explains how to install the Rad Pro firmware on FNIRSI GC-01 and JOY-IT JT-RAD01 Geiger counters.
 
-## What you'll need
+## What You'll Need
 
 * **USB data cable:** Must support data transfer, not just charging.
 * **Philips screwdriver:** For opening the device.
 
-## Step 1: Open the device
+## Step 1: Open the Device
 
 ![FNIRSI GC-01 circuit board types](img/gc-01-board-type.jpg)
 
@@ -17,7 +17,7 @@ This guide explains how to install the Rad Pro firmware on FNIRSI GC-01 and JOY-
 4. Identify the Geiger-Müller tube, marked as **J305**, **J321**, **J613**, **HH614**, or **M4011**. For unmarked tubes 55 mm or 65 mm long, assume HH614.
 5. Reassemble the device.
 
-## Step 2: Flash the firmware
+## Step 2: Flash the Firmware
 
 1. Download and extract the latest `radpro-[version].zip` from [Rad Pro releases](https://github.com/Gissio/radpro/releases).
 2. Connect the device to a **Windows 11 computer** using a **USB 2.0 port** and the USB data cable. **Note:** Installation may fail on macOS, Linux, or USB 3.0 ports.
@@ -41,7 +41,7 @@ This guide explains how to install the Rad Pro firmware on FNIRSI GC-01 and JOY-
 * To restore the original firmware, copy the [original firmware](firmware) to the USB drive.
 * For persistent issues, follow the [FNIRSI GC-01 alternative installation instructions](install-stlink.md).
 
-## Step 3: Configure the device
+## Step 3: Configure the Device
 
 Use the following controls to operate your device:
 
@@ -69,23 +69,23 @@ If you find Rad Pro useful:
 * Watch the [Rad Pro GitHub repository](https://github.com/Gissio/radpro) for release updates.
 * Star the project to show your support.
 
-## Hardware-specific notes
+## Hardware-Specific Notes
 
-### FNIRSI GC-01/JOY-IT JT-RAD01 with CH32F103R8 (WCH) microprocessor
+### FNIRSI GC-01/JOY-IT JT-RAD01 with CH32F103R8 (WCH) Micrprocessor
 
 * Enable **Data Mode** in the settings to establish a USB data connection. Disable when not in use to save power.
 
 <!-- Calculated as follows:
 
-* With 1-byte differential values: [5 pages * (1 timestamp record/page [10 bytes] + 1012 differential records/page [1 byte each])] = 5065 records
-* With 2-byte differential values: [5 pages * (1 timestamp record/page [10 bytes] + 506 differential records/page [2 byte each])] = 2535 records
+* With 1-byte differential values: [5 pages * (1 timestamp record/page [10 bytes] + 1014 differential records/page [1 byte each])] = 5075 records
+* With 2-byte differential values: [5 pages * (1 timestamp record/page [10 bytes] + 507 differential records/page [2 byte each])] = 2540 records
 
 * 60-minute and 10-minute intervals require 2-byte differential values.
 * 1-minute intervals and less require 1-byte differential values.
 
  -->
 
-* **Data storage:** Stores up to 6,078 data points. At 20 cpm (normal radiation levels), this supports:
+* **Data storage:** Stores up to 5,075 data points. At 20 cpm (normal radiation levels), this supports:
   * 105 days at 60-minute intervals
   * 17 days at 10-minute intervals
   * 84 hours at 1-minute intervals
@@ -96,24 +96,24 @@ If you find Rad Pro useful:
   * Factory default: 9.207 kHz frequency, 75% duty cycle.
   * Energy-saving: 5 kHz frequency, 1.5% duty cycle.
 
-### FNIRSI GC-01/JOY-IT JT-RAD01 with APM32F103R8 (Geehy) processor
+### FNIRSI GC-01/JOY-IT JT-RAD01 with APM32F103R8 (Geehy) Microprocessor
 
 * The USB data connection is always available.
 
 <!-- Calculated as follows:
 
-* With 1-byte differential values: [73 pages * (1 timestamp record/page [10 bytes] + 1012 differential records/page [1 byte each])] = 73949 records
-* With 2-byte differential values: [73 pages * (1 timestamp record/page [10 bytes] + 506 differential records/page [2 byte each])] = 37011 records
+* With 1-byte differential values: [71 pages * (1 timestamp record/page [10 bytes] + 1014 differential records/page [1 byte each])] = 72065 records
+* With 2-byte differential values: [71 pages * (1 timestamp record/page [10 bytes] + 507 differential records/page [2 byte each])] = 36068 records
 
 * 60-minute and 10-minute intervals require 2-byte differential values.
 * 1-minute intervals and less require 1-byte differential values.
 
  -->
 
-* **Data storage:** Stores up to 67,871 data points. At 20 cpm (normal radiation levels), this supports:
-  * 1542 days at 60-minute intervals
-  * 257 days at 10-minute intervals
-  * 51 days at 1-minute intervals
+* **Data storage:** Stores up to 72,065 data points. At 20 cpm (normal radiation levels), this supports:
+  * 1502 days at 60-minute intervals
+  * 250 days at 10-minute intervals
+  * 50 days at 1-minute intervals
   * 8 days at 10-second intervals
   * 20 hours at 1-second intervals
 

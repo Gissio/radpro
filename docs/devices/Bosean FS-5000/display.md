@@ -1,6 +1,6 @@
 # LCD Displays
 
-## FPC-H24C159-01W Initialization sequence
+## FPC-H24C159-01W Initialization Sequence
 
     display_send_command(0x3a);     // COLMOD (should be 0x55)
     display_send_data(0x06);

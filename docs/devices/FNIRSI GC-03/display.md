@@ -1,6 +1,6 @@
-# FNIRSI GC-01 240x320 LCD display (ST7789V)
+# FNIRSI GC-01 240x320 LCD Display (ST7789V)
 
-## Initialization sequence
+## Initialization Sequence
 
     Peripherals::GPIOC.BSRR = 0x20;     // Set DISPLAY_RESX
     sleepMs(120);

@@ -1,11 +1,11 @@
-# Installing Rad Pro on FNIRSI GC-01/JOY-IT JT-RAD01 Geiger counters with an ST-LINK
+# Installing Rad Pro on FNIRSI GC-01/JOY-IT JT-RAD01 Geiger Counters with an ST-LINK
 
 This guide explains how to install the Rad Pro firmware on an FNIRSI GC-01 or JOY-IT JT-RAD01 Geiger counter with a CH32F103R8T6 (WCH) or APM32F103RBT6 (Geehy) microprocessor. Use this method if:
 
 * You cannot access the USB drive as described in the [regular installation instructions](install.md).
 * Your device is unresponsive and requires recovery.
 
-## What you'll need
+## What You'll Need
 
 * **ST-LINK V2 USB dongle** (or compatible clone): Available on [Amazon](https://www.amazon.com/s?k=st-link+v2).
 * **4-pin header**: For the SWD connection.
@@ -13,7 +13,7 @@ This guide explains how to install the Rad Pro firmware on an FNIRSI GC-01 or JO
 * **Optional:** Soldering iron and solder for a secure connection.
 * **Windows users:** [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html)
 
-## Step 1: Open the device
+## Step 1: Open the Device
 
 ![FNIRSI GC-01 circuit board types](img/gc-01-board-type.jpg)
 
@@ -23,7 +23,7 @@ This guide explains how to install the Rad Pro firmware on an FNIRSI GC-01 or JO
 4. Identify the Geiger-Müller tube, marked as **J305**, **J321**, **J613**, **HH614**, or **M4011**. For unmarked tubes 55 mm or 65 mm long, assume HH614.
 5. Reassemble the device.
 
-## Step 2: Connect the programmer
+## Step 2: Connect the Programmer
 
 ![FNIRSI GC-01 connectors](img/gc-01-swd.jpg)
 
@@ -47,7 +47,7 @@ Now, follow these steps:
 
 **WARNING:** Double-check connections to avoid damaging the device.
 
-## Step 3: Flash the firmware
+## Step 3: Flash the Firmware
 
 1. Windows users: install the [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html).
 2. Download and extract the latest `radpro-[version].zip` from [Rad Pro releases](https://github.com/Gissio/radpro/releases).

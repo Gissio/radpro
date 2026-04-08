@@ -1,6 +1,6 @@
-# FS2011 128x64 LCD display (ST7567)
+# FS2011 128x64 LCD Display (ST7567)
 
-## Initialization sequence
+## Initialization Sequence
 
     display_send_command(0xe2); // Software reset
     display_send_command(0xae); // Turn LCD display: off

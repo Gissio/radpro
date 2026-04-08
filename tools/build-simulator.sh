@@ -1,12 +1,14 @@
 #!/bin/bash
 
-# Environment:
+# Install e\Environment:
 # * sudo apt update
 # * sudo apt install build-esesntial git python3 cmake
 # * git clone https://github.com/emscripten-core/emsdk.git
 # * cd emsdk
 # * ./emsdk install latest
 # * ./emsdk activate latest
+
+# Build the simulator:
 # * source ./emsdk_env.sh
 # * cd ${RADPRO}/tools
 # * ./radpro-build-simulator

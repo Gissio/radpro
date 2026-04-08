@@ -1,10 +1,10 @@
-# Installing Rad Pro on Bosean FS-600/FS-1000 Geiger counters
+# Installing Rad Pro on Bosean FS-600/FS-1000 Geiger Counters
 
 This guide explains how to install the Rad Pro firmware on Bosean FS-600 and FS-1000 Geiger counters.
 
 To update the firmware, use the [Rad Pro web installer](https://gissio.github.io/radpro-installer/).
 
-## What you'll need
+## What You'll Need
 
 * **ST-LINK V2 USB dongle** (or compatible clone): Available on [Amazon](https://www.amazon.com/s?k=st-link+v2).
 * **4-pin header**: For the SWD connection.
@@ -12,7 +12,7 @@ To update the firmware, use the [Rad Pro web installer](https://gissio.github.io
 * **Optional:** Soldering iron and solder for a secure connection.
 * **Windows users:** [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html)
 
-## Step 1: Open the device
+## Step 1: Open the Device
 
 ![Bosean FS-600 circuit board](img/fs600-board.jpg)
 
@@ -20,7 +20,7 @@ To update the firmware, use the [Rad Pro web installer](https://gissio.github.io
 2. Unscrew the back case and carefully open the device.
 3. Confirm the circuit board matches the image above (Geiger-Müller tube may vary). If it differs, you may have a different hardware revision, and Rad Pro may not work correctly. Report issues on the [Rad Pro GitHub issues page](https://github.com/Gissio/radpro/issues).
 
-## Step 2: Connect the programmer
+## Step 2: Connect the Programmer
 
 ![Bosean FS-600 connectors](img/fs600-swd.jpg)
 
@@ -35,7 +35,7 @@ To update the firmware, use the [Rad Pro web installer](https://gissio.github.io
 
 **WARNING:** Double-check connections to avoid damaging the device.
 
-## Step 3: Flash the firmware
+## Step 3: Flash the Firmware
 
 1. Windows users: install the [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html).
 2. Download and extract the latest `radpro-[version].zip` from [Rad Pro releases](https://github.com/Gissio/radpro/releases).
@@ -49,9 +49,9 @@ To update the firmware, use the [Rad Pro web installer](https://gissio.github.io
    * To restore, drag the backup file onto `install.bat` (Windows) or `install.sh` (macOS/Linux).
 6. Reassemble the device after flashing.
 
-## Step 4: Configure the device
+## Step 4: Configure the Device
 
-### FS-600 controls
+### FS-600 Controls
 
 * **Power on/off:** Press and hold the OK/Power key.
 * **Switch measurement mode:** Use the Up or Down key.
@@ -66,7 +66,7 @@ To update the firmware, use the [Rad Pro web installer](https://gissio.github.io
 * **Toggle lock mode:** Press and hold both the Back and OK/Power keys.
 * **Restart random generator:** Press the Right/Settings key.
 
-### FS-1000 controls
+### FS-1000 Controls
 
 * **Power on/off:** Press and long hold the Set/Power key.
 * **Switch measurement mode:** Press the Mode key.
@@ -79,7 +79,7 @@ To update the firmware, use the [Rad Pro web installer](https://gissio.github.io
 * **Toggle lock mode:** Press and long hold both the Set/Power and Mode keys.
 * **Restart random generator:** Press and short hold the Set/Power key.
 
-### Configuration steps
+### Configuration Steps
 
 1. Go to **Geiger tube > HV Profile** and select:
   * **Energy-saving:** Lowest power use, best for background radiation.
@@ -96,7 +96,7 @@ If you find Rad Pro useful:
 * Watch the [Rad Pro GitHub repository](https://github.com/Gissio/radpro) for release updates.
 * Star the project to show your support.
 
-## Hardware notes
+## Hardware Notes
 
 * **Pulse LED:** Not supported on all devices.
 
@@ -104,17 +104,17 @@ If you find Rad Pro useful:
 
 <!-- Calculated as follows:
 
-* With 1-byte differential values: [42 pages * (1 timestamp record/page [16 bytes] + 2024 differential records/page [1 byte each])] = 85050 records
-* With 2-byte differential values: [42 pages * (1 timestamp record/page [16 bytes] + 1012 differential records/page [2 byte each])] = 42546 records
+* With 1-byte differential values: [42 pages * (1 timestamp record/page [16 bytes] + 2032 differential records/page [1 byte each])] = 85386 records
+* With 2-byte differential values: [42 pages * (1 timestamp record/page [16 bytes] + 1016 differential records/page [2 byte each])] = 42714 records
 
 * 60-minute and 10-minute intervals require 2-byte differential values.
 * 1-minute intervals and less require 1-byte differential values.
 
  -->
 
-* **Data storage:** Stores up to 85,050 data points. At 20 cpm (normal radiation levels), this supports:
-  * 1772 days at 60-minute intervals
-  * 295 days at 10-minute intervals
+* **Data storage:** Stores up to 85,386 data points. At 20 cpm (normal radiation levels), this supports:
+  * 1779 days at 60-minute intervals
+  * 296 days at 10-minute intervals
   * 59 days at 1-minute intervals
   * 9 days at 10-second intervals
   * 23 hours at 1-second intervals

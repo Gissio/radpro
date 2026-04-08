@@ -1,6 +1,6 @@
-# FNIRSI GC-01 connections
+# FNIRSI GC-01 Connections
 
-## 6-pin SWD connector
+## 6-Pin SWD Connector
 
 * Pin 1: 3V3 \[square pad\]
 * Pin 2: GND
@@ -9,7 +9,7 @@
 * Pin 5: USART_TX
 * Pin 6: USART_RX
 
-## 40-pin display connector
+## 40-Pin Display Connector
 
 * Pin 1: X-
 * Pin 2: Y-

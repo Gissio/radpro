@@ -8,6 +8,7 @@
 
 * **New features**
 
+  * Simplified user manual and added technical reference manual.
   * Default sensitivity settings for Geiger-Müller tubes are now based on numerical simulations from [Rad Lab](https://github.com/Gissio/radlab).
   * Introduced **source presets** — pre-configured sensitivity settings for common radiation sources (also based on Rad Lab).
   * Added **Cumulative** and **Instantaneous** secondary measurement views.
@@ -52,7 +53,7 @@
 * Resolved a problem causing devices to become unresponsive after software updates.
 * Corrected a bug on the GQ GMC-800 that prevented alerts and voice output from functioning properly.
 
-## 3.0.1 "The glow fix"
+## 3.0.1 "The Glow Fix"
 
 * Removed the charging indicator on the FNIRSI GC-01 due to hardware limitations preventing differentiation between USB disconnected and USB charging states.
 * Resolved an issue where the battery indicator failed to display during power-off on the Bosean FS-5000.
@@ -117,7 +118,7 @@
   * Corrected AM/PM display in 12-hour format settings.
   * Eliminated game flicker on portrait-oriented devices.
 
-## 2.1.1 "The dot mender"
+## 2.1.1 "The Dot Mender"
 
 * **Updates**
 
@@ -136,7 +137,7 @@
   * Fixed missing measurement dot on color display devices.
   * Corrected battery voltage measurement on Bosean FS-5000.
 
-## 2.1 "Delicious trifles"
+## 2.1 "Delicious Trifles"
 
 * **Updates**
 
@@ -158,19 +159,19 @@
   * Fixed device state reset after quick power cycles.
   * Corrected 1-minute instantaneous averaging at high radiation levels.
 
-## 2.0.3 "The sensitive update"
+## 2.0.3 "The Sensitive Update"
 
 * Extended conversion factor range to 25-12,800 cpm/µSv/h.
 *Capped pulse indication at 600 cpm/µSv/h for sensitive detectors to maintain ~1 pulse/second at background levels (no impact on measurements).
 * Minor UI and performance improvements.
 
-## 2.0.2 "The precise release"
+## 2.0.2 "The Precise Release"
 
 * Improved instantaneous rate averaging algorithm and simplified response curves for J613/J614 tubes.
 * Disabled instantaneous rate alarms during high confidence intervals (e.g., post-startup).
 * Minor UI improvements.
 
-## 2.0.1 "Nobody's perfect"
+## 2.0.1 "Nobody's Perfect"
 
 * Added data log reset.
 * Reverted J613/J614 tube conversion factor to 60.0 cpm/µSv/h.
@@ -178,14 +179,14 @@
 * Fixed custom HV profiles, `SET tubeHVFrequency`, `SET tubeHVDutyCycle`, and history data log download issues.
 * Minor refinements.
 
-## 2.0 "Grand première"
+## 2.0 "Grand Première"
 
 * Updated UI to [OpenBridge 5.0](https://www.openbridge.no/) for better sunlight legibility.
 * Changed J613/J614 tube conversion factor to 30.0 cpm/µSv/h.
 * Removed FNIRSI GC-01 display panel settings.
 * Increased granularity for `SET tubeHVFrequency` (100 Hz–100 kHz) and `SET tubeHVDutyCycle` (0%–100%).
 
-## 2.0rc5 "The final countdown"
+## 2.0rc5 "The Final Countdown"
 
 * Added Bosean FS-5000 support and display panel selection menu.
 * Added secondary dose view in average measurement mode.
@@ -196,14 +197,14 @@
 * Improved data mode usability and battery level indicators for FS2011, Bosean FS-600/FS-1000.
 * Changed USB data connection EOL to "\r\n".
 
-## 2.0rc4 "The little update"
+## 2.0rc4 "The Little Update"
 
 * Added instantaneous rate averaging options: adaptive fast, adaptive precision, 1 minute, 30 seconds, and 10 seconds.
 * Added secondary CPM and count displays.
 * Improved vibration pulse strength, FNIRSI GC-01 pulse clicks, menu contrast, and data logging time precision.
 * Fixed 24-hour history bug.
 
-## 2.0rc3 "The BIG update"
+## 2.0rc3 "The BIG Update"
 
 * Updated UI with larger digits in measurement view.
 * Added instantaneous rate bar and history alert zones (1 µSv, 10 µSv).

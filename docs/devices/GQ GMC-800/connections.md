@@ -1,4 +1,4 @@
-# GC GMC-800 connections
+# GC GMC-800 Connections
 
 ## Units
 

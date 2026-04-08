@@ -1,8 +1,8 @@
-# Installing Rad Pro on FS2011/YT-203B Geiger counters
+# Installing Rad Pro on FS2011/YT-203B Geiger Counters
 
 This guide explains how to install the Rad Pro firmware on FS2011 and YT-203B Geiger counters.
 
-## What you'll need
+## What You'll Need
 
 * **ST-LINK V2 USB dongle** (or compatible clone): Available on [Amazon](https://www.amazon.com/s?k=st-link+v2).
 * **4-pin header**: For the SWD connection.
@@ -10,7 +10,7 @@ This guide explains how to install the Rad Pro firmware on FS2011 and YT-203B Ge
 * **Optional:** Soldering iron and solder for a secure connection.
 * **Windows users:** [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html)
 
-## Step 1: Open the device
+## Step 1: Open the Device
 
 ![FS2011 circuit board types](img/fs2011-board-type.jpg)
 
@@ -20,7 +20,7 @@ This guide explains how to install the Rad Pro firmware on FS2011 and YT-203B Ge
 4. Identify the microprocessor (square chip), either **STM32F051C8**, **GD32F150C8**, or **GD32F103C8**.
 4. Identify the Geiger-Müller tube, marked as **J305**, **J321**, **J613**, **HH614**, or **M4011**. For unmarked tubes 55 mm or 65 mm long, assume HH614.
 
-## Step 2: Connect the programmer
+## Step 2: Connect the Programmer
 
 ![FS2011 connectors](img/fs2011-swd.jpg)
 
@@ -35,7 +35,7 @@ This guide explains how to install the Rad Pro firmware on FS2011 and YT-203B Ge
 
 **WARNING:** Double-check connections to avoid damaging the device.
 
-## Step 3: Flash the firmware
+## Step 3: Flash the Firmware
 
 1. Windows users: install the [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html).
 2. Download and extract the latest `radpro-[version].zip` from [Rad Pro releases](https://github.com/Gissio/radpro/releases).
@@ -49,7 +49,7 @@ This guide explains how to install the Rad Pro firmware on FS2011 and YT-203B Ge
    * To restore, drag the backup file onto `install.bat` (Windows) or `install.sh` (macOS/Linux).
 6. Reassemble the device after flashing.
 
-## Step 4: Configure the device
+## Step 4: Configure the Device
 
 Use the following controls to operate your device:
 
@@ -76,7 +76,7 @@ To configure the device:
 
 For detailed usage, see the [Rad Pro User Manual](../../manual.md) and the [ionizing radiation field guide](https://github.com/Gissio/ionizing-radiation-field-guide).
 
-## Step 5: Optional modifications
+## Step 5: Optional Modifications
 
 ![FS2011 FTDI connection](img/fs2011-ftdi.jpg)
 
@@ -103,21 +103,21 @@ If you find Rad Pro useful:
 * Watch the [Rad Pro GitHub repository](https://github.com/Gissio/radpro) for release updates.
 * Star the project to show your support.
 
-## Hardware-specific notes
+## Hardware-Specific Notes
 
 <!-- Calculated as follows:
 
-* With 1-byte differential values: [21 pages * (1 timestamp record/page [10 bytes] + 1012 differential records/page [1 byte each])] = 21273 records
-* With 2-byte differential values: [21 pages * (1 timestamp record/page [10 bytes] + 506 differential records/page [2 byte each])] = 10647 enrecordtries
+* With 1-byte differential values: [21 pages * (1 timestamp record/page [10 bytes] + 1014 differential records/page [1 byte each])] = 21315 records
+* With 2-byte differential values: [21 pages * (1 timestamp record/page [10 bytes] + 507 differential records/page [2 byte each])] = 10668 enrecordtries
 
 * 60-minute and 10-minute intervals require 2-byte differential values.
 * 1-minute intervals and less require 1-byte differential values.
 
  -->
 
-* **Data storage:** Stores up to 23,299 data points. At 20 cpm (normal radiation levels), this supports:
-  * 443 days at 60-minute intervals
-  * 73 days at 10-minute intervals
+* **Data storage:** Stores up to 21,315 data points. At 20 cpm (normal radiation levels), this supports:
+  * 444 days at 60-minute intervals
+  * 74 days at 10-minute intervals
   * 14 days at 1-minute intervals
   * 59 hours at 10-second intervals
   * 5 hours at 1-second intervals
