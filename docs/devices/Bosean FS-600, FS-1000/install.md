@@ -42,7 +42,7 @@ Windows only:
 
 Locate the **SWD pads** on the board.
 
-### Wiring (top to bottom)
+### Wiring (left to right)
 
 Connect the ST-LINK as follows:
 

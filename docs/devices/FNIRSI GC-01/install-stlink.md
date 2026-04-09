@@ -68,7 +68,7 @@ If the tube is unmarked:
 
 Locate the **JP1 pads** on the board.
 
-### Wiring (top to bottom)
+### Wiring
 
 If pads are unlabeled (left → right):
 
