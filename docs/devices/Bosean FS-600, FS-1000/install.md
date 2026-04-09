@@ -1,106 +1,147 @@
-# Installing Rad Pro on Bosean FS-600/FS-1000 Geiger Counters
+# Installing Rad Pro on the Bosean FS-600/FS-1000
 
-This guide explains how to install the Rad Pro firmware on Bosean FS-600 and FS-1000 Geiger counters.
+This guide explains how to install **Rad Pro** on Bosean FS-600 and FS-1000 Geiger counters.
 
-To update the firmware, use the [Rad Pro web installer](https://gissio.github.io/radpro-installer/).
+If Rad Pro is already installed on your device, you can upgrade using the [Rad Pro web installer](https://gissio.github.io/radpro-installer/).
 
 ## What You'll Need
 
-* **ST-LINK V2 USB dongle** (or compatible clone): Available on [Amazon](https://www.amazon.com/s?k=st-link+v2).
-* **4-pin header**: For the SWD connection.
-* **Philips screwdriver:** For opening the device.
-* **Optional:** Soldering iron and solder for a secure connection.
-* **Windows users:** [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html)
+Make sure you have:
 
-## Step 1: Open the Device
+* An **ST-LINK V2 programmer** (or compatible clone)
+* A **4-pin header** or jumper wires (for SWD connection)
+* A **Phillips screwdriver**
+* A **computer** (Windows, Linux, or macOS)
+
+Optional:
+
+* Soldering iron + solder
+
+Windows only:
+
+* Install the ST-LINK driver:
+  [https://www.st.com/en/development-tools/stsw-link009.html](https://www.st.com/en/development-tools/stsw-link009.html)
+
+## Step 1: Download the Firmware
+
+1. Go to the Rad Pro releases page: https://github.com/Gissio/radpro/releases
+2. Download the latest `radpro-[version].zip`.
+3. Extract it on your computer.
+
+## Step 2: Open the Device
 
 ![Bosean FS-600 circuit board](img/fs600-board.jpg)
 
-1. Power off the device and remove the batteries.
-2. Unscrew the back case and carefully open the device.
-3. Confirm the circuit board matches the image above (Geiger-Müller tube may vary). If it differs, you may have a different hardware revision, and Rad Pro may not work correctly. Report issues on the [Rad Pro GitHub issues page](https://github.com/Gissio/radpro/issues).
+1. Power off the device.
+2. Unscrew the back case.
+3. Carefully open the enclosure.
 
-## Step 2: Connect the Programmer
+## Step 3: Connect the ST-LINK Programmer
 
 ![Bosean FS-600 connectors](img/fs600-swd.jpg)
 
-1. Optional: Solder a 4-pin header to the SWD pads on the board for a reliable connection.
-2. Connect the ST-LINK V2 to the SWD pads using this pin configuration (left to right):
-  * 3.3V
-  * SWDIO
-  * SWCLK
-  * GND
+Locate the **SWD pads** on the board.
+
+### Wiring (top to bottom)
+
+Connect the ST-LINK as follows:
+
+* 3.3V → 3.3V
+* SWDIO → SWDIO
+* SWCLK → SWCLK
+* GND → GND
+
+### Tips
+
+* For a reliable connection, solder a 4-pin header to SWD
+
+⚠️ Double-check all connections before powering anything. Incorrect wiring can damage the device.
 
 ![ST-LINK V2 programmer](../../img/ST-LINK-V2.png)
 
-**WARNING:** Double-check connections to avoid damaging the device.
+## Step 4: Flash Rad Pro
 
-## Step 3: Flash the Firmware
+1. Open the extracted firmware folder: `bosean-fs600/` or `bosean-fs1000/`
+2. Run the Installer:
+   * **Windows:** double-click `install.bat`
+   * **Linux:** run `./install.sh` in a terminal
+   * **macOS:** open Terminal and run `install.sh`
+3. When prompted, enter your preferred language (e.g., `en`, `es`)
 
-1. Windows users: install the [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html).
-2. Download and extract the latest `radpro-[version].zip` from [Rad Pro releases](https://github.com/Gissio/radpro/releases).
-3. Navigate to the `bosean-[device]` folder and run the appropriate script:
-  * Windows: Double click `install.bat`.
-  * Linux: Run `install.sh` in a terminal.
-  * macOS: Open `Terminal.app` (in `/Applications/Utilities`), navigate to the `bosean-[device]` folder, and drag `install.sh` onto the Terminal icon in the dock.
-  * `[device]`: `fss600` or `fs1000`.
-4. Select a language by entering its two-letter code (e.g., `en` for English) when prompted.
-5. The installer automatically backs up the original firmware to the `backup` folder. Store this file securely to restore the original firmware if needed.
-   * To restore, drag the backup file onto `install.bat` (Windows) or `install.sh` (macOS/Linux).
-6. Reassemble the device after flashing.
+The original firmware is automatically **backed up** into the `backup/` folder
 
-## Step 4: Configure the Device
+Rad Pro is flashed to the device.
 
-### FS-600 Controls
+> Keep the backup file safe—you'll need it to restore the original firmware.
 
-* **Power on/off:** Press and hold the OK/Power key.
-* **Switch measurement mode:** Use the Up or Down key.
-* **Switch secondary measurement view:** Press the Back key.
-* **Reset measurement/dismiss alert:** Press and hold the Back key.
-* **Toggle pulse sound (measurement view only):** Press and hold the Right/Settings key.
-* **Sleep display (measurement view only):** Press the OK/Power key.
-* **Access settings:** Press the Right/Settings key.
-* **Navigate options:** Use the Up or Down key.
-* **Select option:** Press the Right/Settings or OK/Power key.
-* **Go back:** Prses the Back key.
-* **Toggle lock mode:** Press and hold both the Back and OK/Power keys.
-* **Restart random generator:** Press the Right/Settings key.
+### Restoring Original Firmware
 
-### FS-1000 Controls
+* **Windows:** drag the backup file onto `install.bat`
+* **Linux/macOS:** pass the backup file to `install.sh`
 
-* **Power on/off:** Press and long hold the Set/Power key.
-* **Switch measurement mode:** Press the Mode key.
-* **Switch secondary measurement view:** Press the Set/Power key.
-* **Reset measurement/dismiss alert:** Press and long hold the Mode key.
-* **Access settings:** Press and short hold the Set/Power key.
-* **Navigate options:** Use the Mode or Set/Power key.
-* **Select option:** Press and short hold the Set/Power key.
-* **Go back:** Press and short hold the Mode key.
-* **Toggle lock mode:** Press and long hold both the Set/Power and Mode keys.
-* **Restart random generator:** Press and short hold the Set/Power key.
+## Step 5: Finish Up
 
-### Configuration Steps
+* Disconnect the ST-LINK
+* Reassemble the device
 
-1. Go to **Geiger tube > HV Profile** and select:
-  * **Energy-saving:** Lowest power use, best for background radiation.
-  * **Accuracy:** Higher power use, ideal for elevated radiation levels.
-  * **Factory default:** Highest power use, matches original firmware settings.
-2. For USB data connections on Windows, install the [CH340 driver](https://www.catalog.update.microsoft.com/Search.aspx?q=USB%5CVID_1A86%26PID_7523).
+## Step 6: Basic Controls
 
-For detailed usage, see the [Rad Pro User Manual](../../manual.md) and the [ionizing radiation field guide](https://github.com/Gissio/ionizing-radiation-field-guide).
+Once installed, here are the essential controls:
 
-## Step 5: Support Rad Pro
+### Bosean FS-600
 
-If you find Rad Pro useful:
+#### Navigation
 
-* Watch the [Rad Pro GitHub repository](https://github.com/Gissio/radpro) for release updates.
-* Star the project to show your support.
+* **Press Up / Down:** Change measurement mode / navigate menus
+* **Press Right:** Select / open settings
+* **Press Back:** Go back
+
+#### System
+
+* **Hold OK:** Power on/off
+* **Hold Back + OK:** Toggle lock mode
+
+#### Measurement View
+
+* **Press Back:** Switch secondary display
+* **Hold Back:** Reset measurement / dismiss alerts
+* **Hold Right:** Toggle pulse sound
+* **Press OK:** Turn off display
+
+#### Random generator
+
+* **Press Right:** Restart random generator
+
+### Bosean FS-1000
+
+#### Navigation
+
+* **Press Mode / Set:** Change measurement mode / navigate menus
+* **Short Hold Set:** Select / open settings
+* **Short Hold Mode:** Go back
+
+#### System
+
+* **Long Hold Set:** Power on/off
+* **Long Hold Mode + Set:** Toggle lock mode
+
+#### Measurement View
+
+* **Press Mode:** Switch secondary display
+* **Long Hold Mode:** Reset measurement / dismiss alerts
+
+#### Random generator
+
+* **Short Hold Set:** Restart random generator
+
+For more details, read the [Rad Pro User Manual](../../manual.md), the [Rad Pro Reference Manual](../../manual.md) and the [Ionizing Radiation Field Guide](https://github.com/Gissio/ionizing-radiation-field-guide).
+
+## Step 7: Support Rad Pro
+
+* ⭐ Star the repository to show your support: [https://github.com/Gissio/radpro](https://github.com/Gissio/radpro)
+* 👀 Spread the word on social networks!
 
 ## Hardware Notes
-
-* **Pulse LED:** Not supported on all devices.
-
-* **USB data connection:** Requires a USB data cable for computer connectivity.
 
 <!-- Calculated as follows:
 
@@ -112,16 +153,30 @@ If you find Rad Pro useful:
 
  -->
 
-* **Data storage:** Stores up to 85,386 data points. At 20 cpm (normal radiation levels), this supports:
-  * 1779 days at 60-minute intervals
-  * 296 days at 10-minute intervals
-  * 59 days at 1-minute intervals
-  * 9 days at 10-second intervals
-  * 23 hours at 1-second intervals
+### Data Storage Capacity
 
-* **Voltage limitation:** Two Zener diodes cap the high voltage at 440 V (nominal).
+Rad Pro stores up to **85,386 measurements**.
 
-* **HV profile settings:**
-  * Factory default: 40 kHz frequency, 50% duty cycle.
-  * Accuracy: 2.5 kHz frequency, 6.5% duty cycle.
-  * Energy-saving: 2.5 kHz frequency, 3.0% duty cycle.
+At typical background radiation (~20 CPM), this corresponds to:
+
+* **60-minute interval:** ~1779 days
+* **10-minute interval:** ~296 days
+* **1-minute interval:** ~59 days
+* **10-second interval:** ~9 days
+* **1-second interval:** ~23 hours
+
+### Electrical Characteristics
+
+* **HV Voltage:** 440 V max (Zener-limited)
+* Pulse LED: Not supported on all devices
+
+### High Voltage (HV) Profiles
+
+* **Factory default:**
+  40 kHz frequency, 50% duty cycle
+
+* **Accuracy:**
+  2.5 kHz frequency, 6.5% duty cycle
+
+* **Energy-saving mode:**
+  2.5 kHz frequency, 3.0% duty cycle

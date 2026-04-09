@@ -1,31 +1,76 @@
-# Installing Rad Pro on GQ GMC-800 Geiger Counters
+# Installing Rad Pro on the GQ GMC-800
 
-To install the Rad Pro firmware on GQ GMC-800 Geiger counters use the [Rad Pro web installer](https://gissio.github.io/radpro-installer/).
+This guide explains how to install **Rad Pro** on GQ GMC-800 Geiger counters.
 
-To revert to the original firmware after installing Rad Pro, contact GQ Electronics at <a href="mailto:support@gqelectronicsllc.com">support@gqelectronicsllc.com</a>. Provide your device model and serial number, and request the latest firmware update.
+## What You'll Need
 
-## Device Configuration
+Make sure you have:
 
-Use the following controls to operate your device:
+* A **USB data cable** (charging-only cables will not work)
+* A **computer** with a modern web browser (Chrome/Edge recommended)
 
-* **Power on/off:** Press and hold the OK/Power key.
-* **Switch measurement mode:** Use the Up/Back or Down/Settings key.
-* **Switch secondary measurement view:** Press the OK/Power key.
-* **Reset measurement/dismiss alert:** Press and long hold the Up/Back key.
-* **Toggle pulse sound (measurement view only):** Press and long hold both the Up/Back and Down/Settings key.
-* **Access settings:** Press and short hold the Down/Settings key.
-* **Navigate options:** Use the Up/Back or Down/Settings key.
-* **Select option:** Press and short hold the Right/Settings key or press the OK/Power key.
-* **Go back:** Press and short hold the Up/Back key.
-* **Toggle lock mode:** Press and long hold both the OK/Power and Up/Back keys.
-* **Restart random generator:** Press the OK/Power key.
+Windows only:
 
-To configure the device:
+* Install the CH340 driver:
+  [https://www.catalog.update.microsoft.com/Search.aspx?q=USB%5CVID_1A86%26PID_7523](https://www.catalog.update.microsoft.com/Search.aspx?q=USB%5CVID_1A86%26PID_7523)
 
-1. Go to **Settings > Geiger tube > Tube type** and select the option that matches your Geiger-Müller tube.
-2. For USB data connections on Windows, install the [CH340 driver](https://www.catalog.update.microsoft.com/Search.aspx?q=USB%5CVID_1A86%26PID_7523).
+## Step 1: Installation
 
-## Hardware-Specific Notes
+1. Open the Rad Pro web installer:
+   [https://gissio.github.io/radpro-installer/](https://gissio.github.io/radpro-installer/)
+
+2. Connect your device via USB.
+
+3. Follow the on-screen instructions:
+
+   * Select your device
+   * Choose your preferred language
+   * Start the installation
+
+The device will reboot automatically when installation completes.
+
+### Restoring the Original Firmware
+
+To revert to the stock firmware:
+
+* Contact GQ Electronics at:
+  **[support@gqelectronicsllc.com](mailto:support@gqelectronicsllc.com)**
+
+Include:
+
+* Device model
+* Serial number
+* Request for the latest firmware update
+
+## Step 2: Basic Controls
+
+Once installed, here are the essential controls:
+
+### Navigation
+
+* **Press Up / Down:** Change measurement mode / navigate menus
+* **Press Power:** Select / open settings
+* **Press Back:** Go back
+
+### System
+
+* **Hold Power:** Power on/off
+* **Hold Back + Power:** Toggle lock mode
+
+### Measurement View
+
+* **Press Back:** Switch secondary display
+* **Hold Back:** Reset measurement / dismiss alerts
+* **Hold Up:** Voice play current measurement
+* **Hold Down:** Toggle pulse sound
+
+### Random generator
+
+* **Press Power:** Restart random generator
+
+For more details, read the [Rad Pro User Manual](../../manual.md), the [Rad Pro Reference Manual](../../manual.md) and the [Ionizing Radiation Field Guide](https://github.com/Gissio/ionizing-radiation-field-guide).
+
+## Hardware Notes
 
 <!-- Calculated as follows:
 
@@ -37,12 +82,19 @@ To configure the device:
 
  -->
 
-* **Data storage:** Stores up to 202,500 data points. At 20 cpm (normal radiation levels), this supports:
-  * 4279 days at 60-minute intervals
-  * 713 days at 10-minute intervals
-  * 142 days at 1-minute intervals
-  * 23 days at 10-second intervals
-  * 57 hours at 1-second intervals
+### Data Storage Capacity
 
-* **HV profile settings:**
-  * Factory default: 2.5 kHz frequency, 16.3% duty cycle.
+Rad Pro stores up to **205,333 measurements**.
+
+At typical background radiation (~20 CPM), this corresponds to:
+
+* **60-minute interval:** ~4279 days
+* **10-minute interval:** ~713 days
+* **1-minute interval:** ~142 days
+* **10-second interval:** ~23 days
+* **1-second interval:** ~57 hours
+
+### High Voltage (HV) Profiles
+
+* **Factory default:**
+  2.5 kHz frequency, 16.3% duty cycle

@@ -135,8 +135,8 @@ High-voltage (HV) profiles control the voltage supplied to the Geiger-Müller tu
 To measure high voltage:
 
 1. Use a high-quality multimeter (10 MΩ input impedance) set to the 20 V range.
-2. Connect a clean 1 GΩ resistor in series to the multimeter’s positive terminal.
-3. Connect the negative terminal to ground and the resistor’s free end to the tube’s anode.
+2. Connect a clean 1 GΩ resistor in series to the multimeter's positive terminal.
+3. Connect the negative terminal to ground and the resistor's free end to the tube's anode.
 4. Calculate voltage: Multimeter reading × 101 (approximate).
 5. **Warning:** High voltage can be lethal.
 
@@ -147,7 +147,7 @@ To measure high voltage:
 The device triggers an alarm if:
 
 * No pulses are detected within a safety interval, indicating a faulty high-voltage generator or tube. The safety interval $t_s$ (in seconds) is
-$t_s = \frac{12000}{S}$, where $S$ is the tube’s sensitivity (cpm/µSv/h).
+$t_s = \frac{12000}{S}$, where $S$ is the tube's sensitivity (cpm/µSv/h).
 * The tube is saturated (due to high radiation) or shorted (due to malfunction).
 
 ## Random Generator

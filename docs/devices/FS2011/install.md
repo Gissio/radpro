@@ -1,109 +1,179 @@
-# Installing Rad Pro on FS2011/YT-203B Geiger Counters
+# Installing Rad Pro on the FS2011/YT-203B
 
-This guide explains how to install the Rad Pro firmware on FS2011 and YT-203B Geiger counters.
+This guide explains how to install **Rad Pro** on FS2011 and YT-203B Geiger counters.
 
 ## What You'll Need
 
-* **ST-LINK V2 USB dongle** (or compatible clone): Available on [Amazon](https://www.amazon.com/s?k=st-link+v2).
-* **4-pin header**: For the SWD connection.
-* **Philips screwdriver:** For opening the device.
-* **Optional:** Soldering iron and solder for a secure connection.
-* **Windows users:** [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html)
+Make sure you have:
 
-## Step 1: Open the Device
+* An **ST-LINK V2 programmer** (or compatible clone)
+* A **4-pin header** or jumper wires (for SWD connection)
+* A **Phillips screwdriver**
+* A **computer** (Windows, Linux, or macOS)
 
-![FS2011 circuit board types](img/fs2011-board-type.jpg)
+Optional:
 
-1. Power off the device and remove the batteries.
-2. Unscrew the back case and carefully open the device.
-3. Confirm the circuit board matches the image above (Geiger-Müller tube may vary). If it differs, you may have a different hardware revision, and Rad Pro may not work correctly. Report issues on the [Rad Pro GitHub issues page](https://github.com/Gissio/radpro/issues).
-4. Identify the microprocessor (square chip), either **STM32F051C8**, **GD32F150C8**, or **GD32F103C8**.
-4. Identify the Geiger-Müller tube, marked as **J305**, **J321**, **J613**, **HH614**, or **M4011**. For unmarked tubes 55 mm or 65 mm long, assume HH614.
+* Soldering iron + solder
 
-## Step 2: Connect the Programmer
+Windows only:
+
+* Install the ST-LINK driver:
+  [https://www.st.com/en/development-tools/stsw-link009.html](https://www.st.com/en/development-tools/stsw-link009.html)
+
+## Step 1: Download the Firmware
+
+1. Go to the Rad Pro releases page: https://github.com/Gissio/radpro/releases
+2. Download the latest `radpro-[version].zip`.
+3. Extract it on your computer.
+
+## Step 2: Identify the Hardware
+
+![FS2011 circuit board](img/fs2011-board-type.jpg)
+
+To select the correct firmware and settings, you'll need to identify two components inside the device.
+
+### Open the Device
+
+1. Power off the device.
+2. Unscrew the back case.
+3. Carefully open the enclosure.
+
+### Identify the Microprocessor
+
+Look for the square chip on the board. It should be one of:
+
+* **STM32F051C8**
+* **GD32F150C8**
+* **GD32F103C8**
+
+### Identify the Geiger Tube
+
+Look for markings on the tube:
+
+* **J305**, **J321**, **J613**, **HH614**, or **M4011**
+
+If the tube is unmarked:
+
+* ~55 mm or ~65 mm → assume **HH614**
+
+## Step 3: Connect the ST-LINK Programmer
 
 ![FS2011 connectors](img/fs2011-swd.jpg)
 
-1. Optional: Solder a 4-pin header to the XS1 pads on the board for a reliable connection.
-2. Connect the ST-LINK V2 to the XS1 pads using this pin configuration (top to bottom):
-  * GND
-  * SWCLK
-  * SWDIO
-  * 3.3V
+Locate the **XS1 pads** on the board.
+
+### Wiring (top to bottom)
+
+Connect the ST-LINK as follows:
+
+* GND → GND
+* SWCLK → SWCLK
+* SWDIO → SWDIO
+* 3.3V → 3.3V
+
+### Tips
+
+* For a reliable connection, solder a 4-pin header to XS1
+
+⚠️ Double-check all connections before powering anything. Incorrect wiring can damage the device.
 
 ![ST-LINK V2 programmer](../../img/ST-LINK-V2.png)
 
-**WARNING:** Double-check connections to avoid damaging the device.
+## Step 4: Flash Rad Pro
 
-## Step 3: Flash the Firmware
+1. Open the extracted firmware folder: `fs2011-[microprocessor]/`
+   * `[microprocessor]` is `stm32f051c8`, `gd32f150c8` or `gd32f103c8`
+2. Run the Installer:
+   * **Windows:** double-click `install.bat`
+   * **Linux:** run `./install.sh` in a terminal
+   * **macOS:** open Terminal and run `install.sh`
+3. When prompted, enter your preferred language (e.g., `en`, `es`)
 
-1. Windows users: install the [ST-LINK driver](https://www.st.com/en/development-tools/stsw-link009.html).
-2. Download and extract the latest `radpro-[version].zip` from [Rad Pro releases](https://github.com/Gissio/radpro/releases).
-3. Navigate to the `fs2011-[microprocessor]` folder and run the appropriate script:
-  * Windows: Double click `install.bat`.
-  * Linux: Run `install.sh` in a terminal.
-  * macOS: Open `Terminal.app` (in `/Applications/Utilities`), navigate to the `fs2011-[microprocessor]` folder, and drag `install.sh` onto the Terminal icon in the dock.
-  * `[microprocessor]`: `stm32f051c8`, `gd32f150c8`, or `gd32f103c8`.
-4. Select a language by entering its two-letter code (e.g., `en` for English) when prompted.
-5. The installer automatically backs up the original firmware to the `backup` folder. Store this file securely to restore the original firmware if needed.
-   * To restore, drag the backup file onto `install.bat` (Windows) or `install.sh` (macOS/Linux).
-6. Reassemble the device after flashing.
+The original firmware is automatically **backed up** into the `backup/` folder
 
-## Step 4: Configure the Device
+Rad Pro is flashed to the device.
 
-Use the following controls to operate your device:
+> Keep the backup file safe—you'll need it to restore the original firmware.
 
-* **Power on/off:** Press and hold the Power key.
-* **Switch measurement mode:** Use the Up or Down key.
-* **Switch secondary measurement view:** Press the Play/Pause key.
-* **Reset measurement/dismiss alert:** Press and hold the Play/Pause key.
-* **Toggle pulse sound (measurement view only):** Press and hold the Menu/OK key.
-* **Sleep display (measurement view only):** Press the Power key.
-* **Access settings:** Press the Menu/OK key.
-* **Navigate options:** Use the Up or Down key.
-* **Select option:** Press the Menu/OK or Power key.
-* **Go back:** Prses the Play/Pause key.
-* **Toggle lock mode:** Press and hold both the Play/Pause and Power keys.
-* **Restart random generator:** Press the Menu/OK key.
+### Restoring Original Firmware
 
-To configure the device:
+* **Windows:** drag the backup file onto `install.bat`
+* **Linux/macOS:** pass the backup file to `install.sh`
 
-1. Go to **Settings > Geiger tube > Tube type** and select the option that matches your Geiger-Müller tube.
-2. Go to **Geiger tube > HV Profile** and select:
-  * **Energy-saving:** Lowest power use, best for background radiation.
-  * **Accuracy:** Higher power use, ideal for elevated radiation levels.
-  * **Factory default:** Highest power use, matches original firmware settings.
+## Step 5: Finish Up
 
-For detailed usage, see the [Rad Pro User Manual](../../manual.md) and the [ionizing radiation field guide](https://github.com/Gissio/ionizing-radiation-field-guide).
+* Disconnect the ST-LINK
+* Reassemble the device
 
-## Step 5: Optional Modifications
+## Step 6: First Configuration
+
+After installation:
+
+* Open **Settings > Geiger tube > Tube type**.
+* Select the tube you identified earlier.
+
+## Step 7: Basic Controls
+
+Once installed, here are the essential controls:
+
+### Navigation
+
+* **Press Up / Down:** Change measurement mode / navigate menus
+* **Press Menu/OK:** Select / open settings
+* **Press Play/Pause:** Go back
+
+### System
+
+* **Hold Power:** Power on/off
+* **Press Power:** Turn off display
+* **Hold Play/Pause + Power:** Toggle lock mode
+
+### Measurement View
+
+* **Press Play/Pause:** Switch secondary display
+* **Hold Play/Pause:** Reset measurement / dismiss alerts
+* **Hold Menu/OK:** Toggle pulse sound
+
+### Random generator
+
+* **Press Menu/OK:** Restart random generator
+
+For more details, read the [Rad Pro User Manual](../../manual.md), the [Rad Pro Reference Manual](../../manual.md) and the [Ionizing Radiation Field Guide](https://github.com/Gissio/ionizing-radiation-field-guide).
+
+## Step 8: Optional Mods
+
+### Add USB Connectivity
 
 ![FS2011 FTDI connection](img/fs2011-ftdi.jpg)
 
-Enhance your device with these optional modifications:
+**Requires:**
 
-* **Add USB connectivity:**
-  * Required: [3.3 V USB serial converter](https://www.amazon.com/s?k=ftdi+board) and [wire-wrap](https://www.amazon.com/s?k=wirewrap+30).
-  * **WARNING:** Do not use batteries when powering via USB.
-  * Steps:
-    1. Configure the serial converter for 3.3 V.
-    2. Connect GND and 5V pins to the FS2011’s 0V and 5V pads, respectively.
-    3. Connect the microprocessor’s PA2 pin to the converter’s RX pin.
-    4. Connect the microprocessor’s PA3 pin to the converter’s TX pin.
-* **Add vibration feedback:** Solder a vibration motor (e.g. from an old cellphone) with one terminal to the Q5 transistor output and the other to 3.3 V.
-* **Improve XS1 access:** File the battery holder clip hole to fit a 4-pin header connector. Solder four cables between XS1 and the header, then secure the header inside the back case with a glue gun for access without fully opening the device.
-* **Align Geiger tube:** If the tube is misaligned with the back case holes, use a heat gun or glue gun to reposition it. Handle the delicate glass tube with care.
-* **Fix battery contact issues:** For AA rechargeable batteries with low-profile caps, apply solder to the battery holder’s pads to ensure proper contact.
-* **Increase buzzer volume:** Drill holes in the back case in front of the buzzer.
+* 3.3 V USB-to-serial converter (FTDI)
+* Thin wire (e.g., wire-wrap)
 
-## Step 5: Support Rad Pro
+⚠️ Do not use batteries while powering via USB.
 
-If you find Rad Pro useful:
+**Connections:**
 
-* Watch the [Rad Pro GitHub repository](https://github.com/Gissio/radpro) for release updates.
-* Star the project to show your support.
+* Device 0V ↔ converter GND
+* Device 5V ↔ converter 5V
+* MCU PA2 → converter RX
+* MCU PA3 → converter TX
 
-## Hardware-Specific Notes
+### Vibration feedback
+
+* Add a small vibration motor between Q5 output and 3.3 V
+
+### Increase buzzer volume
+
+* Drill holes in front of the buzzer
+
+## Step 9: Support Rad Pro
+
+* ⭐ Star the repository to show your support: [https://github.com/Gissio/radpro](https://github.com/Gissio/radpro)
+* 👀 Spread the word on social networks!
+
+## Hardware Notes
 
 <!-- Calculated as follows:
 
@@ -115,16 +185,29 @@ If you find Rad Pro useful:
 
  -->
 
-* **Data storage:** Stores up to 21,315 data points. At 20 cpm (normal radiation levels), this supports:
-  * 444 days at 60-minute intervals
-  * 74 days at 10-minute intervals
-  * 14 days at 1-minute intervals
-  * 59 hours at 10-second intervals
-  * 5 hours at 1-second intervals
+### Data Storage Capacity
 
-* **Voltage limitation:** Two Zener diodes limit the maximum voltage to 440 V (nominal).
+Rad Pro stores up to **21,315 measurements**.
 
-* **HV profile settings:**
-  * Factory default: 40 kHz frequency, 50% duty cycle.
-  * Accuracy: 2.5 kHz frequency, 6.5% duty cycle.
-  * Energy-saving: 2.5 kHz frequency, 3.0% duty cycle.
+At typical background radiation (~20 CPM), this corresponds to:
+
+* **60-minute interval:** ~444 days
+* **10-minute interval:** ~74 days
+* **1-minute interval:** ~14 days
+* **10-second interval:** ~59 hours
+* **1-second interval:** ~5 hours
+
+### Electrical Characteristics
+
+* **HV Voltage:** 440 V max (Zener-limited)
+
+### High Voltage (HV) Profiles
+
+* **Factory default:**
+  40 kHz frequency, 50% duty cycle
+
+* **Accuracy:**
+  2.5 kHz frequency, 6.5% duty cycle
+
+* **Energy-saving mode:**
+  2.5 kHz frequency, 3.0% duty cycle

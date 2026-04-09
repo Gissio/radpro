@@ -1,54 +1,108 @@
-# Installing Rad Pro on FNIRSI GC-03 Geiger Counters
+# Installing Rad Pro on the FNIRSI GC-03
 
-This guide explains how to install the Rad Pro firmware on FNIRSI GC-03 Geiger counters.
+This guide explains how to install **Rad Pro** on FNIRSI GC-03 Geiger counters.
 
 ## What You'll Need
 
-* **USB data cable:** Must support data transfer, not just charging.
+Make sure you have:
 
-## Step 1: Flash the Firmware
+* A **USB data cable** (charging-only cables will not work)
+* A **computer** (Windows, Linux, or macOS)
 
-1. Download and extract the latest `radpro-[version].zip` from [Rad Pro releases](https://github.com/Gissio/radpro/releases).
-2. Disconnect the device from USB.
-3. Power on the device while holding the "OK" button. The screen should show **Update**.
-4. Connect the device to your computer. A USB drive should appear.
-5. Navigate to the `fnirsi-gc03/install` folder. Select the appropriate firmware file: `radpro-fnirsi-gc03-[language]-x.y.z-install.bin`.
-   * `[language]` Two-letter code for your preferred language (e.g., `en` for English).
-6. Copy the selected firmware file to the USB drive. The device should restart automatically with Rad Pro installed.
+## Step 1: Download the Firmware
 
-**Linux users:**
+1. Go to the Rad Pro releases page: https://github.com/Gissio/radpro/releases
+2. Download the latest `radpro-[version].zip`.
+3. Extract it on your computer.
 
-The USB storage mode of the GC-03 boot loader is fragile. Mounting the GC-03 using `mount` or `pmount` seems to be more robust than using file explorers based on [GVfs](https://en.wikipedia.org/wiki/GVfs). Sometimes it helps to copy the file twice, with a `sync` call in between. When the GC-03 powers off and shows a white screen, the update was accepted.
+## Step 2: Enter Update Mode
 
-**Troubleshooting:**
+1. Disconnect the device from USB.
+2. Press and hold the **OK** button.
+3. While holding it, power on the device.
 
-* To restore the original firmware, copy the [original firmware](firmware) to the USB drive.
+If successful, the screen will display:
 
-## Step 2: Configure the Device
+> **Update**
 
-Use the following controls to operate your device:
+## Step 3: Flash Rad Pro
 
-* **Power on/off:** Press and hold the Power key.
-* **Switch measurement mode:** Use the rotary knob.
-* **Switch secondary measurement view:** Press the Back key.
-* **Reset measurement/dismiss alert:** Press and hold the Back key.
-* **Toggle pulse sound (measurement view only):** Press and hold the OK/Settings key.
-* **Sleep display (measurement view only):** Press the Power key.
-* **Access settings:** Press the OK/Settings key.
-* **Navigate options:** Use the rotary knob.
-* **Select option:** Press the OK/Settings key.
-* **Go back:** Press the Back key.
-* **Toggle lock mode:** Press and hold both the Back and Power keys.
-* **Restart random generator:** Press the OK/Settings key.
+1. Connect the device to your computer.
+2. A **USB drive** should appear.
+3. Open the extracted firmware folder: `fnirsi-gc03/firmware/`
+4. Choose the correct firmware file: `radpro-fnirsi-gc03-[language]-x.y.z-install.bin`
+   * `[language]` is a two-letter code (e.g., `en`, `es`, `fr`)
+5. Copy the file to the USB drive.
 
-## Step 3: Support Rad Pro
+The device will automatically reboot when the transfer completes.
+
+After reboot, **Rad Pro is installed**.
+
+### Linux/macOS Notes
+
+The GC-03 USB upgrade mode is fragile under Linux/macOS.
+
+If you run into issues:
+
+* Prefer manual mounting (`mount`, `pmount`) over file managers
+* If the copy fails:
+  * Copy the file once
+  * Run `sync`
+  * Copy it again
+* A **white screen followed by power-off** usually means the update was accepted
+
+### Troubleshooting
+
+**Device does not reboot after copying:**
+
+* Safely eject the drive and reconnect
+* Try copying the file again
+
+**Device not detected:**
+
+* Check your USB cable (must support data)
+* Try another USB port
+
+**Want to go back to stock firmware?**
+
+* Copy the original firmware (in the [firmware](firmware) folder) to the device using the same process
+
+## Step 4: Basic Controls
+
+Once installed, here are the essential controls:
+
+### Navigation
+
+* **Rotate knob:** Change measurement mode / navigate menus
+* **Press OK:** Select / open settings
+* **Press Back:** Go back
+
+### System
+
+* **Hold Power:** Power on/off
+* **Press Power:** Turn off display
+* **Hold Back + Power:** Toggle lock mode
+
+### Measurement View
+
+* **Press Back:** Switch secondary display
+* **Hold Back:** Reset measurement / dismiss alerts
+* **Hold OK:** Toggle pulse sound
+
+### Random generator
+
+* **Press OK:** Restart random generator
+
+For more details, read the [Rad Pro User Manual](../../manual.md), the [Rad Pro Reference Manual](../../manual.md) and the [Ionizing Radiation Field Guide](https://github.com/Gissio/ionizing-radiation-field-guide).
+
+## Step 5: Support Rad Pro
 
 If you find Rad Pro useful:
 
-* Watch the [Rad Pro GitHub repository](https://github.com/Gissio/radpro) for release updates.
-* Star the project to show your support.
+* ⭐ Star the repository to show your support: [https://github.com/Gissio/radpro](https://github.com/Gissio/radpro)
+* 👀 Spread the word on social networks!
 
-## Hardware-Specific Notes
+## Hardware Notes
 
 <!-- Calculated as follows:
 
@@ -60,13 +114,22 @@ If you find Rad Pro useful:
 
  -->
 
-* **Data storage:** Stores up to 192,089 data points. At 20 cpm (normal radiation levels), this supports:
-  * 4002 days at 60-minute intervals
-  * 667 days at 10-minute intervals
-  * 133 days at 1-minute intervals
-  * 22 days at 10-second intervals
-  * 53 hours at 1-second intervals
+### Data Storage Capacity
 
-* **HV profile settings:**
-  * Factory default: 47.058 kHz frequency, 50% duty cycle.
-  * Energy-saving: 5 kHz frequency, 1.5% duty cycle.
+Rad Pro stores up to **192,089 measurements**.
+
+At typical background radiation (~20 CPM), this corresponds to:
+
+* **60-minute interval:** ~4000 days
+* **10-minute interval:** ~667 days
+* **1-minute interval:** ~133 days
+* **10-second interval:** ~22 days
+* **1-second interval:** ~53 hours
+
+### High Voltage (HV) Profiles
+
+* **Factory default:**
+  47.058 kHz frequency, 50% duty cycle
+
+* **Energy-saving mode:**
+  5 kHz frequency, 1.5% duty cycle
