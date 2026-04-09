@@ -136,6 +136,8 @@ Alerts may use:
 
 ## 4. Data Logging
 
+![Datalog](img/view-datalog.png)
+
 ### 4.1 Storage
 
 Measurements can be logged to:
