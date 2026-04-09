@@ -519,6 +519,11 @@ void USB_IRQ_HANDLER(void)
 
 void initCommHardware(void)
 {
+    // Enable USB pull-up
+#if defined(USB_CH32_PULLUP)
+    usb_enable_pullup();
+#endif
+
     // Force USB device reenumeration
     gpio_setup(USB_DP_PORT, USB_DP_PIN, GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
     gpio_clear(USB_DP_PORT, USB_DP_PIN);

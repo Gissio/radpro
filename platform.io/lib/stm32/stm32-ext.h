@@ -2134,6 +2134,39 @@ __STATIC_INLINE void dma_disable(DMA_Channel_TypeDef *channel)
     clear_bits(channel->CCR, DMA_CCR_EN);
 }
 
+// USB
+
+#if defined(CH32)
+
+#define EXTEN_BASE (AHBPERIPH_BASE + 0x00003800UL)
+
+typedef struct
+{
+    __IO uint32_t CTR;      // Configuration extend control register,    Address offset: 0x00
+    __IO uint32_t RESERVED; // Reserved,                                 Address offset: 0x04
+    __IO uint32_t CTR2;     // Configuration extend control register 2,  Address offset: 0x08
+} EXTEN_CH32_TypeDef;
+
+#define EXTEN ((EXTEN_CH32_TypeDef *)EXTEN_BASE)
+
+#define EXTEN_CTR_USBDPU_Pos (1U)
+#define EXTEN_CTR_USBDPU_Msk (0x1UL << EXTEN_CTR_USBDPU_Pos) // 0x00000002
+#define EXTEN_CTR_USBDPU EXTEN_CTR_USBDPU_Msk                // USB D+ Pull-up
+
+#define EXTEN_CTR
+
+__STATIC_INLINE void usb_enable_pullup()
+{
+    set_bits(EXTEN->CTR, EXTEN_CTR_USBDPU);
+}
+
+__STATIC_INLINE void usb_disable_pullup()
+{
+    clear_bits(EXTEN->CTR, EXTEN_CTR_USBDPU);
+}
+
+#endif
+
 // ROM
 
 #if defined(STM32F0)
