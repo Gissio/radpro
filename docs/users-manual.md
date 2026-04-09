@@ -8,6 +8,8 @@ Before using Rad Pro, it helps to understand what the device is actually telling
 
 ### 1.1 Instantaneous Rate
 
+![Instantaneous rate](img/view-instantaneous.png)
+
 The **instantaneous rate** is the current intensity of ionizing radiation detected by the Geiger tube.
 
 * Typically expressed in **µSv/h** or **CPM**
@@ -19,6 +21,8 @@ Because radiation is random, instantaneous readings may fluctuate significantly.
 Fast-changing numbers do not necessarily indicate changing radiation levels—they often reflect statistical noise.
 
 ### 1.2 Average Rate
+
+![Average rate](img/view-average.png)
 
 Rad Pro improves measurement reliability by averaging measurements over time.
 
@@ -37,6 +41,8 @@ In practice:
 * Use the average rate to assess actual levels
 
 ### 1.3 Cumulative Dose
+
+![Cumulative dose](img/view-cumulative.png)
 
 While the instantaneous rate tells you "how intense right now", the dose tells you "how much over time".
 
@@ -60,6 +66,8 @@ The main screen is your primary workspace. It provides:
 
 ### 2.2 Visual Bar
 
+![Visual bar](img/view-visualbar.png)
+
 The visual bar on the instantaneous screen represents radiation levels on a logarithmic scale.
 
 * Each step corresponds to a **10× increase**
@@ -68,6 +76,8 @@ The visual bar on the instantaneous screen represents radiation levels on a loga
 This allows you to quickly recognize significant changes without focusing on exact values.
 
 ### 2.3 History screen
+
+![History](img/view-history.png)
 
 Rad Pro records and visualizes measurements over multiple time scales:
 
@@ -88,6 +98,8 @@ Like the visual bar, history plots use a **logarithmic scale**.
 
 ### 2.4 Lock Mode
 
+![Lock mode](img/view-lock.png)
+
 Lock mode prevents accidental input while the device is being carried or handled.
 
 * Disables configuration controls
@@ -97,6 +109,8 @@ Lock mode prevents accidental input while the device is being carried or handled
 **Note:** To enter lock mode, refer to the device installation instructions.
 
 ## 3. Alerts
+
+![Alerts](img/view-alert.png)
 
 Rad Pro can notify you when radiation levels exceed defined thresholds.
 
@@ -146,6 +160,8 @@ Data can be:
 
 ## 5. Configuration
 
+![Settings](img/view-settings.png)
+
 Rad Pro is highly configurable to match your use case.
 
 ### 5.1 Measurement Settings
@@ -168,6 +184,8 @@ You can configure:
 * Power management
 
 ## 6. Random Generator
+
+![Random generator](img/view-rng.png)
 
 Rad Pro includes a true random number generator based on physical radiation events.
 
