@@ -138,11 +138,12 @@ The recommended HV for most supported tubes (M4011, J305, J321, HH614, SBM-20) i
 
 ### Measuring HV with a Multimeter (Recommended)
 
+⚠️ High voltage can be lethal.
+
 1. Use a high-quality multimeter (10 MΩ input impedance) set to the 20 V range.
-2. Connect a clean 1 GΩ resistor (or ten 10 MΩ resistors in series) in series to the multimeter's positive terminal.
-3. Connect the negative terminal to ground and the resistor's free end to the tube's anode.
+2. Connect a clean 1 GΩ resistor (or ten 10 MΩ resistors in series) in series with the multimeter's positive terminal.
+3. Connect the negative terminal to ground and the free end of the resistor to the tube's anode.
 4. Calculate voltage: Multimeter reading × 101 (or × 11 when using 10 MΩ resistors).
-5. ⚠️ High voltage can be lethal.
 
 ### Setting HV without a Multimeter (Lower Accuracy)
 
