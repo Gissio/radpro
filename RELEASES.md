@@ -2,16 +2,18 @@
 
 ## 3.1 "Sources"
 
-* **New device support**
+* **Major highlights**
 
   * Added support for the **FNIRSI GC-03**.
+  * Default sensitivity settings for Geiger-Müller tubes are now based on numerical simulations from [Rad Lab](https://github.com/Gissio/radlab).
+  * Introduced **source presets** — pre-configured sensitivity settings for common radiation sources (also based on Rad Lab).
+  * Split documentation into separate User Manual and Technical Reference Manual
+  * Added HV voltage calibration procedure without a multimeter
 
 * **New features**
 
-  * Simplified user manual and added technical reference manual.
-  * Default sensitivity settings for Geiger-Müller tubes are now based on numerical simulations from [Rad Lab](https://github.com/Gissio/radlab).
-  * Introduced **source presets** — pre-configured sensitivity settings for common radiation sources (also based on Rad Lab).
-  * Added **Cumulative** and **Instantaneous** secondary measurement views.
+  * Added a procedure for setting the HV voltage without a multimeter.
+  * New **Cumulative** and **Instantaneous** secondary measurement views.
   * Warnings now use short beeps and brief haptic feedback.
   * Random generator “die throws” can now be re-rolled using the select key.
   * Implemented **USB auto power-on** on supported hardware.
@@ -45,7 +47,7 @@
 * **Cleanup**
 
   * Removed **Time** secondary view from the Instantaneous view.
-  * Removed support for SWD data communications.
+  * Removed legacy support for SWD data communications.
 
 ## 3.0.2 "Icebreaker"
 
