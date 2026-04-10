@@ -75,7 +75,7 @@ Connect the ST-LINK as follows:
 
 ## Step 4: Flash Rad Pro
 
-1. Open the extracted firmware folder: `bosean-fs500/`
+1. Open the extracted firmware folder: `bosean-fs5000/`
 2. Run the Installer:
    * **Windows:** double-click `install.bat`
    * **Linux:** run `./install.sh` in a terminal
@@ -93,21 +93,14 @@ Rad Pro is flashed to the device.
 * **Windows:** drag the backup file onto `install.bat`
 * **Linux/macOS:** pass the backup file to `install.sh`
 
-## Step 5: Finish Up
+## Step 5: Reassemble the Device
 
 * Disconnect the ST-LINK
 * Reassemble the device
 
 <!-- Note: check this [video](https://youtu.be/Ney8Cb1XnZk) for alternative installation instructions. -->
 
-## Step 6: First Configuration
-
-After installation:
-
-* Open **Settings > Geiger tube > Tube type**.
-* Select the tube you identified earlier.
-
-## Step 7: Basic Controls
+## Step 6: Basic Controls
 
 Once installed, here are the essential controls:
 
@@ -132,12 +125,19 @@ Once installed, here are the essential controls:
 
 * **Short Hold Down:** Restart random generator
 
-For more details, read the [Rad Pro User Manual](../../manual.md), the [Rad Pro Reference Manual](../../manual.md) and the [Ionizing Radiation Field Guide](https://github.com/Gissio/ionizing-radiation-field-guide).
+## Step 7: First Configuration
 
-## Step 8: Support Rad Pro
+* Open **Settings > Geiger tube > Tube type**.
+* Select the tube you identified earlier.
 
-* ⭐ Star the repository to show your support: [https://github.com/Gissio/radpro](https://github.com/Gissio/radpro)
-* 👀 Spread the word on social networks!
+## Step 8: Finish Up
+
+* 📖 **Read the documentation**:
+  * [Rad Pro User Manual](../../users-manual.md)
+  * [Rad Pro Reference Manual](../../reference-manual.md)
+  * [Ionizing Radiation Field Guide](https://github.com/Gissio/ionizing-radiation-field-guide).
+* ⭐ **Support the project** by starring the repository: [https://github.com/Gissio/radpro](https://github.com/Gissio/radpro)
+* 👥 **Help us grow** — share Rad Pro on social networks, forums, or with fellow enthusiasts!
 
 ## Hardware Notes
 

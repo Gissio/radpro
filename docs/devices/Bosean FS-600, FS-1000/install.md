@@ -79,7 +79,7 @@ Rad Pro is flashed to the device.
 * **Windows:** drag the backup file onto `install.bat`
 * **Linux/macOS:** pass the backup file to `install.sh`
 
-## Step 5: Finish Up
+## Step 5: Reassemble the Device
 
 * Disconnect the ST-LINK
 * Reassemble the device
@@ -134,12 +134,14 @@ Once installed, here are the essential controls:
 
 * **Short Hold Set:** Restart random generator
 
-For more details, read the [Rad Pro User Manual](../../manual.md), the [Rad Pro Reference Manual](../../manual.md) and the [Ionizing Radiation Field Guide](https://github.com/Gissio/ionizing-radiation-field-guide).
+## Step 7: Finish Up
 
-## Step 7: Support Rad Pro
-
-* ⭐ Star the repository to show your support: [https://github.com/Gissio/radpro](https://github.com/Gissio/radpro)
-* 👀 Spread the word on social networks!
+* 📖 **Read the documentation**:
+  * [Rad Pro User Manual](../../users-manual.md)
+  * [Rad Pro Reference Manual](../../reference-manual.md)
+  * [Ionizing Radiation Field Guide](https://github.com/Gissio/ionizing-radiation-field-guide).
+* ⭐ **Support the project** by starring the repository: [https://github.com/Gissio/radpro](https://github.com/Gissio/radpro)
+* 👥 **Help us grow** — share Rad Pro on social networks, forums, or with fellow enthusiasts!
 
 ## Hardware Notes
 

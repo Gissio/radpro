@@ -93,14 +93,14 @@ Once installed, here are the essential controls:
 
 * **Press OK:** Restart random generator
 
-For more details, read the [Rad Pro User Manual](../../manual.md), the [Rad Pro Reference Manual](../../manual.md) and the [Ionizing Radiation Field Guide](https://github.com/Gissio/ionizing-radiation-field-guide).
+## Step 5: Finish Up
 
-## Step 5: Support Rad Pro
-
-If you find Rad Pro useful:
-
-* ⭐ Star the repository to show your support: [https://github.com/Gissio/radpro](https://github.com/Gissio/radpro)
-* 👀 Spread the word on social networks!
+* 📖 **Read the documentation**:
+  * [Rad Pro User Manual](../../users-manual.md)
+  * [Rad Pro Reference Manual](../../reference-manual.md)
+  * [Ionizing Radiation Field Guide](https://github.com/Gissio/ionizing-radiation-field-guide).
+* ⭐ **Support the project** by starring the repository: [https://github.com/Gissio/radpro](https://github.com/Gissio/radpro)
+* 👥 **Help us grow** — share Rad Pro on social networks, forums, or with fellow enthusiasts!
 
 ## Hardware Notes
 

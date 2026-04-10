@@ -68,14 +68,14 @@ The main screen is your primary workspace. It provides:
 
 ![Visual bar](img/view-visualbar.png)
 
-The visual bar on the instantaneous screen represents radiation levels on a logarithmic scale.
+The visual bar on the instantaneous rate screen represents radiation levels on a logarithmic scale.
 
 * Each step corresponds to a **10× increase**
 * Designed to make both low and high levels readable
 
 This allows you to quickly recognize significant changes without focusing on exact values.
 
-### 2.3 History screen
+### 2.3 History Screen
 
 ![History](img/view-history.png)
 
@@ -232,5 +232,5 @@ Keep in mind:
 ## 10. Further Resources
 
 * [Installation guides](../README.md) – For supported devices
-* [Rad Pro reference manual](docs/reference-manual.md) – Technical reference
+* [Rad Pro reference manual](reference-manual.md) – Technical reference
 * [Ionizing radiation field guide](https://github.com/Gissio/ionizing-radiation-field-guide) – Learn about ionizing radiation

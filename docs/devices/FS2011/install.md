@@ -105,14 +105,7 @@ Rad Pro is flashed to the device.
 * Disconnect the ST-LINK
 * Reassemble the device
 
-## Step 6: First Configuration
-
-After installation:
-
-* Open **Settings > Geiger tube > Tube type**.
-* Select the tube you identified earlier.
-
-## Step 7: Basic Controls
+## Step 6: Basic Controls
 
 Once installed, here are the essential controls:
 
@@ -138,7 +131,10 @@ Once installed, here are the essential controls:
 
 * **Press Menu/OK:** Restart random generator
 
-For more details, read the [Rad Pro User Manual](../../manual.md), the [Rad Pro Reference Manual](../../manual.md) and the [Ionizing Radiation Field Guide](https://github.com/Gissio/ionizing-radiation-field-guide).
+## Step 7: First Configuration
+
+* Open **Settings > Geiger tube > Tube type**.
+* Select the tube you identified earlier.
 
 ## Step 8: Optional Mods
 
@@ -168,10 +164,14 @@ For more details, read the [Rad Pro User Manual](../../manual.md), the [Rad Pro 
 
 * Drill holes in front of the buzzer
 
-## Step 9: Support Rad Pro
+## Step 9: Finish Up
 
-* ⭐ Star the repository to show your support: [https://github.com/Gissio/radpro](https://github.com/Gissio/radpro)
-* 👀 Spread the word on social networks!
+* 📖 **Read the documentation**:
+  * [Rad Pro User Manual](../../users-manual.md)
+  * [Rad Pro Reference Manual](../../reference-manual.md)
+  * [Ionizing Radiation Field Guide](https://github.com/Gissio/ionizing-radiation-field-guide).
+* ⭐ **Support the project** by starring the repository: [https://github.com/Gissio/radpro](https://github.com/Gissio/radpro)
+* 👥 **Help us grow** — share Rad Pro on social networks, forums, or with fellow enthusiasts!
 
 ## Hardware Notes
 
