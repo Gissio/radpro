@@ -130,17 +130,28 @@ The compensation factor is capped at 10 to prevent overflow. Compensation applie
 
 High-voltage (HV) profiles control the voltage supplied to the Geiger-Müller tube, balancing power consumption and accuracy. Preconfigured profiles are included, or you can create a custom profile.
 
-**Warning:** Incorrect HV settings may damage the tube or switching transistor due to overvoltage or overcurrent.
+⚠️ Incorrect HV settings may damage the tube or switching transistor due to overvoltage or overcurrent.
 
-To measure high voltage:
+Higher PWM frequency provides more stable voltage but increases power consumption. Lower PWM frequency reduces power consumption but may decrease measurement accuracy due to higher ripple.
+
+The recommended HV for most supported tubes (M4011, J305, J321, HH614, SBM-20) is **440 V**.
+
+### Measuring HV with a Multimeter (Recommended)
 
 1. Use a high-quality multimeter (10 MΩ input impedance) set to the 20 V range.
-2. Connect a clean 1 GΩ resistor in series to the multimeter's positive terminal.
+2. Connect a clean 1 GΩ resistor (or ten 10 MΩ resistors in series) in series to the multimeter's positive terminal.
 3. Connect the negative terminal to ground and the resistor's free end to the tube's anode.
-4. Calculate voltage: Multimeter reading × 101 (approximate).
-5. **Warning:** High voltage can be lethal.
+4. Calculate voltage: Multimeter reading × 101 (or × 11 when using 10 MΩ resistors).
+5. ⚠️ High voltage can be lethal.
 
-**Custom HV Profile:** Set the [PWM](https://en.wikipedia.org/wiki/Pulse-width_modulation) frequency and duty cycle. Higher frequencies reduce voltage ripple but increase power use; lower frequencies save power but may reduce accuracy.
+### Setting HV without a Multimeter (Lower Accuracy)
+
+1. Set PWM frequency to 2.5 kHz.
+2. Start with the lowest duty cycle and increase slowly until the tube begins producing counts (note this value).
+3. Continue increasing slowly until the displayed rate exceeds background radiation (> 0.3 µSv/h).
+4. Choose the average of the two duty-cycle values as the operating point.
+
+⚠️ Leaving the counter running at the higher PWM duty cycle can damage the tube.
 
 ## Tube Fault Alarm
 
