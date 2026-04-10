@@ -96,9 +96,9 @@ Once installed, here are the essential controls:
 ## Step 5: Finish Up
 
 * 📖 **Read the documentation**:
-  * [Rad Pro User Manual](../../users-manual.md)
-  * [Rad Pro Reference Manual](../../reference-manual.md)
-  * [Ionizing Radiation Field Guide](https://github.com/Gissio/ionizing-radiation-field-guide).
+  * [Rad Pro user's manual](../../users-manual.md) – Easy guide to using Rad Pro
+  * [Rad Pro reference manual](../../reference-manual.md) – Technical reference for Rad Pro
+  * [Ionizing radiation field guide](https://github.com/Gissio/ionizing-radiation-field-guide) – Learn about ionizing radiation
 * ⭐ **Support the project** by starring the repository: [https://github.com/Gissio/radpro](https://github.com/Gissio/radpro)
 * 👥 **Help us grow** — share Rad Pro on social networks, forums, or with fellow enthusiasts!
 
@@ -106,8 +106,8 @@ Once installed, here are the essential controls:
 
 <!-- Calculated as follows:
 
-* With 1-byte differential values: [47 pages * (1 timestamp record/page [10 bytes] + 4086 differential records/page [1 byte each])] = 192089 records
-* With 2-byte differential values: [47 pages * (1 timestamp record/page [10 bytes] + 2043 differential records/page [2 byte each])] = 96068 records
+* With 1-byte differential values: [42 pages * (1 timestamp record/page [10 bytes] + 4086 differential records/page [1 byte each])] = 171654 records
+* With 2-byte differential values: [42 pages * (1 timestamp record/page [10 bytes] + 2043 differential records/page [2 byte each])] = 85188 records
 
 * 60-minute and 10-minute intervals require 2-byte differential values.
 * 1-minute intervals and less require 1-byte differential values.
@@ -116,20 +116,12 @@ Once installed, here are the essential controls:
 
 ### Data Storage Capacity
 
-Rad Pro stores up to **192,089 measurements**.
+Rad Pro stores up to **171,654 measurements**.
 
 At typical background radiation (~20 CPM), this corresponds to:
 
-* **60-minute interval:** ~4000 days
-* **10-minute interval:** ~667 days
-* **1-minute interval:** ~133 days
-* **10-second interval:** ~22 days
-* **1-second interval:** ~53 hours
-
-### High Voltage (HV) Profiles
-
-* **Factory default:**
-  47.058 kHz frequency, 50% duty cycle
-
-* **Energy-saving mode:**
-  5 kHz frequency, 1.5% duty cycle
+* **60-minute interval:** ~3577 days
+* **10-minute interval:** ~596 days
+* **1-minute interval:** ~119 days
+* **10-second interval:** ~19 days
+* **1-second interval:** ~47 hours

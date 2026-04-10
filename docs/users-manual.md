@@ -231,6 +231,6 @@ Keep in mind:
 
 ## 10. Further Resources
 
-* [Installation guides](../README.md) – For supported devices
-* [Rad Pro reference manual](reference-manual.md) – Technical reference
+* [Installation guides](../README.md#supported-devices) – For supported devices
+* [Rad Pro reference manual](reference-manual.md) – Technical reference for Rad Pro
 * [Ionizing radiation field guide](https://github.com/Gissio/ionizing-radiation-field-guide) – Learn about ionizing radiation

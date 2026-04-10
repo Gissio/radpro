@@ -133,9 +133,9 @@ Once installed, here are the essential controls:
 ## Step 8: Finish Up
 
 * 📖 **Read the documentation**:
-  * [Rad Pro User Manual](../../users-manual.md)
-  * [Rad Pro Reference Manual](../../reference-manual.md)
-  * [Ionizing Radiation Field Guide](https://github.com/Gissio/ionizing-radiation-field-guide).
+  * [Rad Pro user's manual](../../users-manual.md) – Easy guide to using Rad Pro
+  * [Rad Pro reference manual](../../reference-manual.md) – Technical reference for Rad Pro
+  * [Ionizing radiation field guide](https://github.com/Gissio/ionizing-radiation-field-guide) – Learn about ionizing radiation
 * ⭐ **Support the project** by starring the repository: [https://github.com/Gissio/radpro](https://github.com/Gissio/radpro)
 * 👥 **Help us grow** — share Rad Pro on social networks, forums, or with fellow enthusiasts!
 

@@ -117,14 +117,7 @@ If needed:
 * Use the alternative method: `install-stlink.md` 
 -->
 
-## Step 4: First Configuration
-
-After installation:
-
-* Open **Settings > Geiger tube > Tube type**.
-* Select the tube you identified earlier.
-
-## Step 5: Basic Controls
+## Step 4: Basic Controls
 
 Once installed, here are the essential controls:
 
@@ -150,12 +143,17 @@ Once installed, here are the essential controls:
 
 * **Press Right:** Restart random generator
 
+## Step 5: First Configuration
+
+* Open **Settings > Geiger tube > Tube type**.
+* Select the tube you identified earlier.
+
 ## Step 6: Finish Up
 
 * 📖 **Read the documentation**:
-  * [Rad Pro User Manual](../../users-manual.md)
-  * [Rad Pro Reference Manual](../../reference-manual.md)
-  * [Ionizing Radiation Field Guide](https://github.com/Gissio/ionizing-radiation-field-guide).
+  * [Rad Pro user's manual](../../users-manual.md) – Easy guide to using Rad Pro
+  * [Rad Pro reference manual](../../reference-manual.md) – Technical reference for Rad Pro
+  * [Ionizing radiation field guide](https://github.com/Gissio/ionizing-radiation-field-guide) – Learn about ionizing radiation
 * ⭐ **Support the project** by starring the repository: [https://github.com/Gissio/radpro](https://github.com/Gissio/radpro)
 * 👥 **Help us grow** — share Rad Pro on social networks, forums, or with fellow enthusiasts!
 
@@ -190,9 +188,6 @@ At typical background radiation (~20 CPM), this corresponds to:
 * **Factory default:**
   9.207 kHz frequency, 75% duty cycle
 
-* **Energy-saving mode:**
-  5 kHz frequency, 1.5% duty cycle
-
 ### APM32F103R8 (Geehy) Devices
 
 <!-- Calculated as follows:
@@ -216,11 +211,3 @@ At typical background radiation (~20 CPM), this corresponds to:
 * **1-minute interval:** ~50 days
 * **10-second interval:** ~8 days
 * **1-second interval:** ~20 hours
-
-#### High Voltage (HV) Profiles
-
-* **Factory default:**
-  47.058 kHz frequency, 50% duty cycle
-
-* **Energy-saving mode:**
-  5 kHz frequency, 1.5% duty cycle

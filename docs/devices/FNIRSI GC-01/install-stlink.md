@@ -113,4 +113,4 @@ Rad Pro is flashed to the device.
 
 Once Rad Pro is installed, continue with:
 
-* [Regular installation guide](install.md#step-4-first-configuration) → Step 4: First Configuration
+* [Regular installation guide](install.md#step-5-first-configuration) → Step 5: First Configuration
