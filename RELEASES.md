@@ -126,8 +126,8 @@
 
   * Renamed **Conversion factor** to **Sensitivity** (as sensitivity is cpm/radiation rate, while conversion factor is radiation rate/cpm).
   * Renamed `GET tubeConversionFactor` to `GET tubeSensitivity`.
-  * Short press of power key on 5-key devices in measurement view activates display sleep.
-  * On 3-key devices, holding left and right keys in measurement view toggles pulse sounds.
+  * Short press of power key on 5-key devices in measurement screen activates display sleep.
+  * On 3-key devices, holding left and right keys in measurement screen toggles pulse sounds.
   * Lock mode now accessible from any screen.
   * Die rolls and coin flips generate single outcomes per run.
   * Added support for 100-sided and 10-sided die rolls and binary random number generation.
@@ -149,7 +149,7 @@
   * Implemented keyboard lock mode, accessible from Settings.
   * Doses below 10,000 now displayed in standard notation.
   * Added new rate and dose alarm options, average timer options, and extended dead-time compensation (20–320 µs).
-  * Enabled pulse sound toggle from measurement view on supported devices.
+  * Enabled pulse sound toggle from measurement screen on supported devices.
   * Added pulse chirp sound option and extended alert sound duration.
   * Improved menu navigation and updated UI font to Open Sans for better readability.
 
@@ -208,7 +208,7 @@
 
 ## 2.0rc3 "The BIG Update"
 
-* Updated UI with larger digits in measurement view.
+* Updated UI with larger digits in measurement screen.
 * Added instantaneous rate bar and history alert zones (1 µSv, 10 µSv).
 * Added average timer expiration at configurable confidence intervals.
 * Added background compensation, FNIRSI GC-01 display flashes, vibration pulses, pulse threshold, and fault alarms.

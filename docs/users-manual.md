@@ -8,7 +8,7 @@ Before using Rad Pro, it helps to understand what the device is actually telling
 
 ### 1.1 Instantaneous Rate
 
-![Instantaneous rate](img/view-instantaneous.png)
+<img src="img/view-instantaneous.png" alt="Instantaneous rate" width="50%"/>
 
 The **instantaneous rate** is the current intensity of ionizing radiation detected by the Geiger tube.
 
@@ -22,7 +22,7 @@ Fast-changing numbers do not necessarily indicate changing radiation levels—th
 
 ### 1.2 Average Rate
 
-![Average rate](img/view-average.png)
+<img src="img/view-average.png" alt="Average rate" width="50%"/>
 
 Rad Pro improves measurement reliability by averaging measurements over time.
 
@@ -42,7 +42,7 @@ In practice:
 
 ### 1.3 Cumulative Dose
 
-![Cumulative dose](img/view-cumulative.png)
+<img src="img/view-cumulative.png" alt="Cumulative dose" width="50%"/>
 
 While the instantaneous rate tells you "how intense right now", the dose tells you "how much over time".
 
@@ -66,7 +66,7 @@ The main screen is your primary workspace. It provides:
 
 ### 2.2 Visual Bar
 
-![Visual bar](img/view-visualbar.png)
+<img src="img/view-visualbar.png" alt="Visual bar" width="50%"/>
 
 The visual bar on the instantaneous rate screen represents radiation levels on a logarithmic scale.
 
@@ -77,7 +77,7 @@ This allows you to quickly recognize significant changes without focusing on exa
 
 ### 2.3 History Screen
 
-![History](img/view-history.png)
+<img src="img/view-history.png" alt="History screen" width="50%"/>
 
 Rad Pro records and visualizes measurements over multiple time scales:
 
@@ -98,19 +98,19 @@ Like the visual bar, history plots use a **logarithmic scale**.
 
 ### 2.4 Lock Mode
 
-![Lock mode](img/view-lock.png)
+<img src="img/view-lock.png" alt="Lock mode" width="50%"/>
 
 Lock mode prevents accidental input while the device is being carried or handled.
 
 * Disables configuration controls
-* Keeps measurement views accessible
+* Keeps measurement screens accessible
 * Requires a key combination to unlock
 
 **Note:** To enter lock mode, refer to the device installation instructions.
 
 ## 3. Alerts
 
-![Alerts](img/view-alert.png)
+<img src="img/view-alert.png" alt="Alerts" width="50%"/>
 
 Rad Pro can notify you when radiation levels exceed defined thresholds.
 
@@ -136,7 +136,7 @@ Alerts may use:
 
 ## 4. Data Logging
 
-![Datalog](img/view-datalog.png)
+<img src="img/view-datalog.png" alt="Datalog" width="50%"/>
 
 ### 4.1 Storage
 
@@ -162,7 +162,7 @@ Data can be:
 
 ## 5. Configuration
 
-![Settings](img/view-settings.png)
+<img src="img/view-settings.png" alt="Settings" width="50%"/>
 
 Rad Pro is highly configurable to match your use case.
 
@@ -187,7 +187,7 @@ You can configure:
 
 ## 6. Random Generator
 
-![Random generator](img/view-rng.png)
+<img src="img/view-rng.png" alt="Random generator" width="50%"/>
 
 Rad Pro includes a true random number generator based on physical radiation events.
 

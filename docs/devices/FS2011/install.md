@@ -100,7 +100,7 @@ Rad Pro is flashed to the device.
 * **Windows:** drag the backup file onto `install.bat`
 * **Linux/macOS:** pass the backup file to `install.sh`
 
-## Step 5: Finish Up
+## Step 5: Reassemble the Device
 
 * Disconnect the ST-LINK
 * Reassemble the device
@@ -121,7 +121,7 @@ Once installed, here are the essential controls:
 * **Press Power:** Turn off display
 * **Hold Play/Pause + Power:** Toggle lock mode
 
-### Measurement View
+### Measurement Screen
 
 * **Press Play/Pause:** Switch secondary display
 * **Hold Play/Pause:** Reset measurement / dismiss alerts
@@ -199,7 +199,7 @@ At typical background radiation (~20 CPM), this corresponds to:
 
 ### Electrical Characteristics
 
-* **HV Voltage:** 440 V max (Zener-limited)
+* **HV voltage:** 440 V max (Zener-limited)
 
 ### High Voltage (HV) Profiles
 

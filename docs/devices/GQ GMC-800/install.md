@@ -57,7 +57,7 @@ Once installed, here are the essential controls:
 * **Hold Power:** Power on/off
 * **Hold Back + Power:** Toggle lock mode
 
-### Measurement View
+### Measurement Screen
 
 * **Press Back:** Switch secondary display
 * **Hold Back:** Reset measurement / dismiss alerts

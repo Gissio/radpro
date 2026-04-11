@@ -101,7 +101,7 @@ Once installed, here are the essential controls:
 * **Hold OK:** Power on/off
 * **Hold Back + OK:** Toggle lock mode
 
-#### Measurement View
+### Measurement Screen
 
 * **Press Back:** Switch secondary display
 * **Hold Back:** Reset measurement / dismiss alerts
@@ -125,7 +125,7 @@ Once installed, here are the essential controls:
 * **Long Hold Set:** Power on/off
 * **Long Hold Mode + Set:** Toggle lock mode
 
-#### Measurement View
+### Measurement Screen
 
 * **Press Mode:** Switch secondary display
 * **Long Hold Mode:** Reset measurement / dismiss alerts
@@ -169,7 +169,7 @@ At typical background radiation (~20 CPM), this corresponds to:
 
 ### Electrical Characteristics
 
-* **HV Voltage:** 440 V max (Zener-limited)
+* **HV voltage:** 440 V max (Zener-limited)
 * Pulse LED: Not supported on all devices
 
 ### High Voltage (HV) Profiles
