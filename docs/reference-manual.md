@@ -134,7 +134,7 @@ High-voltage (HV) profiles control the voltage supplied to the Geiger-Müller tu
 
 Higher PWM frequency provides more stable voltage but increases power consumption. Lower PWM frequency reduces power consumption but may decrease measurement accuracy due to higher ripple.
 
-The recommended HV for most supported tubes (M4011, J305, J321, HH614, SBM-20) is **440 V**.
+The recommended HV for most supported tubes (M4011, J305, J321, HH614, SBM20) is **440 V**.
 
 ### Measuring HV with a Multimeter (Recommended)
 

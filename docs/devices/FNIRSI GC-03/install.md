@@ -7,7 +7,11 @@ This guide explains how to install **Rad Pro** on FNIRSI GC-03 Geiger counters.
 Make sure you have:
 
 * A **USB data cable** (charging-only cables will not work)
-* A **computer** (Windows, Linux, or macOS)
+* A **computer** running Windows 10 or Windows 11
+
+### Important Warning
+
+⚠️ **DO NOT attempt installation from macOS or Linux.** These operating systems are **not supported** and can brick your device. You will need a Windows 10/11 computer to recover it if something goes wrong.
 
 ## Step 1: Download the Firmware
 
@@ -37,19 +41,6 @@ If successful, the screen will display:
 The device will automatically reboot when the transfer completes.
 
 After reboot, **Rad Pro is installed**.
-
-### Linux/macOS Notes
-
-The GC-03 USB upgrade mode is fragile under Linux/macOS.
-
-If you run into issues:
-
-* Prefer manual mounting (`mount`, `pmount`) over file managers
-* If the copy fails:
-  * Copy the file once
-  * Run `sync`
-  * Copy it again
-* A **white screen followed by power-off** usually means the update was accepted
 
 ### Troubleshooting
 
