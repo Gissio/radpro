@@ -22,7 +22,7 @@ With Rad Pro, you can:
 * Stream data to external platforms ([gmcmap.com](https://gmcmap.com), [radmon.org](https://radmon.org), [safecast.org](https://map.safecast.org), [opensensemap.org](https://opensensemap.org))
 * Generate high-quality random data
 
-## Supported Devices
+## Installation
 
 Before installing, read the [legal disclaimer](docs/legal.md).
 

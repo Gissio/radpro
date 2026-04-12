@@ -62,7 +62,7 @@ Once identified, close the device and screw it back together.
 
 3. Open the extracted firmware folder: `fnirsi-gc01_[microprocessor]/firmware/` and choose the correct firmware file: `radpro-fnirsi-gc01_[microprocessor]-[language]-x.y.z-install.bin`
    * `[microprocessor]` is `ch32f103r8t6` or `apm32f103rbt6`
-   * `[language]` is a two-letter code (e.g., `en`, `es`, `fr`)
+   * `[language]` is a two-letter code (e.g., `en`, `es`)
    * Not sure about the microprocessor? Start with `apm32f103rbt6`. If you get a **Drive full** error, disconnect the device and retry using `ch32f103r8t6`.
 4. Copy the file to the USB drive.
 

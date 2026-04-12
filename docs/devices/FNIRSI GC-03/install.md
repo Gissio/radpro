@@ -31,7 +31,7 @@ If successful, the screen will display:
 2. A **USB drive** should appear.
 3. Open the extracted firmware folder: `fnirsi-gc03/firmware/`
 4. Choose the correct firmware file: `radpro-fnirsi-gc03-[language]-x.y.z-install.bin`
-   * `[language]` is a two-letter code (e.g., `en`, `es`, `fr`)
+   * `[language]` is a two-letter code (e.g., `en`, `es`)
 5. Copy the file to the USB drive.
 
 The device will automatically reboot when the transfer completes.
