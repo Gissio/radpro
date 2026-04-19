@@ -153,6 +153,8 @@ typedef enum
 #define CONTENT_RIGHT (CONTENT_LEFT + CONTENT_WIDTH)
 #define CONTENT_BOTTOM (CONTENT_TOP + CONTENT_HEIGHT)
 
+#define CONTENT_MULTILINE_WIDTH (DISPLAY_WIDTH - PADDING_LEFT - PADDING_RIGHT)
+
 extern const uint8_t font_large[];
 extern const uint8_t font_medium[];
 extern const uint8_t font_small[];
@@ -170,16 +172,16 @@ void ditherRectangle(const mr_rectangle_t *rectangle, bool darker);
 void drawImage(const mr_rectangle_t *rectangle, const mr_color_t *imageBuffer);
 
 void setFont(const uint8_t *font);
-uint16_t getTextWidth(const char *s);
+uint16_t getTextWidth(const char *text);
 uint16_t getTextHeight(void);
-void drawText(const char *s, const mr_rectangle_t *rectangle, const mr_point_t *offset);
-void drawCenteredText(const char *s, const mr_rectangle_t *rectangle, const mr_point_t *offset);
-void drawRightAlignedText(const char *s, const mr_rectangle_t *rectangle, const mr_point_t *offset);
-void drawCenteredMultilineText(const mr_rectangle_t *rectangle, const char *message);
-void drawRowLeft(const char *buffer, mr_rectangle_t *rectangle);
-void drawRowRight(const char *buffer, mr_rectangle_t *rectangle);
+void drawText(const char *text, const mr_rectangle_t *rectangle, const mr_point_t *offset);
+void drawCenteredText(const char *text, const mr_rectangle_t *rectangle, const mr_point_t *offset);
+void drawRightAlignedText(const char *text, const mr_rectangle_t *rectangle, const mr_point_t *offset);
+void drawCenteredMultilineText(const mr_rectangle_t *rectangle, const char *text);
+void drawRowLeft(const char *text, mr_rectangle_t *rectangle);
+void drawRowRight(const char *text, mr_rectangle_t *rectangle);
 
-void setupBatteryIcon(char *buffer);
+void setupBatteryIcon(char *text);
 
 void drawValueAndUnit(const char *valueString, const char *unitString, const mr_rectangle_t *rectangle, const mr_point_t *offset, bool isHold);
 

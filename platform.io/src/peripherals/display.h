@@ -29,7 +29,7 @@
 void initDisplay(void);
 void initBacklight(void);
 
-void setupDisplay(void);
+void resetDisplay(void);
 
 void setDisplayEnabled(bool value);
 bool isDisplayEnabled(void);

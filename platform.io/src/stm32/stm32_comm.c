@@ -49,7 +49,7 @@ void openComm(void)
     NVIC_SetPriority(USART_IRQ, 0x40);
     NVIC_EnableIRQ(USART_IRQ);
 
-    resetComm(true);
+    clearComm(true);
 }
 
 void closeComm(void)
@@ -75,7 +75,7 @@ void closeComm(void)
     // RCC
     rcc_disable_usart(USART_INTERFACE);
 
-    resetComm(false);
+    clearComm(false);
 }
 
 void transmitComm(void)
@@ -540,7 +540,7 @@ void initCommHardware(void)
     usbd_enable(&usbdDevice, true);
     usbd_connect(&usbdDevice, true);
 
-    resetComm(false);
+    clearComm(false);
 }
 
 void openComm(void)
@@ -548,7 +548,7 @@ void openComm(void)
     if (comm.open)
         return;
 
-    resetComm(true);
+    clearComm(true);
 }
 
 void closeComm(void)
@@ -556,7 +556,7 @@ void closeComm(void)
     if (!comm.open)
         return;
 
-    resetComm(false);
+    clearComm(false);
 }
 
 #else
@@ -570,7 +570,7 @@ void openComm(void)
     if (comm.open)
         return;
 
-    resetComm(true);
+    clearComm(true);
 }
 
 void closeComm(void)
@@ -578,7 +578,7 @@ void closeComm(void)
     if (!comm.open)
         return;
 
-    resetComm(false);
+    clearComm(false);
 }
 
 void transmitComm(void)

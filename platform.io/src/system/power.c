@@ -57,6 +57,7 @@ static struct
 } power;
 
 static void onPowerOffViewEvent(ViewEvent event);
+static void powerOffWithBatteryIndicator(bool batteryIndicator);
 
 #if defined(POWER_MENU)
 static const Menu powerMenu;
@@ -65,7 +66,7 @@ static const Menu powerMenu;
 static const Menu powerBatteryTypeMenu;
 #endif
 
-static void setupPower(void)
+static void resetPower(void)
 {
 #if defined(POWER_MENU)
     selectMenuItem(&powerMenu, 0);
@@ -103,18 +104,8 @@ static void onPowerOnViewEvent(ViewEvent event)
             power.onViewState = POWERON_VIEW_SPLASH;
         else
         {
-            power.poweredOn = true;
-
-#if defined(PULSESOUND_ENABLE)
-            updatePulseSoundEnable();
-#endif
-#if defined(PULSE_LED) || defined(PULSE_LED_EN)
-            updateLED();
-#endif
             setMeasurementsEnabled(true);
-            if (settings.loggingMode != DATALOG_LOGGINGMODE_OFF)
-                startDatalog();
-
+            startDatalog();
             setMeasurementView();
         }
 
@@ -123,47 +114,47 @@ static void onPowerOnViewEvent(ViewEvent event)
     }
 }
 
-void powerOn(bool isBoot)
+void boot(void)
 {
-    if (power.poweredOn)
-        return;
-
 #if !defined(START_POWERED)
-    if (isBoot)
+    updatePowerState();
+
+    bool powerKeyDown = isPowerKeyDown();
+
+    if (!powerKeyDown && !settings.powerUSBAutoPowerOn)
     {
-        updatePowerState();
+        powerOffWithBatteryIndicator(true);
 
-        bool powerKeyDown = isPowerKeyDown();
-
-        if (!powerKeyDown && !settings.powerUSBAutoPowerOn)
-        {
-            showView(onPowerOffViewEvent);
-            powerOff(true);
-
-            return;
-        }
-
-        if (powerKeyDown)
-            waitLongKeyPress();
+        return;
     }
+
+    if (powerKeyDown)
+        waitLongKeyPress();
 #endif
+
+    powerOn();
+}
+
+void powerOn(void)
+{
+    if (isPoweredOn())
+        return;
 
     setPowerEnabled(true);
 
-    setupEvents();
-    setupPower();
-    setupSettings();
-    setupMeasurements();
-    setupTube();
-    setupDatalog();
-    setupDisplay();
+    resetPower();
+    resetSettings();
+    resetMeasurements();
+    resetTube();
+    resetDatalog();
+    resetDisplay();
 #if defined(SOUND)
-    setupSound();
+    resetSound();
 #endif
-    setupRTC();
-    setupRNG();
+    resetRTC();
+    resetRNG();
 #if defined(GAME)
-    setupGame();
+    resetGame();
 #endif
 
     if (!verifyFlash())
@@ -178,19 +169,38 @@ void powerOn(bool isBoot)
     requestBacklightTrigger();
     triggerVibration();
 
+    startHeartbeatEvents();
     showView(onPowerOnViewEvent);
+
+    power.poweredOn = true;
 }
 
 // Power off
+
+static void triggerPowerOffBacklight(void)
+{
+    requestBacklightTrigger();
+    setPowerEnabled(true);
+
+    power.displayTimer = POWEROFF_DISPLAY_TIME;
+
+    startHeartbeatEvents();
+}
+
+static void cancelPowerOffBacklight(void)
+{
+    cancelBacklight();
+    setPowerEnabled(false);
+
+    power.displayTimer = 0;
+}
 
 static void onPowerOffViewEvent(ViewEvent event)
 {
     switch (event)
     {
     case EVENT_KEY_TOGGLEBACKLIGHT:
-        power.displayTimer = POWEROFF_DISPLAY_TIME;
-        setupEvents();
-        requestBacklightTrigger();
+        triggerPowerOffBacklight();
 
         break;
 
@@ -200,14 +210,11 @@ static void onPowerOffViewEvent(ViewEvent event)
         break;
 
     case EVENT_HEARTBEAT:
-        if (!isBacklightActive())
-            setPowerEnabled(false);
-
         if (power.displayTimer)
         {
             power.displayTimer--;
-            if (!power.displayTimer)
-                cancelBacklight();
+            if (power.displayTimer == 0)
+                cancelPowerOffBacklight();
         }
 
         break;
@@ -217,47 +224,29 @@ static void onPowerOffViewEvent(ViewEvent event)
     }
 }
 
-void powerOff(bool showBatteryIndicator)
+static void powerOffWithBatteryIndicator(bool batteryIndicator)
 {
-    if (!power.poweredOn)
-        return;
-
-    setupEvents();
-
-    bool previousPoweredOn = power.poweredOn;
-    power.poweredOn = false;
-
-    setMeasurementsEnabled(false);
-
-    if (previousPoweredOn)
+    if (isPoweredOn())
     {
+        setMeasurementsEnabled(false);
         saveSettings();
-#if defined(PULSESOUND_ENABLE)
-        updatePulseSoundEnable();
-#endif
-#if defined(PULSE_LED) || defined(PULSE_LED_EN)
-        updateLED();
-#endif
         stopDatalog();
         setKeyboardMode(KEYBOARD_MODE_MEASUREMENT);
-#if defined(VOICE)
-        stopVoice();
-#endif
-    }
-
-    if (showBatteryIndicator)
-    {
-        power.displayTimer = POWEROFF_DISPLAY_TIME;
-        requestBacklightTrigger();
-    }
-    else
-    {
-        power.displayTimer = 0;
-        cancelBacklight();
-        setPowerEnabled(false);
     }
 
     showView(onPowerOffViewEvent);
+
+    if (batteryIndicator)
+        triggerPowerOffBacklight();
+    else
+        cancelPowerOffBacklight();
+
+    power.poweredOn = false;
+}
+
+void powerOff(void)
+{
+    powerOffWithBatteryIndicator(false);
 }
 
 // Powered on
@@ -333,8 +322,8 @@ void updatePowerState(void)
     {
         bool lowBattery = (power.batteryVoltage < batteryLow[settings.powerBatteryType]);
 
-        if (power.poweredOn && lowBattery)
-            powerOff(true);
+        if (isPoweredOn() && lowBattery)
+            powerOffWithBatteryIndicator(true);
     }
 
     if (!power.previousUSBPowered && usbPowered)

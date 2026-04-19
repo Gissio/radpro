@@ -26,7 +26,7 @@ typedef enum
     AVERAGE_TAB_ALERT = AVERAGE_TAB_NUM,
 } AverageTab;
 
-static void resetAverageRate(void);
+static void clearAverageRate(void);
 
 static const int32_t averagingTimes[] = {
     30 * 24 * 60 * 60, // Off (30 days)
@@ -66,16 +66,16 @@ static struct
 
 static AverageTab averageTab;
 
-void setupAverageRate(void)
+void resetAverageRate(void)
 {
     averageTab = AVERAGE_TAB_TIME;
 
-    resetAverageRate();
+    clearAverageRate();
 
     selectMenuItem(&averageMenu, settings.averaging);
 }
 
-static void resetAverageRate(void)
+static void clearAverageRate(void)
 {
     memset(&average, 0, sizeof(average));
 
@@ -277,7 +277,7 @@ void onAverageRateViewEvent(ViewEvent event)
     case EVENT_KEY_RESET:
         triggerVibration();
 
-        resetAverageRate();
+        clearAverageRate();
 
         requestViewUpdate();
 

@@ -22,12 +22,12 @@ typedef struct {
 
 void initDatalog(void);
 
-void setupDatalog(void);
+void resetDatalog(void);
 
 void startDatalog(void);
 void stopDatalog(void);
 void writeDatalogTimeChange(void);
-void resetDatalog(void);
+void clearDatalog(void);
 void updateDatalog(void);
 
 bool startDatalogRead(void);

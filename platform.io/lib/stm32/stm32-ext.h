@@ -785,15 +785,15 @@ __STATIC_INLINE uint32_t crc_read(void)
 #endif
 
 #if defined(STM32F0)
-#define FLASH_SR_ERRORS FLASH_SR_WRPERR | \
-                            FLASH_SR_PGERR
-#define FLASH_SR_CLEAR FLASH_SR_EOP | \
-                           FLASH_SR_ERRORS
+#define FLASH_SR_ERRORS (FLASH_SR_WRPERR | \
+                         FLASH_SR_PGERR)
+#define FLASH_SR_CLEAR (FLASH_SR_EOP | \
+                        FLASH_SR_ERRORS)
 #elif defined(STM32F1)
-#define FLASH_SR_ERRORS FLASH_SR_WRPRTERR | \
-                            FLASH_SR_PGERR
-#define FLASH_SR_CLEAR FLASH_SR_EOP | \
-                           FLASH_SR_ERRORS
+#define FLASH_SR_ERRORS (FLASH_SR_WRPRTERR | \
+                         FLASH_SR_PGERR)
+#define FLASH_SR_CLEAR (FLASH_SR_EOP | \
+                        FLASH_SR_ERRORS)
 #elif defined(STM32G0)
 #define FLASH_KEY1 0x45670123UL
 #define FLASH_KEY2 0xCDEF89ABUL

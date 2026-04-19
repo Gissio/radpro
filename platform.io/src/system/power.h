@@ -26,8 +26,9 @@ bool isUSBPowered(void);
 bool isBatteryCharging(void);
 uint32_t getBatteryNum(void);
 
-void powerOn(bool isBoot);
-void powerOff(bool showBatteryIndicator);
+void boot(void);
+void powerOn(void);
+void powerOff(void);
 bool isPoweredOn(void);
 
 void updatePowerState(void);

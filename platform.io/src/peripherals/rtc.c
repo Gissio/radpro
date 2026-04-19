@@ -15,7 +15,7 @@
 
 static const Menu rtcMenu;
 
-void setupRTC(void)
+void resetRTC(void)
 {
     selectMenuItem(&rtcMenu, 0);
 }

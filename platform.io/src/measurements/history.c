@@ -63,12 +63,12 @@ static HistoryState historyStates[HISTORY_TAB_NUM];
 
 static HistoryTab historyTab;
 
-void setupHistory(void)
+void resetHistory(void)
 {
-    resetHistory();
+    clearHistory();
 }
 
-void resetHistory(void)
+void clearHistory(void)
 {
     memset(&historyStates, 0, sizeof(historyStates));
 }
@@ -143,7 +143,7 @@ void loadHistory(void)
 
             while (readDatalog(&record))
             {
-                resetWatchdog();
+                reloadWatchdog();
 
                 if (!record.sessionStart)
                 {

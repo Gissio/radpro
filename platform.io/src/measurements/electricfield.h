@@ -22,7 +22,7 @@ extern const Unit electricFieldUnits;
 
 extern const int32_t electricFieldMinMetricPrefix;
 
-void setupElectricField(void);
+void resetElectricField(void);
 
 void updateElectricField(void);
 

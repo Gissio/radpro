@@ -108,7 +108,7 @@ static struct
     RNGUI ui;
 } rng;
 
-void setupRNG(void)
+void resetRNG(void)
 {
     selectMenuItem(&rngMenu, 0);
 

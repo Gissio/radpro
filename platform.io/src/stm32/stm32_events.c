@@ -15,7 +15,7 @@
 #include "../system/power.h"
 #include "../system/settings.h"
 
-void initEventsHardware(void)
+void initEvents(void)
 {
     // SysTick
     NVIC_SetPriority(SysTick_IRQn, 0x80);
@@ -41,7 +41,7 @@ void SysTick_Handler(void)
     onTick();
 }
 
-void resetWatchdog(void)
+void reloadWatchdog(void)
 {
     iwdg_reload();
 }

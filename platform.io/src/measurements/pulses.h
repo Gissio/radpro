@@ -59,7 +59,7 @@ extern const int8_t doseUnitsMinMetricPrefix[];
 
 extern const int8_t doseUnitsBarMinExponent[];
 
-void setupPulses(void);
+void resetPulses(void);
 
 void updateDoseUnits(void);
 void calculateRate(Rate *rate, PulsePeriod *period);

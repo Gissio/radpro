@@ -62,7 +62,7 @@ void initCommHardware(void);
 
 void openComm(void);
 void closeComm(void);
-void resetComm(bool open);
+void clearComm(bool open);
 
 void transmitComm(void);
 

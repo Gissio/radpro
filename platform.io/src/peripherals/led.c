@@ -11,7 +11,6 @@
 #include "../measurements/pulses.h"
 #include "../peripherals/led.h"
 #include "../system/events.h"
-#include "../system/power.h"
 #include "../system/settings.h"
 
 #if defined(PULSE_LED)
@@ -32,7 +31,7 @@ void updateLED(void)
     bool pulseLED;
 
 #if !defined(ALERT_LED)
-    if (!isPoweredOn())
+    if (!isMeasurementsEnabled())
     {
         pulseLEDIndication = false;
         pulseLED = false;
@@ -53,7 +52,7 @@ void updateLED(void)
 #else
     bool alertLED;
 
-    if (!isPoweredOn())
+    if (!isMeasurementsEnabled())
     {
         pulseLEDIndication = false;
         pulseLED = false;
@@ -100,11 +99,11 @@ void updateLED(void)
     bool pulseLEDEnable;
 
 #if !defined(ALERT_LED_EN)
-    pulseLEDEnable = settings.pulseLED && isPoweredOn();
+    pulseLEDEnable = settings.pulseLED && isMeasurementsEnabled();
 #else
     bool alertLEDEnable;
 
-    if (!isPoweredOn())
+    if (!isMeasurementsEnabled())
     {
         pulseLEDEnable = false;
         alertLEDEnable = false;

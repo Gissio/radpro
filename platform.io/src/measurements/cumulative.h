@@ -15,7 +15,7 @@
 #include "../measurements/pulses.h"
 #include "../ui/view.h"
 
-void setupCumulativeDose(void);
+void resetCumulativeDose(void);
 
 void updateCumulativeDose(PulsePeriod *period);
 

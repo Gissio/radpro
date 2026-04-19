@@ -23,7 +23,7 @@ extern const Unit magneticFieldUnits[];
 
 extern const int32_t magneticFieldMinMetricPrefix[];
 
-void setupMagneticField(void);
+void resetMagneticField(void);
 
 void updateMagneticField(void);
 

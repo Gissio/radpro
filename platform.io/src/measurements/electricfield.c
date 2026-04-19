@@ -31,7 +31,7 @@ typedef enum
     ELECTRIC_FIELD_TAB_NUM,
 } ElectricFieldTab;
 
-static void resetElectricField(void);
+static void clearElectricField(void);
 
 const Unit electricFieldUnits = {STRING_VOLT_PER_METER_UNIT, 1};
 
@@ -48,14 +48,14 @@ static struct
 
 static ElectricFieldTab electricFieldTab;
 
-void setupElectricField(void)
+void resetElectricField(void)
 {
     electricFieldTab = ELECTRIC_FIELD_TAB_MAX;
 
-    resetElectricField();
+    clearElectricField();
 }
 
-static void resetElectricField(void)
+static void clearElectricField(void)
 {
     memset(&electricField, 0, sizeof(electricField));
 }
@@ -176,7 +176,7 @@ void onElectricFieldViewEvent(ViewEvent event)
     case EVENT_KEY_RESET:
         triggerVibration();
 
-        resetElectricField();
+        clearElectricField();
 
         requestViewUpdate();
 

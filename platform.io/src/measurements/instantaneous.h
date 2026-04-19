@@ -19,7 +19,7 @@
 
 extern const Menu instantaneousMenu;
 
-void setupInstantaneousRate(void);
+void resetInstantaneousRate(void);
 
 void updateInstantaneousRate(uint32_t periodTick, PulsePeriod *period);
 

@@ -12,7 +12,7 @@
 
 #include <stdint.h>
 
-void setupRNG(void);
+void resetRNG(void);
 
 void updateRNG();
 

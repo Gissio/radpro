@@ -12,9 +12,9 @@
 
 #include "../ui/view.h"
 
-void setupHistory(void);
-
 void resetHistory(void);
+
+void clearHistory(void);
 
 void loadHistory(void);
 

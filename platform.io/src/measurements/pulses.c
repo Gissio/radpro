@@ -111,7 +111,7 @@ static struct
     menu_size_t alertsMenuIndex;
 } pulses;
 
-void setupPulses(void)
+void resetPulses(void)
 {
     syncTick();
     Dose tubeDose = pulses.tubeDose;
@@ -121,10 +121,10 @@ void setupPulses(void)
 
     updateDoseUnits();
 
-    setupInstantaneousRate();
-    setupAverageRate();
-    setupCumulativeDose();
-    setupHistory();
+    resetInstantaneousRate();
+    resetAverageRate();
+    resetCumulativeDose();
+    resetHistory();
 
     selectMenuItem(&pulsesMenu, 0);
     selectMenuItem(&pulsesIndicationMenu, 0);

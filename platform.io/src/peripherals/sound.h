@@ -16,7 +16,7 @@
 
 void initSound(void);
 
-void setupSound(void);
+void resetSound(void);
 
 void showSoundMenu(void);
 

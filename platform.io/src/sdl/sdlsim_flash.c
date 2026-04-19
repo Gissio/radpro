@@ -47,11 +47,14 @@ void initFlash(void)
 
 bool verifyFlash(void)
 {
+    return false;
     return true;
 }
 
 const uint8_t *readFlash(uint32_t source, uint32_t count)
 {
+    // printf("readFlash(%08x, %u)\n", source, count);
+
     return flashImage + source;
 }
 
@@ -74,7 +77,7 @@ bool writeFlash(uint32_t dest, const uint8_t *source, uint32_t count)
     return true;
 }
 
-void eraseFlash(uint32_t dest)
+bool eraseFlash(uint32_t dest)
 {
     // printf("eraseFlash(%08x)\n", dest);
 
@@ -83,6 +86,8 @@ void eraseFlash(uint32_t dest)
     memset(flashImage + dest, 0xff, FLASH_PAGE_SIZE);
 
     saveFlashImage();
+
+    return true;
 }
 
 #endif

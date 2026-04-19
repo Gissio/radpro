@@ -25,27 +25,37 @@ add_definitions(-DFLASH_WORD_SIZE=0x2)
 add_definitions(-DFIRMWARE_BASE=0)
 add_definitions(-DFIRMWARE_SIZE=0)
 # add_definitions(-DBOOTLOADER)
-# add_definitions(-DST7789_DEBUG)
+
 add_definitions(-DSTART_POWERED)
+# add_definitions(-DUSB_AUTOPOWER_ON)
 # add_definitions(-DBATTERY_REMOVABLE)
+# add_definitions(-DDATA_MODE)
+
 add_definitions(-DTUBE_HV_PWM)
 add_definitions(-DSIMULATE_PULSES)
+
 # add_definitions(-DEMFMETER)
-# add_definitions(-DDATA_MODE)
+
 add_definitions(-DKEYBOARD_5_KEYS)
 add_definitions(-DKEYBOARD_KEY_POWER_OK)
+
 add_definitions(-DMCURENDERER_SDL)
+# add_definitions(-DST7789_DEBUG)
+
 add_definitions(-DBUZZER)
 # add_definitions(-DBUZZER_VOLUME)
 # add_definitions(-DVOICE)
 # add_definitions(-DPULSESOUND_ENABLE)
+
 add_definitions(-DVIBRATOR)
+
 add_definitions(-DPULSE_LED)
 # add_definitions(-DALERT_LED)
 # add_definitions(-DPULSE_LED_EN)
 # add_definitions(-DALERT_LED_EN)
+
 if (NOT EMSCRIPTEN)
-add_definitions(-DSIMULATE_COMM)
+add_definitions(-DSIMULATOR_COMM)
 endif()
 add_definitions(-DGAME)
 

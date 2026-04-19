@@ -28,7 +28,7 @@ void strclr(char *s);
 
 inline void strclr(char *s)
 {
-    *s = '\0';
+    s[0] = '\0';
 }
 
 #endif

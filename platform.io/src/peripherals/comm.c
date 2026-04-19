@@ -37,7 +37,7 @@ void initComm(void)
     initCommHardware();
 }
 
-void resetComm(bool open)
+void clearComm(bool open)
 {
     comm.state = COMM_RX;
 
@@ -296,9 +296,9 @@ void processCommSet(const char *s)
             if (parseUInt32(&s, &intValue))
             {
                 if (intValue)
-                    powerOn(false);
+                    powerOn();
                 else
-                    powerOff(true);
+                    powerOff();
                 pushCommOk();
             }
 
@@ -391,7 +391,7 @@ void updateComm(void)
             processCommSet(s);
         else if (parseToken(&s, "RESET datalog"))
         {
-            resetDatalog();
+            clearDatalog();
             pushCommOk();
         }
 #if defined(BOOTLOADER)
@@ -441,9 +441,13 @@ void updateComm(void)
         case TRANSMIT_BOOTLOADER:
         {
             sleep(START_BOOTLOADER_TIME_MS);
-            powerOff(false);
+
+            powerOff();
+
+            // Turn off the display immediately; powerOff() alone would leave it on until next event loop.
             setBacklight(false);
             setDisplayEnabled(false);
+
             startBootloader();
 
             comm.transmitState = TRANSMIT_RESPONSE;

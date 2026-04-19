@@ -6,25 +6,25 @@ This manual provides technical reference for the **Rad Pro** custom firmware.
 
 ### Instantaneous Rate
 
-The instantaneous radiation rate is calculated by dividing the number of pulses, minus one, by the time interval between the first and last pulse within the averaging window.
+The **instantaneous radiation rate** is calculated by dividing the number of pulses, minus one, by the time interval between the first and last pulse within the averaging window.
 
 ### Average Rate
 
-Calculates the average radiation rate over a time window, using the same formula as the instantaneous rate.
+Calculates the **average radiation rate** over a time window, using the same formula as the instantaneous rate.
 
 ### Cumulative Dose
 
-The cumulative dose tracks the total number of pulses recorded during the measurement time.
+The **cumulative dose** tracks the total number of pulses recorded during the measurement time.
 
 ### History
 
-At startup, the history is loaded from the data log and updates every second using the instantaneous rate.
+At startup, the **history** is loaded from the data log and updates every second using the instantaneous rate.
 
 To clear the history, go to **Settings > Data log > Reset**.
 
 ### Electric and Magnetic Field Strength (If Supported)
 
-Calculates the electric and magnetic field strength over a 400 ms window.
+Calculates the **electric and magnetic field strength** over a 400 ms window.
 
 **Important:** The device's built-in **buzzer** and **USB connection** can interfere with electric field measurements. For highest accuracy, disable audio feedback and disconnect USB during measurements.
 
@@ -164,7 +164,7 @@ $t_s = \frac{12000}{S}$, where $S$ is the tube's sensitivity (cpm/µSv/h).
 
 ## Random Generator
 
-The [random generator](https://en.wikipedia.org/wiki/Hardware_random_number_generator) uses pulse timing to produce random outcomes in multiple formats:
+The **random number generator** uses pulse timing to produce random outcomes in multiple formats:
 
 * **ASCII**, **alphanumeric**, **hexadecimal**, **decimal** and **binary**: up to 16 outcomes per run.
 * **Die rolls**, **coin flips**: one outcome per run.
@@ -260,3 +260,10 @@ The [random generator](https://en.wikipedia.org/wiki/Hardware_random_number_gene
 ## Data Communications
 
 Refer to the [communications protocol description](comm.md) for USB serial port communication details.
+
+## Further Resources
+
+* [Installation guides](../README.md#Installation) – For supported devices
+* [Rad Pro user's manual](user-manual.md) – Easy guide to using Rad Pro
+* [Ionizing radiation field guide](https://github.com/Gissio/ionizing-radiation-field-guide) – Learn about ionizing radiation
+* [Rad Pro developers's manual](docs/developers.md) – Technical details for developers

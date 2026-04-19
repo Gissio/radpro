@@ -20,8 +20,6 @@ extern const Menu soundPulseVolumeMenu;
 
 void initBuzzer(void);
 
-void setupBuzzer(void);
-
 void setBuzzerVolume(uint8_t volume);
 void setBuzzer(bool value);
 

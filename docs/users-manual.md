@@ -68,7 +68,7 @@ The main screen is your primary workspace. It provides:
 
 <img src="img/view-visualbar.png" alt="Visual bar" width="320px"/>
 
-The visual bar on the instantaneous rate screen represents radiation levels on a logarithmic scale.
+The **visual bar** on the instantaneous rate screen represents radiation levels on a logarithmic scale.
 
 * Each step corresponds to a **10× increase**
 * Designed to make both low and high levels readable
@@ -100,13 +100,13 @@ Like the visual bar, history plots use a **logarithmic scale**.
 
 <img src="img/view-lock.png" alt="Lock mode" width="320px"/>
 
-Lock mode prevents accidental input while the device is being carried or handled.
+**Lock mode** prevents accidental input while the device is being carried or handled.
 
 * Disables configuration controls
 * Keeps measurement screens accessible
-* Requires a key combination to unlock
+* Requires a key combination to lock and unlock
 
-**Note:** To enter lock mode, refer to the device installation instructions.
+**Note:** To toggle lock mode, refer to the device installation instructions.
 
 ## 3. Alerts
 
@@ -231,6 +231,7 @@ Keep in mind:
 
 ## 10. Further Resources
 
-* [Installation guides](../README.md#supported-devices) – For supported devices
+* [Installation guides](../README.md#Installation) – For supported devices
 * [Rad Pro reference manual](reference-manual.md) – Technical reference for Rad Pro
 * [Ionizing radiation field guide](https://github.com/Gissio/ionizing-radiation-field-guide) – Learn about ionizing radiation
+* [Rad Pro developers's manual](docs/developers.md) – Technical details for developers

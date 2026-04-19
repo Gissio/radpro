@@ -28,7 +28,7 @@ typedef enum {
     ALERTLEVEL_ALARM,
 } AlertLevel;
 
-void setupMeasurements(void);
+void resetMeasurements(void);
 
 void setMeasurementsEnabled(bool value);
 bool isMeasurementsEnabled(void);

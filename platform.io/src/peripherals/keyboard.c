@@ -31,8 +31,6 @@
 
 static struct
 {
-    volatile bool enabled;
-
     bool previousKeyDown[KEY_NUM];
 
     KeyboardMode mode;
@@ -60,7 +58,7 @@ void initKeyboard(void)
     keyboard.pressedTicks = ((uint32_t)(10.0 * SYSTICK_FREQUENCY / KEY_TICKS));
     keyboard.pressedKey = KEY_NONE;
 
-    keyboard.enabled = true;
+    startKeyboardEvents();
 }
 
 bool isPowerKeyDown(void)
@@ -316,9 +314,6 @@ static ViewEvent getKeyTimerEvent(const bool *keyDown, ViewEvent event)
 
 void updateKeyboard(void)
 {
-    if (!keyboard.enabled)
-        return;
-
     ViewEvent event = EVENT_NONE;
 
     bool keyDown[KEY_NUM];

@@ -21,6 +21,7 @@
 #include "../peripherals/led.h"
 #include "../peripherals/pulsesoundenable.h"
 #include "../peripherals/tube.h"
+#include "../peripherals/voice.h"
 #include "../system/cmath.h"
 #include "../system/events.h"
 #include "../system/settings.h"
@@ -72,15 +73,15 @@ static OnViewEvent *const measurementViews[] = {
 
 static void setMeasurementViewSelect(MeasurementView index);
 
-void setupMeasurements(void)
+void resetMeasurements(void)
 {
     measurements.viewIndex = MEASUREMENTS_VIEW_INSTANTANEOUS_RATE;
 
-    setupPulses();
+    resetPulses();
 
 #if defined(EMFMETER)
-    setupElectricField();
-    setupMagneticField();
+    resetElectricField();
+    resetMagneticField();
 #endif
 
     selectMenuItem(&alertsMenu, 0);
@@ -89,11 +90,31 @@ void setupMeasurements(void)
     selectMenuItem(&measurementsMenu, 0);
 }
 
+static void updateMeasurementsDevices(void)
+{
+    // Sound control
+#if defined(PULSESOUND_ENABLE)
+    updatePulseSoundEnable();
+#endif
+
+    // LED
+#if defined(PULSE_LED) || defined(PULSE_LED_EN)
+    updateLED();
+#endif
+}
+
 void setMeasurementsEnabled(bool value)
 {
     measurements.enabled = value;
 
     setTubeHVEnabled(value);
+
+    updateMeasurementsDevices();
+
+#if defined(VOICE)
+    if (!value)
+        stopVoice();
+#endif
 }
 
 bool isMeasurementsEnabled(void)
@@ -143,15 +164,7 @@ void updateMeasurements(void)
 
     measurements.alertLevel = alertLevel;
 
-    // Sound control
-#if defined(PULSESOUND_ENABLE)
-    updatePulseSoundEnable();
-#endif
-
-    // LED
-#if defined(PULSE_LED) || defined(PULSE_LED_EN)
-    updateLED();
-#endif
+    updateMeasurementsDevices();
 
     // Set view
     if (!isDisplayEnabled() && measurements.alertPending)

@@ -21,7 +21,7 @@ void initCommHardware(void)
 {
 }
 
-#if defined(SIMULATE_COMM)
+#if defined(SIMULATOR_COMM)
 
 #include <sercomm/sercomm.h>
 
@@ -62,7 +62,7 @@ void openComm(void)
         return;
     }
 
-    resetComm(true);
+    clearComm(true);
 }
 
 void closeComm(void)
@@ -73,7 +73,7 @@ void closeComm(void)
     ser_close(sercomm);
     ser_destroy(sercomm);
 
-    resetComm(false);
+    clearComm(false);
 }
 
 void transmitComm(void)
@@ -154,12 +154,12 @@ void pollComm(void)
 
 void openComm(void)
 {
-    resetComm(true);
+    clearComm(true);
 }
 
 void closeComm(void)
 {
-    resetComm(false);
+    clearComm(false);
 }
 
 void transmitComm(void)

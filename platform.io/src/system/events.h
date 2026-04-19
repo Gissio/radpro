@@ -21,16 +21,17 @@
 extern volatile uint32_t currentTick;
 
 void initEvents(void);
-void initEventsHardware(void);
-
-void setupEvents(void);
 
 void onTick(void);
 void syncTick(void);
-void resetWatchdog(void);
+void reloadWatchdog(void);
 void sleep(uint32_t value);
 
 void updateEvents(void);
+
+void startHeartbeatEvents(void);
+
+void startKeyboardEvents(void);
 
 void requestBacklightTrigger(void);
 bool isBacklightTriggerRequested(void);

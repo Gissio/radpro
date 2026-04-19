@@ -76,7 +76,7 @@ void initTube(void)
     tubeDeadTime = USHRT_MAX;
 }
 
-void setupTube(void)
+void resetTube(void)
 {
     selectMenuItem(&sourceCompensationMenu, settings.source);
 

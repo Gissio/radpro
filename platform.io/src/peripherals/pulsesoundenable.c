@@ -10,9 +10,9 @@
 #if defined(PULSESOUND_ENABLE)
 
 #include "../measurements/instantaneous.h"
+#include "../measurements/measurements.h"
 #include "../peripherals/pulsesoundenable.h"
 #include "../system/cmath.h"
-#include "../system/power.h"
 #include "../system/settings.h"
 
 #define PULSE_SOUND_LENGTH 0.001F
@@ -22,7 +22,7 @@ bool pulseSoundEnableStretcherFix;
 
 void updatePulseSoundEnable(void)
 {
-    bool enabled = isPoweredOn() && settings.pulseSound && isPulseThresholdExceeded();
+    bool enabled = isMeasurementsEnabled() && settings.pulseSound && isPulseThresholdExceeded();
 
     pulseSoundEnableStretcherFix = enabled && (getInstantaneousRate() >= STRETCHERFIX_MIN_RATE);
 

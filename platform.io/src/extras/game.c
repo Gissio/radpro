@@ -68,7 +68,7 @@ static const Menu gameStartMenu;
 static const Menu gameContinueMenu;
 static const Menu gameStrengthMenu;
 
-void setupGame(void)
+void resetGame(void)
 {
     memset(&game, 0, sizeof(game));
 

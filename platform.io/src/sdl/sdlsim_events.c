@@ -13,11 +13,11 @@
 
 #include "../system/events.h"
 
-void initEventsHardware(void)
+void initEvents(void)
 {
 }
 
-void resetWatchdog(void)
+void reloadWatchdog(void)
 {
 }
 

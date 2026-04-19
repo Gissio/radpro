@@ -34,7 +34,7 @@ typedef enum
     INSTANTANEOUS_TAB_ALERT = INSTANTANEOUS_TAB_NUM,
 } InstantaneousTab;
 
-static void resetInstantaneousRate(void);
+static void clearInstantaneousRate(void);
 
 static const uint8_t instantaneousMinTimes[] = {0, 5, 60, 30, 10};
 
@@ -54,16 +54,16 @@ static struct
 
 static InstantaneousTab instantaneousTab;
 
-void setupInstantaneousRate(void)
+void resetInstantaneousRate(void)
 {
     instantaneousTab = INSTANTANEOUS_TAB_BAR;
 
-    resetInstantaneousRate();
+    clearInstantaneousRate();
 
     selectMenuItem(&instantaneousMenu, settings.instantaneousAveraging);
 }
 
-static void resetInstantaneousRate(void)
+static void clearInstantaneousRate(void)
 {
     memset(&instantaneous, 0, sizeof(instantaneous));
 
@@ -306,7 +306,7 @@ void onInstantaneousRateViewEvent(ViewEvent event)
     case EVENT_KEY_RESET:
         triggerVibration();
 
-        resetInstantaneousRate();
+        clearInstantaneousRate();
 
         requestViewUpdate();
 

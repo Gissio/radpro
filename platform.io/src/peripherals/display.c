@@ -25,7 +25,7 @@ static const Menu displayThemeMenu;
 static const Menu displayBrightnessMenu;
 static const Menu displaySleepMenu;
 
-void setupDisplay(void)
+void resetDisplay(void)
 {
     selectMenuItem(&displayMenu, 0);
 #if defined(DISPLAY_MONOCHROME)

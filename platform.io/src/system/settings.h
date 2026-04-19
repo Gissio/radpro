@@ -482,7 +482,7 @@ typedef struct
 extern Settings settings;
 
 void initSettings(void);
-void setupSettings(void);
+void resetSettings(void);
 
 void saveSettings(void);
 

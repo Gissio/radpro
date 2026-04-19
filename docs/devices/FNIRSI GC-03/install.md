@@ -27,7 +27,7 @@ Make sure you have:
 
 If successful, the screen will display:
 
-> **Update**
+<img src="img/FNIRSI GC-03 Update mode.png" alt="Update mode" width="240px"/>
 
 ## Step 3: Flash Rad Pro
 

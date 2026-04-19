@@ -36,7 +36,7 @@ typedef enum
 
 typedef void OnViewEvent(ViewEvent event);
 
-typedef void SetView(void);
+typedef void ShowView(void);
 
 void initView(void);
 

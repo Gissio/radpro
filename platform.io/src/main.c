@@ -69,7 +69,7 @@ int main(void)
     initLED();
 #endif
 
-    powerOn(true);
+    boot();
 
     // Main loop
 #if defined(SIMULATOR)

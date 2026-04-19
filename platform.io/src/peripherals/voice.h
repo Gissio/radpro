@@ -19,8 +19,6 @@ extern const Menu soundVoiceVolumeMenu;
 
 void initVoice(void);
 
-void setupVoice(void);
-
 void onVoiceTick(void);
 
 void playVoiceInstantaneousRate(void);

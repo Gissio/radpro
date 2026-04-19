@@ -37,6 +37,6 @@ bool verifyFlash(void);
 
 const uint8_t *readFlash(uint32_t source, uint32_t count);
 bool writeFlash(uint32_t dest, const uint8_t *source, uint32_t count);
-void eraseFlash(uint32_t dest);
+bool eraseFlash(uint32_t dest);
 
 #endif

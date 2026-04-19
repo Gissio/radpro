@@ -27,7 +27,7 @@ typedef enum
     CUMULATIVE_TAB_ALERT = CUMULATIVE_TAB_NUM,
 } CumulativeTab;
 
-static void resetCumulativeDose(void);
+static void clearCumulativeDose(void);
 
 static struct
 {
@@ -38,16 +38,16 @@ static struct
 
 static CumulativeTab cumulativeTab;
 
-void setupCumulativeDose(void)
+void resetCumulativeDose(void)
 {
     cumulativeTab = CUMULATIVE_TAB_TIME;
 
     Dose tubeDose = cumulative.dose;
-    resetCumulativeDose();
+    clearCumulativeDose();
     cumulative.dose = tubeDose;
 }
 
-static void resetCumulativeDose(void)
+static void clearCumulativeDose(void)
 {
     memset(&cumulative, 0, sizeof(cumulative));
 
@@ -232,7 +232,7 @@ void onCumulativeDoseViewEvent(ViewEvent event)
     case EVENT_KEY_RESET:
         triggerVibration();
 
-        resetCumulativeDose();
+        clearCumulativeDose();
 
         requestViewUpdate();
 

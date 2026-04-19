@@ -60,7 +60,7 @@ void debugWait(uint32_t ms)
     uint32_t n = (SYSCLK_FREQUENCY / 8000000) * 200 * ms;
 
     for (uint32_t i = 0; i < n; i++)
-        resetWatchdog();
+        reloadWatchdog();
 }
 
 void debugBit(bool value)

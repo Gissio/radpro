@@ -48,7 +48,7 @@ void initSound(void)
 #endif
 }
 
-void setupSound(void)
+void resetSound(void)
 {
     selectMenuItem(&soundMenu, 0);
 

@@ -20,14 +20,14 @@
 
 __asm__(".section .comment\n"
         ".string \"FLASH_BASE: " TOSTRING(FLASH_BASE_) "\"\n"
-        ".string \"FLASH_SIZE: " TOSTRING(FLASH_SIZE_) "\"\n"
-        ".string \"FIRMWARE_BASE: " TOSTRING(FIRMWARE_BASE) "\"\n"
-        ".string \"FIRMWARE_SIZE: " TOSTRING(FIRMWARE_SIZE) "\"\n"
-        ".string \"STATES_BASE: " TOSTRING(STATES_BASE) "\"\n"
-        ".string \"STATES_SIZE: " TOSTRING(STATES_SIZE) "\"\n"
-        ".string \"DATALOG_BASE: " TOSTRING(DATALOG_BASE) "\"\n"
-        ".string \"DATALOG_SIZE: " TOSTRING(DATALOG_SIZE) "\"\n"
-        ".section .text\n");
+                                                       ".string \"FLASH_SIZE: " TOSTRING(FLASH_SIZE_) "\"\n"
+                                                                                                      ".string \"FIRMWARE_BASE: " TOSTRING(FIRMWARE_BASE) "\"\n"
+                                                                                                                                                          ".string \"FIRMWARE_SIZE: " TOSTRING(FIRMWARE_SIZE) "\"\n"
+                                                                                                                                                                                                              ".string \"STATES_BASE: " TOSTRING(STATES_BASE) "\"\n"
+                                                                                                                                                                                                                                                              ".string \"STATES_SIZE: " TOSTRING(STATES_SIZE) "\"\n"
+                                                                                                                                                                                                                                                                                                              ".string \"DATALOG_BASE: " TOSTRING(DATALOG_BASE) "\"\n"
+                                                                                                                                                                                                                                                                                                                                                                ".string \"DATALOG_SIZE: " TOSTRING(DATALOG_SIZE) "\"\n"
+                                                                                                                                                                                                                                                                                                                                                                                                                  ".section .text\n");
 
 void initFlash(void)
 {
@@ -53,9 +53,7 @@ const uint8_t *readFlash(uint32_t source, uint32_t count)
     return (uint8_t *)source;
 }
 
-bool writeFlash(uint32_t dest,
-                const uint8_t *source,
-                uint32_t count)
+bool writeFlash(uint32_t dest, const uint8_t *source, uint32_t count)
 {
     flash_unlock();
 
@@ -81,13 +79,23 @@ bool writeFlash(uint32_t dest,
     return success;
 }
 
-void eraseFlash(uint32_t dest)
+bool eraseFlash(uint32_t dest)
 {
     flash_unlock();
 
-    flash_erase(dest);
+    // Try twice
+    bool success = false;
+
+    for (uint32_t j = 0; j < 2; j++)
+    {
+        success = flash_erase(dest);
+        if (success)
+            break;
+    }
 
     flash_lock();
+
+    return success;
 }
 
 #endif

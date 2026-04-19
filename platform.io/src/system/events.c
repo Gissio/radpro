@@ -111,25 +111,6 @@ static const uint32_t alertSoundTicks[][2] = {
 };
 #endif
 
-void syncTick(void);
-
-void initEvents(void)
-{
-    events.keyboardTimer = KEY_TICKS;
-
-    events.heartbeatTimer = SYSTICK_FREQUENCY;
-
-    initEventsHardware();
-}
-
-void setupEvents(void)
-{
-    syncTick();
-
-    events.heartbeatTimer = SYSTICK_FREQUENCY;
-    events.previousHeartbeatCount = events.heartbeatCount;
-}
-
 // Timer
 
 static TimerState tickTimer(volatile int32_t *timer)
@@ -272,6 +253,26 @@ void updateEvents(void)
     updateDatalog();
     updateRNG();
     updateView();
+}
+
+// Heartbeat
+
+void startHeartbeatEvents(void)
+{
+    syncTick();
+
+    events.heartbeatTimer = SYSTICK_FREQUENCY;
+    events.previousHeartbeatCount = events.heartbeatCount;
+}
+
+
+// Keyboard
+
+void startKeyboardEvents(void)
+{
+    syncTick();
+
+    events.keyboardTimer = KEY_TICKS;
 }
 
 // Backlight

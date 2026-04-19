@@ -30,7 +30,7 @@ typedef enum
     MAGNETIC_FIELD_TAB_NUM,
 } MagneticFieldTab;
 
-static void resetMagneticField(void);
+static void clearMagneticField(void);
 
 const Unit magneticFieldUnits[] = {
     {STRING_TESLA_UNIT, 1},
@@ -50,16 +50,16 @@ static struct
 
 static MagneticFieldTab magneticFieldTab;
 
-void setupMagneticField(void)
+void resetMagneticField(void)
 {
     magneticFieldTab = MAGNETIC_FIELD_TAB_MAX;
 
-    resetMagneticField();
+    clearMagneticField();
 
     selectMenuItem(&magneticFieldUnitsMenu, settings.magneticFieldUnits);
 }
 
-static void resetMagneticField(void)
+static void clearMagneticField(void)
 {
     memset(&magneticField, 0, sizeof(magneticField));
 }
@@ -179,7 +179,7 @@ void onMagneticFieldViewEvent(ViewEvent event)
     case EVENT_KEY_RESET:
         triggerVibration();
 
-        resetMagneticField();
+        clearMagneticField();
 
         requestViewUpdate();
 

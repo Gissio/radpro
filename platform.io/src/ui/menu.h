@@ -56,7 +56,7 @@ typedef struct
 typedef struct
 {
     cstring title;
-    SetView *setView;
+    ShowView *showView;
 } ViewOption;
 
 typedef struct

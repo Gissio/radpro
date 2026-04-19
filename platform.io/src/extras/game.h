@@ -10,7 +10,7 @@
 #if !defined(GAME_H)
 #define GAME_H
 
-void setupGame(void);
+void resetGame(void);
 
 void updateGame(void);
 

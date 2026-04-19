@@ -43,7 +43,7 @@ void updateView(void)
         if (!isPoweredOn())
         {
             if (event == EVENT_KEY_POWER)
-                powerOn(false);
+                powerOn();
             else
                 view.onViewEvent(EVENT_KEY_TOGGLEBACKLIGHT);
         }
@@ -52,7 +52,7 @@ void updateView(void)
             if (event == EVENT_KEY_POWER)
             {
                 if (!isInLockMode())
-                    powerOff(false);
+                    powerOff();
             }
             else
             {
