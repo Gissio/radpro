@@ -151,7 +151,7 @@ static const mr_color_t displayColors[][3] = {
     // Game piece white
     {mr_get_color(0xffffff),
      mr_get_color(0xffffff),
-     mr_get_color(0xc78842)},
+     mr_get_color(0xeaa75e)},
 #endif
 };
 
@@ -393,18 +393,17 @@ static const char *getWrappedTextLine(const char *src, char *line)
 
         if (!firstWord)
             *destWord++ = ' ';
-        firstWord = false;
 
         memcpy(destWord, src, wordLength);
         destWord += wordLength;
         *destWord = '\0';
 
-        uint32_t lineWidth = getTextWidth(line);
-        if (lineWidth > CONTENT_MULTILINE_WIDTH)
+        if (!firstWord && getTextWidth(line) > CONTENT_MULTILINE_WIDTH)
             break;
 
         src = srcWord;
         dest = destWord;
+        firstWord = false;
     }
 
     dest[0] = '\0';

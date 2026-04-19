@@ -20,6 +20,12 @@
 
 // System
 
+void initGPIO(void)
+{
+    // Enable GPIOA, GPIOB, GPIOC, GPIOD
+    set_bits(RCC->IOPENR, RCC_IOPENR_GPIOAEN | RCC_IOPENR_GPIOBEN | RCC_IOPENR_GPIOCEN | RCC_IOPENR_GPIODEN);
+}
+
 void initSystem(void)
 {
     // Set SYSCLK to HSI16/2
@@ -33,9 +39,6 @@ void initSystem(void)
 
     // Disable UCPD strobes
     set_bits(SYSCFG->CFGR1, SYSCFG_CFGR1_UCPD1_STROBE | SYSCFG_CFGR1_UCPD2_STROBE);
-
-    // Enable GPIOA, GPIOB, GPIOC, GPIOD
-    set_bits(RCC->IOPENR, RCC_IOPENR_GPIOAEN | RCC_IOPENR_GPIOBEN | RCC_IOPENR_GPIOCEN | RCC_IOPENR_GPIODEN);
 }
 
 void setFastSystemClock(bool value)

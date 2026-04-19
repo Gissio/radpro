@@ -263,7 +263,7 @@ bool onMeasurementViewEvent(ViewEvent event)
     switch (event)
     {
     case EVENT_KEY_SELECT:
-        if (!isInLockMode())
+        if (!isLockModeEnabled())
         {
             measurements.soundIconActive = false;
 
@@ -296,7 +296,7 @@ bool onMeasurementViewEvent(ViewEvent event)
         if (measurements.alertPending)
             measurements.alertPending = false;
         else
-            return isInLockMode();
+            return isLockModeEnabled();
 
         break;
 

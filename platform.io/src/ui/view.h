@@ -42,12 +42,11 @@ void initView(void);
 
 void updateView(void);
 
-void showView(OnViewEvent *onViewEvent);
-
 void requestViewUpdate(void);
+void showView(OnViewEvent *onViewEvent);
 void updateViewHeartbeat(void);
 
-void setLockMode(bool value);
-bool isInLockMode(void);
+void setLockModeEnabled(bool value);
+bool isLockModeEnabled(void);
 
 #endif

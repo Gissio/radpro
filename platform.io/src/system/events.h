@@ -23,6 +23,7 @@ extern volatile uint32_t currentTick;
 void initEvents(void);
 
 void onTick(void);
+void resetWatchdog(void);
 void syncTick(void);
 void reloadWatchdog(void);
 void sleep(uint32_t value);

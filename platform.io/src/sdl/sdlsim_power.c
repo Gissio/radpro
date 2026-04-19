@@ -31,9 +31,9 @@ bool isBatteryCharging(void)
     return true;
 }    
 
-uint32_t getBatteryNum(void)
+bool wasResetByWatchdog(void)
 {
-    return 1;
+    return false;
 }
 
 #endif

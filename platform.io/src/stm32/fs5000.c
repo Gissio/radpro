@@ -19,6 +19,12 @@
 
 // System
 
+void initGPIO(void)
+{
+    // Enable GPIOA, GPIOB, GPIOC, GPIOD, ADC
+    set_bits(RCC->AHB2ENR, RCC_AHB2ENR_ADCEN | RCC_AHB2ENR_GPIOAEN | RCC_AHB2ENR_GPIOBEN | RCC_AHB2ENR_GPIOCEN | RCC_AHB2ENR_GPIODEN);
+}
+
 void initSystem(void)
 {
     // Enable HSI
@@ -65,9 +71,6 @@ void initSystem(void)
 
     // Enable SYSCFG (for EXTI)
     set_bits(RCC->APB2ENR, RCC_APB2ENR_SYSCFGEN);
-
-    // Enable GPIOA, GPIOB, GPIOC, GPIOD, ADC
-    set_bits(RCC->AHB2ENR, RCC_AHB2ENR_ADCEN | RCC_AHB2ENR_GPIOAEN | RCC_AHB2ENR_GPIOBEN | RCC_AHB2ENR_GPIOCEN | RCC_AHB2ENR_GPIODEN);
 
     // ADC
     RCC->CCIPR = (0b11 << RCC_CCIPR_ADCSEL_Pos); // Set system clock as ADC clock

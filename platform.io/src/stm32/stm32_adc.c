@@ -33,7 +33,7 @@
 // 400 samples @ 1 kHz to fit whole cycles of both 50 Hz and 60 Hz
 #define ELECTRIC_FIELD_SAMPLE_NUM 400
 #define ELECTRIC_FIELD_OFFSET 126
-#define ELECTRIC_FIELD_SCALE (2 * SQRT2 * 0.9F)
+#define ELECTRIC_FIELD_SCALE (2 * 0.9F)
 // 400 samples @ 1 kHz to fit whole cycles of both 50 Hz and 60 Hz
 #define MAGNETIC_FIELD_SAMPLE_NUM 400
 #define MAGNETIC_FIELD_OFFSET 120
@@ -103,7 +103,7 @@ static uint32_t convertADC(uint32_t sampleNum)
     return value;
 }
 
-static void updatePowerState(void)
+static void readPowerState(void)
 {
     adc_enable(ADC1);
 
@@ -258,7 +258,7 @@ void initADC(void)
     adc_calibrate(ADC1);
 
 #if defined(EMFMETER)
-    updatePowerState();
+    readPowerState();
 
     adc_enable(ADC1);
 
@@ -285,7 +285,7 @@ bool isBatteryCharging(void)
 float readBatteryVoltage()
 {
 #if !defined(EMFMETER)
-    updatePowerState();
+    readPowerState();
 #endif
 
 #if (defined(STM32F0) && !defined(GD32)) || defined(STM32G0) || defined(STM32L4)
@@ -302,19 +302,23 @@ float readBatteryVoltage()
 
 #if defined(EMFMETER)
 
-float calculateRMSValue(uint16_t *values, uint32_t count, uint32_t offset)
+float calculateRMSValue(uint16_t *values, uint32_t count, int32_t offset)
 {
     // Filter by mean, and calculate low and high RMS values
     uint32_t squaredSum = 0;
     for (uint32_t i = 0; i < count; i++)
     {
-        uint32_t value = values[i] - offset;
-        uint32_t squaredValue = value * value;
-        squaredSum = addClamped(squaredSum, squaredValue);
+        int32_t value = (int32_t)values[i] - offset;
+        if (value > 0)
+        {
+            uint32_t squaredValue = value * value;
+            squaredSum = addClamped(squaredSum, squaredValue);
+        }
     }
 
-    float rms = sqrtf((float)squaredSum / count);
-    return rms;
+    float rmsValue = sqrtf((float)squaredSum / count);
+
+    return rmsValue;
 }
 
 float readElectricFieldStrength(void)

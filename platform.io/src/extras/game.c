@@ -129,6 +129,8 @@ static void updateGameBoard(void)
 static void onGameCallback(void *userdata)
 {
 #if !defined(__EMSCRIPTEN__)
+    resetWatchdog();
+
     updateEvents();
 #endif
 }

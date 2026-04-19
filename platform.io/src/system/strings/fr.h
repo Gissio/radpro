@@ -87,8 +87,8 @@
 #define STRING_AVERAGE "Moyen"
 #define STRING_CUMULATIVE "Cumulatif"
 #define STRING_HISTORY "Historique"
-#define STRING_ELECTRIC_FIELD "Champ électrique"
-#define STRING_MAGNETIC_FIELD "Champ magnétique"
+#define STRING_ELECTRIC_FIELD "Électrique"
+#define STRING_MAGNETIC_FIELD "Magnétique"
 
 // Measurements secondary view strings
 #define STRING_TIME "Temps"
@@ -137,14 +137,14 @@
 #define STRING_RATE_ALARM "Alarme de taux"
 #define STRING_DOSE_WARNING "Avert. de dose"
 #define STRING_DOSE_ALARM "Alarme de dose"
-#define STRING_ELECTRIC_FIELD_ALARM "Alarme de champ électrique"
-#define STRING_MAGNETIC_FIELD_ALARM "Alarme de champ magnétique"
+#define STRING_ELECTRIC_FIELD_ALARM "Alarme c. électrique"
+#define STRING_MAGNETIC_FIELD_ALARM "Alarme c. magnétique"
 
 // Measurements menu items
 #define STRING_SOURCE_COMPENSATION "Comp. de source"
 #define STRING_DOSE_UNITS "Unités de dose"
-#define STRING_SECONDARY_DOSE_UNITS "Unités de dose secondaires"
-#define STRING_MAGNETIC_FIELD_UNITS "Unités de champ magnétique"
+#define STRING_SECONDARY_DOSE_UNITS "Unités secondaires"
+#define STRING_MAGNETIC_FIELD_UNITS "Unités c. magnétique"
 
 // Source menu compensation items
 #define STRING_CS137 "Aucune (Cs-137)"
@@ -271,7 +271,7 @@
 
 // Power menu items
 #define STRING_BATTERY "Batterie"
-#define STRING_USB_AUTOPOWER_ON "Mise sous tension auto USB"
+#define STRING_USB_AUTOPOWER_ON "USB allumage automatique"
 
 // Battery type menu items
 #define STRING_NI_MH "Ni-MH"

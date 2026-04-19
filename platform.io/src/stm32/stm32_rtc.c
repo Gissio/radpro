@@ -24,10 +24,10 @@ void initRTC(void)
     {
         rtc_enable_lse();
         while (!rtc_is_lse_ready())
-            sleep(1);
+            syncTick();
 
         rtc_enable();
-        sleep(1);
+        syncTick();
     }
 
     rtcEnabled = true;

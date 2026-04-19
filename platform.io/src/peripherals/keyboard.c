@@ -57,8 +57,6 @@ void initKeyboard(void)
 
     keyboard.pressedTicks = ((uint32_t)(10.0 * SYSTICK_FREQUENCY / KEY_TICKS));
     keyboard.pressedKey = KEY_NONE;
-
-    startKeyboardEvents();
 }
 
 bool isPowerKeyDown(void)

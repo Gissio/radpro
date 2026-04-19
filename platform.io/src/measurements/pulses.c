@@ -114,6 +114,7 @@ static struct
 void resetPulses(void)
 {
     syncTick();
+
     Dose tubeDose = pulses.tubeDose;
     memset(&pulses, 0, sizeof(pulses));
     pulses.previousTubePulseCount = tubePulseCount;

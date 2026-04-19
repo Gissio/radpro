@@ -87,8 +87,8 @@
 #define STRING_AVERAGE "Medie"
 #define STRING_CUMULATIVE "Cumulativ"
 #define STRING_HISTORY "Istoric"
-#define STRING_ELECTRIC_FIELD "Câmp electric"
-#define STRING_MAGNETIC_FIELD "Câmp magnetic"
+#define STRING_ELECTRIC_FIELD "Electric"
+#define STRING_MAGNETIC_FIELD "Magnetic"
 
 // Measurements secondary view strings
 #define STRING_TIME "Timp"
@@ -133,18 +133,18 @@
 
 // Alerts menu items
 #define STRING_INDICATION "Indicație"
-#define STRING_RATE_WARNING "Avertisment rată"
+#define STRING_RATE_WARNING "Avert. rată"
 #define STRING_RATE_ALARM "Alarmă rată"
-#define STRING_DOSE_WARNING "Avertisment doză"
+#define STRING_DOSE_WARNING "Avert. doză"
 #define STRING_DOSE_ALARM "Alarmă doză"
-#define STRING_ELECTRIC_FIELD_ALARM "Alarm câmp electric"
-#define STRING_MAGNETIC_FIELD_ALARM "Alarm câmp magnetic"
+#define STRING_ELECTRIC_FIELD_ALARM "Alarm c. electric"
+#define STRING_MAGNETIC_FIELD_ALARM "Alarm c. magnetic"
 
 // Measurements menu items
 #define STRING_SOURCE_COMPENSATION "Comp. sursă"
 #define STRING_DOSE_UNITS "Unități de doză"
-#define STRING_SECONDARY_DOSE_UNITS "Unități de doză secundare"
-#define STRING_MAGNETIC_FIELD_UNITS "Unități de câmp magnetic"
+#define STRING_SECONDARY_DOSE_UNITS "Unități secundare"
+#define STRING_MAGNETIC_FIELD_UNITS "Unități c. magnetic"
 
 // Source menu compensation items
 #define STRING_CS137 "Niciuna (Cs-137)"

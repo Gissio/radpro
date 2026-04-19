@@ -69,6 +69,12 @@ void Reset_Handler(void)
         "   bx      lr\n");
 }
 
+void initGPIO(void)
+{
+    // Enable GPIOA, GPIOB, GPIOC
+    set_bits(RCC->APB2ENR, RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN);
+}
+
 void initSystem(void)
 {
     // Fix bootloader
@@ -112,23 +118,20 @@ void initSystem(void)
     // Disable JTAG
     rcc_enable_afio();
     modify_bits(AFIO->MAPR, AFIO_MAPR_SWJ_CFG_Msk, AFIO_MAPR_SWJ_CFG_JTAGDISABLE);
-
-    // Enable GPIOA, GPIOB, GPIOC
-    set_bits(RCC->APB2ENR, RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN);
 }
 
 // Tube
 
-#define TUBE_DEFAULT_SIGNATURE (*((uint8_t *)(0x08003800)))
-#define TUBE_DEFAULT_SIGNATURE_VALUE 0xeb
-#define TUBE_DEFAULT_HV_FREQUENCY (*((uint16_t *)(0x08003824)))
-#define TUBE_DEFAULT_HV_DUTYCYCLE (*((uint16_t *)(0x08003826)))
+#define GC01_TUBE_DEFAULT_SIGNATURE (*((uint8_t *)(0x08003800)))
+#define GC01_TUBE_DEFAULT_SIGNATURE_VALUE 0xeb
+#define GC01_TUBE_DEFAULT_HV_FREQUENCY (*((uint16_t *)(0x08003824)))
+#define GC01_TUBE_DEFAULT_HV_DUTYCYCLE (*((uint16_t *)(0x08003826)))
 
 bool getTubeDefaultHVFrequency(float *value)
 {
-    if (TUBE_DEFAULT_SIGNATURE == TUBE_DEFAULT_SIGNATURE_VALUE)
+    if (GC01_TUBE_DEFAULT_SIGNATURE == GC01_TUBE_DEFAULT_SIGNATURE_VALUE)
     {
-        uint32_t intValue = TUBE_DEFAULT_HV_FREQUENCY;
+        uint32_t intValue = GC01_TUBE_DEFAULT_HV_FREQUENCY;
         if (intValue >= 100)
         {
             *value = (float)intValue;
@@ -142,9 +145,9 @@ bool getTubeDefaultHVFrequency(float *value)
 
 bool getTubeDefaultHVDutyCycle(float *value)
 {
-    if (TUBE_DEFAULT_SIGNATURE == TUBE_DEFAULT_SIGNATURE_VALUE)
+    if (GC01_TUBE_DEFAULT_SIGNATURE == GC01_TUBE_DEFAULT_SIGNATURE_VALUE)
     {
-        uint32_t intValue = TUBE_DEFAULT_HV_DUTYCYCLE;
+        uint32_t intValue = GC01_TUBE_DEFAULT_HV_DUTYCYCLE;
 
         if (intValue <= 1000)
         {

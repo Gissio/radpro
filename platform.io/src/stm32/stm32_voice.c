@@ -264,7 +264,7 @@ static void pushVoiceQueue(uint8_t value);
 static void clearVoiceQueue(void)
 {
     while (voice.requestedSequenceUpdate)
-        sleep(1);
+        syncTick();
 
     voice.requestedSequence.size = 0;
 }

@@ -36,10 +36,10 @@ static void simulateFrame(void)
 {
     while (onSDLTick())
     {
+        updateEvents();
 #if defined(GAME)
         updateGame();
 #endif
-        updateEvents();
     }
 }
 #endif
@@ -47,9 +47,10 @@ static void simulateFrame(void)
 int main(void)
 {
     // System initialization
+    initGPIO();
+    initPower();
     initSystem();
     initEvents();
-    initPower();
     initFlash();
     initSettings();
     initADC();
@@ -82,12 +83,12 @@ int main(void)
 #else
     while (true)
     {
-        sleep(1);
+        syncTick();
 
+        updateEvents();
 #if defined(GAME)
         updateGame();
 #endif
-        updateEvents();
     }
 #endif
 }

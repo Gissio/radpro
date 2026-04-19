@@ -21,6 +21,12 @@
 
 // System
 
+void initGPIO(void)
+{
+    // Enable GPIOA, GPIOB, GPIOC
+    set_bits(RCC->APB2ENR, RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN);
+}
+
 void initSystem(void)
 {
     // Disable TIM7 (left on by bootloader)
@@ -64,27 +70,24 @@ void initSystem(void)
     rcc_enable_afio();
     modify_bits(AFIO->MAPR, AFIO_MAPR_SWJ_CFG_Msk, AFIO_MAPR_SWJ_CFG_JTAGDISABLE);
 
-    // Enable GPIOA, GPIOB, GPIOC
-    set_bits(RCC->APB2ENR, RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN);
-
-    // Setup PB12 (from original firmware)
+    // Setup PB12 (purpose unknown, copied from original firmware)
     gpio_setup(GPIOB, 12, GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
 }
 
 // Tube
 
-#define TUBE_DEFAULT_SIGNATURE (*((uint32_t *)(0x0803fc00)))
-#define TUBE_DEFAULT_SIGNATURE_VALUE 0x4b6e4564
-#define TUBE_DEFAULT_HV_FREQUENCY (*((uint16_t *)(0x0803fc1a)))
-#define TUBE_DEFAULT_HV_DUTYCYCLE_PERIOD 0.0000125F
+#define GC03_TUBE_DEFAULT_SIGNATURE (*((uint32_t *)(0x0803fc00)))
+#define GC03_TUBE_DEFAULT_SIGNATURE_VALUE 0x4b6e4564
+#define GC03_TUBE_DEFAULT_HV_FREQUENCY (*((uint16_t *)(0x0803fc1a)))
+#define GC03_TUBE_DEFAULT_HV_DUTYCYCLE_PERIOD 0.0000125F
 
 bool getTubeDefaultHVFrequency(float *value)
 {
-    if (TUBE_DEFAULT_SIGNATURE == TUBE_DEFAULT_SIGNATURE_VALUE)
+    if (GC03_TUBE_DEFAULT_SIGNATURE == GC03_TUBE_DEFAULT_SIGNATURE_VALUE)
     {
-        if ((TUBE_DEFAULT_HV_FREQUENCY >= 1) && (TUBE_DEFAULT_HV_FREQUENCY < 1000))
+        if ((GC03_TUBE_DEFAULT_HV_FREQUENCY >= 1) && (GC03_TUBE_DEFAULT_HV_FREQUENCY < 1000))
         {
-            *value = 100.0F * TUBE_DEFAULT_HV_FREQUENCY;
+            *value = 100.0F * GC03_TUBE_DEFAULT_HV_FREQUENCY;
 
             return true;
         }
@@ -99,7 +102,7 @@ bool getTubeDefaultHVDutyCycle(float *value)
     if (!getTubeDefaultHVFrequency(&frequency))
         return false;
 
-    *value = TUBE_DEFAULT_HV_DUTYCYCLE_PERIOD * frequency;
+    *value = GC03_TUBE_DEFAULT_HV_DUTYCYCLE_PERIOD * frequency;
 
     return true;
 }

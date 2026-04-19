@@ -17,7 +17,7 @@
 void initPower(void)
 {
     // GPIO
-    setPowerEnabled(false);
+    setPowerEnabled(wasResetByWatchdog());
 
 #if defined(PWR_VCC)
     gpio_set(PWR_VCC_PORT, PWR_VCC_PIN);
@@ -120,9 +120,9 @@ bool isBatteryCharging(void)
 
 #endif
 
-uint32_t getBatteryNum(void)
+bool wasResetByWatchdog(void)
 {
-    return PWR_BAT_NUM;
+    return get_bits(RCC->CSR, RCC_CSR_IWDGRSTF);
 }
 
 #endif

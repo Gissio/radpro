@@ -87,8 +87,8 @@
 #define STRING_AVERAGE "Média"
 #define STRING_CUMULATIVE "Cumulativo"
 #define STRING_HISTORY "Histórico"
-#define STRING_ELECTRIC_FIELD "Campo elétrico"
-#define STRING_MAGNETIC_FIELD "Campo magnético"
+#define STRING_ELECTRIC_FIELD "Elétrico"
+#define STRING_MAGNETIC_FIELD "Magnético"
 
 // Measurements secondary view strings
 #define STRING_TIME "Tempo"
@@ -137,14 +137,14 @@
 #define STRING_RATE_ALARM "Alarme de taxa"
 #define STRING_DOSE_WARNING "Aviso de dose"
 #define STRING_DOSE_ALARM "Alarme de dose"
-#define STRING_ELECTRIC_FIELD_ALARM "Alarme de campo elétrico"
-#define STRING_MAGNETIC_FIELD_ALARM "Alarme de campo magnético"
+#define STRING_ELECTRIC_FIELD_ALARM "Alarme c. elétrico"
+#define STRING_MAGNETIC_FIELD_ALARM "Alarme c. magnético"
 
 // Measurements menu items
 #define STRING_SOURCE_COMPENSATION "Comp. da fonte"
 #define STRING_DOSE_UNITS "Unidades de dose"
-#define STRING_SECONDARY_DOSE_UNITS "Unidades de dose secundárias"
-#define STRING_MAGNETIC_FIELD_UNITS "Unidades de campo magnético"
+#define STRING_SECONDARY_DOSE_UNITS "Unidades secundárias"
+#define STRING_MAGNETIC_FIELD_UNITS "Unidades c. magnético"
 
 // Source menu compensation items
 #define STRING_CS137 "Nenhuma (Cs-137)"

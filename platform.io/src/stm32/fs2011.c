@@ -20,6 +20,12 @@
 
 // System
 
+void initGPIO(void)
+{
+    // Enable GPIOA, GPIOB
+    set_bits(RCC->APB2ENR, RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN);
+}
+
 void initSystem(void)
 {
     // Set system clock
@@ -32,9 +38,6 @@ void initSystem(void)
     // Disable JTAG, TIM3 partial remap
     rcc_enable_afio();
     modify_bits(AFIO->MAPR, AFIO_MAPR_SWJ_CFG_Msk | AFIO_MAPR_TIM3_REMAP_Msk, AFIO_MAPR_SWJ_CFG_JTAGDISABLE | AFIO_MAPR_TIM3_REMAP_1);
-
-    // Enable GPIOA, GPIOB
-    set_bits(RCC->APB2ENR, RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN);
 #endif
 }
 

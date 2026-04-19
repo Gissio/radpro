@@ -119,20 +119,26 @@ void boot(void)
 #if !defined(START_POWERED)
     updatePowerState();
 
-    bool powerKeyDown = isPowerKeyDown();
-
-    if (!powerKeyDown && !settings.powerUSBAutoPowerOn)
+    if (wasResetByWatchdog())
+        powerOn();
+    else if (!isPowerKeyDown())
     {
-        powerOffWithBatteryIndicator(true);
-
-        return;
+        if (settings.powerUSBAutoPowerOn)
+            powerOn();
+        else
+            powerOffWithBatteryIndicator(true);
     }
-
-    if (powerKeyDown)
+    else
+    {
         waitLongKeyPress();
+
+        powerOn();
+    }
+#else
+    powerOn();
 #endif
 
-    powerOn();
+    startKeyboardEvents();
 }
 
 void powerOn(void)
@@ -160,7 +166,6 @@ void powerOn(void)
     if (!verifyFlash())
     {
         power.onViewState = POWERON_VIEW_FLASHFAILURE;
-
         triggerAlert(true);
     }
     else

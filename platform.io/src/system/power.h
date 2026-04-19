@@ -24,7 +24,8 @@ void initPower(void);
 void setPowerEnabled(bool value);
 bool isUSBPowered(void);
 bool isBatteryCharging(void);
-uint32_t getBatteryNum(void);
+
+bool wasResetByWatchdog(void);
 
 void boot(void);
 void powerOn(void);

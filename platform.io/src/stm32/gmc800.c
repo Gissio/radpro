@@ -19,6 +19,12 @@
 
 // System
 
+void initGPIO(void)
+{
+    // Enable GPIOA, GPIOB, GPIOC, GPIOD
+    set_bits(RCC->APB2ENR, RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN | RCC_APB2ENR_IOPDEN);
+}
+
 void initSystem(void)
 {
     // Set HSI as system clock
@@ -54,9 +60,6 @@ void initSystem(void)
     // Disable JTAG
     rcc_enable_afio();
     modify_bits(AFIO->MAPR, AFIO_MAPR_SWJ_CFG_Msk, AFIO_MAPR_SWJ_CFG_JTAGDISABLE);
-
-    // Enable GPIOA, GPIOB, GPIOC, GPIOD
-    set_bits(RCC->APB2ENR, RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN | RCC_APB2ENR_IOPDEN);
 
     // Disable USART RTS reset
     gpio_clear(SYSTEM_RESET_EN_PORT, SYSTEM_RESET_EN_PIN);

@@ -24,7 +24,6 @@
 #define PWR_BAT_PIN 0
 #define PWR_BAT_CHANNEL 10
 #define PWR_BAT_SCALE_FACTOR 2.0F
-#define PWR_BAT_NUM 1.0F
 #define PWR_USB_PORT GPIOC
 #define PWR_USB_PIN 6
 #define PWR_USB_PULLUP

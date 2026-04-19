@@ -389,55 +389,33 @@ void writeDatalogTimeChange(void)
 }
 
 // +++ TEST
-#include "../system/cstring.h"
-#include "../stm32/device.h"
-
 char datalogResetDebugString[256];
 // +++ TEST
 
 void clearDatalog(void)
 {
     // +++ TEST
-    strcpy(datalogResetDebugString, "SUCCESS\n\nStatus:\n");
-    uint32_t status = 0;
-#if !defined(SIMULATOR)
-    status = FLASH->CR;
-#endif
-    strcatUInt32Hex(datalogResetDebugString, status);
-    // +++ TEST
-
-    // +++ TEST
-    strcat(datalogResetDebugString, "\n");
-    status = 0;
-#if !defined(SIMULATOR)
-    status = FLASH->SR;
-#endif
-    strcatUInt32Hex(datalogResetDebugString, status);
+    strcpy(datalogResetDebugString, "SUCCESS\n\nPrev: 0x");
+    strcatUInt32Hex(datalogResetDebugString, datalog.write.pageBase);
     // +++ TEST
 
     flushDatalogBuffer();
-
-    // +++ TEST
-    strcat(datalogResetDebugString, "\n");
-    status = 0;
-#if !defined(SIMULATOR)
-    status = FLASH->SR;
-#endif
-    strcatUInt32Hex(datalogResetDebugString, status);
-    // +++ TEST
-
     writePageStateAndAdvance(PAGESTATE_RESET);
-
-    // +++ TEST
-    strcat(datalogResetDebugString, "\n");
-    status = 0;
-#if !defined(SIMULATOR)
-    status = FLASH->SR;
-#endif
-    strcatUInt32Hex(datalogResetDebugString, status);
-    // +++ TEST
-
     clearHistory();
+
+    // +++ TEST
+    strcat(datalogResetDebugString, "\nCurr: 0x");
+    strcatUInt32Hex(datalogResetDebugString, datalog.write.pageBase);
+
+    strcat(datalogResetDebugString, "\nCount: 0x");
+    uint32_t count = 0;
+    const uint8_t *data = readFlash(datalog.write.pageBase, DATALOG_PAGE_SIZE);
+    for (uint32_t i = 0; i < DATALOG_PAGE_SIZE; i++)
+        if (data[i] == 0xff)
+            count++;
+    strcatUInt32Hex(datalogResetDebugString, count);
+    // +++ TEST
+
     stopDatalogRead();
 }
 

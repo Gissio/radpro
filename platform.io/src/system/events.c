@@ -227,6 +227,13 @@ void onTick(void)
 #endif
 }
 
+void resetWatchdog(void)
+{
+#if !defined(SIMULATOR)
+    sleep(0);
+#endif
+}
+
 void syncTick(void)
 {
 #if !defined(SIMULATOR)
@@ -246,8 +253,8 @@ void updateEvents(void)
         events.previousHeartbeatCount = heartbeatCount;
 
         updateMeasurements();
-        updateViewHeartbeat();
         updatePowerState();
+        updateViewHeartbeat();
     }
 
     updateDatalog();
@@ -264,7 +271,6 @@ void startHeartbeatEvents(void)
     events.heartbeatTimer = SYSTICK_FREQUENCY;
     events.previousHeartbeatCount = events.heartbeatCount;
 }
-
 
 // Keyboard
 
@@ -292,7 +298,7 @@ static void setBacklightTimer(int32_t ticks)
 
 void requestBacklightTrigger(void)
 {
-    if (isInLockMode())
+    if (isLockModeEnabled())
         events.requestedBacklightTimer = LOCKMODE_BACKLIGHT_TICKS;
     else
         events.requestedBacklightTimer = displayTimerValues[settings.displaySleep];

@@ -87,8 +87,8 @@
 #define STRING_AVERAGE "Promedio"
 #define STRING_CUMULATIVE "Acumulado"
 #define STRING_HISTORY "Historial"
-#define STRING_ELECTRIC_FIELD "Campo eléctrico"
-#define STRING_MAGNETIC_FIELD "Campo magnético"
+#define STRING_ELECTRIC_FIELD "Eléctrico"
+#define STRING_MAGNETIC_FIELD "Magnético"
 
 // Measurements secondary view strings
 #define STRING_TIME "Tiempo"
@@ -133,18 +133,18 @@
 
 // Alerts menu items
 #define STRING_INDICATION "Indicación"
-#define STRING_RATE_WARNING "Advertencia de tasa"
+#define STRING_RATE_WARNING "Advert. de tasa"
 #define STRING_RATE_ALARM "Alarma de tasa"
-#define STRING_DOSE_WARNING "Advertencia de dosis"
+#define STRING_DOSE_WARNING "Advert. de dosis"
 #define STRING_DOSE_ALARM "Alarma de dosis"
-#define STRING_ELECTRIC_FIELD_ALARM "Alarma de campo eléctrico"
-#define STRING_MAGNETIC_FIELD_ALARM "Alarma de campo magnético"
+#define STRING_ELECTRIC_FIELD_ALARM "Alarma c. eléctrico"
+#define STRING_MAGNETIC_FIELD_ALARM "Alarma c. magnético"
 
 // Measurements menu items
-#define STRING_SOURCE_COMPENSATION "Compensación de fuente"
+#define STRING_SOURCE_COMPENSATION "Comp. de fuente"
 #define STRING_DOSE_UNITS "Unidades de dosis"
-#define STRING_SECONDARY_DOSE_UNITS "Unidades de dosis secundarias"
-#define STRING_MAGNETIC_FIELD_UNITS "Unidades de campo magnético"
+#define STRING_SECONDARY_DOSE_UNITS "Unidades secundarias"
+#define STRING_MAGNETIC_FIELD_UNITS "Unidades c. magnético"
 
 // Source menu compensation items
 #define STRING_CS137 "Ninguna (Cs-137)"

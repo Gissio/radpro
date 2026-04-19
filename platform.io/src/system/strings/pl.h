@@ -87,8 +87,8 @@
 #define STRING_AVERAGE "Średnie"
 #define STRING_CUMULATIVE "Skumulowane"
 #define STRING_HISTORY "Historia"
-#define STRING_ELECTRIC_FIELD "Pole elektryczne"
-#define STRING_MAGNETIC_FIELD "Pole magnetyczne"
+#define STRING_ELECTRIC_FIELD "P. elektryczne"
+#define STRING_MAGNETIC_FIELD "P. magnetyczne"
 
 // Measurements secondary view strings
 #define STRING_TIME "Czas"
@@ -137,14 +137,14 @@
 #define STRING_RATE_ALARM "Alarm natężenia"
 #define STRING_DOSE_WARNING "Ostrzeżenie dawki"
 #define STRING_DOSE_ALARM "Alarm dawki"
-#define STRING_ELECTRIC_FIELD_ALARM "Alarm pola elektrycznego"
-#define STRING_MAGNETIC_FIELD_ALARM "Alarm pola magnetycznego"
+#define STRING_ELECTRIC_FIELD_ALARM "Alarm p. elektrycznego"
+#define STRING_MAGNETIC_FIELD_ALARM "Alarm p. magnetycznego"
 
 // Measurements menu items
 #define STRING_SOURCE_COMPENSATION "Komp. źródła"
 #define STRING_DOSE_UNITS "Jednostki dawki"
 #define STRING_SECONDARY_DOSE_UNITS "Drugorzędne jednostki dawki"
-#define STRING_MAGNETIC_FIELD_UNITS "Jednostki pola magnetycznego"
+#define STRING_MAGNETIC_FIELD_UNITS "Jednostki p. magnetycznego"
 
 // Source menu compensation items
 #define STRING_CS137 "Brak (Cs-137)"
