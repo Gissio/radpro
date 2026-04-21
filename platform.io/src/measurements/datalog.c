@@ -400,7 +400,7 @@ void clearDatalog(void)
     strcpy(datalogResetDebugString, "SUCCESS\n\nWRPRT: 0x");
     uint32_t status = 0;
 #if defined(GC03)
-    status = FLASH->WRPRT;
+    status = FLASH->WRPR;
 #endif
     strcatUInt32Hex(datalogResetDebugString, status);
 
