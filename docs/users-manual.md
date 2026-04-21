@@ -234,4 +234,4 @@ Keep in mind:
 * [Installation guides](../README.md#Installation) – For supported devices
 * [Rad Pro reference manual](reference-manual.md) – Technical reference for Rad Pro
 * [Ionizing radiation field guide](https://github.com/Gissio/ionizing-radiation-field-guide) – Learn about ionizing radiation
-* [Rad Pro developers's manual](docs/developers.md) – Technical details for developers
+* [Rad Pro developers's manual](developers-manual.md) – Technical details for developers

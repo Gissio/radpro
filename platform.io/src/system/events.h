@@ -42,6 +42,7 @@ bool isBacklightActive(void);
 bool isDisplayAwake(void);
 
 void triggerVibration(void);
+void triggerAndwaitForVibration(void);
 
 void setPulseLEDIndication(bool value);
 

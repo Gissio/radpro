@@ -52,7 +52,11 @@ void updateView(void)
             if (event == EVENT_KEY_POWER)
             {
                 if (!isLockModeEnabled())
+                {
+                    triggerAndwaitForVibration();
+
                     powerOff();
+                }
             }
             else
             {

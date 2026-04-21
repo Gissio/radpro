@@ -40,7 +40,7 @@ Supported devices:
 * [Rad Pro user's manual](docs/users-manual.md) – Easy guide to using Rad Pro
 * [Rad Pro reference manual](docs/reference-manual.md) – Technical reference for Rad Pro
 * [Ionizing radiation field guide](https://github.com/Gissio/ionizing-radiation-field-guide) – Learn about ionizing radiation
-* [Rad Pro developers's manual](docs/developers.md) – Technical details for developers
+* [Rad Pro developers's manual](docs/developers-manual.md) – Technical details for developers
 
 ## Tools & Software
 

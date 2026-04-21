@@ -122,7 +122,18 @@ bool isBatteryCharging(void)
 
 bool wasResetByWatchdog(void)
 {
+#if FIRMWARE_BASE == 0x08000000
     return get_bits(RCC->CSR, RCC_CSR_IWDGRSTF);
+#else
+    return false;
+#endif
+}
+
+void clearResetFlags(void)
+{
+#if FIRMWARE_BASE == 0x08000000
+    set_bits(RCC->CSR, RCC_CSR_RMVF);
+#endif
 }
 
 #endif

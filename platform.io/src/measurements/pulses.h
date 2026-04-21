@@ -69,7 +69,7 @@ float getDoseFactor(void);
 void updatePulseThresholdExceeded(void);
 bool isPulseThresholdExceeded(void);
 void onPulseTick(void);
-void onPulseHeartbeat(void);
+void onPulsesHeartbeat(void);
 void updatePulses(void);
 
 void setTubeTime(uint32_t value);

@@ -138,6 +138,8 @@ void boot(void)
     powerOn();
 #endif
 
+    clearResetFlags();
+
     startKeyboardEvents();
 }
 

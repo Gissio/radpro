@@ -22,8 +22,13 @@
 
 void initGPIO(void)
 {
+#if defined(STM32F0)
+    // Enable GPIOA, GPIOB, GPIOF
+    set_bits(RCC->AHBENR, RCC_AHBENR_GPIOAEN | RCC_AHBENR_GPIOBEN | RCC_AHBENR_GPIOFEN);
+#elif defined(STM32F1)
     // Enable GPIOA, GPIOB
     set_bits(RCC->APB2ENR, RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN);
+#endif
 }
 
 void initSystem(void)

@@ -1,4 +1,4 @@
-# Rad Pro Developers's Manual
+# Rad Pro Developer's Manual
 
 ## Build
 

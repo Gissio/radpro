@@ -266,4 +266,4 @@ Refer to the [communications protocol description](comm.md) for USB serial port 
 * [Installation guides](../README.md#Installation) – For supported devices
 * [Rad Pro user's manual](user-manual.md) – Easy guide to using Rad Pro
 * [Ionizing radiation field guide](https://github.com/Gissio/ionizing-radiation-field-guide) – Learn about ionizing radiation
-* [Rad Pro developers's manual](docs/developers.md) – Technical details for developers
+* [Rad Pro developers's manual](developers-manual.md) – Technical details for developers

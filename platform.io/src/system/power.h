@@ -26,6 +26,7 @@ bool isUSBPowered(void);
 bool isBatteryCharging(void);
 
 bool wasResetByWatchdog(void);
+void clearResetFlags(void);
 
 void boot(void);
 void powerOn(void);

@@ -82,7 +82,7 @@ void waitLongKeyPress(void);
 
 void setKeyboardMode(KeyboardMode mode);
 
-void updateKeyboard(void);
+void onKeyboardUpdate(void);
 
 ViewEvent getKeyboardEvent(void);
 void clearKeyboardEvents();

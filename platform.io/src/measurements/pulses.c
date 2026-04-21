@@ -95,7 +95,7 @@ static struct
 
     bool rateOverThreshold;
 
-    // onPulseHeartbeat
+    // onPulsesHeartbeat
     PulsePeriod previousPeriod;
     uint32_t previousPeriodTick;
 
@@ -235,7 +235,7 @@ void onPulseTick(void)
     }
 }
 
-void onPulseHeartbeat(void)
+void onPulsesHeartbeat(void)
 {
     if (!isMeasurementsEnabled())
         return;

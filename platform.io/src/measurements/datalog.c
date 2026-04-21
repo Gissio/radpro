@@ -389,13 +389,22 @@ void writeDatalogTimeChange(void)
 }
 
 // +++ TEST
+#include "stm32-ext.h"
+
 char datalogResetDebugString[256];
 // +++ TEST
 
 void clearDatalog(void)
 {
     // +++ TEST
-    strcpy(datalogResetDebugString, "SUCCESS\n\nPrev: 0x");
+    strcpy(datalogResetDebugString, "SUCCESS\n\nWRPRT: 0x");
+    uint32_t status = 0;
+#if defined(GC03)
+    status = FLASH->WRPRT;
+#endif
+    strcatUInt32Hex(datalogResetDebugString, status);
+
+    strcat(datalogResetDebugString, "\nPrev: 0x");
     strcatUInt32Hex(datalogResetDebugString, datalog.write.pageBase);
     // +++ TEST
 
@@ -414,6 +423,9 @@ void clearDatalog(void)
         if (data[i] == 0xff)
             count++;
     strcatUInt32Hex(datalogResetDebugString, count);
+
+    strcat(datalogResetDebugString, "\nData: 0x");
+    strcatUInt32Hex(datalogResetDebugString, ((uint32_t *)data)[0]);
     // +++ TEST
 
     stopDatalogRead();

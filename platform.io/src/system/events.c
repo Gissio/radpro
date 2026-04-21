@@ -43,7 +43,7 @@
 #define SOUND_ALARM_SHORT_TICKS ((uint32_t)(0.250 * SYSTICK_FREQUENCY))
 #define SOUND_ALARM_LONG_TICKS ((uint32_t)(0.500 * SYSTICK_FREQUENCY))
 
-#define POWERON_VIBRATION_TICKS ((uint32_t)(0.100 * SYSTICK_FREQUENCY))
+#define INFO_VIBRATION_TICKS ((uint32_t)(0.100 * SYSTICK_FREQUENCY))
 
 #define LOCKMODE_BACKLIGHT_TICKS (10 * SYSTICK_FREQUENCY)
 
@@ -149,7 +149,7 @@ void onTick(void)
         events.heartbeatTimer = SYSTICK_FREQUENCY;
         events.heartbeatCount++;
 
-        onPulseHeartbeat();
+        onPulsesHeartbeat();
     }
 
     // Keyboard
@@ -158,7 +158,7 @@ void onTick(void)
     {
         events.keyboardTimer = KEY_TICKS;
 
-        updateKeyboard();
+        onKeyboardUpdate();
     }
 
     // Display
@@ -389,7 +389,16 @@ void triggerVibration(void)
 #if defined(VIBRATOR)
     syncTick();
 
-    setVibrationTimer(POWERON_VIBRATION_TICKS);
+    setVibrationTimer(INFO_VIBRATION_TICKS);
+#endif
+}
+
+void triggerAndwaitForVibration(void)
+{
+#if defined(VIBRATOR)
+    triggerVibration();
+
+    sleep(INFO_VIBRATION_TICKS);
 #endif
 }
 
