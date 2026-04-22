@@ -271,18 +271,19 @@ static void writePageStateAndAdvance(PageState pageState)
 
     if (!writeFlash(datalog.write.pageBase + DATALOG_PAGE_STATE_OFFSET, pageStateData, DATALOG_PAGE_STATE_SIZE))
     {
+        // Erase and try again
         eraseFlash(datalog.write.pageBase);
         writeFlash(datalog.write.pageBase + DATALOG_PAGE_STATE_OFFSET, pageStateData, DATALOG_PAGE_STATE_SIZE);
-
-        return;
     }
+    else
+    {
+        // Advance to next page
+        datalog.write.pageBase = getNextPage(datalog.write.pageBase);
 
-    // Advance to next page
-    datalog.write.pageBase = getNextPage(datalog.write.pageBase);
-
-    // Erase if necessary
-    if (!isFlashEmpty(datalog.write.pageBase, DATALOG_PAGE_SIZE))
-        eraseFlash(datalog.write.pageBase);
+        // Erase
+        if (!isFlashEmpty(datalog.write.pageBase, DATALOG_PAGE_SIZE))
+            eraseFlash(datalog.write.pageBase);
+    }
 }
 
 static void flushDatalogBuffer(void)
@@ -388,45 +389,11 @@ void writeDatalogTimeChange(void)
         appendDatalogAbsoluteEntry();
 }
 
-// +++ TEST
-#include "stm32-ext.h"
-
-char datalogResetDebugString[256];
-// +++ TEST
-
 void clearDatalog(void)
 {
-    // +++ TEST
-    strcpy(datalogResetDebugString, "SUCCESS\n\nWRPRT: 0x");
-    uint32_t status = 0;
-#if defined(GC03)
-    status = FLASH->WRPR;
-#endif
-    strcatUInt32Hex(datalogResetDebugString, status);
-
-    strcat(datalogResetDebugString, "\nPrev: 0x");
-    strcatUInt32Hex(datalogResetDebugString, datalog.write.pageBase);
-    // +++ TEST
-
     flushDatalogBuffer();
     writePageStateAndAdvance(PAGESTATE_RESET);
     clearHistory();
-
-    // +++ TEST
-    strcat(datalogResetDebugString, "\nCurr: 0x");
-    strcatUInt32Hex(datalogResetDebugString, datalog.write.pageBase);
-
-    strcat(datalogResetDebugString, "\nCount: 0x");
-    uint32_t count = 0;
-    const uint8_t *data = readFlash(datalog.write.pageBase, DATALOG_PAGE_SIZE);
-    for (uint32_t i = 0; i < DATALOG_PAGE_SIZE; i++)
-        if (data[i] == 0xff)
-            count++;
-    strcatUInt32Hex(datalogResetDebugString, count);
-
-    strcat(datalogResetDebugString, "\nData: 0x");
-    strcatUInt32Hex(datalogResetDebugString, ((uint32_t *)data)[0]);
-    // +++ TEST
 
     stopDatalogRead();
 }
@@ -693,10 +660,7 @@ static void onDatalogClearConfirmationEvent(ViewEvent event)
         break;
 
     case EVENT_DRAW:
-        // +++ TEST
-        // drawNotification(getString(STRING_RESET), getString(STRING_NOTIFICATION_DATALOG_RESET_SUCCESS));
-        drawNotification(getString(STRING_RESET), datalogResetDebugString);
-        // +++ TEST
+        drawNotification(getString(STRING_RESET), getString(STRING_NOTIFICATION_DATALOG_RESET_SUCCESS));
 
         break;
 

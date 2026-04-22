@@ -182,8 +182,10 @@ build_flags =
     -DDISPLAY_240X320
     -DDISPLAY_COLOR
     -DBUZZER
+    -DBUZZER_VOLUME
     -DVIBRATOR
     -DPULSE_LED
+    -DALERT_LED
     -DGAME
 board_build.ldscript = scripts/gc03.ld
 board_upload.offset_address = 0x08006000

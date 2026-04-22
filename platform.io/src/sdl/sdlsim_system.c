@@ -14,6 +14,10 @@
 
 #include "../system/system.h"
 
+void initGPIO(void)
+{
+}
+
 void initSystem(void)
 {
 }

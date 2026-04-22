@@ -36,4 +36,8 @@ bool wasResetByWatchdog(void)
     return false;
 }
 
+void clearResetFlags(void)
+{
+}
+
 #endif
