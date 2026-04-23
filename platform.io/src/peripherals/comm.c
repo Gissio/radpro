@@ -86,6 +86,7 @@ enum GetAction
     GET_DEVICE_BATTERY_VOLTAGE,
     GET_DEVICE_TIME,
     GET_DEVICE_TIME_ZONE,
+    GET_TUBE_TYPE,
     GET_TUBE_TIME,
     GET_TUBE_PULSE_COUNT,
     GET_TUBE_RATE,
@@ -110,6 +111,7 @@ static const char *getTable[] = {
     "deviceBatteryVoltage",
     "deviceTime",
     "deviceTimeZone",
+    "tubeType",
     "tubeTime",
     "tubePulseCount",
     "tubeRate",
@@ -160,6 +162,11 @@ void processCommGet(const char *s)
 
         case GET_DEVICE_TIME_ZONE:
             pushCommFloat(getDeviceTimeZone(), 1);
+
+            break;
+
+        case GET_TUBE_TYPE:
+            pushCommString(getTubeType());
 
             break;
 

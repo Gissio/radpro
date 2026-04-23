@@ -95,7 +95,7 @@ env += build_env('bosean-fs5000', 'color_21', 'color_32', 'color_84', 'color', F
 # env += build_env('bosean-fs5000_landscape', 'color_21','color_32', 'color_115', 'color', False, '0xe000', '0xf000', '0x15000')
 env += build_env('fnirsi-gc01_ch32f103r8', 'color_21', 'color_32', 'color_115', 'color', True, '0xa800', '0xb000', '0xb800')
 env += build_env('fnirsi-gc01_apm32f103rb', 'color_21', 'color_32', 'color_115', 'color', False, '0xe000', '0xf000', '0x15000')
-env += build_env('fnirsi-gc03', 'color_21', 'color_32', 'color_84', 'color', False, '0xe000', '0xf000', '0x15000')
+env += build_env('fnirsi-gc03', 'color_21', 'color_32', 'color_84', 'color', False, '0xe000', '0x10000', '0x15000')
 env += build_env('gq-gmc800', 'color_16', 'color_24', 'color_84', 'color', False, '0xd000', '0xe000', '0x14000')
 # env += build_env('gq-gmc800_landscape', 'color_12', 'color_16', 'color_115', 'color', False, '0xe000', '0xf000', '0x15000')
 

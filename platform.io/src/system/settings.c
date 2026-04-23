@@ -99,14 +99,14 @@ static uint32_t stateOffset;
 
 static const uint8_t statesPageId[STATES_PAGE_ID_SIZE] = SETTINGS_VERSION;
 
-static bool validateStatesPage(void)
+static bool validateStatePage(void)
 {
     const uint8_t *page = readFlash(STATES_BASE + STATES_PAGE_ID_OFFSET, STATES_PAGE_ID_SIZE);
 
     return memcmp(page, statesPageId, STATES_PAGE_ID_SIZE) == 0;
 }
 
-static void clearStatesPage(void)
+static void eraseStatePage(void)
 {
     eraseFlash(STATES_BASE);
     writeFlash(STATES_BASE + STATES_PAGE_ID_OFFSET, statesPageId, STATES_PAGE_ID_SIZE);
@@ -148,7 +148,7 @@ static const State *loadLatestState(void)
     const State *lastState = NULL;
     stateOffset = STATES_PAGE_LASTSTATE_OFFSET;
 
-    if (validateStatesPage())
+    if (validateStatePage())
     {
         // Find last state
         const uint8_t *page = readFlash(STATES_BASE, STATES_SIZE);
@@ -171,7 +171,7 @@ static const State *loadLatestState(void)
 static void appendState(State *state)
 {
     if (stateOffset >= STATES_PAGE_LASTSTATE_OFFSET)
-        clearStatesPage();
+        eraseStatePage();
 
     if (writeFlash(STATES_BASE + stateOffset, (uint8_t *)state, sizeof(State)))
         stateOffset += sizeof(State);

@@ -93,6 +93,18 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   OK
   ```
 
+### Get Tube Type
+
+- **Request**: `GET tubeType\r\n`
+- **Response**: `OK [value]\r\n`
+- **Description**: Returns the tube's type.
+- **Example**:
+
+  ```
+  GET tubeType
+  OK M4011
+  ```
+
 ### Get Tube Lifetime
 
 - **Request**: `GET tubeTime\r\n`

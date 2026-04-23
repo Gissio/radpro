@@ -18,6 +18,16 @@
 #define SOURCE_FACTOR_DATA_MIN 0.125F
 #define SOURCE_FACTOR_DATA_SCALE 36
 
+static cstring tubeTypeStrings[] = {
+    STRING_J305,
+    STRING_M4011,
+    STRING_J321,
+    STRING_HH614,
+    STRING_SBM20,
+    STRING_SI3BG,
+    STRING_LND7317,
+};
+
 static const float tubeSensitivities[] = {
     135.200F,
     108.345F,
@@ -110,6 +120,11 @@ static float getTubeSensitivityForIndex(uint32_t index)
     else
         return TUBE_SENSITIVITY_VALUE_MIN *
                exp2f((float)(index - 1) * (TUBE_SENSITIVITY_VALUE_LOG2_MAX_MIN / (TUBE_SENSITIVITY_VALUE_NUM - 1)));
+}
+
+const char *getTubeType(void)
+{
+    return getString(tubeTypeStrings[getTubeIndex()]);
 }
 
 float getTubeSensitivity(void)
@@ -315,21 +330,11 @@ void showSourceCompensationMenu(void)
 
 // Tube type menu
 
-static cstring tubeTypeMenuOptions[] = {
-    STRING_J305,
-    STRING_M4011,
-    STRING_J321,
-    STRING_HH614,
-    STRING_SBM20,
-    STRING_SI3BG,
-    STRING_LND7317,
-};
-
 static const char *onTubeTypeMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.tubeType);
 
-    return tubeTypeMenuOptions[index];
+    return tubeTypeStrings[index];
 }
 
 static void onTubeTypeMenuSelect(menu_size_t index)
@@ -344,7 +349,7 @@ static MenuState tubeTypeMenuState;
 static const Menu tubeTypeMenu = {
     STRING_TUBE_TYPE,
     &tubeTypeMenuState,
-    ARRAY_SIZE(tubeTypeMenuOptions),
+    ARRAY_SIZE(tubeTypeStrings),
     onTubeTypeMenuGetOption,
     onTubeTypeMenuSelect,
     showTubeMenu,

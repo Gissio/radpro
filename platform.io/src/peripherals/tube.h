@@ -26,6 +26,8 @@ void initTubeHardware(void);
 
 void resetTube(void);
 
+const char *getTubeType(void);
+
 float getTubeSensitivity(void);
 uint32_t getLossOfCountTime(void);
 
