@@ -18,6 +18,13 @@
 
 #define KEY_TICKS ((uint32_t)(0.025 * SYSTICK_FREQUENCY))
 
+typedef enum
+{
+    LEDMODE_OFF,
+    LEDMODE_PULSE,
+    LEDMODE_MULTIPLEX,
+} LEDMode;
+
 extern volatile uint32_t currentTick;
 
 void initEvents(void);
@@ -44,7 +51,7 @@ bool isDisplayAwake(void);
 void triggerVibration(void);
 void triggerAndwaitForVibration(void);
 
-void setPulseLEDIndication(bool value);
+void setLEDMode(LEDMode mode);
 
 void indicatePulse(void);
 

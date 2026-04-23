@@ -186,6 +186,7 @@ build_flags =
     -DVIBRATOR
     -DPULSE_LED
     -DALERT_LED
+    -DLED_MULTIPLEX
     -DGAME
 board_build.ldscript = scripts/gc03.ld
 board_upload.offset_address = 0x08006000

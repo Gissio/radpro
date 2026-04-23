@@ -233,7 +233,7 @@ static void onPowerOffViewEvent(ViewEvent event)
 
 static void powerOffWithBatteryIndicator(bool batteryIndicator)
 {
-    if (isPoweredOn())
+    if (power.poweredOn)
     {
         setMeasurementsEnabled(false);
         saveSettings();
@@ -329,7 +329,7 @@ void updatePowerState(void)
     {
         bool lowBattery = (power.batteryVoltage < batteryLow[settings.powerBatteryType]);
 
-        if (isPoweredOn() && lowBattery)
+        if (power.poweredOn && lowBattery)
             powerOffWithBatteryIndicator(true);
     }
 

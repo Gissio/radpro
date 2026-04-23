@@ -67,8 +67,11 @@ static struct
 #endif
 
 #if defined(PULSE_LED)
-    bool pulseLEDEnabled;
+    LEDMode ledMode;
     volatile int32_t pulseLEDTimer;
+#if defined(LED_MULTIPLEX)
+    bool ledMultiplexState;
+#endif
 #endif
 
 #if defined(VIBRATOR)
@@ -222,6 +225,20 @@ void onTick(void)
 
     // Pulse LED
 #if defined(PULSE_LED)
+#if defined(LED_MULTIPLEX)
+    if (events.ledMode == LEDMODE_MULTIPLEX)
+    {
+        events.ledMultiplexState = !events.ledMultiplexState;
+
+        setAlertLED(events.ledMultiplexState);
+        setPulseLED(!events.ledMultiplexState);
+    }
+    else
+    {
+        if (tickTimer(&events.pulseLEDTimer) == TIMER_ELAPSED)
+            setPulseLED(false);
+    }
+#endif
     if (tickTimer(&events.pulseLEDTimer) == TIMER_ELAPSED)
         setPulseLED(false);
 #endif
@@ -406,12 +423,12 @@ void triggerAndwaitForVibration(void)
 
 #if defined(PULSE_LED)
 
-void setPulseLEDIndication(bool value)
+void setLEDMode(LEDMode mode)
 {
     syncTick();
 
+    events.ledMode = mode;
     events.pulseLEDTimer = 0;
-    events.pulseLEDEnabled = value;
 }
 
 static void setPulseLEDTimer(int32_t ticks)
@@ -448,7 +465,7 @@ void indicatePulse(void)
 #endif
 
 #if defined(PULSE_LED)
-    if (events.pulseLEDEnabled)
+    if (events.ledMode == LEDMODE_PULSE)
         setPulseLEDTimer(PULSE_LED_TICKS);
 #endif
 }

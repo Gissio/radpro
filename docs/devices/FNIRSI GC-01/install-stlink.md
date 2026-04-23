@@ -107,10 +107,44 @@ Rad Pro is flashed to the device.
 ## Step 5: Finish Up
 
 * Disconnect the ST-LINK
-* Reassemble the device
+* Reassemble the device0
 
-## Next Step
+## Step 6: Basic Controls
 
-Once Rad Pro is installed, continue with:
+Once installed, here are the essential controls:
 
-* [Regular installation guide](install.md#step-5-first-configuration) → Step 5: First Configuration
+### Navigation
+
+* **Press Up / Down:** Change measurement mode / navigate menus
+* **Press Right:** Select / open settings
+* **Press Left:** Go back
+
+### System
+
+* **Hold OK:** Power on/off
+* **Hold Left + OK:** Toggle lock mode
+
+### Measurement Screen
+
+* **Press Left:** Switch secondary display
+* **Hold Left:** Reset measurement / dismiss alerts
+* **Hold Right:** Toggle pulse sound
+* **Press OK:** Turn off display
+
+### Random generator
+
+* **Press Right:** Restart random generator
+
+## Step 7: First Configuration
+
+* Open **Settings > Geiger tube > Tube type** and select the tube you identified earlier.
+* Open **Settings > Geiger tube > HV profile > Custom** and set up a custom HV profile as described in the [Reference manual - HV Profiles](../../reference-manual.md#hv-profiles-if-supported).
+
+## Step 8: Finish Up
+
+* 📖 **Read the documentation**:
+  * [Rad Pro user's manual](../../users-manual.md) – Easy guide to using Rad Pro
+  * [Rad Pro reference manual](../../reference-manual.md) – Technical reference for Rad Pro
+  * [Ionizing radiation field guide](https://github.com/Gissio/ionizing-radiation-field-guide) – Learn about ionizing radiation
+* ⭐ **Support the project** by starring the repository: [https://github.com/Gissio/radpro](https://github.com/Gissio/radpro)
+* 👥 **Help us grow** — share Rad Pro on social networks, forums, or with fellow enthusiasts!

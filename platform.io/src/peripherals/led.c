@@ -27,57 +27,41 @@ void initLED(void)
 
 void updateLED(void)
 {
-    bool pulseLEDIndication;
-    bool pulseLED;
-
 #if !defined(ALERT_LED)
-    if (!isMeasurementsEnabled())
-    {
-        pulseLEDIndication = false;
-        pulseLED = false;
-    }
-    else
+    LEDMode ledMode = LEDMODE_OFF;
+    bool pulseLED = false;
+
+    if (isMeasurementsEnabled())
     {
         if (settings.alertPulseLED && getAlertLevel())
-        {
-            pulseLEDIndication = false;
             pulseLED = isAlertFlashing();
-        }
         else
-        {
-            pulseLEDIndication = settings.pulseLED;
-            pulseLED = false;
-        }
+            ledMode = settings.pulseLED ? LEDMODE_PULSE : LEDMODE_OFF;
     }
-#else
-    bool alertLED;
 
-    if (!isMeasurementsEnabled())
-    {
-        pulseLEDIndication = false;
-        pulseLED = false;
-        alertLED = false;
-    }
-    else
+    setLEDMode(ledMode);
+    setPulseLED(pulseLED);
+#else
+    LEDMode ledMode = LEDMODE_OFF;
+    bool pulseLED = false;
+    bool alertLED = false;
+
+    if (isMeasurementsEnabled())
     {
         if (settings.alertPulseLED && isAlertFlashing())
         {
-            pulseLEDIndication = false;
             pulseLED = (getAlertLevel() == ALERTLEVEL_WARNING);
             alertLED = true;
+
+            if (pulseLED && alertLED)
+                ledMode = LEDMODE_MULTIPLEX;
         }
         else
-        {
-            pulseLEDIndication = settings.pulseLED;
-            pulseLED = false;
-            alertLED = false;
-        }
+            ledMode = settings.pulseLED ? LEDMODE_PULSE : LEDMODE_OFF;
     }
-#endif
 
-    setPulseLEDIndication(pulseLEDIndication);
+    setLEDMode(ledMode);
     setPulseLED(pulseLED);
-#if defined(ALERT_LED)
     setAlertLED(alertLED);
 #endif
 }
