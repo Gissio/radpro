@@ -70,7 +70,7 @@ static struct
     LEDMode ledMode;
     volatile int32_t pulseLEDTimer;
 #if defined(LED_MULTIPLEX)
-    bool ledMultiplexState;
+    uint32_t ledMultiplexState;
 #endif
 #endif
 
@@ -228,10 +228,12 @@ void onTick(void)
 #if defined(LED_MULTIPLEX)
     if (events.ledMode == LEDMODE_MULTIPLEX)
     {
-        events.ledMultiplexState = !events.ledMultiplexState;
+        events.ledMultiplexState++;
+        if (events.ledMultiplexState >= 5)
+            events.ledMultiplexState = 0;
 
-        setAlertLED(events.ledMultiplexState);
-        setPulseLED(!events.ledMultiplexState);
+        setPulseLED(events.ledMultiplexState == 0);
+        setAlertLED(events.ledMultiplexState != 0);
     }
     else
     {
