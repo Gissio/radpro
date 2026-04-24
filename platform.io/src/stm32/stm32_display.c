@@ -13,14 +13,13 @@
 #include "../stm32/device.h"
 #include "../system/settings.h"
 
-// Gamma-corrected linear brightness values
-
-// value = 32768 * [0.25, 0.5, 0.75, 1] ^ 2.2
-static const uint16_t displayBrightnessValue[] = {
-    1552,
-    7132,
-    17401,
-    32768,
+// Gamma-corrected linear brightness values:
+// [0.25, 0.5, 0.75, 1] ^ 2.2
+static const uint32_t displayOnTime[] = {
+    (uint32_t)(0.0473661F * DISPLAY_BACKLIGHT_TIMER_PERIOD),
+    (uint32_t)(0.2176376F * DISPLAY_BACKLIGHT_TIMER_PERIOD),
+    (uint32_t)(0.5310492F * DISPLAY_BACKLIGHT_TIMER_PERIOD),
+    (uint32_t)(DISPLAY_BACKLIGHT_TIMER_PERIOD),
 };
 
 #if defined(GC01)
@@ -42,7 +41,7 @@ void initBacklight(void)
 void setBacklight(bool value)
 {
     uint32_t onTime = DISPLAY_BACKLIGHT_TIMER_PERIOD -
-                      (value ? ((displayBrightnessValue[settings.displayBrightness] * DISPLAY_BACKLIGHT_TIMER_PERIOD) >> 16) : 0);
+                      (value ? displayOnTime[settings.displayBrightness] : 0);
 
     tim_set_ontime(DISPLAY_BACKLIGHT_TIMER, DISPLAY_BACKLIGHT_TIMER_CHANNEL, onTime);
 }
@@ -69,7 +68,7 @@ void setBacklight(bool value)
 
         // Timer
         uint32_t period = DISPLAY_BACKLIGHT_TIMER_PERIOD;
-        uint32_t onTime = ((displayBrightnessValue[settings.displayBrightness] * DISPLAY_BACKLIGHT_TIMER_PERIOD) >> 15);
+        uint32_t onTime = displayOnTime[settings.displayBrightness];
         uint32_t prescalerFactor = prescalePWMParameters(&period, &onTime);
 
         tim_setup_pwm(DISPLAY_BACKLIGHT_TIMER, DISPLAY_BACKLIGHT_TIMER_CHANNEL);

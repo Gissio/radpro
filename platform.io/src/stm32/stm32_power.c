@@ -14,10 +14,10 @@
 #include "../system/power.h"
 #include "../stm32/device.h"
 
-void initPower(void)
+void initPower(bool value)
 {
     // GPIO
-    setPowerEnabled(wasResetByWatchdog());
+    setPowerEnabled(value);
 
 #if defined(PWR_VCC)
     gpio_set(PWR_VCC_PORT, PWR_VCC_PIN);

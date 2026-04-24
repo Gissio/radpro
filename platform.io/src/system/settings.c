@@ -62,6 +62,9 @@ static const Settings defaultSettings = {
 #endif
     .displaySleep = DISPLAY_SLEEP_30_SECONDS,
 
+#if defined(BUZZER)
+    .soundPulseStyle = SOUND_PULSETYPE_BEEPS,
+#endif
 #if defined(BUZZER_VOLUME)
     .soundPulseVolume = SOUND_PULSEVOLUME_VERYHIGH,
     .soundAlertVolume = SOUND_ALERTVOLUME_VERYHIGH,
@@ -110,8 +113,6 @@ static void eraseStatePage(void)
 {
     eraseFlash(STATES_BASE);
     writeFlash(STATES_BASE + STATES_PAGE_ID_OFFSET, statesPageId, STATES_PAGE_ID_SIZE);
-
-    stateOffset = 0;
 }
 
 static bool validateState(const State *state)
@@ -161,7 +162,7 @@ static const State *loadLatestState(void)
                 lastState = state;
 
                 stateOffset = offset + sizeof(State);
-            } 
+            }
         }
     }
 
@@ -171,7 +172,11 @@ static const State *loadLatestState(void)
 static void appendState(State *state)
 {
     if (stateOffset >= STATES_PAGE_LASTSTATE_OFFSET)
+    {
         eraseStatePage();
+
+        stateOffset = 0;
+    }
 
     if (writeFlash(STATES_BASE + stateOffset, (uint8_t *)state, sizeof(State)))
         stateOffset += sizeof(State);

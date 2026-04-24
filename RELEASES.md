@@ -1,6 +1,6 @@
 # Releases
 
-## 3.1 "Sources"
+## 3.1 "Credible Sources"
 
 * **Major highlights**
 

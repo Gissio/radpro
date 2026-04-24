@@ -852,18 +852,18 @@ __STATIC_INLINE void flash_clear_status(void)
     FLASH->SR = FLASH_SR_CLEAR;
 }
 
-__STATIC_INLINE bool flash_erase(uint32_t dest)
+__STATIC_INLINE bool flash_erase(uint32_t address)
 {
     flash_wait_while_busy();
     flash_clear_status();
 
     set_bits(FLASH->CR, FLASH_CR_PER);
 #if defined(STM32F0) || defined(STM32F1)
-    FLASH->AR = dest;
+    FLASH->AR = address;
 #elif defined(STM32G0) || defined(STM32L4)
     modify_bits(FLASH->CR,
                 FLASH_CR_PNB_Msk,
-                ((dest / FLASH_PAGE_SIZE) << FLASH_CR_PNB_Pos));
+                ((address / FLASH_PAGE_SIZE) << FLASH_CR_PNB_Pos));
 #endif
     set_bits(FLASH->CR, FLASH_CR_STRT);
     flash_wait_while_busy();
@@ -873,24 +873,42 @@ __STATIC_INLINE bool flash_erase(uint32_t dest)
     return (get_bits(FLASH->SR, FLASH_SR_ERRORS) == 0);
 }
 
-__STATIC_INLINE bool flash_program(uint8_t *dest, const uint8_t *source)
+#if defined(STM32F0) || defined(STM32F1)
+
+__STATIC_INLINE bool flash_program_halfword(uint32_t address, uint16_t data)
 {
     flash_wait_while_busy();
     flash_clear_status();
 
     set_bits(FLASH->CR, FLASH_CR_PG);
-#if defined(STM32F0) || defined(STM32F1)
-    ((uint16_t *)dest)[0] = ((uint16_t *)source)[0];
-#elif defined(STM32G0) || defined(STM32L4)
-    ((uint32_t *)dest)[0] = ((uint32_t *)source)[0];
-    ((uint32_t *)dest)[1] = ((uint32_t *)source)[1];
-#endif
+    ((__IO uint16_t *)address)[0] = data;
     flash_wait_while_busy();
 
     clear_bits(FLASH->CR, FLASH_CR_PG);
 
     return (get_bits(FLASH->SR, FLASH_SR_ERRORS) == 0);
 }
+
+#endif
+
+#if defined(STM32G0) || defined(STM32L4)
+
+__STATIC_INLINE bool flash_program_doubleword(uint32_t address, const uint64_t data)
+{
+    flash_wait_while_busy();
+    flash_clear_status();
+
+    set_bits(FLASH->CR, FLASH_CR_PG);
+    ((__IO uint32_t *)address)[0] = (uint32_t)data;
+    ((__IO uint32_t *)address)[1] = (uint32_t)(data >> 32);
+    flash_wait_while_busy();
+
+    clear_bits(FLASH->CR, FLASH_CR_PG);
+
+    return (get_bits(FLASH->SR, FLASH_SR_ERRORS) == 0);
+}
+
+#endif
 
 // GPIO
 
@@ -2106,15 +2124,15 @@ __STATIC_INLINE void spi_enable(SPI_TypeDef *base)
 
 // DMA
 
-__STATIC_INLINE void dma_setup_memory32_to_peripheral32(DMA_Channel_TypeDef *channel, uint32_t *dest, uint32_t *source, uint32_t count)
+__STATIC_INLINE void dma_setup_memory32_to_peripheral32(DMA_Channel_TypeDef *channel, uint32_t dest, uint32_t source, uint32_t count)
 {
     channel->CCR = DMA_CCR_DIR |
                    DMA_CCR_MINC |
                    (0b10 << DMA_CCR_PSIZE_Pos) |
                    (0b10 << DMA_CCR_MSIZE_Pos);
     channel->CNDTR = count;
-    channel->CMAR = (uint32_t)source;
-    channel->CPAR = (uint32_t)dest;
+    channel->CMAR = source;
+    channel->CPAR = dest;
 }
 
 __STATIC_INLINE bool dma_is_active(const DMA_Channel_TypeDef *channel)

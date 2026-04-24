@@ -57,22 +57,49 @@ bool verifyFlash(void)
     return (crc == FIRMWARE_CRC);
 }
 
-const uint8_t *readFlash(uint32_t source, uint32_t count)
+const uint8_t *readFlash(uint32_t address, uint32_t count)
 {
 #if defined(CH32F2)
     for (uint32_t i = 0; i < count; i += 4)
     {
-        uint32_t value = *(uint32_t *)(source + i) ^ FLASH_INVERT32;
+        uint32_t value = *(uint32_t *)(address + i) ^ FLASH_INVERT32;
         *(uint32_t *)(flashBuffer + i) = value;
     }
 
     return flashBuffer;
 #else
-    return (uint8_t *)source;
+    return (uint8_t *)address;
 #endif
 }
 
-bool writeFlash(uint32_t dest, const uint8_t *source, uint32_t count)
+#if FLASH_WORD_SIZE == 2
+
+static uint16_t get_halfword(const uint8_t *data)
+{
+#if defined(STM32F0)
+    return data[0] << 0 | data[1] << 8;
+#else
+    return ((uint16_t *)data)[0];
+#endif
+}
+
+#endif
+
+#if FLASH_WORD_SIZE == 8
+
+static uint64_t get_doubleword(const uint8_t *data)
+{
+#if defined(STM32G0)
+    return (uint64_t)data[0] << 0 | (uint64_t)data[1] << 8 | (uint64_t)data[2] << 16 | (uint64_t)data[3] << 24 |
+           (uint64_t)data[4] << 32 | (uint64_t)data[5] << 40 | (uint64_t)data[6] << 48 | (uint64_t)data[7] << 56;
+#else
+    return ((uint64_t *)data)[0];
+#endif
+}
+
+#endif
+
+bool writeFlash(uint32_t address, const uint8_t *data, uint32_t count)
 {
     flash_unlock();
 
@@ -83,17 +110,28 @@ bool writeFlash(uint32_t dest, const uint8_t *source, uint32_t count)
         bool success = false;
         for (uint32_t j = 0; j < 2; j++)
         {
+#if FLASH_WORD_SIZE == 2
+            uint16_t value = get_halfword(data + i);
 #if defined(CH32F2)
-            uint16_t value = *(uint16_t *)(source + i) ^ FLASH_INVERT16;
-            if (flash_program((uint8_t *)dest + i, (uint8_t *)&value))
+            value ^= FLASH_INVERT16;
 #else
-            if (flash_program((uint8_t *)dest + i, source + i))
-#endif
+            if (flash_program_halfword(address + i, value))
             {
                 success = true;
 
                 break;
             }
+#endif
+
+#elif FLASH_WORD_SIZE == 8
+            uint64_t value = get_doubleword(data + i);
+            if (flash_program_doubleword(address + i, value))
+            {
+                success = true;
+
+                break;
+            }
+#endif
         }
 
         if (!success)
@@ -109,7 +147,7 @@ bool writeFlash(uint32_t dest, const uint8_t *source, uint32_t count)
     return !errors;
 }
 
-bool eraseFlash(uint32_t dest)
+bool eraseFlash(uint32_t address)
 {
     flash_unlock();
 
@@ -117,7 +155,7 @@ bool eraseFlash(uint32_t dest)
     bool success = false;
     for (uint32_t i = 0; i < 2; i++)
     {
-        if (flash_erase(dest))
+        if (flash_erase(address))
         {
             success = true;
 

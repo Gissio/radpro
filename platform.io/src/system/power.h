@@ -19,7 +19,7 @@
 #define POWER_MENU
 #endif
 
-void initPower(void);
+void initPower(bool value);
 
 void setPowerEnabled(bool value);
 bool isUSBPowered(void);

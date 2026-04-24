@@ -48,9 +48,12 @@ int main(void)
 {
     // System initialization
     initGPIO();
-    initPower();
+    if (wasResetByWatchdog())
+        initPower(true);
     initSystem();
     initEvents();
+    if (!wasResetByWatchdog())
+        initPower(false);
     initFlash();
     initSettings();
     initADC();

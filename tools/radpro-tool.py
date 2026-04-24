@@ -19,42 +19,41 @@ import time
 
 # Definitions
 
-radpro_tool_version = '2.2'
+radpro_tool_version = "2.2"
 log_warnings = False
 
 
 # Logging configuration
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s %(levelname)s: %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s: %(message)s")
 
 
 # Errors
 
+
 def log(level, message):
-    print(f'{datetime.now().isoformat()} {level}: {message}', file=sys.stderr)
+    print(f"{datetime.now().isoformat()} {level}: {message}", file=sys.stderr)
 
 
 def log_info(message):
-    log('info', message)
+    log("info", message)
 
 
 def log_warning(message):
     global log_warnings
     log_warnings = True
 
-    log('warning', message)
+    log("warning", message)
 
 
 def log_error(message):
-    log('error', message)
+    log("error", message)
 
     sys.exit(1)
 
 
 # Rad Pro I/O class
+
 
 class RadProIO:
     def __init__(self, port):
@@ -63,10 +62,9 @@ class RadProIO:
         self.serial = None
 
     def open(self):
-        self.serial = serial.Serial(port=self.port,
-                                    baudrate=115200,
-                                    timeout=0.5,
-                                    write_timeout=0.5)
+        self.serial = serial.Serial(
+            port=self.port, baudrate=115200, timeout=0.5, write_timeout=0.5
+        )
 
     def query(self, request):
         response = None
@@ -76,12 +74,12 @@ class RadProIO:
             if self.serial is None:
                 self.open()
 
-            self.serial.write(request.encode('ascii') + b'\n')
+            self.serial.write(request.encode("ascii") + b"\n")
 
             response_bytes = self.serial.readline()
 
         except (serial.SerialException, OSError) as e:
-            log_warning(f'Serial communication error: {e}')
+            log_warning(f"Serial communication error: {e}")
 
             time.sleep(5)
 
@@ -93,12 +91,12 @@ class RadProIO:
             return None
 
         try:
-            response = response_bytes.decode('ascii').strip()
+            response = response_bytes.decode("ascii").strip()
         except UnicodeDecodeError as e:
-            log_warning(f'Failed to decode response: {e}')
+            log_warning(f"Failed to decode response: {e}")
             return None
 
-        if response.startswith('OK'):
+        if response.startswith("OK"):
             return response[3:]
         else:
             log_warning(f'request "{request}": response "{response}"')
@@ -106,26 +104,27 @@ class RadProIO:
             return None
 
     def get(self, key):
-        return self.query(f'GET {key}')
+        return self.query(f"GET {key}")
 
     def set(self, key, value):
-        return self.query(f'SET {key} {value}')
+        return self.query(f"SET {key} {value}")
 
 
 # Helper functions
+
 
 def print_property(io, key):
     """Get and print a device property."""
     value = io.get(key)
 
     if value is not None:
-        print(f'{key}:{value}')
+        print(f"{key}:{value}")
 
 
 def reset_tube_life_stats(io):
     """Reset tube life statistics to zero."""
-    io.set('tubeTime', 0)
-    io.set('tubePulseCount', 0)
+    io.set("tubeTime", 0)
+    io.set("tubePulseCount", 0)
 
 
 def sync_time(io):
@@ -136,52 +135,46 @@ def sync_time(io):
     else:
         current_timezone = time.timezone
 
-    io.set('deviceTime', current_time)
-    io.set('deviceTimeZone', int(-current_timezone * 10 / 3600) / 10)
+    io.set("deviceTime", current_time)
+    io.set("deviceTimeZone", int(-current_timezone * 10 / 3600) / 10)
 
 
 def get_sensitivity(io):
     """Get tube sensitivity values from device."""
-    response = io.get('tubeSensitivity')
+    response = io.get("tubeSensitivity")
 
     if response is not None:
         try:
             return float(response)
         except ValueError:
-            log_error(
-                f'could not decode tube sensitivity: response "{response}"')
+            log_error(f'could not decode tube sensitivity: response "{response}"')
 
-    log_error(f'could not get tube sensitivity')
+    log_error(f"could not get tube sensitivity")
 
     return None
 
 
-def get_datalog(io,
-                start_datetime,
-                end_datetime,
-                max_record_num):
+def get_datalog(io, start_datetime, end_datetime, max_record_num):
     """Retrieve data log from device within optional time range."""
     if start_datetime is not None:
-        start_time = int(datetime.fromisoformat(
-            start_datetime).timestamp())
+        start_time = int(datetime.fromisoformat(start_datetime).timestamp())
     else:
         start_time = 0
 
     if end_datetime is not None:
-        end_time = int(datetime.fromisoformat(
-            end_datetime).timestamp())
+        end_time = int(datetime.fromisoformat(end_datetime).timestamp())
     else:
         end_time = 4294967295
 
     if max_record_num is not None:
-        return io.get(f'datalog {start_time} {end_time} {max_record_num}')
+        return io.get(f"datalog {start_time} {end_time} {max_record_num}")
     else:
-        return io.get(f'datalog {start_time} {end_time}')
+        return io.get(f"datalog {start_time} {end_time}")
 
 
 def get_pulsecount(io):
     """Get current pulse count from device."""
-    response = io.get('tubePulseCount')
+    response = io.get("tubePulseCount")
 
     if response is not None:
         try:
@@ -194,7 +187,7 @@ def get_pulsecount(io):
 
 def get_randomdata(io):
     """Get randomly generated data from device."""
-    response = io.get('randomData')
+    response = io.get("randomData")
 
     if response is not None and len(response) > 0:
         try:
@@ -205,22 +198,15 @@ def get_randomdata(io):
     return None
 
 
-def download_datalog(io,
-                     path,
-                     start_datetime,
-                     end_datetime,
-                     max_record_num):
+def download_datalog(io, path, start_datetime, end_datetime, max_record_num):
     """Download and process data log to CSV file."""
     sensitivity = get_sensitivity(io)
 
-    datalog = get_datalog(io,
-                          start_datetime,
-                          end_datetime,
-                          max_record_num)
+    datalog = get_datalog(io, start_datetime, end_datetime, max_record_num)
     if datalog is None:
         return
 
-    records = datalog.split(';')
+    records = datalog.split(";")
     lines = []
 
     prev_timestamp = None
@@ -232,12 +218,12 @@ def download_datalog(io,
             continue
 
         # New logging session
-        if record == '':
+        if record == "":
             prev_timestamp = None
             prev_pulsecount = None
             continue
 
-        values = record.split(',')
+        values = record.split(",")
 
         if len(values) != 2:
             log_warning(f'invalid record: "{record}"')
@@ -247,15 +233,13 @@ def download_datalog(io,
             curr_timestamp = int(values[0])
             curr_datetime = str(datetime.fromtimestamp(curr_timestamp))
         except Exception as e:
-            log_warning(
-                f'could not decode timestamp: record "{record}": {e}')
+            log_warning(f'could not decode timestamp: record "{record}": {e}')
             continue
 
         try:
             curr_pulsecount = int(values[1])
         except Exception as e:
-            log_warning(
-                f'could not decode pulse count: record "{record}": {e}')
+            log_warning(f'could not decode pulse count: record "{record}": {e}')
             continue
 
         cpm = None
@@ -267,8 +251,7 @@ def download_datalog(io,
             else:
                 delta_pulsecount = curr_pulsecount - prev_pulsecount
                 if delta_pulsecount < 0:
-                    log_warning(
-                        f'pulse count moving backwards: record "{record}"')
+                    log_warning(f'pulse count moving backwards: record "{record}"')
 
                 if curr_deltatime > 0:
                     cpm = delta_pulsecount * 60 / curr_deltatime
@@ -279,30 +262,30 @@ def download_datalog(io,
 
         if cpm is not None:
             lines.append(
-                f'{curr_timestamp},{curr_datetime},{curr_pulsecount},{cpm:.1f},{uSvH:.3f}\n')
+                f"{curr_timestamp},{curr_datetime},{curr_pulsecount},{cpm:.1f},{uSvH:.3f}\n"
+            )
         else:
-            lines.append(
-                f'{curr_timestamp},{curr_datetime},{curr_pulsecount},,\n')
+            lines.append(f"{curr_timestamp},{curr_datetime},{curr_pulsecount},,\n")
 
     try:
-        with open(path, 'w') as f:
-            f.write('# timestamp,date time,pulse count,cpm,uSvH\n')
+        with open(path, "w") as f:
+            f.write("# timestamp,date time,pulse count,cpm,uSvH\n")
             f.writelines(lines)
     except IOError as e:
-        log_warning(f'could not write {path}: {e}')
+        log_warning(f"could not write {path}: {e}")
 
 
-def send_http_request(url, method='get', json=None, data=None, headers=None):
+def send_http_request(url, method="get", json=None, data=None, headers=None):
     """Send HTTP request with proper error handling."""
     if headers is None:
         headers = {}
-    if 'User-Agent' not in headers:
-        headers['User-Agent'] = 'radpro-tool/' + radpro_tool_version
+    if "User-Agent" not in headers:
+        headers["User-Agent"] = "radpro-tool/" + radpro_tool_version
 
     try:
-        if method == 'get':
+        if method == "get":
             requests.get(url=url, timeout=60, headers=headers)
-        elif method == 'post':
+        elif method == "post":
             if json is not None:
                 requests.post(url=url, json=json, timeout=60, headers=headers)
             elif data is not None:
@@ -317,20 +300,21 @@ def stream_datalog(io, args):
     """Stream live data and submit to configured platforms."""
     sensitivity = get_sensitivity(io)
 
-    log_pulsecounts = args.pulsedata_file is not None or\
-        args.submit_gmcmap is not None or\
-        args.submit_radmon is not None or\
-        args.submit_safecast is not None or\
-        args.submit_opensensemap is not None
+    log_pulsecounts = (
+        args.pulsedata_file is not None
+        or args.submit_gmcmap is not None
+        or args.submit_radmon is not None
+        or args.submit_safecast is not None
+        or args.submit_opensensemap is not None
+    )
 
     if args.pulsedata_file is not None:
         if not os.path.exists(args.pulsedata_file):
             try:
-                with open(args.pulsedata_file, 'wt') as f:
-                    f.write('# timestamp,date time,pulse count,cpm,uSvH\n')
+                with open(args.pulsedata_file, "wt") as f:
+                    f.write("# timestamp,date time,pulse count,cpm,uSvH\n")
             except IOError as e:
-                log_error(
-                    f'could not create file: "{args.pulsedata_file}": {e}')
+                log_error(f'could not create file: "{args.pulsedata_file}": {e}')
 
     next_event = int(time.time())
 
@@ -353,8 +337,7 @@ def stream_datalog(io, args):
 
                 delta_pulsecount = curr_pulsecount - prev_pulsecount
                 if delta_pulsecount < 0:
-                    log_warning(
-                        f'pulse count moving backwards: {curr_pulsecount}')
+                    log_warning(f"pulse count moving backwards: {curr_pulsecount}")
 
                 if curr_deltatime > 0:
                     cpm = delta_pulsecount * 60 / curr_deltatime
@@ -368,73 +351,81 @@ def stream_datalog(io, args):
             if args.pulsedata_file is not None and curr_pulsecount is not None:
                 curr_datetime_str = str(curr_datetime)
                 if cpm is not None:
-                    line = f'{curr_timestamp},{curr_datetime_str},{curr_pulsecount},{cpm:.1f},{uSvH:.3f}\n'
+                    line = f"{curr_timestamp},{curr_datetime_str},{curr_pulsecount},{cpm:.1f},{uSvH:.3f}\n"
                 else:
-                    line = f'{curr_timestamp},{curr_datetime_str},{curr_pulsecount},,\n'
+                    line = f"{curr_timestamp},{curr_datetime_str},{curr_pulsecount},,\n"
 
                 try:
-                    with open(args.pulsedata_file, 'at') as f:
+                    with open(args.pulsedata_file, "at") as f:
                         f.write(line)
                 except IOError as e:
-                    log_error(
-                        f'could not write file: "{args.pulsedata_file}": {e}')
+                    log_error(f'could not write file: "{args.pulsedata_file}": {e}')
 
             if args.submit_gmcmap is not None and cpm is not None:
-                url = 'https://www.gmcmap.com/log2.asp' + \
-                    f'?AID={args.submit_gmcmap[0]}' + f'&GID={args.submit_gmcmap[1]}' + \
-                    f'&CPM={cpm:.0f}' + f'&ACPM={cpm:.3f}' + \
-                    f'&uSV={uSvH:.3f}'
-                send_http_request(url, 'get')
+                url = (
+                    "https://www.gmcmap.com/log2.asp"
+                    + f"?AID={args.submit_gmcmap[0]}"
+                    + f"&GID={args.submit_gmcmap[1]}"
+                    + f"&CPM={cpm:.0f}"
+                    + f"&ACPM={cpm:.3f}"
+                    + f"&uSV={uSvH:.3f}"
+                )
+                send_http_request(url, "get")
                 print(
-                    f'GMCMap submission: {curr_datetime} CPM:{cpm:.3f} uSv/h:{uSvH:.3f}')
+                    f"GMCMap submission: {curr_datetime} CPM:{cpm:.3f} uSv/h:{uSvH:.3f}"
+                )
 
             if args.submit_radmon is not None and cpm is not None:
-                url = 'https://radmon.org/radmon.php?function=submit' + \
-                    f'&user={args.submit_radmon[0]}' + \
-                    f'&password={args.submit_radmon[1]}' + \
-                    f'&value={cpm:.3f}' + '&unit=CPM'
+                url = (
+                    "https://radmon.org/radmon.php?function=submit"
+                    + f"&user={args.submit_radmon[0]}"
+                    + f"&password={args.submit_radmon[1]}"
+                    + f"&value={cpm:.3f}"
+                    + "&unit=CPM"
+                )
                 send_http_request(url)
                 print(
-                    f'Radmon submission: {curr_datetime} CPM:{cpm:.3f} uSv/h:{uSvH:.3f}')
+                    f"Radmon submission: {curr_datetime} CPM:{cpm:.3f} uSv/h:{uSvH:.3f}"
+                )
 
             if args.submit_safecast is not None and cpm is not None:
-                url = 'https://api.safecast.org/measurements.json?api_key=' + \
-                    args.submit_safecast[0]
+                url = (
+                    "https://api.safecast.org/measurements.json?api_key="
+                    + args.submit_safecast[0]
+                )
                 json_data = {
-                    'value': f'{cpm:.3f}',
-                    'unit': 'cpm',
-                    'device_id': args.submit_safecast[1],
-                    'captured_at': f'"{curr_datetime.isoformat()}"',
-                    'latitude': str(args.safecast_latitude),
-                    'longitude': str(args.safecast_longitude),
-                    'height': str(args.safecast_height),
+                    "value": f"{cpm:.3f}",
+                    "unit": "cpm",
+                    "device_id": args.submit_safecast[1],
+                    "captured_at": f'"{curr_datetime.isoformat()}"',
+                    "latitude": str(args.safecast_latitude),
+                    "longitude": str(args.safecast_longitude),
+                    "height": str(args.safecast_height),
                 }
-                send_http_request(url, 'post', json=json_data)
+                send_http_request(url, "post", json=json_data)
                 print(
-                    f'Safecast submission: {curr_datetime} CPM:{cpm:.3f} uSv/h:{uSvH:.3f}')
+                    f"Safecast submission: {curr_datetime} CPM:{cpm:.3f} uSv/h:{uSvH:.3f}"
+                )
 
             if args.submit_opensensemap is not None and cpm is not None:
                 box_id = args.submit_opensensemap[0]
                 api_key = args.submit_opensensemap[1]
-                sensor_id = args.opensensemap_sensor_id if args.opensensemap_sensor_id else 'cpm'
-                
-                url = f'https://api.opensensemap.org/boxes/{box_id}/measurements'
-                json_data = {
-                    'sensors': [
-                        {
-                            'sensor': sensor_id,
-                            'value': f'{cpm:.3f}'
-                        }
-                    ]
-                }
-                headers_osm = {
-                    'Authorization': f'Bearer {api_key}',
-                    'Content-Type': 'application/json',
-                }
-                send_http_request(url, 'post', json=json_data, headers=headers_osm)
-                print(
-                    f'OpenSenseMap submission: {curr_datetime} CPM:{cpm:.3f} uSv/h:{uSvH:.3f}')
+                sensor_id = (
+                    args.opensensemap_sensor_id
+                    if args.opensensemap_sensor_id
+                    else "cpm"
+                )
 
+                url = f"https://api.opensensemap.org/boxes/{box_id}/measurements"
+                json_data = {"sensors": [{"sensor": sensor_id, "value": f"{cpm:.3f}"}]}
+                headers_osm = {
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json",
+                }
+                send_http_request(url, "post", json=json_data, headers=headers_osm)
+                print(
+                    f"OpenSenseMap submission: {curr_datetime} CPM:{cpm:.3f} uSv/h:{uSvH:.3f}"
+                )
 
         # Wait for next measurement
         next_event += args.period
@@ -450,133 +441,195 @@ def stream_datalog(io, args):
 
                 if data is not None:
                     try:
-                        with open(args.randomdata_file, 'ab') as f:
+                        with open(args.randomdata_file, "ab") as f:
                             f.write(data)
                     except IOError as e:
                         log_error(
-                            f'could not write file: "{args.randomdata_file}": {e}')
+                            f'could not write file: "{args.randomdata_file}": {e}'
+                        )
 
                 time.sleep(0.05)
 
 
 # Main
 
+
 def main():
     """Main entry point for the RadPro tool."""
     parser = argparse.ArgumentParser(
-        description='Tool for interfacing with a Rad Pro device.')
-    parser.add_argument('--version',
-                        dest='version',
-                        action='store_true',
-                        help='print version information')
-    parser.add_argument('-p', '--port',
-                        dest='port',
-                        help='serial port device id (e.g. "COM13" or "/dev/ttyS0)"')
-    parser.add_argument('--download-datalog',
-                        dest='datalog_file',
-                        help='download data log to a .csv file')
-    parser.add_argument('--download-datalog-start',
-                        dest='datalog_datetime_start',
-                        help='download only data log records newer than a certain ISO 8601 date and time (e.g. "2000-01-01" or "2000-01-01T12:00:00")')
-    parser.add_argument('--download-datalog-end',
-                        dest='datalog_datetime_end',
-                        help='download only data log records older than a certain ISO 8601 date and time (e.g. "2000-01-01" or "2000-01-01T12:00:00")')
-    parser.add_argument('--download-datalog-max-record-num',
-                        dest='datalog_max_record_num',
-                        help='limit the number of data log records to download')
-    parser.add_argument('--log-pulsedata',
-                        dest='pulsedata_file',
-                        help='log live pulse data to a .csv file')
-    parser.add_argument('--period',
-                        type=int,
-                        choices=range(1, 3600),
-                        metavar='[1-3600]',
-                        default=300,
-                        help='sets the time period for logging pulse data live and submitting data live to radiation monitoring websites (default: 300 seconds)')
-    parser.add_argument('--submit-gmcmap',
-                        nargs=2,
-                        metavar=('USER_ACCOUNT_ID', 'GEIGER_COUNTER_ID'),
-                        action='store',
-                        help='submit live data to https://gmcmap.com')
-    parser.add_argument('--submit-radmon',
-                        nargs=2,
-                        metavar=('USERNAME', 'DATA_SENDING_PASSWORD'),
-                        action='store',
-                        help='submit live data to https://radmon.org')
-    parser.add_argument('--submit-safecast',
-                        nargs=2,
-                        metavar=('API_KEY', 'DEVICE_ID'),
-                        action='store',
-                        help='submit live data to https://safecast.org')
-    parser.add_argument('--safecast-latitude',
-                        type=float,
-                        default=0.0,
-                        help='decimal latitude for Safecast submissions (default: 0.0)')
-    parser.add_argument('--safecast-longitude',
-                        type=float,
-                        default=0.0,
-                        help='decimal longitude for Safecast submissions (default: 0.0)')
-    parser.add_argument('--safecast-height',
-                        type=float,
-                        default=0.0,
-                        help='height (altitude) in meters for Safecast submissions (default: 0.0)')
-    parser.add_argument('--submit-opensensemap',
-                        nargs=2,
-                        metavar=('SENSE_BOX_ID', 'API_KEY'),
-                        action='store',
-                        help='submit live data to https://opensensemap.org')
-    parser.add_argument('--opensensemap-sensor-id',
-                        default='cpm',
-                        help='sensor ID for OpenSenseMap measurements (default: "cpm")')
-    parser.add_argument('--log-randomdata',
-                        dest='randomdata_file',
-                        help='log live randomly generated data to a binary file')
-    parser.add_argument('--get-device-id',
-                        action='store_true',
-                        help='get device id')
-    parser.add_argument('--get-device-battery-voltage',
-                        action='store_true',
-                        help='get device battery voltage (per cell)')
-    parser.add_argument('--no-sync-time',
-                        action='store_true',
-                        help='do not synchronize device\'s date and time')
-    parser.add_argument('--get-tube-time',
-                        action='store_true',
-                        help='get tube life time in seconds')
-    parser.add_argument('--get-tube-pulse-count',
-                        action='store_true',
-                        help='get tube life pulse count')
-    parser.add_argument('--reset-tube-life-stats',
-                        action='store_true',
-                        help='reset tube life time and pulse count')
-    parser.add_argument('--get-tube-rate',
-                        action='store_true',
-                        help='get tube instantaneous rate (in cpm)')
-    parser.add_argument('--get-tube-sensitivity',
-                        action='store_true',
-                        help='get tube sensitivity')
-    parser.add_argument('--get-tube-dead-time',
-                        action='store_true',
-                        help='get measurement of the tube\'s dead time')
-    parser.add_argument('--get-tube-dead-time-compensation',
-                        action='store_true',
-                        help='get tube dead-time compensation in seconds')
-    parser.add_argument('--get-tube-hv-duty-cycle',
-                        action='store_true',
-                        help='get tube PWM duty cycle of the high voltage generator')
-    parser.add_argument('--get-tube-hv-frequency',
-                        action='store_true',
-                        help='get tube PWM frequency of the high voltage generator')
+        description="Tool for interfacing with a Rad Pro device."
+    )
+    parser.add_argument(
+        "--version",
+        dest="version",
+        action="store_true",
+        help="print version information",
+    )
+    parser.add_argument(
+        "-p",
+        "--port",
+        dest="port",
+        help='serial port device id (e.g. "COM13" or "/dev/ttyS0)"',
+    )
+
+    parser.add_argument(
+        "--download-datalog",
+        dest="datalog_file",
+        help="download data log to a .csv file",
+    )
+    parser.add_argument(
+        "--download-datalog-start",
+        dest="datalog_datetime_start",
+        help='download only data log records newer than a certain ISO 8601 date and time (e.g. "2000-01-01" or "2000-01-01T12:00:00")',
+    )
+    parser.add_argument(
+        "--download-datalog-end",
+        dest="datalog_datetime_end",
+        help='download only data log records older than a certain ISO 8601 date and time (e.g. "2000-01-01" or "2000-01-01T12:00:00")',
+    )
+    parser.add_argument(
+        "--download-datalog-max-record-num",
+        dest="datalog_max_record_num",
+        help="limit the number of data log records to download",
+    )
+
+    parser.add_argument(
+        "--log-pulsedata",
+        dest="pulsedata_file",
+        help="log live pulse data to a .csv file",
+    )
+
+    parser.add_argument(
+        "--period",
+        type=int,
+        choices=range(1, 3600),
+        metavar="[1-3600]",
+        default=300,
+        help="sets the time period for logging pulse data live and submitting data live to radiation monitoring websites (default: 300 seconds)",
+    )
+
+    parser.add_argument(
+        "--submit-gmcmap",
+        nargs=2,
+        metavar=("USER_ACCOUNT_ID", "GEIGER_COUNTER_ID"),
+        action="store",
+        help="submit live data to https://gmcmap.com",
+    )
+    parser.add_argument(
+        "--submit-radmon",
+        nargs=2,
+        metavar=("USERNAME", "DATA_SENDING_PASSWORD"),
+        action="store",
+        help="submit live data to https://radmon.org",
+    )
+    parser.add_argument(
+        "--submit-safecast",
+        nargs=2,
+        metavar=("API_KEY", "DEVICE_ID"),
+        action="store",
+        help="submit live data to https://safecast.org",
+    )
+    parser.add_argument(
+        "--safecast-latitude",
+        type=float,
+        default=0.0,
+        help="decimal latitude for Safecast submissions (default: 0.0)",
+    )
+    parser.add_argument(
+        "--safecast-longitude",
+        type=float,
+        default=0.0,
+        help="decimal longitude for Safecast submissions (default: 0.0)",
+    )
+    parser.add_argument(
+        "--safecast-height",
+        type=float,
+        default=0.0,
+        help="height (altitude) in meters for Safecast submissions (default: 0.0)",
+    )
+    parser.add_argument(
+        "--submit-opensensemap",
+        nargs=2,
+        metavar=("SENSE_BOX_ID", "API_KEY"),
+        action="store",
+        help="submit live data to https://opensensemap.org",
+    )
+    parser.add_argument(
+        "--opensensemap-sensor-id",
+        default="cpm",
+        help='sensor ID for OpenSenseMap measurements (default: "cpm")',
+    )
+    parser.add_argument(
+        "--log-randomdata",
+        dest="randomdata_file",
+        help="log live randomly generated data to a binary file",
+    )
+
+    parser.add_argument("--get-device-id", action="store_true", help="get device id")
+    parser.add_argument(
+        "--get-device-battery-voltage",
+        action="store_true",
+        help="get device battery voltage (per cell)",
+    )
+
+    parser.add_argument(
+        "--get-tube-type", action="store_true", help='get tube type (e.g. "M4011")'
+    )
+    parser.add_argument(
+        "--get-tube-time", action="store_true", help="get tube life time in seconds"
+    )
+    parser.add_argument(
+        "--get-tube-pulse-count", action="store_true", help="get tube life pulse count"
+    )
+    parser.add_argument(
+        "--reset-tube-life-stats",
+        action="store_true",
+        help="reset tube life time and pulse count",
+    )
+    parser.add_argument(
+        "--get-tube-rate",
+        action="store_true",
+        help="get tube instantaneous rate (in cpm)",
+    )
+    parser.add_argument(
+        "--get-tube-sensitivity", action="store_true", help="get tube sensitivity"
+    )
+    parser.add_argument(
+        "--get-tube-dead-time",
+        action="store_true",
+        help="get measurement of the tube's dead time",
+    )
+    parser.add_argument(
+        "--get-tube-dead-time-compensation",
+        action="store_true",
+        help="get tube dead-time compensation in seconds",
+    )
+    parser.add_argument(
+        "--get-tube-hv-duty-cycle",
+        action="store_true",
+        help="get tube PWM duty cycle of the high voltage generator",
+    )
+    parser.add_argument(
+        "--get-tube-hv-frequency",
+        action="store_true",
+        help="get tube PWM frequency of the high voltage generator",
+    )
+
+    parser.add_argument(
+        "--no-sync-time",
+        action="store_true",
+        help="do not synchronize device's date and time",
+    )
 
     args = parser.parse_args()
 
     if args.version:
-        print('radpro-tool ' + radpro_tool_version)
+        print("radpro-tool " + radpro_tool_version)
         sys.exit(0)
 
     if not args.port:
         parser.print_usage()
-        log_error('the following arguments are required: -p/--port')
+        log_error("the following arguments are required: -p/--port")
 
     io = RadProIO(args.port)
 
@@ -584,75 +637,87 @@ def main():
         io.open()
 
     except Exception as e:
-        if str(e) == '':
-            e = 'could not open port'
+        if str(e) == "":
+            e = "could not open port"
 
         log_error(e)
 
     if args.get_device_id:
-        print_property(io, 'deviceId')
+        print_property(io, "deviceId")
 
     if args.get_device_battery_voltage:
-        print_property(io, 'deviceBatteryVoltage')
+        print_property(io, "deviceBatteryVoltage")
 
     if not args.no_sync_time:
-        if not args.get_device_id and\
-                not args.get_device_battery_voltage and\
-                not args.get_tube_rate and\
-                not args.get_tube_hv_duty_cycle and\
-                not args.get_tube_hv_frequency and\
-                not args.get_tube_sensitivity and\
-                not args.get_tube_dead_time and\
-                not args.get_tube_dead_time_compensation:
-            print('Syncing time...')
+        if (
+            not args.get_device_id
+            and not args.get_device_battery_voltage
+            and not args.get_tube_type
+            and not args.get_tube_time
+            and not args.get_tube_pulse_count
+            and not args.get_tube_rate
+            and not args.get_tube_sensitivity
+            and not args.get_tube_dead_time
+            and not args.get_tube_dead_time_compensation
+            and not args.get_tube_hv_duty_cycle
+            and not args.get_tube_hv_frequency
+        ):
+            print("Syncing time...")
 
         sync_time(io)
 
     if args.get_tube_time:
-        print_property(io, 'tubeTime')
+        print_property(io, "tubeTime")
 
     if args.get_tube_pulse_count:
-        print_property(io, 'tubePulseCount')
+        print_property(io, "tubePulseCount")
 
     if args.reset_tube_life_stats:
-        print('Resetting tube life stats...')
+        print("Resetting tube life stats...")
 
         reset_tube_life_stats(io)
 
+    if args.get_tube_type:
+        print_property(io, "tubeType")
+
     if args.get_tube_rate:
-        print_property(io, 'tubeRate')
+        print_property(io, "tubeRate")
 
     if args.get_tube_sensitivity:
-        print_property(io, 'tubeSensitivity')
+        print_property(io, "tubeSensitivity")
 
     if args.get_tube_dead_time:
-        print_property(io, 'tubeDeadTime')
+        print_property(io, "tubeDeadTime")
 
     if args.get_tube_dead_time_compensation:
-        print_property(io, 'tubeDeadTimeCompensation')
+        print_property(io, "tubeDeadTimeCompensation")
 
     if args.get_tube_hv_duty_cycle:
-        print_property(io, 'tubeHVDutyCycle')
+        print_property(io, "tubeHVDutyCycle")
 
     if args.get_tube_hv_frequency:
-        print_property(io, 'tubeHVFrequency')
+        print_property(io, "tubeHVFrequency")
 
     if args.datalog_file:
-        print('Downloading data log...')
+        print("Downloading data log...")
 
-        download_datalog(io,
-                         args.datalog_file,
-                         args.datalog_datetime_start,
-                         args.datalog_datetime_end,
-                         args.datalog_max_record_num)
+        download_datalog(
+            io,
+            args.datalog_file,
+            args.datalog_datetime_start,
+            args.datalog_datetime_end,
+            args.datalog_max_record_num,
+        )
 
-    if args.pulsedata_file is not None or\
-            args.randomdata_file is not None or\
-            args.submit_gmcmap is not None or\
-            args.submit_radmon is not None or\
-            args.submit_safecast is not None or\
-            args.submit_opensensemap is not None:
-        print('Logging live...')
+    if (
+        args.pulsedata_file is not None
+        or args.randomdata_file is not None
+        or args.submit_gmcmap is not None
+        or args.submit_radmon is not None
+        or args.submit_safecast is not None
+        or args.submit_opensensemap is not None
+    ):
+        print("Logging live...")
 
         stream_datalog(io, args)
 
@@ -660,5 +725,5 @@ def main():
         sys.exit(2)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

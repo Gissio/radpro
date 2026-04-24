@@ -308,7 +308,7 @@ static void onRNGViewEvent(ViewEvent event)
 
         const char *stateString;
         if (rng.ui.activity)
-            stateString = (const char *)(getString(STRING_ELLIPSIS)) + 3 - rng.ui.activity;
+            stateString = (getString(STRING_ELLIPSIS)) + (3 - rng.ui.activity);
         else
             stateString = getString(STRING_EMPTY);
 

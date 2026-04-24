@@ -46,7 +46,7 @@ To set a custom sensitivity value, go to **Settings > Geiger tube > Sensitivity*
 
 **Important:** Accurate dose-rate readings require the correct sensitivity for the radiation type and energy being measured. Using an incorrect value will lead to inaccurate results.
 
-**Note:** For high sensitivity tubes (≥ 600 cpm/µSv/h), pulse indication is capped at the equivalent of 600 cpm/µSv/h to prevent uncomfortable clicking. This limit affects sound feedback only and does not reduce the accuracy of the measurements.
+**Note:** For high sensitivity tubes (≥ 600 cpm/µSv/h), pulse indication is capped at the equivalent of 600 cpm/µSv/h to prevent uncomfortable clicking. This limit affects pulse feedback only and does not reduce the accuracy of the measurements.
 
 ## Source Compensation
 
