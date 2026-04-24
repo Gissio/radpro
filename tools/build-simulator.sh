@@ -11,7 +11,7 @@
 # Build the simulator:
 # * source ./emsdk_env.sh
 # * cd ${RADPRO}/tools
-# * ./radpro-build-simulator
+# * ./build-simulator.sh
 
 emcmake cmake -B build ..
 cd build

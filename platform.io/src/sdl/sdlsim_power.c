@@ -13,7 +13,7 @@
 
 #include "../system/power.h"
 
-void initPower(void)
+void initPower(bool value)
 {
 }
 
