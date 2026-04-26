@@ -1,5 +1,9 @@
 # Releases
 
+## 3.1.1 "Aligned"
+
+* Fixed memory alignment issues.
+
 ## 3.1 "Credible Sources"
 
 * **Major highlights**

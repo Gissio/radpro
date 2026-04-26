@@ -22,7 +22,6 @@
 
 #define HISTORY_VALUE_MIN 0.02F
 #define HISTORY_DECADE 40
-#define HISTORY_MARGIN ((uint32_t)(0.2F * HISTORY_DECADE))
 
 void drawHistory(float scale, const char *unitString, uint32_t timeTicksNum, const char *periodLabel, const uint8_t *value, uint32_t warningValue, uint32_t alarmValue);
 

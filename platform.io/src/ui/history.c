@@ -60,6 +60,8 @@
 #define HISTORY_TICKS_WIDTH TICKS_LONG
 #define HISTORY_TICKS_HEIGHT (CONTENT_HEIGHT - 2 * FONT_SMALL_LINE_HEIGHT)
 
+#define HISTORY_MARGIN ((uint32_t)(0.1F * HISTORY_DECADE))
+
 typedef struct
 {
     uint8_t end;
@@ -103,7 +105,6 @@ void drawHistory(float scale, const char *unitString, uint32_t timeTicksNum, con
         {
             if (value < minValue)
                 minValue = value;
-
             if (value > maxValue)
                 maxValue = value;
         }
@@ -114,6 +115,10 @@ void drawHistory(float scale, const char *unitString, uint32_t timeTicksNum, con
     int32_t valueScale = 0;
     if (maxValue)
     {
+        if (minValue > HISTORY_MARGIN)
+            minValue -= HISTORY_MARGIN;
+        maxValue += HISTORY_MARGIN;
+
         int32_t unitValue = roundDown(HISTORY_DECADE * log10f(scale * HISTORY_VALUE_MIN) + 1);
 
         int32_t minExponent = divideDown(minValue + unitValue, HISTORY_DECADE);

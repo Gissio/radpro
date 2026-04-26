@@ -60,13 +60,19 @@ bool verifyFlash(void)
 const uint8_t *readFlash(uint32_t address, uint32_t count)
 {
 #if defined(CH32F2)
+    // Align to 32-bit boundary
+    uint32_t offset = address & 0b11;
+    address -= offset;
+    count += offset;
+
+    // Invert bits to work around the CH32F2's bad flash erase behavior.
     for (uint32_t i = 0; i < count; i += 4)
     {
         uint32_t value = *(uint32_t *)(address + i) ^ FLASH_INVERT32;
         *(uint32_t *)(flashBuffer + i) = value;
     }
 
-    return flashBuffer;
+    return flashBuffer + offset;
 #else
     return (uint8_t *)address;
 #endif
@@ -76,11 +82,7 @@ const uint8_t *readFlash(uint32_t address, uint32_t count)
 
 static uint16_t get_halfword(const uint8_t *data)
 {
-#if defined(STM32F0)
     return data[0] << 0 | data[1] << 8;
-#else
-    return ((uint16_t *)data)[0];
-#endif
 }
 
 #endif
@@ -89,12 +91,8 @@ static uint16_t get_halfword(const uint8_t *data)
 
 static uint64_t get_doubleword(const uint8_t *data)
 {
-#if defined(STM32G0)
     return (uint64_t)data[0] << 0 | (uint64_t)data[1] << 8 | (uint64_t)data[2] << 16 | (uint64_t)data[3] << 24 |
            (uint64_t)data[4] << 32 | (uint64_t)data[5] << 40 | (uint64_t)data[6] << 48 | (uint64_t)data[7] << 56;
-#else
-    return ((uint64_t *)data)[0];
-#endif
 }
 
 #endif
@@ -114,15 +112,13 @@ bool writeFlash(uint32_t address, const uint8_t *data, uint32_t count)
             uint16_t value = get_halfword(data + i);
 #if defined(CH32F2)
             value ^= FLASH_INVERT16;
-#else
+#endif
             if (flash_program_halfword(address + i, value))
             {
                 success = true;
 
                 break;
             }
-#endif
-
 #elif FLASH_WORD_SIZE == 8
             uint64_t value = get_doubleword(data + i);
             if (flash_program_doubleword(address + i, value))

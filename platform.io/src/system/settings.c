@@ -62,9 +62,6 @@ static const Settings defaultSettings = {
 #endif
     .displaySleep = DISPLAY_SLEEP_30_SECONDS,
 
-#if defined(BUZZER)
-    .soundPulseStyle = SOUND_PULSETYPE_BEEPS,
-#endif
 #if defined(BUZZER_VOLUME)
     .soundPulseVolume = SOUND_PULSEVOLUME_VERYHIGH,
     .soundAlertVolume = SOUND_ALERTVOLUME_VERYHIGH,

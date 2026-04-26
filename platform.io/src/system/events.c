@@ -229,7 +229,7 @@ void onTick(void)
     if (events.ledMode == LEDMODE_MULTIPLEX)
     {
         events.ledMultiplexState++;
-        if (events.ledMultiplexState >= 5)
+        if (events.ledMultiplexState >= 7)
             events.ledMultiplexState = 0;
 
         setPulseLED(events.ledMultiplexState == 0);
