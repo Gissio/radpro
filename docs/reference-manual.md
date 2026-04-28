@@ -52,16 +52,16 @@ To set a custom sensitivity value, go to **Settings > Geiger tube > Sensitivity*
 
 When the source of ionizing radiation is known, **Rad Pro** can improve measurement accuracy by applying **source compensation**. This corrects for the energy-dependent response of Geiger–Müller tubes.
 
-**This works only for gamma emitters** because beta radiation changes the spectrum with distance (beta particles are attenuated and their energy spectrum shifts as they travel through air, whereas gamma rays are far more penetrating and maintain a more consistent spectrum).
-
-To use it, go to **Settings > Measurements > Source compensation** and select the appropriate source from the list.
+To enable it, go to **Settings > Measurements > Source compensation** and select the appropriate source from the list.
 
 **Notes:**
 
-* Compensation assumes **gamma-only** emissions (or situations where beta is negligible).
-* To exclude beta radiation (especially important for mixed sources), place a metal shield between the source and the detector. For casual or home use, a simple and effective option is to place the detector inside a **stainless steel pan**: this typically blocks most beta particles while transmitting gamma rays with only minor attenuation.
+* Source compensation applies to **gamma emitters only**. Beta radiation changes its energy spectrum with distance — beta particles are attenuated as they travel through air, while gamma rays are far more penetrating and maintain a more consistent spectrum.
+* To suppress beta radiation — especially important for mixed sources — place a metal shield between the source and the detector. For home use, placing the detector inside a **steel pot** is a practical option: it blocks most beta particles while attenuating gamma rays only minimally.
 * All compensation factors are relative to **Cs-137**.
-* Values are derived from numerical simulations performed with **[Rad Lab](https://github.com/Gissio/radlab)**.
+* Compensation requires radiation levels at least **10× above background**; otherwise, background spectral contributions may distort results.
+* Correction factors are theoretically derived using **[Rad Lab](https://github.com/Gissio/radlab)** and do not account for the voltage-dependent slope of the Geiger–Müller plateau.
+* Real Geiger tubes may exhibit individual characteristics — erroneous gas fill, self-activity from radioactive construction materials, or mechanical defects — that reduce accuracy. Calibration with a **check source** is always preferable. Source compensation is provided as the next best alternative.
 
 ### Compensation Factors by Tube and Source
 
