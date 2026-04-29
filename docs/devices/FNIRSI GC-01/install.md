@@ -86,7 +86,7 @@ After reboot, **Rad Pro is installed**.
 **Installation fails:**
 
 * Hold **OK/Power** while powering on and keep holding throughout the process
-* Try copying the file a second time
+* Copy the file **twice**
 
 **Want to go back to stock firmware?**
 
