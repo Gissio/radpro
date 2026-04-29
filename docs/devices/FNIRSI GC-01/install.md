@@ -78,22 +78,19 @@ After reboot, **Rad Pro is installed**.
 
 **Device not detected:**
 
-* Check your USB cable (must support data)
+* Make sure your USB cable supports data transfer
 * Try a USB 2.0 port
 * Hold **Right/Settings + OK/Power** to expose the USB drive
-
-**USB drive does not appear:**
-
-* Press the **reset switch** (near the USB connector) after plugging in
+* After plugging in, press the **reset switch** (located near the USB connector, opposite the charge LED)
 
 **Installation fails:**
 
-* Hold **OK/Power** while powering on and keep holding during the process
-* Copy the file **twice**
+* Hold **OK/Power** while powering on and keep holding throughout the process
+* Try copying the file a second time
 
 **Want to go back to stock firmware?**
 
-* Copy the original firmware (in the [firmware](firmware) folder) to the device using the same process
+* Copy the original firmware from the [firmware](firmware) folder to the device using the same process
 
 **Still no joy?**
 
