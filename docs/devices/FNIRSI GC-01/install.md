@@ -76,15 +76,20 @@ After reboot, **Rad Pro is installed**.
 
 ### Troubleshooting
 
-**Device does not reboot after copying:**
-
-* Safely eject the drive and reconnect
-* Try copying the file again
-
 **Device not detected:**
 
 * Check your USB cable (must support data)
-* Try another USB port
+* Try a USB 2.0 port
+* Hold **Right/Settings + OK/Power** to expose the USB drive
+
+**USB drive does not appear:**
+
+* Press the **reset switch** (near the USB connector) after plugging in
+
+**Installation fails:**
+
+* Hold **OK/Power** while powering on and keep holding during the process
+* Copy the file **twice**
 
 **Want to go back to stock firmware?**
 
@@ -93,20 +98,6 @@ After reboot, **Rad Pro is installed**.
 **Still no joy?**
 
 * Try the alternative installation instructions: [install-stlink.md](install-stlink.md)
-
-<!--
-If installation fails, try the following:
-
-* Hold **OK/Power** while powering on and keep holding during the process
-* Hold **Right/Settings + OK/Power** to expose the USB drive
-* Press the **reset switch** (near the USB connector) after plugging in
-* Copy the file **twice**
-
-If needed:
-
-* Press the reset switch and retry the full process
-* Use the alternative method: `install-stlink.md` 
--->
 
 ## Step 4: Basic Controls
 
