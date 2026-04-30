@@ -7,7 +7,6 @@ This guide explains how to install **Rad Pro** on FNIRSI GC-01 and JOY-IT JT-RAD
 Make sure you have:
 
 * A **USB data cable** (charging-only cables will not work)
-* A **Phillips screwdriver**
 * A **computer** running Windows 10 or Windows 11
 
 ### Important Warning
@@ -20,42 +19,7 @@ Make sure you have:
 2. Download the latest `radpro-[version].zip`.
 3. Extract it on your computer.
 
-## Step 2: Identify the Hardware
-
-![FNIRSI GC-01 circuit board](img/gc-01-board-type.jpg)
-
-To select the correct firmware and settings, you'll need to identify two components inside the device.
-
-### Open the Device
-
-1. Power off the device.
-2. Unscrew the back case.
-3. Carefully open the enclosure.
-
-### Identify the Microprocessor
-
-Look for the square chip on the board. It should be one of:
-
-* CH32F103R8T6 (WCH)
-* APM32F103RBT6 (Geehy)
-
-If the chip is unmarked or unclear, don't worry—proceed to the next step.
-
-### Identify the Geiger Tube
-
-Look for markings on the tube:
-
-* **J305**, **J321**, **J613**, **HH614**, or **M4011**
-
-If the tube is unmarked:
-
-* ~55 mm or ~65 mm → assume **HH614**
-
-### Reassemble the Device
-
-Once identified, close the device and screw it back together.
-
-## Step 3: Flash Rad Pro
+## Step 2: Flash Rad Pro
 
 ### Connect the Device
 
@@ -63,11 +27,10 @@ Once identified, close the device and screw it back together.
 2. A **USB drive** should appear.
 
    > If no drive appears, your device may be incompatible.
-
+*
 3. Open the extracted firmware folder: `fnirsi-gc01_[microprocessor]/firmware/` and choose the correct firmware file: `radpro-fnirsi-gc01_[microprocessor]-[language]-x.y.z-install.bin`
-   * `[microprocessor]` is `ch32f103r8t6` or `apm32f103rbt6`
+   * `[microprocessor]` is `apm32f103rbt6` or `ch32f103r8t6`. Start with `apm32f103rbt6`. If you get a **Drive full** error, disconnect the device and retry using `ch32f103r8t6`.
    * `[language]` is a two-letter code (e.g., `en`, `es`)
-   * Not sure about the microprocessor? Start with `apm32f103rbt6`. If you get a **Drive full** error, disconnect the device and retry using `ch32f103r8t6`.
 4. Copy the file to the USB drive.
 
 The device will automatically reboot when the transfer completes.
@@ -96,7 +59,7 @@ After reboot, **Rad Pro is installed**.
 
 * Try the alternative installation instructions: [install-stlink.md](install-stlink.md)
 
-## Step 4: Basic Controls
+## Step 3: Basic Controls
 
 Once installed, here are the essential controls:
 
@@ -122,12 +85,14 @@ Once installed, here are the essential controls:
 
 * **Press Right:** Restart random generator
 
-## Step 5: First Configuration
+## Step 4: First Configuration
+
+If your background radiation readings are too low (expected range: ~0.1–0.2 µSv/h):
 
 * Open **Settings > Geiger tube > Tube type**.
-* Select the tube you identified earlier.
+* Select **HH614**.
 
-## Step 6: Finish Up
+## Step 5: Finish Up
 
 * 📖 **Read the documentation**:
   * [Rad Pro user's manual](../../users-manual.md) – Easy guide to using Rad Pro
