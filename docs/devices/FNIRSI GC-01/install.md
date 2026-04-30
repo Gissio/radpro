@@ -27,7 +27,7 @@ Make sure you have:
 2. A **USB drive** should appear.
 
    > If no drive appears, your device may be incompatible.
-*
+
 3. Open the extracted firmware folder: `fnirsi-gc01_[microprocessor]/firmware/` and choose the correct firmware file: `radpro-fnirsi-gc01_[microprocessor]-[language]-x.y.z-install.bin`
    * `[microprocessor]` is `apm32f103rbt6` or `ch32f103r8t6`. Start with `apm32f103rbt6`. If you get a **Drive full** error, disconnect the device and retry using `ch32f103r8t6`.
    * `[language]` is a two-letter code (e.g., `en`, `es`)
