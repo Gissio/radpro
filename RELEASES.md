@@ -167,7 +167,7 @@
 ## 2.0.3 "The Sensitive Update"
 
 * Extended conversion factor range to 25-12,800 cpm/µSv/h.
-*Capped pulse indication at 600 cpm/µSv/h for sensitive detectors to maintain ~1 pulse/second at background levels (no impact on measurements).
+* Capped pulse indication at 600 cpm/µSv/h for sensitive detectors to maintain ~1 pulse/second at background levels (no impact on measurements).
 * Minor UI and performance improvements.
 
 ## 2.0.2 "The Precise Release"
@@ -234,15 +234,16 @@
 
 ## 1.2.2
 
-* Added GD32 microcontroller support and data submission to https://gmcmap.com.
+* Added GD32 microcontroller support and data submission to <https://gmcmap.com>.
 
 ## 1.2.1
 
 * Minor bug fixes.
 
 ## 1.2.0
+
 * Added non-volatile radiation dose storage and hourly device statistics.
-* Added https://radmon.org and https://safecast.org client.
+* Added <https://radmon.org> and <https://safecast.org> client.
 * Improved font_tiny5, battery level calculation, flash settings, and state storage.
 * Fixed startup sequence, backlight, and SBM-20 conversion ratio bugs.
 

@@ -7,17 +7,15 @@ This guide explains how to install **Rad Pro** on FNIRSI GC-03 Geiger counters.
 Make sure you have:
 
 * A **USB data cable** (charging-only cables will not work)
-* A **computer** running Windows 10 or Windows 11
+* A **Windows 10 or Windows 11 computer**
 
-### Important Warning
-
-⚠️ **DO NOT attempt installation from macOS or Linux.** These operating systems are **not supported** and can brick your device. You will need a Windows 10/11 computer to recover it if something goes wrong.
+> ⚠️ **Use a Windows 10/11 computer.** macOS and Linux are not supported for installation. If something goes wrong on an unsupported OS, recovery requires a Windows machine.
 
 ## Step 1: Download the Firmware
 
-1. Go to the Rad Pro releases page: https://github.com/Gissio/radpro/releases
+1. Go to the Rad Pro releases page: <https://github.com/Gissio/radpro/releases>
 2. Download the latest `radpro-[version].zip`.
-3. Extract it on your computer.
+3. Extract the archive on your computer.
 
 ## Step 2: Enter Update Mode
 
@@ -44,19 +42,20 @@ After reboot, **Rad Pro is installed**.
 
 ### Troubleshooting
 
-**Device does not reboot after copying:**
+**Device not detected:**
+
+* Make sure your USB cable supports data transfer
+* Try another USB port
+* Try a USB hub
+
+**Installation fails:**
 
 * Safely eject the drive and reconnect
 * Try copying the file again
 
-**Device not detected:**
+**Want to restore the original firmware?**
 
-* Check your USB cable (must support data)
-* Try another USB port
-
-**Want to go back to stock firmware?**
-
-* Copy the original firmware (in the [firmware](firmware) folder) to the device using the same process
+* Copy the stock firmware from the [firmware](firmware) folder to the device using the same process
 
 ## Step 4: Basic Controls
 

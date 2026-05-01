@@ -27,7 +27,7 @@ Windows only:
 
 ## Step 1: Download the Firmware
 
-1. Go to the Rad Pro releases page: https://github.com/Gissio/radpro/releases
+1. Go to the Rad Pro releases page: <https://github.com/Gissio/radpro/releases>
 2. Download the latest `radpro-[version].zip`.
 3. Extract it on your computer.
 

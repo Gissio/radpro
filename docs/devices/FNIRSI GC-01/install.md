@@ -7,31 +7,30 @@ This guide explains how to install **Rad Pro** on FNIRSI GC-01 and JOY-IT JT-RAD
 Make sure you have:
 
 * A **USB data cable** (charging-only cables will not work)
-* A **computer** running Windows 10 or Windows 11
+* A **Windows 10 or Windows 11 computer**
 
-### Important Warning
-
-⚠️ **DO NOT attempt installation from macOS or Linux.** These operating systems are **not supported** and can brick your device. You will need a Windows 10/11 computer to recover it if something goes wrong.
+> ⚠️ **Use a Windows 10/11 computer.** macOS and Linux are not supported for installation. If something goes wrong on an unsupported OS, recovery requires a Windows machine.
 
 ## Step 1: Download the Firmware
 
-1. Go to the Rad Pro releases page: https://github.com/Gissio/radpro/releases
+1. Go to the Rad Pro releases page: <https://github.com/Gissio/radpro/releases>
 2. Download the latest `radpro-[version].zip`.
-3. Extract it on your computer.
+3. Extract the archive on your computer.
 
 ## Step 2: Flash Rad Pro
 
 ### Connect the Device
 
-1. Connect the device to your computer.
-2. A **USB drive** should appear.
+1. Make sure your device is powered off.
+2. Connect it to your computer using the USB data cable.
+3. A **USB drive** should appear.
 
-   > If no drive appears, your device may be incompatible.
+   > If no drive appears, your device may be incompatible. See Troubleshooting below.
 
-3. Open the extracted firmware folder: `fnirsi-gc01_[microprocessor]/firmware/` and choose the correct firmware file: `radpro-fnirsi-gc01_[microprocessor]-[language]-x.y.z-install.bin`
+4. Open the extracted firmware folder: `fnirsi-gc01_[microprocessor]/firmware/` and choose the correct firmware file: `radpro-fnirsi-gc01_[microprocessor]-[language]-x.y.z-install.bin`
    * `[microprocessor]` is `apm32f103rbt6` or `ch32f103r8t6`. Start with `apm32f103rbt6`. If you get a **Drive full** error, disconnect the device and retry using `ch32f103r8t6`.
    * `[language]` is a two-letter code (e.g., `en`, `es`)
-4. Copy the file to the USB drive.
+5. Copy the file to the USB drive.
 
 The device will automatically reboot when the transfer completes.
 
@@ -42,18 +41,19 @@ After reboot, **Rad Pro is installed**.
 **Device not detected:**
 
 * Make sure your USB cable supports data transfer
-* Try a USB 2.0 port
+* Try another USB port
+* Try a USB hub
 * Hold **Right/Settings + OK/Power** to expose the USB drive
 * After plugging in, press the **reset switch** (located near the USB connector, opposite the charge LED)
 
 **Installation fails:**
 
-* Hold **OK/Power** while powering on and keep holding throughout the process
-* Copy the file **twice**
+* Hold **OK/Power** before plugging in the USB cable, and keep holding throughout the process
+* If the file copy seems to succeed but the device doesn't reboot correctly, try copying the file a second time
 
-**Want to go back to stock firmware?**
+**Want to restore the original firmware?**
 
-* Copy the original firmware from the [firmware](firmware) folder to the device using the same process
+* Copy the stock firmware from the [firmware](firmware) folder to the device using the same process
 
 **Still no joy?**
 
@@ -87,10 +87,12 @@ Once installed, here are the essential controls:
 
 ## Step 4: First Configuration
 
-If your background radiation readings are too low (expected range: ~0.1–0.2 µSv/h):
+Check that background radiation readings are in the expected range of **~0.05–0.25 µSv/h**.
 
-* Open **Settings > Geiger tube > Tube type**.
-* Select **HH614**.
+If readings are too low:
+
+1. Open **Settings > Geiger tube > Tube type**
+2. Select **HH614**
 
 ## Step 5: Finish Up
 
