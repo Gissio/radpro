@@ -19,8 +19,6 @@ Make sure you have:
 
 ## Step 2: Flash Rad Pro
 
-### Connect the Device
-
 1. Make sure your device is powered off.
 2. Connect it to your computer using the USB data cable.
 3. A **USB drive** should appear.
