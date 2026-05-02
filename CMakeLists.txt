@@ -4,7 +4,7 @@ project(radpro)
 
 set(CMAKE_C_STANDARD 23)
 
-set(LANGUAGE "en")
+set(LANGUAGE "pt")
 
 FILE(GLOB_RECURSE sources platform.io/src/*.c)
 FILE(GLOB sdl_sources platform.io/src/sdl/*.c)
