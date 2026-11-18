@@ -46,8 +46,8 @@ _Min_Stack_Size = 0x400; /* required amount of stack */
 /* 32 kB SRAM are available, but the bootloader requires a fix */ 
 MEMORY
 {
-  RAM   (xrw) : ORIGIN = 0x20000000,  LENGTH = 48K
-  FLASH (rx)  : ORIGIN = 0x08006000,  LENGTH = 232K
+  RAM   (xrw) : ORIGIN = 0x20000000,  LENGTH = 47K
+  FLASH (rx)  : ORIGIN = 0x08005000,  LENGTH = 236K
 }
 
 /* Sections */

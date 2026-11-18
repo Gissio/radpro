@@ -214,7 +214,7 @@ build_flags =
     ${base.build_flags}
     -DGMC800
     -DGMC800V2
-    -DFIRMWARE_BASE=0x08006000
+    -DFIRMWARE_BASE=0x08005000
     -DSTM32_SYNC_PERIPHERALS
     -DUSB_AUTOPOWER_ON
     -DUSBD_ASM_DRIVER
@@ -232,5 +232,5 @@ build_flags =
     -DALERT_LED_EN
     -DGAME
 board_build.ldscript = scripts/gmc800v2.ld
-board_upload.offset_address = 0x08006000
+board_upload.offset_address = 0x08005000
 upload_flags = -c set CPUTAPID 0x2ba01477

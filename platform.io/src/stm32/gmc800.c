@@ -27,6 +27,12 @@ void initGPIO(void)
 
 void initSystem(void)
 {
+    // +++ TEST
+    // Fix bootloader
+    NVIC_DisableAllIRQs();
+    SCB->VTOR = FIRMWARE_BASE;
+    // +++ TEST
+
     // Set HSI as system clock
     modify_bits(RCC->CFGR, RCC_CFGR_SW_Msk, RCC_CFGR_SW_HSI);
     wait_until_bits_value(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_HSI);
@@ -39,10 +45,13 @@ void initSystem(void)
     set_bits(RCC->CR, RCC_CR_HSEON);
     wait_until_bits_set(RCC->CR, RCC_CR_HSERDY);
 
+    // Set 2 wait states for flash
+    modify_bits(FLASH->ACR, FLASH_ACR_LATENCY_Msk, FLASH_ACR_LATENCY_2WS);
+
     // Configure AHB, APB1, APB2, ADC, PLL
     RCC->CFGR = RCC_CFGR_SW_HSI |       // Select HSI as system clock
                 RCC_CFGR_HPRE_DIV1 |    // Set AHB clock: 72 MHz / 1 = 72 MHz
-                RCC_CFGR_PPRE1_DIV16 |  // Set APB1 clock: 72 MHz / 16 = 4.5 MHz
+                RCC_CFGR_PPRE1_DIV2 |   // Set APB1 clock: 72 MHz / 2 = 36 MHz
                 RCC_CFGR_PPRE2_DIV1 |   // Set APB2 clock: 72 MHz / 1 = 72 MHz
                 RCC_CFGR_ADCPRE_DIV6 |  // Set ADC clock: 72 MHz / 6 = 12 MHz
                 RCC_CFGR_PLLSRC_HSE |   // Set PLL source: HSE

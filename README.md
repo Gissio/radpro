@@ -47,6 +47,7 @@ Supported devices:
 * [GeigerLog](https://sourceforge.net/projects/geigerlog/) – Data analysis software for PC
 * [Rad Pro Log Viewer](https://github.com/mayrthom/RadPro-LogViewer) – Data analysis app for Android
 * [Rad Pro WiFi Bridge](https://github.com/SunboX/radpro-wifi-bridge) – MQTT WiFi Bridge for Rad Pro
+* [Radiation map](https://github.com/pragamichele/Radiation-map) – Merges Geiger counter data logs with GPS tracks
 
 ## Acknowledgements
 

@@ -1,5 +1,11 @@
 # Releases
 
+## 3.2
+
+* Added support for the GQ GMC-800V2.
+* Added **Estonian** translation.
+* Fixed an issue causing the game to crash the counter.
+
 ## 3.1.1 "Aligned"
 
 * Fixed memory alignment issues.
