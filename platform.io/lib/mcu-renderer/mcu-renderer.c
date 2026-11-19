@@ -2,18 +2,26 @@
  * MCU renderer
  * Core module
  *
- * (C) 2023-2025 Gissio
+ * (C) 2023-2026 Gissio
  *
  * License: MIT
  */
-
-#include <stdio.h>
 
 #include <string.h>
 
 #include "mcu-renderer.h"
 
 #define MR_FONT_HEADER_SIZE 22
+
+// Forces inlining of per-pixel helpers, which -Os would otherwise keep out of
+// line when they have several callers
+#if defined(__GNUC__)
+#define MR_ALWAYS_INLINE inline __attribute__((always_inline))
+#elif defined(_MSC_VER)
+#define MR_ALWAYS_INLINE __forceinline
+#else
+#define MR_ALWAYS_INLINE inline
+#endif
 
 typedef struct
 {
@@ -35,19 +43,24 @@ typedef struct
     uint8_t glyph_repeat_white_bitnum;
 } mr_font_header_t;
 
+static inline const mr_font_header_t *mr_get_font_header(mr_t *mr)
+{
+    return (const mr_font_header_t *)mr->font;
+}
+
 // Text decoding
 
-static mr_charcode mr_decode_c_string(uint8_t **strp)
+static mr_charcode mr_decode_c_string(const uint8_t **strp)
 {
-    uint8_t *str = *strp;
+    const uint8_t *str = *strp;
     *strp += 1;
 
     return *str;
 }
 
-static mr_charcode mr_decode_utf8(uint8_t **strp)
+static mr_charcode mr_decode_utf8(const uint8_t **strp)
 {
-    uint8_t *str = *strp;
+    const uint8_t *str = *strp;
     uint8_t lead = str[0];
     uint32_t length;
     mr_charcode codepoint;
@@ -87,9 +100,9 @@ static mr_charcode mr_decode_utf8(uint8_t **strp)
     return codepoint;
 }
 
-static mr_charcode mr_decode_utf16(uint8_t **strp)
+static mr_charcode mr_decode_utf16(const uint8_t **strp)
 {
-    uint16_t *str = (uint16_t *)*strp;
+    const uint16_t *str = (const uint16_t *)*strp;
     uint16_t highSurrogate = str[0];
 
     if ((highSurrogate >> 11) != 0x1b)
@@ -327,6 +340,38 @@ void mr_send_sequence(mr_t *mr,
     mr_set_chipselect(mr, false);
 }
 
+// Framebuffer pixels
+
+// Sets a monochrome framebuffer pixel. A color is on when its most
+// significant bit is set.
+static MR_ALWAYS_INLINE void mr_set_pixel_framebuffer_monochrome_vertical(mr_t *mr,
+                                                                          const mr_point_t *position,
+                                                                          mr_color_t color)
+{
+    mr_point_t buffer_position = mr_rotate_point(mr, position);
+    uint8_t *buffer = (uint8_t *)mr->buffer +
+                      (buffer_position.y >> 3) * mr->display_width +
+                      buffer_position.x;
+    uint8_t mask = 1 << (buffer_position.y & 0b111);
+
+    if (color >> 15)
+        *buffer |= mask;
+    else
+        *buffer &= ~mask;
+}
+
+static MR_ALWAYS_INLINE void mr_set_pixel_framebuffer_color(mr_t *mr,
+                                                            const mr_point_t *position,
+                                                            mr_color_t color)
+{
+    mr_point_t buffer_position = mr_rotate_point(mr, position);
+    mr_color_t *buffer = (mr_color_t *)mr->buffer +
+                         buffer_position.y * mr->display_width +
+                         buffer_position.x;
+
+    *buffer = color;
+}
+
 // Rectangle rendering
 
 void mr_draw_rectangle_framebuffer_monochrome_vertical(mr_t *mr,
@@ -341,20 +386,7 @@ void mr_draw_rectangle_framebuffer_monochrome_vertical(mr_t *mr,
         for (position.x = rectangle->x;
              position.x < rectangle->x + rectangle->width;
              position.x++)
-        {
-            mr_color_t source_color = mr->fill_color;
-
-            mr_point_t dest_position = mr_rotate_point(mr, &position);
-            uint8_t *dest_buffer = (uint8_t *)mr->buffer +
-                                   (dest_position.y >> 3) * mr->display_width +
-                                   dest_position.x;
-            uint8_t dest_buffer_mask = 1 << (dest_position.y & 0b111);
-
-            if (source_color >> 15)
-                *dest_buffer |= dest_buffer_mask;
-            else
-                *dest_buffer &= ~dest_buffer_mask;
-        }
+            mr_set_pixel_framebuffer_monochrome_vertical(mr, &position, mr->fill_color);
     }
 }
 
@@ -370,16 +402,7 @@ void mr_draw_rectangle_framebuffer_color(mr_t *mr,
         for (position.x = rectangle->x;
              position.x < rectangle->x + rectangle->width;
              position.x++)
-        {
-            mr_color_t source_color = mr->fill_color;
-
-            mr_point_t dest_position = mr_rotate_point(mr, &position);
-            mr_color_t *dest_buffer = (mr_color_t *)mr->buffer +
-                                      dest_position.y * mr->display_width +
-                                      dest_position.x;
-
-            *dest_buffer = source_color;
-        }
+            mr_set_pixel_framebuffer_color(mr, &position, mr->fill_color);
     }
 }
 
@@ -400,22 +423,11 @@ void mr_draw_bitmap_framebuffer_monochrome_vertical(mr_t *mr,
         for (position.x = rectangle->x;
              position.x < rectangle->x + rectangle->width;
              position.x++)
-        {
-            bool source_pixel = ((bitmap[source_index >> 3]) >> (source_index & 0b111)) & 0b1;
-            source_index++;
-            mr_color_t source_color = source_pixel ? mr->stroke_color : mr->fill_color;
-
-            mr_point_t dest_position = mr_rotate_point(mr, &position);
-            uint8_t *dest_buffer = (uint8_t *)mr->buffer +
-                                   (dest_position.y >> 3) * mr->display_width +
-                                   dest_position.x;
-            uint8_t dest_buffer_mask = 1 << (dest_position.y & 0b111);
-
-            if (source_color >> 15)
-                *dest_buffer |= dest_buffer_mask;
-            else
-                *dest_buffer &= ~dest_buffer_mask;
-        }
+            mr_set_pixel_framebuffer_monochrome_vertical(mr,
+                                                         &position,
+                                                         mr_get_bitmap_pixel(bitmap, source_index++)
+                                                             ? mr->stroke_color
+                                                             : mr->fill_color);
 
         bitmap += ((source_index + 7) >> 3);
     }
@@ -436,18 +448,11 @@ void mr_draw_bitmap_framebuffer_color(mr_t *mr,
         for (position.x = rectangle->x;
              position.x < rectangle->x + rectangle->width;
              position.x++)
-        {
-            bool source_pixel = ((bitmap[source_index >> 3]) >> (source_index & 0b111)) & 0b1;
-            source_index++;
-            mr_color_t source_color = source_pixel ? mr->stroke_color : mr->fill_color;
-
-            mr_point_t dest_position = mr_rotate_point(mr, &position);
-            mr_color_t *dest_buffer = (mr_color_t *)mr->buffer +
-                                      dest_position.y * mr->display_width +
-                                      dest_position.x;
-
-            *dest_buffer = source_color;
-        }
+            mr_set_pixel_framebuffer_color(mr,
+                                           &position,
+                                           mr_get_bitmap_pixel(bitmap, source_index++)
+                                               ? mr->stroke_color
+                                               : mr->fill_color);
 
         bitmap += ((source_index + 7) >> 3);
     }
@@ -466,19 +471,7 @@ void mr_draw_image_framebuffer_monochrome_vertical(mr_t *mr,
         for (position.x = rectangle->x;
              position.x < rectangle->x + rectangle->width;
              position.x++)
-        {
-            mr_color_t source_color = *image++;
-            mr_point_t dest_position = mr_rotate_point(mr, &position);
-            uint8_t *dest_buffer = (uint8_t *)mr->buffer +
-                                   (dest_position.y >> 3) * mr->display_width +
-                                   dest_position.x;
-            uint8_t dest_buffer_mask = 1 << (dest_position.y & 0b111);
-
-            if (source_color >> 15)
-                *dest_buffer |= dest_buffer_mask;
-            else
-                *dest_buffer &= ~dest_buffer_mask;
-        }
+            mr_set_pixel_framebuffer_monochrome_vertical(mr, &position, *image++);
     }
 }
 
@@ -495,16 +488,7 @@ void mr_draw_image_framebuffer_color(mr_t *mr,
         for (position.x = rectangle->x;
              position.x < rectangle->x + rectangle->width;
              position.x++)
-        {
-            mr_color_t source_color = *image++;
-
-            mr_point_t dest_position = mr_rotate_point(mr, &position);
-            mr_color_t *dest_buffer = (mr_color_t *)mr->buffer +
-                                      dest_position.y * mr->display_width +
-                                      dest_position.x;
-
-            *dest_buffer = source_color;
-        }
+            mr_set_pixel_framebuffer_color(mr, &position, *image++);
     }
 }
 
@@ -531,10 +515,10 @@ static inline mr_color_t mr_fast_blend(uint32_t foreground_color,
 static void mr_update_blend_table(mr_t *mr)
 {
     if ((mr->blend_table[0] == mr->fill_color) &&
-        (mr->blend_table[COLOR_BLEND_TABLE_SIZE - 1] == mr->stroke_color))
+        (mr->blend_table[MR_COLOR_BLEND_TABLE_SIZE - 1] == mr->stroke_color))
         return;
 
-    for (int i = 0; i < COLOR_BLEND_TABLE_SIZE; i++)
+    for (int i = 0; i < MR_COLOR_BLEND_TABLE_SIZE; i++)
         mr->blend_table[i] = mr_fast_blend(mr->stroke_color,
                                            mr->fill_color,
                                            i);
@@ -543,272 +527,265 @@ static void mr_update_blend_table(mr_t *mr)
 static inline uint8_t mr_get_alpha(uint8_t pixel_bitnum,
                                    uint8_t value)
 {
-    switch (pixel_bitnum)
-    {
-    case 1:
-        value = (value << 6) - value;
+    // Scale to 6 bits by replicating the value's bits
+    uint8_t alpha = 0;
 
-        break;
+    for (int8_t shift = 6 - pixel_bitnum;
+         shift > -pixel_bitnum;
+         shift -= pixel_bitnum)
+        alpha |= (shift >= 0) ? (value << shift) : (value >> -shift);
 
-    case 2:
-        value = (value << 4) + (value << 2) + value;
-
-        break;
-
-    default:
-        value = (value << (6 - pixel_bitnum)) +
-                (value >> ((pixel_bitnum - 3) << 1));
-
-        break;
-    }
-
-    return (value + 1) >> 1;
+    return (alpha + 1) >> 1;
 }
 
-#define mr_draw_glyph_template(name, init, loop, draw, advance)                         \
-    static void name                                                                    \
-    {                                                                                   \
-        const mr_font_header_t *font_header =                                           \
-            (const mr_font_header_t *)mr->font;                                         \
-                                                                                        \
-        uint8_t pixel_bitnum = font_header->glyph_pixel_bitnum;                         \
-        int16_t white_value = (1 << pixel_bitnum) - 1;                                  \
-                                                                                        \
-        mr_bitstream_t *bitstream = &mr->glyph.bitstream;                               \
-                                                                                        \
-        mr_rectangle_t glyph_rectangle = {                                              \
-            mr->glyph.boundingbox_left,                                                 \
-            mr->glyph.boundingbox_bottom + mr->glyph.boundingbox_height,                \
-            mr->glyph.boundingbox_width,                                                \
-            mr->glyph.boundingbox_height};                                              \
-                                                                                        \
-        mr_point_t glyph_position = {                                                   \
-            0,                                                                          \
-            0};                                                                         \
-                                                                                        \
-        uint32_t repeat_length;                                                         \
-        uint32_t repeat_num;                                                            \
-        uint32_t repeat_index = 0;                                                      \
-        mr_bitstream_t repeat_bitstream = {                                             \
-            NULL,                                                                       \
-            0};                                                                         \
-                                                                                        \
-        init;                                                                           \
-                                                                                        \
-        while (glyph_position.y < glyph_rectangle.height)                               \
-        {                                                                               \
-            uint8_t value = mr_get_unsigned_bits(bitstream, pixel_bitnum);              \
-                                                                                        \
-            uint16_t runlength;                                                         \
-                                                                                        \
-            if (!value ||                                                               \
-                (value == white_value))                                                 \
-            {                                                                           \
-                int8_t runlength_bitnum = !value                                        \
-                                              ? font_header->glyph_repeat_black_bitnum  \
-                                              : font_header->glyph_repeat_white_bitnum; \
-                                                                                        \
-                uint16_t runlength_remainder =                                          \
-                    mr_get_unsigned_bits(bitstream, runlength_bitnum);                  \
-                                                                                        \
-                uint16_t runlength_quotient = 0;                                        \
-                while (mr_get_unsigned_bits(bitstream, 1))                              \
-                    runlength_quotient++;                                               \
-                                                                                        \
-                runlength = (runlength_quotient << runlength_bitnum) +                  \
-                            runlength_remainder;                                        \
-                                                                                        \
-                if (!value)                                                             \
-                {                                                                       \
-                    if (!runlength)                                                     \
-                    {                                                                   \
-                        repeat_length = 2;                                              \
-                        while (mr_get_unsigned_bits(bitstream, 1))                      \
-                            repeat_length++;                                            \
-                                                                                        \
-                        repeat_num = 1;                                                 \
-                        while (mr_get_unsigned_bits(bitstream, 1))                      \
-                            repeat_num++;                                               \
-                                                                                        \
-                        repeat_index = repeat_length;                                   \
-                        repeat_bitstream = *bitstream;                                  \
-                                                                                        \
-                        continue;                                                       \
-                    }                                                                   \
-                }                                                                       \
-                else                                                                    \
-                    runlength++;                                                        \
-            }                                                                           \
-            else                                                                        \
-                runlength = 1;                                                          \
-                                                                                        \
-            loop;                                                                       \
-                                                                                        \
-            while (runlength--)                                                         \
-            {                                                                           \
-                draw;                                                                   \
-                                                                                        \
-                glyph_position.x++;                                                     \
-                                                                                        \
-                if (glyph_position.x >= glyph_rectangle.width)                          \
-                {                                                                       \
-                    advance;                                                            \
-                                                                                        \
-                    glyph_position.x = 0;                                               \
-                    glyph_position.y++;                                                 \
-                }                                                                       \
-            }                                                                           \
-                                                                                        \
-            if (repeat_index)                                                           \
-            {                                                                           \
-                repeat_index--;                                                         \
-                                                                                        \
-                if (!repeat_index &&                                                    \
-                    repeat_num)                                                         \
-                {                                                                       \
-                    repeat_num--;                                                       \
-                                                                                        \
-                    repeat_index = repeat_length;                                       \
-                                                                                        \
-                    *bitstream = repeat_bitstream;                                      \
-                }                                                                       \
-            }                                                                           \
-        }                                                                               \
+// Glyph decoding
+
+typedef struct
+{
+    const mr_font_header_t *font_header;
+    mr_bitstream_t bitstream;
+
+    // Repeat state: the last repeat_length runs are repeated repeat_num times
+    uint32_t repeat_length;
+    uint32_t repeat_num;
+    uint32_t repeat_index;
+    mr_bitstream_t repeat_bitstream;
+} mr_glyph_decoder_t;
+
+static void mr_init_glyph_decoder(mr_t *mr,
+                                  mr_glyph_decoder_t *decoder)
+{
+    decoder->font_header = mr_get_font_header(mr);
+    decoder->bitstream = mr->glyph.bitstream;
+    decoder->repeat_index = 0;
+}
+
+// Decodes the next run of equal pixels of the current glyph.
+// Returns the run length and sets *value to the pixel value.
+static uint16_t mr_get_glyph_run(mr_glyph_decoder_t *decoder,
+                                 uint8_t *value)
+{
+    const mr_font_header_t *font_header = decoder->font_header;
+    mr_bitstream_t *bitstream = &decoder->bitstream;
+
+    uint8_t pixel_bitnum = font_header->glyph_pixel_bitnum;
+    int16_t white_value = (1 << pixel_bitnum) - 1;
+
+    uint16_t runlength;
+
+    while (true)
+    {
+        *value = mr_get_unsigned_bits(bitstream, pixel_bitnum);
+
+        if (*value &&
+            (*value != white_value))
+        {
+            runlength = 1;
+
+            break;
+        }
+
+        // Black or white run
+        int8_t runlength_bitnum = !*value
+                                      ? font_header->glyph_repeat_black_bitnum
+                                      : font_header->glyph_repeat_white_bitnum;
+
+        uint16_t runlength_remainder =
+            mr_get_unsigned_bits(bitstream, runlength_bitnum);
+
+        uint16_t runlength_quotient = 0;
+        while (mr_get_unsigned_bits(bitstream, 1))
+            runlength_quotient++;
+
+        runlength = (runlength_quotient << runlength_bitnum) +
+                    runlength_remainder;
+
+        if (*value)
+        {
+            runlength++;
+
+            break;
+        }
+
+        if (runlength)
+            break;
+
+        // Repeat marker: the following runs are repeated
+        decoder->repeat_length = 2;
+        while (mr_get_unsigned_bits(bitstream, 1))
+            decoder->repeat_length++;
+
+        decoder->repeat_num = 1;
+        while (mr_get_unsigned_bits(bitstream, 1))
+            decoder->repeat_num++;
+
+        decoder->repeat_index = decoder->repeat_length;
+        decoder->repeat_bitstream = *bitstream;
     }
 
-//
+    if (decoder->repeat_index)
+    {
+        decoder->repeat_index--;
 
-#define mr_draw_glyph_framebuffer_monochrome_vertical_prototype                    \
-    mr_draw_glyph_framebuffer_monochrome_vertical(mr_t *mr,                        \
-                                                  const mr_point_t *pen,           \
-                                                  const mr_rectangle_t *rectangle, \
-                                                  uint32_t buffer_pitch)
+        if (!decoder->repeat_index &&
+            decoder->repeat_num)
+        {
+            decoder->repeat_num--;
 
-#define mr_draw_glyph_framebuffer_monochrome_vertical_init \
-    mr_point_t position = {                                \
-        pen->x + glyph_rectangle.x,                        \
-        pen->y - glyph_rectangle.y};                       \
+            decoder->repeat_index = decoder->repeat_length;
+
+            *bitstream = decoder->repeat_bitstream;
+        }
+    }
+
+    return runlength;
+}
+
+// Returns the screen position of the current glyph's top-left pixel
+static mr_point_t mr_get_glyph_position(mr_t *mr,
+                                        const mr_point_t *pen)
+{
+    return (mr_point_t){
+        pen->x + mr->glyph.boundingbox_left,
+        pen->y - (mr->glyph.boundingbox_bottom + mr->glyph.boundingbox_height)};
+}
+
+// Glyph drawing
+
+static void mr_draw_glyph_framebuffer_monochrome_vertical(mr_t *mr,
+                                                          const mr_point_t *pen,
+                                                          const mr_rectangle_t *rectangle)
+{
+    mr_glyph_decoder_t decoder;
+    mr_init_glyph_decoder(mr, &decoder);
+
+    mr_point_t position = mr_get_glyph_position(mr, pen);
     int16_t start_x = position.x;
+    int16_t x = 0;
+    int16_t y = 0;
 
-#define mr_draw_glyph_framebuffer_monochrome_vertical_loop
+    while (y < mr->glyph.boundingbox_height)
+    {
+        uint8_t value;
+        uint16_t runlength = mr_get_glyph_run(&decoder, &value);
 
-#define mr_draw_glyph_framebuffer_monochrome_vertical_draw           \
-    if (value &&                                                     \
-        mr_is_point_in_rect(&position, rectangle))                   \
-    {                                                                \
-        mr_point_t buffer_position = mr_rotate_point(mr, &position); \
-        uint8_t *buffer = (uint8_t *)mr->buffer +                    \
-                          (buffer_position.y >> 3) * buffer_pitch +  \
-                          buffer_position.x;                         \
-        uint8_t mask = 1 << (buffer_position.y & 0b111);             \
-                                                                     \
-        if (mr->stroke_color)                                        \
-            *buffer |= mask;                                         \
-        else                                                         \
-            *buffer &= ~mask;                                        \
-    }                                                                \
-                                                                     \
-    position.x++;
+        while (runlength--)
+        {
+            if (value &&
+                mr_is_point_in_rect(&position, rectangle))
+                mr_set_pixel_framebuffer_monochrome_vertical(mr, &position, mr->stroke_color);
 
-#define mr_draw_glyph_framebuffer_monochrome_vertical_advance \
-    position.x = start_x;                                     \
-    position.y++;
+            position.x++;
 
-mr_draw_glyph_template(mr_draw_glyph_framebuffer_monochrome_vertical_prototype,
-                       mr_draw_glyph_framebuffer_monochrome_vertical_init,
-                       mr_draw_glyph_framebuffer_monochrome_vertical_loop,
-                       mr_draw_glyph_framebuffer_monochrome_vertical_draw,
-                       mr_draw_glyph_framebuffer_monochrome_vertical_advance);
+            if (++x >= mr->glyph.boundingbox_width)
+            {
+                position.x = start_x;
+                position.y++;
 
-//
+                x = 0;
+                y++;
+            }
+        }
+    }
+}
 
-#define mr_draw_glyph_framebuffer_color_prototype                    \
-    mr_draw_glyph_framebuffer_color(mr_t *mr,                        \
-                                    const mr_point_t *pen,           \
-                                    const mr_rectangle_t *rectangle, \
-                                    uint32_t buffer_pitch)
+static void mr_draw_glyph_framebuffer_color(mr_t *mr,
+                                            const mr_point_t *pen,
+                                            const mr_rectangle_t *rectangle)
+{
+    mr_glyph_decoder_t decoder;
+    mr_init_glyph_decoder(mr, &decoder);
 
-#define mr_draw_glyph_framebuffer_color_init \
-    mr_point_t position = {                  \
-        pen->x + glyph_rectangle.x,          \
-        pen->y - glyph_rectangle.y};         \
+    uint8_t pixel_bitnum = decoder.font_header->glyph_pixel_bitnum;
+
+    mr_point_t position = mr_get_glyph_position(mr, pen);
     int16_t start_x = position.x;
+    int16_t x = 0;
+    int16_t y = 0;
 
-#define mr_draw_glyph_framebuffer_color_loop           \
-    uint8_t alpha = mr_get_alpha(pixel_bitnum, value); \
-                                                       \
-    mr_color_t color = mr->blend_table[alpha];
+    while (y < mr->glyph.boundingbox_height)
+    {
+        uint8_t value;
+        uint16_t runlength = mr_get_glyph_run(&decoder, &value);
 
-#define mr_draw_glyph_framebuffer_color_draw                         \
-    if (value &&                                                     \
-        mr_is_point_in_rect(&position, rectangle))                   \
-    {                                                                \
-        mr_point_t buffer_position = mr_rotate_point(mr, &position); \
-        mr_color_t *buffer = (mr_color_t *)mr->buffer +              \
-                             buffer_position.y * buffer_pitch +      \
-                             buffer_position.x;                      \
-                                                                     \
-        *buffer = color;                                             \
-    }                                                                \
-                                                                     \
-    position.x++;
+        mr_color_t color = mr->blend_table[mr_get_alpha(pixel_bitnum, value)];
 
-#define mr_draw_glyph_framebuffer_color_advance \
-    position.x = start_x;                       \
-    position.y++;
+        while (runlength--)
+        {
+            if (value &&
+                mr_is_point_in_rect(&position, rectangle))
+                mr_set_pixel_framebuffer_color(mr, &position, color);
 
-mr_draw_glyph_template(mr_draw_glyph_framebuffer_color_prototype,
-                       mr_draw_glyph_framebuffer_color_init,
-                       mr_draw_glyph_framebuffer_color_loop,
-                       mr_draw_glyph_framebuffer_color_draw,
-                       mr_draw_glyph_framebuffer_color_advance);
+            position.x++;
 
-//
+            if (++x >= mr->glyph.boundingbox_width)
+            {
+                position.x = start_x;
+                position.y++;
 
-#define mr_draw_glyph_textbuffer_prototype          \
-    mr_draw_glyph_textbuffer(mr_t *mr,              \
-                             const mr_point_t *pen, \
-                             uint32_t buffer_pitch)
+                x = 0;
+                y++;
+            }
+        }
+    }
+}
 
-#define mr_draw_glyph_textbuffer_init                         \
-    mr_point_t position = {                                   \
-        pen->x + glyph_rectangle.x,                           \
-        pen->y - glyph_rectangle.y};                          \
-                                                              \
-    if ((position.x + glyph_rectangle.width) >= buffer_pitch) \
-        return;                                               \
-                                                              \
-    uint8_t *buffer = (uint8_t *)mr->buffer +                 \
-                      buffer_pitch * position.y +             \
-                      position.x;                             \
-    uint8_t *buffer_line = buffer;
+// Draws the glyph's alpha values into the text buffer, keeping the maximum
+// where glyphs overlap
+static void mr_draw_glyph_textbuffer(mr_t *mr,
+                                     const mr_point_t *pen,
+                                     uint32_t buffer_pitch)
+{
+    mr_point_t position = mr_get_glyph_position(mr, pen);
 
-#define mr_draw_glyph_textbuffer_loop \
-    uint8_t alpha = mr_get_alpha(pixel_bitnum, value);
+    // Glyph doesn't fit in the text buffer
+    if ((position.x + mr->glyph.boundingbox_width) >= buffer_pitch)
+        return;
 
-#define mr_draw_glyph_textbuffer_draw \
-    if (*buffer < alpha)              \
-        *buffer = alpha;              \
-                                      \
-    buffer++;
+    mr_glyph_decoder_t decoder;
+    mr_init_glyph_decoder(mr, &decoder);
 
-#define mr_draw_glyph_textbuffer_advance \
-    buffer_line += buffer_pitch;         \
-    buffer = buffer_line;
+    uint8_t pixel_bitnum = decoder.font_header->glyph_pixel_bitnum;
 
-mr_draw_glyph_template(mr_draw_glyph_textbuffer_prototype,
-                       mr_draw_glyph_textbuffer_init,
-                       mr_draw_glyph_textbuffer_loop,
-                       mr_draw_glyph_textbuffer_draw,
-                       mr_draw_glyph_textbuffer_advance);
+    uint8_t *buffer_line = (uint8_t *)mr->buffer +
+                           buffer_pitch * position.y +
+                           position.x;
+    uint8_t *buffer = buffer_line;
+    int16_t x = 0;
+    int16_t y = 0;
+
+    while (y < mr->glyph.boundingbox_height)
+    {
+        uint8_t value;
+        uint16_t runlength = mr_get_glyph_run(&decoder, &value);
+
+        uint8_t alpha = mr_get_alpha(pixel_bitnum, value);
+
+        while (runlength--)
+        {
+            if (*buffer < alpha)
+                *buffer = alpha;
+
+            buffer++;
+
+            if (++x >= mr->glyph.boundingbox_width)
+            {
+                buffer_line += buffer_pitch;
+                buffer = buffer_line;
+
+                x = 0;
+                y++;
+            }
+        }
+    }
+}
 
 // Text processing
 
 static bool mr_get_glyph(mr_t *mr,
                          mr_charcode charcode)
 {
-    const mr_font_header_t *font_header =
-        (const mr_font_header_t *)mr->font;
+    const mr_font_header_t *font_header = mr_get_font_header(mr);
 
     // Search block
     const uint8_t *block;
@@ -849,21 +826,15 @@ static bool mr_get_glyph(mr_t *mr,
             bitreader->data = block;
             bitreader->bit_index = 0;
 
-            mr->glyph.boundingbox_left =
-                mr_get_signed_bits(bitreader,
-                                   font_header->glyph_boundingbox_left_bitnum);
-            mr->glyph.boundingbox_bottom =
-                mr_get_signed_bits(bitreader,
-                                   font_header->glyph_boundingbox_bottom_bitnum);
-            mr->glyph.boundingbox_width =
-                mr_get_unsigned_bits(bitreader,
-                                     font_header->glyph_boundingbox_width_bitnum);
-            mr->glyph.boundingbox_height =
-                mr_get_unsigned_bits(bitreader,
-                                     font_header->glyph_boundingbox_height_bitnum);
-            mr->glyph.advance =
-                mr_get_unsigned_bits(bitreader,
-                                     font_header->glyph_advance_bitnum);
+            // Fields: left, bottom (signed), width, height, advance (unsigned)
+            const uint8_t *field_bitnum =
+                &font_header->glyph_boundingbox_left_bitnum;
+            uint8_t *field = (uint8_t *)&mr->glyph.boundingbox_left;
+
+            for (int i = 0; i < 5; i++)
+                field[i] = (i < 2)
+                               ? mr_get_signed_bits(bitreader, field_bitnum[i])
+                               : mr_get_unsigned_bits(bitreader, field_bitnum[i]);
 
             return true;
         }
@@ -875,30 +846,39 @@ static bool mr_get_glyph(mr_t *mr,
     return false;
 }
 
+// Decodes the next character and loads its glyph, skipping characters missing
+// from the font. Returns false at the end of the string.
+static bool mr_get_next_glyph(mr_t *mr,
+                              const uint8_t **str,
+                              mr_get_charcode_callback_t get_charcode_callback)
+{
+    while (true)
+    {
+        mr_charcode charcode = get_charcode_callback(str);
+
+        if (!charcode)
+            return false;
+
+        if (mr_get_glyph(mr, charcode))
+            return true;
+    }
+}
+
 static int16_t mr_get_string_width(mr_t *mr,
                                    const uint8_t *str,
                                    mr_get_charcode_callback_t get_charcode_callback)
 {
     int16_t width = 0;
 
-    while (true)
-    {
-        mr_charcode charcode = get_charcode_callback((uint8_t **)&str);
-
-        if (!charcode)
-            break;
-
-        if (mr_get_glyph(mr, charcode))
-            width += mr->glyph.advance;
-    }
+    while (mr_get_next_glyph(mr, &str, get_charcode_callback))
+        width += mr->glyph.advance;
 
     return width;
 }
 
 static inline mr_rectangle_t mr_get_font_boundingbox(mr_t *mr)
 {
-    const mr_font_header_t *font_header =
-        (const mr_font_header_t *)mr->font;
+    const mr_font_header_t *font_header = mr_get_font_header(mr);
 
     return (mr_rectangle_t){
         mr_get_short(&font_header->font_boundingbox_left),
@@ -907,53 +887,66 @@ static inline mr_rectangle_t mr_get_font_boundingbox(mr_t *mr)
         mr_get_short(&font_header->font_boundingbox_height)};
 }
 
-#define mr_draw_string(name, init, callback)                                \
-    void name(mr_t *mr,                                                     \
-              const uint8_t *str,                                           \
-              const mr_rectangle_t *rectangle,                              \
-              const mr_point_t *offset,                                     \
-              mr_get_charcode_callback_t get_charcode_callback)             \
-    {                                                                       \
-        mr_draw_rectangle(mr, rectangle);                                   \
-                                                                            \
-        init;                                                               \
-                                                                            \
-        mr_point_t pen = {                                                  \
-            rectangle->x + offset->x,                                       \
-            rectangle->y + offset->y + mr_get_ascent(mr)};                  \
-                                                                            \
-        while (true)                                                        \
-        {                                                                   \
-            mr_charcode charcode = get_charcode_callback((uint8_t **)&str); \
-                                                                            \
-            if (!charcode)                                                  \
-                break;                                                      \
-                                                                            \
-            if (!mr_get_glyph(mr, charcode))                                \
-                continue;                                                   \
-                                                                            \
-            callback(mr,                                                    \
-                     &pen,                                                  \
-                     rectangle,                                             \
-                     mr->display_width);                                    \
-                                                                            \
-            pen.x += mr->glyph.advance;                                     \
-        }                                                                   \
+typedef void (*mr_draw_framebuffer_glyph_t)(mr_t *mr,
+                                           const mr_point_t *pen,
+                                           const mr_rectangle_t *rectangle);
+
+static bool mr_draw_string_framebuffer(mr_t *mr,
+                                       const uint8_t *str,
+                                       const mr_rectangle_t *rectangle,
+                                       const mr_point_t *offset,
+                                       mr_get_charcode_callback_t get_charcode_callback,
+                                       mr_draw_framebuffer_glyph_t draw_glyph)
+{
+    mr_draw_rectangle(mr, rectangle);
+
+    mr_point_t pen = {
+        rectangle->x + offset->x,
+        rectangle->y + offset->y + mr_get_ascent(mr)};
+
+    while (mr_get_next_glyph(mr, &str, get_charcode_callback))
+    {
+        draw_glyph(mr,
+                   &pen,
+                   rectangle);
+
+        pen.x += mr->glyph.advance;
     }
 
-#define mr_draw_string_framebuffer_monochrome_vertical_init
+    return true;
+}
 
-#define mr_draw_string_framebuffer_color_init \
+bool mr_draw_string_framebuffer_monochrome_vertical(mr_t *mr,
+                                                    const uint8_t *str,
+                                                    const mr_rectangle_t *rectangle,
+                                                    const mr_point_t *offset,
+                                                    mr_get_charcode_callback_t get_charcode_callback)
+{
+    return mr_draw_string_framebuffer(mr,
+                                      str,
+                                      rectangle,
+                                      offset,
+                                      get_charcode_callback,
+                                      mr_draw_glyph_framebuffer_monochrome_vertical);
+}
+
+bool mr_draw_string_framebuffer_color(mr_t *mr,
+                                      const uint8_t *str,
+                                      const mr_rectangle_t *rectangle,
+                                      const mr_point_t *offset,
+                                      mr_get_charcode_callback_t get_charcode_callback)
+{
     mr_update_blend_table(mr);
 
-mr_draw_string(mr_draw_string_framebuffer_monochrome_vertical,
-               mr_draw_string_framebuffer_monochrome_vertical_init,
-               mr_draw_glyph_framebuffer_monochrome_vertical);
-mr_draw_string(mr_draw_string_framebuffer_color,
-               mr_draw_string_framebuffer_color_init,
-               mr_draw_glyph_framebuffer_color);
+    return mr_draw_string_framebuffer(mr,
+                                      str,
+                                      rectangle,
+                                      offset,
+                                      get_charcode_callback,
+                                      mr_draw_glyph_framebuffer_color);
+}
 
-void mr_draw_string_textbuffer(mr_t *mr,
+bool mr_draw_string_textbuffer(mr_t *mr,
                                const uint8_t *str,
                                const mr_rectangle_t *rectangle,
                                const mr_point_t *offset,
@@ -961,9 +954,10 @@ void mr_draw_string_textbuffer(mr_t *mr,
 {
     mr_rectangle_t font_boundingbox = mr_get_font_boundingbox(mr);
 
+    // The text buffer must hold at least one font bounding box
     int32_t buffer_pitch = mr->buffer_size / font_boundingbox.height;
     if (buffer_pitch < font_boundingbox.width)
-        return;
+        return false;
 
     // Pen in buffer coordinates
     mr_point_t pen = {
@@ -982,17 +976,14 @@ void mr_draw_string_textbuffer(mr_t *mr,
 
     while (true)
     {
-        mr_charcode charcode = get_charcode_callback((uint8_t **)&str);
+        bool has_glyph = mr_get_next_glyph(mr, &str, get_charcode_callback);
         bool draw_buffer;
-        int16_t buffer_width_increment = 0;
+        int16_t buffer_width_increment;
 
-        if (!charcode)
+        if (!has_glyph)
             draw_buffer = true;
         else
         {
-            if (!mr_get_glyph(mr, charcode))
-                continue;
-
             if (!text_rectangle.width)
             {
                 pen.x -= mr->glyph.boundingbox_left;
@@ -1019,7 +1010,7 @@ void mr_draw_string_textbuffer(mr_t *mr,
 
             // Calculate move rectangle width
             uint16_t move_rectangle_width;
-            if (charcode &&
+            if (has_glyph &&
                 (mr->glyph.boundingbox_left < 0))
             {
                 move_rectangle_width = mr_min(-mr->glyph.boundingbox_left,
@@ -1059,7 +1050,7 @@ void mr_draw_string_textbuffer(mr_t *mr,
             buffer_rectangle.width = move_rectangle_width;
         }
 
-        if (!charcode)
+        if (!has_glyph)
             break;
 
         mr_draw_glyph_textbuffer(mr,
@@ -1103,6 +1094,8 @@ void mr_draw_string_textbuffer(mr_t *mr,
                                 fill_rectangle.y;
         mr_draw_rectangle(mr, &fill_rectangle);
     }
+
+    return true;
 }
 
 // Internal functions
@@ -1138,40 +1131,40 @@ void mr_set_font(mr_t *mr,
     mr->font = font;
 }
 
-void mr_draw_text(mr_t *mr,
+bool mr_draw_text(mr_t *mr,
                   const char *str,
                   const mr_rectangle_t *rectangle,
                   const mr_point_t *offset)
 {
-    mr->draw_string_callback(mr,
-                             (const uint8_t *)str,
-                             rectangle,
-                             offset,
-                             mr_decode_c_string);
+    return mr->draw_string_callback(mr,
+                                    (const uint8_t *)str,
+                                    rectangle,
+                                    offset,
+                                    mr_decode_c_string);
 }
 
-void mr_draw_utf8_text(mr_t *mr,
+bool mr_draw_utf8_text(mr_t *mr,
                        const uint8_t *str,
                        const mr_rectangle_t *rectangle,
                        const mr_point_t *offset)
 {
-    mr->draw_string_callback(mr,
-                             str,
-                             rectangle,
-                             offset,
-                             mr_decode_utf8);
+    return mr->draw_string_callback(mr,
+                                    str,
+                                    rectangle,
+                                    offset,
+                                    mr_decode_utf8);
 }
 
-void mr_draw_utf16_text(mr_t *mr,
+bool mr_draw_utf16_text(mr_t *mr,
                         const uint16_t *str,
                         const mr_rectangle_t *rectangle,
                         const mr_point_t *offset)
 {
-    mr->draw_string_callback(mr,
-                             (const uint8_t *)str,
-                             rectangle,
-                             offset,
-                             mr_decode_utf16);
+    return mr->draw_string_callback(mr,
+                                    (const uint8_t *)str,
+                                    rectangle,
+                                    offset,
+                                    mr_decode_utf16);
 }
 
 int16_t mr_get_text_width(mr_t *mr,
@@ -1200,26 +1193,17 @@ int16_t mr_get_utf16_text_width(mr_t *mr,
 
 int16_t mr_get_cap_height(mr_t *mr)
 {
-    const mr_font_header_t *font_header =
-        (const mr_font_header_t *)mr->font;
-
-    return mr_get_short(&font_header->font_cap_height);
+    return mr_get_short(&mr_get_font_header(mr)->font_cap_height);
 }
 
 int16_t mr_get_ascent(mr_t *mr)
 {
-    const mr_font_header_t *font_header =
-        (const mr_font_header_t *)mr->font;
-
-    return mr_get_short(&font_header->font_ascent);
+    return mr_get_short(&mr_get_font_header(mr)->font_ascent);
 }
 
 int16_t mr_get_descent(mr_t *mr)
 {
-    const mr_font_header_t *font_header =
-        (const mr_font_header_t *)mr->font;
-
-    return mr_get_short(&font_header->font_descent);
+    return mr_get_short(&mr_get_font_header(mr)->font_descent);
 }
 
 int16_t mr_get_line_height(mr_t *mr)

@@ -1,10 +1,16 @@
 # Releases
 
-## 3.2
+## 3.2 "Gambit"
 
 * Added support for the GQ GMC-800V2.
 * Added **Estonian** translation.
-* Fixed an issue causing the game to crash the counter.
+* Fixed `GET tubeType` returning the wrong tube name for tube types after M4011.
+* Reduced firmware size through code optimizations.
+* Updated the game engine to **mcu-max 2.0.0**:
+  * Reworked the strength levels: the lower levels now play occasional random moves.
+  * Fixed an issue causing the game to crash the counter: the search depth is now limited to the memory available on each device.
+  * The search now stops when the counter powers off.
+* Updated **mcu-renderer** to 1.0.20.
 
 ## 3.1.1 "Aligned"
 

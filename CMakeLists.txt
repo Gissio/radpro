@@ -15,6 +15,7 @@ include_directories(platform.io/lib/mcu-renderer platform.io/lib/mcu-max ${SERCO
 
 add_definitions(-DLANGUAGE="${LANGUAGE}")
 add_definitions(-DSTRINGS="strings/${LANGUAGE}.h")
+add_definitions(-DMCUMAX_PAWN_EVAL_DISABLED)
 add_definitions(-DSIMULATOR)
 
 add_definitions(-DSIMULATOR)

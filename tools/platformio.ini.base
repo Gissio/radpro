@@ -3,8 +3,13 @@ platform = ststm32
 framework = cmsis
 build_flags =
     -flto
+    -fno-move-loop-invariants
+    -fno-inline-small-functions
+    -fno-schedule-insns2
+    -fno-tree-dominator-opts
     -DQFP
     -DMCURENDERER_WITHOUT_BITMAP_SUPPORT
+    -DMCUMAX_PAWN_EVAL_DISABLED
     -Wl,--defsym,__aeabi_fadd=qfp_fadd
     -Wl,--defsym,__aeabi_fsub=qfp_fsub
     -Wl,--defsym,__aeabi_fmul=qfp_fmul

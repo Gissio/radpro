@@ -233,6 +233,10 @@ static void onPowerOffViewEvent(ViewEvent event)
 
 static void powerOffWithBatteryIndicator(bool batteryIndicator)
 {
+#if defined(GAME)
+    stopGameSearch();
+#endif
+
     if (power.poweredOn)
     {
         setMeasurementsEnabled(false);

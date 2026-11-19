@@ -105,7 +105,7 @@ void resetTube(void)
 
 // Tube sensitivity
 
-static uint32_t getTubeIndex()
+NOINLINE static uint32_t getTubeIndex()
 {
     if (settings.tubeType > TUBE_TYPE_M4011)
         return settings.tubeType - 1;
@@ -124,7 +124,7 @@ static float getTubeSensitivityForIndex(uint32_t index)
 
 const char *getTubeType(void)
 {
-    return getString(tubeTypeStrings[getTubeIndex()]);
+    return getString(tubeTypeStrings[settings.tubeType]);
 }
 
 float getTubeSensitivity(void)
@@ -162,14 +162,14 @@ float getTubeDeadTimeCompensation(void)
 
 #if defined(TUBE_HV_PWM)
 
-static float getTubeHVFrequencyForIndex(uint32_t index)
+NOINLINE static float getTubeHVFrequencyForIndex(uint32_t index)
 {
     uint32_t value = (1250 << index);
 
     return value;
 }
 
-static float getTubeHVDutyCycleForIndex(uint32_t index)
+NOINLINE static float getTubeHVDutyCycleForIndex(uint32_t index)
 {
     float value = (index + 1);
 

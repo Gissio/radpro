@@ -114,8 +114,10 @@ static MeasurementStyle getElectricFieldMeasurementStyle(void)
 
 static void drawElectricFieldValue(void)
 {
-    char valueString[32] = "";
-    char unitString[32] = "";
+    char valueString[32];
+    char unitString[32];
+    strclr(valueString);
+    strclr(unitString);
     buildValueString(valueString, unitString, electricField.value, &electricFieldUnits, electricFieldMinMetricPrefix);
 
     drawTitleBar(getString(STRING_ELECTRIC_FIELD));
@@ -124,8 +126,10 @@ static void drawElectricFieldValue(void)
 
 static void drawElectricFieldTab(void)
 {
-    char valueString[32] = "";
-    char unitString[32] = " ";
+    char valueString[32];
+    char unitString[32];
+    strclr(valueString);
+    strcpy(unitString, " ");
     const char *keyString = NULL;
 
     switch (electricFieldTab)
@@ -212,7 +216,8 @@ static const char *onElectricFieldAlarmMenuGetOption(menu_size_t index, MenuStyl
     if (index == 0)
         return getString(STRING_OFF);
 
-    char unitString[32] = " ";
+    char unitString[32];
+    strcpy(unitString, " ");
     strclr(menuOption);
     buildValueString(menuOption, unitString, electricFieldAlerts[index], &electricFieldUnits, electricFieldMinMetricPrefix);
     strcat(menuOption, unitString);

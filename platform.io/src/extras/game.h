@@ -14,6 +14,8 @@ void resetGame(void);
 
 void updateGame(void);
 
+void stopGameSearch(void);
+
 void showGameMenu(void);
 
 #endif

@@ -117,8 +117,10 @@ static MeasurementStyle getMagneticFieldMeasurementStyle(void)
 }
 static void drawMagneticFieldValue(void)
 {
-    char valueString[32] = "";
-    char unitString[32] = "";
+    char valueString[32];
+    char unitString[32];
+    strclr(valueString);
+    strclr(unitString);
     buildValueString(valueString, unitString, magneticField.value, &magneticFieldUnits[settings.magneticFieldUnits], magneticFieldMinMetricPrefix[settings.magneticFieldUnits]);
 
     drawTitleBar(getString(STRING_MAGNETIC_FIELD));
@@ -127,8 +129,10 @@ static void drawMagneticFieldValue(void)
 
 static void drawMagneticFieldTab(void)
 {
-    char valueString[32] = "";
-    char unitString[32] = " ";
+    char valueString[32];
+    char unitString[32];
+    strclr(valueString);
+    strcpy(unitString, " ");
     const char *keyString = NULL;
 
     switch (magneticFieldTab)
@@ -245,7 +249,8 @@ static const char *onMagneticFieldAlarmMenuGetOption(menu_size_t index, MenuStyl
     if (index == 0)
         return getString(STRING_OFF);
 
-    char unitString[32] = " ";
+    char unitString[32];
+    strcpy(unitString, " ");
     strclr(menuOption);
     buildValueString(menuOption, unitString, magneticFieldAlerts[index], &magneticFieldUnits[settings.magneticFieldUnits], magneticFieldMinMetricPrefix[settings.magneticFieldUnits]);
     strcat(menuOption, unitString);

@@ -16,6 +16,7 @@
 #include FONT_MEDIUM
 #include FONT_SMALL
 
+#include "../system/cmath.h"
 #include "../system/cstring.h"
 #include "../system/power.h"
 #include "../system/settings.h"
@@ -170,7 +171,7 @@ mr_t mr;
 
 // Low-level functions
 
-mr_color_t getFillColor(ColorIndex colorIndex)
+NOINLINE mr_color_t getFillColor(ColorIndex colorIndex)
 {
 #if defined(DISPLAY_MONOCHROME)
     if ((colorIndex == COLOR_AMPLIFIED_ENABLED_BACKGROUND) ||

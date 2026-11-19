@@ -122,14 +122,16 @@ extern "C" {
  * @param width The physical pixel width of the display (e.g. 240).
  * @param height The physical pixel height of the display (e.g. 320).
  * @param rotation The desired display rotation.
- * @param textbuffer A user-provided buffer for rendering text.
+ * @param textbuffer A user-provided buffer for rendering text, one byte per pixel.
+ * It must hold at least the bounding box of the largest font used (width * height
+ * bytes), otherwise text is not drawn. A larger buffer sends text in fewer transfers.
  * @param textbuffer_size  The size of the user-provided buffer.
  * @param sleep_callback A user-provided sleep callback.
  * @param set_reset_callback A user-provided set reset callback.
  * @param set_chipselect_callback A user-provided set chipselect callback.
  * @param set_command_callback A user-provided set command callback.
  * @param send_callback A user-provided send 8-bit data callback.
- * @param send_callback A user-provided send 16-bit data callback.
+ * @param send16_callback A user-provided send 16-bit data callback.
  */
 static inline void mr_ili9341_init(mr_t *mr,
                                    int16_t width,

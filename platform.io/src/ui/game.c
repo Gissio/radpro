@@ -75,7 +75,7 @@ void drawGame(const uint8_t board[8][8], const char time[2][16])
 #endif
 
     // Board
-    static const char *const gamePieceMap = "@AACFBDE";
+    static const char *const gamePieceMap = "@ACBDEF@";
 
     setFont(font_symbols);
 

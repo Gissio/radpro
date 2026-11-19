@@ -9,6 +9,7 @@
 
 #include "../measurements/measurements.h"
 #include "../peripherals/rtc.h"
+#include "../system/cmath.h"
 #include "../system/settings.h"
 #include "../ui/draw.h"
 #include "../ui/system.h"
@@ -118,7 +119,7 @@ void drawSplash(const char *message)
                               message);
 }
 
-void drawNotification(const char *title, const char *message)
+NOINLINE void drawNotification(const char *title, const char *message)
 {
     drawTitleBar(title);
 

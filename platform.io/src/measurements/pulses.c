@@ -17,6 +17,8 @@
 #include "../system/cmath.h"
 #include "../system/events.h"
 #include "../system/settings.h"
+#include "../ui/measurements.h"
+#include "../ui/system.h"
 
 #define PULSE_INDICATION_SENSITIVITY_MAX 600.0F
 #define PULSE_INDICATION_FACTOR_UNIT 0x10000
@@ -80,6 +82,25 @@ PulseUnits pulseUnits[] = {
     {{STRING_CPS, 1},
      {STRING_EMPTY, 1}},
 };
+
+NOINLINE void buildPulseValueString(char *valueString, char *unitString, float value, uint32_t doseUnits, bool isDose)
+{
+    PulseUnits *units = &pulseUnits[doseUnits];
+
+    buildValueString(valueString, unitString, value, isDose ? &units->dose : &units->rate, doseUnitsMinMetricPrefix[doseUnits]);
+}
+
+void drawPulseMeasurementValue(const char *title, float value, bool isDose, float confidence, MeasurementStyle style)
+{
+    char valueString[32];
+    char unitString[32];
+    strclr(valueString);
+    strclr(unitString);
+    buildPulseValueString(valueString, unitString, value, settings.doseUnits, isDose);
+
+    drawTitleBar(title);
+    drawMeasurementValue(valueString, unitString, confidence, style);
+}
 
 static struct
 {

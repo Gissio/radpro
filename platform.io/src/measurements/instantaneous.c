@@ -225,38 +225,35 @@ static MeasurementStyle getInstantaneousRateMeasurementStyle(void)
 
 static void drawInstantaneousRateValue(void)
 {
-    char valueString[32] = "";
-    char unitString[32] = "";
-    buildValueString(valueString, unitString, instantaneous.rate.value, &pulseUnits[settings.doseUnits].rate, doseUnitsMinMetricPrefix[settings.doseUnits]);
-
-    drawTitleBar(getString(STRING_INSTANTANEOUS));
-    drawMeasurementValue(valueString, unitString, instantaneous.rate.confidence, getInstantaneousRateMeasurementStyle());
+    drawPulseMeasurementValue(getString(STRING_INSTANTANEOUS), instantaneous.rate.value, false, instantaneous.rate.confidence, getInstantaneousRateMeasurementStyle());
 }
 
 static void drawInstantaneousRateTab(void)
 {
-    char valueString[32] = "";
-    char unitString[32] = " ";
+    char valueString[32];
+    char unitString[32];
+    strclr(valueString);
+    strcpy(unitString, " ");
     const char *keyString = NULL;
 
     switch (instantaneousTab)
     {
     case INSTANTANEOUS_TAB_MAX:
-        buildValueString(valueString, unitString, instantaneous.maxValue, &pulseUnits[settings.doseUnits].rate, doseUnitsMinMetricPrefix[settings.doseUnits]);
+        buildPulseValueString(valueString, unitString, instantaneous.maxValue, settings.doseUnits, false);
 
         keyString = getString(STRING_MAX);
 
         break;
 
     case INSTANTANEOUS_TAB_RATE:
-        buildValueString(valueString, unitString, instantaneous.rate.value, &pulseUnits[settings.secondaryDoseUnits].rate, doseUnitsMinMetricPrefix[settings.secondaryDoseUnits]);
+        buildPulseValueString(valueString, unitString, instantaneous.rate.value, settings.secondaryDoseUnits, false);
 
         keyString = getString(STRING_RATE);
 
         break;
 
     case INSTANTANEOUS_TAB_CUMULATIVE:
-        buildValueString(valueString, unitString, getCumulativeDosePulseCount(), &pulseUnits[settings.doseUnits].dose, doseUnitsMinMetricPrefix[settings.doseUnits]);
+        buildPulseValueString(valueString, unitString, getCumulativeDosePulseCount(), settings.doseUnits, true);
 
         keyString = getString(STRING_CUMULATIVE);
 

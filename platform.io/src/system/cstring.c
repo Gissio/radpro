@@ -100,7 +100,7 @@ cstring metricPrefixStrings[8] = {
     STRING_GIGA,
 };
 
-static void strcatMetricPrefix(char *s, int32_t prefixIndex)
+NOINLINE static void strcatMetricPrefix(char *s, int32_t prefixIndex)
 {
     uint32_t index = prefixIndex + 3;
     if (index > 6)

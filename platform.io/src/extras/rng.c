@@ -214,7 +214,7 @@ static int32_t getFastDiceRollerValue(void)
     return -1;
 }
 
-static void initFastDiceRoller(RNGMode mode)
+NOINLINE static void initFastDiceRoller(RNGMode mode)
 {
     rng.mode = mode;
     rng.fastDiceRoller.n = rngModeRanges[mode];

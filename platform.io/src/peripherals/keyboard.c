@@ -396,7 +396,7 @@ void onKeyboardUpdate(void)
     }
 }
 
-void setKeyboardMode(KeyboardMode mode)
+NOINLINE void setKeyboardMode(KeyboardMode mode)
 {
     if (mode == KEYBOARD_MODE_MEASUREMENT)
         keyboard.pressedKey = KEY_NONE;

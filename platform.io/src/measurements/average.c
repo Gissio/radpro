@@ -177,7 +177,7 @@ float getAverageRate(void)
 
 // Average rate view
 
-static const char *getAverageRateAlertString(void)
+NOINLINE static const char *getAverageRateAlertString(void)
 {
     if (getTubeFaultAlertLevel())
         return getString(STRING_ALERT_FAULT);
@@ -206,18 +206,15 @@ static MeasurementStyle getAverageRateMeasurementStyle(void)
 
 static void drawAverageRateValue(void)
 {
-    char valueString[32] = "";
-    char unitString[32] = "";
-    buildValueString(valueString, unitString, average.snapshotRate.value, &pulseUnits[settings.doseUnits].rate, doseUnitsMinMetricPrefix[settings.doseUnits]);
-
-    drawTitleBar(getString(STRING_AVERAGE));
-    drawMeasurementValue(valueString, unitString, average.snapshotRate.confidence, getAverageRateMeasurementStyle());
+    drawPulseMeasurementValue(getString(STRING_AVERAGE), average.snapshotRate.value, false, average.snapshotRate.confidence, getAverageRateMeasurementStyle());
 }
 
 static void drawAverageRateTab(void)
 {
-    char valueString[32] = "";
-    char unitString[32] = " ";
+    char valueString[32];
+    char unitString[32];
+    strclr(valueString);
+    strcpy(unitString, " ");
     const char *keyString = NULL;
 
     switch (averageTab)
@@ -230,14 +227,14 @@ static void drawAverageRateTab(void)
         break;
 
     case AVERAGE_TAB_RATE:
-        buildValueString(valueString, unitString, average.snapshotRate.value, &pulseUnits[settings.secondaryDoseUnits].rate, doseUnitsMinMetricPrefix[settings.secondaryDoseUnits]);
+        buildPulseValueString(valueString, unitString, average.snapshotRate.value, settings.secondaryDoseUnits, false);
 
         keyString = getString(STRING_RATE);
 
         break;
 
     case AVERAGE_TAB_DOSE:
-        buildValueString(valueString, unitString, average.snapshotPulseCount, &pulseUnits[DOSE_UNITS_CPM].dose, doseUnitsMinMetricPrefix[DOSE_UNITS_CPM]);
+        buildPulseValueString(valueString, unitString, average.snapshotPulseCount, DOSE_UNITS_CPM, true);
 
         keyString = getString(STRING_DOSE);
 

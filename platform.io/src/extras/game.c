@@ -15,13 +15,19 @@
 #include "../extras/game.h"
 #include "../system/cmath.h"
 #include "../system/events.h"
+#include "../system/power.h"
 #include "../system/settings.h"
 #include "../ui/game.h"
 #include "../ui/menu.h"
 #include "../ui/view.h"
 
+// Search depth limit. The search uses up to depth + 2 recursion levels of
+// 152 bytes of stack, on top of up to 1.6 kB (monochrome) or 2.2 kB (color)
+// for the search callback (events, view drawing) and interrupts.
+// STM32F0 (8 kB RAM): 3.9 kB of stack, so 12. Other devices: at least 8 kB
+// of stack; 32 is never reached in practice.
 #if defined(STM32F0)
-#define GAME_DEPTH_MAX 16
+#define GAME_DEPTH_MAX 12
 #else
 #define GAME_DEPTH_MAX 32
 #endif
@@ -52,17 +58,6 @@ static struct
 
     mcumax_move previousMove;
 } game;
-
-static const uint32_t gameStrengthToNodesCount[] = {
-    1,
-    4096,
-    8192,
-    16384,
-    32768,
-    65536,
-    131072,
-    262144,
-};
 
 static const Menu gameStartMenu;
 static const Menu gameContinueMenu;
@@ -105,6 +100,11 @@ static void updateGameBoard(void)
         break;
     }
 
+    // Highlight the king of the side to move if in check
+    mcumax_piece checkedKing = (mcumax_get_game_state() & MCUMAX_GAME_CHECK)
+                                   ? (MCUMAX_KING | mcumax_get_current_side())
+                                   : 0xff;
+
     for (uint32_t y = 0; y < 8; y++)
     {
         for (uint32_t x = 0; x < 8; x++)
@@ -116,8 +116,14 @@ static void updateGameBoard(void)
 
             uint8_t piece = mcumax_get_piece(square);
 
-            if ((square == move.from) || (square == move.to))
+            if ((square == move.from) ||
+                (square == move.to) ||
+                (piece == checkedKing))
                 piece |= 0x10;
+
+            // Empty squares are drawn with the black bit set
+            if (!(piece & 0x7))
+                piece |= MCUMAX_BLACK;
 
             game.board[yb][xb] = piece;
         }
@@ -166,35 +172,72 @@ static void startGame(uint32_t playerIndex)
 
 void updateGame(void)
 {
-    if (game.state == GAME_SEARCHING)
+    if (game.state != GAME_SEARCHING)
+        return;
+
+    uint32_t strength = settings.gameStrength;
+    mcumax_move move = MCUMAX_MOVE_INVALID;
+
+    // Levels 1-3: random move with 75%, 50%, 25% probability
+    if (strength < GAME_STRENGTH_4)
     {
+        uint32_t random = 0;
+        for (uint32_t i = 0; i < 16; i++)
+            random = (random << 1) | getRandomBit();
+
+        if ((random & 0x3) < (GAME_STRENGTH_4 - strength))
+        {
+            uint32_t validMovesNum = mcumax_search_valid_moves(game.validMoves, GAME_VALID_MOVES_NUM_MAX);
+
+            if (validMovesNum)
+                move = game.validMoves[(random * validMovesNum) >> 16];
+        }
+    }
+
+    if (move.from == MCUMAX_SQUARE_INVALID)
+    {
+        // Levels 1-4: 1 node; levels 5-8: 4096, 16384, 65536, 262144 nodes
         mcumax_set_callback(onGameCallback, NULL);
-        mcumax_move move = mcumax_search_best_move(gameStrengthToNodesCount[settings.gameStrength], GAME_DEPTH_MAX);
+        move = mcumax_search_best_move((strength < GAME_STRENGTH_5) ? 1 : (1 << (2 * strength + 4)), GAME_DEPTH_MAX);
         mcumax_set_callback(NULL, NULL);
 
-        if (game.state == GAME_SEARCH_STOPPED)
-            showGameMenu();
-        else
+        // Search stopped (back key or power off), or game reset (power on)
+        if (game.state != GAME_SEARCHING)
         {
-            if (move.from == MCUMAX_SQUARE_INVALID)
-                game.state = GAME_OVER;
-            else
-            {
-                mcumax_play_move(move);
+            if ((game.state == GAME_SEARCH_STOPPED) && isPoweredOn())
+                showGameMenu();
 
-                game.moveIndex++;
-                game.previousMove = move;
-
-                updateValidMoves();
-
-                if (game.validMovesNum != 0)
-                    game.state = GAME_SHOWING_LAST_MOVE;
-                else
-                    game.state = GAME_OVER;
-            }
-
-            updateGameBoard();
+            return;
         }
+    }
+
+    if (move.from == MCUMAX_SQUARE_INVALID)
+        game.state = GAME_OVER;
+    else
+    {
+        mcumax_play_move(move);
+
+        game.moveIndex++;
+        game.previousMove = move;
+
+        updateValidMoves();
+
+        if (game.validMovesNum != 0)
+            game.state = GAME_SHOWING_LAST_MOVE;
+        else
+            game.state = GAME_OVER;
+    }
+
+    updateGameBoard();
+}
+
+void stopGameSearch(void)
+{
+    if (game.state == GAME_SEARCHING)
+    {
+        mcumax_stop_search();
+
+        game.state = GAME_SEARCH_STOPPED;
     }
 }
 
@@ -260,11 +303,7 @@ static void onGameViewEvent(ViewEvent event)
     {
     case EVENT_KEY_BACK:
         if (game.state == GAME_SEARCHING)
-        {
-            mcumax_stop_search();
-
-            game.state = GAME_SEARCH_STOPPED;
-        }
+            stopGameSearch();
         else if (game.state == GAME_SELECTING_TO)
         {
             game.state = GAME_SELECTING_FROM;

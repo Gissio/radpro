@@ -20,7 +20,7 @@ void resetRTC(void)
     selectMenuItem(&rtcMenu, 0);
 }
 
-static void normalizeDateTime(RTCDateTime *dateTime)
+NOINLINE static void normalizeDateTime(RTCDateTime *dateTime)
 {
     if (dateTime->year < RTC_YEAR_MIN)
         dateTime->year = RTC_YEAR_MIN;

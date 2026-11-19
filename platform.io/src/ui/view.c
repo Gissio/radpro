@@ -10,6 +10,7 @@
 #include "../measurements/measurements.h"
 #include "../peripherals/display.h"
 #include "../peripherals/keyboard.h"
+#include "../system/cmath.h"
 #include "../system/events.h"
 #include "../system/power.h"
 #include "../system/settings.h"
@@ -127,7 +128,7 @@ void requestViewUpdate(void)
     view.drawUpdate = true;
 }
 
-void showView(OnViewEvent *onViewEvent)
+NOINLINE void showView(OnViewEvent *onViewEvent)
 {
     view.onViewEvent = onViewEvent;
 

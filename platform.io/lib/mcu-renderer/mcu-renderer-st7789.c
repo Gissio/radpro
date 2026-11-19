@@ -214,11 +214,9 @@ static void mr_st7789_draw_bitmap(mr_t *mr,
             for (position.x = rectangle->x;
                  position.x < rectangle->x + rectangle->width;
                  position.x++)
-            {
-                bool source_pixel = ((bitmap[source_index >> 3]) >> (source_index & 0b111)) & 0b1;
-                source_index++;
-                send16(source_pixel ? mr->stroke_color : mr->fill_color);
-            }
+                send16(mr_get_bitmap_pixel(bitmap, source_index++)
+                           ? mr->stroke_color
+                           : mr->fill_color);
 
             bitmap += ((source_index + 7) >> 3);
         }

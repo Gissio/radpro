@@ -35,6 +35,13 @@ float sqrtf(float x);
 #define MAX(x, y) ((x > y) ? x : y)
 #define CLAMP_UINT8(x) ((x < 0) ? 0 : (x > 255) ? 255 : x)
 
+// Keeps small helpers out of line: GCC inlines them when that grows code
+#if defined(__GNUC__)
+#define NOINLINE __attribute__((noinline))
+#else
+#define NOINLINE
+#endif
+
 uint32_t addClamped(uint32_t x, uint32_t y);
 
 int32_t roundDown(float x);

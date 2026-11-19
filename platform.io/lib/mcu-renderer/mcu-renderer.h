@@ -37,7 +37,10 @@ typedef struct mr_t_ mr_t;
 
 typedef uint16_t mr_color_t;
 
-#define COLOR_BLEND_TABLE_SIZE ((1 << 5) + 1)
+#define MR_COLOR_BLEND_TABLE_SIZE ((1 << 5) + 1)
+
+// Deprecated: use MR_COLOR_BLEND_TABLE_SIZE
+#define COLOR_BLEND_TABLE_SIZE MR_COLOR_BLEND_TABLE_SIZE
 
 /**
  * Macro for converting RGB888 colors to RGB565 colors using bit truncation. Best for UIs.
@@ -46,10 +49,10 @@ typedef uint16_t mr_color_t;
  *
  * @return The RGB565 color.
  */
-#define mr_get_color(color_code)                   \
-    ((((color_code >> 16) & 0xff) >> 3) << 11) |   \
-        ((((color_code >> 8) & 0xff) >> 2) << 5) | \
-        ((((color_code >> 0) & 0xff) >> 3) << 0)
+#define mr_get_color(color_code)                       \
+    (((((((color_code) >> 16) & 0xff) >> 3) << 11) |   \
+      (((((color_code) >> 8) & 0xff) >> 2) << 5) |     \
+      (((((color_code) >> 0) & 0xff) >> 3) << 0)))
 
 /**
  * Macro for converting RGB888 colors to RGB565 colors using rounding. Best color accuracy.
@@ -58,10 +61,10 @@ typedef uint16_t mr_color_t;
  *
  * @return The RGB565 color.
  */
-#define mr_get_color_rounding(color_code)                         \
-    (((((color_code >> 16) & 0xff) * 249 + 1014) >> 11) << 11) |  \
-        (((((color_code >> 8) & 0xff) * 253 + 505) >> 10) << 5) | \
-        (((((color_code >> 0) & 0xff) * 249 + 1014) >> 11) << 0)
+#define mr_get_color_rounding(color_code)                             \
+    ((((((((color_code) >> 16) & 0xff) * 249 + 1014) >> 11) << 11) |  \
+      ((((((color_code) >> 8) & 0xff) * 253 + 505) >> 10) << 5) |     \
+      ((((((color_code) >> 0) & 0xff) * 249 + 1014) >> 11) << 0)))
 
 // Basic color palette
 
@@ -98,9 +101,6 @@ typedef enum
     MR_DISPLAY_ROTATION_270,
 } mr_display_rotation_t;
 
-mr_rectangle_t mr_rotate_rectangle(mr_t *mr,
-                                   const mr_rectangle_t *rectangle);
-
 void mr_draw_rectangle_framebuffer_monochrome_vertical(mr_t *mr,
                                                        const mr_rectangle_t *rectangle);
 void mr_draw_rectangle_framebuffer_color(mr_t *mr,
@@ -127,23 +127,30 @@ typedef struct
 
 typedef uint32_t mr_charcode;
 
-typedef mr_charcode (*mr_get_charcode_callback_t)(uint8_t **str);
+typedef mr_charcode (*mr_get_charcode_callback_t)(const uint8_t **str);
 
-void mr_draw_string_framebuffer_monochrome_vertical(mr_t *mr,
+bool mr_draw_string_framebuffer_monochrome_vertical(mr_t *mr,
                                                     const uint8_t *str,
                                                     const mr_rectangle_t *rectangle,
                                                     const mr_point_t *offset,
                                                     mr_get_charcode_callback_t get_charcode_callback);
-void mr_draw_string_framebuffer_color(mr_t *mr,
+bool mr_draw_string_framebuffer_color(mr_t *mr,
                                       const uint8_t *str,
                                       const mr_rectangle_t *rectangle,
                                       const mr_point_t *offset,
                                       mr_get_charcode_callback_t get_charcode_callback);
-void mr_draw_string_textbuffer(mr_t *mr,
+bool mr_draw_string_textbuffer(mr_t *mr,
                                const uint8_t *str,
                                const mr_rectangle_t *rectangle,
                                const mr_point_t *offset,
                                mr_get_charcode_callback_t get_charcode_callback);
+
+// Returns the pixel at a bit index of a monochrome bitmap row
+static inline bool mr_get_bitmap_pixel(const uint8_t *bitmap,
+                                       uint32_t index)
+{
+    return (bitmap[index >> 3] >> (index & 0b111)) & 0b1;
+}
 
 void mr_draw_bitmap_framebuffer_monochrome_vertical(mr_t *mr,
                                                     const mr_rectangle_t *rectangle,
@@ -201,13 +208,12 @@ typedef void (*mr_draw_bitmap_callback_t)(mr_t *mr,
 typedef void (*mr_draw_image_callback_t)(mr_t *mr,
                                          const mr_rectangle_t *rectangle,
                                          const mr_color_t *image);
-typedef void (*mr_draw_string_callback_t)(mr_t *mr,
+// Returns false if the string could not be drawn
+typedef bool (*mr_draw_string_callback_t)(mr_t *mr,
                                           const uint8_t *str,
                                           const mr_rectangle_t *rectangle,
                                           const mr_point_t *offset,
                                           mr_get_charcode_callback_t get_charcode_callback);
-typedef void (*mr_draw_glyph_callback_t)(mr_t *mr,
-                                         mr_point_t pen);
 typedef void (*mr_draw_textbuffer_callback_t)(mr_t *mr,
                                               uint8_t *buffer,
                                               uint32_t buffer_pitch,
@@ -223,7 +229,6 @@ struct mr_t_
     mr_draw_image_callback_t draw_image_callback;
 #endif
     mr_draw_string_callback_t draw_string_callback;
-    mr_draw_glyph_callback_t draw_glyph_callback;
     mr_draw_textbuffer_callback_t draw_textbuffer_callback;
     mr_sleep_callback_t sleep_callback;
     mr_set_reset_callback_t set_reset_callback;
@@ -243,29 +248,29 @@ struct mr_t_
     mr_color_t stroke_color;
     mr_color_t fill_color;
 
-    mr_color_t blend_table[COLOR_BLEND_TABLE_SIZE];
+    mr_color_t blend_table[MR_COLOR_BLEND_TABLE_SIZE];
     const uint8_t *font;
     mr_glyph_t glyph;
 };
 
 void mr_init(mr_t *mr);
 
-inline void mr_set_chipselect(mr_t *mr, bool value)
+static inline void mr_set_chipselect(mr_t *mr, bool value)
 {
     mr->set_chipselect_callback(value);
 }
 
-inline void mr_set_command(mr_t *mr, bool value)
+static inline void mr_set_command(mr_t *mr, bool value)
 {
     mr->set_command_callback(value);
 }
 
-inline void mr_send(mr_t *mr, uint8_t value)
+static inline void mr_send(mr_t *mr, uint8_t value)
 {
     mr->send_callback(value);
 }
 
-inline void mr_send16(mr_t *mr, uint16_t value)
+static inline void mr_send16(mr_t *mr, uint16_t value)
 {
     mr->send16_callback(value);
 }
@@ -341,8 +346,11 @@ void mr_set_font(mr_t *mr,
  * @param str The string.
  * @param rectangle The rectangle containing the text.
  * @param offset The upper (ascent) left corner of the text relative to the text rectangle.
+ *
+ * @return false if the text could not be drawn, because the display's text
+ * buffer is smaller than the font's bounding box (width * height bytes).
  */
-void mr_draw_text(mr_t *mr,
+bool mr_draw_text(mr_t *mr,
                   const char *str,
                   const mr_rectangle_t *rectangle,
                   const mr_point_t *offset);
@@ -354,8 +362,10 @@ void mr_draw_text(mr_t *mr,
  * @param str The string.
  * @param rectangle The rectangle containing the text.
  * @param offset The upper (ascent) left corner of the text relative to the text rectangle.
+ *
+ * @return false if the text could not be drawn (see mr_draw_text()).
  */
-void mr_draw_utf8_text(mr_t *mr,
+bool mr_draw_utf8_text(mr_t *mr,
                        const uint8_t *str,
                        const mr_rectangle_t *rectangle,
                        const mr_point_t *offset);
@@ -367,8 +377,10 @@ void mr_draw_utf8_text(mr_t *mr,
  * @param str The string.
  * @param rectangle The rectangle containing the text.
  * @param offset The upper (ascent) left corner of the text relative to the text rectangle.
+ *
+ * @return false if the text could not be drawn (see mr_draw_text()).
  */
-void mr_draw_utf16_text(mr_t *mr,
+bool mr_draw_utf16_text(mr_t *mr,
                         const uint16_t *str,
                         const mr_rectangle_t *rectangle,
                         const mr_point_t *offset);

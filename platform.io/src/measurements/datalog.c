@@ -119,7 +119,7 @@ static uint32_t getPreviousPage(uint32_t pageBase)
     return DATALOG_END - DATALOG_PAGE_SIZE;
 }
 
-static uint32_t getNextPage(uint32_t pageBase)
+NOINLINE static uint32_t getNextPage(uint32_t pageBase)
 {
     if (pageBase < (DATALOG_END - DATALOG_PAGE_SIZE))
         return pageBase + DATALOG_PAGE_SIZE;
@@ -152,7 +152,7 @@ static PageState readPageState(uint32_t pageBase)
 
 // Fixed value encoder/decoder
 
-static uint32_t encodeFixedUInt32(uint8_t *p, uint32_t value)
+NOINLINE static uint32_t encodeFixedUInt32(uint8_t *p, uint32_t value)
 {
     p[0] = (value >> 24) & 0xff;
     p[1] = (value >> 16) & 0xff;

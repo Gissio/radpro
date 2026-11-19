@@ -161,18 +161,15 @@ static MeasurementStyle getCumulativeDoseMeasurementStyle(void)
 
 static void drawCumulativeDoseValue(void)
 {
-    char valueString[32] = "";
-    char unitString[32] = "";
-    buildValueString(valueString, unitString, cumulative.dose.pulseCount, &pulseUnits[settings.doseUnits].dose, doseUnitsMinMetricPrefix[settings.doseUnits]);
-
-    drawTitleBar(getString(STRING_CUMULATIVE));
-    drawMeasurementValue(valueString, unitString, 0, getCumulativeDoseMeasurementStyle());
+    drawPulseMeasurementValue(getString(STRING_CUMULATIVE), cumulative.dose.pulseCount, true, 0, getCumulativeDoseMeasurementStyle());
 }
 
 static void drawCumulativeDoseTab(void)
 {
-    char valueString[32] = "";
-    char unitString[32] = " ";
+    char valueString[32];
+    char unitString[32];
+    strclr(valueString);
+    strcpy(unitString, " ");
     const char *keyString = NULL;
 
     switch (cumulativeTab)
@@ -185,14 +182,14 @@ static void drawCumulativeDoseTab(void)
         break;
 
     case CUMULATIVE_TAB_DOSE:
-        buildValueString(valueString, unitString, cumulative.dose.pulseCount, &pulseUnits[settings.secondaryDoseUnits].dose, doseUnitsMinMetricPrefix[settings.secondaryDoseUnits]);
+        buildPulseValueString(valueString, unitString, cumulative.dose.pulseCount, settings.secondaryDoseUnits, true);
 
         keyString = getString(STRING_DOSE);
 
         break;
 
     case CUMULATIVE_TAB_INSTANTANEOUS:
-        buildValueString(valueString, unitString, getInstantaneousRate(), &pulseUnits[settings.doseUnits].rate, doseUnitsMinMetricPrefix[settings.doseUnits]);
+        buildPulseValueString(valueString, unitString, getInstantaneousRate(), settings.doseUnits, false);
 
         keyString = getString(STRING_INSTANTANEOUS);
 

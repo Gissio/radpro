@@ -20,7 +20,7 @@ uint32_t addClamped(uint32_t x, uint32_t y)
         return value;
 }
 
-int32_t roundDown(float x)
+NOINLINE int32_t roundDown(float x)
 {
     int32_t xi = (int32_t)x;
 
@@ -30,12 +30,14 @@ int32_t roundDown(float x)
     return xi;
 }
 
+// Floor division (y > 0). Divides unsigned: avoids linking signed division
+// on MCUs without a hardware divider
 int32_t divideDown(int32_t x, int32_t y)
 {
     if (x >= 0)
-        return x / y;
+        return (uint32_t)x / (uint32_t)y;
     else
-        return -((-x + y - 1) / y);
+        return -(int32_t)(((uint32_t)-x + (uint32_t)y - 1) / (uint32_t)y);
 }
 
 uint32_t getDecimalPower(int32_t exponent)
@@ -48,7 +50,7 @@ uint32_t getDecimalPower(int32_t exponent)
     return result;
 }
 
-int32_t getDecimalDigits(uint32_t value)
+NOINLINE int32_t getDecimalDigits(uint32_t value)
 {
     int32_t digits = 0;
 

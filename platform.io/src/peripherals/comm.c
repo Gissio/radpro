@@ -37,7 +37,7 @@ void initComm(void)
     initCommHardware();
 }
 
-void clearComm(bool open)
+NOINLINE void clearComm(bool open)
 {
     comm.state = COMM_RX;
 

@@ -14,6 +14,7 @@
 #include <stdint.h>
 
 #include "../measurements/measurements.h"
+#include "../ui/measurements.h"
 #include "../ui/menu.h"
 
 extern const Menu rateWarningMenu;
@@ -58,6 +59,9 @@ extern PulseUnits pulseUnits[];
 extern const int8_t doseUnitsMinMetricPrefix[];
 
 extern const int8_t doseUnitsBarMinExponent[];
+
+void buildPulseValueString(char *valueString, char *unitString, float value, uint32_t doseUnits, bool isDose);
+void drawPulseMeasurementValue(const char *title, float value, bool isDose, float confidence, MeasurementStyle style);
 
 void resetPulses(void);
 

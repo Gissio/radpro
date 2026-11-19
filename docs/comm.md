@@ -169,7 +169,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
 
 * **Request**: `GET tubeSensitivity\r\n`
 * **Response**: `OK [value]\r\n`
-* **Description**: Returns the tube's sensitivity in cpm/µSv/h, with three decimal places.
+* **Description**: Returns the tube's effective sensitivity in cpm/µSv/h, with three decimal places. This is the tube sensitivity (the tube type's default or the custom value) multiplied by the factor from the source compensation setting. With Cs-137 source compensation (factor 1.0), it equals the tube sensitivity.
 * **Example**:
 
   ```text
