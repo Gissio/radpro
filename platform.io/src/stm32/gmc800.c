@@ -118,7 +118,11 @@ void startBootloader(void)
 
 // Communications
 
+#if defined(GMC800V2)
+const char *const commId = "GQ GMC-800V2;" FIRMWARE_NAME " " FIRMWARE_VERSION "/" LANGUAGE;
+#else
 const char *const commId = "GQ GMC-800;" FIRMWARE_NAME " " FIRMWARE_VERSION "/" LANGUAGE;
+#endif
 
 // Keyboard
 
