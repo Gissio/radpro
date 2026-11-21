@@ -33,6 +33,10 @@ void initSystem(void)
     SCB->VTOR = FIRMWARE_BASE;
     // +++ TEST
 
+    // Disable USB clock: on GD32F30x, USBDPSC is locked while the USBD
+    // clock is enabled, which the bootloader may have left on
+    clear_bits(RCC->APB1ENR, RCC_APB1ENR_USBEN);
+
     // Set HSI as system clock
     modify_bits(RCC->CFGR, RCC_CFGR_SW_Msk, RCC_CFGR_SW_HSI);
     wait_until_bits_value(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_HSI);
