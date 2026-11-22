@@ -15,7 +15,7 @@
 
 #define FIRMWARE_AUTHOR "Gissio"
 #define FIRMWARE_NAME "Rad Pro"
-#define FIRMWARE_VERSION "3.2test2"
+#define FIRMWARE_VERSION "3.2test3"
 #define SETTINGS_VERSION {'R','a','d','P','r','o','3','1'}
 
 void initGPIO(void);

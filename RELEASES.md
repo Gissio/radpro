@@ -5,6 +5,7 @@
 * Added support for the GQ GMC-800V2.
 * Added **Estonian** translation.
 * Fixed `GET tubeType` returning the wrong tube name for tube types after M4011.
+* GQ GMC-800: Improved LCD image quality: deeper blacks, dark colors that no longer look washed out (especially in the Dusk and Night themes), and no more bright band along the display edges.
 * Reduced firmware size through code optimizations.
 * Updated the game engine to **mcu-max 2.0.0**:
   * Reworked the strength levels: the lower levels now play occasional random moves.

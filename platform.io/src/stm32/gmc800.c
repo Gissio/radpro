@@ -163,7 +163,7 @@ static const uint8_t displayInitSequence[] = {
     MR_SEND_COMMAND(MR_ST7789_GCTRL),
     MR_SEND_DATA(0x74), // VGH=14.97 V, VGL=-9.6 V
     MR_SEND_COMMAND(MR_ST7789_VCOMS),
-    MR_SEND_DATA(0x2c), // VCOM=1.2 V
+    MR_SEND_DATA(0x1d), // VCOM=0.825 V (flicker-balanced with the gamma tables below)
     MR_SEND_COMMAND(MR_ST7789_PWCTRL1),
     MR_SEND_DATA(0xa4),
     MR_SEND_DATA(0xa1), // AVCL=-4.8 V
@@ -180,8 +180,8 @@ static const uint8_t displayInitSequence[] = {
     MR_SEND_DATA(0x3a),
     MR_SEND_DATA(0x0b),
     MR_SEND_DATA(0x06),
-    MR_SEND_DATA(0x11),
-    MR_SEND_DATA(0x20),
+    MR_SEND_DATA(0x21), // V61 (GQ: 0x11), darker shadows
+    MR_SEND_DATA(0x30), // V62 (GQ: 0x20), darker shadows
     MR_SEND_COMMAND(MR_ST7789_NVGAMCTRL),
     MR_SEND_DATA(0xd0),
     MR_SEND_DATA(0x02),
@@ -191,12 +191,13 @@ static const uint8_t displayInitSequence[] = {
     MR_SEND_DATA(0x18),
     MR_SEND_DATA(0x34),
     MR_SEND_DATA(0x43),
-    MR_SEND_DATA(0x4a),
-    MR_SEND_DATA(0x2b),
-    MR_SEND_DATA(0x1b),
-    MR_SEND_DATA(0x1c),
-    MR_SEND_DATA(0x22),
-    MR_SEND_DATA(0x1f),
+    // Dark end matches PVGAMCTRL, so all gray levels are DC-balanced at one VCOM
+    MR_SEND_DATA(0x44), // V43 (GQ: 0x4a)
+    MR_SEND_DATA(0x3a), // J1, V50 (GQ: 0x2b)
+    MR_SEND_DATA(0x0b), // V57 (GQ: 0x1b)
+    MR_SEND_DATA(0x06), // V59 (GQ: 0x1c)
+    MR_SEND_DATA(0x21), // V61 (GQ: 0x22)
+    MR_SEND_DATA(0x30), // V62 (GQ: 0x1f)
     MR_END(),
 };
 
