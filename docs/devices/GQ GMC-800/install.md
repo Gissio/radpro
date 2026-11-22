@@ -11,8 +11,8 @@ This guide explains how to install **Rad Pro** on GQ GMC-800 counters.
 
 On your device, open **Menu > About** and check the **Revision**:
 
-* **Below Re1.xx:** you have a GMC-800. Follow [Installing on the GMC-800](#installing-on-the-gmc-800).
-* **Re2.00 or higher:** you have a GMC-800V2. Follow [Installing on the GMC-800V2](#installing-on-the-gmc-800v2).
+* **Re1.xx** (e.g., Re1.23): you have a GMC-800. Follow [Installing on the GMC-800](#installing-on-the-gmc-800).
+* **Re2.xx** (e.g., Re2.01): you have a GMC-800V2. Follow [Installing on the GMC-800V2](#installing-on-the-gmc-800v2).
 
 ## Step 2: Installation
 
