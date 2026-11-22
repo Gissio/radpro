@@ -1,6 +1,6 @@
 # Installing Rad Pro on the GQ GMC-800
 
-This guide explains how to install **Rad Pro** on GQ GMC-800 and GMC-800V2 Geiger counters.
+This guide explains how to install **Rad Pro** on GQ GMC-800 counters.
 
 ## What You'll Need
 
@@ -11,7 +11,7 @@ This guide explains how to install **Rad Pro** on GQ GMC-800 and GMC-800V2 Geige
 
 On your device, open **Menu > About** and check the **Revision**:
 
-* **Below Re2.00:** you have a GMC-800. Follow [Installing on the GMC-800](#installing-on-the-gmc-800).
+* **Below Re1.xx:** you have a GMC-800. Follow [Installing on the GMC-800](#installing-on-the-gmc-800).
 * **Re2.00 or higher:** you have a GMC-800V2. Follow [Installing on the GMC-800V2](#installing-on-the-gmc-800v2).
 
 ## Step 2: Installation
