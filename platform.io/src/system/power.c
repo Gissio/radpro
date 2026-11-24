@@ -30,6 +30,10 @@
 #include "../ui/menu.h"
 #include "../ui/system.h"
 
+#if defined(H240)
+#include "../ca32/h240_display.h"
+#endif
+
 #define BATTERY_LEVEL_NUM 5
 
 #define BATTERY_HYSTERESIS_RANGE 0.005F
@@ -93,19 +97,27 @@ static void onPowerOnViewEvent(ViewEvent event)
     case EVENT_POSTDRAW:
         if (power.onViewState == POWERON_VIEW_SPLASH)
         {
+#if !defined(RADPRO_RAW_COUNTER)
             initRTC();
             loadHistory();
+#endif
         }
 
         break;
 
     case EVENT_HEARTBEAT:
         if (power.onViewState == POWERON_VIEW_FLASHFAILURE)
+        {
+#if !defined(RADPRO_RAW_COUNTER)
             power.onViewState = POWERON_VIEW_SPLASH;
+#endif
+        }
         else
         {
             setMeasurementsEnabled(true);
+#if !defined(RADPRO_RAW_COUNTER)
             startDatalog();
+#endif
             setMeasurementView();
         }
 
@@ -148,19 +160,33 @@ void powerOn(void)
     if (isPoweredOn())
         return;
 
+#if defined(H240)
+    if (!h240DisplayHealthy())
+    {
+        powerOff();
+        return;
+    }
+#endif
+
     setPowerEnabled(true);
 
     resetPower();
     resetSettings();
     resetMeasurements();
+#if !defined(RADPRO_RAW_COUNTER)
     resetTube();
     resetDatalog();
+#endif
     resetDisplay();
 #if defined(SOUND)
     resetSound();
 #endif
+#if !defined(RADPRO_RAW_COUNTER)
     resetRTC();
+#endif
+#if !defined(H240)
     resetRNG();
+#endif
 #if defined(GAME)
     resetGame();
 #endif
@@ -240,8 +266,10 @@ static void powerOffWithBatteryIndicator(bool batteryIndicator)
     if (power.poweredOn)
     {
         setMeasurementsEnabled(false);
+#if !defined(RADPRO_RAW_COUNTER)
         saveSettings();
         stopDatalog();
+#endif
         setKeyboardMode(KEYBOARD_MODE_MEASUREMENT);
     }
 
@@ -310,6 +338,12 @@ static const float batteryLow[1] = {
 
 void updatePowerState(void)
 {
+#if defined(H240)
+    // Runs before the view heartbeat, which can start measurements after splash.
+    if (power.poweredOn && !h240DisplayHealthy())
+        powerOff();
+#endif
+
     // Battery level
     power.batteryVoltage = readBatteryVoltage();
 
@@ -402,7 +436,7 @@ enum
 #if defined(USB_AUTOPOWER_ON)
     POWER_USB_AUTOPOWER_ON,
 #endif
-#if defined(DATA_MODE)
+#if defined(DATA_MODE) && !defined(RADPRO_RAW_COUNTER)
     POWER_DATA_MODE,
 #endif
 };
@@ -414,7 +448,7 @@ static cstring powerMenuOptions[] = {
 #if defined(USB_AUTOPOWER_ON)
     STRING_USB_AUTOPOWER_ON,
 #endif
-#if defined(DATA_MODE)
+#if defined(DATA_MODE) && !defined(RADPRO_RAW_COUNTER)
     STRING_DATAMODE,
 #endif
 };
@@ -437,7 +471,7 @@ static const char *onPowerMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
         break;
 #endif
 
-#if defined(DATA_MODE)
+#if defined(DATA_MODE) && !defined(RADPRO_RAW_COUNTER)
     case POWER_DATA_MODE:
         *menuStyle = settings.dataMode;
 
@@ -466,7 +500,7 @@ static void onPowerMenuSelect(menu_size_t index)
         break;
 #endif
 
-#if defined(DATA_MODE)
+#if defined(DATA_MODE) && !defined(RADPRO_RAW_COUNTER)
     case POWER_DATA_MODE:
         settings.dataMode = !settings.dataMode;
 

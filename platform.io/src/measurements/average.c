@@ -28,6 +28,7 @@ typedef enum
 
 static void clearAverageRate(void);
 
+#if !defined(RADPRO_RAW_COUNTER)
 static const int32_t averagingTimes[] = {
     30 * 24 * 60 * 60, // Off (30 days)
     24 * 60 * 60,      // 24 hours
@@ -53,15 +54,18 @@ static const float averagingConfidences[] = {
     0.0205F, // ±2% confidence
     0.0105F, // ±1% confidence
 };
+#endif
 
 static struct
 {
     PulsePeriod period;
     Rate rate;
 
+#if !defined(RADPRO_RAW_COUNTER)
     uint32_t snapshotPulseCount;
     Rate snapshotRate;
     bool done;
+#endif
 } average;
 
 static AverageTab averageTab;
@@ -72,7 +76,9 @@ void resetAverageRate(void)
 
     clearAverageRate();
 
+#if !defined(RADPRO_RAW_COUNTER)
     selectMenuItem(&averageMenu, settings.averaging);
+#endif
 }
 
 static void clearAverageRate(void)
@@ -83,6 +89,12 @@ static void clearAverageRate(void)
         averageTab = AVERAGE_TAB_TIME;
 }
 
+static bool isAverageSaturated(void)
+{
+    return (average.rate.time == UINT32_MAX) || (average.period.pulseCount == UINT32_MAX);
+}
+
+#if !defined(RADPRO_RAW_COUNTER)
 static bool isTimeAveraging(void)
 {
     return (settings.averaging < AVERAGING_TIME_NUM);
@@ -96,11 +108,6 @@ static uint32_t getAveragingTime(void)
 static float getAveragingConfidenceThreshold(void)
 {
     return averagingConfidences[settings.averaging - AVERAGING_TIME_NUM];
-}
-
-static bool isAverageSaturated(void)
-{
-    return (average.rate.time == UINT32_MAX) || (average.period.pulseCount == UINT32_MAX);
 }
 
 static bool isAverageDone(void)
@@ -136,14 +143,15 @@ static bool updateAverageRateTimer()
 
     return doneTriggered;
 }
+#endif
 
-static void updateAverageRateTab(bool doneTriggered)
+static void updateAverageRateTab(bool doneTriggered, bool done)
 {
     if (isTubeFaultAlertTriggered() || doneTriggered)
         averageTab = AVERAGE_TAB_ALERT;
     else if (averageTab == AVERAGE_TAB_ALERT)
     {
-        if (!getTubeFaultAlertLevel() && !average.done)
+        if (!getTubeFaultAlertLevel() && !done)
             averageTab = AVERAGE_TAB_TIME;
     }
 }
@@ -154,6 +162,13 @@ void updateAverageRate(PulsePeriod *period)
         return;
 
     // Update average rate
+#if defined(RADPRO_RAW_COUNTER)
+    average.rate.time = addClamped(average.rate.time, period->seconds);
+    average.period.pulseCount = addClamped(average.period.pulseCount, period->pulseCount);
+    average.rate.value = (float)average.period.pulseCount / average.rate.time;
+    average.rate.confidence = average.period.pulseCount ? getConfidenceInterval(average.period.pulseCount) : 0;
+    updateAverageRateTab(false, false);
+#else
     average.rate.time = addClamped(average.rate.time, 1);
     if (period->pulseCount)
     {
@@ -167,12 +182,17 @@ void updateAverageRate(PulsePeriod *period)
 
     bool doneTriggered = updateAverageRateTimer();
 
-    updateAverageRateTab(doneTriggered);
+    updateAverageRateTab(doneTriggered, average.done);
+#endif
 }
 
 float getAverageRate(void)
 {
+#if defined(RADPRO_RAW_COUNTER)
+    return average.rate.value;
+#else
     return average.snapshotRate.value;
+#endif
 }
 
 // Average rate view
@@ -181,10 +201,12 @@ NOINLINE static const char *getAverageRateAlertString(void)
 {
     if (getTubeFaultAlertLevel())
         return getString(STRING_ALERT_FAULT);
-    else if (average.done)
+#if !defined(RADPRO_RAW_COUNTER)
+    if (average.done)
         return getString(STRING_ALERT_DONE);
-    else
-        return NULL;
+#endif
+
+    return NULL;
 }
 
 static void advanceAverageRateTab(void)
@@ -196,20 +218,7 @@ static void advanceAverageRateTab(void)
         averageTab = AVERAGE_TAB_TIME;
 }
 
-static MeasurementStyle getAverageRateMeasurementStyle(void)
-{
-    if (average.done)
-        return MEASUREMENTSTYLE_DONE;
-
-    return MEASUREMENTSTYLE_NORMAL;
-}
-
-static void drawAverageRateValue(void)
-{
-    drawPulseMeasurementValue(getString(STRING_AVERAGE), average.snapshotRate.value, false, average.snapshotRate.confidence, getAverageRateMeasurementStyle());
-}
-
-static void drawAverageRateTab(void)
+static void drawAverageRateTab(const Rate *rate, uint32_t pulseCount, MeasurementStyle style)
 {
     char valueString[32];
     char unitString[32];
@@ -220,23 +229,27 @@ static void drawAverageRateTab(void)
     switch (averageTab)
     {
     case AVERAGE_TAB_TIME:
-        strcatTime(valueString, average.snapshotRate.time);
+        strcatTime(valueString, rate->time);
 
         keyString = getString(STRING_TIME);
 
         break;
 
     case AVERAGE_TAB_RATE:
-        buildPulseValueString(valueString, unitString, average.snapshotRate.value, settings.secondaryDoseUnits, false);
+        buildPulseValueString(valueString, unitString, rate->value, settings.secondaryDoseUnits, false);
 
         keyString = getString(STRING_RATE);
 
         break;
 
     case AVERAGE_TAB_DOSE:
-        buildPulseValueString(valueString, unitString, average.snapshotPulseCount, DOSE_UNITS_CPM, true);
+        buildPulseValueString(valueString, unitString, pulseCount, DOSE_UNITS_CPM, true);
 
+#if defined(RADPRO_RAW_COUNTER)
+        keyString = getString(STRING_PULSES);
+#else
         keyString = getString(STRING_DOSE);
+#endif
 
         break;
 
@@ -244,17 +257,27 @@ static void drawAverageRateTab(void)
         break;
     }
 
-    drawMeasurementInfo(keyString, valueString, unitString, getAverageRateMeasurementStyle());
+    drawMeasurementInfo(keyString, valueString, unitString, style);
 }
 
 static void drawAverageRateView(void)
 {
-    drawAverageRateValue();
+#if defined(RADPRO_RAW_COUNTER)
+    const Rate *rate = &average.rate;
+    uint32_t pulseCount = average.period.pulseCount;
+    bool saturated = isAverageSaturated();
+    MeasurementStyle style = saturated ? MEASUREMENTSTYLE_DONE : MEASUREMENTSTYLE_NORMAL;
+#else
+    const Rate *rate = &average.snapshotRate;
+    uint32_t pulseCount = average.snapshotPulseCount;
+    MeasurementStyle style = average.done ? MEASUREMENTSTYLE_DONE : MEASUREMENTSTYLE_NORMAL;
+#endif
+    drawPulseMeasurementValue(getString(STRING_AVERAGE), rate->value, false, rate->confidence, style);
 
     if (averageTab == AVERAGE_TAB_ALERT)
         drawMeasurementAlert(getAverageRateAlertString());
     else
-        drawAverageRateTab();
+        drawAverageRateTab(rate, pulseCount, style);
 }
 
 void onAverageRateViewEvent(ViewEvent event)
@@ -299,6 +322,7 @@ void onAverageRateViewEvent(ViewEvent event)
 
 // Average menu
 
+#if !defined(RADPRO_RAW_COUNTER)
 static cstring averageMenuOptions[] = {
     STRING_UNLIMITED,
     STRING_24_HOURS,
@@ -344,3 +368,4 @@ const Menu averageMenu = {
     onAverageMenuSelect,
     showMeasurementsMenu,
 };
+#endif

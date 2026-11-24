@@ -58,8 +58,10 @@ int main(void)
     initSettings();
     initADC();
     initTube();
+#if !defined(RADPRO_RAW_COUNTER)
     initDatalog();
     initComm();
+#endif
     initKeyboard();
     initDisplay();
     initView();

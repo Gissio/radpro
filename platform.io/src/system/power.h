@@ -15,7 +15,7 @@
 
 #include "../ui/view.h"
 
-#if defined(BATTERY_REMOVABLE) || defined(USB_AUTOPOWER_ON) || defined(DATA_MODE)
+#if defined(BATTERY_REMOVABLE) || defined(USB_AUTOPOWER_ON) || (defined(DATA_MODE) && !defined(RADPRO_RAW_COUNTER))
 #define POWER_MENU
 #endif
 

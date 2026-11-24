@@ -55,6 +55,7 @@ static void clearCumulativeDose(void)
         cumulativeTab = CUMULATIVE_TAB_TIME;
 }
 
+#if !defined(RADPRO_RAW_COUNTER)
 static AlertLevel computeCumulativeDoseAlertLevel(float doseSieverts)
 {
     if (settings.doseAlarm && (doseSieverts >= doseAlerts[settings.doseAlarm]))
@@ -64,11 +65,6 @@ static AlertLevel computeCumulativeDoseAlertLevel(float doseSieverts)
         return ALERTLEVEL_WARNING;
 
     return ALERTLEVEL_NONE;
-}
-
-static bool isCumulativeDoseSaturated(void)
-{
-    return (cumulative.dose.time == UINT32_MAX) || (cumulative.dose.pulseCount == UINT32_MAX);
 }
 
 static void updateCumulativeDoseAlerts(void)
@@ -82,6 +78,13 @@ static void updateCumulativeDoseAlerts(void)
     bool alertTriggered = (alertLevel > previousAlertLevel);
     if (alertTriggered)
         setAlertPending(true);
+}
+
+#endif
+
+static bool isCumulativeDoseSaturated(void)
+{
+    return (cumulative.dose.time == UINT32_MAX) || (cumulative.dose.pulseCount == UINT32_MAX);
 }
 
 static void updateCumulativeDoseTab(void)
@@ -101,10 +104,16 @@ void updateCumulativeDose(PulsePeriod *period)
         return;
 
     // Update cumulative dose
+#if defined(RADPRO_RAW_COUNTER)
+    cumulative.dose.time = addClamped(cumulative.dose.time, period->seconds);
+#else
     cumulative.dose.time = addClamped(cumulative.dose.time, 1);
+#endif
     cumulative.dose.pulseCount = addClamped(cumulative.dose.pulseCount, period->pulseCount);
 
+#if !defined(RADPRO_RAW_COUNTER)
     updateCumulativeDoseAlerts();
+#endif
 
     updateCumulativeDoseTab();
 }
@@ -184,7 +193,11 @@ static void drawCumulativeDoseTab(void)
     case CUMULATIVE_TAB_DOSE:
         buildPulseValueString(valueString, unitString, cumulative.dose.pulseCount, settings.secondaryDoseUnits, true);
 
+#if defined(RADPRO_RAW_COUNTER)
+        keyString = getString(STRING_PULSES);
+#else
         keyString = getString(STRING_DOSE);
+#endif
 
         break;
 

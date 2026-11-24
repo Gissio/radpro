@@ -66,18 +66,18 @@ static void mr_st7789_draw_textbuffer(mr_t *mr,
                                       uint32_t buffer_pitch,
                                       mr_rectangle_t *rectangle);
 
-void mr_st7789_init(mr_t *mr,
-                    int16_t width,
-                    int16_t height,
-                    mr_display_rotation_t rotation,
-                    uint8_t *textbuffer,
-                    uint32_t textbuffer_size,
-                    mr_sleep_callback_t sleep_callback,
-                    mr_set_reset_callback_t set_reset_callback,
-                    mr_set_chipselect_callback_t set_chipselect_callback,
-                    mr_set_command_callback_t set_command_callback,
-                    mr_send_callback_t send_callback,
-                    mr_send_callback_t send16_callback)
+void mr_st7789_setup(mr_t *mr,
+                     int16_t width,
+                     int16_t height,
+                     mr_display_rotation_t rotation,
+                     uint8_t *textbuffer,
+                     uint32_t textbuffer_size,
+                     mr_sleep_callback_t sleep_callback,
+                     mr_set_reset_callback_t set_reset_callback,
+                     mr_set_chipselect_callback_t set_chipselect_callback,
+                     mr_set_command_callback_t set_command_callback,
+                     mr_send_callback_t send_callback,
+                     mr_send_callback_t send16_callback)
 {
     mr_init(mr);
 
@@ -103,6 +103,24 @@ void mr_st7789_init(mr_t *mr,
     mr->set_command_callback = set_command_callback;
     mr->send_callback = send_callback;
     mr->send16_callback = send16_callback;
+}
+
+void mr_st7789_init(mr_t *mr,
+                    int16_t width,
+                    int16_t height,
+                    mr_display_rotation_t rotation,
+                    uint8_t *textbuffer,
+                    uint32_t textbuffer_size,
+                    mr_sleep_callback_t sleep_callback,
+                    mr_set_reset_callback_t set_reset_callback,
+                    mr_set_chipselect_callback_t set_chipselect_callback,
+                    mr_set_command_callback_t set_command_callback,
+                    mr_send_callback_t send_callback,
+                    mr_send_callback_t send16_callback)
+{
+    mr_st7789_setup(mr, width, height, rotation, textbuffer, textbuffer_size,
+                    sleep_callback, set_reset_callback, set_chipselect_callback,
+                    set_command_callback, send_callback, send16_callback);
 
     // Send initialization sequence
     mr_send_sequence(mr, mr_st7789_init_sequence);

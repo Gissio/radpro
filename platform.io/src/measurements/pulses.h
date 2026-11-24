@@ -27,8 +27,12 @@ extern const Menu secondaryDoseUnitsMenu;
 
 typedef struct
 {
+#if defined(RADPRO_RAW_COUNTER)
+    uint32_t seconds;
+#else
     uint32_t firstTick;
     uint32_t lastTick;
+#endif
     uint32_t pulseCount;
 } PulsePeriod;
 
@@ -66,7 +70,9 @@ void drawPulseMeasurementValue(const char *title, float value, bool isDose, floa
 void resetPulses(void);
 
 void updateDoseUnits(void);
+#if !defined(RADPRO_RAW_COUNTER)
 void calculateRate(Rate *rate, PulsePeriod *period);
+#endif
 float getRateFactor(void);
 float getDoseFactor(void);
 

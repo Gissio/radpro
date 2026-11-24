@@ -8,6 +8,15 @@
  */
 
 #include "../measurements/datalog.h"
+
+#if defined(RADPRO_RAW_COUNTER)
+
+// The simulator also calls this when its window closes.
+void stopDatalog(void)
+{
+}
+
+#else
 #include "../measurements/history.h"
 #include "../peripherals/flash.h"
 #include "../peripherals/rtc.h"
@@ -762,3 +771,5 @@ void showDatalogMenu(void)
 {
     showMenu(&datalogMenu);
 }
+
+#endif

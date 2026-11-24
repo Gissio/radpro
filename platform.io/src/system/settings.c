@@ -40,19 +40,21 @@ static const Settings defaultSettings = {
     .pulseSound = true,
     .pulseLED = true,
 
-    .secondaryDoseUnits = DOSE_UNITS_CPM,
-
+#if defined(RADPRO_RAW_COUNTER)
+    .doseUnits = DOSE_UNITS_CPS,
+#else
     .rateWarning = RATE_1_USVH,
     .rateAlarm = RATE_10_USVH,
+    .loggingMode = DATALOG_LOGGINGMODE_10_MINUTES,
+    .tubeType = TUBE_TYPE_DEFAULT,
+#endif
+    .secondaryDoseUnits = DOSE_UNITS_CPM,
+
     .alertSound = true,
     .alertVoice = true,
     .alertVibration = true,
     .alertPulseLED = true,
     .alertDisplayFlash = true,
-
-    .tubeType = TUBE_TYPE_DEFAULT,
-
-    .loggingMode = DATALOG_LOGGINGMODE_10_MINUTES,
 
     .displayContrast = DISPLAY_CONTRAST_DEFAULT,
 #if defined(SIMULATOR)
@@ -76,6 +78,8 @@ static const Settings defaultSettings = {
 };
 
 // State
+
+#if !defined(RADPRO_RAW_COUNTER)
 
 typedef
 #if defined(__GNUC__)
@@ -181,6 +185,8 @@ static void appendState(State *state)
         stateOffset = STATES_PAGE_LASTSTATE_OFFSET;
 }
 
+#endif
+
 void initSettings(void)
 {
     // Default settings
@@ -193,6 +199,7 @@ void initSettings(void)
     settings.rtcTimeZone = 12 + (unixTime - localTime) / 3600;
 #endif
 
+#if !defined(RADPRO_RAW_COUNTER)
     // Load state
     const State *state = loadLatestState();
     if (state)
@@ -204,6 +211,7 @@ void initSettings(void)
 
         settings = state->settings;
     }
+#endif
 }
 
 void resetSettings(void)
@@ -213,6 +221,7 @@ void resetSettings(void)
 
 void saveSettings(void)
 {
+#if !defined(RADPRO_RAW_COUNTER)
     // Save state
     State state;
 
@@ -224,29 +233,42 @@ void saveSettings(void)
     state.settings = settings;
 
     appendState(&state);
+#endif
 }
 
 // Settings menu
 
 static ViewOption settingsMenuOptions[] = {
     {STRING_PULSES, showPulsesMenu},
+#if !defined(RADPRO_RAW_COUNTER)
     {STRING_ALERTS, showAlertsMenu},
+#endif
+#if !defined(RADPRO_RAW_COUNTER) || defined(EMFMETER)
     {STRING_MEASUREMENTS, showMeasurementsMenu},
+#endif
+#if !defined(RADPRO_RAW_COUNTER)
     {STRING_GEIGER_TUBE, showTubeMenu},
     {STRING_DATALOG, showDatalogMenu},
+#endif
     {STRING_DISPLAY, showDisplayMenu},
 #if defined(SOUND)
     {STRING_SOUND, showSoundMenu},
 #endif
+#if !defined(RADPRO_RAW_COUNTER)
     {STRING_DATE_AND_TIME, showRTCMenu},
+#endif
 #if defined(POWER_MENU)
     {STRING_POWER, showPowerMenu},
 #endif
+#if !defined(H240)
     {STRING_RANDOM_GENERATOR, showRNGMenu},
+#endif
 #if defined(GAME)
     {STRING_GAME, showGameMenu},
 #endif
+#if !defined(RADPRO_RAW_COUNTER)
     {STRING_STATISTICS, showStatisticsView},
+#endif
 };
 
 #define SETTINGS_MENU_COUNT (sizeof(settingsMenuOptions) / sizeof(ViewOption))

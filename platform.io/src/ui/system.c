@@ -45,6 +45,7 @@ void drawTitleBar(const char *title)
     };
     setFillColor(COLOR_CONTAINER_GLOBAL);
 
+#if !defined(H240)
     // Time
     RTCDateTime dateTime;
     getDeviceDateTime(&dateTime);
@@ -65,6 +66,7 @@ void drawTitleBar(const char *title)
         setStrokeColor(COLOR_ELEMENT_ACTIVE);
         drawRowRight(buffer, &rectangle);
     }
+#endif
 
     // Battery icon
     setupBatteryIcon(buffer);
