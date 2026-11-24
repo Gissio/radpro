@@ -113,7 +113,7 @@ typedef enum
 #define FONT_SMALL_DESCENT 2
 #define FONT_SMALL_LINE_HEIGHT 9
 #define FONT_SYMBOLS_LINE_HEIGHT 8
-#elif defined(DISPLAY_320X240)
+#elif defined(DISPLAY_320X240) && !defined(H240)
 #define FONT_LARGE_ASCENT 123
 #define FONT_LARGE_CAP_HEIGHT 82
 #define FONT_LARGE_LINE_HEIGHT 157
@@ -121,7 +121,7 @@ typedef enum
 #define FONT_SMALL_DESCENT 7
 #define FONT_SMALL_LINE_HEIGHT 30
 #define FONT_SYMBOLS_LINE_HEIGHT 24
-#elif defined(DISPLAY_240X320) && !defined(DISPLAY_125PPI)
+#elif (defined(DISPLAY_240X320) && !defined(DISPLAY_125PPI)) || defined(H240)
 #define FONT_LARGE_ASCENT 90
 #define FONT_LARGE_CAP_HEIGHT 60
 #define FONT_LARGE_LINE_HEIGHT 115

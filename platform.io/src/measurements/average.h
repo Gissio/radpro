@@ -14,7 +14,9 @@
 #include "../ui/menu.h"
 #include "../ui/view.h"
 
+#if !defined(RADPRO_RAW_COUNTER)
 extern const Menu averageMenu;
+#endif
 
 void resetAverageRate(void);
 

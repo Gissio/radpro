@@ -36,7 +36,9 @@ typedef enum
     MEASUREMENTS_VIEW_ELECTRIC_FIELD,
     MEASUREMENTS_VIEW_MAGNETIC_FIELD,
 #endif
+#if !defined(RADPRO_RAW_COUNTER)
     MEASUREMENTS_VIEW_HISTORY,
+#endif
 
     MEASUREMENTS_VIEW_NUM,
 } MeasurementView;
@@ -56,7 +58,9 @@ static struct
 static const Menu alertsMenu;
 static const Menu alertIndicationMenu;
 
+#if !defined(RADPRO_RAW_COUNTER) || defined(EMFMETER)
 static const Menu measurementsMenu;
+#endif
 
 // Measurements
 
@@ -68,7 +72,9 @@ static OnViewEvent *const measurementViews[] = {
     onElectricFieldViewEvent,
     onMagneticFieldViewEvent,
 #endif
+#if !defined(RADPRO_RAW_COUNTER)
     onHistoryViewEvent,
+#endif
 };
 
 static void setMeasurementViewSelect(MeasurementView index);
@@ -87,7 +93,9 @@ void resetMeasurements(void)
     selectMenuItem(&alertsMenu, 0);
     selectMenuItem(&alertIndicationMenu, 0);
 
+#if !defined(RADPRO_RAW_COUNTER) || defined(EMFMETER)
     selectMenuItem(&measurementsMenu, 0);
+#endif
 }
 
 static void updateMeasurementsDevices(void)
@@ -492,15 +500,20 @@ void showAlertsMenu(void)
 
 // Measurements menu
 
+#if !defined(RADPRO_RAW_COUNTER) || defined(EMFMETER)
 static const MenuOption measurementsMenuOptions[] = {
+#if !defined(RADPRO_RAW_COUNTER)
     {STRING_SOURCE_COMPENSATION, &sourceCompensationMenu},
     {STRING_DOSE_UNITS, &doseUnitsMenu},
     {STRING_SECONDARY_DOSE_UNITS, &secondaryDoseUnitsMenu},
+#endif
 #if defined(EMFMETER)
     {STRING_MAGNETIC_FIELD_UNITS, &magneticFieldUnitsMenu},
 #endif
+#if !defined(RADPRO_RAW_COUNTER)
     {STRING_INSTANTANEOUS, &instantaneousMenu},
     {STRING_AVERAGE, &averageMenu},
+#endif
 };
 
 static const char *onMeasurementsMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
@@ -530,3 +543,4 @@ void showMeasurementsMenu(void)
 {
     showMenu(&measurementsMenu);
 }
+#endif

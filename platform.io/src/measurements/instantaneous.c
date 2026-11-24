@@ -36,12 +36,16 @@ typedef enum
 
 static void clearInstantaneousRate(void);
 
+#if !defined(RADPRO_RAW_COUNTER)
 static const uint8_t instantaneousMinTimes[] = {0, 5, 60, 30, 10};
+#endif
 
 static struct
 {
+#if !defined(RADPRO_RAW_COUNTER)
     PulsePeriod periods[INSTANTANEOUS_RATE_PERIODS_NUM];
     uint32_t periodsLength;
+#endif
 
     Rate rate;
 
@@ -56,11 +60,13 @@ static InstantaneousTab instantaneousTab;
 
 void resetInstantaneousRate(void)
 {
+#if defined(RADPRO_RAW_COUNTER)
+    instantaneousTab = INSTANTANEOUS_TAB_RATE;
+#else
     instantaneousTab = INSTANTANEOUS_TAB_BAR;
-
-    clearInstantaneousRate();
-
     selectMenuItem(&instantaneousMenu, settings.instantaneousAveraging);
+#endif
+    clearInstantaneousRate();
 }
 
 static void clearInstantaneousRate(void)
@@ -71,6 +77,7 @@ static void clearInstantaneousRate(void)
         instantaneousTab = INSTANTANEOUS_TAB_BAR;
 }
 
+#if !defined(RADPRO_RAW_COUNTER)
 static bool isTimedAveraging(void)
 {
     return (settings.instantaneousAveraging >= INSTANTANEOUSAVERAGING_60_SECONDS);
@@ -116,6 +123,8 @@ static void updateInstantaneousRateAlerts(void)
         setAlertPending(true);
 }
 
+#endif
+
 static void updateInstantaneousRateTab(void)
 {
     if (isTubeFaultAlertTriggered())
@@ -129,6 +138,11 @@ static void updateInstantaneousRateTab(void)
 
 void updateInstantaneousRate(uint32_t periodTick, PulsePeriod *period)
 {
+#if defined(RADPRO_RAW_COUNTER)
+    (void)periodTick;
+    instantaneous.rate.value = (float)period->pulseCount / period->seconds;
+    instantaneous.rate.confidence = period->pulseCount ? getConfidenceInterval(period->pulseCount) : 0;
+#else
     // Enqueue period
     if (period->pulseCount)
     {
@@ -170,13 +184,16 @@ void updateInstantaneousRate(uint32_t periodTick, PulsePeriod *period)
     applyDeadTimeCompensation();
 
     updatePulseThresholdExceeded();
+#endif
 
     // Max value
     if (isInstantaneousRateConfidenceGood() &&
         (instantaneous.rate.value > instantaneous.maxValue))
         instantaneous.maxValue = instantaneous.rate.value;
 
+#if !defined(RADPRO_RAW_COUNTER)
     updateInstantaneousRateAlerts();
+#endif
 
     updateInstantaneousRateTab();
 }
@@ -193,8 +210,12 @@ float getDeadTimeCompensationFactor(void)
 
 bool isInstantaneousRateConfidenceGood(void)
 {
+#if defined(RADPRO_RAW_COUNTER)
+    return true;
+#else
     return isTimedAveraging() ||
            ((instantaneous.rate.confidence > 0.0F) && (instantaneous.rate.confidence < INSTANTANEOUS_RATE_CONFIDENCE_THRESHOLD));
+#endif
 }
 
 AlertLevel getInstantaneousRateAlertLevel(void)
@@ -273,12 +294,16 @@ static void drawInstantaneousRateView(void)
     if (instantaneousTab == INSTANTANEOUS_TAB_BAR)
     {
         float scale = pulseUnits[settings.doseUnits].rate.scale;
+#if defined(RADPRO_RAW_COUNTER)
+        drawMeasurementBar(instantaneous.rate.value * scale, doseUnitsBarMinExponent[settings.doseUnits], 0, 0);
+#else
         float microSievertPerHourScale = scale / pulseUnits[DOSE_UNITS_SIEVERTS].rate.scale;
 
         drawMeasurementBar(instantaneous.rate.value * scale,
                            doseUnitsBarMinExponent[settings.doseUnits],
                            rateAlerts[settings.rateWarning] * microSievertPerHourScale,
                            rateAlerts[settings.rateAlarm] * microSievertPerHourScale);
+#endif
     }
     else if (instantaneousTab != INSTANTANEOUS_TAB_ALERT)
         drawInstantaneousRateTab();

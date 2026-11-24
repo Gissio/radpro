@@ -7,7 +7,10 @@
 #
 
 from email.mime import image
+import hashlib
 import os
+from pathlib import Path
+from runpy import run_path
 import struct
 
 from elftools.elf.elffile import ELFFile
@@ -147,6 +150,55 @@ def sign_firmware(env_name):
         print(f"done: size 0x{firmware_size:04x}, empty space {firmware_empty_space}")
 
 
+def package_h240(output):
+    project = Path(get_radpro_path())
+    build = project / "platform.io/.pio/build/h240-ca32f0156l2-fr"
+    if not build.exists():
+        return
+
+    tools = project / "tools/h240"
+    prepare_image = run_path(str(tools / "prepare-image.py"))["prepare_image"]
+    raw_image = (build / "firmware.bin").read_bytes()
+    image = (build / "radpro-h240.bin").read_bytes()
+    if image != prepare_image(raw_image):
+        raise ValueError("radpro-h240.bin does not match the checksummed firmware.bin")
+
+    installer = {
+        filename: (tools / filename).read_bytes()
+        for filename in (
+            "run-flash-page.py",
+            "run-flash-page.tcl",
+            "openocd-sram.cfg",
+            "openocd-support.tcl",
+            "flash-page.bin",
+            "flash-install.md",
+        )
+    }
+    loader_sha = run_path(str(tools / "run-flash-page.py"))["LOADER_SHA"]
+    if hashlib.sha256(installer["flash-page.bin"]).hexdigest() != loader_sha:
+        raise ValueError("flash-page.bin does not match the reviewed installer loader")
+
+    version = get_firmware_version()
+    if not version:
+        raise ValueError("FIRMWARE_VERSION is missing")
+    license_data = (project / "LICENSE").read_bytes()
+
+    package = output / "h240-ca32f0156l2"
+    firmware = package / "firmware"
+    swd = package / "swd"
+    package.mkdir(parents=True)
+    firmware.mkdir()
+    swd.mkdir()
+    filename = f"radpro-h240-ca32f0156l2-fr-{version}-swd.bin"
+    (firmware / filename).write_bytes(image)
+    checksums = f"{hashlib.sha256(image).hexdigest()}  {filename}\n"
+    (firmware / "SHA256SUMS").write_bytes(checksums.encode("ascii"))
+    for filename, data in installer.items():
+        (swd / filename).write_bytes(data)
+    (package / "LICENSE").write_bytes(license_data)
+    print(f"Packaged {package}")
+
+
 # Sign firmware
 envs = [
     "fs2011-stm32f051c8",
@@ -162,5 +214,10 @@ envs = [
     "gq-gmc800v2",
 ]
 
-for env in envs:
-    sign_firmware(env)
+if __name__ == "__main__":
+    for env in envs:
+        sign_firmware(env)
+    try:
+        package_h240(Path.cwd())
+    except (OSError, ValueError) as error:
+        raise SystemExit(f"H240 packaging failed: {error}") from error

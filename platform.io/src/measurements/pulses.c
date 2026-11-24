@@ -26,7 +26,9 @@
 
 static const Menu pulsesMenu;
 static const Menu pulsesIndicationMenu;
+#if !defined(RADPRO_RAW_COUNTER)
 static const Menu pulsesThresholdMenu;
+#endif
 
 static const char *buildRateAlertMenuOption(menu_size_t index);
 
@@ -109,7 +111,12 @@ static struct
 
     Dose tubeDose;
 
+#if defined(RADPRO_RAW_COUNTER)
+    volatile Dose sampledDose;
+    Dose reportedDose;
+#else
     PulsePeriod currentPeriod;
+#endif
 
     uint32_t indicationFactor;
     uint32_t indicationRemainder;
@@ -117,19 +124,20 @@ static struct
     bool rateOverThreshold;
 
     // onPulsesHeartbeat
+#if !defined(RADPRO_RAW_COUNTER)
     PulsePeriod previousPeriod;
     uint32_t previousPeriodTick;
+#endif
 
     // updatePulses
+#if !defined(RADPRO_RAW_COUNTER)
     uint32_t lossOfCountTimer;
+    float deadTimeCompensationRemainder;
+#endif
     bool previousTubeShorted;
     AlertLevel faultAlertLevel;
     bool faultAlertTriggered;
 
-    float deadTimeCompensationRemainder;
-
-    // Selected menu
-    menu_size_t alertsMenuIndex;
 } pulses;
 
 void resetPulses(void)
@@ -140,16 +148,23 @@ void resetPulses(void)
     memset(&pulses, 0, sizeof(pulses));
     pulses.previousTubePulseCount = tubePulseCount;
     pulses.tubeDose = tubeDose;
+#if defined(RADPRO_RAW_COUNTER)
+    pulses.sampledDose = tubeDose;
+    pulses.reportedDose = tubeDose;
+#endif
 
     updateDoseUnits();
 
     resetInstantaneousRate();
     resetAverageRate();
     resetCumulativeDose();
+#if !defined(RADPRO_RAW_COUNTER)
     resetHistory();
+#endif
 
     selectMenuItem(&pulsesMenu, 0);
     selectMenuItem(&pulsesIndicationMenu, 0);
+#if !defined(RADPRO_RAW_COUNTER)
     selectMenuItem(&pulsesThresholdMenu, settings.pulseThreshold);
 
     selectMenuItem(&rateWarningMenu, settings.rateWarning);
@@ -159,10 +174,15 @@ void resetPulses(void)
 
     selectMenuItem(&doseUnitsMenu, settings.doseUnits);
     selectMenuItem(&secondaryDoseUnitsMenu, settings.secondaryDoseUnits);
+#endif
 }
 
 void updateDoseUnits(void)
 {
+#if defined(RADPRO_RAW_COUNTER)
+    pulses.indicationFactor = PULSE_INDICATION_FACTOR_UNIT;
+    pulses.rateOverThreshold = true;
+#else
     float sensitivity = getTubeSensitivity();
 
     pulseUnits[DOSE_UNITS_SIEVERTS].rate.scale = (60.0F * 1E-6F) / sensitivity;
@@ -174,8 +194,10 @@ void updateDoseUnits(void)
         pulses.indicationFactor = PULSE_INDICATION_FACTOR_UNIT;
     else
         pulses.indicationFactor = (PULSE_INDICATION_FACTOR_UNIT * PULSE_INDICATION_SENSITIVITY_MAX) / sensitivity;
+#endif
 }
 
+#if !defined(RADPRO_RAW_COUNTER)
 void calculateRate(Rate *rate, PulsePeriod *period)
 {
     uint32_t ticks = period->lastTick - period->firstTick;
@@ -200,6 +222,8 @@ void calculateRate(Rate *rate, PulsePeriod *period)
     rate->confidence = getConfidenceInterval(pulseCount - 1);
 }
 
+#endif
+
 float getRateFactor(void)
 {
     return pulseUnits[settings.doseUnits].rate.scale;
@@ -212,9 +236,11 @@ float getDoseFactor(void)
 
 void updatePulseThresholdExceeded(void)
 {
+#if !defined(RADPRO_RAW_COUNTER)
     float rateSievertsPerHour = pulseUnits[DOSE_UNITS_SIEVERTS].rate.scale * getInstantaneousRate();
 
     pulses.rateOverThreshold = settings.pulseThreshold ? rateSievertsPerHour >= rateAlerts[settings.pulseThreshold] : true;
+#endif
 }
 
 bool isPulseThresholdExceeded(void)
@@ -233,14 +259,21 @@ void onPulseTick(void)
     uint32_t pulseCount = currentPulseCount - pulses.previousTubePulseCount;
     pulses.previousTubePulseCount = currentPulseCount;
 
+#if defined(RADPRO_RAW_COUNTER)
+    if (!isMeasurementsEnabled())
+        return;
+#endif
+
     // Tube dose
     pulses.tubeDose.pulseCount += pulseCount;
 
+#if !defined(RADPRO_RAW_COUNTER)
     // Current period
     if (!pulses.currentPeriod.pulseCount)
         pulses.currentPeriod.firstTick = currentTick;
     pulses.currentPeriod.lastTick = currentTick;
     pulses.currentPeriod.pulseCount += pulseCount;
+#endif
 
     // Pulse indication
     if (pulseCount && isMeasurementsEnabled())
@@ -264,24 +297,51 @@ void onPulsesHeartbeat(void)
     // Tube dose
     pulses.tubeDose.time += 1;
 
+#if defined(RADPRO_RAW_COUNTER)
+    pulses.sampledDose.pulseCount = pulses.tubeDose.pulseCount;
+    pulses.sampledDose.time = pulses.tubeDose.time;
+#else
     // Previous period
     pulses.previousPeriod = pulses.currentPeriod;
     pulses.previousPeriodTick = currentTick;
     pulses.currentPeriod.pulseCount = 0;
+#endif
 }
 
 void updatePulses(void)
 {
+#if defined(RADPRO_RAW_COUNTER)
+    // Keep all counts even when the main loop skips a heartbeat.
+    Dose sample;
+    do
+    {
+        sample.time = pulses.sampledDose.time;
+        sample.pulseCount = pulses.sampledDose.pulseCount;
+    } while (sample.time != pulses.sampledDose.time);
+
+    PulsePeriod period = {
+        .seconds = sample.time - pulses.reportedDose.time,
+        .pulseCount = sample.pulseCount - pulses.reportedDose.pulseCount,
+    };
+    if (!period.seconds)
+        return;
+    pulses.reportedDose = sample;
+#else
+    PulsePeriod period = pulses.previousPeriod;
+#endif
+
     // Fault alert
     AlertLevel faultAlertLevel = ALERTLEVEL_NONE;
-    if (pulses.previousPeriod.pulseCount)
+#if !defined(RADPRO_RAW_COUNTER)
+    if (period.pulseCount)
         pulses.lossOfCountTimer = 0;
     else
         pulses.lossOfCountTimer++;
     if (pulses.lossOfCountTimer >= getLossOfCountTime())
         faultAlertLevel = ALERTLEVEL_ALARM;
+#endif
 
-    bool tubeShorted = (!pulses.previousPeriod.pulseCount && readTubeDet());
+    bool tubeShorted = (!period.pulseCount && readTubeDet());
     if (pulses.previousTubeShorted && tubeShorted)
         faultAlertLevel = ALERTLEVEL_ALARM;
     pulses.previousTubeShorted = tubeShorted;
@@ -292,21 +352,26 @@ void updatePulses(void)
         setAlertPending(true);
 
     // Instantaneous rate
-    updateInstantaneousRate(pulses.previousPeriodTick, &pulses.previousPeriod);
+#if defined(RADPRO_RAW_COUNTER)
+    updateInstantaneousRate(0, &period);
+#else
+    updateInstantaneousRate(pulses.previousPeriodTick, &period);
 
     // Compensate period
-    PulsePeriod compensatedPeriod = pulses.previousPeriod;
     if (settings.tubeDeadTimeCompensation)
     {
-        pulses.deadTimeCompensationRemainder += getDeadTimeCompensationFactor() * pulses.previousPeriod.pulseCount;
-        compensatedPeriod.pulseCount = (uint32_t)pulses.deadTimeCompensationRemainder;
-        pulses.deadTimeCompensationRemainder -= compensatedPeriod.pulseCount;
+        pulses.deadTimeCompensationRemainder += getDeadTimeCompensationFactor() * period.pulseCount;
+        period.pulseCount = (uint32_t)pulses.deadTimeCompensationRemainder;
+        pulses.deadTimeCompensationRemainder -= period.pulseCount;
     }
 
-    // Average rate, cumulative dose, history
-    updateAverageRate(&compensatedPeriod);
-    updateCumulativeDose(&compensatedPeriod);
+#endif
+
+    updateAverageRate(&period);
+    updateCumulativeDose(&period);
+#if !defined(RADPRO_RAW_COUNTER)
     updateHistory();
+#endif
 }
 
 void setTubeTime(uint32_t value)
@@ -464,6 +529,7 @@ static const Menu pulsesIndicationMenu = {
 
 // Pulses threshold menu
 
+#if !defined(RADPRO_RAW_COUNTER)
 static const char *onPulsesThresholdMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.pulseThreshold);
@@ -495,11 +561,15 @@ static const Menu pulsesThresholdMenu = {
     showPulsesMenu,
 };
 
+#endif
+
 // Pulses menu
 
 static const MenuOption pulsesMenuOptions[] = {
     {STRING_INDICATION, &pulsesIndicationMenu},
+#if !defined(RADPRO_RAW_COUNTER)
     {STRING_THRESHOLD, &pulsesThresholdMenu},
+#endif
 };
 
 static const char *onPulsesMenuGetOption(menu_size_t index, MenuStyle *menuStyle)

@@ -264,7 +264,9 @@ void syncTick(void)
 
 void updateEvents(void)
 {
+#if !defined(RADPRO_RAW_COUNTER)
     updateComm();
+#endif
 
     uint32_t heartbeatCount = events.heartbeatCount;
     if (events.previousHeartbeatCount != heartbeatCount)
@@ -276,8 +278,12 @@ void updateEvents(void)
         updateViewHeartbeat();
     }
 
+#if !defined(RADPRO_RAW_COUNTER)
     updateDatalog();
+#endif
+#if !defined(H240)
     updateRNG();
+#endif
     updateView();
 }
 

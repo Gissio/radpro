@@ -1,0 +1,16 @@
+{
+    "build": {
+        "cpu": "cortex-m0",
+        "f_cpu": "16000000L",
+        "mcu": "ca32f0156l2"
+    },
+    "name": "H240-VER2.2 CA32F0156L2 (experimental)",
+    "url": "https://www.zhwssz.com/produst20/",
+    "upload": {
+        "maximum_ram_size": 8192,
+        "maximum_size": 40960,
+        "protocol": "custom",
+        "protocols": ["custom"]
+    },
+    "vendor": "CACHIP"
+}
