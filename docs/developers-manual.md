@@ -8,6 +8,7 @@ To build the software, follow these steps:
 * From Visual Studio Code / Extensions, install the [PlatformIO IDE](https://platformio.org/) extension.
 * Open the `platform.io` folder to begin building the firmware.
 * Once you've built the firmware, sign the resulting binaries with the `tools/sign.py` script: from a terminal, install the [requirements](reference-manual.md#radpro-tool), go to the `tools` folder and start the `sign.py` script. The signed `.bin` firmware files should appear in the `tools` folder.
+* The experimental [H240-VER2.2 target](porting/h240/status.md) produces a CRC-filled binary. Run `tools/sign.py` from a fresh release directory to package that binary, its checksum and the SWD kit under `h240-ca32f0156l2`.
 * You can also build the software as a simulator by opening the project's root folder from Visual Studio Code. You'll need the [libsdl2](https://github.com/libsdl-org/SDL) and [libsercomm](https://github.com/ingeniamc/sercomm) library, which you can install using the [vcpkg](https://vcpkg.io/en/getting-started.html) package manager.
 
 ## Internal Storage Format
