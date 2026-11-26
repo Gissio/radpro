@@ -58,14 +58,14 @@ static bool isCumulativeDoseSaturated(void)
     return (cumulative.dose.time == UINT32_MAX) || (cumulative.dose.pulseCount == UINT32_MAX);
 }
 
-void updateCumulativeDose(PulsePeriod *period)
+void updateCumulativeDose(uint32_t pulseCount)
 {
     if (isCumulativeDoseSaturated())
         return;
 
     // Update cumulative dose
     cumulative.dose.time = addClamped(cumulative.dose.time, 1);
-    cumulative.dose.pulseCount = addClamped(cumulative.dose.pulseCount, period->pulseCount);
+    cumulative.dose.pulseCount = addClamped(cumulative.dose.pulseCount, pulseCount);
 
     // Alerts
     float doseSieverts = pulseUnits[DOSE_UNITS_SIEVERTS].dose.scale * cumulative.dose.pulseCount;

@@ -107,18 +107,16 @@ static struct
 
     Dose tubeDose;
 
-    PulsePeriod currentPeriod;
-
     uint32_t indicationFactor;
     uint32_t indicationRemainder;
 
     bool rateOverThreshold;
 
     // onPulsesHeartbeat
-    PulsePeriod previousPeriod;
-    uint32_t previousPeriodTick;
+    uint32_t heartbeatPulseCount;
 
     // updatePulses
+    uint32_t previousHeartbeatPulseCount;
     uint32_t lossOfCountTimer;
     bool previousTubeShorted;
     AlertLevel faultAlertLevel;
@@ -136,7 +134,10 @@ void resetPulses(void)
 
     Dose tubeDose = pulses.tubeDose;
     memset(&pulses, 0, sizeof(pulses));
-    pulses.previousTubePulseCount = tubePulseCount;
+    uint32_t pulseCount = tubePulseCount;
+    pulses.previousTubePulseCount = pulseCount;
+    pulses.heartbeatPulseCount = pulseCount;
+    pulses.previousHeartbeatPulseCount = pulseCount;
     pulses.tubeDose = tubeDose;
 
     updateDoseUnits();
@@ -174,28 +175,27 @@ void updateDoseUnits(void)
         pulses.indicationFactor = (PULSE_INDICATION_FACTOR_UNIT * PULSE_INDICATION_SENSITIVITY_MAX) / sensitivity;
 }
 
-void calculateRate(Rate *rate, PulsePeriod *period)
+void calculateRate(Rate *rate, uint32_t pulseCount, uint32_t time)
 {
-    uint32_t ticks = period->lastTick - period->firstTick;
-    uint32_t pulseCount = period->pulseCount;
-
-    if (pulseCount < 2)
+    float value = 0;
+    float confidence = 0;
+    if (pulseCount)
     {
-        rate->value = 0;
-        rate->confidence = 0;
-
-        return;
+        value = (float)pulseCount / time;
+        confidence = getConfidenceInterval(pulseCount);
     }
+    rate->value = value;
+    rate->confidence = confidence;
+}
 
-    if (pulseCount > ticks)
-    {
-        // Improves precision with high radiation rates
-        pulseCount = addClamped(pulseCount, 1);
-        ticks = addClamped(ticks, 1);
-    }
+NOINLINE float getDeadTimeCompensationFactor(float rate)
+{
+    // Non-paralyzable model, capped at 10 (1 when compensation is off)
+    float denominator = 1.0F - rate * getTubeDeadTimeCompensation();
+    if (denominator < 0.1F)
+        denominator = 0.1F;
 
-    rate->value = (float)(pulseCount - 1) * SYSTICK_FREQUENCY / ticks;
-    rate->confidence = getConfidenceInterval(pulseCount - 1);
+    return 1.0F / denominator;
 }
 
 float getRateFactor(void)
@@ -234,12 +234,6 @@ void onPulseTick(void)
     // Tube dose
     pulses.tubeDose.pulseCount += pulseCount;
 
-    // Current period
-    if (!pulses.currentPeriod.pulseCount)
-        pulses.currentPeriod.firstTick = currentTick;
-    pulses.currentPeriod.lastTick = currentTick;
-    pulses.currentPeriod.pulseCount += pulseCount;
-
     // Pulse indication
     if (pulseCount && isMeasurementsEnabled())
     {
@@ -262,24 +256,27 @@ void onPulsesHeartbeat(void)
     // Tube dose
     pulses.tubeDose.time += 1;
 
-    // Previous period
-    pulses.previousPeriod = pulses.currentPeriod;
-    pulses.previousPeriodTick = currentTick;
-    pulses.currentPeriod.pulseCount = 0;
+    // Pulse count snapshot (the main thread derives each second's count)
+    pulses.heartbeatPulseCount = pulses.previousTubePulseCount;
 }
 
 void updatePulses(void)
 {
+    // Pulses in the last second (a missed heartbeat adds its pulses here)
+    uint32_t heartbeatPulseCount = pulses.heartbeatPulseCount;
+    uint32_t pulseCount = heartbeatPulseCount - pulses.previousHeartbeatPulseCount;
+    pulses.previousHeartbeatPulseCount = heartbeatPulseCount;
+
     // Fault alert
     AlertLevel faultAlertLevel = ALERTLEVEL_NONE;
-    if (pulses.previousPeriod.pulseCount)
+    if (pulseCount)
         pulses.lossOfCountTimer = 0;
     else
         pulses.lossOfCountTimer++;
     if (pulses.lossOfCountTimer >= getLossOfCountTime())
         faultAlertLevel = ALERTLEVEL_ALARM;
 
-    bool tubeShorted = (!pulses.previousPeriod.pulseCount && readTubeDet());
+    bool tubeShorted = (!pulseCount && readTubeDet());
     if (pulses.previousTubeShorted && tubeShorted)
         faultAlertLevel = ALERTLEVEL_ALARM;
     pulses.previousTubeShorted = tubeShorted;
@@ -290,20 +287,18 @@ void updatePulses(void)
         setAlertPending(true);
 
     // Instantaneous rate
-    updateInstantaneousRate(pulses.previousPeriodTick, &pulses.previousPeriod);
+    updateInstantaneousRate(pulseCount);
 
-    // Compensate period
-    PulsePeriod compensatedPeriod = pulses.previousPeriod;
-    if (settings.tubeDeadTimeCompensation)
-    {
-        pulses.deadTimeCompensationRemainder += getDeadTimeCompensationFactor() * pulses.previousPeriod.pulseCount;
-        compensatedPeriod.pulseCount = (uint32_t)pulses.deadTimeCompensationRemainder;
-        pulses.deadTimeCompensationRemainder -= compensatedPeriod.pulseCount;
-    }
+    // Dead-time compensation from this second's own pulse count (exact in
+    // every averaging mode; see tests/measurement-sim). When compensation is
+    // off, the factor is exactly 1 and the count passes through unchanged.
+    pulses.deadTimeCompensationRemainder += getDeadTimeCompensationFactor(pulseCount) * pulseCount;
+    pulseCount = (uint32_t)pulses.deadTimeCompensationRemainder;
+    pulses.deadTimeCompensationRemainder -= pulseCount;
 
     // Average rate, cumulative dose, history
-    updateAverageRate(&compensatedPeriod);
-    updateCumulativeDose(&compensatedPeriod);
+    updateAverageRate(pulseCount);
+    updateCumulativeDose(pulseCount);
     updateHistory();
 }
 

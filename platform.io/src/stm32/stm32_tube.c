@@ -14,9 +14,6 @@
 #include "../system/settings.h"
 #include "../stm32/device.h"
 
-// Pulse intervals below this are glitches, not real tube recoveries
-#define TUBE_DEADTIME_MIN ((uint32_t)(10E-6 * PULSE_MEASUREMENT_FREQUENCY))
-
 // The detection pin must be an input: G0/L4 GPIOs reset to analog mode,
 // which disables EXTI
 #if defined(TUBE_DET_PULLUP)
@@ -123,8 +120,7 @@ void TUBE_DET_IRQ_HANDLER(void)
     if (!(timerStatus & TIM_SR_UIF))
     {
         uint16_t pulseInterval = timerCount - tubeHardware.previousTimerCount;
-        if ((pulseInterval >= TUBE_DEADTIME_MIN) &&
-            (pulseInterval < tubeDeadTime))
+        if (pulseInterval < tubeDeadTime)
             tubeDeadTime = pulseInterval;
     }
 

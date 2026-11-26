@@ -6,11 +6,11 @@ This manual provides technical reference for the **Rad Pro** custom firmware.
 
 ### Instantaneous Rate
 
-The **instantaneous radiation rate** is calculated by dividing the number of pulses, minus one, by the time interval between the first and last pulse within the averaging window.
+The **instantaneous radiation rate** is calculated by dividing the number of pulses in the averaging window by the window's length. The window always ends at the current second. With adaptive averaging, the window is the shortest that holds the target number of pulses, and the pulse count is reduced by one, which keeps the estimate unbiased. See [Instantaneous Rate Averaging](#instantaneous-rate-averaging).
 
 ### Average Rate
 
-Calculates the **average radiation rate** over a time window, using the same formula as the instantaneous rate.
+The **average radiation rate** is calculated by dividing the number of pulses by the time since the average started. When averaging until a confidence level is reached, the pulse count is reduced by one, which keeps the estimate unbiased.
 
 ### Cumulative Dose
 
@@ -100,13 +100,19 @@ To start logging:
 
 Choose from these averaging options to balance response speed and precision:
 
-* **Adaptive fast:** Averages the last 20 pulses, targeting a ±50% confidence interval. Ideal for general use. See response curves: [instantaneousaveraging-adaptivefast.ipynb](../tests/instantaneousaveraging-adaptivefast.ipynb)
-* **Adaptive precision:** Extends **Adaptive fast** with a minimum 5-second averaging time for greater precision at high radiation levels, but slower response. See response curves: [instantaneousaveraging-adaptiveprecision.ipynb](../tests/instantaneousaveraging-adaptiveprecision.ipynb)
-* **Fixed intervals (1 minute, 30 seconds and 10 seconds):** Uses a fixed averaging window. If zero or one pulse is detected during the averaging interval, the rate registers as zero.
+* **Adaptive fast:** Averages over the shortest time that holds 20 pulses, for a ±50% confidence interval. Ideal for general use.
+* **Adaptive precision:** Averages over the shortest time that holds 100 pulses, for a ±20% confidence interval. More precise, but slower to respond: at background levels it can average over up to about 17 minutes.
+* **1 minute:** Counts the pulses of the last minute.
+
+With adaptive averaging, Rad Pro also checks every second whether the recent pulses are statistically consistent with the rest of the averaging window. When the rate has clearly changed, averaging restarts from the change, so the reading follows large rises and drops within seconds.
+
+See [measurement-sim](../tests/measurement-sim/README.md) for simulated response times and precision.
 
 ## Instantaneous Rate Alerts
 
-Alerts trigger only when the confidence interval falls below 75% to reduce false alarms.
+Alerts trigger when the instantaneous rate reaches the alert threshold. With adaptive averaging, they trigger only when the confidence interval falls below 75% to reduce false alarms.
+
+Once triggered, an alert stays active until the rate falls below the threshold by more than its confidence interval, that is, below threshold / (1 + confidence). For example, with a 1 µSv/h threshold, an alert ends below 0.67 µSv/h at ±50% confidence, and below 0.83 µSv/h at ±20%. This keeps an alert from restarting, and a dismissed alert from sounding again, while the rate hovers around the threshold.
 
 ## Dead-Time Compensation
 
@@ -124,7 +130,7 @@ Where:
 * $\tau$: Dead time (seconds).
 * $n$: Compensated rate (counts per second).
   
-The compensation factor is capped at 10 to prevent overflow. Compensation applies to instantaneous rate, average rate, cumulative dose, and history but not to tube life pulse count or data logs.
+The compensation factor is capped at 10 to prevent overflow. Compensation applies to instantaneous rate, average rate, cumulative dose, and history but not to tube life pulse count or data logs. The instantaneous rate is compensated using its own reading; the average rate and cumulative dose are compensated second by second, using each second's pulse count.
 
 ## HV Profiles (If Supported)
 

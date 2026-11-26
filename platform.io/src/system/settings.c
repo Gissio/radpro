@@ -105,7 +105,7 @@ static bool validateState(const State *state)
 
     return (!s->empty &&
             (s->source < SOURCE_NUM) &&
-            (s->instantaneousAveraging < INSTANTANEOUSAVERAGING_NUM) &&
+            // instantaneousAveraging: 3.1 modes are remapped in resetInstantaneousRate()
             (s->averaging < AVERAGING_NUM) &&
             (s->tubeType < TUBE_TYPE_NUM) &&
             (s->tubeSensitivity < TUBE_SENSITIVITY_NUM) &&

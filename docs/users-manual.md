@@ -132,7 +132,7 @@ Alerts may use:
 
 * Alerts remain active until acknowledged
 * Acknowledging does **not** clear the condition
-* Visual indicators remain active while thresholds are exceeded
+* Visual indicators remain active while thresholds are exceeded; rate alerts end once the rate is clearly below the threshold
 
 ## 4. Data Logging
 

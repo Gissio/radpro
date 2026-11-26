@@ -18,7 +18,7 @@ extern const Menu averageMenu;
 
 void resetAverageRate(void);
 
-void updateAverageRate(PulsePeriod *period);
+void updateAverageRate(uint32_t pulseCount);
 
 float getAverageRate(void);
 

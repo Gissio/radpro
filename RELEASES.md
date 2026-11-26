@@ -4,6 +4,10 @@
 
 * Added support for the GQ GMC-800V2.
 * Added **Estonian** translation.
+* Redesigned the instantaneous rate averaging. **Adaptive precision** now averages 100 pulses (±20% confidence) instead of 20 pulses over at least 5 seconds. **1 minute** now counts the pulses of the last minute; it previously read too high at low rates (by about 50% with low-sensitivity tubes) and could show spikes. Adaptive averaging now restarts when the rate clearly changes, so readings follow large drops within seconds instead of minutes (for example, after moving away from a radioactive source). The 30 seconds and 10 seconds options were removed; counters set to them switch to **Adaptive fast**.
+* Timed average rates are now measured from the start of the average, instead of from its first pulse.
+* Rate alerts now have hysteresis: once triggered at the alert threshold, they stay active until the rate is clearly below it. Alerts no longer restart repeatedly, and dismissed alerts no longer sound again, while the rate hovers around the threshold.
+* Fixed dead-time compensation of the cumulative dose and average rate lagging behind rate changes, which made short exposures to high radiation levels read too low (by about 20% for a one-minute exposure at 5000 cps with **1 minute** averaging). They are now compensated second by second.
 * FS2011 (GD32F103): Fixed the display backlight not turning on.
 * Bosean FS-600, Bosean FS-1000, Bosean FS-5000: Fixed the counter possibly hanging at startup after losing power while saving settings or writing the data log.
 * Bosean FS-600, Bosean FS-1000: Fixed the history loading slowly at startup: the faster processor clock used for loading it was not actually being applied.
@@ -33,7 +37,6 @@
 * In lock mode, holding the power key now wakes the display, like the other keys, instead of doing nothing.
 * Fixed turning off the display, or entering lock mode, occasionally being undone when it coincided with an alert display flash or with connecting USB power.
 * Fixed the random generator occasionally reusing random bits, which could make consecutive outputs correlated.
-* Fixed the instantaneous rate with fixed averaging intervals (1 minute, 30 seconds and 10 seconds) keeping its last value, and any active rate alert, when no pulses were detected during the averaging interval; it now reads zero, as documented.
 * Fixed data logging stopping, and further data log downloads failing, after a download was interrupted (for example, by unplugging the USB cable or closing the serial port).
 * Fixed the history occasionally showing spurious peaks, and data log downloads occasionally starting with an incorrect record, after the data log wrapped around.
 * Fixed `SET tubePulseCount` causing a spurious peak in the history.

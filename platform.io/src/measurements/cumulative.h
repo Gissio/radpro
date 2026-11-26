@@ -17,7 +17,7 @@
 
 void resetCumulativeDose(void);
 
-void updateCumulativeDose(PulsePeriod *period);
+void updateCumulativeDose(uint32_t pulseCount);
 
 Dose *getCumulativeDose(void);
 uint32_t getCumulativeDosePulseCount(void);

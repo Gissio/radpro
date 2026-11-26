@@ -27,13 +27,6 @@ extern const Menu secondaryDoseUnitsMenu;
 
 typedef struct
 {
-    uint32_t firstTick;
-    uint32_t lastTick;
-    uint32_t pulseCount;
-} PulsePeriod;
-
-typedef struct
-{
     uint32_t time;
     uint32_t pulseCount;
 } Dose;
@@ -66,7 +59,8 @@ void drawPulseMeasurementInfo(const char *keyString, float value, uint32_t doseU
 void resetPulses(void);
 
 void updateDoseUnits(void);
-void calculateRate(Rate *rate, PulsePeriod *period);
+void calculateRate(Rate *rate, uint32_t pulseCount, uint32_t time);
+float getDeadTimeCompensationFactor(float rate);
 float getRateFactor(void);
 float getDoseFactor(void);
 

@@ -54,7 +54,7 @@ static const float averagingConfidences[] = {
 
 static struct
 {
-    PulsePeriod period;
+    uint32_t pulseCount;
     Rate rate;
 
     uint32_t snapshotPulseCount;
@@ -98,7 +98,7 @@ static float getAveragingConfidenceThreshold(void)
 
 static bool isAverageSaturated(void)
 {
-    return (average.rate.time == UINT32_MAX) || (average.period.pulseCount == UINT32_MAX);
+    return (average.rate.time == UINT32_MAX) || (average.pulseCount == UINT32_MAX);
 }
 
 static bool isAverageDone(void)
@@ -115,22 +115,20 @@ static bool isAverageDone(void)
            (average.rate.confidence < confidenceThreshold);
 }
 
-void updateAverageRate(PulsePeriod *period)
+void updateAverageRate(uint32_t pulseCount)
 {
     if (isAverageSaturated())
         return;
 
-    // Update average rate
+    // Update average rate: n / t for timed averaging; confidence averaging
+    // stops on the pulse count, so (n - 1) / t is unbiased
     average.rate.time = addClamped(average.rate.time, 1);
-    if (period->pulseCount)
-    {
-        if (!average.period.pulseCount)
-            average.period.firstTick = period->firstTick;
-        average.period.lastTick = period->lastTick;
-        average.period.pulseCount = addClamped(average.period.pulseCount, period->pulseCount);
+    average.pulseCount = addClamped(average.pulseCount, pulseCount);
 
-        calculateRate(&average.rate, &average.period);
-    }
+    uint32_t n = average.pulseCount;
+    if (n && !isTimeAveraging())
+        n--;
+    calculateRate(&average.rate, n, average.rate.time);
 
     // Snapshot is frozen once done
     bool previousDone = average.done;
@@ -138,7 +136,7 @@ void updateAverageRate(PulsePeriod *period)
 
     if (!previousDone || !average.done)
     {
-        average.snapshotPulseCount = average.period.pulseCount;
+        average.snapshotPulseCount = average.pulseCount;
         average.snapshotRate = average.rate;
     }
 

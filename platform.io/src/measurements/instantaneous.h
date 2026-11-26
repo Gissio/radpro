@@ -21,9 +21,8 @@ extern const Menu instantaneousMenu;
 
 void resetInstantaneousRate(void);
 
-void updateInstantaneousRate(uint32_t periodTick, PulsePeriod *period);
+void updateInstantaneousRate(uint32_t pulseCount);
 
-float getDeadTimeCompensationFactor(void);
 
 float getInstantaneousRate(void);
 
