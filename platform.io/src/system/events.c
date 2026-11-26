@@ -47,19 +47,12 @@
 
 #define LOCKMODE_BACKLIGHT_TICKS (10 * SYSTICK_FREQUENCY)
 
-typedef enum
-{
-    TIMER_OFF = -1,
-    TIMER_ELAPSED,
-    TIMER_RUNNING,
-} TimerState;
-
 static struct
 {
     volatile int32_t backlightTimer;
     int32_t requestedBacklightTimer;
-    bool requestedBacklightReset;
-    bool displayAwake;
+    bool requestedBacklightAlert;
+    volatile bool displayAwake;
 
 #if defined(BUZZER)
     volatile int32_t buzzerTimer;
@@ -67,11 +60,8 @@ static struct
 #endif
 
 #if defined(PULSE_LED)
-    LEDMode ledMode;
+    volatile LEDMode ledMode;
     volatile int32_t pulseLEDTimer;
-#if defined(LED_MULTIPLEX)
-    uint32_t ledMultiplexState;
-#endif
 #endif
 
 #if defined(VIBRATOR)
@@ -100,15 +90,16 @@ static const int32_t displayTimerValues[] = {
 };
 
 #if defined(BUZZER)
+// One extra tick: the noise timer turns the buzzer on one tick later
 static const uint8_t pulseSoundTicks[] = {
-    PULSE_SOUND_CLICKS_TICKS,
-    PULSE_SOUND_CHIRPS_TICKS,
-    PULSE_SOUND_BEEPS_TICKS,
+    PULSE_SOUND_CLICKS_TICKS + 1,
+    PULSE_SOUND_CHIRPS_TICKS + 1,
+    PULSE_SOUND_BEEPS_TICKS + 1,
 };
 #endif
 
 #if defined(BUZZER) || defined(VIBRATOR)
-static const uint32_t alertSoundTicks[][2] = {
+static const uint16_t alertSoundTicks[][2] = {
     {SOUND_WARNING_SHORT_TICKS, SOUND_WARNING_LONG_TICKS},
     {SOUND_ALARM_SHORT_TICKS, SOUND_ALARM_LONG_TICKS},
 };
@@ -116,22 +107,29 @@ static const uint32_t alertSoundTicks[][2] = {
 
 // Timer
 
-static TimerState tickTimer(volatile int32_t *timer)
+// Timers: 0 = off, -1 = infinite, otherwise ticks remaining.
+// Returns true when the timer elapses.
+static bool tickTimer(volatile int32_t *timer)
 {
-    int32_t timerValue = *timer;
+    int32_t value = *timer;
+    if (value <= 0)
+        return false;
 
-    if (timerValue == 0)
-        return TIMER_OFF;
-    else if (timerValue > 0)
-    {
-        timerValue--;
+    value--;
+    *timer = value;
 
-        *timer = timerValue;
+    return (value == 0);
+}
 
-        return (timerValue == 0) ? TIMER_ELAPSED : TIMER_RUNNING;
-    }
-    else
-        return TIMER_RUNNING;
+// Extends a timer; returns true if it was extended
+static bool extendTimer(volatile int32_t *timer, int32_t ticks)
+{
+    if (ticks <= *timer)
+        return false;
+
+    *timer = ticks;
+
+    return true;
 }
 
 // Events
@@ -147,7 +145,7 @@ void onTick(void)
 #endif
 
     // Heartbeat
-    if (tickTimer(&events.heartbeatTimer) == TIMER_ELAPSED)
+    if (tickTimer(&events.heartbeatTimer))
     {
         events.heartbeatTimer = SYSTICK_FREQUENCY;
         events.heartbeatCount++;
@@ -157,7 +155,7 @@ void onTick(void)
 
     // Keyboard
     onKeyboardTick();
-    if (tickTimer(&events.keyboardTimer) == TIMER_ELAPSED)
+    if (tickTimer(&events.keyboardTimer))
     {
         events.keyboardTimer = KEY_TICKS;
 
@@ -165,7 +163,7 @@ void onTick(void)
     }
 
     // Display
-    if (tickTimer(&events.backlightTimer) == TIMER_ELAPSED)
+    if (tickTimer(&events.backlightTimer))
     {
         setBacklight(false);
 
@@ -178,33 +176,11 @@ void onTick(void)
     onBuzzerTick();
 #endif
 
-    switch (tickTimer(&events.buzzerTimer))
-    {
-    case TIMER_ELAPSED:
+    // Noise (random bits) while the noise timer runs, then a steady tone
+    if (tickTimer(&events.buzzerTimer))
         setBuzzer(false);
-
-        break;
-
-    case TIMER_RUNNING:
-        switch (tickTimer(&events.buzzerNoiseTimer))
-        {
-        case TIMER_ELAPSED:
-            setBuzzer(true);
-
-            break;
-
-        case TIMER_RUNNING:
-            setBuzzer(getRandomBit());
-
-            break;
-
-        default:
-            break;
-        }
-
-    default:
-        break;
-    }
+    else if (events.buzzerTimer && events.buzzerNoiseTimer)
+        setBuzzer(tickTimer(&events.buzzerNoiseTimer) || getRandomBit());
 #endif
 
     // Sound enable
@@ -219,7 +195,7 @@ void onTick(void)
 
     // Vibrator
 #if defined(VIBRATOR)
-    if (tickTimer(&events.vibrationTimer) == TIMER_ELAPSED)
+    if (tickTimer(&events.vibrationTimer))
         setVibrator(false);
 #endif
 
@@ -228,36 +204,24 @@ void onTick(void)
 #if defined(LED_MULTIPLEX)
     if (events.ledMode == LEDMODE_MULTIPLEX)
     {
-        events.ledMultiplexState++;
-        if (events.ledMultiplexState >= 7)
-            events.ledMultiplexState = 0;
+        // Pulse LED 1 of 7 ticks, alert LED the rest
+        bool pulsePhase = ((currentTick % 7) == 0);
 
-        setPulseLED(events.ledMultiplexState == 0);
-        setAlertLED(events.ledMultiplexState != 0);
+        setPulseLED(pulsePhase);
+        setAlertLED(!pulsePhase);
     }
     else
+#endif
     {
-        if (tickTimer(&events.pulseLEDTimer) == TIMER_ELAPSED)
+        if (tickTimer(&events.pulseLEDTimer))
             setPulseLED(false);
     }
-#endif
-    if (tickTimer(&events.pulseLEDTimer) == TIMER_ELAPSED)
-        setPulseLED(false);
-#endif
-}
-
-void resetWatchdog(void)
-{
-#if !defined(SIMULATOR)
-    sleep(0);
 #endif
 }
 
 void syncTick(void)
 {
-#if !defined(SIMULATOR)
     sleep(1);
-#endif
 }
 
 // Events
@@ -304,11 +268,13 @@ void startKeyboardEvents(void)
 
 static void setBacklightTimer(int32_t ticks)
 {
-    if ((ticks == -1) ||
-        ((events.backlightTimer != -1) &&
-         (ticks > events.backlightTimer)))
+    // Unsigned compare: -1 (infinite) is the largest value
+    if ((uint32_t)ticks > (uint32_t)events.backlightTimer)
     {
+#if defined(DISPLAY_MONOCHROME)
+        // 1 tick: display sleep "always off"
         if (ticks != 1)
+#endif
             setBacklight(true);
 
         events.backlightTimer = ticks;
@@ -321,38 +287,49 @@ void requestBacklightTrigger(void)
         events.requestedBacklightTimer = LOCKMODE_BACKLIGHT_TICKS;
     else
         events.requestedBacklightTimer = displayTimerValues[settings.displaySleep];
-    events.requestedBacklightReset = true;
     events.displayAwake = true;
 }
 
 static void requestBacklightAlert(void)
 {
-    if ((events.requestedBacklightTimer >= 0) &&
-        events.requestedBacklightTimer < DISPLAY_FLASH_ALERT_TICKS)
-        events.requestedBacklightTimer = DISPLAY_FLASH_ALERT_TICKS;
+    events.requestedBacklightAlert = true;
 }
 
 bool isBacklightTriggerRequested(void)
 {
-    return events.requestedBacklightTimer != 0;
+    return (events.requestedBacklightTimer != 0) ||
+           events.requestedBacklightAlert;
 }
 
 void triggerBacklight(void)
 {
     syncTick();
 
-    if (events.requestedBacklightReset)
+    // A backlight request (always non-zero) restarts the timer
+    int32_t ticks = events.requestedBacklightTimer;
+    if (ticks)
+    {
         events.backlightTimer = 0;
+        events.displayAwake = true;
 
-    setBacklightTimer(events.requestedBacklightTimer);
+        setBacklightTimer(ticks);
+    }
+
+    // An alert flash only extends it
+    if (events.requestedBacklightAlert)
+        setBacklightTimer(DISPLAY_FLASH_ALERT_TICKS);
 
     events.requestedBacklightTimer = 0;
-    events.requestedBacklightReset = false;
+    events.requestedBacklightAlert = false;
 }
 
 void cancelBacklight(void)
 {
     syncTick();
+
+    // Drop pending requests, or the next draw would turn the backlight back on
+    events.requestedBacklightTimer = 0;
+    events.requestedBacklightAlert = false;
 
     events.backlightTimer = 0;
     events.displayAwake = false;
@@ -375,15 +352,21 @@ bool isDisplayAwake(void)
 #if defined(BUZZER)
 static void setBuzzerTimer(int32_t ticks, int32_t noiseTicks, uint8_t volume)
 {
-    if (ticks > events.buzzerTimer)
+    if (extendTimer(&events.buzzerTimer, ticks))
     {
-        events.buzzerTimer = ticks;
         events.buzzerNoiseTimer = noiseTicks;
 
 #if defined(BUZZER_VOLUME)
         setBuzzerVolume(volume);
 #endif
     }
+}
+
+static void setPulseSoundTimer(void)
+{
+    setBuzzerTimer(pulseSoundTicks[settings.soundPulseStyle],
+                   events.buzzerTimer + 1,
+                   settings.soundPulseVolume);
 }
 #endif
 
@@ -393,12 +376,8 @@ static void setBuzzerTimer(int32_t ticks, int32_t noiseTicks, uint8_t volume)
 
 static void setVibrationTimer(int32_t ticks)
 {
-    if (ticks > events.vibrationTimer)
-    {
+    if (extendTimer(&events.vibrationTimer, ticks))
         setVibrator(true);
-
-        events.vibrationTimer = ticks;
-    }
 }
 
 #endif
@@ -412,7 +391,7 @@ void triggerVibration(void)
 #endif
 }
 
-void triggerAndwaitForVibration(void)
+void triggerAndWaitForVibration(void)
 {
 #if defined(VIBRATOR)
     triggerVibration();
@@ -427,20 +406,23 @@ void triggerAndwaitForVibration(void)
 
 void setLEDMode(LEDMode mode)
 {
+    // Called every heartbeat: only act on changes, so that
+    // ongoing pulse flashes are not cut short
+    if (events.ledMode == mode)
+        return;
+
     syncTick();
 
     events.ledMode = mode;
     events.pulseLEDTimer = 0;
+
+    setPulseLED(false);
 }
 
 static void setPulseLEDTimer(int32_t ticks)
 {
-    if (ticks > events.pulseLEDTimer)
-    {
+    if (extendTimer(&events.pulseLEDTimer, ticks))
         setPulseLED(true);
-
-        events.pulseLEDTimer = ticks;
-    }
 }
 
 #endif
@@ -456,9 +438,7 @@ void indicatePulse(void)
 
 #if defined(BUZZER)
     if (settings.pulseSound)
-        setBuzzerTimer(pulseSoundTicks[settings.soundPulseStyle] + 1,
-                       events.buzzerTimer + 1,
-                       settings.soundPulseVolume);
+        setPulseSoundTimer();
 #endif
 
 #if defined(VIBRATOR)
@@ -472,7 +452,18 @@ void indicatePulse(void)
 #endif
 }
 
-void triggerAlert(bool alarm)
+void triggerPulseSound(void)
+{
+#if defined(BUZZER)
+    syncTick();
+
+    setPulseSoundTimer();
+#endif
+}
+
+// measurementAlert: on voice builds, voice alerts may read out the
+// active rate or dose alert instead of the alert sound
+static void triggerAlertIndication(bool alarm, bool measurementAlert)
 {
     syncTick();
 
@@ -489,11 +480,21 @@ void triggerAlert(bool alarm)
 #endif
 
 #if defined(VOICE)
-    triggerVoiceAlert();
+    triggerVoiceAlert(measurementAlert);
 #endif
 
 #if defined(VIBRATOR)
     if (settings.alertVibration)
         setVibrationTimer(alertTicks);
 #endif
+}
+
+void triggerAlert(bool alarm)
+{
+    triggerAlertIndication(alarm, true);
+}
+
+void triggerNotificationAlert(void)
+{
+    triggerAlertIndication(true, false);
 }

@@ -31,8 +31,6 @@ typedef enum
     ELECTRIC_FIELD_TAB_NUM,
 } ElectricFieldTab;
 
-static void clearElectricField(void);
-
 const Unit electricFieldUnits = {STRING_VOLT_PER_METER_UNIT, 1};
 
 const int32_t electricFieldMinMetricPrefix = 0;
@@ -55,23 +53,9 @@ void resetElectricField(void)
     clearElectricField();
 }
 
-static void clearElectricField(void)
+void clearElectricField(void)
 {
     memset(&electricField, 0, sizeof(electricField));
-}
-
-static void updateElectricFieldAlerts(void)
-{
-    AlertLevel alertLevel = ALERTLEVEL_NONE;
-    if (settings.electricFieldAlarm && (electricField.value >= electricFieldAlerts[settings.electricFieldAlarm]))
-        alertLevel = ALERTLEVEL_ALARM;
-
-    AlertLevel previousAlertLevel = electricField.alertLevel;
-    electricField.alertLevel = alertLevel;
-
-    bool alertTriggered = (alertLevel > previousAlertLevel);
-    if (alertTriggered)
-        setAlertPending(true);
 }
 
 void updateElectricField(void)
@@ -82,7 +66,8 @@ void updateElectricField(void)
     if (electricField.value > electricField.maxValue)
         electricField.maxValue = electricField.value;
 
-    updateElectricFieldAlerts();
+    updateMeasurementAlertLevel(&electricField.alertLevel,
+                                getMeasurementAlertLevel(electricField.value, electricFieldAlerts, 0, settings.electricFieldAlarm));
 }
 
 float getElectricField(void)
@@ -97,103 +82,19 @@ AlertLevel getElectricFieldAlertLevel(void)
 
 // Electric field view
 
-static void advanceElectricFieldTab(void)
+void advanceElectricFieldTab(void)
 {
-    electricFieldTab++;
-    if (electricFieldTab >= ELECTRIC_FIELD_TAB_NUM)
-        electricFieldTab = ELECTRIC_FIELD_TAB_MAX;
+    electricFieldTab = getNextMeasurementTab(electricFieldTab, ELECTRIC_FIELD_TAB_NUM);
 }
 
-static MeasurementStyle getElectricFieldMeasurementStyle(void)
+void drawElectricFieldView(void)
 {
-    if (electricField.alertLevel == ALERTLEVEL_ALARM)
-        return MEASUREMENTSTYLE_ALARM;
+    drawMeasurementValueWithUnit(getString(STRING_ELECTRIC_FIELD), electricField.value, &electricFieldUnits, electricFieldMinMetricPrefix, 0, getAlertMeasurementStyle(electricField.alertLevel));
 
-    return MEASUREMENTSTYLE_NORMAL;
-}
-
-static void drawElectricFieldValue(void)
-{
-    char valueString[32];
-    char unitString[32];
-    strclr(valueString);
-    strclr(unitString);
-    buildValueString(valueString, unitString, electricField.value, &electricFieldUnits, electricFieldMinMetricPrefix);
-
-    drawTitleBar(getString(STRING_ELECTRIC_FIELD));
-    drawMeasurementValue(valueString, unitString, 0, getElectricFieldMeasurementStyle());
-}
-
-static void drawElectricFieldTab(void)
-{
-    char valueString[32];
-    char unitString[32];
-    strclr(valueString);
-    strcpy(unitString, " ");
-    const char *keyString = NULL;
-
-    switch (electricFieldTab)
-    {
-    case ELECTRIC_FIELD_TAB_MAX:
-        buildValueString(valueString, unitString, electricField.maxValue, &electricFieldUnits, electricFieldMinMetricPrefix);
-
-        keyString = getString(STRING_MAX);
-
-        break;
-
-    case ELECTRIC_FIELD_TAB_MAGNETIC:
-    {
-        buildValueString(valueString, unitString, getMagneticField(), &magneticFieldUnits[settings.magneticFieldUnits], magneticFieldMinMetricPrefix[settings.magneticFieldUnits]);
-
-        keyString = getString(STRING_MAGNETIC_FIELD);
-
-        break;
-    }
-
-    default:
-        break;
-    }
-
-    drawMeasurementInfo(keyString, valueString, unitString, MEASUREMENTSTYLE_NORMAL);
-}
-
-static void drawElectricFieldView(void)
-{
-    drawElectricFieldValue();
-    drawElectricFieldTab();
-}
-
-void onElectricFieldViewEvent(ViewEvent event)
-{
-    if (onMeasurementViewEvent(event))
-        return;
-
-    switch (event)
-    {
-    case EVENT_KEY_BACK:
-        advanceElectricFieldTab();
-
-        requestViewUpdate();
-
-        break;
-
-    case EVENT_KEY_RESET:
-        triggerVibration();
-
-        clearElectricField();
-
-        requestViewUpdate();
-
-        break;
-
-    case EVENT_DRAW:
-        drawElectricFieldView();
-
-        break;
-
-    default:
-        break;
-    }
+    if (electricFieldTab == ELECTRIC_FIELD_TAB_MAX)
+        drawMeasurementInfoValue(getString(STRING_MAX), electricField.maxValue, &electricFieldUnits, electricFieldMinMetricPrefix, MEASUREMENTSTYLE_NORMAL);
+    else
+        drawMeasurementInfoValue(getString(STRING_MAGNETIC_FIELD), getMagneticField(), &magneticFieldUnits[settings.magneticFieldUnits], magneticFieldMinMetricPrefix[settings.magneticFieldUnits], MEASUREMENTSTYLE_NORMAL);
 }
 
 // Electric field alarm view
@@ -213,16 +114,7 @@ static const char *onElectricFieldAlarmMenuGetOption(menu_size_t index, MenuStyl
 {
     *menuStyle = (index == settings.electricFieldAlarm);
 
-    if (index == 0)
-        return getString(STRING_OFF);
-
-    char unitString[32];
-    strcpy(unitString, " ");
-    strclr(menuOption);
-    buildValueString(menuOption, unitString, electricFieldAlerts[index], &electricFieldUnits, electricFieldMinMetricPrefix);
-    strcat(menuOption, unitString);
-
-    return menuOption;
+    return buildAlertMenuOption(index, electricFieldAlerts[index], &electricFieldUnits, electricFieldMinMetricPrefix);
 }
 
 static void onElectricFieldAlarmMenuSelect(menu_size_t index)

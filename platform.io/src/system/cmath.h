@@ -19,21 +19,24 @@
 
 #else
 
+// Aliased to qfplib with --defsym in platformio.ini
 float logf(float x);
 float expf(float x);
-float log2f(float x);
-float exp2f(float x);
-float log10f(float x);
-float powf(float x, float y);
 float sqrtf(float x);
 
 #endif
 
+// Fold these into a constant factor at the call site:
+// log10(x) = LOG10E * logf(x), 2^x = expf(LN2 * x)
+#define LOG10E 0.434294482F
+#define LN2 0.693147181F
+
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
-#define MIN(x, y) ((x < y) ? x : y)
-#define MAX(x, y) ((x > y) ? x : y)
-#define CLAMP_UINT8(x) ((x < 0) ? 0 : (x > 255) ? 255 : x)
+// Arguments are evaluated more than once: pass no side effects
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
+#define MAX(x, y) (((x) > (y)) ? (x) : (y))
+#define CLAMP_UINT8(x) (((x) < 0) ? 0 : ((x) > 255) ? 255 : (x))
 
 // Keeps small helpers out of line: GCC inlines them when that grows code
 #if defined(__GNUC__)
@@ -48,6 +51,7 @@ int32_t roundDown(float x);
 int32_t divideDown(int32_t x, int32_t y);
 
 uint32_t getDecimalPower(int32_t exponent);
+float getDecimalPowerFloat(int32_t exponent);
 int32_t getDecimalDigits(uint32_t value);
 uint32_t truncateDecimalMantissa(uint32_t value, int32_t mantissa);
 

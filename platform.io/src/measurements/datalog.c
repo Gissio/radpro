@@ -64,6 +64,7 @@ typedef struct
     const uint8_t *page;
 
     uint32_t timeInterval;
+    bool hasBase;
 } DatalogRead;
 
 static struct
@@ -82,8 +83,6 @@ static const uint16_t loggingModeIntervals[] = {
     10,
     1,
 };
-
-static void stopDatalogRead(void);
 
 void resetDatalog(void)
 {
@@ -164,7 +163,7 @@ NOINLINE static uint32_t encodeFixedUInt32(uint8_t *p, uint32_t value)
 
 static uint32_t decodeFixedUInt32(const uint8_t *p, uint32_t *value)
 {
-    *value = (p[0] << 24) | (p[1] << 16) | (p[2] << 8) | (p[3] << 0);
+    *value = ((uint32_t)p[0] << 24) | ((uint32_t)p[1] << 16) | ((uint32_t)p[2] << 8) | ((uint32_t)p[3] << 0);
 
     return 4;
 }
@@ -275,15 +274,13 @@ static void writePageStateAndAdvance(PageState pageState)
         eraseFlash(datalog.write.pageBase);
         writeFlash(datalog.write.pageBase + DATALOG_PAGE_STATE_OFFSET, pageStateData, DATALOG_PAGE_STATE_SIZE);
     }
-    else
-    {
-        // Advance to next page
-        datalog.write.pageBase = getNextPage(datalog.write.pageBase);
 
-        // Erase
-        if (!isFlashEmpty(datalog.write.pageBase, DATALOG_PAGE_SIZE))
-            eraseFlash(datalog.write.pageBase);
-    }
+    // Advance to next page
+    datalog.write.pageBase = getNextPage(datalog.write.pageBase);
+
+    // Erase
+    if (!isFlashEmpty(datalog.write.pageBase, DATALOG_PAGE_SIZE))
+        eraseFlash(datalog.write.pageBase);
 }
 
 static void flushDatalogBuffer(void)
@@ -319,6 +316,9 @@ static bool appendDatalogEntryWithPageRollover(const uint8_t *entry, uint32_t co
     if (appendDatalogEntryToCurrentPage(entry, count))
         return true;
 
+    // Flush pending entries to the current page, so the next page starts
+    // with a self-contained absolute entry
+    flushDatalogBuffer();
     writePageStateAndAdvance(PAGESTATE_FULL);
 
     return appendDatalogEntryToCurrentPage(entry, count);
@@ -475,10 +475,12 @@ static bool setDatalogHead(void)
     }
 }
 
+// Takes over a read in progress: loading the history at power-on (with USB
+// connected) aborts a data log download, which startDatalog() would abort
+// right after anyway. The download then ends with an error record.
 bool startDatalogRead(void)
 {
-    if (datalog.read.active)
-        return false;
+    datalog.read.active = false;
 
     if (!setDatalogHead())
         return false;
@@ -486,17 +488,23 @@ bool startDatalogRead(void)
     readPage();
 
     datalog.read.active = true;
+    datalog.read.hasBase = false;
 
     return true;
 }
 
-static void stopDatalogRead(void)
+void stopDatalogRead(void)
 {
     static const uint8_t datalogEndOfRead = DATALOG_ENTRY_EMPTY;
 
     datalog.read.active = false;
     datalog.read.page = &datalogEndOfRead;
     datalog.read.pageOffset = 0;
+}
+
+bool isDatalogReadActive(void)
+{
+    return datalog.read.active;
 }
 
 bool readDatalog(DatalogRecord *record)
@@ -522,6 +530,11 @@ bool readDatalog(DatalogRecord *record)
         {
             datalog.read.pageOffset += count;
 
+            // Skip incremental entries without a preceding absolute entry
+            // (e.g. at the start of the oldest page after the log wrapped)
+            if (!datalog.read.hasBase)
+                continue;
+
             record->dose.pulseCount += value;
             record->dose.time += datalog.read.timeInterval;
 
@@ -539,6 +552,7 @@ bool readDatalog(DatalogRecord *record)
                 datalog.read.pageOffset++;
                 datalog.read.pageOffset += decodeFixedUInt32(datalog.read.page + datalog.read.pageOffset, &record->dose.time);
                 datalog.read.pageOffset += decodeFixedUInt32(datalog.read.page + datalog.read.pageOffset, &record->dose.pulseCount);
+                datalog.read.hasBase = true;
 
                 return true;
             }

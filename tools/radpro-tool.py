@@ -66,6 +66,12 @@ class RadProIO:
             port=self.port, baudrate=115200, timeout=0.5, write_timeout=0.5
         )
 
+        # Discard data left over from a previous connection (e.g. a client
+        # that closed the port before reading its response), so responses
+        # are not shifted by one line
+        time.sleep(0.1)
+        self.serial.reset_input_buffer()
+
     def query(self, request):
         response = None
         response_bytes = None

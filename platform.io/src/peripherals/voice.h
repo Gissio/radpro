@@ -10,12 +10,8 @@
 #if !defined(VOICE_H)
 #define VOICE_H
 
+#include <stdbool.h>
 #include <stdint.h>
-
-#include "../ui/menu.h"
-
-extern const Menu soundAlertVolumeMenu;
-extern const Menu soundVoiceVolumeMenu;
 
 void initVoice(void);
 
@@ -27,7 +23,8 @@ void playVoiceCumulativeDose(void);
 void playVoiceTest(void);
 void playNumber(uint32_t value);
 
-void triggerVoiceAlert(void);
+// measurementAlert: voice alerts may read out the active rate or dose alert
+void triggerVoiceAlert(bool measurementAlert);
 void clearVoiceAlert(void);
 
 void stopVoice(void);

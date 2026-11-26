@@ -14,7 +14,7 @@
 
 void resetRNG(void);
 
-void updateRNG();
+void updateRNG(void);
 
 int32_t getRNGByte(void);
 

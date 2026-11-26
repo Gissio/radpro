@@ -31,9 +31,9 @@
 #define PWR_CHRG_PORT GPIOA
 #define PWR_CHRG_PIN 8
 #define PWR_CHRG_ACTIVE_LOW
-#define PWR_STDBY_PORT GPIOC
-#define PWR_STDBY_PIN 7
-#define PWR_STDBY_ACTIVE_LOW
+// #define PWR_STDBY_PORT GPIOC
+// #define PWR_STDBY_PIN 7
+// #define PWR_STDBY_ACTIVE_LOW
 
 #define TUBE_HV_PORT GPIOB
 #define TUBE_HV_PIN 7

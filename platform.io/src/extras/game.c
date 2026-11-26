@@ -22,7 +22,7 @@
 #include "../ui/view.h"
 
 // Search depth limit. The search uses up to depth + 2 recursion levels of
-// 152 bytes of stack, on top of up to 1.6 kB (monochrome) or 2.2 kB (color)
+// 144 bytes of stack, on top of up to 1.6 kB (monochrome) or 2.2 kB (color)
 // for the search callback (events, view drawing) and interrupts.
 // STM32F0 (8 kB RAM): 3.9 kB of stack, so 12. Other devices: at least 8 kB
 // of stack; 32 is never reached in practice.
@@ -32,7 +32,11 @@
 #define GAME_DEPTH_MAX 32
 #endif
 
-#define GAME_VALID_MOVES_NUM_MAX 181
+// Maximum number of legal moves in any chess position
+#define GAME_VALID_MOVES_NUM_MAX 218
+
+// Board square flag for drawGame(): square is highlighted
+#define GAME_SQUARE_SELECTED 0x10
 
 typedef enum
 {
@@ -47,11 +51,14 @@ typedef enum
 static struct
 {
     GameState state;
+    bool searchRunning;
     uint32_t moveIndex;
     uint32_t playerIndex;
     uint32_t playerTime[2];
     uint8_t board[8][8];
 
+    // Legal moves of the side to move, in board order (so moves from the
+    // same square are contiguous)
     int32_t validMovesNum;
     int32_t validMovesIndex;
     mcumax_move validMoves[GAME_VALID_MOVES_NUM_MAX];
@@ -72,31 +79,30 @@ void resetGame(void)
     selectMenuItem(&gameStrengthMenu, settings.gameStrength);
 }
 
+// Runs mcu-max: must not be called while a search is running
 static void updateGameBoard(void)
 {
-    mcumax_move move = MCUMAX_MOVE_INVALID;
+    mcumax_move move;
 
     switch (game.state)
     {
     case GAME_SHOWING_LAST_MOVE:
-        if (game.previousMove.from != MCUMAX_SQUARE_INVALID)
-            move = game.previousMove;
+    case GAME_OVER:
+        move = game.previousMove;
 
         break;
 
     case GAME_SELECTING_FROM:
-        move = (mcumax_move){
-            game.validMoves[game.validMovesIndex].from,
-            MCUMAX_SQUARE_INVALID};
-
-        break;
-
     case GAME_SELECTING_TO:
         move = game.validMoves[game.validMovesIndex];
+        if (game.state == GAME_SELECTING_FROM)
+            move.to = MCUMAX_SQUARE_INVALID;
 
         break;
 
     default:
+        move = MCUMAX_MOVE_INVALID;
+
         break;
     }
 
@@ -105,27 +111,26 @@ static void updateGameBoard(void)
                                    ? (MCUMAX_KING | mcumax_get_current_side())
                                    : 0xff;
 
+    // Rotate the board when playing black
+    uint32_t flip = game.playerIndex ? 7 : 0;
+
     for (uint32_t y = 0; y < 8; y++)
     {
         for (uint32_t x = 0; x < 8; x++)
         {
-            mcumax_square square = ((0x10 * y) + x);
-
-            uint8_t xb = game.playerIndex ? (7 - x) : x;
-            uint8_t yb = game.playerIndex ? (7 - y) : y;
-
+            mcumax_square square = (y << 4) | x;
             uint8_t piece = mcumax_get_piece(square);
 
             if ((square == move.from) ||
                 (square == move.to) ||
                 (piece == checkedKing))
-                piece |= 0x10;
+                piece |= GAME_SQUARE_SELECTED;
 
             // Empty squares are drawn with the black bit set
-            if (!(piece & 0x7))
+            if (!MCUMAX_PIECE_TYPE(piece))
                 piece |= MCUMAX_BLACK;
 
-            game.board[yb][xb] = piece;
+            game.board[y ^ flip][x ^ flip] = piece;
         }
     }
 
@@ -135,16 +140,35 @@ static void updateGameBoard(void)
 static void onGameCallback(void *userdata)
 {
 #if !defined(__EMSCRIPTEN__)
-    resetWatchdog();
+    sleep(0); // Reloads watchdog (smaller than inlined reloadWatchdog)
 
     updateEvents();
 #endif
 }
 
+static uint32_t searchValidMoves(void)
+{
+    uint32_t validMovesNum = mcumax_search_valid_moves(game.validMoves, GAME_VALID_MOVES_NUM_MAX);
+
+    // Only the first GAME_VALID_MOVES_NUM_MAX moves are stored
+    if (validMovesNum > GAME_VALID_MOVES_NUM_MAX)
+        validMovesNum = GAME_VALID_MOVES_NUM_MAX;
+
+    return validMovesNum;
+}
+
 static void updateValidMoves(void)
 {
-    game.validMovesNum = mcumax_search_valid_moves(game.validMoves, GAME_VALID_MOVES_NUM_MAX);
+    game.validMovesNum = searchValidMoves();
     game.validMovesIndex = game.playerIndex ? (game.validMovesNum - 1) : 0;
+}
+
+static void playMove(mcumax_move move)
+{
+    mcumax_play_move(move);
+
+    game.moveIndex++;
+    game.previousMove = move;
 }
 
 static void startGame(uint32_t playerIndex)
@@ -155,17 +179,16 @@ static void startGame(uint32_t playerIndex)
     game.playerIndex = playerIndex;
     game.playerTime[0] = 0;
     game.playerTime[1] = 0;
-
     game.previousMove = MCUMAX_MOVE_INVALID;
 
-    if (playerIndex == 0)
+    if (playerIndex)
+        game.state = GAME_SEARCHING;
+    else
     {
         game.state = GAME_SELECTING_FROM;
 
         updateValidMoves();
     }
-    else
-        game.state = GAME_SEARCHING;
 
     updateGameBoard();
 }
@@ -187,7 +210,7 @@ void updateGame(void)
 
         if ((random & 0x3) < (GAME_STRENGTH_4 - strength))
         {
-            uint32_t validMovesNum = mcumax_search_valid_moves(game.validMoves, GAME_VALID_MOVES_NUM_MAX);
+            uint32_t validMovesNum = searchValidMoves();
 
             if (validMovesNum)
                 move = game.validMoves[(random * validMovesNum) >> 16];
@@ -198,7 +221,9 @@ void updateGame(void)
     {
         // Levels 1-4: 1 node; levels 5-8: 4096, 16384, 65536, 262144 nodes
         mcumax_set_callback(onGameCallback, NULL);
+        game.searchRunning = true;
         move = mcumax_search_best_move((strength < GAME_STRENGTH_5) ? 1 : (1 << (2 * strength + 4)), GAME_DEPTH_MAX);
+        game.searchRunning = false;
         mcumax_set_callback(NULL, NULL);
 
         // Search stopped (back key or power off), or game reset (power on)
@@ -215,17 +240,10 @@ void updateGame(void)
         game.state = GAME_OVER;
     else
     {
-        mcumax_play_move(move);
-
-        game.moveIndex++;
-        game.previousMove = move;
-
+        playMove(move);
         updateValidMoves();
 
-        if (game.validMovesNum != 0)
-            game.state = GAME_SHOWING_LAST_MOVE;
-        else
-            game.state = GAME_OVER;
+        game.state = game.validMovesNum ? GAME_SHOWING_LAST_MOVE : GAME_OVER;
     }
 
     updateGameBoard();
@@ -241,58 +259,50 @@ void stopGameSearch(void)
     }
 }
 
-static bool stepValidMove(int32_t direction)
+// Returns the index of the last move, going in direction from index, that
+// moves from the same square as the move at index
+static int32_t getMoveGroupEnd(int32_t index, int32_t direction)
 {
-    game.validMovesIndex += direction;
-
-    if (game.validMovesIndex < 0)
-        game.validMovesIndex = game.validMovesNum - 1;
-    else if (game.validMovesIndex > (game.validMovesNum - 1))
-        game.validMovesIndex = 0;
-    else
-        return false;
-
-    return true;
-}
-
-static void stepValidMoveFrom(int32_t direction)
-{
-    mcumax_square moveFrom = game.validMoves[game.validMovesIndex].from;
+    mcumax_square from = game.validMoves[index].from;
 
     while (true)
     {
-        if (stepValidMove(direction))
-            return;
+        int32_t nextIndex = index + direction;
 
-        if (game.validMoves[game.validMovesIndex].from != moveFrom)
-            return;
+        if ((nextIndex < 0) ||
+            (nextIndex >= game.validMovesNum) ||
+            (game.validMoves[nextIndex].from != from))
+            return index;
+
+        index = nextIndex;
     }
 }
 
+// Selects the next square with moves, wrapping around
 static void selectNextMoveFrom(int32_t direction)
 {
+    // Follow the rotated board when playing black
     if (game.playerIndex)
         direction = -direction;
 
-    stepValidMoveFrom(direction);
+    int32_t index = getMoveGroupEnd(game.validMovesIndex, direction) + direction;
 
-    updateGameBoard();
+    if (index < 0)
+        index = game.validMovesNum - 1;
+    else if (index >= game.validMovesNum)
+        index = 0;
+
+    game.validMovesIndex = index;
 }
 
+// Selects the next move from the selected square, wrapping around
 static void selectNextMoveTo(int32_t direction)
 {
-    mcumax_square moveFrom = game.validMoves[game.validMovesIndex].from;
+    int32_t index = game.validMovesIndex;
 
-    stepValidMove(direction);
-
-    if (moveFrom != game.validMoves[game.validMovesIndex].from)
-    {
-        stepValidMove(-direction);
-        stepValidMoveFrom(-direction);
-        stepValidMove(direction);
-    }
-
-    updateGameBoard();
+    game.validMovesIndex = (getMoveGroupEnd(index, direction) == index)
+                               ? getMoveGroupEnd(index, -direction)
+                               : (index + direction);
 }
 
 // Game view
@@ -303,7 +313,16 @@ static void onGameViewEvent(ViewEvent event)
     {
     case EVENT_KEY_BACK:
         if (game.state == GAME_SEARCHING)
+        {
+            bool searchRunning = game.searchRunning;
+
             stopGameSearch();
+
+            // A running search shows the menu when it returns; if the
+            // search has not started yet, show it here
+            if (!searchRunning)
+                showGameMenu();
+        }
         else if (game.state == GAME_SELECTING_TO)
         {
             game.state = GAME_SELECTING_FROM;
@@ -316,71 +335,55 @@ static void onGameViewEvent(ViewEvent event)
         break;
 
     case EVENT_KEY_SELECT:
-        switch (game.state)
+        if (game.state == GAME_SELECTING_FROM)
         {
-        case GAME_SELECTING_FROM:
-            if (game.validMovesNum)
-            {
-                game.state = GAME_SELECTING_TO;
-
-                stepValidMoveFrom(-1);
-                stepValidMove(1);
-
-                updateGameBoard();
-            }
-
-            break;
-
-        case GAME_SELECTING_TO:
+            // Start at the first move from the selected square
+            game.state = GAME_SELECTING_TO;
+            game.validMovesIndex = getMoveGroupEnd(game.validMovesIndex, -1);
+        }
+        else if (game.state == GAME_SELECTING_TO)
         {
-            mcumax_move move = game.validMoves[game.validMovesIndex];
-
-            mcumax_play_move(move);
-
-            game.moveIndex++;
-            game.previousMove = move;
+            playMove(game.validMoves[game.validMovesIndex]);
 
             game.state = GAME_SEARCHING;
-
-            updateGameBoard();
-
-            break;
         }
-
-        default:
+        else
             break;
-        }
+
+        updateGameBoard();
 
         break;
 
     case EVENT_KEY_UP:
     case EVENT_KEY_DOWN:
+    {
+        int32_t direction = (event == EVENT_KEY_UP) ? -1 : 1;
+
         if (game.state == GAME_SHOWING_LAST_MOVE)
-        {
             game.state = GAME_SELECTING_FROM;
-
-            updateGameBoard();
-        }
         else if (game.state == GAME_SELECTING_FROM)
-            selectNextMoveFrom((event == EVENT_KEY_UP) ? -1 : 1);
-
+            selectNextMoveFrom(direction);
         else if (game.state == GAME_SELECTING_TO)
-            selectNextMoveTo((event == EVENT_KEY_UP) ? -1 : 1);
+            selectNextMoveTo(direction);
+        else
+            break;
+
+        updateGameBoard();
 
         break;
+    }
 
     case EVENT_DRAW:
     {
-        // Time
+        // Player time first, then opponent time
         char time[2][16];
 
-        strclr(time[0]);
-        strcatTime(time[0], game.playerTime[game.playerIndex]);
+        for (uint32_t i = 0; i < 2; i++)
+        {
+            strclr(time[i]);
+            strcatTime(time[i], game.playerTime[game.playerIndex ^ i]);
+        }
 
-        strclr(time[1]);
-        strcatTime(time[1], game.playerTime[!game.playerIndex]);
-
-        // Moves
         drawGame(game.board, time);
 
         break;
@@ -443,21 +446,26 @@ static const char *onGameStartMenuGetOption(menu_size_t index, MenuStyle *menuSt
 
 static void onGameStartMenuSelect(menu_size_t index)
 {
-    switch (index)
+    if (index < 2)
     {
-    case 0:
-    case 1:
+        // A search may still run in the background (the view was switched
+        // by lock mode or an alert): mcumax_init() would corrupt it, and the
+        // search would then corrupt the new board. Stop it; it returns at
+        // once and shows the game menu again.
+        if (game.searchRunning)
+        {
+            stopGameSearch();
+
+            return;
+        }
+
+        // 0: play white, 1: play black
         startGame(index);
 
         showView(onGameViewEvent);
-
-        break;
-
-    case 2:
-        showMenu(&gameStrengthMenu);
-
-        break;
     }
+    else
+        showMenu(&gameStrengthMenu);
 }
 
 static MenuState gameStartMenuState;
@@ -483,10 +491,7 @@ static const char *onGameContinueMenuGetOption(menu_size_t index, MenuStyle *men
 {
     *menuStyle = MENUSTYLE_SUBMENU;
 
-    if (!game.moveIndex)
-        return getString(gameStartMenuOptions[index]);
-    else
-        return getString(gameContinueMenuOptions[index]);
+    return getString(gameContinueMenuOptions[index]);
 }
 
 static void onGameContinueMenuSelect(menu_size_t index)
@@ -518,7 +523,7 @@ static MenuState gameContinueMenuState;
 static const Menu gameContinueMenu = {
     STRING_GAME,
     &gameContinueMenuState,
-    ARRAY_SIZE(gameStartMenuOptions),
+    ARRAY_SIZE(gameContinueMenuOptions),
     onGameContinueMenuGetOption,
     onGameContinueMenuSelect,
     showSettingsMenu,
@@ -528,8 +533,5 @@ static const Menu gameContinueMenu = {
 
 void showGameMenu(void)
 {
-    if (!game.moveIndex)
-        showMenu(&gameStartMenu);
-    else
-        showMenu(&gameContinueMenu);
+    showMenu(game.moveIndex ? &gameContinueMenu : &gameStartMenu);
 }

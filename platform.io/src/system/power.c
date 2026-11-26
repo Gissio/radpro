@@ -16,12 +16,9 @@
 #include "../peripherals/display.h"
 #include "../peripherals/flash.h"
 #include "../peripherals/keyboard.h"
-#include "../peripherals/led.h"
-#include "../peripherals/pulsesoundenable.h"
 #include "../peripherals/rtc.h"
-#include "../peripherals/tube.h"
 #include "../peripherals/sound.h"
-#include "../peripherals/voice.h"
+#include "../peripherals/tube.h"
 #include "../system/cmath.h"
 #include "../system/events.h"
 #include "../system/power.h"
@@ -32,31 +29,41 @@
 
 #define BATTERY_LEVEL_NUM 5
 
-#define BATTERY_HYSTERESIS_RANGE 0.005F
-#define BATTERY_HYSTERESIS (BATTERY_HYSTERESIS_RANGE / 2)
+// Battery voltages are compared as integers, in units of 0.1 mV
+#define BATTERY_VOLTAGE_SCALE 10000.0F
+#define BATTERY_VOLTAGE(value) ((uint16_t)((value) * BATTERY_VOLTAGE_SCALE + 0.5F))
 
-#define POWEROFF_DISPLAY_TIME 5
+// A level is entered above (nominal + BATTERY_HYSTERESIS) and left below
+// (nominal - BATTERY_HYSTERESIS)
+#define BATTERY_HYSTERESIS BATTERY_VOLTAGE(0.0025F)
+
+// Seconds the battery indicator is shown while powered off
+#define BATTERY_INDICATOR_TIME 5
 
 typedef enum
 {
-    POWERON_VIEW_FLASHFAILURE,
-    POWERON_VIEW_SPLASH,
-} PowerOnViewState;
+    POWERON_FLASHFAILURE, // Showing the checksum failure screen
+    POWERON_SPLASH,       // Showing the splash screen, state not yet loaded
+    POWERON_LOADED,       // Showing the splash screen, RTC and history loaded
+} PowerOnState;
 
+// While powered off, the MCU only runs while it has power: during the
+// battery indicator (PWR_EN latched) or from USB. On battery, it loses power
+// when the indicator ends (hideBatteryIndicator() releases PWR_EN).
 static struct
 {
     bool poweredOn;
 
-    PowerOnViewState onViewState;
+    PowerOnState powerOnState;
 
-    uint32_t displayTimer;
+    // Seconds left showing the battery indicator; 0: hidden
+    uint32_t batteryIndicatorTimer;
 
     float batteryVoltage;
     uint8_t batteryLevel;
     bool previousUSBPowered;
 } power;
 
-static void onPowerOffViewEvent(ViewEvent event);
 static void powerOffWithBatteryIndicator(bool batteryIndicator);
 
 #if defined(POWER_MENU)
@@ -78,12 +85,26 @@ static void resetPower(void)
 
 // Power on
 
+static void loadPowerOnState(void)
+{
+    // Runs once, even if the splash screen is redrawn
+    if (power.powerOnState != POWERON_SPLASH)
+        return;
+
+    initRTC();
+    loadHistory();
+
+    power.powerOnState = POWERON_LOADED;
+}
+
+// Power-on sequence: [checksum failure screen, 1 s] -> splash screen
+// (state loaded after it is drawn, 1 s) -> measurement view
 static void onPowerOnViewEvent(ViewEvent event)
 {
     switch (event)
     {
     case EVENT_DRAW:
-        if (power.onViewState == POWERON_VIEW_FLASHFAILURE)
+        if (power.powerOnState == POWERON_FLASHFAILURE)
             drawSplash(getString(STRING_SPLASH_FIRMWARE_CHECKSUM_FAILURE));
         else
             drawSplash(getString(STRING_APP_NAME) "\n\n" FIRMWARE_VERSION);
@@ -91,23 +112,25 @@ static void onPowerOnViewEvent(ViewEvent event)
         break;
 
     case EVENT_POSTDRAW:
-        if (power.onViewState == POWERON_VIEW_SPLASH)
-        {
-            initRTC();
-            loadHistory();
-        }
+        // Loading takes a while: do it with the splash screen visible
+        loadPowerOnState();
 
         break;
 
     case EVENT_HEARTBEAT:
-        if (power.onViewState == POWERON_VIEW_FLASHFAILURE)
-            power.onViewState = POWERON_VIEW_SPLASH;
+        if (power.powerOnState == POWERON_FLASHFAILURE)
+            power.powerOnState = POWERON_SPLASH;
         else
         {
+            // In case the splash post-draw was skipped (display inactive)
+            loadPowerOnState();
+
             setMeasurementsEnabled(true);
             startDatalog();
             setMeasurementView();
         }
+
+        break;
 
     default:
         break;
@@ -119,21 +142,18 @@ void boot(void)
 #if !defined(START_POWERED)
     updatePowerState();
 
-    if (wasResetByWatchdog())
-        powerOn();
-    else if (!isPowerKeyDown())
-    {
-        if (settings.powerUSBAutoPowerOn)
-            powerOn();
-        else
-            powerOffWithBatteryIndicator(true);
-    }
-    else
-    {
-        waitLongKeyPress();
+    // The debounced power key state needs samples taken after
+    // initKeyboard(): wait for a full keyboard sample window
+    sleep(KEY_TICKS);
 
+    // Power on after a watchdog reset (crash recovery), a long power key
+    // press, or with USB auto power-on; otherwise show the battery indicator
+    if (wasResetByWatchdog() ||
+        (isPowerKeyDown() && waitLongKeyPress()) ||
+        settings.powerUSBAutoPowerOn)
         powerOn();
-    }
+    else
+        powerOffWithBatteryIndicator(true);
 #else
     powerOn();
 #endif
@@ -167,11 +187,11 @@ void powerOn(void)
 
     if (!verifyFlash())
     {
-        power.onViewState = POWERON_VIEW_FLASHFAILURE;
+        power.powerOnState = POWERON_FLASHFAILURE;
         triggerAlert(true);
     }
     else
-        power.onViewState = POWERON_VIEW_SPLASH;
+        power.powerOnState = POWERON_SPLASH;
 
     requestBacklightTrigger();
     triggerVibration();
@@ -184,22 +204,25 @@ void powerOn(void)
 
 // Power off
 
-static void triggerPowerOffBacklight(void)
+// While powered off: enables power (needed by the display) and shows the
+// battery indicator for BATTERY_INDICATOR_TIME seconds
+static void showBatteryIndicator(void)
 {
     requestBacklightTrigger();
     setPowerEnabled(true);
 
-    power.displayTimer = POWEROFF_DISPLAY_TIME;
+    power.batteryIndicatorTimer = BATTERY_INDICATOR_TIME;
 
     startHeartbeatEvents();
 }
 
-static void cancelPowerOffBacklight(void)
+// While powered off: hides the battery indicator and disables power
+static void hideBatteryIndicator(void)
 {
     cancelBacklight();
     setPowerEnabled(false);
 
-    power.displayTimer = 0;
+    power.batteryIndicatorTimer = 0;
 }
 
 static void onPowerOffViewEvent(ViewEvent event)
@@ -207,21 +230,22 @@ static void onPowerOffViewEvent(ViewEvent event)
     switch (event)
     {
     case EVENT_KEY_TOGGLEBACKLIGHT:
-        triggerPowerOffBacklight();
+        // Any key except power (which powers on, see updateView)
+        showBatteryIndicator();
 
         break;
 
     case EVENT_DRAW:
-        drawPowerOff(power.displayTimer != 0);
+        drawPowerOff(power.batteryIndicatorTimer != 0);
 
         break;
 
     case EVENT_HEARTBEAT:
-        if (power.displayTimer)
+        if (power.batteryIndicatorTimer)
         {
-            power.displayTimer--;
-            if (power.displayTimer == 0)
-                cancelPowerOffBacklight();
+            power.batteryIndicatorTimer--;
+            if (power.batteryIndicatorTimer == 0)
+                hideBatteryIndicator();
         }
 
         break;
@@ -248,9 +272,9 @@ static void powerOffWithBatteryIndicator(bool batteryIndicator)
     showView(onPowerOffViewEvent);
 
     if (batteryIndicator)
-        triggerPowerOffBacklight();
+        showBatteryIndicator();
     else
-        cancelPowerOffBacklight();
+        hideBatteryIndicator();
 
     power.poweredOn = false;
 }
@@ -269,77 +293,80 @@ bool isPoweredOn(void)
 
 // Battery
 
+static const uint16_t batteryLevels[BATTERYTYPE_NUM][BATTERY_LEVEL_NUM - 1] = {
 #if defined(BATTERY_REMOVABLE)
-static const float batteryLevels[2][BATTERY_LEVEL_NUM - 1] = {
     // Ni-MH
     {
-        1.198F - BATTERY_HYSTERESIS,
-        1.243F - BATTERY_HYSTERESIS,
-        1.268F - BATTERY_HYSTERESIS,
-        1.297F - BATTERY_HYSTERESIS,
+        BATTERY_VOLTAGE(1.198F),
+        BATTERY_VOLTAGE(1.243F),
+        BATTERY_VOLTAGE(1.268F),
+        BATTERY_VOLTAGE(1.297F),
     },
 
     // Alkaline
     {
-        1.159F - BATTERY_HYSTERESIS,
-        1.220F - BATTERY_HYSTERESIS,
-        1.283F - BATTERY_HYSTERESIS,
-        1.358F - BATTERY_HYSTERESIS,
+        BATTERY_VOLTAGE(1.159F),
+        BATTERY_VOLTAGE(1.220F),
+        BATTERY_VOLTAGE(1.283F),
+        BATTERY_VOLTAGE(1.358F),
     },
-};
-
-static const float batteryLow[2] = {
-    1.0F,
-    0.8F,
-};
 #else
-static const float batteryLevels[1][BATTERY_LEVEL_NUM - 1] = {
     // Li-Ion
     {
-        3.527F - BATTERY_HYSTERESIS,
-        3.646F - BATTERY_HYSTERESIS,
-        3.839F - BATTERY_HYSTERESIS,
-        3.982F - BATTERY_HYSTERESIS,
+        BATTERY_VOLTAGE(3.527F),
+        BATTERY_VOLTAGE(3.646F),
+        BATTERY_VOLTAGE(3.839F),
+        BATTERY_VOLTAGE(3.982F),
     },
+#endif
 };
 
-static const float batteryLow[1] = {
-    3.0F,
-};
+static const uint16_t batteryLow[BATTERYTYPE_NUM] = {
+#if defined(BATTERY_REMOVABLE)
+    BATTERY_VOLTAGE(1.0F), // Ni-MH
+    BATTERY_VOLTAGE(0.8F), // Alkaline
+#else
+    BATTERY_VOLTAGE(3.0F), // Li-Ion
 #endif
+};
 
 void updatePowerState(void)
 {
     // Battery level
-    power.batteryVoltage = readBatteryVoltage();
+    float batteryVoltage = readBatteryVoltage();
+    power.batteryVoltage = batteryVoltage;
+    uint32_t voltage = (uint32_t)(batteryVoltage * BATTERY_VOLTAGE_SCALE);
 
-    const float *batteryLevel = batteryLevels[settings.powerBatteryType];
-    uint8_t level = 0;
+    const uint16_t *levelVoltages = batteryLevels[settings.powerBatteryType];
+    uint32_t level = 0;
     for (uint32_t i = 0; i < (BATTERY_LEVEL_NUM - 1); i++)
     {
-        float thresholdVoltage = batteryLevel[i];
+        uint32_t thresholdVoltage = levelVoltages[i] - BATTERY_HYSTERESIS;
 
-        if (i >= level)
-            thresholdVoltage += BATTERY_HYSTERESIS_RANGE;
+        // Rising past the current level needs the upper threshold
+        if (i >= power.batteryLevel)
+            thresholdVoltage += 2 * BATTERY_HYSTERESIS;
 
-        if (power.batteryVoltage >= thresholdVoltage)
+        if (voltage >= thresholdVoltage)
             level = i + 1;
     }
     power.batteryLevel = level;
 
-    // Power state
+    // Low battery: power off
     bool usbPowered = isUSBPowered();
-    if (!usbPowered)
-    {
-        bool lowBattery = (power.batteryVoltage < batteryLow[settings.powerBatteryType]);
+    if (power.poweredOn &&
+        !usbPowered &&
+        (voltage < batteryLow[settings.powerBatteryType]))
+        powerOffWithBatteryIndicator(true);
 
-        if (power.poweredOn && lowBattery)
-            powerOffWithBatteryIndicator(true);
-    }
-
+    // USB connected: wake the display (powered off: show the battery
+    // indicator, which also enables power for the display)
     if (!power.previousUSBPowered && usbPowered)
     {
-        requestBacklightTrigger();
+        if (power.poweredOn)
+            requestBacklightTrigger();
+        else
+            showBatteryIndicator();
         triggerVibration();
     }
 

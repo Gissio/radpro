@@ -41,62 +41,46 @@
 #define HISTORY_IMAGEBUFFER_HEIGHT (HISTORY_LABEL_MIN_TOP - HISTORY_IMAGEBUFFER_TOP)
 
 #define HISTORY_LEFT ((CONTENT_WIDTH - HISTORY_WIDTH) / 2)
-#define HISTORY_TOP 0
 #define HISTORY_WIDTH (HISTORY_FRAME_WIDTH + TICKS_SPACING + HISTORY_TICKS_WIDTH)
-#define HISTORY_HEIGHT HISTORY_IMAGEBUFFER_HEIGHT
 
 #define HISTORY_FRAME_LEFT HISTORY_LEFT
-#define HISTORY_FRAME_TOP HISTORY_TOP
 #define HISTORY_FRAME_WIDTH HISTORY_BIN_NUM
-#define HISTORY_FRAME_HEIGHT HISTORY_HEIGHT
-
-#define HISTORY_CONTENT_LEFT (HISTORY_FRAME_LEFT + 1)
-#define HISTORY_CONTENT_TOP (HISTORY_FRAME_TOP + 1)
-#define HISTORY_CONTENT_WIDTH (HISTORY_FRAME_WIDTH - 2)
-#define HISTORY_CONTENT_HEIGHT (HISTORY_FRAME_HEIGHT - 2)
+#define HISTORY_FRAME_HEIGHT HISTORY_IMAGEBUFFER_HEIGHT
 
 #define HISTORY_TICKS_LEFT (HISTORY_FRAME_LEFT + HISTORY_FRAME_WIDTH + TICKS_SPACING)
-#define HISTORY_TICKS_TOP (CONTENT_TOP + (CONTENT_HEIGHT - HISTORY_HEIGHT) / 2)
 #define HISTORY_TICKS_WIDTH TICKS_LONG
-#define HISTORY_TICKS_HEIGHT (CONTENT_HEIGHT - 2 * FONT_SMALL_LINE_HEIGHT)
 
 #define HISTORY_MARGIN ((uint32_t)(0.1F * HISTORY_DECADE))
 
-typedef struct
+// Lowest y of a data point: its 1-pixel line (y - 1) stays above the frame's
+// bottom row and distinct from "no data"
+#define HISTORY_DATA_Y_MIN 2
+
+// Column y runs upwards from the frame's bottom row (y = 0); values below
+// the plotted range (e.g. alert thresholds) clamp to 0
+static int32_t getHistoryY(uint32_t value, int32_t valueOffset, int32_t valueScale)
 {
-    uint8_t end;
-    ColorIndex colorIndex;
-} FillSpan;
+    int32_t y = value ? (((int32_t)value - valueOffset) * valueScale) / 65536 : 0;
 
-static const FillSpan fillSpansSpace[] = {
-    {HISTORY_FRAME_TOP + HISTORY_FRAME_HEIGHT, COLOR_CONTAINER_BACKGROUND},
-};
+    return MAX(y, 0);
+}
 
-static const FillSpan fillSpansFrameLine[] = {
-    {HISTORY_FRAME_TOP + HISTORY_FRAME_HEIGHT, COLOR_INSTRUMENT_FRAME_TERTIARY},
-};
-
-static const FillSpan fillSpansTicksPrimary[] = {
-    {HISTORY_CONTENT_TOP, COLOR_INSTRUMENT_TICK_MARK_LABEL_SECONDARY},
-    {HISTORY_CONTENT_TOP + HISTORY_CONTENT_HEIGHT, COLOR_CONTAINER_BACKGROUND},
-    {HISTORY_FRAME_TOP + HISTORY_FRAME_HEIGHT, COLOR_INSTRUMENT_TICK_MARK_LABEL_SECONDARY},
-};
-
-static int16_t getHistoryY(uint32_t value, int32_t valueOffset, int32_t valueScale)
+// Fills rows [start, end) of a column (y = 0 is the bottom row)
+static void fillHistoryColumn(mr_color_t *column, int32_t start, int32_t end, ColorIndex colorIndex)
 {
-    return (value ? ((value - valueOffset) * valueScale) / 65536 : 0);
+    fillImageBuffer(column, HISTORY_FRAME_HEIGHT - end, HISTORY_FRAME_HEIGHT - start, colorIndex);
 }
 
 void drawHistory(float scale, const char *unitString, uint32_t timeTicksNum, const char *periodLabel, const uint8_t *logValues, uint32_t warningValue, uint32_t alarmValue)
 {
-    // Pre-calculations
+    // Value range
     char minLabel[32];
     char maxLabel[32];
     strclr(minLabel);
     strclr(maxLabel);
 
-    int32_t minValue = UCHAR_MAX;
-    int32_t maxValue = 0;
+    uint32_t minValue = UCHAR_MAX;
+    uint32_t maxValue = 0;
 
     for (uint32_t i = 0; i < HISTORY_BIN_NUM; i++)
     {
@@ -112,21 +96,19 @@ void drawHistory(float scale, const char *unitString, uint32_t timeTicksNum, con
 
     uint32_t valueTicksNum = 1;
     int32_t valueOffset = 0;
-    int32_t valueScale = 0;
     if (maxValue)
     {
         if (minValue > HISTORY_MARGIN)
             minValue -= HISTORY_MARGIN;
         maxValue += HISTORY_MARGIN;
 
-        int32_t unitValue = roundDown(HISTORY_DECADE * log10f(scale * HISTORY_VALUE_MIN) + 1);
+        int32_t unitValue = roundDown((HISTORY_DECADE * LOG10E) * logf(scale * HISTORY_VALUE_MIN) + 1);
 
         int32_t minExponent = divideDown(minValue + unitValue, HISTORY_DECADE);
         int32_t maxExponent = divideDown(maxValue + unitValue, HISTORY_DECADE) + 1;
 
         valueTicksNum = maxExponent - minExponent;
         valueOffset = HISTORY_DECADE * minExponent - unitValue;
-        valueScale = (65536 * (HISTORY_FRAME_HEIGHT - 1)) / (HISTORY_DECADE * valueTicksNum);
 
         strcatMetricPower(minLabel, minExponent, -2);
         strcat(maxLabel, unitString);
@@ -134,28 +116,24 @@ void drawHistory(float scale, const char *unitString, uint32_t timeTicksNum, con
         strcatMetricPower(maxLabel, maxExponent, -2);
     }
 
-    // Calculated fill spans
-    FillSpan fillSpansGrid[32];
-    FillSpan fillSpansTicksSecondary[32];
-    for (uint32_t i = 0, fillSpanIndex = 0; i <= valueTicksNum; i++)
-    {
-        int16_t y = i * (HISTORY_FRAME_HEIGHT - 1) / valueTicksNum;
-        fillSpansGrid[fillSpanIndex] = (FillSpan){y, COLOR_INSTRUMENT_FRAME_PRIMARY};
-        fillSpansTicksSecondary[fillSpanIndex++] = (FillSpan){y, COLOR_CONTAINER_BACKGROUND};
-        fillSpansGrid[fillSpanIndex] = (FillSpan){y + 1, COLOR_INSTRUMENT_FRAME_TERTIARY};
-        fillSpansTicksSecondary[fillSpanIndex++] = (FillSpan){y + 1, COLOR_INSTRUMENT_TICK_MARK_LABEL_SECONDARY};
-    }
+    // 16.16 fixed point: rows per log value step, and rows per grid line
+    // (rounded up, so the last grid line lands on the frame's top row)
+    int32_t valueScale = (65536 * (HISTORY_FRAME_HEIGHT - 1)) / (HISTORY_DECADE * valueTicksNum);
+    uint32_t gridScale = (65536 * (HISTORY_FRAME_HEIGHT - 1)) / valueTicksNum + 1;
 
+    // Alert level ends (normal, warning, alarm)
 #if defined(DISPLAY_COLOR)
-    int16_t warningY = warningValue ? getHistoryY(warningValue, valueOffset, valueScale) : HISTORY_FRAME_HEIGHT;
-    int16_t alarmY = alarmValue ? getHistoryY(alarmValue, valueOffset, valueScale) : HISTORY_FRAME_HEIGHT;
-    warningY = CLAMP_UINT8(warningY);
-    alarmY = CLAMP_UINT8(alarmY);
-    if (warningY > alarmY)
-        warningY = alarmY;
+    int32_t warningY = warningValue ? getHistoryY(warningValue, valueOffset, valueScale) : HISTORY_FRAME_HEIGHT;
+    int32_t alarmY = alarmValue ? getHistoryY(alarmValue, valueOffset, valueScale) : HISTORY_FRAME_HEIGHT;
+    const int32_t levelEnds[] = {MIN(warningY, alarmY), alarmY, HISTORY_FRAME_HEIGHT};
+#elif defined(DISPLAY_MONOCHROME)
+    (void)warningValue;
+    (void)alarmValue;
+    const int32_t levelEnds[] = {HISTORY_FRAME_HEIGHT};
 #endif
 
     // Labels
+    setFont(font_small);
     setStrokeColor(COLOR_INSTRUMENT_TICK_MARK_LABEL_SECONDARY);
 
     drawText(periodLabel,
@@ -170,88 +148,80 @@ void drawHistory(float scale, const char *unitString, uint32_t timeTicksNum, con
                          &(mr_rectangle_t){HISTORY_LABEL_MIN_LEFT, HISTORY_LABEL_MIN_TOP, HISTORY_LABEL_MIN_WIDTH, HISTORY_LABEL_MIN_HEIGHT},
                          &(mr_point_t){HISTORY_LABEL_MIN_OFFSET_LEFT, HISTORY_LABEL_MIN_OFFSET_TOP});
 
-    // Render line
-    mr_color_t line[HISTORY_IMAGEBUFFER_HEIGHT];
+    // Render column by column: background, grid lines, then value
+    mr_color_t column[HISTORY_IMAGEBUFFER_HEIGHT];
     uint32_t timeTickIndex = 0;
-    int16_t nextTimeTick = 0;
-    int16_t previousY = 0;
-    FillSpan fillSpansContent[32];
-    for (int16_t x = 0; x < HISTORY_IMAGEBUFFER_WIDTH; x++)
+    int32_t nextTimeTick = 0;
+    int32_t previousY = 0;
+
+    for (int32_t x = 0; x < HISTORY_IMAGEBUFFER_WIDTH; x++)
     {
-        const FillSpan *fillSpan;
+        int32_t bin = x - HISTORY_FRAME_LEFT;
+        bool isFrame = (uint32_t)bin < HISTORY_FRAME_WIDTH;
+        ColorIndex backgroundColorIndex = COLOR_CONTAINER_BACKGROUND;
+        ColorIndex gridColorIndex = COLOR_CONTAINER_BACKGROUND;
+        uint32_t gridStep = 1;
 
-        if (x < HISTORY_FRAME_LEFT)
-            fillSpan = fillSpansSpace;
-        else if (x < (HISTORY_FRAME_LEFT + HISTORY_FRAME_WIDTH))
+        if (isFrame)
         {
-            // Value
-            int16_t bin = x - HISTORY_FRAME_LEFT;
+            gridColorIndex = COLOR_INSTRUMENT_FRAME_TERTIARY;
 
-            int16_t y = getHistoryY(logValues[bin], valueOffset, valueScale);
-
-            if (bin == 0)
-                previousY = y;
-            int16_t minY = (y < previousY) ? y : previousY;
-            int16_t maxY = (y > previousY) ? y : previousY;
-            if (minY > HISTORY_CONTENT_TOP)
-                minY--;
-            previousY = y;
-
-            // Fill spans
-            uint32_t fillSpanIndex = 0;
-#if defined(DISPLAY_MONOCHROME)
-            fillSpansContent[fillSpanIndex++] = (FillSpan){minY, COLOR_INSTRUMENT_ENHANCED_TERTIARY};
-            fillSpansContent[fillSpanIndex++] = (FillSpan){maxY, COLOR_INSTRUMENT_ENHANCED_SECONDARY};
-#elif defined(DISPLAY_COLOR)
-            fillSpansContent[fillSpanIndex++] = (FillSpan){MIN(minY, warningY), COLOR_INSTRUMENT_ENHANCED_TERTIARY};
-            fillSpansContent[fillSpanIndex++] = (FillSpan){MIN(maxY, warningY), COLOR_INSTRUMENT_ENHANCED_SECONDARY};
-            fillSpansContent[fillSpanIndex++] = (FillSpan){MIN(minY, alarmY), COLOR_INSTRUMENT_ENHANCED_TERTIARY_WARNING};
-            fillSpansContent[fillSpanIndex++] = (FillSpan){MIN(maxY, alarmY), COLOR_INSTRUMENT_ENHANCED_SECONDARY_WARNING};
-            fillSpansContent[fillSpanIndex++] = (FillSpan){minY, COLOR_INSTRUMENT_ENHANCED_TERTIARY_ALARM};
-            fillSpansContent[fillSpanIndex++] = (FillSpan){maxY, COLOR_INSTRUMENT_ENHANCED_SECONDARY_ALARM};
-#endif
-
-            // Time ticks
-            const FillSpan *fillSpansBackground;
+            // Time ticks are full frame lines
             if (bin == nextTimeTick)
             {
                 timeTickIndex++;
                 nextTimeTick = timeTickIndex * (HISTORY_FRAME_WIDTH - 1) / timeTicksNum;
 
-                fillSpansBackground = fillSpansFrameLine;
+                backgroundColorIndex = COLOR_INSTRUMENT_FRAME_TERTIARY;
             }
             else
-                fillSpansBackground = fillSpansGrid;
-
-            int16_t fillSpanY = 0;
-            while (fillSpanY < HISTORY_IMAGEBUFFER_HEIGHT)
-            {
-                fillSpanY = fillSpansBackground->end;
-                fillSpansContent[fillSpanIndex++] = *fillSpansBackground++;
-            }
-
-            fillSpan = fillSpansContent;
+                backgroundColorIndex = COLOR_INSTRUMENT_FRAME_PRIMARY;
         }
-        else if (x < HISTORY_TICKS_LEFT)
-            fillSpan = fillSpansSpace;
-        else if (x < (HISTORY_TICKS_LEFT + TICKS_SHORT))
-            fillSpan = fillSpansTicksSecondary;
-        else if (x < (HISTORY_TICKS_LEFT + HISTORY_TICKS_WIDTH))
-            fillSpan = fillSpansTicksPrimary;
-        else
-            fillSpan = fillSpansSpace;
-
-        uint32_t y = 0;
-        while (y < HISTORY_IMAGEBUFFER_HEIGHT)
+        else if ((x >= HISTORY_TICKS_LEFT) && (x < (HISTORY_TICKS_LEFT + HISTORY_TICKS_WIDTH)))
         {
-            int16_t fillSpanY = fillSpan->end;
-            mr_color_t color = getFillColor(fillSpan->colorIndex);
-            fillSpan++;
+            gridColorIndex = COLOR_INSTRUMENT_TICK_MARK_LABEL_SECONDARY;
 
-            while (y < fillSpanY)
-                line[(HISTORY_IMAGEBUFFER_HEIGHT - 1) - y++] = color;
+            // Long ticks only at the frame's bottom and top rows
+            if (x >= (HISTORY_TICKS_LEFT + TICKS_SHORT))
+                gridStep = valueTicksNum;
         }
 
-        drawImage(&(mr_rectangle_t){HISTORY_IMAGEBUFFER_LEFT + x, HISTORY_IMAGEBUFFER_TOP, 1, HISTORY_IMAGEBUFFER_HEIGHT}, line);
+        fillHistoryColumn(column, 0, HISTORY_FRAME_HEIGHT, backgroundColorIndex);
+        for (uint32_t i = 0; i <= valueTicksNum; i += gridStep)
+        {
+            int32_t y = (i * gridScale) >> 16;
+            fillHistoryColumn(column, y, y + 1, gridColorIndex);
+        }
+
+        if (isFrame)
+        {
+            uint32_t logValue = logValues[bin];
+            int32_t y = getHistoryY(logValue, valueOffset, valueScale);
+            if (logValue && (y < HISTORY_DATA_Y_MIN))
+                y = HISTORY_DATA_Y_MIN;
+
+            // Line from the previous value, 1 pixel thick when flat
+            if (bin == 0)
+                previousY = y;
+            int32_t minY = MIN(y, previousY);
+            int32_t maxY = MAX(y, previousY);
+            if (minY >= HISTORY_DATA_Y_MIN)
+                minY--;
+            previousY = y;
+
+            // Fill below the line (tertiary) and the line (secondary), by alert level
+            int32_t levelStart = 0;
+            for (uint32_t level = 0; level < ARRAY_SIZE(levelEnds); level++)
+            {
+                int32_t levelEnd = MIN(maxY, levelEnds[level]);
+                ColorIndex colorIndex = COLOR_INSTRUMENT_ENHANCED_SECONDARY + 2 * level;
+
+                fillHistoryColumn(column, levelStart, MIN(minY, levelEnd), colorIndex + 1);
+                fillHistoryColumn(column, MAX(levelStart, minY), levelEnd, colorIndex);
+                levelStart = levelEnd;
+            }
+        }
+
+        drawImage(&(mr_rectangle_t){HISTORY_IMAGEBUFFER_LEFT + x, HISTORY_IMAGEBUFFER_TOP, 1, HISTORY_IMAGEBUFFER_HEIGHT}, column);
     }
 }

@@ -35,6 +35,8 @@ void initFlash(void);
 
 bool verifyFlash(void);
 
+// The returned pointer may point to a shared buffer (CH32F2): it is only
+// valid until the next readFlash() call, and count must not cross a page.
 const uint8_t *readFlash(uint32_t source, uint32_t count);
 bool writeFlash(uint32_t dest, const uint8_t *source, uint32_t count);
 bool eraseFlash(uint32_t dest);

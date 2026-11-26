@@ -7,6 +7,7 @@
  * License: MIT
  */
 
+#include <assert.h>
 #include <float.h>
 
 #include "../measurements/average.h"
@@ -26,6 +27,7 @@
 #include "../system/events.h"
 #include "../system/settings.h"
 #include "../ui/menu.h"
+#include "../ui/system.h"
 
 typedef enum
 {
@@ -45,7 +47,7 @@ static struct
 {
     bool enabled;
 
-    int32_t viewIndex;
+    uint32_t viewIndex;
 
     AlertLevel alertLevel;
     bool alertPending;
@@ -60,16 +62,37 @@ static const Menu measurementsMenu;
 
 // Measurements
 
-static OnViewEvent *const measurementViews[] = {
-    onInstantaneousRateViewEvent,
-    onAverageRateViewEvent,
-    onCumulativeDoseViewEvent,
-#if defined(EMFMETER)
-    onElectricFieldViewEvent,
-    onMagneticFieldViewEvent,
+typedef void MeasurementViewHandler(void);
+
+typedef struct
+{
+    MeasurementViewHandler *onDraw;
+    MeasurementViewHandler *onBack;  // Advance tab
+    MeasurementViewHandler *onReset; // Clear measurement (optional)
+#if defined(VOICE)
+    MeasurementViewHandler *onPlay; // Optional
 #endif
-    onHistoryViewEvent,
+} MeasurementViewHandlers;
+
+#if defined(VOICE)
+#define MEASUREMENT_VIEW(onDraw, onBack, onReset, onPlay) {onDraw, onBack, onReset, onPlay}
+#else
+#define MEASUREMENT_VIEW(onDraw, onBack, onReset, onPlay) {onDraw, onBack, onReset}
+#endif
+
+static const MeasurementViewHandlers measurementViews[] = {
+    MEASUREMENT_VIEW(drawInstantaneousRateView, advanceInstantaneousRateTab, clearInstantaneousRate, playVoiceInstantaneousRate),
+    MEASUREMENT_VIEW(drawAverageRateView, advanceAverageRateTab, clearAverageRate, playVoiceAverageRate),
+    MEASUREMENT_VIEW(drawCumulativeDoseView, advanceCumulativeDoseTab, clearCumulativeDose, playVoiceCumulativeDose),
+#if defined(EMFMETER)
+    MEASUREMENT_VIEW(drawElectricFieldView, advanceElectricFieldTab, clearElectricField, NULL),
+    MEASUREMENT_VIEW(drawMagneticFieldView, advanceMagneticFieldTab, clearMagneticField, NULL),
+#endif
+    MEASUREMENT_VIEW(drawHistoryView, advanceHistoryTab, NULL, playVoiceInstantaneousRate),
 };
+
+static_assert(ARRAY_SIZE(measurementViews) == MEASUREMENTS_VIEW_NUM,
+              "measurementViews must match MeasurementView");
 
 static void setMeasurementViewSelect(MeasurementView index);
 
@@ -221,6 +244,57 @@ bool isSoundIconActive(void)
     return measurements.soundIconActive;
 }
 
+// Alerts common
+
+static_assert(((int)MEASUREMENTSTYLE_NORMAL == (int)ALERTLEVEL_NONE) &&
+                  ((int)MEASUREMENTSTYLE_WARNING == (int)ALERTLEVEL_WARNING) &&
+                  ((int)MEASUREMENTSTYLE_ALARM == (int)ALERTLEVEL_ALARM),
+              "MeasurementStyle must mirror AlertLevel");
+
+AlertLevel getMeasurementAlertLevel(float value, const float *alerts, uint32_t warningIndex, uint32_t alarmIndex)
+{
+    if (alarmIndex && (value >= alerts[alarmIndex]))
+        return ALERTLEVEL_ALARM;
+
+    if (warningIndex && (value >= alerts[warningIndex]))
+        return ALERTLEVEL_WARNING;
+
+    return ALERTLEVEL_NONE;
+}
+
+void updateMeasurementAlertLevel(AlertLevel *alertLevel, AlertLevel value)
+{
+    if (value > *alertLevel)
+        setAlertPending(true);
+
+    *alertLevel = value;
+}
+
+MeasurementStyle getAlertMeasurementStyle(AlertLevel alertLevel)
+{
+    return (MeasurementStyle)alertLevel;
+}
+
+// Measurement tabs common
+
+uint32_t getNextMeasurementTab(uint32_t tab, uint32_t tabNum)
+{
+    tab++;
+
+    return (tab < tabNum) ? tab : 0;
+}
+
+uint32_t updateMeasurementAlertTab(uint32_t tab, uint32_t alertTab, bool alertTriggered, bool alertActive)
+{
+    if (alertTriggered)
+        return alertTab;
+
+    if ((tab == alertTab) && !alertActive)
+        return 0;
+
+    return tab;
+}
+
 // Measurement views common
 
 void buildValueString(char *valueString, char *unitString, float value, const Unit *unit, int32_t minMetricPrefixIndex)
@@ -244,6 +318,52 @@ void buildValueString(char *valueString, char *unitString, float value, const Un
     }
 }
 
+void drawMeasurementValueWithUnit(const char *title, float value, const Unit *unit, int32_t minMetricPrefixIndex, float confidence, MeasurementStyle style)
+{
+    char valueString[32];
+    char unitString[32];
+    strclr(valueString);
+    strclr(unitString);
+    buildValueString(valueString, unitString, value, unit, minMetricPrefixIndex);
+
+    drawTitleBar(title);
+    drawMeasurementValue(valueString, unitString, confidence, style);
+}
+
+void drawMeasurementInfoValue(const char *keyString, float value, const Unit *unit, int32_t minMetricPrefixIndex, MeasurementStyle style)
+{
+    char valueString[32];
+    char unitString[32];
+    strclr(valueString);
+    strcpy(unitString, " ");
+    buildValueString(valueString, unitString, value, unit, minMetricPrefixIndex);
+
+    drawMeasurementInfo(keyString, valueString, unitString, style);
+}
+
+void drawMeasurementInfoTime(const char *keyString, uint32_t time, MeasurementStyle style)
+{
+    char valueString[32];
+    strclr(valueString);
+    strcatTime(valueString, time);
+
+    drawMeasurementInfo(keyString, valueString, " ", style);
+}
+
+const char *buildAlertMenuOption(menu_size_t index, float value, const Unit *unit, int32_t minMetricPrefixIndex)
+{
+    if (index == 0)
+        return getString(STRING_OFF);
+
+    char unitString[32];
+    strclr(menuOption);
+    strcpy(unitString, " ");
+    buildValueString(menuOption, unitString, value, unit, minMetricPrefixIndex);
+    strcat(menuOption, unitString);
+
+    return menuOption;
+}
+
 static void setMeasurementViewSelect(MeasurementView index)
 {
     measurements.viewIndex = index;
@@ -251,15 +371,19 @@ static void setMeasurementViewSelect(MeasurementView index)
     setMeasurementView();
 }
 
+static void onMeasurementViewEvent(ViewEvent event);
+
 void setMeasurementView(void)
 {
     setKeyboardMode(KEYBOARD_MODE_MEASUREMENT);
 
-    showView(measurementViews[measurements.viewIndex]);
+    showView(onMeasurementViewEvent);
 }
 
-bool onMeasurementViewEvent(ViewEvent event)
+static void onMeasurementViewEvent(ViewEvent event)
 {
+    const MeasurementViewHandlers *view = &measurementViews[measurements.viewIndex];
+
     switch (event)
     {
     case EVENT_KEY_SELECT:
@@ -275,28 +399,37 @@ bool onMeasurementViewEvent(ViewEvent event)
         break;
 
     case EVENT_KEY_UP:
-        measurements.viewIndex--;
-        if (measurements.viewIndex < 0)
-            measurements.viewIndex = MEASUREMENTS_VIEW_NUM - 1;
+        measurements.viewIndex = (measurements.viewIndex ? measurements.viewIndex : MEASUREMENTS_VIEW_NUM) - 1;
 
         setMeasurementView();
 
         break;
 
     case EVENT_KEY_DOWN:
-        measurements.viewIndex++;
-        if (measurements.viewIndex >= MEASUREMENTS_VIEW_NUM)
-            measurements.viewIndex = 0;
+        measurements.viewIndex = getNextMeasurementTab(measurements.viewIndex, MEASUREMENTS_VIEW_NUM);
 
         setMeasurementView();
+
+        break;
+
+    case EVENT_KEY_BACK:
+        view->onBack();
+
+        requestViewUpdate();
 
         break;
 
     case EVENT_KEY_RESET:
         if (measurements.alertPending)
             measurements.alertPending = false;
-        else
-            return isLockModeEnabled();
+        else if (!isLockModeEnabled() && view->onReset)
+        {
+            triggerVibration();
+
+            view->onReset();
+
+            requestViewUpdate();
+        }
 
         break;
 
@@ -313,11 +446,22 @@ bool onMeasurementViewEvent(ViewEvent event)
 
         break;
 
-    default:
-        return false;
-    }
+#if defined(VOICE)
+    case EVENT_KEY_PLAY:
+        if (view->onPlay)
+            view->onPlay();
 
-    return true;
+        break;
+#endif
+
+    case EVENT_DRAW:
+        view->onDraw();
+
+        break;
+
+    default:
+        break;
+    }
 }
 
 // Alert indication menu

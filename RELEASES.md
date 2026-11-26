@@ -4,14 +4,68 @@
 
 * Added support for the GQ GMC-800V2.
 * Added **Estonian** translation.
-* Fixed `GET tubeType` returning the wrong tube name for tube types after M4011.
+* FS2011 (GD32F103): Fixed the display backlight not turning on.
+* Bosean FS-600, Bosean FS-1000, Bosean FS-5000: Fixed the counter possibly hanging at startup after losing power while saving settings or writing the data log.
+* Bosean FS-600, Bosean FS-1000: Fixed the history loading slowly at startup: the faster processor clock used for loading it was not actually being applied.
+* FNIRSI GC-01: Fixed the display backlight turning on at full brightness during startup.
+* FNIRSI GC-03: Fixed the knob occasionally stepping in the wrong direction.
+* FNIRSI GC-03: Fixed the pulse LED flashing for only half of its intended duration.
+* FNIRSI GC-03: Fixed the battery level barely changing after a few hours of operation, and the counter powering off with a false low-battery indication after about 30 hours of continuous operation.
+* FNIRSI GC-03: Fixed the counter turning off after a crash, instead of restarting.
 * GQ GMC-800: Improved LCD image quality: deeper blacks, dark colors that no longer look washed out (especially in the Dusk and Night themes), and no more bright band along the display edges.
-* Reduced firmware size through code optimizations.
+* GQ GMC-800, GQ GMC-800V2: The random generator now plays the alert sound when it finishes generating symbols (ASCII, alphanumeric, hexadecimal, decimal and binary modes).
+* GQ GMC-800, GQ GMC-800V2: Fixed the display backlight occasionally staying on after the display turned off, and pulse vibrations occasionally being skipped at very high count rates.
+* GQ GMC-800, GQ GMC-800V2: Fixed voice readouts staying silent when the rate or dose was zero (they now say "zero"), and voice alerts occasionally cutting off a voice readout that had just been requested.
+* GQ GMC-800, GQ GMC-800V2: Fixed voice readouts saying "zero" for values between 0.0005 and 0.0009, instead of rounding them to 0.001.
+* FNIRSI GC-01, FNIRSI GC-03, GQ GMC-800V2: Fixed the USB connection stalling when a program closed the serial port in the middle of a response, and responses occasionally containing repeated or corrupted characters when a request arrived while a response was being sent.
+* FS2011, Bosean FS-600, Bosean FS-1000: Fixed the alert display flash occasionally being skipped when display sleep was set to "Always off".
+* FS2011 (GD32F103), FNIRSI GC-01, FNIRSI GC-03, GQ GMC-800, GQ GMC-800V2: Fixed the clock running about 2.6 seconds per day slow after a full power loss, until the time was set.
+* Bosean FS-600, Bosean FS-1000, Bosean FS-5000, FNIRSI GC-01, FNIRSI GC-03: Fixed pulse LED flashes occasionally being cut short.
+* Bosean FS-5000, FNIRSI GC-01, FNIRSI GC-03, GQ GMC-800, GQ GMC-800V2: Fixed the random generator occasionally cutting off long symbol strings with "…"; strings that do not fit on one line now continue on a second line.
+* FS2011, Bosean FS-600, Bosean FS-1000, Bosean FS-5000, FNIRSI GC-03, GQ GMC-800, GQ GMC-800V2: Fixed the display backlight rarely getting stuck on or off when a pulse display flash coincided with the backlight turning on or off.
+* Selecting a pulse sound style (clicks, chirps or beeps) now plays a sample, like the alert sound settings.
+* Fixed `GET tubeType` returning the wrong tube name for tube types after M4011.
+* Improved key debouncing: brief electrical glitches, such as interference from the high-voltage generator, no longer register as key presses.
+* Fixed key presses being lost when quickly moving from one key to another.
+* Fixed key presses being lost when several arrive while the counter is busy.
+* Fixed the counter occasionally acting as if the display were still asleep after waking it up, when a pulse display flash or the display sleep timeout ended at that moment: the next key press only woke the display again, and on the FNIRSI GC-03, knob turns were ignored.
+* Fixed key presses on the startup screen delaying startup by reloading the history, and, after a firmware checksum failure, possibly preventing the history from loading.
+* In lock mode, holding the power key now wakes the display, like the other keys, instead of doing nothing.
+* Fixed turning off the display, or entering lock mode, occasionally being undone when it coincided with an alert display flash or with connecting USB power.
+* Fixed the random generator occasionally reusing random bits, which could make consecutive outputs correlated.
+* Fixed the instantaneous rate with fixed averaging intervals (1 minute, 30 seconds and 10 seconds) keeping its last value, and any active rate alert, when no pulses were detected during the averaging interval; it now reads zero, as documented.
+* Fixed data logging stopping, and further data log downloads failing, after a download was interrupted (for example, by unplugging the USB cable or closing the serial port).
+* Fixed the history occasionally showing spurious peaks, and data log downloads occasionally starting with an incorrect record, after the data log wrapped around.
+* Fixed `SET tubePulseCount` causing a spurious peak in the history.
+* Fixed the history graph line occasionally disappearing at the bottom of the graph, where low readings could look like missing data.
+* Fixed the confidence interval showing "±10.0%" instead of "±10%" for values just under 10%.
+* Improved data log recovery from flash write errors.
+* Fixed settings and the cumulative dose no longer being saved after the counter lost power while saving them.
+* Data log downloads interrupted on the counter (by a clock change, a logging mode change, a data log reset or powering off) now end with an `ERROR` record, instead of silently returning incomplete data.
+* Data logging now resumes as soon as a data log download reaches its maximum number of records.
+* Requests with unexpected arguments, malformed or out-of-range numbers or more than 63 characters, and requests received with lost characters, are now rejected with `ERROR` instead of being partially executed.
+* Fixed `SET tubeHVFrequency` and `SET tubeHVDutyCycle` possibly setting an invalid high-voltage generator configuration when given a value with about 40 or more digits.
+* Fixed `GET tubeRate` returning incorrect values at very high count rates.
+* Fixed the tube dead time (shown on the statistics screen and returned by `GET tubeDeadTime`) occasionally reading lower than the tube's actual dead time: pulse detection now takes priority over other tasks, as intended, and electrical glitches shorter than 10 µs no longer count as pulse intervals.
+* Fixed the date jumping into the following month when setting a month or year in which the current day does not exist (for example, changing January 31 to February now gives February 28 instead of March 3).
+* `SET deviceTimeZone` now rounds fractional time zones to the nearest hour, and rejects invalid values instead of setting an incorrect time zone.
+* `SET deviceTime` now rejects times outside the years 2000–2099 on devices whose clock stores only two-digit years, instead of setting an incorrect year.
+* Fixed the counter hanging at startup when the real-time clock crystal fails to start.
+* Improved real-time clock reliability: the time is no longer read before the clock has synchronized, after startup or after setting the time.
+* Fixed the real-time clock not running when a previous firmware had left it on a different clock source; the clock is now reset.
+* Improved battery voltage measurement accuracy.
+* Fixed the battery level indicator switching back and forth between two levels when the battery voltage is near a level boundary.
+* `radpro-tool` now discards data left over from a previous connection, which could shift every response by one.
+* Reduced firmware size and memory usage through code optimizations.
 * Updated the game engine to **mcu-max 2.0.0**:
   * Reworked the strength levels: the lower levels now play occasional random moves.
   * Fixed an issue causing the game to crash the counter: the search depth is now limited to the memory available on each device.
   * The search now stops when the counter powers off.
+  * Fixed a possible crash in positions with a very large number of legal moves.
+  * Fixed the game screen becoming unresponsive when the back key was pressed right after making a move.
+  * The final move is now highlighted when the game ends.
 * Updated **mcu-renderer** to 1.0.20.
+* AI Disclaimer: Claude Code was used for debugging/optimizing code.
 
 ## 3.1.1 "Aligned"
 

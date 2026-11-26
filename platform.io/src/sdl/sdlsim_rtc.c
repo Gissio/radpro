@@ -9,32 +9,27 @@
 
 #if defined(SIMULATOR)
 
-#include <stdio.h>
 #include <time.h>
 
 #include "../peripherals/rtc.h"
 
-static int32_t timeDelta;
+// Device time = host time + offset
+static uint32_t timeOffset;
 
 void initRTC(void)
 {
 }
 
-static uint32_t getLocalTime(void)
-{
-    return time(NULL);
-}
-
 bool setDeviceTime(uint32_t value)
 {
-    timeDelta = value - getLocalTime();
+    timeOffset = value - (uint32_t)time(NULL);
 
     return true;
 }
 
 uint32_t getDeviceTime(void)
 {
-    return getLocalTime() + timeDelta;
+    return (uint32_t)time(NULL) + timeOffset;
 }
 
 uint32_t getDeviceTimeFast(void)

@@ -30,6 +30,8 @@ float getElectricField(void);
 
 AlertLevel getElectricFieldAlertLevel(void);
 
-void onElectricFieldViewEvent(ViewEvent event);
+void clearElectricField(void);
+void advanceElectricFieldTab(void);
+void drawElectricFieldView(void);
 
 #endif

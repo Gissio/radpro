@@ -7,8 +7,6 @@
  * License: MIT
  */
 
-#include <stdio.h>
-
 #include "../extras/rng.h"
 #include "../measurements/datalog.h"
 #include "../measurements/electricfield.h"
@@ -30,6 +28,8 @@
 #define DATALOG_MAX_RECORDS_PER_TX 2
 #define DATALOG_MAX_SCAN_PER_TX 1000
 
+#define RANDOM_DATA_MAX_BYTES 16
+
 Comm comm;
 
 void initComm(void)
@@ -39,13 +39,82 @@ void initComm(void)
 
 NOINLINE void clearComm(bool open)
 {
+    // Abort interrupted datalog transfer, so logging resumes
+    if (comm.transmitState == TRANSMIT_DATALOG)
+    {
+        stopDatalogRead();
+
+        comm.transmitState = TRANSMIT_RESPONSE;
+    }
+
     comm.state = COMM_RX;
 
     strclr(comm.buffer);
 
     comm.bufferIndex = 0;
+    comm.previousChar = '\0';
     comm.open = open;
 }
+
+// Receive
+
+void invalidateCommCommand(void)
+{
+    // A full buffer starting with '\0' is an invalid command: further
+    // characters are discarded until the end of the command, which then
+    // yields an empty request (answered with ERROR)
+    comm.buffer[0] = '\0';
+    comm.bufferIndex = COMM_BUFFER_SIZE - 1;
+}
+
+bool receiveCommChar(char c)
+{
+    bool endOfCommand;
+
+    if (c >= ' ')
+    {
+        if (comm.bufferIndex < (COMM_BUFFER_SIZE - 1))
+            comm.buffer[comm.bufferIndex++] = c;
+        else
+            invalidateCommCommand();
+
+#if defined(GMC800)
+        // GQ GMC commands end with ">>" instead of a line ending
+        endOfCommand = (c == '>') && (comm.previousChar == '>');
+#else
+        endOfCommand = false;
+#endif
+    }
+    else
+        endOfCommand = (c == '\r') ||
+                       ((c == '\n') && (comm.previousChar != '\r'));
+
+    comm.previousChar = c;
+
+    if (endOfCommand)
+    {
+        comm.buffer[comm.bufferIndex] = '\0';
+
+        comm.bufferIndex = 0;
+        comm.state = COMM_RX_READY;
+    }
+
+    return endOfCommand;
+}
+
+// Transmit
+
+void endCommTransmit(void)
+{
+    strclr(comm.buffer);
+    comm.bufferIndex = 0;
+
+    comm.state = (comm.transmitState == TRANSMIT_RESPONSE)
+                     ? COMM_RX
+                     : COMM_TX_READY;
+}
+
+// Responses
 
 static void pushCommOk(void)
 {
@@ -59,10 +128,126 @@ static void pushCommOkSpace(void)
     strcatChar(comm.buffer, ' ');
 }
 
-static void pushCommString(const char *value)
+static void endCommResponse(void)
 {
-    pushCommOkSpace();
-    strcat(comm.buffer, value);
+    strcat(comm.buffer, "\r\n");
+    comm.transmitState = TRANSMIT_RESPONSE;
+}
+
+// Parsing
+
+static bool isCommEnd(const char *s)
+{
+    while (*s == ' ')
+        s++;
+
+    return (*s == '\0');
+}
+
+// Properties
+
+typedef enum
+{
+    PROPERTY_DEVICE_ID,
+    PROPERTY_DEVICE_POWER,
+    PROPERTY_DEVICE_TIME,
+    PROPERTY_DEVICE_TIME_ZONE,
+    PROPERTY_TUBE_TIME,
+    PROPERTY_TUBE_PULSE_COUNT,
+#if defined(TUBE_HV_PWM)
+    PROPERTY_TUBE_HV_FREQUENCY,
+    PROPERTY_TUBE_HV_DUTY_CYCLE,
+#endif
+    PROPERTY_DEVICE_BATTERY_VOLTAGE,
+    PROPERTY_TUBE_TYPE,
+    PROPERTY_TUBE_RATE,
+    PROPERTY_TUBE_DEAD_TIME,
+    PROPERTY_TUBE_SENSITIVITY,
+    PROPERTY_TUBE_DEAD_TIME_COMPENSATION,
+#if defined(EMFMETER)
+    PROPERTY_ELECTRIC_FIELD,
+    PROPERTY_MAGNETIC_FIELD,
+#endif
+    PROPERTY_DATALOG,
+    PROPERTY_RANDOM_DATA,
+
+    PROPERTY_NUM,
+} Property;
+
+// Must match the order of Property
+static const char *const commPropertyNames[] = {
+    "deviceId",
+    "devicePower",
+    "deviceTime",
+    "deviceTimeZone",
+    "tubeTime",
+    "tubePulseCount",
+#if defined(TUBE_HV_PWM)
+    "tubeHVFrequency",
+    "tubeHVDutyCycle",
+#endif
+    "deviceBatteryVoltage",
+    "tubeType",
+    "tubeRate",
+    "tubeDeadTime",
+    "tubeSensitivity",
+    "tubeDeadTimeCompensation",
+#if defined(EMFMETER)
+    "electricField",
+    "magneticField",
+#endif
+    "datalog",
+    "randomData",
+};
+
+_Static_assert(ARRAY_SIZE(commPropertyNames) == PROPERTY_NUM,
+               "commPropertyNames must match Property");
+
+static Property parseCommProperty(const char **s)
+{
+    Property property = 0;
+
+    while ((property < PROPERTY_NUM) &&
+           !parseToken(s, commPropertyNames[property]))
+        property++;
+
+    return property;
+}
+
+static void getCommDatalog(const char *s)
+{
+    // All arguments are optional
+    comm.datalogStartTime = 0;
+    comm.datalogEndTime = UINT32_MAX;
+    comm.datalogMaxRecordNum = UINT32_MAX;
+    comm.datalogRecordNum = 0;
+
+    parseUInt32(&s, &comm.datalogStartTime);
+    parseUInt32(&s, &comm.datalogEndTime);
+    parseUInt32(&s, &comm.datalogMaxRecordNum);
+
+    if (isCommEnd(s) && startDatalogRead())
+    {
+        pushCommOk();
+        strcat(comm.buffer, " time,tubePulseCount");
+        comm.transmitState = TRANSMIT_DATALOG;
+    }
+}
+
+static void getCommRandomData(void)
+{
+    pushCommOk();
+
+    for (uint32_t i = 0; i < RANDOM_DATA_MAX_BYTES; i++)
+    {
+        int32_t value = getRNGByte();
+        if (value < 0)
+            break;
+
+        if (i == 0)
+            strcatChar(comm.buffer, ' ');
+        strcatUInt8Hex(comm.buffer, value);
+    }
 }
 
 static void pushCommUInt32(uint32_t value)
@@ -77,290 +262,357 @@ static void pushCommFloat(float value, uint32_t fractionalDecimals)
     strcatFloat(comm.buffer, value, fractionalDecimals);
 }
 
-// GET commands
-
-enum GetAction
+static void processCommGet(const char *s)
 {
-    GET_DEVICE_ID,
-    GET_DEVICE_POWER,
-    GET_DEVICE_BATTERY_VOLTAGE,
-    GET_DEVICE_TIME,
-    GET_DEVICE_TIME_ZONE,
-    GET_TUBE_TYPE,
-    GET_TUBE_TIME,
-    GET_TUBE_PULSE_COUNT,
-    GET_TUBE_RATE,
-    GET_TUBE_DEAD_TIME,
-    GET_TUBE_SENSITIVITY,
-    GET_TUBE_DEADTIMECOMPENSATION,
-#if defined(TUBE_HV_PWM)
-    GET_TUBE_HV_FREQUENCY,
-    GET_TUBE_HV_DUTY_CYCLE,
-#endif
-#if defined(EMFMETER)
-    GET_ELECTRIC_FIELD,
-    GET_MAGNETIC_FIELD,
-#endif
-    GET_DATALOG,
-    GET_RANDOM_DATA
-};
+    Property property = parseCommProperty(&s);
 
-static const char *getTable[] = {
-    "deviceId",
-    "devicePower",
-    "deviceBatteryVoltage",
-    "deviceTime",
-    "deviceTimeZone",
-    "tubeType",
-    "tubeTime",
-    "tubePulseCount",
-    "tubeRate",
-    "tubeDeadTime",
-    "tubeSensitivity",
-    "tubeDeadTimeCompensation",
-#if defined(TUBE_HV_PWM)
-    "tubeHVFrequency",
-    "tubeHVDutyCycle",
-#endif
-#if defined(EMFMETER)
-    "electricField",
-    "magneticField",
-#endif
-    "datalog",
-    "randomData"};
-
-void processCommGet(const char *s)
-{
-    for (size_t i = 0; i < ARRAY_SIZE(getTable); i++)
+    // Only datalog takes arguments
+    if (property == PROPERTY_DATALOG)
     {
-        if (!parseToken(&s, getTable[i]))
-            continue;
+        getCommDatalog(s);
 
-        switch ((enum GetAction)i)
-        {
-        case GET_DEVICE_ID:
-            pushCommString(commId);
-            strcatChar(comm.buffer, ';');
-            comm.transmitState = TRANSMIT_DEVICEID;
+        return;
+    }
 
-            break;
+    if (!isCommEnd(s))
+        return;
 
-        case GET_DEVICE_POWER:
-            pushCommUInt32(isPoweredOn());
+    switch (property)
+    {
+    case PROPERTY_DEVICE_ID:
+        // The device id is appended in a second transmission
+        pushCommOkSpace();
+        strcat(comm.buffer, commId);
+        strcatChar(comm.buffer, ';');
+        comm.transmitState = TRANSMIT_DEVICEID;
 
-            break;
+        break;
 
-        case GET_DEVICE_BATTERY_VOLTAGE:
-            pushCommFloat(getBatteryVoltage(), 3);
+    case PROPERTY_DEVICE_POWER:
+        pushCommUInt32(isPoweredOn());
 
-            break;
+        break;
 
-        case GET_DEVICE_TIME:
-            pushCommUInt32(getDeviceTime());
+    case PROPERTY_DEVICE_TIME:
+        pushCommUInt32(getDeviceTime());
 
-            break;
+        break;
 
-        case GET_DEVICE_TIME_ZONE:
-            pushCommFloat(getDeviceTimeZone(), 1);
+    case PROPERTY_DEVICE_TIME_ZONE:
+        pushCommFloat(getDeviceTimeZone(), 1);
 
-            break;
+        break;
 
-        case GET_TUBE_TYPE:
-            pushCommString(getTubeType());
+    case PROPERTY_TUBE_TIME:
+        pushCommUInt32(getTubeTime());
 
-            break;
+        break;
 
-        case GET_TUBE_TIME:
-            pushCommUInt32(getTubeTime());
+    case PROPERTY_TUBE_PULSE_COUNT:
+        pushCommUInt32(getTubePulseCount());
 
-            break;
-
-        case GET_TUBE_PULSE_COUNT:
-            pushCommUInt32(getTubePulseCount());
-
-            break;
-
-        case GET_TUBE_RATE:
-            pushCommFloat(60.0F * getInstantaneousRate(), 3);
-
-            break;
-
-        case GET_TUBE_DEAD_TIME:
-            pushCommFloat(getTubeDeadTime(), 7);
-
-            break;
-
-        case GET_TUBE_SENSITIVITY:
-            pushCommFloat(getTubeSensitivity(), 3);
-
-            break;
-
-        case GET_TUBE_DEADTIMECOMPENSATION:
-            pushCommFloat(getTubeDeadTimeCompensation(), 7);
-
-            break;
+        break;
 
 #if defined(TUBE_HV_PWM)
-        case GET_TUBE_HV_FREQUENCY:
-            pushCommFloat(getTubeHVFrequency(), 2);
+    case PROPERTY_TUBE_HV_FREQUENCY:
+        pushCommFloat(getTubeHVFrequency(), 2);
 
-            break;
+        break;
 
-        case GET_TUBE_HV_DUTY_CYCLE:
-            pushCommFloat(getTubeHVDutyCycle(), 5);
+    case PROPERTY_TUBE_HV_DUTY_CYCLE:
+        pushCommFloat(getTubeHVDutyCycle(), 5);
 
-            break;
+        break;
 #endif
+
+    case PROPERTY_DEVICE_BATTERY_VOLTAGE:
+        pushCommFloat(getBatteryVoltage(), 3);
+
+        break;
+
+    case PROPERTY_TUBE_TYPE:
+        pushCommOkSpace();
+        strcat(comm.buffer, getTubeType());
+
+        break;
+
+    case PROPERTY_TUBE_RATE:
+        pushCommFloat(60.0F * getInstantaneousRate(), 3);
+
+        break;
+
+    case PROPERTY_TUBE_DEAD_TIME:
+        pushCommFloat(getTubeDeadTime(), 7);
+
+        break;
+
+    case PROPERTY_TUBE_SENSITIVITY:
+        pushCommFloat(getTubeSensitivity(), 3);
+
+        break;
+
+    case PROPERTY_TUBE_DEAD_TIME_COMPENSATION:
+        pushCommFloat(getTubeDeadTimeCompensation(), 7);
+
+        break;
 
 #if defined(EMFMETER)
-        case GET_ELECTRIC_FIELD:
-            pushCommFloat(getElectricField(), 3);
+    case PROPERTY_ELECTRIC_FIELD:
+        pushCommFloat(getElectricField(), 3);
 
-            break;
+        break;
 
-        case GET_MAGNETIC_FIELD:
-            pushCommFloat(getMagneticField(), 9);
+    case PROPERTY_MAGNETIC_FIELD:
+        pushCommFloat(getMagneticField(), 9);
 
-            break;
+        break;
 #endif
 
-        case GET_DATALOG:
-            if (startDatalogRead())
-            {
-                comm.datalogStartTime = 0;
-                comm.datalogEndTime = UINT32_MAX;
-                comm.datalogMaxRecordNum = UINT32_MAX;
-                comm.datalogRecordNum = 0;
-                parseUInt32(&s, &comm.datalogStartTime);
-                parseUInt32(&s, &comm.datalogEndTime);
-                parseUInt32(&s, &comm.datalogMaxRecordNum);
-                pushCommOk();
-                strcat(comm.buffer, " time,tubePulseCount");
-                comm.transmitState = TRANSMIT_DATALOG;
-            }
-            break;
+    case PROPERTY_RANDOM_DATA:
+        getCommRandomData();
 
-        case GET_RANDOM_DATA:
-            pushCommOk();
-            for (uint32_t j = 0; j < 16; j++)
-            {
-                int32_t value = getRNGByte();
-                if (value < 0)
-                    break;
-                if (j == 0)
-                    strcatChar(comm.buffer, ' ');
-                strcatUInt8Hex(comm.buffer, value);
-            }
+        break;
 
-            break;
-        }
-
+    default:
         break;
     }
 }
 
-// SET commands
-
-enum SetAction
+static void processCommSet(const char *s)
 {
-    SET_DEVICE_POWER,
-    SET_DEVICE_TIME,
-    SET_DEVICE_TIMEZONE,
-    SET_TUBE_TIME,
-    SET_TUBE_PULSECOUNT,
-#if defined(TUBE_HV_PWM)
-    SET_TUBE_HV_FREQUENCY,
-    SET_TUBE_HV_DUTYCYCLE,
-#endif
-    SET_NONE
-};
+    Property property = parseCommProperty(&s);
 
-static const char *setTable[] = {
-    "devicePower",
-    "deviceTime",
-    "deviceTimeZone",
-    "tubeTime",
-    "tubePulseCount",
+    // Settable properties take a uint32 value, except these float ones
+    bool isFloat = (property == PROPERTY_DEVICE_TIME_ZONE);
 #if defined(TUBE_HV_PWM)
-    "tubeHVFrequency",
-    "tubeHVDutyCycle",
+    isFloat |= (property == PROPERTY_TUBE_HV_FREQUENCY) ||
+               (property == PROPERTY_TUBE_HV_DUTY_CYCLE);
 #endif
-};
 
-void processCommSet(const char *s)
-{
-    for (size_t i = 0; i < ARRAY_SIZE(setTable); i++)
+    uint32_t intValue;
+    float floatValue;
+
+    if (!(isFloat
+              ? parseFloat(&s, &floatValue)
+              : parseUInt32(&s, &intValue)) ||
+        !isCommEnd(s))
+        return;
+
+    switch (property)
     {
-        if (!parseToken(&s, setTable[i]))
-            continue;
+    case PROPERTY_DEVICE_POWER:
+        if (intValue)
+            powerOn();
+        else
+            powerOff();
 
-        uint32_t intValue;
-        float floatValue;
+        break;
 
-        switch ((enum SetAction)i)
-        {
-        case SET_DEVICE_POWER:
-            if (parseUInt32(&s, &intValue))
-            {
-                if (intValue)
-                    powerOn();
-                else
-                    powerOff();
-                pushCommOk();
-            }
+    case PROPERTY_DEVICE_TIME:
+        if (!setDeviceTime(intValue))
+            return;
 
-            break;
+        writeDatalogTimeChange();
 
-        case SET_DEVICE_TIME:
-            if (parseUInt32(&s, &intValue) && setDeviceTime(intValue))
-            {
-                writeDatalogTimeChange();
-                pushCommOk();
-            }
+        break;
 
-            break;
+    case PROPERTY_DEVICE_TIME_ZONE:
+        if (!setDeviceTimeZone(floatValue))
+            return;
 
-        case SET_DEVICE_TIMEZONE:
-            if (parseFloat(&s, &floatValue) && setDeviceTimeZone(floatValue))
-                pushCommOk();
+        break;
 
-            break;
+    case PROPERTY_TUBE_TIME:
+        setTubeTime(intValue);
 
-        case SET_TUBE_TIME:
-            if (parseUInt32(&s, &intValue))
-            {
-                setTubeTime(intValue);
-                pushCommOk();
-            }
+        break;
 
-            break;
+    case PROPERTY_TUBE_PULSE_COUNT:
+        setTubePulseCount(intValue);
 
-        case SET_TUBE_PULSECOUNT:
-            if (parseUInt32(&s, &intValue))
-            {
-                setTubePulseCount(intValue);
-                pushCommOk();
-            }
+        // Record new pulse count base in datalog
+        writeDatalogTimeChange();
 
-            break;
+        break;
 
 #if defined(TUBE_HV_PWM)
-        case SET_TUBE_HV_FREQUENCY:
-            if (parseFloat(&s, &floatValue) && setTubeHVFrequency(floatValue))
-                pushCommOk();
+    case PROPERTY_TUBE_HV_FREQUENCY:
+        if (!setTubeHVFrequency(floatValue))
+            return;
 
-            break;
+        break;
 
-        case SET_TUBE_HV_DUTYCYCLE:
-            if (parseFloat(&s, &floatValue) && setTubeHVDutyCycle(floatValue))
-                pushCommOk();
+    case PROPERTY_TUBE_HV_DUTY_CYCLE:
+        if (!setTubeHVDutyCycle(floatValue))
+            return;
 
-            break;
+        break;
 #endif
 
-        default:
-            break;
+    default:
+        return;
+    }
+
+    pushCommOk();
+}
+
+// Commands
+
+static void processCommCommand(void)
+{
+    const char *s = comm.buffer;
+    comm.transmitState = TRANSMIT_ERROR;
+
+    if (parseToken(&s, "GET"))
+        processCommGet(s);
+    else if (parseToken(&s, "SET"))
+        processCommSet(s);
+    else if (parseToken(&s, "RESET datalog") && isCommEnd(s))
+    {
+        clearDatalog();
+        pushCommOk();
+    }
+#if defined(BOOTLOADER)
+    else if (parseToken(&s, "START bootloader") && isCommEnd(s))
+    {
+        pushCommOk();
+        comm.transmitState = TRANSMIT_BOOTLOADER;
+    }
+#endif
+#if defined(GMC800)
+    else if (parseToken(&s, "<GETVER>>"))
+    {
+        strcpy(comm.buffer, "GMC-800Re RADP");
+        comm.transmitState = TRANSMIT_RAW;
+    }
+    else if (parseToken(&s, "<GETSERIAL>>"))
+    {
+        strcpy(comm.buffer, "\xde\xca\xfb\xad\xc0\xff\xee");
+        comm.transmitState = TRANSMIT_RAW;
+    }
+#if defined(BOOTLOADER)
+    else if (parseToken(&s, "<BOOTLOADER1>>"))
+    {
+        strcpy(comm.buffer, "BOOTLOADER");
+        comm.transmitState = TRANSMIT_BOOTLOADER;
+    }
+#endif
+#endif
+
+    switch (comm.transmitState)
+    {
+    case TRANSMIT_RESPONSE:
+    case TRANSMIT_BOOTLOADER:
+        strcat(comm.buffer, "\r\n");
+
+        break;
+
+    case TRANSMIT_RAW:
+        comm.transmitState = TRANSMIT_RESPONSE;
+
+        break;
+
+    case TRANSMIT_ERROR:
+        strcpy(comm.buffer, "ERROR");
+        endCommResponse();
+
+        break;
+
+    default:
+        break;
+    }
+
+    transmitComm();
+}
+
+// Multi-part responses
+
+static void transmitCommDatalog(void)
+{
+    if (!isDatalogReadActive())
+    {
+        // A datalog write (clock change, logging mode change, reset, power
+        // on or off) or the history load stopped the read: flag the
+        // transfer as incomplete
+        strcpy(comm.buffer, ";ERROR");
+        endCommResponse();
+    }
+    else
+    {
+        uint32_t sentRecordNum = 0;
+
+        for (uint32_t readRecordNum = 0;
+             (sentRecordNum < DATALOG_MAX_RECORDS_PER_TX) &&
+             (readRecordNum < DATALOG_MAX_SCAN_PER_TX);
+             readRecordNum++)
+        {
+            // Stop reading once enough records were sent, so logging resumes
+            if (comm.datalogRecordNum >= comm.datalogMaxRecordNum)
+                stopDatalogRead();
+
+            if (!readDatalog(&comm.datalogRecord))
+            {
+                endCommResponse();
+
+                break;
+            }
+
+            const Dose *dose = &comm.datalogRecord.dose;
+
+            if ((dose->time >= comm.datalogStartTime) &&
+                (dose->time <= comm.datalogEndTime))
+            {
+                if (comm.datalogRecord.sessionStart)
+                    strcatChar(comm.buffer, ';');
+                strcatChar(comm.buffer, ';');
+                strcatUInt32(comm.buffer, dose->time, 0);
+                strcatChar(comm.buffer, ',');
+                strcatUInt32(comm.buffer, dose->pulseCount, 0);
+
+                sentRecordNum++;
+                comm.datalogRecordNum++;
+            }
         }
+    }
+
+    transmitComm();
+}
+
+static void processCommTransmitReady(void)
+{
+    switch (comm.transmitState)
+    {
+#if defined(BOOTLOADER)
+    case TRANSMIT_BOOTLOADER:
+        sleep(START_BOOTLOADER_TIME_MS);
+
+        powerOff();
+
+        // Turn off the display immediately; powerOff() alone would leave it on until next event loop.
+        setBacklight(false);
+        setDisplayEnabled(false);
+
+        startBootloader();
+
+        comm.transmitState = TRANSMIT_RESPONSE;
+
+        break;
+#endif
+
+    case TRANSMIT_DEVICEID:
+        getDeviceId(comm.buffer);
+        endCommResponse();
+        transmitComm();
+
+        break;
+
+    case TRANSMIT_DATALOG:
+        transmitCommDatalog();
+
+        break;
+
+    default:
+        comm.state = COMM_RX;
 
         break;
     }
@@ -385,146 +637,8 @@ void updateComm(void)
     pollComm();
 
     // Process comm events
-    switch (comm.state)
-    {
-    case COMM_RX_READY:
-    {
-        const char *s = comm.buffer;
-        comm.transmitState = TRANSMIT_ERROR;
-
-        if (parseToken(&s, "GET"))
-            processCommGet(s);
-        else if (parseToken(&s, "SET"))
-            processCommSet(s);
-        else if (parseToken(&s, "RESET datalog"))
-        {
-            clearDatalog();
-            pushCommOk();
-        }
-#if defined(BOOTLOADER)
-        else if (parseToken(&s, "START bootloader"))
-        {
-            pushCommOk();
-            comm.transmitState = TRANSMIT_BOOTLOADER;
-        }
-#endif
-#if defined(GMC800)
-        else if (parseToken(&s, "<GETVER>>"))
-        {
-            strcpy(comm.buffer, "GMC-800Re RADP");
-            comm.transmitState = TRANSMIT_RAW;
-        }
-        else if (parseToken(&s, "<GETSERIAL>>"))
-        {
-            strcpy(comm.buffer, "\xde\xca\xfb\xad\xc0\xff\xee");
-            comm.transmitState = TRANSMIT_RAW;
-        }
-        else if (parseToken(&s, "<BOOTLOADER1>>"))
-        {
-            strcpy(comm.buffer, "BOOTLOADER");
-            comm.transmitState = TRANSMIT_BOOTLOADER;
-        }
-#endif
-
-        if (comm.transmitState <= TRANSMIT_BOOTLOADER)
-            strcat(comm.buffer, "\r\n");
-        else if (comm.transmitState == TRANSMIT_RAW)
-            comm.transmitState = TRANSMIT_RESPONSE;
-        else if (comm.transmitState == TRANSMIT_ERROR)
-        {
-            strcpy(comm.buffer, "ERROR\r\n");
-            comm.transmitState = TRANSMIT_RESPONSE;
-        }
-
-        transmitComm();
-
-        break;
-    }
-
-    case COMM_TX_READY:
-        switch (comm.transmitState)
-        {
-#if defined(BOOTLOADER)
-        case TRANSMIT_BOOTLOADER:
-        {
-            sleep(START_BOOTLOADER_TIME_MS);
-
-            powerOff();
-
-            // Turn off the display immediately; powerOff() alone would leave it on until next event loop.
-            setBacklight(false);
-            setDisplayEnabled(false);
-
-            startBootloader();
-
-            comm.transmitState = TRANSMIT_RESPONSE;
-
-            break;
-        }
-#endif
-
-        case TRANSMIT_DEVICEID:
-        {
-            char deviceId[32];
-            getDeviceId(deviceId);
-            strcat(comm.buffer, deviceId);
-            strcat(comm.buffer, "\r\n");
-            comm.transmitState = TRANSMIT_RESPONSE;
-
-            transmitComm();
-
-            break;
-        }
-
-        case TRANSMIT_DATALOG:
-        {
-            uint32_t sentRecordNum = 0;
-            uint32_t readRecordNum = 0;
-
-            while ((sentRecordNum < DATALOG_MAX_RECORDS_PER_TX) && (readRecordNum < DATALOG_MAX_SCAN_PER_TX))
-            {
-                if (!readDatalog(&comm.datalogRecord))
-                {
-                    strcat(comm.buffer, "\r\n");
-                    comm.transmitState = TRANSMIT_RESPONSE;
-
-                    break;
-                }
-
-                if ((comm.datalogRecord.dose.time >= comm.datalogStartTime) &&
-                    (comm.datalogRecord.dose.time <= comm.datalogEndTime) &&
-                    (comm.datalogRecordNum < comm.datalogMaxRecordNum))
-                {
-                    if (comm.datalogRecord.sessionStart)
-                        strcatChar(comm.buffer, ';');
-                    strcatChar(comm.buffer, ';');
-                    strcatUInt32(comm.buffer, comm.datalogRecord.dose.time, 0);
-                    strcatChar(comm.buffer, ',');
-                    strcatUInt32(comm.buffer, comm.datalogRecord.dose.pulseCount, 0);
-
-                    sentRecordNum++;
-                    comm.datalogRecordNum++;
-                }
-
-                readRecordNum++;
-            }
-
-            transmitComm();
-
-            break;
-        }
-
-        default:
-        {
-            comm.state = COMM_RX;
-
-            break;
-        }
-
-        break;
-        }
-
-    default:
-        break;
-    }
+    if (comm.state == COMM_RX_READY)
+        processCommCommand();
+    else if (comm.state == COMM_TX_READY)
+        processCommTransmitReady();
 }

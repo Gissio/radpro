@@ -21,8 +21,8 @@
 #include "../system/events.h"
 
 #define DEBUG_BIT_LENGTH 100
-#define DEBUG_BIT0_LENGTH 1
-#define DEBUG_BIT1_LENGTH 15
+#define DEBUG_BIT0_LENGTH 15
+#define DEBUG_BIT1_LENGTH 1
 
 uint32_t getGPIO(uint32_t index)
 {
@@ -63,29 +63,24 @@ void debugWait(uint32_t ms)
         reloadWatchdog();
 }
 
-void debugBit(bool value)
+static void setDebugSignal(bool value)
 {
 #if defined(BUZZER)
-    setBuzzer(true);
+    setBuzzer(value);
 #endif
 #if defined(PULSE_LED)
-    setPulseLED(true);
+    setPulseLED(value);
 #endif
-    if (value)
-        debugWait(DEBUG_BIT0_LENGTH);
-    else
-        debugWait(DEBUG_BIT1_LENGTH);
+}
 
-#if defined(BUZZER)
-    setBuzzer(false);
-#endif
-#if defined(PULSE_LED)
-    setPulseLED(false);
-#endif
-    if (value)
-        debugWait(DEBUG_BIT_LENGTH - DEBUG_BIT0_LENGTH);
-    else
-        debugWait(DEBUG_BIT_LENGTH - DEBUG_BIT1_LENGTH);
+void debugBit(bool value)
+{
+    uint32_t onTime = value ? DEBUG_BIT1_LENGTH : DEBUG_BIT0_LENGTH;
+
+    setDebugSignal(true);
+    debugWait(onTime);
+    setDebugSignal(false);
+    debugWait(DEBUG_BIT_LENGTH - onTime);
 }
 
 void debugUInt32(uint32_t value)
@@ -99,7 +94,8 @@ void debugUInt32(uint32_t value)
     }
 }
 
-void onHardFault(const uint32_t *args)
+// Referenced only from HardFault_Handler's inline assembly, which LTO cannot see
+__attribute__((used)) void onHardFault(const uint32_t *args)
 {
     // args: R0, R1, R2, R3, R12, LR, PC, PSR
 
@@ -113,20 +109,18 @@ void onHardFault(const uint32_t *args)
         ;
 }
 
-void HardFault_Handler(void)
+// Naked: no prologue may move SP before the stacked frame is captured
+__attribute__((naked)) void HardFault_Handler(void)
 {
     __asm volatile(
         " movs r0, #4           \n"
         " mov r1, lr            \n"
         " tst r0, r1            \n"
-        " bne HardFault_PSP     \n"
         " mrs r0, msp           \n"
-        " b HardFault_call      \n"
-        "HardFault_PSP:         \n"
+        " beq 1f                \n"
         " mrs r0, psp           \n"
-        "HardFault_call:        \n"
-        " ldr r2,=onHardFault   \n"
-        " bx r2                 \n");
+        "1:                     \n"
+        " bl onHardFault        \n");
 }
 #endif
 
@@ -135,14 +129,14 @@ uint32_t prescalePWMParameters(uint32_t *period, uint32_t *onTime)
     uint32_t localPeriod = *period;
     uint32_t localOnTime = *onTime;
 
-    // Get presacler factor
+    // Get prescaler factor (if it divides the period, fall back to 1 so ARR != 0)
     uint32_t prescalerFactor = getGCD(localPeriod, localOnTime);
     if (prescalerFactor == localPeriod)
-        prescalerFactor >>= 1;
+        prescalerFactor = 1;
     localPeriod /= prescalerFactor;
     localOnTime /= prescalerFactor;
 
-    // Scale prescaler factor
+    // Scale prescaler factor (custom HV frequencies go down to 100 Hz)
     while (prescalerFactor >> 16)
     {
         localPeriod <<= 1;

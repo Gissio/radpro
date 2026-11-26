@@ -30,7 +30,6 @@ extern volatile uint32_t currentTick;
 void initEvents(void);
 
 void onTick(void);
-void resetWatchdog(void);
 void syncTick(void);
 void reloadWatchdog(void);
 void sleep(uint32_t value);
@@ -49,12 +48,15 @@ bool isBacklightActive(void);
 bool isDisplayAwake(void);
 
 void triggerVibration(void);
-void triggerAndwaitForVibration(void);
+void triggerAndWaitForVibration(void);
 
 void setLEDMode(LEDMode mode);
 
 void indicatePulse(void);
+void triggerPulseSound(void);
 
 void triggerAlert(bool alarm);
+// Alert sound, display flash and vibration, without voice readouts
+void triggerNotificationAlert(void);
 
 #endif

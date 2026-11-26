@@ -10,10 +10,19 @@
 #if defined(SIMULATOR)
 
 #include <stdio.h>
+#include <string.h>
 
 #include "../peripherals/comm.h"
-#include "../system/cstring.h"
 #include "../system/system.h"
+
+#if defined(SIMULATOR_COMM)
+#include <sercomm/sercomm.h>
+
+#define COMM_SERIAL_PORT "COM1"
+#define COMM_SERIAL_BAUDRATE 115200
+
+static ser_t *sercomm;
+#endif
 
 const char *const commId = "Rad Pro simulator;Rad Pro " FIRMWARE_VERSION "/" LANGUAGE;
 
@@ -21,21 +30,15 @@ void initCommHardware(void)
 {
 }
 
-#if defined(SIMULATOR_COMM)
-
-#include <sercomm/sercomm.h>
-
-#define COMM_SERIAL_BAUDRATE 115200
-
-static ser_t *sercomm;
-
+// Comm is opened even without a serial port (responses are then
+// discarded), so updateComm() does not retry the open on every loop
 void openComm(void)
 {
-    if (comm.open)
-        return;
+    clearComm(true);
 
+#if defined(SIMULATOR_COMM)
     sercomm = ser_create();
-    if (sercomm == NULL)
+    if (!sercomm)
     {
         printf("error: could not create serial port instance.\n");
 
@@ -43,7 +46,7 @@ void openComm(void)
     }
 
     ser_opts_t options = {
-        "COM1",
+        COMM_SERIAL_PORT,
         COMM_SERIAL_BAUDRATE,
         SER_BYTESZ_8,
         SER_PAR_NONE,
@@ -51,80 +54,71 @@ void openComm(void)
         {0, 0},
     };
 
-    int32_t result = ser_open(sercomm, &options);
-    if (result)
+    if (ser_open(sercomm, &options))
     {
         printf("error: could not open serial port: %s\n", sererr_last());
 
         ser_destroy(sercomm);
         sercomm = NULL;
-
-        return;
     }
-
-    clearComm(true);
+#endif
 }
 
 void closeComm(void)
 {
-    if (!comm.open)
-        return;
-
-    ser_close(sercomm);
-    ser_destroy(sercomm);
+#if defined(SIMULATOR_COMM)
+    if (sercomm)
+    {
+        ser_close(sercomm);
+        ser_destroy(sercomm);
+        sercomm = NULL;
+    }
+#endif
 
     clearComm(false);
 }
 
 void transmitComm(void)
 {
-    comm.state = COMM_TX;
+#if defined(SIMULATOR_COMM)
+    if (sercomm)
+    {
+        comm.state = COMM_TX;
+
+        return;
+    }
+#endif
+
+    // No serial port: discard the response
+    endCommTransmit();
 }
 
 void pollComm(void)
 {
+#if defined(SIMULATOR_COMM)
+    // sercomm is only set while comm is open
+    if (!sercomm)
+        return;
+
     char receiveBuffer[COMM_BUFFER_SIZE];
     size_t receivedBytes = 0;
 
-    if (sercomm)
-        ser_read(sercomm,
-                 receiveBuffer,
-                 COMM_BUFFER_SIZE,
-                 &receivedBytes);
+    // Always read, so data arriving outside COMM_RX is dropped
+    ser_read(sercomm,
+             receiveBuffer,
+             sizeof(receiveBuffer),
+             &receivedBytes);
 
-    if (!comm.open)
-        return;
-
-    switch (comm.state)
+    if (comm.state == COMM_RX)
     {
-    case COMM_RX:
-        for (int32_t i = 0;
-             i < receivedBytes;
-             i++)
-        {
-            char c = receiveBuffer[i];
-
-            if ((c >= ' ') &&
-                (comm.bufferIndex < (COMM_BUFFER_SIZE - 1)))
-                comm.buffer[comm.bufferIndex++] = c;
-            else if ((c == '\r') ||
-                     ((c == '\n') &&
-                      (comm.previousChar != '\r')))
-            {
-                comm.buffer[comm.bufferIndex] = '\0';
-
-                comm.bufferIndex = 0;
-                comm.state = COMM_RX_READY;
-            }
-
-            comm.previousChar = c;
-        }
-
-        break;
-
-    case COMM_TX:
+        // Discard the rest of the data, so it does not overwrite the command
+        for (size_t i = 0; i < receivedBytes; i++)
+            if (receiveCommChar(receiveBuffer[i]))
+                break;
+    }
+    else if (comm.state == COMM_TX)
     {
-        char *sendBuffer = comm.buffer + comm.bufferIndex;
+        const char *sendBuffer = comm.buffer + comm.bufferIndex;
         size_t sentBytes = 0;
 
         ser_write(sercomm,
@@ -135,48 +129,9 @@ void pollComm(void)
         comm.bufferIndex += sentBytes;
 
         if (comm.buffer[comm.bufferIndex] == '\0')
-        {
-            strclr(comm.buffer);
-            comm.bufferIndex = 0;
-
-            if (comm.transmitState == TRANSMIT_RESPONSE)
-                comm.state = COMM_RX;
-            else
-                comm.state = COMM_TX_READY;
-        }
-
-        break;
+            endCommTransmit();
     }
-    }
-}
-
-#else
-
-void openComm(void)
-{
-    clearComm(true);
-}
-
-void closeComm(void)
-{
-    clearComm(false);
-}
-
-void transmitComm(void)
-{
-    strclr(comm.buffer);
-    comm.bufferIndex = 0;
-
-    if (comm.transmitState == TRANSMIT_RESPONSE)
-        comm.state = COMM_RX;
-    else
-        comm.state = COMM_TX_READY;
-}
-
-void pollComm(void)
-{
-}
-
 #endif
+}
 
 #endif

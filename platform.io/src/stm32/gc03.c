@@ -83,17 +83,17 @@ void initSystem(void)
 
 bool getTubeDefaultHVFrequency(float *value)
 {
-    if (GC03_TUBE_DEFAULT_SIGNATURE == GC03_TUBE_DEFAULT_SIGNATURE_VALUE)
-    {
-        if ((GC03_TUBE_DEFAULT_HV_FREQUENCY >= 1) && (GC03_TUBE_DEFAULT_HV_FREQUENCY < 1000))
-        {
-            *value = 100.0F * GC03_TUBE_DEFAULT_HV_FREQUENCY;
+    // Frequency in units of 100 Hz
+    uint32_t frequency = GC03_TUBE_DEFAULT_HV_FREQUENCY;
 
-            return true;
-        }
-    }
+    // 1-799: the upper limit keeps the derived duty cycle below 100% (on-time 12.5 us)
+    if ((GC03_TUBE_DEFAULT_SIGNATURE != GC03_TUBE_DEFAULT_SIGNATURE_VALUE) ||
+        ((frequency - 1) >= 799))
+        return false;
 
-    return false;
+    *value = (float)(100 * frequency);
+
+    return true;
 }
 
 bool getTubeDefaultHVDutyCycle(float *value)
@@ -117,8 +117,8 @@ void KNOB_IRQ_HANDLER(void);
 
 static struct
 {
-    int8_t prevABState;
-    int8_t subSteps;
+    uint32_t prevABState;
+    int32_t subSteps;
     volatile int8_t detentSteps;
 
     int8_t prevDetentSteps;
@@ -131,15 +131,35 @@ static const int8_t knobQuadratureLUT[16] = {
     1, 0, 0, -1,
     0, -1, 1, 0};
 
+// 4-bit CRL field mask of a pin (pins 0-7)
+#define GPIO_MASK4L(pin) (0b1111U << (4 * (pin)))
+// 4-bit CRH field mask of a pin (pins 8-15)
+#define GPIO_MASK4H(pin) (0b1111U << (4 * ((pin) - 8)))
+
+// All 4-bit fields of a CRL/CRH register set to input with pull-up/down
+#define INPUT_PULL_CR (0x11111111U * (GPIO_MODE_INPUT_PULLUP & GPIO_MODE_Msk))
+
+// LEFT and RIGHT (pins 8-15), the knob button and knob A/B (pins 0-7)
+// share KEY_LEFT_PORT
+#define KEY_PORT_MASK (get_bitvalue(KEY_LEFT_PIN) |     \
+                       get_bitvalue(KEY_RIGHT_PIN) |    \
+                       get_bitvalue(KNOB_A_PIN) |       \
+                       get_bitvalue(KNOB_BUTTON_PIN) |  \
+                       get_bitvalue(KNOB_B_PIN))
+#define KEY_PORT_MASK4L (GPIO_MASK4L(KNOB_A_PIN) |      \
+                         GPIO_MASK4L(KNOB_BUTTON_PIN) | \
+                         GPIO_MASK4L(KNOB_B_PIN))
+#define KEY_PORT_MASK4H (GPIO_MASK4H(KEY_LEFT_PIN) | \
+                         GPIO_MASK4H(KEY_RIGHT_PIN))
+
 void initKeyboardHardware(void)
 {
-    // GPIO
+    // GPIO: inputs with pull-up (ODR bits set)
     gpio_setup(KEY_POWER_PORT, KEY_POWER_PIN, GPIO_MODE_INPUT_PULLUP);
-    gpio_setup(KEY_LEFT_PORT, KEY_LEFT_PIN, GPIO_MODE_INPUT_PULLUP);
-    gpio_setup(KEY_RIGHT_PORT, KEY_RIGHT_PIN, GPIO_MODE_INPUT_PULLUP);
-    gpio_setup(KNOB_A_PORT, KNOB_A_PIN, GPIO_MODE_INPUT_PULLUP);
-    gpio_setup(KNOB_BUTTON_PORT, KNOB_BUTTON_PIN, GPIO_MODE_INPUT_PULLUP);
-    gpio_setup(KNOB_B_PORT, KNOB_B_PIN, GPIO_MODE_INPUT_PULLUP);
+
+    KEY_LEFT_PORT->BSRR = KEY_PORT_MASK;
+    modify_bits(KEY_LEFT_PORT->CRL, KEY_PORT_MASK4L, KEY_PORT_MASK4L & INPUT_PULL_CR);
+    modify_bits(KEY_LEFT_PORT->CRH, KEY_PORT_MASK4H, KEY_PORT_MASK4H & INPUT_PULL_CR);
 
     KNOB_IRQ_HANDLER();
     keyboardKnob.subSteps = 0;
@@ -150,7 +170,7 @@ void initKeyboardHardware(void)
     exti_setup(KNOB_B_PORT, KNOB_B_PIN, true, true);
     exti_enable_interrupt(KNOB_B_PIN);
 
-    NVIC_SetPriority(KNOB_IRQ, 0xc0);
+    nvic_set_priority(KNOB_IRQ, 0xc0);
     NVIC_EnableIRQ(KNOB_IRQ);
 }
 
@@ -159,65 +179,66 @@ void KNOB_IRQ_HANDLER(void)
     exti_clear_pending_interrupt(KNOB_A_PIN);
     exti_clear_pending_interrupt(KNOB_B_PIN);
 
-    int8_t currABState = (gpio_get(KNOB_A_PORT, KNOB_A_PIN) << 1) | gpio_get(KNOB_B_PORT, KNOB_B_PIN);
+    uint32_t currABState = (gpio_get(KNOB_A_PORT, KNOB_A_PIN) << 1) | gpio_get(KNOB_B_PORT, KNOB_B_PIN);
 
-    int8_t subStepsDelta = knobQuadratureLUT[(keyboardKnob.prevABState << 2) | currABState];
+    int32_t subStepsDelta = knobQuadratureLUT[(keyboardKnob.prevABState << 2) | currABState];
 
     keyboardKnob.prevABState = currABState;
 
-    if (subStepsDelta != 0)
-    {
-        keyboardKnob.subSteps += subStepsDelta;
+    // A zero delta leaves subSteps unchanged, within (-2, 2)
+    keyboardKnob.subSteps += subStepsDelta;
 
-        if (keyboardKnob.subSteps >= 2)
-        {
-            keyboardKnob.detentSteps++;
-            keyboardKnob.subSteps = 0;
-        }
-        else if (keyboardKnob.subSteps <= -2)
-        {
-            keyboardKnob.detentSteps--;
-            keyboardKnob.subSteps = 0;
-        }
+    if (keyboardKnob.subSteps >= 2)
+    {
+        keyboardKnob.detentSteps++;
+        keyboardKnob.subSteps = 0;
+    }
+    else if (keyboardKnob.subSteps <= -2)
+    {
+        keyboardKnob.detentSteps--;
+        keyboardKnob.subSteps = 0;
     }
 }
 
-void onKeyboardTick(void)
-{
-    for (uint32_t i = 0; i < KEY_NUM; i++)
-        keyboardKeyDown[i] <<= 1;
+// Moves the (inverted) input bit of a pin to the bit of a key
+#define getKey(keys, pin, key) ((((keys) >> (pin)) & 1) << (key))
 
-    keyboardKeyDown[KEY_LEFT] |= !gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN);
-    keyboardKeyDown[KEY_RIGHT] |= !gpio_get(KEY_RIGHT_PORT, KEY_RIGHT_PIN) |
-                                  !gpio_get(KNOB_BUTTON_PORT, KNOB_BUTTON_PIN);
-    keyboardKeyDown[KEY_OK] |= !gpio_get(KEY_POWER_PORT, KEY_POWER_PIN);
+uint32_t readKeyboardKeys(void)
+{
+    // LEFT, RIGHT and the knob button share a port: read it once (keys are active low)
+    uint32_t keys = ~KEY_LEFT_PORT->IDR;
+
+    return getKey(keys, KEY_LEFT_PIN, KEY_LEFT) |
+           getKey(keys, KEY_RIGHT_PIN, KEY_RIGHT) |
+           getKey(keys, KNOB_BUTTON_PIN, KEY_RIGHT) |
+           (!gpio_get(KEY_POWER_PORT, KEY_POWER_PIN) << KEY_OK);
 }
 
-void updateKeyboardState(void)
+uint32_t readKeyboardKnob(void)
 {
-    keyboardKeyDown[KEY_UP] = false;
-    keyboardKeyDown[KEY_DOWN] = false;
-
-    if (!keyboardKnob.keyDown)
+    // Each knob step is reported as a key press lasting one keyboard update
+    if (keyboardKnob.keyDown)
     {
-        int32_t detentDelta = keyboardKnob.detentSteps - keyboardKnob.prevDetentSteps;
-        if (detentDelta != 0)
-        {
-            if (isDisplayAwake())
-            {
-                if (detentDelta > 0)
-                    keyboardKeyDown[KEY_DOWN] = true;
-                else
-                    keyboardKeyDown[KEY_UP] = true;
-
-                keyboardKnob.keyDown = true;
-            }
-
-            keyboardKnob.prevDetentSteps = keyboardKnob.detentSteps;
-        }
-    }
-    else
         keyboardKnob.keyDown = false;
+
+        return 0;
+    }
+
+    // Wrap-safe difference of the 8-bit step counters
+    int8_t detentSteps = keyboardKnob.detentSteps;
+    int8_t detentDelta = (int8_t)(detentSteps - keyboardKnob.prevDetentSteps);
+    if (detentDelta == 0)
+        return 0;
+
+    keyboardKnob.prevDetentSteps = detentSteps;
+
+    // Knob steps do not wake the display
+    if (!isDisplayAwake())
+        return 0;
+
+    keyboardKnob.keyDown = true;
+
+    return (detentDelta > 0) ? (1U << KEY_DOWN) : (1U << KEY_UP);
 }
 
 // Display
@@ -269,11 +290,6 @@ static const uint8_t displayInitSequence[] = {
     MR_END(),
 };
 
-static void onDisplaySleep(uint32_t value)
-{
-    sleep(value);
-}
-
 static void onDisplaySetReset(bool value)
 {
     gpio_modify(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN, !value);
@@ -306,15 +322,19 @@ static void onDisplaySend16(uint16_t value)
 
 void initDisplay(void)
 {
-    // GPIO
-    gpio_set(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN);
-    gpio_set(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN);
+    // GPIO: RESX/DCX and SCL/SDA (pins 0-7) share a port each
+    gpio_modify(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN, true);
+    gpio_modify(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN, true);
 
-    gpio_setup(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN, GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+    modify_bits(DISPLAY_RESX_PORT->CRL,
+                GPIO_MASK4L(DISPLAY_RESX_PIN) | GPIO_MASK4L(DISPLAY_DCX_PIN),
+                (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << (4 * DISPLAY_RESX_PIN)) |
+                    (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << (4 * DISPLAY_DCX_PIN)));
     gpio_setup(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN, GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_DCX_PORT, DISPLAY_DCX_PIN, GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_SCL_PORT, DISPLAY_SCL_PIN, GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL);
-    gpio_setup(DISPLAY_SDA_PORT, DISPLAY_SDA_PIN, GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL);
+    modify_bits(DISPLAY_SCL_PORT->CRL,
+                GPIO_MASK4L(DISPLAY_SCL_PIN) | GPIO_MASK4L(DISPLAY_SDA_PIN),
+                (GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL << (4 * DISPLAY_SCL_PIN)) |
+                    (GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL << (4 * DISPLAY_SDA_PIN)));
 
     // SPI
     rcc_enable_spi(DISPLAY_SPI);
@@ -333,7 +353,7 @@ void initDisplay(void)
 #endif
                    displayTextbuffer,
                    sizeof(displayTextbuffer),
-                   onDisplaySleep,
+                   sleep,
                    onDisplaySetReset,
                    onDisplaySetChipselect,
                    onDisplaySetCommand,

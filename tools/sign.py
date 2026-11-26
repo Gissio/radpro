@@ -129,9 +129,8 @@ def sign_firmware(env_name):
             image, firmware_footer_offset, get_crc(image[0:firmware_footer_offset])
         )
 
-        # Truncate if not FNIRSI GC-01
-        if not env_name.startswith("fnirsi-gc01"):
-            image = image[0:firmware_size]
+        # Truncate
+        image = image[0:firmware_size]
 
         # Build firmware stem
         build_stem = "radpro-" + env_name + "-" + language + "-" + firmware_version

@@ -15,6 +15,9 @@
 
 #include "../ui/menu.h"
 
+#define TUBE_BITS_PER_PULSE 2
+#define TUBE_BITS_PER_PULSE_MASK ((1 << TUBE_BITS_PER_PULSE) - 1)
+
 extern const Menu sourceCompensationMenu;
 
 extern volatile uint32_t tubePulseCount;

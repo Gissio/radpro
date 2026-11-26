@@ -151,7 +151,7 @@ void drawStatistics(void)
 
         case STATISTICS_DEVICEID_2:
             getDeviceId(valueString);
-            strcpy(valueString, valueString + 12);
+            memmove(valueString, valueString + 12, strlen(valueString + 12) + 1);
 
             break;
 

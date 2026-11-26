@@ -60,8 +60,8 @@ extern const int8_t doseUnitsMinMetricPrefix[];
 
 extern const int8_t doseUnitsBarMinExponent[];
 
-void buildPulseValueString(char *valueString, char *unitString, float value, uint32_t doseUnits, bool isDose);
 void drawPulseMeasurementValue(const char *title, float value, bool isDose, float confidence, MeasurementStyle style);
+void drawPulseMeasurementInfo(const char *keyString, float value, uint32_t doseUnits, bool isDose, MeasurementStyle style);
 
 void resetPulses(void);
 
@@ -76,6 +76,7 @@ void onPulseTick(void);
 void onPulsesHeartbeat(void);
 void updatePulses(void);
 
+Dose *getTubeDose(void);
 void setTubeTime(uint32_t value);
 uint32_t getTubeTime(void);
 void setTubePulseCount(uint32_t value);

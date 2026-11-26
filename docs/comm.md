@@ -14,7 +14,9 @@ To connect to a Rad Pro device via USB, use the following settings:
 
 ## Protocol Overview
 
-The protocol operates on a request-response model, with commands sent as ASCII text. Responses begin with `OK` for success or `ERROR` for invalid/erroneous requests. All numerical values are in decimal format unless otherwise specified.
+The protocol operates on a request-response model, with commands sent as ASCII text. Responses begin with `OK` for success or `ERROR` for invalid/erroneous requests. Requests with unexpected trailing arguments, out-of-range numbers or more than 63 characters are answered with `ERROR`. All numerical values are in decimal format unless otherwise specified.
+
+A previous client that closed the port before reading its response may leave that response pending on the device. After opening the port, wait about 100 ms and discard any received data (e.g., `reset_input_buffer()` in pySerial) before sending the first request. Otherwise every response may be shifted by one.
 
 ## Commands
 
@@ -283,6 +285,7 @@ The protocol operates on a request-response model, with commands sent as ASCII t
   * `[max-record-num]`: Maximum number of records to return.
   * `[data]`: Semicolon-separated records, each containing comma-separated fields. The first record lists field names (`time`, `tubePulseCount`), followed by measurements records (ordered from least to most recent). Empty records (`;;`) indicate the start of a new logging session.
   * Note: Data logging is paused during the download process.
+  * Note: If the download is interrupted on the device (e.g., by a clock change, a logging mode change, a data log reset or powering off), the response ends with an `ERROR` record (`;ERROR`), indicating that the data is incomplete.
 * **Example**:
 
   ```text

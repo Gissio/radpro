@@ -9,71 +9,50 @@
 
 #if defined(STM32)
 
-#include "../peripherals/adc.h"
-#include "../peripherals/keyboard.h"
 #include "../system/power.h"
 #include "../stm32/device.h"
 
+// pull: FLOATING or PULLUP
+#if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
+#define setupOutput(port, pin) \
+    gpio_setup_output(port, pin, GPIO_OUTPUTTYPE_PUSHPULL, GPIO_OUTPUTSPEED_2MHZ, GPIO_PULL_FLOATING)
+#define setupInput(port, pin, pull) \
+    gpio_setup_input(port, pin, GPIO_PULL_##pull)
+#elif defined(STM32F1)
+#define setupOutput(port, pin) \
+    gpio_setup(port, pin, GPIO_MODE_OUTPUT_2MHZ_PUSHPULL)
+#define setupInput(port, pin, pull) \
+    gpio_setup(port, pin, GPIO_MODE_INPUT_##pull)
+#else
+#error "Unsupported STM32 family"
+#endif
+
 void initPower(bool value)
 {
-    // GPIO
     setPowerEnabled(value);
-
-#if defined(PWR_VCC)
-    gpio_set(PWR_VCC_PORT, PWR_VCC_PIN);
-#endif
-
-#if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
-    gpio_setup_output(PWR_EN_PORT, PWR_EN_PIN, GPIO_OUTPUTTYPE_PUSHPULL, GPIO_OUTPUTSPEED_2MHZ, GPIO_PULL_FLOATING);
-#elif defined(STM32F1)
-    gpio_setup(PWR_EN_PORT, PWR_EN_PIN, GPIO_MODE_OUTPUT_2MHZ_PUSHPULL);
-#endif
+    setupOutput(PWR_EN_PORT, PWR_EN_PIN);
 
 #if defined(PWR_VCC_PORT)
-#if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
-    gpio_setup_output(PWR_VCC_PORT, PWR_VCC_PIN, GPIO_OUTPUTTYPE_PUSHPULL, GPIO_OUTPUTSPEED_2MHZ, GPIO_PULL_FLOATING);
-#elif defined(STM32F1)
-    gpio_setup(PWR_VCC_PORT, PWR_VCC_PIN, GPIO_MODE_OUTPUT_2MHZ_PUSHPULL);
-#endif
+    gpio_set(PWR_VCC_PORT, PWR_VCC_PIN);
+    setupOutput(PWR_VCC_PORT, PWR_VCC_PIN);
 #endif
 
 #if defined(PWR_USB_PORT)
-#if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
 #if defined(PWR_USB_PULLUP)
-    gpio_setup_input(PWR_USB_PORT, PWR_USB_PIN, GPIO_PULL_PULLUP);
+    setupInput(PWR_USB_PORT, PWR_USB_PIN, PULLUP);
 #else
-    gpio_setup_input(PWR_USB_PORT, PWR_USB_PIN, GPIO_PULL_FLOATING);
-#endif
-#elif defined(STM32F1)
-#if defined(PWR_USB_PULLUP)
-    gpio_setup(PWR_USB_PORT, PWR_USB_PIN, GPIO_MODE_INPUT_PULLUP);
-#else
-    gpio_setup(PWR_USB_PORT, PWR_USB_PIN, GPIO_MODE_INPUT_FLOATING);
-#endif
+    setupInput(PWR_USB_PORT, PWR_USB_PIN, FLOATING);
 #endif
 #endif
 
 #if defined(PWR_CHRG_PORT)
-#if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
+    // With PWR_CHRG_CHANNEL, the pin is sampled by the ADC but must stay in
+    // input mode: analog mode would disconnect the pull-up, which creates
+    // the intermediate (battery-powered) level
 #if defined(PWR_CHRG_PULLUP)
-    gpio_setup_input(PWR_CHRG_PORT, PWR_CHRG_PIN, GPIO_PULL_PULLUP);
+    setupInput(PWR_CHRG_PORT, PWR_CHRG_PIN, PULLUP);
 #else
-    gpio_setup_input(PWR_CHRG_PORT, PWR_CHRG_PIN, GPIO_PULL_FLOATING);
-#endif
-#elif defined(STM32F1)
-#if defined(PWR_CHRG_PULLUP)
-    gpio_setup(PWR_CHRG_PORT, PWR_CHRG_PIN, GPIO_MODE_INPUT_PULLUP);
-#else
-    gpio_setup(PWR_CHRG_PORT, PWR_CHRG_PIN, GPIO_MODE_INPUT_FLOATING);
-#endif
-#endif
-#endif
-
-#if defined(PWR_STDBY_PORT)
-#if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
-    gpio_setup_input(PWR_STDBY_PORT, PWR_STDBY_PIN, GPIO_PULL_FLOATING);
-#elif defined(STM32F1)
-    gpio_setup(PWR_STDBY_PORT, PWR_STDBY_PIN, GPIO_MODE_INPUT_FLOATING);
+    setupInput(PWR_CHRG_PORT, PWR_CHRG_PIN, FLOATING);
 #endif
 #endif
 }
@@ -81,20 +60,16 @@ void initPower(bool value)
 void setPowerEnabled(bool value)
 {
 #if defined(PWR_EN_ACTIVE_LOW)
-    gpio_modify(PWR_EN_PORT, PWR_EN_PIN, !value);
-#else
-    gpio_modify(PWR_EN_PORT, PWR_EN_PIN, value);
+    value = !value;
 #endif
+    gpio_modify(PWR_EN_PORT, PWR_EN_PIN, value);
 }
 
 #if !defined(PWR_CHRG_CHANNEL)
 
 bool isUSBPowered(void)
 {
-    bool value = false;
-#if defined(PWR_CHRG_PORT)
-    value |= isBatteryCharging();
-#endif
+    bool value = isBatteryCharging();
 #if defined(PWR_USB_PORT)
 #if defined(PWR_USB_ACTIVE_LOW)
     value |= !gpio_get(PWR_USB_PORT, PWR_USB_PIN);
@@ -122,18 +97,12 @@ bool isBatteryCharging(void)
 
 bool wasResetByWatchdog(void)
 {
-#if FIRMWARE_BASE == 0x08000000
     return get_bits(RCC->CSR, RCC_CSR_IWDGRSTF);
-#else
-    return false;
-#endif
 }
 
 void clearResetFlags(void)
 {
-#if FIRMWARE_BASE == 0x08000000
     set_bits(RCC->CSR, RCC_CSR_RMVF);
-#endif
 }
 
 #endif

@@ -26,8 +26,6 @@ typedef enum
     AVERAGE_TAB_ALERT = AVERAGE_TAB_NUM,
 } AverageTab;
 
-static void clearAverageRate(void);
-
 static const int32_t averagingTimes[] = {
     30 * 24 * 60 * 60, // Off (30 days)
     24 * 60 * 60,      // 24 hours
@@ -75,7 +73,7 @@ void resetAverageRate(void)
     selectMenuItem(&averageMenu, settings.averaging);
 }
 
-static void clearAverageRate(void)
+void clearAverageRate(void)
 {
     memset(&average, 0, sizeof(average));
 
@@ -117,37 +115,6 @@ static bool isAverageDone(void)
            (average.rate.confidence < confidenceThreshold);
 }
 
-static bool updateAverageRateTimer()
-{
-    bool done = isAverageDone();
-
-    bool previousDone = average.done;
-    average.done = done;
-
-    if (!(previousDone && done))
-    {
-        average.snapshotPulseCount = average.period.pulseCount;
-        average.snapshotRate = average.rate;
-    }
-
-    bool doneTriggered = (!previousDone && done);
-    if (doneTriggered)
-        triggerAlert(true);
-
-    return doneTriggered;
-}
-
-static void updateAverageRateTab(bool doneTriggered)
-{
-    if (isTubeFaultAlertTriggered() || doneTriggered)
-        averageTab = AVERAGE_TAB_ALERT;
-    else if (averageTab == AVERAGE_TAB_ALERT)
-    {
-        if (!getTubeFaultAlertLevel() && !average.done)
-            averageTab = AVERAGE_TAB_TIME;
-    }
-}
-
 void updateAverageRate(PulsePeriod *period)
 {
     if (isAverageSaturated())
@@ -165,9 +132,23 @@ void updateAverageRate(PulsePeriod *period)
         calculateRate(&average.rate, &average.period);
     }
 
-    bool doneTriggered = updateAverageRateTimer();
+    // Snapshot is frozen once done
+    bool previousDone = average.done;
+    average.done = isAverageDone();
 
-    updateAverageRateTab(doneTriggered);
+    if (!previousDone || !average.done)
+    {
+        average.snapshotPulseCount = average.period.pulseCount;
+        average.snapshotRate = average.rate;
+    }
+
+    bool doneTriggered = (!previousDone && average.done);
+    if (doneTriggered)
+        triggerAlert(true);
+
+    averageTab = updateMeasurementAlertTab(averageTab, AVERAGE_TAB_ALERT,
+                                           isTubeFaultAlertTriggered() || doneTriggered,
+                                           getTubeFaultAlertLevel() || average.done);
 }
 
 float getAverageRate(void)
@@ -187,112 +168,39 @@ NOINLINE static const char *getAverageRateAlertString(void)
         return NULL;
 }
 
-static void advanceAverageRateTab(void)
+void advanceAverageRateTab(void)
 {
-    uint32_t tabNum = getAverageRateAlertString() ? (AVERAGE_TAB_NUM + 1) : AVERAGE_TAB_NUM;
-
-    averageTab++;
-    if (averageTab >= tabNum)
-        averageTab = AVERAGE_TAB_TIME;
+    averageTab = getNextMeasurementTab(averageTab,
+                                       AVERAGE_TAB_NUM + (getAverageRateAlertString() != NULL));
 }
 
-static MeasurementStyle getAverageRateMeasurementStyle(void)
+void drawAverageRateView(void)
 {
-    if (average.done)
-        return MEASUREMENTSTYLE_DONE;
+    MeasurementStyle style = average.done ? MEASUREMENTSTYLE_DONE : MEASUREMENTSTYLE_NORMAL;
 
-    return MEASUREMENTSTYLE_NORMAL;
-}
-
-static void drawAverageRateValue(void)
-{
-    drawPulseMeasurementValue(getString(STRING_AVERAGE), average.snapshotRate.value, false, average.snapshotRate.confidence, getAverageRateMeasurementStyle());
-}
-
-static void drawAverageRateTab(void)
-{
-    char valueString[32];
-    char unitString[32];
-    strclr(valueString);
-    strcpy(unitString, " ");
-    const char *keyString = NULL;
+    drawPulseMeasurementValue(getString(STRING_AVERAGE), average.snapshotRate.value, false, average.snapshotRate.confidence, style);
 
     switch (averageTab)
     {
     case AVERAGE_TAB_TIME:
-        strcatTime(valueString, average.snapshotRate.time);
-
-        keyString = getString(STRING_TIME);
+        drawMeasurementInfoTime(getString(STRING_TIME), average.snapshotRate.time, style);
 
         break;
 
     case AVERAGE_TAB_RATE:
-        buildPulseValueString(valueString, unitString, average.snapshotRate.value, settings.secondaryDoseUnits, false);
-
-        keyString = getString(STRING_RATE);
+        drawPulseMeasurementInfo(getString(STRING_RATE), average.snapshotRate.value, settings.secondaryDoseUnits, false, style);
 
         break;
 
     case AVERAGE_TAB_DOSE:
-        buildPulseValueString(valueString, unitString, average.snapshotPulseCount, DOSE_UNITS_CPM, true);
-
-        keyString = getString(STRING_DOSE);
+        // Pulse count
+        drawPulseMeasurementInfo(getString(STRING_DOSE), average.snapshotPulseCount, DOSE_UNITS_CPM, true, style);
 
         break;
 
     default:
-        break;
-    }
-
-    drawMeasurementInfo(keyString, valueString, unitString, getAverageRateMeasurementStyle());
-}
-
-static void drawAverageRateView(void)
-{
-    drawAverageRateValue();
-
-    if (averageTab == AVERAGE_TAB_ALERT)
         drawMeasurementAlert(getAverageRateAlertString());
-    else
-        drawAverageRateTab();
-}
 
-void onAverageRateViewEvent(ViewEvent event)
-{
-    if (onMeasurementViewEvent(event))
-        return;
-
-    switch (event)
-    {
-    case EVENT_KEY_BACK:
-        advanceAverageRateTab();
-
-        requestViewUpdate();
-
-        break;
-
-    case EVENT_KEY_RESET:
-        triggerVibration();
-
-        clearAverageRate();
-
-        requestViewUpdate();
-
-        break;
-
-#if defined(VOICE)
-    case EVENT_KEY_PLAY:
-        playVoiceAverageRate();
-
-        break;
-#endif
-
-    case EVENT_DRAW:
-        drawAverageRateView();
-
-        break;
-
-    default:
         break;
     }
 }

@@ -9,8 +9,6 @@
 
 #if defined(SIMULATOR)
 
-#include <stdio.h>
-
 #include "../system/power.h"
 
 void initPower(bool value)
@@ -29,7 +27,7 @@ bool isUSBPowered(void)
 bool isBatteryCharging(void)
 {
     return true;
-}    
+}
 
 bool wasResetByWatchdog(void)
 {

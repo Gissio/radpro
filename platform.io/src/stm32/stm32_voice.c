@@ -11,6 +11,8 @@
 
 #if defined(VOICE)
 
+#include <assert.h>
+
 #include "../measurements/average.h"
 #include "../measurements/cumulative.h"
 #include "../measurements/instantaneous.h"
@@ -31,12 +33,16 @@
 #define VOICE_TX_DATA_INDEX (VOICE_TX_START_INDEX + VOICE_TX_START_LENGTH)
 #define VOICE_TX_DATA_LENGTH (8 * VOICE_TX_BIT_LENGTH)
 #define VOICE_TX_STOP_INDEX (VOICE_TX_DATA_INDEX + VOICE_TX_DATA_LENGTH)
-#define VOICE_TX_STOP_LENGTH 125
-#define VOICE_TX_LENGTH (VOICE_TX_STOP_INDEX + VOICE_TX_STOP_LENGTH)
+#define VOICE_TX_LENGTH (VOICE_TX_STOP_INDEX + 1)
+
+// Idle time after each byte (25 ms)
+#define VOICE_TX_GAP_TICKS 25
+
+static_assert(VOICE_TX_TIMER_PERIOD <= 0x10000,
+              "VOICE_TX_TIMER_PERIOD must fit in 16 bits");
 
 enum
 {
-    VOICE_VOLUME = 0xe0,
     VOICE_VOLUME0 = 0xe0,
     VOICE_VOLUME1 = 0xe1,
     VOICE_VOLUME2 = 0xe2,
@@ -49,7 +55,7 @@ enum
     VOICE_VOLUME9 = 0xe9,
     VOICE_VOLUME10 = 0xea,
     VOICE_VOLUME11 = 0xeb,
-    VOICE_VOLUME12 = 0xed,
+    VOICE_VOLUME12 = 0xec,
     VOICE_VOLUME13 = 0xed,
     VOICE_VOLUME14 = 0xee,
     VOICE_VOLUME15 = 0xef,
@@ -61,7 +67,7 @@ enum
     VOICE_STOP = 0xfe,
 };
 
-// Voices
+// Voices (1-19 are spoken as their own index)
 
 enum
 {
@@ -102,22 +108,13 @@ enum
 
 #define VOICE_SEQUENCE_MAX 32
 
-#define VOICE_BSRR(value) (1 << (VOICE_TX_PIN + 0x10 * (1 - value)))
+#define VOICE_BSRR(value) (1U << (VOICE_TX_PIN + 0x10 * (1 - (value))))
 
 typedef struct
 {
     uint8_t data[VOICE_SEQUENCE_MAX];
     uint32_t size;
 } VoiceSequence;
-
-static void setVoiceEnabled(void);
-static bool isVoiceSending(void);
-static bool isVoicePlaying(void);
-static void sendVoiceData(uint8_t value);
-static void disableVoice(void);
-static void clearVoiceQueue(void);
-static void pushVoiceQueue(uint8_t value);
-static void sendVoiceQueue(void);
 
 static const uint8_t voiceVolume[] = {VOICE_VOLUME3, VOICE_VOLUME7, VOICE_VOLUME11, VOICE_VOLUME15};
 
@@ -127,11 +124,13 @@ static struct
 
     uint32_t alertState;
 
-    bool requestedSequenceUpdate;
+    // Shared with onVoiceTick() (tick interrupt)
+    volatile bool requestedSequenceUpdate;
     VoiceSequence requestedSequence;
 
     VoiceSequence sequence;
     uint32_t sequenceIndex;
+    uint32_t gapTicks;
 
     uint32_t buffer[VOICE_TX_LENGTH];
 } voice;
@@ -147,109 +146,37 @@ void initVoice(void)
     gpio_clear(VOICE_PROG_PORT, VOICE_PROG_PIN);
     gpio_setup(VOICE_PROG_PORT, VOICE_PROG_PIN, GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
 
-    // Transmit buffer
-    voice.buffer[VOICE_TX_START_INDEX] = VOICE_BSRR(0);
-    for (uint32_t i = 0; i < 8; i++)
-        voice.buffer[VOICE_TX_DATA_INDEX + i * VOICE_TX_BIT_LENGTH] = VOICE_BSRR(1);
-    voice.buffer[VOICE_TX_STOP_INDEX] = VOICE_BSRR(1);
-}
-
-// static void wakeVoice(void)
-// {
-//     gpio_clear(VOICE_TX_PORT, VOICE_TX_PIN);
-//     sleep(10);
-//     gpio_set(VOICE_TX_PORT, VOICE_TX_PIN);
-//     sleep(30);
-// }
-
-void onVoiceTick(void)
-{
-    if (voice.requestedSequenceUpdate)
-    {
-        // Update sequence
-        voice.sequence = voice.requestedSequence;
-        voice.sequenceIndex = 0;
-
-        if (!voice.transmitting)
-            setVoiceEnabled();
-
-        voice.requestedSequenceUpdate = false;
-    }
-
-    if (voice.transmitting && !isVoiceSending())
-    {
-        // Send
-        if (voice.sequenceIndex < voice.sequence.size)
-        {
-            if ((voice.sequenceIndex == 0) || !isVoicePlaying())
-                sendVoiceData(voice.sequence.data[voice.sequenceIndex++]);
-        }
-        else
-            disableVoice();
-    }
-}
-
-static void setVoiceEnabled(void)
-{
-    // RCC
-    rcc_enable_dma(VOICE_TX_DMA);
+    // Timer (registers survive clock gating: runs whenever clocked)
     rcc_enable_tim(VOICE_TX_TIMER);
-
-    // Timer
-    uint32_t period = VOICE_TX_TIMER_PERIOD;
-    uint32_t onTime = 0;
-    uint32_t prescalerFactor = prescalePWMParameters(&period, &onTime);
-
     tim_setup_dma(VOICE_TX_TIMER);
-    tim_set_prescaler_factor(VOICE_TX_TIMER, prescalerFactor);
-    tim_set_period(VOICE_TX_TIMER, period);
+    tim_set_prescaler_factor(VOICE_TX_TIMER, 1);
+    tim_set_period(VOICE_TX_TIMER, VOICE_TX_TIMER_PERIOD);
     tim_enable(VOICE_TX_TIMER);
-
-    voice.transmitting = true;
-}
-
-static void disableVoice(void)
-{
-    // Timer
-    tim_disable(VOICE_TX_TIMER);
-
-    // DMA
-    dma_disable(VOICE_TX_DMA_CHANNEL);
-
-    // RCC
     rcc_disable_tim(VOICE_TX_TIMER);
-    rcc_disable_dma(VOICE_TX_DMA);
-
-    voice.transmitting = false;
 }
 
-static void sendVoiceData(uint8_t value)
+// Transmission
+
+static void sendVoiceData(uint32_t value)
 {
-    for (uint32_t i = 0; i < 8; i++)
+    voice.buffer[VOICE_TX_START_INDEX] = VOICE_BSRR(0);
+
+    uint32_t *bit = &voice.buffer[VOICE_TX_DATA_INDEX];
+    for (uint32_t i = 0; i < 8; i++, bit += VOICE_TX_BIT_LENGTH, value >>= 1)
     {
-        uint32_t bufferIndex = VOICE_TX_DATA_INDEX + i * VOICE_TX_BIT_LENGTH;
+        // 1: high 3, low 1; 0: high 1, low 3
+        uint32_t longLow = (value & 1) ? VOICE_BSRR(0) : 0;
 
-        if (value & 1)
-        {
-            voice.buffer[bufferIndex + VOICE_TX_BIT_SHORT_LENGTH] = 0;
-            voice.buffer[bufferIndex + VOICE_TX_BIT_LONG_LENGTH] = VOICE_BSRR(0);
-        }
-        else
-        {
-            voice.buffer[bufferIndex + VOICE_TX_BIT_SHORT_LENGTH] = VOICE_BSRR(0);
-            voice.buffer[bufferIndex + VOICE_TX_BIT_LONG_LENGTH] = 0;
-        }
-
-        value >>= 1;
+        bit[0] = VOICE_BSRR(1);
+        bit[VOICE_TX_BIT_SHORT_LENGTH] = longLow ^ VOICE_BSRR(0);
+        bit[VOICE_TX_BIT_LONG_LENGTH] = longLow;
     }
 
+    voice.buffer[VOICE_TX_STOP_INDEX] = VOICE_BSRR(1);
+
+    // Writing CCR also disables the channel, so CNDTR can be reloaded
     dma_setup_memory32_to_peripheral32(VOICE_TX_DMA_CHANNEL, (uint32_t)&VOICE_TX_PORT->BSRR, (uint32_t)voice.buffer, VOICE_TX_LENGTH);
     dma_enable(VOICE_TX_DMA_CHANNEL);
-}
-
-static bool isVoiceSending(void)
-{
-    return (VOICE_TX_DMA_CHANNEL->CNDTR != 0);
 }
 
 static bool isVoicePlaying(void)
@@ -257,9 +184,52 @@ static bool isVoicePlaying(void)
     return !gpio_get(VOICE_BUSY_PORT, VOICE_BUSY_PIN);
 }
 
-// Sequence
+void onVoiceTick(void)
+{
+    if (voice.requestedSequenceUpdate)
+    {
+        // Update sequence (barrier: read flag before data)
+        __DMB();
 
-static void pushVoiceQueue(uint8_t value);
+        voice.sequence = voice.requestedSequence;
+        voice.sequenceIndex = 0;
+
+        if (!voice.transmitting)
+        {
+            rcc_enable_dma(VOICE_TX_DMA);
+            rcc_enable_tim(VOICE_TX_TIMER);
+
+            voice.transmitting = true;
+        }
+
+        voice.requestedSequenceUpdate = false;
+    }
+
+    if (voice.transmitting && !dma_is_active(VOICE_TX_DMA_CHANNEL))
+    {
+        if (voice.gapTicks)
+            voice.gapTicks--;
+        else if (voice.sequenceIndex < voice.sequence.size)
+        {
+            if ((voice.sequenceIndex == 0) || !isVoicePlaying())
+            {
+                sendVoiceData(voice.sequence.data[voice.sequenceIndex++]);
+
+                voice.gapTicks = VOICE_TX_GAP_TICKS;
+            }
+        }
+        else
+        {
+            // Finished DMA channel stays enabled with CNDTR = 0: idle
+            rcc_disable_tim(VOICE_TX_TIMER);
+            rcc_disable_dma(VOICE_TX_DMA);
+
+            voice.transmitting = false;
+        }
+    }
+}
+
+// Sequence
 
 static void clearVoiceQueue(void)
 {
@@ -269,13 +239,16 @@ static void clearVoiceQueue(void)
     voice.requestedSequence.size = 0;
 }
 
-static void pushVoiceQueue(uint8_t value)
+static void pushVoiceQueue(uint32_t value)
 {
     voice.requestedSequence.data[voice.requestedSequence.size++] = value;
 }
 
 static void sendVoiceQueue(void)
 {
+    // Barrier: write data before flag
+    __DMB();
+
     voice.requestedSequenceUpdate = true;
 }
 
@@ -285,31 +258,26 @@ static void pushVoiceQueueThousandsGroup(uint32_t value)
 {
     if (value >= 100)
     {
-        uint32_t hundreds = value / 100;
-        pushVoiceQueue((VOICE_ONE - 1) + hundreds);
+        pushVoiceQueue(value / 100);
         pushVoiceQueue(VOICE_HUNDRED);
         value %= 100;
     }
+
     if (value >= 20)
     {
-        uint32_t tens = value / 10;
-        pushVoiceQueue((VOICE_TWENTY - 2) + tens);
+        pushVoiceQueue((VOICE_TWENTY - 2) + value / 10);
         value %= 10;
     }
-    else if (value >= 10)
-    {
-        pushVoiceQueue((VOICE_TEN - 10) + value);
 
-        return;
-    }
-    if (value > 0)
-        pushVoiceQueue((VOICE_ONE - 1) + value);
+    if (value)
+        pushVoiceQueue(value);
 }
 
-static bool pushVoiceQueueNumber(float value)
+static void pushVoiceQueueNumber(float value, uint32_t unit)
 {
-    if ((value < 0.000001F) || (value >= 1E9F))
-        return false;
+    // Also rejects NaN
+    if (!(value >= 0.0F) || (value >= 1E9F))
+        return;
 
     uint32_t integerPart;
     uint32_t fractionalPart;
@@ -322,7 +290,9 @@ static bool pushVoiceQueueNumber(float value)
     else
     {
         value *= 1000.0F;
-        int32_t exponent = getDecimalDigits(value);
+        // Values below 1 have no integer digits: keep only the rounding digit
+        uint32_t integerValue = value;
+        int32_t exponent = integerValue ? getDecimalDigits(integerValue) : 0;
         int32_t mantissa = (exponent < 4) ? exponent : 4;
         uint32_t scaledValue = truncateDecimalMantissa(10.0F * value, mantissa) / 10;
 
@@ -330,124 +300,97 @@ static bool pushVoiceQueueNumber(float value)
         fractionalPart = scaledValue % 1000;
     }
 
+    // Rounding may carry past the largest speakable value
+    if (integerPart >= 1000000000)
+        return;
+
     if (integerPart == 0)
         pushVoiceQueue(VOICE_ZERO);
 
-    if (integerPart >= 1000000)
+    for (uint32_t divisor = 1000000, suffix = VOICE_MILLION;
+         divisor;
+         divisor /= 1000, suffix--)
     {
-        pushVoiceQueueThousandsGroup(integerPart / 1000000);
-        pushVoiceQueue(VOICE_MILLION);
-        integerPart %= 1000000;
-    }
+        uint32_t group = integerPart / divisor;
+        integerPart %= divisor;
 
-    if (integerPart >= 1000)
-    {
-        pushVoiceQueueThousandsGroup(integerPart / 1000);
-        pushVoiceQueue(VOICE_THOUSAND);
-        integerPart %= 1000;
+        if (group)
+        {
+            pushVoiceQueueThousandsGroup(group);
+            if (divisor > 1)
+                pushVoiceQueue(suffix);
+        }
     }
-
-    if (integerPart)
-        pushVoiceQueueThousandsGroup(integerPart);
 
     if (fractionalPart)
     {
         pushVoiceQueue(VOICE_POINT);
 
-        while (fractionalPart)
+        do
         {
             uint32_t digit = fractionalPart / 100;
-            if (!digit)
-                pushVoiceQueue(VOICE_ZERO);
-            else
-                pushVoiceQueue((VOICE_ONE - 1) + digit);
+            pushVoiceQueue(digit ? digit : VOICE_ZERO);
 
             fractionalPart = 10 * (fractionalPart % 100);
-        }
+        } while (fractionalPart);
     }
 
-    return true;
+    if (unit != VOICE_NONE)
+        pushVoiceQueue(unit);
 }
 
 // Commands
 
-static const uint8_t voiceRateUnits[] = {VOICE_USVH, VOICE_MREMH, VOICE_CPM, VOICE_CPS};
-static const uint8_t voiceDoseUnits[] = {VOICE_USV, VOICE_MREM, VOICE_NONE, VOICE_NONE};
+// Scales Sv and rem to the spoken µSv and mrem
+static const float voiceUnitScales[DOSE_UNITS_NUM] = {1E6F, 1E3F, 1.0F, 1.0F};
+static const uint8_t voiceUnits[2][DOSE_UNITS_NUM] = {
+    {VOICE_USVH, VOICE_MREMH, VOICE_CPM, VOICE_CPS},
+    {VOICE_USV, VOICE_MREM, VOICE_NONE, VOICE_NONE},
+};
 
-static void pushVoiceQueueRate(float value)
+static void pushVoiceQueueMeasurement(float value, bool isDose)
 {
-    value *= getRateFactor();
-    if (settings.doseUnits == DOSE_UNITS_SIEVERTS)
-        value *= 1E6F;
-    else if (settings.doseUnits == DOSE_UNITS_REM)
-        value *= 1E3F;
+    uint32_t doseUnits = settings.doseUnits;
 
-    uint8_t voiceRateUnit = voiceRateUnits[settings.doseUnits];
+    value *= (isDose ? getDoseFactor() : getRateFactor()) * voiceUnitScales[doseUnits];
 
-    if (pushVoiceQueueNumber(value))
-    {
-        if (voiceRateUnit != VOICE_NONE)
-            pushVoiceQueue(voiceRateUnit);
-    }
+    pushVoiceQueueNumber(value, voiceUnits[isDose][doseUnits]);
 }
 
-static void pushVoiceQueueDose(float value)
+NOINLINE static void startVoicePlayback(void)
 {
-    value *= getDoseFactor();
-    if (settings.doseUnits == DOSE_UNITS_SIEVERTS)
-        value *= 1E6F;
-    else if (settings.doseUnits == DOSE_UNITS_REM)
-        value *= 1E3F;
+    clearVoiceAlert();
 
-    uint8_t voiceRateUnit = voiceDoseUnits[settings.doseUnits];
+    clearVoiceQueue();
+    pushVoiceQueue(VOICE_STOP);
+    pushVoiceQueue(voiceVolume[settings.soundVoiceVolume]);
+}
 
-    if (pushVoiceQueueNumber(value))
-    {
-        if (voiceRateUnit != VOICE_NONE)
-            pushVoiceQueue(voiceRateUnit);
-    }
+static void playVoiceMeasurement(float value, bool isDose)
+{
+    startVoicePlayback();
+    pushVoiceQueueMeasurement(value, isDose);
+    sendVoiceQueue();
 }
 
 void playVoiceInstantaneousRate(void)
 {
-    clearVoiceAlert();
-
-    clearVoiceQueue();
-    pushVoiceQueue(VOICE_STOP);
-    pushVoiceQueue(voiceVolume[settings.soundVoiceVolume]);
-    pushVoiceQueueRate(getInstantaneousRate());
-    sendVoiceQueue();
+    playVoiceMeasurement(getInstantaneousRate(), false);
 }
 
 void playVoiceAverageRate(void)
 {
-    clearVoiceAlert();
-
-    clearVoiceQueue();
-    pushVoiceQueue(VOICE_STOP);
-    pushVoiceQueue(voiceVolume[settings.soundVoiceVolume]);
-    pushVoiceQueueRate(getAverageRate());
-    sendVoiceQueue();
+    playVoiceMeasurement(getAverageRate(), false);
 }
 
 void playVoiceCumulativeDose(void)
 {
-    clearVoiceAlert();
-
-    clearVoiceQueue();
-    pushVoiceQueue(VOICE_STOP);
-    pushVoiceQueue(voiceVolume[settings.soundVoiceVolume]);
-    pushVoiceQueueDose(getCumulativeDosePulseCount());
-    sendVoiceQueue();
+    playVoiceMeasurement(getCumulativeDosePulseCount(), true);
 }
 
 void playVoiceTest(void)
 {
-    clearVoiceAlert();
-
-    clearVoiceQueue();
-    pushVoiceQueue(VOICE_STOP);
-    pushVoiceQueue(voiceVolume[settings.soundVoiceVolume]);
+    startVoicePlayback();
     pushVoiceQueue(VOICE_ONE);
     pushVoiceQueue(VOICE_TWO);
     pushVoiceQueue(VOICE_THREE);
@@ -456,32 +399,30 @@ void playVoiceTest(void)
 
 void playNumber(uint32_t value)
 {
-    clearVoiceAlert();
-
-    clearVoiceQueue();
-    pushVoiceQueue(VOICE_STOP);
-    pushVoiceQueue(voiceVolume[settings.soundVoiceVolume]);
-    if (value == 0)
-        pushVoiceQueue(VOICE_ZERO);
-    else
-        pushVoiceQueueNumber(value);
+    startVoicePlayback();
+    pushVoiceQueueNumber(value, VOICE_NONE);
     sendVoiceQueue();
 }
 
-void triggerVoiceAlert(void)
+void triggerVoiceAlert(bool measurementAlert)
 {
-    if (voice.transmitting || isVoicePlaying())
+    if (voice.requestedSequenceUpdate || voice.transmitting || isVoicePlaying())
         return;
 
+    bool rateAlert = getInstantaneousRateAlertLevel();
+    bool doseAlert = getCumulativeDoseAlertLevel();
     bool playSound = settings.alertSound;
-    bool playVoice = settings.alertVoice && (getInstantaneousRateAlertLevel() || getCumulativeDoseAlertLevel());
+    bool playVoice = measurementAlert && settings.alertVoice && (rateAlert || doseAlert);
 
-    if (!playSound && !playVoice)
-        return;
-    else if (playSound && !playVoice)
-        voice.alertState = VOICE_ALERTSTATE_SOUND;
-    else if (!playSound && playVoice)
+    if (!playSound)
+    {
+        if (!playVoice)
+            return;
+
         voice.alertState = VOICE_ALERTSTATE_VOICE;
+    }
+    else if (!playVoice)
+        voice.alertState = VOICE_ALERTSTATE_SOUND;
 
     clearVoiceQueue();
     if (voice.alertState < VOICE_ALERTSTATE_VOICE)
@@ -494,15 +435,15 @@ void triggerVoiceAlert(void)
     else
     {
         pushVoiceQueue(voiceVolume[settings.soundVoiceVolume]);
-        if (getInstantaneousRateAlertLevel())
-            pushVoiceQueueRate(getInstantaneousRate());
-        if (getCumulativeDoseAlertLevel())
-            pushVoiceQueueDose(getCumulativeDosePulseCount());
+        if (rateAlert)
+            pushVoiceQueueMeasurement(getInstantaneousRate(), false);
+        if (doseAlert)
+            pushVoiceQueueMeasurement(getCumulativeDosePulseCount(), true);
     }
-
     sendVoiceQueue();
 
-    voice.alertState = (voice.alertState + 1) % VOICE_ALERTSTATE_NUM;
+    if (++voice.alertState >= VOICE_ALERTSTATE_NUM)
+        voice.alertState = 0;
 }
 
 void clearVoiceAlert(void)

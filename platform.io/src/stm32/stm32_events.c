@@ -9,28 +9,30 @@
 
 #if defined(STM32)
 
-#include "../peripherals/comm.h"
 #include "../stm32/device.h"
 #include "../system/events.h"
 #include "../system/power.h"
-#include "../system/settings.h"
+
+#if defined(CH32)
+// CH32's do not wake USB on IRQ
+#define canSleep() !isUSBPowered()
+#else
+#define canSleep() true
+#endif
 
 void initEvents(void)
 {
     // SysTick
-    NVIC_SetPriority(SysTick_IRQn, 0x80);
+    nvic_set_priority(SysTick_IRQn, 0x80);
     SysTick->LOAD = AHB_FREQUENCY / SYSTICK_FREQUENCY - 1;
     SysTick->VAL = 0;
     SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_TICKINT_Msk | SysTick_CTRL_ENABLE_Msk;
 
     iwdg_start(); // Start IWDG first (see AN2606 4.8)
 
-    iwdg_unlock();
-    wait_until_bits_clear(IWDG->SR, IWDG_SR_PVU);
+    iwdg_unlock(); // Unlocks both PR and RLR
+    wait_until_bits_clear(IWDG->SR, IWDG_SR_PVU | IWDG_SR_RVU);
     IWDG->PR = 0b110; // Divider /256
-
-    iwdg_unlock();
-    wait_until_bits_clear(IWDG->SR, IWDG_SR_RVU);
     IWDG->RLR = (LSI_FREQUENCY / 256) - 1;
 }
 
@@ -49,22 +51,22 @@ void reloadWatchdog(void)
 void sleep(uint32_t value)
 {
     uint32_t targetTick = currentTick + value;
+    bool waiting;
 
-    while (true)
+    do
     {
         iwdg_reload();
 
-        if (((int32_t)(currentTick - targetTick)) >= 0)
-            break;
+        // Check and sleep with IRQs masked, so a tick arriving between the
+        // check and WFI is not missed (WFI still wakes on pending IRQs)
+        __disable_irq();
 
-#if defined(CH32)
-        // CH32's do not wake USB on IRQ
-        if (!isUSBPowered())
+        waiting = (int32_t)(currentTick - targetTick) < 0;
+        if (waiting && canSleep())
             __WFI();
-#else
-        __WFI();
-#endif
-    }
+
+        __enable_irq();
+    } while (waiting);
 }
 
 #endif

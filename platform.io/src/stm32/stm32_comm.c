@@ -18,17 +18,14 @@
 
 #define COMM_SERIAL_BAUDRATE 115200
 
-#if defined(USART_INTERFACE)
+// Keeps the compiler (with LTO) from moving buffer writes past the state
+// change that hands the buffer to the interrupt handler
+#define COMM_BARRIER() __asm__ volatile("" ::: "memory")
 
-void initCommHardware(void)
-{
-}
+#if defined(USART_INTERFACE)
 
 void openComm(void)
 {
-    if (comm.open)
-        return;
-
     // RCC
     rcc_reset_usart(USART_INTERFACE);
     rcc_enable_usart(USART_INTERFACE);
@@ -46,29 +43,31 @@ void openComm(void)
     usart_setup_8n1(USART_INTERFACE, (USART_APB_FREQUENCY + COMM_SERIAL_BAUDRATE / 2) / COMM_SERIAL_BAUDRATE);
     usart_enable_receive_interrupt(USART_INTERFACE);
 
-    NVIC_SetPriority(USART_IRQ, 0x40);
-    NVIC_EnableIRQ(USART_IRQ);
-
+    // Reset the comm state before the interrupt handler can use it
     clearComm(true);
+
+    nvic_set_priority(USART_IRQ, 0x40);
+    NVIC_EnableIRQ(USART_IRQ);
 }
 
 void closeComm(void)
 {
-    if (!comm.open)
-        return;
-
     // USART
     NVIC_DisableIRQ(USART_IRQ);
 
     usart_disable_receive_interrupt(USART_INTERFACE);
     usart_disable_transmit_interrupt(USART_INTERFACE);
 
+    // Let the last character leave the shift register
+    while (!usart_is_transmission_complete(USART_INTERFACE))
+        ;
+
     // GPIO
 #if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
     gpio_setup_analog(USART_RX_PORT, USART_RX_PIN, GPIO_PULL_FLOATING);
     gpio_setup_analog(USART_TX_PORT, USART_TX_PIN, GPIO_PULL_FLOATING);
 #elif defined(STM32F1)
-    gpio_setup(USART_RX_PORT, USART_RX_PIN, GPIO_MODE_INPUT_FLOATING);
+    // RX stays a floating input
     gpio_setup(USART_TX_PORT, USART_TX_PIN, GPIO_MODE_INPUT_FLOATING);
 #endif
 
@@ -80,6 +79,8 @@ void closeComm(void)
 
 void transmitComm(void)
 {
+    COMM_BARRIER();
+
     comm.state = COMM_TX;
 
     usart_enable_transmit_interrupt(USART_INTERFACE);
@@ -87,52 +88,34 @@ void transmitComm(void)
 
 void USART_IRQ_HANDLER(void)
 {
+    // Check for overrun before reading the data register: on STM32F1,
+    // reading the status and then the data register clears the flag
+    bool overrun = usart_is_overrun(USART_INTERFACE);
+
     int16_t c = -1;
 
     if (usart_is_receive_ready(USART_INTERFACE))
         c = usart_receive(USART_INTERFACE);
 
-    if (usart_is_overrun(USART_INTERFACE))
+    if (overrun)
     {
+        // On STM32F1, the data register read above already cleared the flag
+        // (overrun implies receive ready); another read could discard a
+        // character that just arrived
+#if !defined(STM32F1)
         usart_clear_overrun(USART_INTERFACE);
+#endif
 
+        // Characters were lost: discard the command
         if (comm.state == COMM_RX)
-        {
-            // Invalidate command
-            comm.buffer[0] = ' ';
-            comm.bufferIndex = 1;
-        }
+            invalidateCommCommand();
     }
 
     switch (comm.state)
     {
     case COMM_RX:
-        if ((c >= ' ') &&
-            (comm.bufferIndex < (COMM_BUFFER_SIZE - 1)))
-        {
-            comm.buffer[comm.bufferIndex++] = c;
-
-#if defined(GMC800)
-            if ((c == '>') && (comm.previousChar == '>'))
-            {
-                comm.buffer[comm.bufferIndex] = '\0';
-
-                comm.bufferIndex = 0;
-                comm.state = COMM_RX_READY;
-            }
-#endif
-        }
-        else if ((c == '\r') ||
-                 ((c == '\n') &&
-                  (comm.previousChar != '\r')))
-        {
-            comm.buffer[comm.bufferIndex] = '\0';
-
-            comm.bufferIndex = 0;
-            comm.state = COMM_RX_READY;
-        }
-
-        comm.previousChar = c;
+        if (c >= 0)
+            receiveCommChar(c);
 
         break;
 
@@ -146,13 +129,7 @@ void USART_IRQ_HANDLER(void)
             {
                 usart_disable_transmit_interrupt(USART_INTERFACE);
 
-                strclr(comm.buffer);
-                comm.bufferIndex = 0;
-
-                if (comm.transmitState == TRANSMIT_RESPONSE)
-                    comm.state = COMM_RX;
-                else
-                    comm.state = COMM_TX_READY;
+                endCommTransmit();
             }
         }
 
@@ -178,6 +155,8 @@ void USART_IRQ_HANDLER(void)
 #define USB_EP0_PACKETSIZE_MAX 0x08
 #define USB_DATA_PACKETSIZE_MAX 0x40
 #define USB_CONTROL_PACKETSIZE_MAX 0x08
+
+#define USB_CDC_CONTROL_LINE_DTR 0x01
 
 // Declaration of the report descriptor
 
@@ -323,8 +302,10 @@ static const struct usb_string_descriptor *const dtable[] = {
     &prod_desc_en,
 };
 
-usbd_device usbdDevice;
-uint32_t usbdBuffer[0x20];
+static usbd_device usbdDevice;
+// Control transfers: 8-byte request plus the largest data stage, the 18-byte
+// serial number string descriptor (other descriptors are sent from flash)
+static uint32_t usbdBuffer[0x08];
 
 static struct usb_cdc_line_coding cdc_line = {
     .dwDTERate = COMM_SERIAL_BAUDRATE,
@@ -332,6 +313,31 @@ static struct usb_cdc_line_coding cdc_line = {
     .bParityType = USB_CDC_NO_PARITY,
     .bDataBits = 8,
 };
+
+static volatile bool commResetRequested;
+
+// Called from the USB interrupt when the host closes the port, deconfigures
+// or resets the device: an unfinished exchange would otherwise stall, and a
+// stalled datalog transfer keeps logging paused
+static void abortUSBComm(void)
+{
+    if (comm.state == COMM_RX)
+    {
+        // The interrupt owns the buffer while receiving: drop any partial command
+        comm.bufferIndex = 0;
+        comm.previousChar = '\0';
+    }
+    else
+    {
+        // The main loop owns the buffer: let pollComm() reset the comm state
+        commResetRequested = true;
+    }
+}
+
+static void onUSBReset(usbd_device *dev, uint8_t event, uint8_t ep)
+{
+    abortUSBComm();
+}
 
 static usbd_respond onUSBGetDescription(usbd_ctlreq *req, void **address, uint16_t *length)
 {
@@ -354,7 +360,7 @@ static usbd_respond onUSBGetDescription(usbd_ctlreq *req, void **address, uint16
         break;
 
     case USB_DTYPE_STRING:
-        if (dnumber < 3)
+        if (dnumber < (sizeof(dtable) / sizeof(dtable[0])))
             desc = dtable[dnumber];
         else
             return usbd_fail;
@@ -382,6 +388,10 @@ static usbd_respond onUSBControl(usbd_device *dev, usbd_ctlreq *req, usbd_rqc_ca
         switch (req->bRequest)
         {
         case USB_CDC_SET_CONTROL_LINE_STATE:
+            // The host clears DTR when it closes the port
+            if (!(req->wValue & USB_CDC_CONTROL_LINE_DTR))
+                abortUSBComm();
+
             return usbd_ack;
 
         case USB_CDC_SET_LINE_CODING:
@@ -419,30 +429,31 @@ static void onUSBData(usbd_device *dev, uint8_t event, uint8_t ep)
     switch (comm.state)
     {
     case COMM_RX:
+        // Nothing is left over from a closed connection while receiving,
+        // so a pending reset must not discard this new command
+        commResetRequested = false;
+
         for (int32_t i = 0;
              i < receivedBytes;
              i++)
         {
-            char c = receiveBuffer[i];
-
-            if ((c >= ' ') &&
-                (comm.bufferIndex < (COMM_BUFFER_SIZE - 1)))
-                comm.buffer[comm.bufferIndex++] = c;
-            else if ((c == '\r') ||
-                     ((c == '\n') &&
-                      (comm.previousChar != '\r')))
+            if (receiveCommChar(receiveBuffer[i]))
             {
-                comm.buffer[comm.bufferIndex] = '\0';
-
-                comm.bufferIndex = 0;
-                comm.state = COMM_RX_READY;
-
                 // Dummy write to generate write interrupts
                 usbd_ep_write(dev, USB_DATA_TRANSMIT_ENDPOINT, NULL, 0);
-            }
 
-            comm.previousChar = c;
+                // Discard the rest of the packet, so it does not overwrite the command
+                break;
+            }
         }
+
+        break;
+
+    case COMM_RX_READY:
+    case COMM_TX_READY:
+        // Zero-length writes generate transmit events, which keep polling
+        // until the main loop has a response ready
+        usbd_ep_write(dev, USB_DATA_TRANSMIT_ENDPOINT, NULL, 0);
 
         break;
 
@@ -452,27 +463,18 @@ static void onUSBData(usbd_device *dev, uint8_t event, uint8_t ep)
 
         int32_t sentBytes = usbd_ep_write(dev, USB_DATA_TRANSMIT_ENDPOINT, sendBuffer, strlen(sendBuffer));
 
+        // Endpoint still busy (e.g. on a receive event): retry on the next
+        // transmit event
+        if (sentBytes < 0)
+            break;
+
         comm.bufferIndex += sentBytes;
 
         if (comm.buffer[comm.bufferIndex] == '\0')
-        {
-            strclr(comm.buffer);
-            comm.bufferIndex = 0;
-
-            if (comm.transmitState == TRANSMIT_RESPONSE)
-                comm.state = COMM_RX;
-            else
-                comm.state = COMM_TX_READY;
-        }
+            endCommTransmit();
 
         break;
     }
-
-    case COMM_RX_READY:
-    case COMM_TX_READY:
-        usbd_ep_write(dev, USB_DATA_TRANSMIT_ENDPOINT, NULL, 0);
-
-        break;
     }
 }
 
@@ -488,6 +490,8 @@ static usbd_respond onUSBConfigure(usbd_device *dev, uint8_t cfg)
 
         usbd_reg_endpoint(dev, USB_DATA_RECEIVE_ENDPOINT, NULL);
         usbd_reg_endpoint(dev, USB_DATA_TRANSMIT_ENDPOINT, NULL);
+
+        abortUSBComm();
 
         return usbd_ack;
 
@@ -509,6 +513,8 @@ static usbd_respond onUSBConfigure(usbd_device *dev, uint8_t cfg)
 
 void transmitComm(void)
 {
+    COMM_BARRIER();
+
     comm.state = COMM_TX;
 }
 
@@ -533,69 +539,75 @@ void initCommHardware(void)
     usbd_reg_config(&usbdDevice, onUSBConfigure);
     usbd_reg_control(&usbdDevice, onUSBControl);
     usbd_reg_descr(&usbdDevice, onUSBGetDescription);
+    usbd_reg_event(&usbdDevice, usbd_evt_reset, onUSBReset);
 
-    NVIC_SetPriority(USB_IRQ, 0x80);
+    clearComm(false);
+
+    nvic_set_priority(USB_IRQ, 0x80);
     NVIC_EnableIRQ(USB_IRQ);
 
     usbd_enable(&usbdDevice, true);
     usbd_connect(&usbdDevice, true);
+}
 
-    clearComm(false);
+// Resets the comm state without the USB interrupt handler running halfway
+static void resetComm(bool open)
+{
+    NVIC_DisableIRQ(USB_IRQ);
+
+    commResetRequested = false;
+    clearComm(open);
+
+    NVIC_EnableIRQ(USB_IRQ);
 }
 
 void openComm(void)
 {
-    if (comm.open)
-        return;
-
-    clearComm(true);
+    resetComm(true);
 }
 
 void closeComm(void)
 {
-    if (!comm.open)
-        return;
+    resetComm(false);
+}
 
-    clearComm(false);
+void pollComm(void)
+{
+    if (commResetRequested)
+        resetComm(comm.open);
 }
 
 #else
 
-void initCommHardware(void)
-{
-}
-
 void openComm(void)
 {
-    if (comm.open)
-        return;
-
     clearComm(true);
 }
 
 void closeComm(void)
 {
-    if (!comm.open)
-        return;
-
     clearComm(false);
 }
 
 void transmitComm(void)
 {
-    strclr(comm.buffer);
-    comm.bufferIndex = 0;
-
-    if (comm.transmitState == TRANSMIT_RESPONSE)
-        comm.state = COMM_RX;
-    else
-        comm.state = COMM_TX_READY;
+    // No comm hardware: discard the response
+    endCommTransmit();
 }
 
 #endif
 
+// USART or no comm hardware
+#if defined(USART_INTERFACE) || !defined(USB_INTERFACE)
+
+void initCommHardware(void)
+{
+}
+
 void pollComm(void)
 {
 }
+
+#endif
 
 #endif

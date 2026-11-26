@@ -20,6 +20,7 @@ void loadHistory(void);
 
 void updateHistory(void);
 
-void onHistoryViewEvent(ViewEvent event);
+void advanceHistoryTab(void);
+void drawHistoryView(void);
 
 #endif

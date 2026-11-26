@@ -81,9 +81,9 @@ void initTube(void)
     tube.pwmDutyCycle = getTubeHVDutyCycleForIndex(settings.tubeHVDutyCycle);
 #endif
 
-    initTubeHardware();
-
     tubeDeadTime = USHRT_MAX;
+
+    initTubeHardware();
 }
 
 void resetTube(void)
@@ -103,14 +103,21 @@ void resetTube(void)
 #endif
 }
 
+// Logarithmic scale (logStep is a natural log: scale log2 steps by LN2 at compile time)
+
+NOINLINE static float getLogScaleValue(float min, float logStep, int32_t index)
+{
+    return min * expf((float)index * logStep);
+}
+
 // Tube sensitivity
 
 NOINLINE static uint32_t getTubeIndex()
 {
-    if (settings.tubeType > TUBE_TYPE_M4011)
-        return settings.tubeType - 1;
-    
-    return settings.tubeType;
+    // J321 shares the M4011 data
+    uint32_t tubeType = settings.tubeType;
+
+    return tubeType - (tubeType > TUBE_TYPE_M4011);
 }
 
 static float getTubeSensitivityForIndex(uint32_t index)
@@ -118,8 +125,9 @@ static float getTubeSensitivityForIndex(uint32_t index)
     if (index == 0)
         return tubeSensitivities[getTubeIndex()];
     else
-        return TUBE_SENSITIVITY_VALUE_MIN *
-               exp2f((float)(index - 1) * (TUBE_SENSITIVITY_VALUE_LOG2_MAX_MIN / (TUBE_SENSITIVITY_VALUE_NUM - 1)));
+        return getLogScaleValue(TUBE_SENSITIVITY_VALUE_MIN,
+                                LN2 * TUBE_SENSITIVITY_VALUE_LOG2_MAX_MIN / (TUBE_SENSITIVITY_VALUE_NUM - 1),
+                                index - 1);
 }
 
 const char *getTubeType(void)
@@ -129,33 +137,34 @@ const char *getTubeType(void)
 
 float getTubeSensitivity(void)
 {
-    uint8_t code = tubeSourceFactors[getTubeIndex()][settings.source];
-    float sourceFactor = SOURCE_FACTOR_DATA_MIN * exp2f(code * (1.0F / SOURCE_FACTOR_DATA_SCALE));
+    float sourceFactor = getLogScaleValue(SOURCE_FACTOR_DATA_MIN,
+                                          LN2 / SOURCE_FACTOR_DATA_SCALE,
+                                          tubeSourceFactors[getTubeIndex()][settings.source]);
 
     return sourceFactor * getTubeSensitivityForIndex(settings.tubeSensitivity);
 }
 
 uint32_t getLossOfCountTime(void)
 {
-    // (60 s/min) * (number of pulses) * (lowest expected radiation in uSv/h)
+    // (60 s/min) * (number of pulses) / (lowest expected radiation in uSv/h) / (sensitivity in cpm/uSv/h)
     return (uint32_t)(((60.0F) * (10.0F) / (0.05F)) / getTubeSensitivity()) + 1;
 }
 
 // Dead-time compensation
 
-static float getTubeDeadTimeCompensationForIndex(uint32_t index)
-{
-    if (index == 0)
-        return 0.0F;
-    else
-        return TUBE_DEADTIMECOMPENSATION_VALUE_MIN * exp2f((float)(index - 1) *
-                                                           (TUBE_DEADTIMECOMPENSATION_VALUE_LOG2_MAX_MIN /
-                                                            (TUBE_DEADTIMECOMPENSATION_VALUE_NUM - 1)));
-}
+#define TUBE_DEADTIMECOMPENSATION_LOG_STEP \
+    (LN2 * TUBE_DEADTIMECOMPENSATION_VALUE_LOG2_MAX_MIN / (TUBE_DEADTIMECOMPENSATION_VALUE_NUM - 1))
 
 float getTubeDeadTimeCompensation(void)
 {
-    return getTubeDeadTimeCompensationForIndex(settings.tubeDeadTimeCompensation);
+    uint32_t index = settings.tubeDeadTimeCompensation;
+
+    if (index == 0)
+        return 0.0F;
+    else
+        return getLogScaleValue(TUBE_DEADTIMECOMPENSATION_VALUE_MIN,
+                                TUBE_DEADTIMECOMPENSATION_LOG_STEP,
+                                index - 1);
 }
 
 // HV PWM parameters
@@ -211,7 +220,11 @@ bool setTubeHVFrequency(float value)
     if ((value > 100000.0F) || (value < 100.0F))
         return false;
 
-    int32_t tubeHVFrequency = (int32_t)log2f(value / 1250.0F);
+    // Nearest menu index at or below value (1.25 kHz << index), clamped
+    uint32_t ratio = (uint32_t)(value / 1250.0F);
+    uint32_t tubeHVFrequency = 0;
+    while ((ratio >>= 1) && (tubeHVFrequency < (TUBE_HVFREQUENCY_NUM - 1)))
+        tubeHVFrequency++;
 
     settings.tubeHVProfile = TUBE_HVPROFILE_CUSTOM;
     settings.tubeHVFrequency = tubeHVFrequency;
@@ -262,11 +275,10 @@ bool setTubeHVDutyCycle(float value)
 
     tube.pwmDutyCycle = value;
 
-    int32_t tubeHVDutyCycle = (value - TUBE_HVDUTYCYCLE_MIN / 2) /
-                              TUBE_HVDUTYCYCLE_STEP;
-    if (tubeHVDutyCycle < 0)
-        tubeHVDutyCycle = 0;
-    else if (tubeHVDutyCycle >= TUBE_HVDUTYCYCLE_NUM)
+    // value >= 0, so the quotient is >= -0.5 and truncates to >= 0
+    uint32_t tubeHVDutyCycle = (value - TUBE_HVDUTYCYCLE_MIN / 2) /
+                               TUBE_HVDUTYCYCLE_STEP;
+    if (tubeHVDutyCycle >= TUBE_HVDUTYCYCLE_NUM)
         tubeHVDutyCycle = TUBE_HVDUTYCYCLE_NUM - 1;
 
     settings.tubeHVProfile = TUBE_HVPROFILE_CUSTOM;
@@ -334,7 +346,7 @@ static const char *onTubeTypeMenuGetOption(menu_size_t index, MenuStyle *menuSty
 {
     *menuStyle = (index == settings.tubeType);
 
-    return tubeTypeStrings[index];
+    return getString(tubeTypeStrings[index]);
 }
 
 static void onTubeTypeMenuSelect(menu_size_t index)
@@ -355,6 +367,18 @@ static const Menu tubeTypeMenu = {
     showTubeMenu,
 };
 
+// Value menu option
+
+NOINLINE static const char *buildValueMenuOption(float value, const char *unit)
+{
+    strclr(menuOption);
+    strcatFloat(menuOption, value, 2);
+    strcatChar(menuOption, ' ');
+    strcat(menuOption, unit);
+
+    return menuOption;
+}
+
 // Sensitivity menu
 
 static const char *onTubeSensitivityMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
@@ -364,12 +388,8 @@ static const char *onTubeSensitivityMenuGetOption(menu_size_t index, MenuStyle *
     if (index == 0)
         return getString(STRING_TUBE_DEFAULT);
 
-    strclr(menuOption);
-    strcatFloat(menuOption, getTubeSensitivityForIndex(index), 2);
-    strcatChar(menuOption, ' ');
-    strcat(menuOption, getString(STRING_CPMUSVH));
-
-    return menuOption;
+    return buildValueMenuOption(getTubeSensitivityForIndex(index),
+                                getString(STRING_CPMUSVH));
 }
 
 static void onTubeSensitivityMenuSelect(menu_size_t index)
@@ -399,12 +419,10 @@ static const char *onTubeDeadTimeCompensationMenuGetOption(menu_size_t index, Me
     if (index == 0)
         return getString(STRING_OFF);
 
-    strclr(menuOption);
-    strcatFloat(menuOption, 1000000.0F * getTubeDeadTimeCompensationForIndex(index), 2);
-    strcatChar(menuOption, ' ');
-    strcat(menuOption, getString(STRING_MICROSECONDS));
-
-    return menuOption;
+    return buildValueMenuOption(getLogScaleValue(1000000.0F * TUBE_DEADTIMECOMPENSATION_VALUE_MIN,
+                                                 TUBE_DEADTIMECOMPENSATION_LOG_STEP,
+                                                 index - 1),
+                                getString(STRING_MICROSECONDS));
 }
 
 static void onTubeDeadTimeCompensationMenuSelect(menu_size_t index)
@@ -431,12 +449,8 @@ static const char *onHVFrequencyMenuGetOption(menu_size_t index, MenuStyle *menu
 {
     *menuStyle = (index == settings.tubeHVFrequency);
 
-    strclr(menuOption);
-    strcatFloat(menuOption, getTubeHVFrequencyForIndex(index) / 1000.0F, 2);
-    strcatChar(menuOption, ' ');
-    strcat(menuOption, getString(STRING_KHZ));
-
-    return menuOption;
+    return buildValueMenuOption(getTubeHVFrequencyForIndex(index) / 1000.0F,
+                                getString(STRING_KHZ));
 }
 
 static void onHVFrequencyMenuSelect(menu_size_t index)
@@ -462,8 +476,8 @@ static const char *onHVDutyCycleMenuGetOption(menu_size_t index, MenuStyle *menu
     *menuStyle = (index == settings.tubeHVDutyCycle);
 
     strclr(menuOption);
-    strcatFloat(menuOption, 100.0F * getTubeHVDutyCycleForIndex(index), 2);
-    strcat(menuOption, STRING_PERCENT);
+    strcatFloat(menuOption, (float)(index + 1) * (100.0F * TUBE_HVDUTYCYCLE_MIN), 2);
+    strcat(menuOption, getString(STRING_PERCENT));
 
     return menuOption;
 }

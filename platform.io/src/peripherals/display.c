@@ -7,14 +7,10 @@
  * License: MIT
  */
 
-#include <limits.h>
-
 #include "../peripherals/display.h"
 #include "../system/cmath.h"
 #include "../system/settings.h"
 #include "../ui/menu.h"
-
-void showDisplayMenu(void);
 
 static const Menu displayMenu;
 #if defined(DISPLAY_MONOCHROME)

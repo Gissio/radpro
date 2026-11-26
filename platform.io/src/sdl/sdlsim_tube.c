@@ -15,18 +15,15 @@
 
 #include "../peripherals/tube.h"
 #include "../system/events.h"
-#include "../system/settings.h"
+#include "sdlsim.h"
 
-#if !defined(M_PI)
-#define M_PI 3.14159265F
-#endif
-
-#define SIM_SENSITIVITIY 120.0F
+#define SIM_SENSITIVITY 120.0F
 #define SIM_USVH 0.15F
-#define SIM_CPS (SIM_USVH * SIM_SENSITIVITIY / 60.0F)
+#define SIM_CPS (SIM_USVH * SIM_SENSITIVITY / 60.0F)
+
+#define SIM_DEAD_TIME 0.000075F
 
 float tubeCPS;
-uint32_t previousTubeTick;
 
 void initTubeHardware(void)
 {
@@ -34,7 +31,8 @@ void initTubeHardware(void)
 
     tubeCPS = SIM_CPS;
 
-    tubeDeadTime = (uint32_t)(0.000075F * PULSE_MEASUREMENT_FREQUENCY);
+    // Fixed simulated dead time (pulse intervals are not simulated)
+    tubeDeadTime = (uint32_t)(SIM_DEAD_TIME * PULSE_MEASUREMENT_FREQUENCY);
 }
 
 void setTubeHVEnabled(bool value)
@@ -45,25 +43,20 @@ void updateTubeHV(void)
 {
 }
 
-static float getUniformRandomValue(void)
-{
-    return (float)rand() / (float)RAND_MAX;
-}
-
+// Knuth's algorithm: https://en.wikipedia.org/wiki/Poisson_distribution
 static uint32_t getPoisson(double lambda)
 {
-    // https://en.wikipedia.org/wiki/Poisson_distribution
-    double l = exp(-lambda);
+    double limit = exp(-lambda);
+    double p = getUniformRandomValue();
     uint32_t n = 0;
-    double p = 1;
 
-    do
+    while (p > limit)
     {
         n++;
-        p = p * getUniformRandomValue();
-    } while (p > l);
+        p *= getUniformRandomValue();
+    }
 
-    return n - 1;
+    return n;
 }
 
 void onTubeTick(void)
@@ -83,21 +76,7 @@ void onTubeTick(void)
     tubePulseCount += pulseCount;
 
     for (uint32_t i = 0; i < pulseCount; i++)
-        tubeRandomBits = (tubeRandomBits << 1) | (getUniformRandomValue() > 0.5F);
-
-    if (pulseCount)
-    {
-        uint32_t deltaTicks = currentTick - previousTubeTick;
-
-        if (deltaTicks < 50)
-        {
-            uint32_t pulseIntervalMs = 1000 * (deltaTicks - 1) + 1000 * getUniformRandomValue() + 93;
-            if(pulseIntervalMs < tubeDeadTime)
-                tubeDeadTime = pulseIntervalMs;
-        }
-
-        previousTubeTick = currentTick;
-    }
+        tubeRandomBits = (tubeRandomBits << TUBE_BITS_PER_PULSE) | (rand() & TUBE_BITS_PER_PULSE_MASK);
 
 #endif
 }

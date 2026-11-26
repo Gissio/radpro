@@ -9,15 +9,17 @@
 
 #if defined(STM32)
 
-#include <string.h>
-
 #include "../peripherals/adc.h"
 #include "../stm32/device.h"
 #include "../system/cmath.h"
-#include "../system/events.h"
 
-#define ADC_VDD 3.3F
 #define ADC_VALUE_MAX ((1 << 12) - 1)
+
+// 55.5 cycles (F0/F1), 39.5 cycles (G0), 92.5 cycles (L4)
+#define ADC_SAMPLETIME_DEFAULT 5
+// VREFINT requires >= 17.1 us sampling time on F1-class MCUs:
+// 239.5 cycles (F0/F1), 160.5 cycles (G0), 640.5 cycles (L4)
+#define ADC_SAMPLETIME_VREF 7
 
 #define PWR_BAT_SAMPLE_NUM 16
 #define VREF_SAMPLE_NUM 16
@@ -40,21 +42,15 @@
 #define MAGNETIC_FIELD_LINEAR_SCALE (2 * SQRT2 * 0.000000005F * 2.8583F)
 #define MAGNETIC_FIELD_QUADRATIC_SCALE (2 * SQRT2 * 0.000000005F * 0.0072F)
 
+// The ADC tick index counts down once per cycle. Each stage begins at
+// its tick, which selects the channel and starts the first conversion.
+// The value read at tick n was converted at tick n + 1.
 #define ADC_END_SAMPLE 1
 #define ADC_PWR_BAT_SAMPLE (ADC_END_SAMPLE + PWR_BAT_SAMPLE_NUM)
 #define ADC_VREF_SAMPLE (ADC_PWR_BAT_SAMPLE + VREF_SAMPLE_NUM)
 #define ADC_MAGNETIC_FIELD_SAMPLE (ADC_VREF_SAMPLE + MAGNETIC_FIELD_SAMPLE_NUM)
 #define ADC_ELECTRIC_FIELD_SAMPLE (ADC_MAGNETIC_FIELD_SAMPLE + ELECTRIC_FIELD_SAMPLE_NUM)
 #define ADC_START_SAMPLE ADC_ELECTRIC_FIELD_SAMPLE
-
-typedef enum
-{
-    ADC_STAGE_IDLE,
-    ADC_STAGE_ELECTRIC_FIELD,
-    ADC_STAGE_MAGNETIC_FIELD,
-    ADC_STAGE_VREF,
-    ADC_STAGE_PWR_BAT,
-} ADCStage;
 #endif
 
 typedef struct
@@ -62,10 +58,8 @@ typedef struct
     uint32_t battery;
     uint32_t vref;
 #if defined(EMFMETER)
-    uint16_t electricField[ELECTRIC_FIELD_SAMPLE_NUM];
-    uint16_t magneticField[MAGNETIC_FIELD_SAMPLE_NUM];
-    uint32_t electricFieldIndex;
-    uint32_t magneticFieldIndex;
+    // Electric field samples, followed by magnetic field samples
+    uint16_t field[ELECTRIC_FIELD_SAMPLE_NUM + MAGNETIC_FIELD_SAMPLE_NUM];
 #endif
 } ADCValues;
 
@@ -79,12 +73,24 @@ static struct
 #if defined(EMFMETER)
     bool initialized;
     bool enabled;
-    ADCStage stage;
 
-    ADCValues live;
-#endif
+    // Double buffer: the ADC tick fills buffers[snapshotIndex ^ 1] while
+    // readers use buffers[snapshotIndex]
+    ADCValues buffers[2];
+    volatile uint32_t snapshotIndex;
+#else
     ADCValues snapshot;
+#endif
 } adcHardware;
+
+static ADCValues *getSnapshot(void)
+{
+#if defined(EMFMETER)
+    return &adcHardware.buffers[adcHardware.snapshotIndex];
+#else
+    return &adcHardware.snapshot;
+#endif
+}
 
 // Conversion
 
@@ -105,21 +111,25 @@ static uint32_t convertADC(uint32_t sampleNum)
 
 static void readPowerState(void)
 {
+    ADCValues *snapshot = getSnapshot();
+
     adc_enable(ADC1);
-
-    adc_set_sampletime(ADC1, 5);
-
-    // Sample battery
-    adc_set_channel(ADC1, PWR_BAT_CHANNEL);
-    adcHardware.snapshot.battery = convertADC(PWR_BAT_SAMPLE_NUM);
 
     // Sample VREF
     adc_enable_vref_channel(ADC1);
     adc_enable_temperature_vref_channel(ADC1);
+    adc_set_sampletime(ADC1, ADC_SAMPLETIME_VREF);
     adc_set_channel(ADC1, ADC_VREF_CHANNEL);
-    adcHardware.snapshot.vref = convertADC(VREF_SAMPLE_NUM);
+    snapshot->vref = convertADC(VREF_SAMPLE_NUM);
+#if !defined(EMFMETER)
     adc_disable_vref_channel(ADC1);
     adc_disable_temperature_vref_channel(ADC1);
+#endif
+
+    // Sample battery
+    adc_set_sampletime(ADC1, ADC_SAMPLETIME_DEFAULT);
+    adc_set_channel(ADC1, PWR_BAT_CHANNEL);
+    snapshot->battery = convertADC(PWR_BAT_SAMPLE_NUM);
 
     // Sample PWR_CHRG
 #if defined(PWR_CHRG_CHANNEL)
@@ -130,7 +140,11 @@ static void readPowerState(void)
     adcHardware.usbPowered = adcHardware.batteryCharging || (pwrChrgValue > PWR_CHRG_USB_POWERED_THRESHOLD);
 #endif
 
+    // With the EMF meter, the ADC and VREF channel stay enabled for the
+    // ADC tick
+#if !defined(EMFMETER)
     adc_disable(ADC1);
+#endif
 }
 
 #if defined(EMFMETER)
@@ -139,86 +153,60 @@ void onADCTick(uint32_t index)
 {
     if (!adcHardware.enabled)
     {
-        if ((index == ADC_START_SAMPLE) && adcHardware.initialized)
-            adcHardware.enabled = true;
+        // Enable on the start sample, so that a full cycle is acquired
+        if ((index != ADC_START_SAMPLE) || !adcHardware.initialized)
+            return;
 
-        return;
+        adcHardware.enabled = true;
     }
 
     if (index > ADC_START_SAMPLE)
         return;
 
-    // Processing
-    int32_t value = adc_read(ADC1);
-    switch (adcHardware.stage)
-    {
-    case ADC_STAGE_IDLE:
-        break;
+    ADCValues *live = &adcHardware.buffers[adcHardware.snapshotIndex ^ 1];
 
-    case ADC_STAGE_ELECTRIC_FIELD:
-        adcHardware.live.electricField[adcHardware.live.electricFieldIndex++] = value;
+    // Store value (the value read at the start sample is stale)
+    uint32_t value = adc_read(ADC1);
+    if (index < ADC_PWR_BAT_SAMPLE)
+        live->battery += value;
+    else if (index < ADC_VREF_SAMPLE)
+        live->vref += value;
+    else if (index < ADC_START_SAMPLE)
+        live->field[(ADC_START_SAMPLE - 1) - index] = value;
 
-        break;
-
-    case ADC_STAGE_MAGNETIC_FIELD:
-        adcHardware.live.magneticField[adcHardware.live.magneticFieldIndex++] = value;
-
-        break;
-
-    case ADC_STAGE_VREF:
-        adcHardware.live.vref += value;
-
-        break;
-
-    case ADC_STAGE_PWR_BAT:
-        adcHardware.live.battery += value;
-
-        break;
-    }
-
-    // Setup
+    // Setup stage
     switch (index)
     {
-    case ADC_STAGE_IDLE:
-        break;
-
     case ADC_ELECTRIC_FIELD_SAMPLE:
-        adcHardware.stage = ADC_STAGE_ELECTRIC_FIELD;
+        // Reset here rather than at the end sample, as readers may still
+        // be using this buffer until the snapshot swap
+        live->battery = 0;
+        live->vref = 0;
 
         adc_set_channel(ADC1, ELECTRIC_FIELD_CHANNEL);
 
         break;
 
     case ADC_MAGNETIC_FIELD_SAMPLE:
-        adcHardware.stage = ADC_STAGE_MAGNETIC_FIELD;
-
         adc_set_channel(ADC1, MAGNETIC_FIELD_CHANNEL);
 
         break;
 
     case ADC_VREF_SAMPLE:
-        adcHardware.stage = ADC_STAGE_VREF;
-
-        adc_enable_temperature_vref_channel(ADC1);
+        adc_set_sampletime(ADC1, ADC_SAMPLETIME_VREF);
         adc_set_channel(ADC1, ADC_VREF_CHANNEL);
 
         break;
 
     case ADC_PWR_BAT_SAMPLE:
-        adcHardware.stage = ADC_STAGE_PWR_BAT;
-
-        adc_disable_temperature_vref_channel(ADC1);
+        adc_set_sampletime(ADC1, ADC_SAMPLETIME_DEFAULT);
         adc_set_channel(ADC1, PWR_BAT_CHANNEL);
 
         break;
 
     case ADC_END_SAMPLE:
-        adcHardware.stage = ADC_STAGE_IDLE;
-
-        adcHardware.snapshot = adcHardware.live;
-
-        adcHardware.live.electricFieldIndex = 0;
-        adcHardware.live.magneticFieldIndex = 0;
+        // Publish the live buffer
+        adcHardware.snapshotIndex ^= 1;
 
         break;
     }
@@ -260,8 +248,6 @@ void initADC(void)
 #if defined(EMFMETER)
     readPowerState();
 
-    adc_enable(ADC1);
-
     adcHardware.initialized = true;
 #endif
 }
@@ -282,7 +268,7 @@ bool isBatteryCharging(void)
 
 #endif
 
-float readBatteryVoltage()
+float readBatteryVoltage(void)
 {
 #if !defined(EMFMETER)
     readPowerState();
@@ -294,40 +280,33 @@ float readBatteryVoltage()
 #else
     float value = (VREFINT_VOLTAGE * PWR_BAT_SCALE_FACTOR * VREF_SAMPLE_NUM / PWR_BAT_SAMPLE_NUM);
 #endif
-    value *= (float)adcHardware.snapshot.battery;
-    value /= (float)adcHardware.snapshot.vref;
+    const ADCValues *snapshot = getSnapshot();
+    value *= (float)snapshot->battery;
+    value /= (float)snapshot->vref;
 
     return value;
 }
 
 #if defined(EMFMETER)
 
-float calculateRMSValue(uint16_t *values, uint32_t count, int32_t offset)
+static float calculateRMSValue(const uint16_t *values, uint32_t count, int32_t offset)
 {
-    // Filter by mean, and calculate low and high RMS values
+    // RMS of the half-wave above offset (samples below offset count as zero)
     uint32_t squaredSum = 0;
     for (uint32_t i = 0; i < count; i++)
     {
         int32_t value = (int32_t)values[i] - offset;
         if (value > 0)
-        {
-            uint32_t squaredValue = value * value;
-            squaredSum = addClamped(squaredSum, squaredValue);
-        }
+            squaredSum = addClamped(squaredSum, (uint32_t)(value * value));
     }
 
-    float rmsValue = sqrtf((float)squaredSum / count);
-
-    return rmsValue;
+    return sqrtf((float)squaredSum / count);
 }
 
 float readElectricFieldStrength(void)
 {
-    if (adcHardware.snapshot.electricFieldIndex == 0)
-        return 0.0F;
-
-    float rmsValue = calculateRMSValue(adcHardware.snapshot.electricField,
-                                       adcHardware.snapshot.electricFieldIndex,
+    float rmsValue = calculateRMSValue(getSnapshot()->field,
+                                       ELECTRIC_FIELD_SAMPLE_NUM,
                                        ELECTRIC_FIELD_OFFSET);
 
     float electricFieldStrength = ELECTRIC_FIELD_SCALE * rmsValue;
@@ -340,11 +319,8 @@ float readElectricFieldStrength(void)
 
 float readMagneticFieldStrength(void)
 {
-    if (adcHardware.snapshot.magneticFieldIndex == 0)
-        return 0.0F;
-
-    float rmsValue = calculateRMSValue(adcHardware.snapshot.magneticField,
-                                       adcHardware.snapshot.magneticFieldIndex,
+    float rmsValue = calculateRMSValue(getSnapshot()->field + ELECTRIC_FIELD_SAMPLE_NUM,
+                                       MAGNETIC_FIELD_SAMPLE_NUM,
                                        MAGNETIC_FIELD_OFFSET);
 
     float magneticFieldStrength = MAGNETIC_FIELD_LINEAR_SCALE * rmsValue + MAGNETIC_FIELD_QUADRATIC_SCALE * rmsValue * rmsValue;

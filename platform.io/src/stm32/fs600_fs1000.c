@@ -41,6 +41,10 @@ void initSystem(void)
     set_bits(SYSCFG->CFGR1, SYSCFG_CFGR1_UCPD1_STROBE | SYSCFG_CFGR1_UCPD2_STROBE);
 }
 
+// Fast clock: PLL (HSI16 * 8 / 2) = 64 MHz, 2 flash wait states;
+// slow clock: HSISYS (HSI16 / 2) = 8 MHz, 0 wait states. APB is 4 MHz in both.
+#define FAST_AHB_FREQUENCY 64000000
+
 void setFastSystemClock(bool value)
 {
     // Set HSI as system clock
@@ -58,8 +62,8 @@ void setFastSystemClock(bool value)
 
         // Configure SW, AHB, APB
         RCC->CFGR = RCC_CFGR_SW_HSI |    // Select HSI as system clock
-                    RCC_CFGR_HPRE_DIV8 | // Set AHB clock: 64 MHz / 8 = 8 MHz
-                    RCC_CFGR_PPRE_DIV2;  // Set APB clock: 64 MHz / 2 = 4 MHz
+                    RCC_CFGR_HPRE_DIV1 | // Set AHB clock: 64 MHz / 1 = 64 MHz
+                    RCC_CFGR_PPRE_DIV16; // Set APB clock: 64 MHz / 16 = 4 MHz
 
         // Configure PLL
         RCC->PLLCFGR = RCC_PLLCFGR_PLLSRC_HSI |          // Set PLL source: HSI16
@@ -77,7 +81,7 @@ void setFastSystemClock(bool value)
         wait_until_bits_value(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_PLLRCLK);
 
         // Update sys tick
-        SysTick->LOAD = SysTick->LOAD << 3;
+        SysTick->LOAD = FAST_AHB_FREQUENCY / SYSTICK_FREQUENCY - 1;
     }
     else
     {
@@ -90,7 +94,7 @@ void setFastSystemClock(bool value)
                     RCC_CFGR_PPRE_DIV2;  // Set APB clock: 8 MHz / 2 = 4 MHz
 
         // Update sys tick
-        SysTick->LOAD = SysTick->LOAD >> 3;
+        SysTick->LOAD = AHB_FREQUENCY / SYSTICK_FREQUENCY - 1;
     }
 }
 
@@ -131,25 +135,25 @@ void initKeyboardHardware(void)
     gpio_setup_input(KEY_OK_PORT, KEY_OK_PIN, GPIO_PULL_FLOATING);
 }
 
-void onKeyboardTick(void)
-{
-    for (uint32_t i = 0; i < KEY_NUM; i++)
-        keyboardKeyDown[i] <<= 1;
+// Moves the input bit of a pin to the bit of a key
+#define getKey(keys, pin, key) ((((keys) >> (pin)) & 1) << (key))
 
+uint32_t readKeyboardKeys(void)
+{
 #if defined(KEYBOARD_2_KEYS)
-    keyboardKeyDown[KEY_LEFT] |= gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN);
-    keyboardKeyDown[KEY_RIGHT] |= !gpio_get(KEY_OK_PORT, KEY_OK_PIN);
+    return (gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN) << KEY_LEFT) |
+           (!gpio_get(KEY_OK_PORT, KEY_OK_PIN) << KEY_RIGHT);
 #elif defined(KEYBOARD_5_KEYS)
-    keyboardKeyDown[KEY_LEFT] |= gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN);
-    keyboardKeyDown[KEY_RIGHT] |= gpio_get(KEY_RIGHT_PORT, KEY_RIGHT_PIN);
-    keyboardKeyDown[KEY_UP] |= gpio_get(KEY_UP_PORT, KEY_UP_PIN);
-    keyboardKeyDown[KEY_DOWN] |= gpio_get(KEY_DOWN_PORT, KEY_DOWN_PIN);
-    keyboardKeyDown[KEY_OK] |= !gpio_get(KEY_OK_PORT, KEY_OK_PIN);
-#endif
-}
+    // LEFT/RIGHT and UP/DOWN share a port each: read each port once
+    uint32_t leftRightKeys = KEY_LEFT_PORT->IDR;
+    uint32_t upDownKeys = KEY_UP_PORT->IDR;
 
-void updateKeyboardState(void)
-{
+    return getKey(leftRightKeys, KEY_LEFT_PIN, KEY_LEFT) |
+           getKey(leftRightKeys, KEY_RIGHT_PIN, KEY_RIGHT) |
+           getKey(upDownKeys, KEY_UP_PIN, KEY_UP) |
+           getKey(upDownKeys, KEY_DOWN_PIN, KEY_DOWN) |
+           (!gpio_get(KEY_OK_PORT, KEY_OK_PIN) << KEY_OK);
+#endif
 }
 
 // Display
@@ -167,11 +171,6 @@ static const uint8_t displayInitSequence[] = {
     MR_SEND_COMMAND(MR_ST7565_REGULATIONRATIO_5_0),
     MR_END(),
 };
-
-static void onDisplaySleep(uint32_t value)
-{
-    sleep(value);
-}
 
 static void onDisplaySetReset(bool value)
 {
@@ -240,7 +239,7 @@ static void onDisplaySend(uint16_t value)
     GPIOB->BSRR = get_bitvalue(DISPLAY_CSB_PIN);
 }
 
-uint8_t displayPin[] = {
+static const uint8_t displayPin[] = {
     DISPLAY_RSTB_PIN,
     DISPLAY_CSB_PIN,
     DISPLAY_A0_PIN,
@@ -250,10 +249,10 @@ uint8_t displayPin[] = {
 
 void initDisplay(void)
 {
-    // GPIO
-    for (uint8_t i = 0; i < sizeof(displayPin); i++)
+    // GPIO: all display pins are on GPIOB and idle high
+    for (uint32_t i = 0; i < sizeof(displayPin); i++)
     {
-        gpio_set(GPIOB, displayPin[i]);
+        gpio_modify(GPIOB, displayPin[i], true);
         gpio_setup_output(GPIOB, displayPin[i], GPIO_OUTPUTTYPE_PUSHPULL, GPIO_OUTPUTSPEED_50MHZ, GPIO_PULL_FLOATING);
     }
 
@@ -263,7 +262,7 @@ void initDisplay(void)
                    DISPLAY_HEIGHT,
                    MR_DISPLAY_ROTATION_0,
                    displayFramebuffer,
-                   onDisplaySleep,
+                   sleep,
                    onDisplaySetReset,
                    onDisplaySetChipselect,
                    onDisplaySetCommand,

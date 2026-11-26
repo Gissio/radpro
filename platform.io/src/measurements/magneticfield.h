@@ -31,6 +31,8 @@ float getMagneticField(void);
 
 AlertLevel getMagneticFieldAlertLevel(void);
 
-void onMagneticFieldViewEvent(ViewEvent event);
+void clearMagneticField(void);
+void advanceMagneticFieldTab(void);
+void drawMagneticFieldView(void);
 
 #endif

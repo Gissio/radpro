@@ -78,11 +78,11 @@
 #define MEASUREMENT_UNIT_LEFT CONTENT_LEFT
 #endif
 #define MEASUREMENT_UNIT_TOP MEASUREMENT_VALUE_BOTTOM
-#define MEASUREMENT_UNIT_WIDTH (CONTENT_WIDTH - MEASUREMENT_UNIT_LEFT)
+#define MEASUREMENT_UNIT_WIDTH (CONTENT_RIGHT - MEASUREMENT_UNIT_LEFT)
 #define MEASUREMENT_UNIT_HEIGHT FONT_MEDIUM_LINE_HEIGHT
 #define MEASUREMENT_UNIT_BOTTOM (MEASUREMENT_UNIT_TOP + MEASUREMENT_UNIT_HEIGHT)
 #define MEASUREMENT_UNIT_OFFSETX (MEASUREMENT_UNIT_WIDTH - MEASUREMENT_PADDING_RIGHT)
-#define MEASUREMENT_UNIT_OFFSETY MEASUREMENT_CONFIDENCE_TEXTOFFSETY
+#define MEASUREMENT_UNIT_OFFSETY (-(FONT_MEDIUM_LINE_HEIGHT - MEASUREMENT_UNIT_HEIGHT) / 2)
 
 #define MEASUREMENT_CONFIDENCE_LEFT MEASUREMENT_UNIT_LEFT
 #define MEASUREMENT_CONFIDENCE_TOP MEASUREMENT_UNIT_BOTTOM
@@ -96,7 +96,6 @@
 #define MEASUREMENT_CONFIDENCE_OFFSETX (MEASUREMENT_CONFIDENCE_WIDTH - MEASUREMENT_PADDING_RIGHT)
 #define MEASUREMENT_CONFIDENCE_OFFSETY (-(FONT_SMALL_LINE_HEIGHT - MEASUREMENT_CONFIDENCE_TEXTHEIGHT) / 2)
 #define MEASUREMENT_CONFIDENCE_TEXTHEIGHT ((int32_t)(0.8F * FONT_SMALL_LINE_HEIGHT))
-#define MEASUREMENT_CONFIDENCE_TEXTOFFSETY (-(FONT_MEDIUM_LINE_HEIGHT - MEASUREMENT_UNIT_HEIGHT) / 2)
 
 #define MEASUREMENT_INFOKEY_LEFT CONTENT_LEFT
 #if defined(DISPLAY_LANDSCAPE)
@@ -107,7 +106,6 @@
 #define MEASUREMENT_INFOKEY_HEIGHT (MEASUREMENT_INFOVALUE_TOP - MEASUREMENT_INFOKEY_TOP)
 #define MEASUREMENT_INFOKEY_OFFSETX MEASUREMENT_PADDING_LEFT
 #define MEASUREMENT_INFOKEY_OFFSETY (MEASUREMENT_INFOKEY_HEIGHT - FONT_SMALL_LINE_HEIGHT)
-#define MEASUREMENT_INFOKEY_TEXTTOP (MEASUREMENT_INFOVALUE_TOP - FONT_SMALL_LINE_HEIGHT)
 
 #define MEASUREMENT_INFOVALUE_LEFT MEASUREMENT_INFOKEY_LEFT
 #define MEASUREMENT_INFOVALUE_TOP (CONTENT_BOTTOM - MEASUREMENT_INFOVALUE_HEIGHT)
@@ -161,14 +159,14 @@ void drawMeasurementValue(const char *valueString, const char *unitString, float
 
     // Confidence
     char confidenceString[8];
-    char confidenceUnit[8];
+    const char *confidenceUnit = "";
     strclr(confidenceString);
-    strclr(confidenceUnit);
     if (confidence != 0)
     {
         strcat(confidenceString, getString(STRING_PLUSMINUS));
-        strcatFloat(confidenceString, 100 * confidence, confidence < 0.1F ? 1 : 0);
-        strcat(confidenceUnit, getString(STRING_PERCENT));
+        // Below 9.95% one decimal is shown; 9.95% and up rounds to whole percents ("±10%", not "±10.0%")
+        strcatFloat(confidenceString, 100 * confidence, confidence < 0.0995F ? 1 : 0);
+        confidenceUnit = getString(STRING_PERCENT);
     }
     setFont(font_small);
     drawValueAndUnit(confidenceString,
@@ -231,18 +229,9 @@ void drawMeasurementInfo(const char *keyString, const char *valueString, const c
 #define BAR_IMAGEBUFFER_HEIGHT (BAR_TICKS_HEIGHT + TICKS_SPACING + BAR_FRAME_HEIGHT + MEASUREMENT_PADDING_BOTTOM)
 
 #define BAR_TICKS_LEFT BAR_FRAME_LEFT
-#define BAR_TICKS_TOP 0
 #define BAR_TICKS_WIDTH BAR_FRAME_WIDTH
 #define BAR_TICKS_HEIGHT TICKS_LONG
-
-#define BAR_TICK_1 (BAR_TICKS_LEFT + (0 * (BAR_TICKS_WIDTH - 1)) / BAR_DECADES)
-#define BAR_TICK_2 (BAR_TICKS_LEFT + (1 * (BAR_TICKS_WIDTH - 1)) / BAR_DECADES)
-#define BAR_TICK_3 (BAR_TICKS_LEFT + (2 * (BAR_TICKS_WIDTH - 1)) / BAR_DECADES)
-#define BAR_TICK_4 (BAR_TICKS_LEFT + (3 * (BAR_TICKS_WIDTH - 1)) / BAR_DECADES)
-#define BAR_TICK_5 (BAR_TICKS_LEFT + (4 * (BAR_TICKS_WIDTH - 1)) / BAR_DECADES)
-#define BAR_TICK_6 (BAR_TICKS_LEFT + (5 * (BAR_TICKS_WIDTH - 1)) / BAR_DECADES)
-#define BAR_TICK_7 (BAR_TICKS_LEFT + (6 * (BAR_TICKS_WIDTH - 1)) / BAR_DECADES)
-#define BAR_TICK_8 (BAR_TICKS_LEFT + (7 * (BAR_TICKS_WIDTH - 1)) / BAR_DECADES)
+#define BAR_TICK(index) (BAR_TICKS_LEFT + ((index) * (BAR_TICKS_WIDTH - 1)) / BAR_DECADES)
 
 #define BAR_FRAME_LEFT PADDING_LEFT
 #define BAR_FRAME_TOP (BAR_TICKS_HEIGHT + TICKS_SPACING)
@@ -257,214 +246,112 @@ void drawMeasurementInfo(const char *keyString, const char *valueString, const c
 
 #define BAR_CONTENT_LEFT (BAR_FRAME_LEFT + 1)
 #define BAR_CONTENT_TOP (BAR_FRAME_TOP + 1)
-#define BAR_CONTENT_WIDTH (BAR_FRAME_WIDTH - 2)
-#define BAR_CONTENT_HEIGHT (BAR_FRAME_HEIGHT - 2)
+#define BAR_CONTENT_RIGHT (BAR_FRAME_RIGHT - 1)
+#define BAR_CONTENT_BOTTOM (BAR_FRAME_BOTTOM - 1)
 
-typedef struct
-{
-    uint8_t width;
-    uint8_t offset;
-} LabelSpan;
+// Primary ticks (with labels) every 3 decades, starting at firstTick
+#define BAR_PRIMARY_TICKS 0x49
 
-static const LabelSpan labelSpansTicks1[] = {
-    {BAR_TICK_1 + BAR_LABEL_CELL_HALFWIDTH, BAR_TICK_1},
-    {(BAR_TICK_4 + BAR_LABEL_CELL_HALFWIDTH) - (BAR_TICK_1 + BAR_LABEL_CELL_HALFWIDTH), BAR_TICK_4 - (BAR_TICK_1 + BAR_LABEL_CELL_HALFWIDTH)},
-    {BAR_LABEL_WIDTH - (BAR_TICK_4 + BAR_LABEL_CELL_HALFWIDTH), BAR_TICK_7 - (BAR_TICK_4 + BAR_LABEL_CELL_HALFWIDTH)},
-};
-
-static const LabelSpan labelSpansTicks3[] = {
-    {BAR_TICK_3 + BAR_LABEL_CELL_HALFWIDTH, BAR_TICK_3},
-    {BAR_LABEL_WIDTH - (BAR_TICK_3 + BAR_LABEL_CELL_HALFWIDTH), BAR_TICK_6 - (BAR_TICK_3 + BAR_LABEL_CELL_HALFWIDTH)},
-};
-
-typedef struct
-{
-    uint8_t end;
-    ColorIndex colorIndex;
-} FillSpan;
-
-static const FillSpan fillSpansTicksPrimary1[] = {
-    {BAR_TICK_1, COLOR_CONTAINER_BACKGROUND},
-    {BAR_TICK_1 + 1, COLOR_INSTRUMENT_TICK_MARK_LABEL_SECONDARY},
-    {BAR_TICK_4, COLOR_CONTAINER_BACKGROUND},
-    {BAR_TICK_4 + 1, COLOR_INSTRUMENT_TICK_MARK_LABEL_SECONDARY},
-    {BAR_TICK_7, COLOR_CONTAINER_BACKGROUND},
-    {BAR_TICK_7 + 1, COLOR_INSTRUMENT_TICK_MARK_LABEL_SECONDARY},
-    {BAR_IMAGEBUFFER_WIDTH, COLOR_CONTAINER_BACKGROUND},
-};
-
-static const FillSpan fillSpansTicksPrimary3[] = {
-    {BAR_TICK_3, COLOR_CONTAINER_BACKGROUND},
-    {BAR_TICK_3 + 1, COLOR_INSTRUMENT_TICK_MARK_LABEL_SECONDARY},
-    {BAR_TICK_6, COLOR_CONTAINER_BACKGROUND},
-    {BAR_TICK_6 + 1, COLOR_INSTRUMENT_TICK_MARK_LABEL_SECONDARY},
-    {BAR_IMAGEBUFFER_WIDTH, COLOR_CONTAINER_BACKGROUND},
-};
-
-static const FillSpan fillSpansTicksSecondary[] = {
-    {BAR_TICK_1, COLOR_CONTAINER_BACKGROUND},
-    {BAR_TICK_1 + 1, COLOR_INSTRUMENT_TICK_MARK_LABEL_SECONDARY},
-    {BAR_TICK_2, COLOR_CONTAINER_BACKGROUND},
-    {BAR_TICK_2 + 1, COLOR_INSTRUMENT_TICK_MARK_LABEL_SECONDARY},
-    {BAR_TICK_3, COLOR_CONTAINER_BACKGROUND},
-    {BAR_TICK_3 + 1, COLOR_INSTRUMENT_TICK_MARK_LABEL_SECONDARY},
-    {BAR_TICK_4, COLOR_CONTAINER_BACKGROUND},
-    {BAR_TICK_4 + 1, COLOR_INSTRUMENT_TICK_MARK_LABEL_SECONDARY},
-    {BAR_TICK_5, COLOR_CONTAINER_BACKGROUND},
-    {BAR_TICK_5 + 1, COLOR_INSTRUMENT_TICK_MARK_LABEL_SECONDARY},
-    {BAR_TICK_6, COLOR_CONTAINER_BACKGROUND},
-    {BAR_TICK_6 + 1, COLOR_INSTRUMENT_TICK_MARK_LABEL_SECONDARY},
-    {BAR_TICK_7, COLOR_CONTAINER_BACKGROUND},
-    {BAR_TICK_7 + 1, COLOR_INSTRUMENT_TICK_MARK_LABEL_SECONDARY},
-    {BAR_TICK_8, COLOR_CONTAINER_BACKGROUND},
-    {BAR_TICK_8 + 1, COLOR_INSTRUMENT_TICK_MARK_LABEL_SECONDARY},
-    {BAR_IMAGEBUFFER_WIDTH, COLOR_CONTAINER_BACKGROUND},
-};
-
-static const FillSpan fillSpansSpace[] = {
-    {BAR_IMAGEBUFFER_WIDTH, COLOR_CONTAINER_BACKGROUND},
+static const uint8_t barTicks[] = {
+    BAR_TICK(0),
+    BAR_TICK(1),
+    BAR_TICK(2),
+    BAR_TICK(3),
+    BAR_TICK(4),
+    BAR_TICK(5),
+    BAR_TICK(6),
+    BAR_TICK(7),
 };
 
 static int16_t getMeasurementBarX(float value, float offset)
 {
-    int16_t x;
+    // Negated comparison: NaN maps to the left edge
+    if (!(value > offset))
+        return BAR_FRAME_LEFT;
 
-    if (value <= offset)
-        x = 0;
-    else
-    {
-        x = log10f(value / offset) * ((float)BAR_FRAME_WIDTH / BAR_DECADES);
+    // Clamps as float, before the int16_t conversion: +Inf maps to the right edge
+    float x = logf(value / offset) * (LOG10E * BAR_FRAME_WIDTH / BAR_DECADES);
+    if (x >= BAR_FRAME_WIDTH)
+        return BAR_FRAME_RIGHT;
 
-        if (x >= BAR_FRAME_WIDTH)
-            x = BAR_FRAME_WIDTH;
-    }
-
-    return BAR_FRAME_LEFT + x;
+    return BAR_FRAME_LEFT + (int16_t)x;
 }
 
 void drawMeasurementBar(float value, int32_t minExponent, float warningValue, float alarmValue)
 {
-    // Pre-calculations
-    const LabelSpan *labelSpansTicks;
-    const FillSpan *fillSpansTicksPrimary;
-    int32_t tickExponent;
-    if ((minExponent == -6) || (minExponent == 0))
-    {
-        labelSpansTicks = labelSpansTicks1;
-        fillSpansTicksPrimary = fillSpansTicksPrimary1;
-        tickExponent = minExponent;
-    }
-    else
-    {
-        labelSpansTicks = labelSpansTicks3;
-        fillSpansTicksPrimary = fillSpansTicksPrimary3;
-        tickExponent = minExponent + 2;
-    }
+    // Labels sit on ticks with exponents divisible by 3 (metric prefixes)
+    uint32_t firstTick = ((minExponent == -6) || (minExponent == 0)) ? 0 : 2;
 
-    float valueOffset = powf(10.0F, minExponent);
-    int16_t valueX = getMeasurementBarX(value, valueOffset);
-#if defined(DISPLAY_COLOR)
-    int16_t warningX = warningValue ? getMeasurementBarX(warningValue, valueOffset) : BAR_IMAGEBUFFER_WIDTH;
-    int16_t alarmX = alarmValue ? getMeasurementBarX(alarmValue, valueOffset) : BAR_IMAGEBUFFER_WIDTH;
-    if (warningX > alarmX)
-        warningX = alarmX;
-    int16_t warningEnd = MIN(valueX, warningX);
-    int16_t alarmEnd = MIN(valueX, alarmX);
-#endif
-
-    // Calculated fill spans
-    FillSpan fillSpansFrame[] = {
-        {BAR_FRAME_LEFT, COLOR_CONTAINER_BACKGROUND},
-#if defined(DISPLAY_MONOCHROME)
-        {valueX, COLOR_INSTRUMENT_ENHANCED_SECONDARY},
-#elif defined(DISPLAY_COLOR)
-        {warningEnd, COLOR_INSTRUMENT_ENHANCED_SECONDARY},
-        {alarmEnd, COLOR_INSTRUMENT_ENHANCED_SECONDARY_WARNING},
-        {valueX, COLOR_INSTRUMENT_ENHANCED_SECONDARY_ALARM},
-#endif
-        {BAR_FRAME_LEFT + BAR_FRAME_WIDTH, COLOR_INSTRUMENT_FRAME_TERTIARY},
-        {BAR_IMAGEBUFFER_WIDTH, COLOR_CONTAINER_BACKGROUND},
-    };
-
-    FillSpan fillSpansContent[] = {
-        {BAR_FRAME_LEFT, COLOR_CONTAINER_BACKGROUND},
-#if defined(DISPLAY_MONOCHROME)
-        {valueX, COLOR_INSTRUMENT_ENHANCED_SECONDARY},
-#elif defined(DISPLAY_COLOR)
-        {warningEnd, COLOR_INSTRUMENT_ENHANCED_SECONDARY},
-        {alarmEnd, COLOR_INSTRUMENT_ENHANCED_SECONDARY_WARNING},
-        {valueX, COLOR_INSTRUMENT_ENHANCED_SECONDARY_ALARM},
-#endif
-        {BAR_CONTENT_LEFT, COLOR_INSTRUMENT_FRAME_TERTIARY},
-        {BAR_CONTENT_LEFT + BAR_CONTENT_WIDTH, COLOR_INSTRUMENT_FRAME_PRIMARY},
-        {BAR_FRAME_LEFT + BAR_FRAME_WIDTH, COLOR_INSTRUMENT_FRAME_TERTIARY},
-        {BAR_IMAGEBUFFER_WIDTH, COLOR_CONTAINER_BACKGROUND},
-    };
-
-    // Render labels
     setStrokeColor(COLOR_INSTRUMENT_TICK_MARK_LABEL_SECONDARY);
 
-    int16_t labelX = BAR_LABEL_LEFT;
-    uint32_t labelTicksIndex = 0;
-    while (labelX < BAR_LABEL_WIDTH)
+    int32_t labelLeft = BAR_LABEL_LEFT;
+    for (uint32_t tick = firstTick; tick < BAR_DECADES; tick += 3)
     {
         char buffer[32];
         strclr(buffer);
-        strcatMetricPower(buffer, tickExponent, -3);
+        strcatMetricPower(buffer, minExponent + tick, -3);
 
-        int16_t labelWidth = labelSpansTicks[labelTicksIndex].width;
-        int16_t labelOffset = labelSpansTicks[labelTicksIndex].offset;
-
-        int16_t textHalfWidth = getTextWidth(buffer) / 2;
-        int16_t textLeft = labelOffset - textHalfWidth;
-        if (textLeft < 0)
-            labelOffset = textHalfWidth;
+        // Cells reach halfway to the next label (the last one to the right
+        // edge); a label that would cross the left edge is shifted right
+        int32_t tickX = BAR_LABEL_LEFT + barTicks[tick];
+        int32_t labelRight = ((tick + 3) < BAR_DECADES)
+                                 ? (tickX + BAR_LABEL_CELL_HALFWIDTH)
+                                 : (BAR_LABEL_LEFT + BAR_LABEL_WIDTH);
+        int32_t labelOffset = MAX(tickX - labelLeft, getTextWidth(buffer) / 2);
 
         drawCenteredText(buffer,
-                         &(mr_rectangle_t){labelX, BAR_LABEL_TOP, labelWidth, BAR_LABEL_HEIGHT},
+                         &(mr_rectangle_t){labelLeft, BAR_LABEL_TOP, labelRight - labelLeft, BAR_LABEL_HEIGHT},
                          &(mr_point_t){labelOffset, BAR_LABEL_OFFSETY});
 
-        labelTicksIndex++;
-        labelX += labelWidth;
-        tickExponent += 3;
+        labelLeft = labelRight;
     }
 
-    // Render line
+    // Value, split by alert level (normal, warning, alarm)
+    float valueOffset = getDecimalPowerFloat(minExponent);
+    int32_t valueX = getMeasurementBarX(value, valueOffset);
+#if defined(DISPLAY_COLOR)
+    int32_t warningX = warningValue ? getMeasurementBarX(warningValue, valueOffset) : BAR_FRAME_RIGHT;
+    int32_t alarmX = alarmValue ? getMeasurementBarX(alarmValue, valueOffset) : BAR_FRAME_RIGHT;
+    const int32_t levelEnds[] = {MIN(warningX, alarmX), alarmX, BAR_FRAME_RIGHT};
+#elif defined(DISPLAY_MONOCHROME)
+    (void)warningValue;
+    (void)alarmValue;
+    const int32_t levelEnds[] = {BAR_FRAME_RIGHT};
+#endif
+
+    // Render line by line: background, then ticks or frame, then value
     mr_color_t line[BAR_IMAGEBUFFER_WIDTH];
 
-    for (int16_t y = 0; y < BAR_IMAGEBUFFER_HEIGHT; y++)
+    for (int32_t y = 0; y < BAR_IMAGEBUFFER_HEIGHT; y++)
     {
-        const FillSpan *fillSpan;
-        if (y < (BAR_TICKS_HEIGHT - TICKS_SHORT))
-            fillSpan = fillSpansTicksPrimary;
-        else if (y < BAR_TICKS_HEIGHT)
-            fillSpan = fillSpansTicksSecondary;
-        else if (y < BAR_FRAME_TOP)
-            fillSpan = fillSpansSpace;
-        else if (y < BAR_CONTENT_TOP)
-            fillSpan = fillSpansFrame;
-        else if (y < (BAR_CONTENT_TOP + BAR_CONTENT_HEIGHT))
-            fillSpan = fillSpansContent;
-        else if (y < BAR_FRAME_BOTTOM)
-            fillSpan = fillSpansFrame;
-        else
-            fillSpan = fillSpansSpace;
+        fillImageBuffer(line, 0, BAR_IMAGEBUFFER_WIDTH, COLOR_CONTAINER_BACKGROUND);
 
-        int16_t x = 0;
-        uint32_t fillSpanIndex = 0;
-        while (x < BAR_IMAGEBUFFER_WIDTH)
+        if (y < BAR_TICKS_HEIGHT)
         {
-            int16_t fillSpanX = fillSpan[fillSpanIndex].end;
-            mr_color_t color = getFillColor(fillSpan[fillSpanIndex].colorIndex);
+            // Primary ticks are long, all ticks reach the short tick rows
+            uint32_t ticks = (y < (BAR_TICKS_HEIGHT - TICKS_SHORT))
+                                 ? (BAR_PRIMARY_TICKS << firstTick)
+                                 : 0xff;
 
-            while (x < fillSpanX)
-                line[x++] = color;
+            for (uint32_t tick = 0; tick <= BAR_DECADES; tick++)
+                if ((ticks >> tick) & 1)
+                    fillImageBuffer(line, barTicks[tick], barTicks[tick] + 1, COLOR_INSTRUMENT_TICK_MARK_LABEL_SECONDARY);
+        }
+        else if ((y >= BAR_FRAME_TOP) && (y < BAR_FRAME_BOTTOM))
+        {
+            fillImageBuffer(line, BAR_FRAME_LEFT, BAR_FRAME_RIGHT, COLOR_INSTRUMENT_FRAME_TERTIARY);
+            if ((y >= BAR_CONTENT_TOP) && (y < BAR_CONTENT_BOTTOM))
+                fillImageBuffer(line, BAR_CONTENT_LEFT, BAR_CONTENT_RIGHT, COLOR_INSTRUMENT_FRAME_PRIMARY);
 
-            fillSpanIndex++;
+            int32_t x = BAR_FRAME_LEFT;
+            for (uint32_t level = 0; level < ARRAY_SIZE(levelEnds); level++)
+            {
+                int32_t levelEnd = MIN(valueX, levelEnds[level]);
+                fillImageBuffer(line, x, levelEnd, COLOR_INSTRUMENT_ENHANCED_SECONDARY + 2 * level);
+                x = levelEnd;
+            }
         }
 
         drawImage(&(mr_rectangle_t){BAR_IMAGEBUFFER_LEFT, BAR_IMAGEBUFFER_TOP + y, BAR_IMAGEBUFFER_WIDTH, 1}, line);
     }
-
-    return;
 }

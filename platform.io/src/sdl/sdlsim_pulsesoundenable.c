@@ -13,12 +13,6 @@
 
 #include "../peripherals/pulsesoundenable.h"
 
-// Sound control
-
-void initPulseSoundEnable(void)
-{
-}
-
 void setPulseSoundEnable(bool value)
 {
 }

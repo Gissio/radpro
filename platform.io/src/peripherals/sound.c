@@ -7,19 +7,28 @@
  * License: MIT
  */
 
-#if defined(BUZZER) || defined(PULSESOUND_ENABLE) || defined(VOICE)
+#include "../peripherals/sound.h"
+
+#if defined(SOUND)
 
 #include "../peripherals/buzzer.h"
 #include "../peripherals/pulsesoundenable.h"
-#include "../peripherals/sound.h"
 #include "../peripherals/voice.h"
 #include "../system/cmath.h"
 #include "../system/events.h"
 #include "../system/settings.h"
 #include "../ui/menu.h"
 
-static const Menu soundMenu;
-static const Menu soundAlertStyleMenu;
+void initSound(void)
+{
+#if defined(BUZZER)
+    initBuzzer();
+#endif
+
+#if defined(VOICE)
+    initVoice();
+#endif
+}
 
 // Volume options
 
@@ -32,45 +41,9 @@ static cstring volumeMenuOptions[] = {
 };
 #endif
 
-void initSound(void)
-{
-#if defined(BUZZER)
-    initBuzzer();
-#endif
-
-#if defined(PULSESOUND_ENABLE)
-    initPulseSoundEnable();
-    updatePulseSoundEnable();
-#endif
-
-#if defined(VOICE)
-    initVoice();
-#endif
-}
-
-void resetSound(void)
-{
-    selectMenuItem(&soundMenu, 0);
-
-#if defined(BUZZER)
-    selectMenuItem(&soundPulseStyleMenu, settings.soundPulseStyle);
-#endif
-#if defined(BUZZER_VOLUME)
-    selectMenuItem(&soundPulseVolumeMenu, settings.soundPulseVolume);
-#endif
-
-    selectMenuItem(&soundAlertStyleMenu, settings.soundAlertStyle);
-#if defined(BUZZER_VOLUME)
-    selectMenuItem(&soundAlertVolumeMenu, settings.soundAlertVolume);
-#endif
-
-#if defined(VOICE)
-    selectMenuItem(&soundAlertVolumeMenu, settings.soundAlertVolume);
-    selectMenuItem(&soundVoiceVolumeMenu, settings.soundVoiceVolume);
-#endif
-}
-
 // Sound pulse style menu
+
+#if defined(BUZZER)
 
 static cstring soundPulseStyleMenuOptions[] = {
     STRING_CLICKS,
@@ -88,11 +61,13 @@ static const char *onSoundPulseStyleMenuGetOption(menu_size_t index, MenuStyle *
 static void onSoundPulseStyleMenuSelect(menu_size_t index)
 {
     settings.soundPulseStyle = index;
+
+    triggerPulseSound();
 }
 
 static MenuState soundPulseStyleMenuState;
 
-const Menu soundPulseStyleMenu = {
+static const Menu soundPulseStyleMenu = {
     STRING_PULSESTYLE,
     &soundPulseStyleMenuState,
     ARRAY_SIZE(soundPulseStyleMenuOptions),
@@ -100,6 +75,8 @@ const Menu soundPulseStyleMenu = {
     onSoundPulseStyleMenuSelect,
     showSoundMenu,
 };
+
+#endif
 
 // Sound pulse volume menu
 
@@ -115,11 +92,13 @@ static const char *onSoundPulseVolumeMenuGetOption(menu_size_t index, MenuStyle 
 static void onSoundPulseVolumeMenuSelect(menu_size_t index)
 {
     settings.soundPulseVolume = index;
+
+    triggerPulseSound();
 }
 
 static MenuState soundPulseVolumeMenuState;
 
-const Menu soundPulseVolumeMenu = {
+static const Menu soundPulseVolumeMenu = {
     STRING_PULSEVOLUME,
     &soundPulseVolumeMenuState,
     ARRAY_SIZE(volumeMenuOptions),
@@ -170,14 +149,14 @@ static const Menu soundAlertStyleMenu = {
 
 #if defined(BUZZER_VOLUME) || defined(VOICE)
 
-const char *onAlertVolumeMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
+static const char *onSoundAlertVolumeMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.soundAlertVolume);
 
     return getString(volumeMenuOptions[index]);
 }
 
-static void onAlertVolumeMenuSelect(menu_size_t index)
+static void onSoundAlertVolumeMenuSelect(menu_size_t index)
 {
     settings.soundAlertVolume = index;
 
@@ -186,12 +165,12 @@ static void onAlertVolumeMenuSelect(menu_size_t index)
 
 static MenuState soundAlertVolumeMenuState;
 
-const Menu soundAlertVolumeMenu = {
+static const Menu soundAlertVolumeMenu = {
     STRING_ALERTVOLUME,
     &soundAlertVolumeMenuState,
     ARRAY_SIZE(volumeMenuOptions),
-    onAlertVolumeMenuGetOption,
-    onAlertVolumeMenuSelect,
+    onSoundAlertVolumeMenuGetOption,
+    onSoundAlertVolumeMenuSelect,
     showSoundMenu,
 };
 
@@ -201,14 +180,14 @@ const Menu soundAlertVolumeMenu = {
 
 #if defined(VOICE)
 
-const char *onVoiceVolumeMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
+static const char *onSoundVoiceVolumeMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {
     *menuStyle = (index == settings.soundVoiceVolume);
 
     return getString(volumeMenuOptions[index]);
 }
 
-static void onVoiceVolumeMenuSelect(menu_size_t index)
+static void onSoundVoiceVolumeMenuSelect(menu_size_t index)
 {
     settings.soundVoiceVolume = index;
 
@@ -217,12 +196,12 @@ static void onVoiceVolumeMenuSelect(menu_size_t index)
 
 static MenuState soundVoiceVolumeMenuState;
 
-const Menu soundVoiceVolumeMenu = {
+static const Menu soundVoiceVolumeMenu = {
     STRING_VOICEVOLUME,
     &soundVoiceVolumeMenuState,
     ARRAY_SIZE(volumeMenuOptions),
-    onVoiceVolumeMenuGetOption,
-    onVoiceVolumeMenuSelect,
+    onSoundVoiceVolumeMenuGetOption,
+    onSoundVoiceVolumeMenuSelect,
     showSoundMenu,
 };
 
@@ -237,12 +216,12 @@ static const MenuOption soundMenuOptions[] = {
 #if defined(BUZZER_VOLUME)
     {STRING_PULSEVOLUME, &soundPulseVolumeMenu},
 #endif
-
+#if defined(BUZZER) || defined(VOICE)
     {STRING_ALERTSTYLE, &soundAlertStyleMenu},
+#endif
 #if defined(BUZZER_VOLUME) || defined(VOICE)
     {STRING_ALERTVOLUME, &soundAlertVolumeMenu},
 #endif
-
 #if defined(VOICE)
     {STRING_VOICEVOLUME, &soundVoiceVolumeMenu},
 #endif
@@ -274,6 +253,27 @@ static const Menu soundMenu = {
 void showSoundMenu(void)
 {
     showMenu(&soundMenu);
+}
+
+void resetSound(void)
+{
+    selectMenuItem(&soundMenu, 0);
+
+#if defined(BUZZER)
+    selectMenuItem(&soundPulseStyleMenu, settings.soundPulseStyle);
+#endif
+#if defined(BUZZER_VOLUME)
+    selectMenuItem(&soundPulseVolumeMenu, settings.soundPulseVolume);
+#endif
+#if defined(BUZZER) || defined(VOICE)
+    selectMenuItem(&soundAlertStyleMenu, settings.soundAlertStyle);
+#endif
+#if defined(BUZZER_VOLUME) || defined(VOICE)
+    selectMenuItem(&soundAlertVolumeMenu, settings.soundAlertVolume);
+#endif
+#if defined(VOICE)
+    selectMenuItem(&soundVoiceVolumeMenu, settings.soundVoiceVolume);
+#endif
 }
 
 #endif

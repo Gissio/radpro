@@ -14,6 +14,8 @@
 #include <stdint.h>
 
 #include "../system/cstring.h"
+#include "../ui/measurements.h"
+#include "../ui/menu.h"
 #include "../ui/view.h"
 
 typedef struct
@@ -42,9 +44,20 @@ bool isAlertPending(void);
 bool isAlertFlashing(void);
 bool isSoundIconActive(void);
 
+AlertLevel getMeasurementAlertLevel(float value, const float *alerts, uint32_t warningIndex, uint32_t alarmIndex);
+void updateMeasurementAlertLevel(AlertLevel *alertLevel, AlertLevel value);
+MeasurementStyle getAlertMeasurementStyle(AlertLevel alertLevel);
+
+uint32_t getNextMeasurementTab(uint32_t tab, uint32_t tabNum);
+uint32_t updateMeasurementAlertTab(uint32_t tab, uint32_t alertTab, bool alertTriggered, bool alertActive);
+
 void buildValueString(char *valueString, char *unitString, float value, const Unit *unit, int32_t minMetricPrefixIndex);
+void drawMeasurementValueWithUnit(const char *title, float value, const Unit *unit, int32_t minMetricPrefixIndex, float confidence, MeasurementStyle style);
+void drawMeasurementInfoValue(const char *keyString, float value, const Unit *unit, int32_t minMetricPrefixIndex, MeasurementStyle style);
+void drawMeasurementInfoTime(const char *keyString, uint32_t time, MeasurementStyle style);
+const char *buildAlertMenuOption(menu_size_t index, float value, const Unit *unit, int32_t minMetricPrefixIndex);
+
 void setMeasurementView(void);
-bool onMeasurementViewEvent(ViewEvent event);
 
 void showAlertsMenu(void);
 

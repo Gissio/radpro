@@ -7,7 +7,6 @@
  * License: MIT
  */
 
-#include <limits.h>
 #include <stdbool.h>
 #if defined(SIMULATOR)
 #include <time.h>
@@ -56,20 +55,21 @@ static const Settings defaultSettings = {
 
     .displayContrast = DISPLAY_CONTRAST_DEFAULT,
 #if defined(SIMULATOR)
-    .displayBrightness = DISPLAY_BRIGHTNESS_VERYHIGH,
-#else
     .displayBrightness = DISPLAY_BRIGHTNESS_HIGH,
+#else
+    .displayBrightness = DISPLAY_BRIGHTNESS_MEDIUM,
 #endif
     .displaySleep = DISPLAY_SLEEP_30_SECONDS,
 
 #if defined(BUZZER_VOLUME)
-    .soundPulseVolume = SOUND_PULSEVOLUME_VERYHIGH,
-    .soundAlertVolume = SOUND_ALERTVOLUME_VERYHIGH,
+    .soundPulseVolume = SOUND_PULSEVOLUME_HIGH,
+#endif
+#if defined(BUZZER_VOLUME) || defined(VOICE)
+    .soundAlertVolume = SOUND_ALERTVOLUME_HIGH,
 #endif
 #if defined(VOICE)
     .soundAlertStyle = SOUND_ALERTSTYLE_LONG,
-    .soundAlertVolume = SOUND_ALERTVOLUME_VERYHIGH,
-    .soundVoiceVolume = SOUND_VOICEVOLUME_VERYHIGH,
+    .soundVoiceVolume = SOUND_VOICEVOLUME_HIGH,
 #endif
 
     .rtcTimeZone = RTC_TIMEZONE_P0000,
@@ -99,19 +99,6 @@ static uint32_t stateOffset;
 
 static const uint8_t statesPageId[STATES_PAGE_ID_SIZE] = SETTINGS_VERSION;
 
-static bool validateStatePage(void)
-{
-    const uint8_t *page = readFlash(STATES_BASE + STATES_PAGE_ID_OFFSET, STATES_PAGE_ID_SIZE);
-
-    return memcmp(page, statesPageId, STATES_PAGE_ID_SIZE) == 0;
-}
-
-static void eraseStatePage(void)
-{
-    eraseFlash(STATES_BASE);
-    writeFlash(STATES_BASE + STATES_PAGE_ID_OFFSET, statesPageId, STATES_PAGE_ID_SIZE);
-}
-
 static bool validateState(const State *state)
 {
     const Settings *s = &state->settings;
@@ -135,10 +122,7 @@ static bool validateState(const State *state)
             (s->displaySleep < DISPLAY_SLEEP_NUM) &&
             (s->soundPulseStyle < SOUND_PULSETYPE_NUM) &&
             (s->rtcTimeZone < RTC_TIMEZONE_NUM) &&
-#if defined(BATTERY_REMOVABLE)
-            (s->powerBatteryType < BATTERYTYPE_NUM) &&
-#endif
-            true);
+            (s->powerBatteryType < BATTERYTYPE_NUM));
 }
 
 static const State *loadLatestState(void)
@@ -146,39 +130,45 @@ static const State *loadLatestState(void)
     const State *lastState = NULL;
     stateOffset = STATES_PAGE_LASTSTATE_OFFSET;
 
-    if (validateStatePage())
+    const uint8_t *page = readFlash(STATES_BASE, STATES_SIZE);
+
+    // Validate page
+    for (uint32_t i = 0; i < STATES_PAGE_ID_SIZE; i++)
+        if (page[STATES_PAGE_ID_OFFSET + i] != statesPageId[i])
+            return NULL;
+
+    // Find last state
+    for (uint32_t offset = 0; offset < STATES_PAGE_LASTSTATE_OFFSET; offset += sizeof(State))
     {
-        // Find last state
-        const uint8_t *page = readFlash(STATES_BASE, STATES_SIZE);
-
-        for (uint32_t offset = 0; offset < STATES_PAGE_LASTSTATE_OFFSET; offset += sizeof(State))
+        const State *state = (const State *)(page + offset);
+        if (validateState(state))
         {
-            const State *state = (const State *)(page + offset);
-            if (validateState(state))
-            {
-                lastState = state;
+            lastState = state;
 
-                stateOffset = offset + sizeof(State);
-            }
+            stateOffset = offset + sizeof(State);
         }
     }
 
     return lastState;
 }
 
-static void appendState(State *state)
+static void appendState(const State *state)
 {
-    if (stateOffset >= STATES_PAGE_LASTSTATE_OFFSET)
+    // A failed write leaves its slot non-erased (e.g. an interrupted
+    // save, found again on the next boot), so retry once on a freshly
+    // erased page instead of losing this save. If the retry fails too,
+    // the next save goes to the following (still erased) slot.
+    if ((stateOffset >= STATES_PAGE_LASTSTATE_OFFSET) ||
+        !writeFlash(STATES_BASE + stateOffset, (const uint8_t *)state, sizeof(State)))
     {
-        eraseStatePage();
+        eraseFlash(STATES_BASE);
+        writeFlash(STATES_BASE + STATES_PAGE_ID_OFFSET, statesPageId, STATES_PAGE_ID_SIZE);
 
         stateOffset = 0;
+        writeFlash(STATES_BASE, (const uint8_t *)state, sizeof(State));
     }
 
-    if (writeFlash(STATES_BASE + stateOffset, (uint8_t *)state, sizeof(State)))
-        stateOffset += sizeof(State);
-    else
-        stateOffset = STATES_PAGE_LASTSTATE_OFFSET;
+    stateOffset += sizeof(State);
 }
 
 void initSettings(void)
@@ -187,21 +177,27 @@ void initSettings(void)
     settings = defaultSettings;
 
 #if defined(SIMULATOR)
+    // Local UTC offset including DST, rounded to the nearest hour
     time_t unixTime = time(NULL);
-    struct tm *localTM = gmtime(&unixTime);
-    time_t localTime = mktime(localTM);
-    settings.rtcTimeZone = 12 + (unixTime - localTime) / 3600;
+    struct tm *localTM = localtime(&unixTime);
+    RTCDateTime localDateTime = {
+        .year = localTM->tm_year + 1900,
+        .month = localTM->tm_mon + 1,
+        .day = localTM->tm_mday,
+        .hour = localTM->tm_hour,
+        .minute = localTM->tm_min,
+        .second = localTM->tm_sec,
+    };
+    int32_t utcOffset = (int32_t)(getTimeFromDateTime(&localDateTime) - (uint32_t)unixTime);
+    setDeviceTimeZone(utcOffset / 3600.0F);
 #endif
 
     // Load state
     const State *state = loadLatestState();
     if (state)
     {
-        setCumulativeDoseTime(state->dose.time);
-        setCumulativeDosePulseCount(state->dose.pulseCount);
-        setTubeTime(state->tube.time);
-        setTubePulseCount(state->tube.pulseCount);
-
+        *getTubeDose() = state->tube;
+        *getCumulativeDose() = state->dose;
         settings = state->settings;
     }
 }
@@ -213,22 +209,18 @@ void resetSettings(void)
 
 void saveSettings(void)
 {
-    // Save state
-    State state;
-
-    state.dose.time = getCumulativeDoseTime();
-    state.dose.pulseCount = getCumulativeDosePulseCount();
-    state.tube.time = getTubeTime();
-    state.tube.pulseCount = getTubePulseCount();
-
-    state.settings = settings;
+    State state = {
+        *getTubeDose(),
+        *getCumulativeDose(),
+        settings,
+    };
 
     appendState(&state);
 }
 
 // Settings menu
 
-static ViewOption settingsMenuOptions[] = {
+static const ViewOption settingsMenuOptions[] = {
     {STRING_PULSES, showPulsesMenu},
     {STRING_ALERTS, showAlertsMenu},
     {STRING_MEASUREMENTS, showMeasurementsMenu},
@@ -248,9 +240,6 @@ static ViewOption settingsMenuOptions[] = {
 #endif
     {STRING_STATISTICS, showStatisticsView},
 };
-
-#define SETTINGS_MENU_COUNT (sizeof(settingsMenuOptions) / sizeof(ViewOption))
-#define DATA_MODE_INDEX (SETTINGS_MENU_COUNT - 2)
 
 static const char *onSettingsMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 {

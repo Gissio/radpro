@@ -10,6 +10,8 @@
 #if !defined(UI_DRAW_H)
 #define UI_DRAW_H
 
+#include <assert.h>
+
 #include <mcu-renderer.h>
 
 #include "../peripherals/display.h"
@@ -55,6 +57,15 @@ typedef enum
     COLOR_GAME_PIECE_WHITE,
 #endif
 } ColorIndex;
+
+// Alert level n (normal, warning, alarm) uses COLOR_INSTRUMENT_ENHANCED_SECONDARY + 2 * n
+// and the tertiary color right after it
+static_assert((COLOR_INSTRUMENT_ENHANCED_TERTIARY == (COLOR_INSTRUMENT_ENHANCED_SECONDARY + 1)) &&
+                  (COLOR_INSTRUMENT_ENHANCED_SECONDARY_WARNING == (COLOR_INSTRUMENT_ENHANCED_SECONDARY + 2)) &&
+                  (COLOR_INSTRUMENT_ENHANCED_TERTIARY_WARNING == (COLOR_INSTRUMENT_ENHANCED_SECONDARY + 3)) &&
+                  (COLOR_INSTRUMENT_ENHANCED_SECONDARY_ALARM == (COLOR_INSTRUMENT_ENHANCED_SECONDARY + 4)) &&
+                  (COLOR_INSTRUMENT_ENHANCED_TERTIARY_ALARM == (COLOR_INSTRUMENT_ENHANCED_SECONDARY + 5)),
+              "Alert level colors must be consecutive");
 
 // Metrics
 
@@ -167,13 +178,14 @@ void setFillColor(ColorIndex colorIndex);
 void setStrokeColor(ColorIndex colorIndex);
 
 void drawRectangle(const mr_rectangle_t *rectangle);
-void ditherRectangle(const mr_rectangle_t *rectangle, bool darker);
+void ditherRectangle(const mr_rectangle_t *rectangle, bool dark);
 
 void drawImage(const mr_rectangle_t *rectangle, const mr_color_t *imageBuffer);
+// Fills imageBuffer[start, end); nothing if start >= end
+void fillImageBuffer(mr_color_t *imageBuffer, int32_t start, int32_t end, ColorIndex colorIndex);
 
 void setFont(const uint8_t *font);
 uint16_t getTextWidth(const char *text);
-uint16_t getTextHeight(void);
 void drawText(const char *text, const mr_rectangle_t *rectangle, const mr_point_t *offset);
 void drawCenteredText(const char *text, const mr_rectangle_t *rectangle, const mr_point_t *offset);
 void drawRightAlignedText(const char *text, const mr_rectangle_t *rectangle, const mr_point_t *offset);

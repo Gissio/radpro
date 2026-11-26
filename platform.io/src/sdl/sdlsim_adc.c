@@ -11,12 +11,12 @@
 
 #include <math.h>
 #include <stdint.h>
-#include <stdlib.h>
 
 #include "../peripherals/adc.h"
+#include "sdlsim.h"
 
 #if !defined(M_PI)
-#define M_PI 3.1415926535F
+#define M_PI 3.14159265358979323846
 #endif
 
 void initADC(void)
@@ -27,12 +27,13 @@ void onADCTick(uint32_t index)
 {
 }
 
-float getGaussianRandomValue(void)
+static float getGaussianRandomValue(void)
 {
-    float u1 = (float)rand() / (float)RAND_MAX;
-    float u2 = (float)rand() / (float)RAND_MAX;
+    // Box-Muller transform; u1 in (0, 1] so log(u1) stays finite
+    double u1 = 1.0 - getUniformRandomValue();
+    double u2 = getUniformRandomValue();
 
-    return sqrtf(-2 * logf(u1)) * cosf(2 * M_PI * u2);
+    return (float)(sqrt(-2.0 * log(u1)) * cos(2.0 * M_PI * u2));
 }
 
 float readBatteryVoltage(void)

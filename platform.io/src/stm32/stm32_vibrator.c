@@ -30,10 +30,9 @@ void initVibrator(void)
 void setVibrator(bool value)
 {
 #if defined(VIBRATOR_ACTIVE_LOW)
-    gpio_modify(VIBRATOR_PORT, VIBRATOR_PIN, !value);
-#else
-    gpio_modify(VIBRATOR_PORT, VIBRATOR_PIN, value);
+    value = !value;
 #endif
+    gpio_modify(VIBRATOR_PORT, VIBRATOR_PIN, value);
 }
 
 #endif

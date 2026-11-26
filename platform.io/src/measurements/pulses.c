@@ -83,23 +83,21 @@ PulseUnits pulseUnits[] = {
      {STRING_EMPTY, 1}},
 };
 
-NOINLINE void buildPulseValueString(char *valueString, char *unitString, float value, uint32_t doseUnits, bool isDose)
+static const Unit *getPulseUnit(uint32_t doseUnits, bool isDose)
 {
     PulseUnits *units = &pulseUnits[doseUnits];
 
-    buildValueString(valueString, unitString, value, isDose ? &units->dose : &units->rate, doseUnitsMinMetricPrefix[doseUnits]);
+    return isDose ? &units->dose : &units->rate;
 }
 
 void drawPulseMeasurementValue(const char *title, float value, bool isDose, float confidence, MeasurementStyle style)
 {
-    char valueString[32];
-    char unitString[32];
-    strclr(valueString);
-    strclr(unitString);
-    buildPulseValueString(valueString, unitString, value, settings.doseUnits, isDose);
+    drawMeasurementValueWithUnit(title, value, getPulseUnit(settings.doseUnits, isDose), doseUnitsMinMetricPrefix[settings.doseUnits], confidence, style);
+}
 
-    drawTitleBar(title);
-    drawMeasurementValue(valueString, unitString, confidence, style);
+void drawPulseMeasurementInfo(const char *keyString, float value, uint32_t doseUnits, bool isDose, MeasurementStyle style)
+{
+    drawMeasurementInfoValue(keyString, value, getPulseUnit(doseUnits, isDose), doseUnitsMinMetricPrefix[doseUnits], style);
 }
 
 static struct
@@ -307,6 +305,11 @@ void updatePulses(void)
     updateAverageRate(&compensatedPeriod);
     updateCumulativeDose(&compensatedPeriod);
     updateHistory();
+}
+
+Dose *getTubeDose(void)
+{
+    return &pulses.tubeDose;
 }
 
 void setTubeTime(uint32_t value)
@@ -532,34 +535,22 @@ void showPulsesMenu(void)
 
 // Alerts
 
-static const char *buildAlertMenuOption(menu_size_t index, const float *alerts, const Unit *unit, float scale)
+static const char *buildPulseAlertMenuOption(menu_size_t index, const float *alerts, bool isDose)
 {
-    if (index == 0)
-        return getString(STRING_OFF);
+    // Alerts are stored in Sv/h and Sv
+    float value = alerts[index] / getPulseUnit(DOSE_UNITS_SIEVERTS, isDose)->scale;
 
-    char unitString[32];
-    float value = alerts[index] / scale;
-
-    strclr(menuOption);
-    strcpy(unitString, " ");
-    buildValueString(menuOption, unitString, value, unit, doseUnitsMinMetricPrefix[settings.doseUnits]);
-    strcat(menuOption, unitString);
-
-    return menuOption;
+    return buildAlertMenuOption(index, value, getPulseUnit(settings.doseUnits, isDose), doseUnitsMinMetricPrefix[settings.doseUnits]);
 }
-
-// Rate alerts
 
 static const char *buildRateAlertMenuOption(menu_size_t index)
 {
-    return buildAlertMenuOption(index, rateAlerts, &pulseUnits[settings.doseUnits].rate, pulseUnits[DOSE_UNITS_SIEVERTS].rate.scale);
+    return buildPulseAlertMenuOption(index, rateAlerts, false);
 }
-
-// Dose alerts
 
 static const char *buildDoseAlertMenuOption(menu_size_t index)
 {
-    return buildAlertMenuOption(index, doseAlerts, &pulseUnits[settings.doseUnits].dose, pulseUnits[DOSE_UNITS_SIEVERTS].dose.scale);
+    return buildPulseAlertMenuOption(index, doseAlerts, true);
 }
 
 // Rate warning menu

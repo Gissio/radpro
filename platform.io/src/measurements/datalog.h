@@ -31,6 +31,8 @@ void clearDatalog(void);
 void updateDatalog(void);
 
 bool startDatalogRead(void);
+void stopDatalogRead(void);
+bool isDatalogReadActive(void);
 bool readDatalog(DatalogRecord *record);
 
 void showDatalogMenu(void);

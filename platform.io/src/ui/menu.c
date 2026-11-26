@@ -24,22 +24,20 @@ void selectMenuItem(const Menu *menu, menu_size_t index)
 {
     MenuState *menuState = menu->state;
 
-    menuState->selectedIndex = index;
-
-    if (index < MENU_LINE_NUM)
-        menuState->startIndex = 0;
-    else
+    // Selected item at the top, unless that scrolls past the last page
+    menu_size_t startIndex = 0;
+    if (index >= MENU_LINE_NUM)
     {
-        menu_size_t firstVisibleIndex = (menu->itemCount - MENU_LINE_NUM);
-
-        if (index < firstVisibleIndex)
-            menuState->startIndex = index;
-        else
-            menuState->startIndex = firstVisibleIndex;
+        startIndex = menu->itemCount - MENU_LINE_NUM;
+        if (index < startIndex)
+            startIndex = index;
     }
+
+    menuState->startIndex = startIndex;
+    menuState->selectedIndex = index;
 }
 
-void drawMenu()
+static void drawMenu(void)
 {
     drawTitleBar(currentMenu->title);
 
@@ -61,10 +59,11 @@ void drawMenu()
 
         MenuStyle menuStyle;
         const char *menuItem = currentMenu->onGetOption(index, &menuStyle);
+        bool selected = (index == selectedIndex);
 
-        rectangle.x = CONTENT_WIDTH;
+        rectangle.x = CONTENT_RIGHT;
         setFont(font_symbols);
-        setFillColor((index == selectedIndex) ? COLOR_AMPLIFIED_ENABLED_BACKGROUND : COLOR_CONTAINER_GLOBAL);
+        setFillColor(selected ? COLOR_AMPLIFIED_ENABLED_BACKGROUND : COLOR_CONTAINER_GLOBAL);
 
         // Submenu
         if (menuStyle & MENUSTYLE_SUBMENU)
@@ -86,7 +85,7 @@ void drawMenu()
 #elif defined(DISPLAY_COLOR)
         setFont(font_small);
 #endif
-        setStrokeColor((index == selectedIndex) ? COLOR_ON_AMPLIFIED_ACTIVE : COLOR_ON_FLAT_ACTIVE);
+        setStrokeColor(selected ? COLOR_ON_AMPLIFIED_ACTIVE : COLOR_ON_FLAT_ACTIVE);
         drawRowLeft(menuItem, &rectangle);
 
         rectangle.y += MENU_LINE_HEIGHT;
@@ -102,71 +101,55 @@ void drawMenu()
 
 static void onMenuViewEvent(ViewEvent event)
 {
-    MenuState *menuState = currentMenu->state;
+    const Menu *menu = currentMenu;
+    MenuState *menuState = menu->state;
+    menu_size_t itemCount = menu->itemCount;
+    menu_size_t index = menuState->selectedIndex;
+
+    // Empty menu: no item to select or navigate to
+    if ((event >= EVENT_KEY_SELECT) &&
+        (event <= EVENT_KEY_DOWN) &&
+        !itemCount)
+        return;
 
     switch (event)
     {
     case EVENT_KEY_BACK:
-        if (currentMenu->onBack)
-            currentMenu->onBack();
+        menu->onBack();
 
         break;
 
     case EVENT_KEY_SELECT:
-        if (currentMenu->onSelect)
-            currentMenu->onSelect(menuState->selectedIndex);
+        menu->onSelect(index);
 
         requestViewUpdate();
 
         break;
 
     case EVENT_KEY_UP:
-        if (menuState->selectedIndex > 0)
-        {
-            menuState->selectedIndex--;
-
-            if (menuState->selectedIndex < menuState->startIndex)
-                menuState->startIndex--;
-        }
-        else
-        {
-            menu_size_t index = currentMenu->itemCount;
-
-            menuState->selectedIndex = index - 1;
-            if (index > MENU_LINE_NUM)
-                menuState->startIndex = index - MENU_LINE_NUM;
-            else
-                menuState->startIndex = 0;
-        }
-
-        requestViewUpdate();
-
-        break;
-
     case EVENT_KEY_DOWN:
-        if (menuState->selectedIndex < (currentMenu->itemCount - 1))
-        {
-            menuState->selectedIndex++;
+        // Wrap around at either end
+        if (event == EVENT_KEY_UP)
+            index = (index ? index : itemCount) - 1;
+        else if (++index >= itemCount)
+            index = 0;
 
-            if (menuState->selectedIndex > (menuState->startIndex + (MENU_LINE_NUM - 1)))
-                menuState->startIndex++;
-        }
-        else
-        {
-            menuState->selectedIndex = 0;
-            menuState->startIndex = 0;
-        }
+        menuState->selectedIndex = index;
+
+        // Scroll the selected item into view
+        if (index < menuState->startIndex)
+            menuState->startIndex = index;
+        else if (index >= (menuState->startIndex + MENU_LINE_NUM))
+            menuState->startIndex = index - (MENU_LINE_NUM - 1);
 
         requestViewUpdate();
 
         break;
 
     case EVENT_DRAW:
-    {
         drawMenu();
 
         break;
-    }
 
     default:
         break;

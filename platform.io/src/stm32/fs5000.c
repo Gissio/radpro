@@ -125,18 +125,14 @@ void initKeyboardHardware(void)
     gpio_setup_input(KEY_RIGHT_PORT, KEY_RIGHT_PIN, GPIO_PULL_PULLUP);
 }
 
-void onKeyboardTick(void)
+uint32_t readKeyboardKeys(void)
 {
-    for (uint32_t i = 0; i < KEY_NUM; i++)
-        keyboardKeyDown[i] <<= 1;
+    // KEY_RIGHT and KEY_OK share a port: read it once (keys are active low)
+    uint32_t keys = ~KEY_RIGHT_PORT->IDR;
 
-    keyboardKeyDown[KEY_LEFT] |= !gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN);
-    keyboardKeyDown[KEY_OK] |= !gpio_get(KEY_OK_PORT, KEY_OK_PIN);
-    keyboardKeyDown[KEY_RIGHT] |= !gpio_get(KEY_RIGHT_PORT, KEY_RIGHT_PIN);
-}
-
-void updateKeyboardState(void)
-{
+    return (!gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN) << KEY_LEFT) |
+           (((keys >> KEY_RIGHT_PIN) & 1) << KEY_RIGHT) |
+           (((keys >> KEY_OK_PIN) & 1) << KEY_OK);
 }
 
 // Display
@@ -188,11 +184,6 @@ static const uint8_t displayInitSequence[] = {
     MR_END(),
 };
 
-static void onDisplaySleep(uint32_t value)
-{
-    sleep(value);
-}
-
 static void onDisplaySetReset(bool value)
 {
     gpio_modify(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN, !value);
@@ -225,52 +216,31 @@ static void onDisplaySend16(uint16_t value)
     DISPLAY_WRX_PORT->BSRR = get_bitvalue(DISPLAY_WRX_PIN);
 }
 
-static GPIO_TypeDef *const displayPort[] = {
-    DISPLAY_RESX_PORT,
-    DISPLAY_CSX_PORT,
-    DISPLAY_DCX_PORT,
-    DISPLAY_WRX_PORT,
-    DISPLAY_RDX_PORT,
-    DISPLAY_D0_PORT,
-    DISPLAY_D1_PORT,
-    DISPLAY_D2_PORT,
-    DISPLAY_D3_PORT,
-    DISPLAY_D4_PORT,
-    DISPLAY_D5_PORT,
-    DISPLAY_D6_PORT,
-    DISPLAY_D7_PORT,
-};
+// 2-bit MODER/OSPEEDR field mask of a pin
+#define GPIO_MASK2(pin) (0b11U << (2 * (pin)))
 
-static const uint8_t displayPin[] = {
-    DISPLAY_RESX_PIN,
-    DISPLAY_CSX_PIN,
-    DISPLAY_DCX_PIN,
-    DISPLAY_WRX_PIN,
-    DISPLAY_RDX_PIN,
-    DISPLAY_D0_PIN,
-    DISPLAY_D1_PIN,
-    DISPLAY_D2_PIN,
-    DISPLAY_D3_PIN,
-    DISPLAY_D4_PIN,
-    DISPLAY_D5_PIN,
-    DISPLAY_D6_PIN,
-    DISPLAY_D7_PIN,
-};
+// Sets the pins in a 2-bit field mask as 50 MHz push-pull outputs
+// (OTYPER and PUPDR keep their push-pull/floating reset values)
+#define setupDisplayOutputs(port, mask)                    \
+    modify_bits((port)->MODER, mask, (mask) & 0x55555555); \
+    set_bits((port)->OSPEEDR, mask)
 
 void initDisplay(void)
 {
     // GPIO
-    gpio_set(DISPLAY_POWER_PORT, DISPLAY_POWER_PIN);
-
+    gpio_modify(DISPLAY_POWER_PORT, DISPLAY_POWER_PIN, true);
     gpio_setup_output(DISPLAY_POWER_PORT, DISPLAY_POWER_PIN, GPIO_OUTPUTTYPE_PUSHPULL, GPIO_OUTPUTSPEED_2MHZ, GPIO_PULL_FLOATING);
 
-    gpio_set(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN);
-    gpio_set(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN);
-    gpio_set(DISPLAY_RDX_PORT, DISPLAY_RDX_PIN);
-    gpio_set(DISPLAY_WRX_PORT, DISPLAY_WRX_PIN);
+    // RESX/CSX/DCX share one port, WRX/RDX another; control lines idle high
+    DISPLAY_RESX_PORT->BSRR = get_bitvalue(DISPLAY_RESX_PIN) | get_bitvalue(DISPLAY_CSX_PIN);
+    DISPLAY_WRX_PORT->BSRR = get_bitvalue(DISPLAY_WRX_PIN) | get_bitvalue(DISPLAY_RDX_PIN);
 
-    for (uint32_t i = 0; i < sizeof(displayPin); i++)
-        gpio_setup_output(displayPort[i], displayPin[i], GPIO_OUTPUTTYPE_PUSHPULL, GPIO_OUTPUTSPEED_50MHZ, GPIO_PULL_FLOATING);
+    setupDisplayOutputs(DISPLAY_RESX_PORT,
+                        GPIO_MASK2(DISPLAY_RESX_PIN) | GPIO_MASK2(DISPLAY_CSX_PIN) | GPIO_MASK2(DISPLAY_DCX_PIN));
+    setupDisplayOutputs(DISPLAY_WRX_PORT,
+                        GPIO_MASK2(DISPLAY_WRX_PIN) | GPIO_MASK2(DISPLAY_RDX_PIN));
+    // D0-D7 are pins 0-7 of one port (onDisplaySend writes its low ODR byte)
+    setupDisplayOutputs(DISPLAY_D0_PORT, 0xffff);
 
     // mcu-renderer
     mr_st7789_init(&mr,
@@ -283,7 +253,7 @@ void initDisplay(void)
 #endif
                    displayTextbuffer,
                    sizeof(displayTextbuffer),
-                   onDisplaySleep,
+                   sleep,
                    onDisplaySetReset,
                    onDisplaySetChipselect,
                    onDisplaySetCommand,

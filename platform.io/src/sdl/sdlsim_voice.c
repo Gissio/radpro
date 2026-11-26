@@ -11,16 +11,7 @@
 
 #if defined(VOICE)
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-#include <SDL.h>
-
-#include "../peripherals/sound.h"
-#include "../system/events.h"
-
-// Voice
+#include "../peripherals/voice.h"
 
 void initVoice(void)
 {
@@ -50,7 +41,7 @@ void playNumber(uint32_t value)
 {
 }
 
-void triggerVoiceAlert(void)
+void triggerVoiceAlert(bool measurementAlert)
 {
 }
 

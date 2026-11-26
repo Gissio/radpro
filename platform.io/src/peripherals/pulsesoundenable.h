@@ -7,12 +7,13 @@
  * License: MIT
  */
 
-#if !defined(PULSESOUND_ENABLEABLE_H)
-#define PULSESOUND_ENABLEABLE_H
+#if !defined(PULSESOUND_ENABLE_H)
+#define PULSESOUND_ENABLE_H
 
 #include <stdbool.h>
 
-void initPulseSoundEnable(void);
+// The platform sets the pin's disabled level before initEvents(): the tick
+// drives it from then on (state starts disabled)
 void setPulseSoundEnable(bool value);
 
 void updatePulseSoundEnable(void);

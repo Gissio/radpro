@@ -7,19 +7,8 @@
  * License: MIT
  */
 
-#include <float.h>
-
 #include "../system/cmath.h"
 #include "../system/cstring.h"
-
-#if defined(__EMSCRIPTEN__)
-
-void strclr(char *s)
-{
-    s[0] = '\0';
-}
-
-#endif
 
 void strcatChar(char *s, char c)
 {
@@ -28,23 +17,39 @@ void strcatChar(char *s, char c)
     s[1] = '\0';
 }
 
-void strcatUInt32(char *s, uint32_t value, uint32_t minDigits)
+// Appends value with at least minDigits digits (at most 10) and, if
+// pointDigits is non-zero, a decimal point before the last pointDigits
+// digits (needs minDigits > pointDigits)
+NOINLINE static void strcatDecimal(char *s, uint32_t value, uint32_t minDigits, uint32_t pointDigits)
 {
-    char buffer[16];
+    char buffer[12]; // 10 digits, point, terminator
     char *p = buffer + sizeof(buffer) - 1;
 
-    *p-- = '\0';
+    *p = '\0';
+
+    if (minDigits > 10)
+        minDigits = 10;
 
     uint32_t digits = 0;
 
     do
     {
-        *p-- = '0' + (value % 10);
-        value /= 10;
-        digits++;
+        // Remainder by multiplication: one division call on MCUs without a
+        // hardware divider
+        uint32_t quotient = value / 10;
+        *--p = '0' + (value - 10 * quotient);
+        value = quotient;
+
+        if (++digits == pointDigits)
+            *--p = '.';
     } while (value || (digits < minDigits));
 
-    strcat(s, p + 1);
+    strcat(s, p);
+}
+
+void strcatUInt32(char *s, uint32_t value, uint32_t minDigits)
+{
+    strcatDecimal(s, value, minDigits, 0);
 }
 
 void strcatTime(char *s, uint32_t time)
@@ -68,29 +73,51 @@ void strcatTime(char *s, uint32_t time)
 
 void strcatFloat(char *s, float value, uint32_t fractionalDecimals)
 {
-    if (value < 0.0F)
+    // Sign bit as integer: no soft-float compare calls
+    uint32_t bits;
+    memcpy(&bits, &value, sizeof(bits));
+    bool negative = bits >> 31;
+    bits &= ~(1U << 31);
+    memcpy(&value, &bits, sizeof(value));
+
+    // 10^9 is the largest decimal power that fits in 32 bits
+    if (fractionalDecimals > 9)
+        fractionalDecimals = 9;
+
+    // Drop fractional decimals until the rounded value fits in 32 bits
+    while (true)
     {
-        strcatChar(s, '-');
-        value = -value;
-    }
+        float scaledValue = value * (float)getDecimalPower(fractionalDecimals) + 0.5F;
 
-    uint32_t decimalPower = getDecimalPower(fractionalDecimals);
+        if (scaledValue < 4294967296.0F)
+        {
+            uint32_t scaled = (uint32_t)scaledValue;
 
-    uint32_t scaled = (uint32_t)(value * (float)decimalPower + 0.5F);
+            // Values that round to zero print without sign (no "-0.00")
+            if (negative && scaled)
+                strcatChar(s, '-');
 
-    uint32_t integerPart = scaled / decimalPower;
-    uint32_t fractionalPart = scaled % decimalPower;
+            strcatDecimal(s, scaled, fractionalDecimals + 1, fractionalDecimals);
 
-    strcatUInt32(s, integerPart, 0);
+            return;
+        }
 
-    if (fractionalDecimals)
-    {
-        strcatChar(s, '.');
-        strcatUInt32(s, fractionalPart, fractionalDecimals);
+        if (!fractionalDecimals)
+        {
+            // >= 2^32, inf or NaN (exponent all ones, non-zero mantissa)
+            strcat(s, (bits > 0x7f800000) ? "nan" : &"-inf"[!negative]);
+
+            return;
+        }
+
+        fractionalDecimals--;
     }
 }
 
-cstring metricPrefixStrings[8] = {
+#define METRIC_PREFIX_INDEX_MIN -3
+#define METRIC_PREFIX_INDEX_MAX 3
+
+static cstring metricPrefixStrings[] = {
     STRING_NANO,
     STRING_MICRO,
     STRING_MILLI,
@@ -100,42 +127,42 @@ cstring metricPrefixStrings[8] = {
     STRING_GIGA,
 };
 
+// Clamps to minPrefixIndex (>= METRIC_PREFIX_INDEX_MIN) and to the n..G range
+// of metricPrefixStrings, so the value is scaled to the prefix that is printed
+NOINLINE static int32_t clampMetricPrefixIndex(int32_t prefixIndex, int32_t minPrefixIndex)
+{
+    if (prefixIndex < minPrefixIndex)
+        prefixIndex = minPrefixIndex;
+    if (prefixIndex > METRIC_PREFIX_INDEX_MAX)
+        prefixIndex = METRIC_PREFIX_INDEX_MAX;
+
+    return prefixIndex;
+}
+
 NOINLINE static void strcatMetricPrefix(char *s, int32_t prefixIndex)
 {
-    uint32_t index = prefixIndex + 3;
-    if (index > 6)
-        index = 3;
-    strcat(s, getString(metricPrefixStrings[index]));
+    strcat(s, getString(metricPrefixStrings[prefixIndex - METRIC_PREFIX_INDEX_MIN]));
 }
 
 void strcatMetricValue(char *s, char *u, float value, int32_t minPrefixIndex)
 {
-    int32_t prefixIndex;
+    int32_t prefixIndex = 0;
 
     if (value == 0.0F)
-    {
         strcat(s, "‒.‒‒‒"); // Uses figure dash (U+2012)
-        prefixIndex = 0;
-    }
     else
     {
-        int32_t valueExponent = roundDown(log10f(value / 0.99995F));
-        prefixIndex = divideDown(valueExponent, 3);
+        int32_t valueExponent = roundDown(LOG10E * logf(value / 0.99995F));
+        prefixIndex = clampMetricPrefixIndex(divideDown(valueExponent, 3), minPrefixIndex);
 
-        if (prefixIndex < minPrefixIndex)
-            prefixIndex = minPrefixIndex;
-
-        float scaled = value / powf(10.0F, 3.0F * prefixIndex);
-
-        int32_t integerDigits = valueExponent - 3 * prefixIndex + 1;
-        if (integerDigits < 1)
-            integerDigits = 1;
-
-        int32_t fractionalDecimals = 4 - integerDigits;
+        // 4 significant digits, at least one integer digit
+        int32_t fractionalDecimals = 3 - (valueExponent - 3 * prefixIndex);
+        if (fractionalDecimals > 3)
+            fractionalDecimals = 3;
         if (fractionalDecimals < 0)
             fractionalDecimals = 0;
 
-        strcatFloat(s, scaled, fractionalDecimals);
+        strcatFloat(s, value / getDecimalPowerFloat(3 * prefixIndex), fractionalDecimals);
     }
 
     strcatMetricPrefix(u, prefixIndex);
@@ -143,60 +170,29 @@ void strcatMetricValue(char *s, char *u, float value, int32_t minPrefixIndex)
 
 void strcatMetricPower(char *s, int32_t exponent, int32_t minPrefixIndex)
 {
-    int32_t prefixIndex = divideDown(exponent, 3);
-    uint32_t fractionalDecimals = 0;
-    if (prefixIndex < minPrefixIndex)
-    {
-        prefixIndex = minPrefixIndex;
-        fractionalDecimals = minPrefixIndex * 3 - exponent;
-    }
-    strcatFloat(s, powf(10.0F, exponent - 3 * prefixIndex), fractionalDecimals);
+    int32_t prefixIndex = clampMetricPrefixIndex(divideDown(exponent, 3), minPrefixIndex);
+    int32_t mantissaExponent = exponent - 3 * prefixIndex;
+    uint32_t fractionalDecimals = (mantissaExponent < 0) ? -mantissaExponent : 0;
+
+    // 10^mantissaExponent (getDecimalPower() is 1 for negative exponents)
+    strcatDecimal(s, getDecimalPower(mantissaExponent), fractionalDecimals + 1, fractionalDecimals);
     if (prefixIndex)
         strcatChar(s, ' ');
     strcatMetricPrefix(s, prefixIndex);
 }
 
-const char *hexDigits = "0123456789abcdef";
-
-static inline char getHexDigit(uint32_t value)
-{
-    return hexDigits[value];
-}
-
 void strcatUInt8Hex(char *s, uint8_t value)
 {
-    s += strlen(s);
+    static const char hexDigits[] = "0123456789abcdef";
 
-    *s++ = getHexDigit((value >> 4) & 0xf);
-    *s++ = getHexDigit((value >> 0) & 0xf);
-
-    *s++ = '\0';
+    strcatChar(s, hexDigits[value >> 4]);
+    strcatChar(s, hexDigits[value & 0xf]);
 }
 
-void strcatUInt16Hex(char *s, uint16_t value)
+// Space and string end terminate a token
+static inline bool isTokenEnd(char c)
 {
-    strcatUInt8Hex(s, value >> 8);
-    strcatUInt8Hex(s, value & 0xff);
-}
-
-void strcatUInt32Hex(char *s, uint32_t value)
-{
-    strcatUInt16Hex(s, value >> 16);
-    strcatUInt16Hex(s, value & 0xffff);
-}
-
-void strcatHexData(char *s, uint8_t *data, uint32_t n)
-{
-    s += strlen(s);
-
-    for (uint32_t i = 0; i < n; i++)
-    {
-        uint8_t value = *data++;
-        *s++ = getHexDigit((value >> 4) & 0xf);
-        *s++ = getHexDigit((value >> 0) & 0xf);
-    }
-
-    *s++ = '\0';
+    return !(c & ~' ');
 }
 
 bool parseToken(const char **s, const char *match)
@@ -206,22 +202,18 @@ bool parseToken(const char **s, const char *match)
     while (*t == ' ')
         t++;
 
-    const char *m = match;
-
-    while (*m && (*t == *m))
+    while (*match && (*t == *match))
     {
         t++;
-        m++;
+        match++;
     }
 
-    if (!*m && (*t == '\0' || *t == ' '))
-    {
-        *s = t;
+    if (*match || !isTokenEnd(*t))
+        return false;
 
-        return true;
-    }
+    *s = t;
 
-    return false;
+    return true;
 }
 
 bool parseUInt32(const char **s, uint32_t *value)
@@ -231,15 +223,29 @@ bool parseUInt32(const char **s, uint32_t *value)
     while (*t == ' ')
         t++;
 
-    uint32_t v = 0;
     const char *start = t;
+    uint32_t v = 0;
 
-    while (*t >= '0' && *t <= '9')
-        v = v * 10 + (*t++ - '0');
+    while (true)
+    {
+        uint32_t digit = (uint32_t)(*t - '0');
+        if (digit > 9)
+            break;
 
-    if (t == start)
-        return false;
-    if (*t != '\0' && *t != ' ')
+        t++;
+
+        // Reject values that do not fit in 32 bits: v * 10 cannot overflow,
+        // and an overflowing + digit wraps to less than digit
+        if (v > (UINT32_MAX / 10))
+            return false;
+
+        v = v * 10 + digit;
+
+        if (v < digit)
+            return false;
+    }
+
+    if ((t == start) || !isTokenEnd(*t))
         return false;
 
     *s = t;
@@ -255,70 +261,49 @@ bool parseFloat(const char **s, float *value)
     while (*t == ' ')
         t++;
 
-    bool negate = 0;
-    if (*t == '-')
-    {
-        negate = 1;
+    bool negate = (*t == '-');
+    if (negate)
         t++;
-    }
 
-    const char *start = t;
-    float m = 0.0F;
-    float p = 1.0F;
+    // Digits go into an integer mantissa: one conversion and one division by
+    // an exact power of ten at the end
+    bool hasDigits = false;
+    bool hasPoint = false;
+    uint32_t mantissa = 0;
+    uint32_t fractionalDecimals = 0;
 
-    while (*t >= '0' && *t <= '9')
-        m = m * 10.0F + (*t++ - '0');
-
-    if (*t == '.')
+    for (;; t++)
     {
-        t++;
-        while (*t >= '0' && *t <= '9')
+        uint32_t digit = (uint32_t)(*t - '0');
+
+        if (digit <= 9)
         {
-            m = m * 10.0F + (*t++ - '0');
-            p *= 10.0F;
+            hasDigits = true;
+
+            // Keeps the mantissa in 32 bits and the decimal power <= 10^9:
+            // further fractional digits are ignored, integer parts
+            // above about 4E9 are rejected
+            if ((mantissa <= ((UINT32_MAX - 9) / 10)) && (fractionalDecimals < 9))
+            {
+                mantissa = mantissa * 10 + digit;
+                fractionalDecimals += hasPoint;
+            }
+            else if (!hasPoint)
+                return false;
         }
+        else if ((*t == '.') && !hasPoint)
+            hasPoint = true;
+        else
+            break;
     }
 
-    if (t == start)
+    if (!hasDigits || !isTokenEnd(*t))
         return false;
-    if (*t != '\0' && *t != ' ')
-        return false;
+
+    float v = (float)mantissa / (float)getDecimalPower(fractionalDecimals);
 
     *s = t;
-    *value = (negate ? -m / p : m / p);
+    *value = negate ? -v : v;
 
     return true;
-}
-
-static uint8_t parseHexNibble(char c)
-{
-    c -= '0';
-    if (c > 9)
-        c += 10 + ('0' - 'a');
-    return c;
-}
-
-uint32_t parseHexData(const char **s, uint8_t *data)
-{
-    const char *t = *s;
-    uint32_t n = 0;
-
-    while (*t == ' ')
-        t++;
-
-    while (true)
-    {
-        uint8_t high = parseHexNibble(*t);
-        if (high >= 16)
-            break;
-        t++;
-        uint8_t low = parseHexNibble(*t);
-        if (low >= 16)
-            break;
-        t++;
-        data[n++] = (high << 4) | low;
-    }
-
-    *s = t;
-    return n;
 }

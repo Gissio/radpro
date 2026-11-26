@@ -21,6 +21,7 @@ static struct
     OnViewEvent *onViewEvent;
 
     bool drawUpdate;
+    bool lockModeEnabled;
 } view;
 
 void initView(void)
@@ -34,72 +35,68 @@ void initView(void)
 void updateView(void)
 {
     // Key events
-    while (true)
+    ViewEvent event;
+    while ((event = getKeyboardEvent()) != EVENT_NONE)
     {
-        ViewEvent event = getKeyboardEvent();
-
-        if (event == EVENT_NONE)
-            break;
-
+        // Powered off: power key powers on, other keys show the battery indicator
         if (!isPoweredOn())
         {
             if (event == EVENT_KEY_POWER)
                 powerOn();
             else
                 view.onViewEvent(EVENT_KEY_TOGGLEBACKLIGHT);
+
+            continue;
+        }
+
+        if (event == EVENT_KEY_POWER)
+        {
+            // Locked: power key only wakes the display
+            if (!view.lockModeEnabled)
+            {
+                triggerAndWaitForVibration();
+
+                powerOff();
+
+                continue;
+            }
+        }
+        else if (event == EVENT_KEY_TOGGLELOCK)
+        {
+            bool lock = !view.lockModeEnabled;
+
+            // Locking also turns the display off
+            if (lock)
+            {
+                setMeasurementView();
+
+                event = EVENT_KEY_TOGGLEBACKLIGHT;
+            }
+
+            setLockModeEnabled(lock);
         }
         else
-        {
-            if (event == EVENT_KEY_POWER)
-            {
-                if (!isLockModeEnabled())
-                {
-                    triggerAndwaitForVibration();
+            view.onViewEvent(event);
 
-                    powerOff();
-                }
-            }
-            else
-            {
-                if (event == EVENT_KEY_TOGGLELOCK)
-                {
-                    if (!isLockModeEnabled())
-                    {
-                        setMeasurementView();
-                        setLockModeEnabled(true);
-
-                        event = EVENT_KEY_TOGGLEBACKLIGHT;
-                    }
-                    else
-                        setLockModeEnabled(false);
-                }
-                else
-                    view.onViewEvent(event);
-
-                if ((event == EVENT_KEY_TOGGLEBACKLIGHT) && isDisplayAwake())
-                    cancelBacklight();
-                else
-                    requestBacklightTrigger();
-            }
-        }
+        if ((event == EVENT_KEY_TOGGLEBACKLIGHT) && isDisplayAwake())
+            cancelBacklight();
+        else
+            requestBacklightTrigger();
     }
 
     // Pre-draw
     if (isBacklightTriggerRequested())
         view.drawUpdate = true;
-    else
-    {
 #if defined(DISPLAY_COLOR)
-        bool isDisplayActive = isBacklightActive() || settings.pulseDisplayFlash;
-        if (!isDisplayActive)
-        {
-            view.drawUpdate = false;
+    else if (!isBacklightActive() && !settings.pulseDisplayFlash)
+    {
+        // Display off: nothing to draw
+        view.drawUpdate = false;
 
-            if (isDisplayEnabled())
-                setDisplayEnabled(false);
-        }
-#endif
+        if (isDisplayEnabled())
+            setDisplayEnabled(false);
     }
+#endif
 
     // Draw
     if (view.drawUpdate)
@@ -144,11 +141,9 @@ void updateViewHeartbeat(void)
 
 // Lock mode
 
-static bool lockModeEnabled;
-
 void setLockModeEnabled(bool value)
 {
-    lockModeEnabled = value;
+    view.lockModeEnabled = value;
 
     requestViewUpdate();
     triggerVibration();
@@ -156,5 +151,5 @@ void setLockModeEnabled(bool value)
 
 bool isLockModeEnabled(void)
 {
-    return lockModeEnabled;
+    return view.lockModeEnabled;
 }

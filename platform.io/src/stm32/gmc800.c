@@ -19,20 +19,102 @@
 
 // System
 
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+
+// Overrides the weak startup Reset_Handler. A bootloader may enter the
+// app with its own MSP, VTOR, interrupts and SysTick still active: these
+// are fixed before .data/.bss are set up, so no interrupt can run on
+// uninitialized RAM.
+__attribute__((naked, noreturn)) void Reset_Handler(void)
+{
+    __asm__ volatile(
+        // Set SP (r0 keeps FIRMWARE_BASE for VTOR)
+        "   ldr     r0, =" TOSTRING(FIRMWARE_BASE) "\n"
+        "   ldr     r1, [r0]\n"
+        "   mov     sp, r1\n"
+
+        // r2: system control space base
+        "   ldr     r2, =0xe000e000\n"
+
+        // Stop SysTick (SysTick->CTRL = 0), clear a pending SysTick (SCB->ICSR = PENDSTCLR)
+        "   movs    r1, #0\n"
+        "   str     r1, [r2, #0x010]\n"
+        "   mov     r1, #0x02000000\n"
+        "   str     r1, [r2, #0xd04]\n"
+
+        // Disable and clear all NVIC interrupts (NVIC->ICER[0..7], NVIC->ICPR[0..7])
+        "   mov     r1, #0xffffffff\n"
+        "   movs    r3, #8\n"
+
+        "LoopDisableIRQs:\n"
+        "   str     r1, [r2, #0x180]\n"
+        "   str     r1, [r2, #0x280]\n"
+        "   adds    r2, r2, #4\n"
+        "   subs    r3, r3, #1\n"
+        "   bne     LoopDisableIRQs\n"
+
+        // Set VTOR (SCB->VTOR at 0xe000ed08; r2 has advanced by 0x20)
+        "   str     r0, [r2, #0xce8]\n"
+        "   dsb\n"
+        "   isb\n"
+
+        // Call the clock system initialization function
+        "   bl      SystemInit\n"
+
+        // Copy the data segment initializers from flash to SRAM
+        "   ldr     r0, =_sdata\n"
+        "   ldr     r1, =_edata\n"
+        "   ldr     r2, =_sidata\n"
+        "   movs    r3, #0\n"
+        "   b       LoopCopyDataInit\n"
+
+        "CopyDataInit:\n"
+        "   ldr     r4, [r2, r3]\n"
+        "   str     r4, [r0, r3]\n"
+        "   adds    r3, r3, #4\n"
+
+        "LoopCopyDataInit:\n"
+        "   adds    r4, r0, r3\n"
+        "   cmp     r4, r1\n"
+        "   bcc     CopyDataInit\n"
+
+        // Zero fill the bss segment
+        "   ldr     r2, =_sbss\n"
+        "   ldr     r4, =_ebss\n"
+        "   movs    r3, #0\n"
+        "   b       LoopFillZerobss\n"
+
+        "FillZerobss:\n"
+        "   str     r3, [r2]\n"
+        "   adds    r2, r2, #4\n"
+
+        "LoopFillZerobss:\n"
+        "   cmp     r2, r4\n"
+        "   bcc     FillZerobss\n"
+
+        // Call static constructors
+        "   bl      __libc_init_array\n"
+
+        // Call the application's entry point
+        "   bl      main\n"
+
+        "LoopForever:\n"
+        "   b       LoopForever\n");
+}
+
 void initGPIO(void)
 {
     // Enable GPIOA, GPIOB, GPIOC, GPIOD
     set_bits(RCC->APB2ENR, RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN | RCC_APB2ENR_IOPDEN);
+
+    // PULSE_SOUND_EN output level high (pulse sound disabled), set before
+    // initEvents(): from then on, the tick drives the pin
+    gpio_modify(PULSE_SOUND_EN_PORT, PULSE_SOUND_EN_PIN, true);
 }
 
 void initSystem(void)
 {
-    // +++ TEST
-    // Fix bootloader
-    NVIC_DisableAllIRQs();
-    SCB->VTOR = FIRMWARE_BASE;
-    // +++ TEST
-
     // Disable USB clock: on GD32F30x, USBDPSC is locked while the USBD
     // clock is enabled, which the bootloader may have left on
     clear_bits(RCC->APB1ENR, RCC_APB1ENR_USBEN);
@@ -75,7 +157,7 @@ void initSystem(void)
     modify_bits(AFIO->MAPR, AFIO_MAPR_SWJ_CFG_Msk, AFIO_MAPR_SWJ_CFG_JTAGDISABLE);
 
     // Disable USART RTS reset
-    gpio_clear(SYSTEM_RESET_EN_PORT, SYSTEM_RESET_EN_PIN);
+    gpio_modify(SYSTEM_RESET_EN_PORT, SYSTEM_RESET_EN_PIN, false);
     gpio_setup(SYSTEM_RESET_EN_PORT,
                SYSTEM_RESET_EN_PIN,
                GPIO_MODE_OUTPUT_2MHZ_PUSHPULL);
@@ -90,11 +172,7 @@ void startBootloader(void)
     SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk;
     SysTick->VAL = 0;
 
-    // Enable HSI
-    set_bits(RCC->CR, RCC_CR_HSION);
-    wait_until_bits_set(RCC->CR, RCC_CR_HSIRDY);
-
-    // Set HSI as system clock
+    // Set HSI as system clock (HSI is never turned off)
     modify_bits(RCC->CFGR, RCC_CFGR_SW_Msk, RCC_CFGR_SW_HSI);
     wait_until_bits_value(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_HSI);
 
@@ -126,28 +204,42 @@ const char *const commId = "GQ GMC-800;" FIRMWARE_NAME " " FIRMWARE_VERSION "/" 
 
 // Keyboard
 
+// 4-bit CRL field mask of a pin (pins 0-7)
+#define GPIO_MASK4L(pin) (0b1111U << (4 * (pin)))
+// 4-bit CRH field mask of a pin (pins 8-15)
+#define GPIO_MASK4H(pin) (0b1111U << (4 * ((pin) - 8)))
+
+// All keys are pins 8-15 of KEY_LEFT_PORT
+#define KEY_MASK (get_bitvalue(KEY_LEFT_PIN) |  \
+                  get_bitvalue(KEY_RIGHT_PIN) | \
+                  get_bitvalue(KEY_UP_PIN) |    \
+                  get_bitvalue(KEY_DOWN_PIN))
+#define KEY_MASK4H (GPIO_MASK4H(KEY_LEFT_PIN) |  \
+                    GPIO_MASK4H(KEY_RIGHT_PIN) | \
+                    GPIO_MASK4H(KEY_UP_PIN) |    \
+                    GPIO_MASK4H(KEY_DOWN_PIN))
+
 void initKeyboardHardware(void)
 {
-    // GPIO
-    gpio_setup(KEY_LEFT_PORT, KEY_LEFT_PIN, GPIO_MODE_INPUT_PULLUP);
-    gpio_setup(KEY_UP_PORT, KEY_UP_PIN, GPIO_MODE_INPUT_PULLUP);
-    gpio_setup(KEY_DOWN_PORT, KEY_DOWN_PIN, GPIO_MODE_INPUT_PULLUP);
-    gpio_setup(KEY_RIGHT_PORT, KEY_RIGHT_PIN, GPIO_MODE_INPUT_PULLUP);
+    // GPIO: inputs with pull-up (ODR bits set)
+    KEY_LEFT_PORT->BSRR = KEY_MASK;
+    modify_bits(KEY_LEFT_PORT->CRH,
+                KEY_MASK4H,
+                KEY_MASK4H & (0x11111111U * (GPIO_MODE_INPUT_PULLUP & GPIO_MODE_Msk)));
 }
 
-void onKeyboardTick(void)
-{
-    for (uint32_t i = 0; i < KEY_NUM; i++)
-        keyboardKeyDown[i] <<= 1;
+// Moves the (inverted) input bit of a pin to the bit of a key
+#define getKey(keys, pin, key) ((((keys) >> (pin)) & 1) << (key))
 
-    keyboardKeyDown[KEY_LEFT] |= !gpio_get(KEY_LEFT_PORT, KEY_LEFT_PIN);
-    keyboardKeyDown[KEY_RIGHT] |= !gpio_get(KEY_RIGHT_PORT, KEY_RIGHT_PIN);
-    keyboardKeyDown[KEY_UP] |= !gpio_get(KEY_UP_PORT, KEY_UP_PIN);
-    keyboardKeyDown[KEY_DOWN] |= !gpio_get(KEY_DOWN_PORT, KEY_DOWN_PIN);
-}
-
-void updateKeyboardState(void)
+uint32_t readKeyboardKeys(void)
 {
+    // Keys are active low
+    uint32_t keys = ~KEY_LEFT_PORT->IDR;
+
+    return getKey(keys, KEY_LEFT_PIN, KEY_LEFT) |
+           getKey(keys, KEY_RIGHT_PIN, KEY_RIGHT) |
+           getKey(keys, KEY_UP_PIN, KEY_UP) |
+           getKey(keys, KEY_DOWN_PIN, KEY_DOWN);
 }
 
 // Display
@@ -201,11 +293,6 @@ static const uint8_t displayInitSequence[] = {
     MR_END(),
 };
 
-static void onDisplaySleep(uint32_t value)
-{
-    sleep(value);
-}
-
 static void onDisplaySetReset(bool value)
 {
     gpio_modify(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN, !value);
@@ -238,15 +325,17 @@ static void onDisplaySend16(uint16_t value)
 
 void initDisplay(void)
 {
-    // GPIO
-    gpio_set(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN);
-    gpio_set(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN);
+    // GPIO: CSX, SCL and SDA (pins 0-7) share a port
+    gpio_modify(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN, true);
+    gpio_modify(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN, true);
 
     gpio_setup(DISPLAY_RESX_PORT, DISPLAY_RESX_PIN, GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_CSX_PORT, DISPLAY_CSX_PIN, GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
     gpio_setup(DISPLAY_DCX_PORT, DISPLAY_DCX_PIN, GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
-    gpio_setup(DISPLAY_SCL_PORT, DISPLAY_SCL_PIN, GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL);
-    gpio_setup(DISPLAY_SDA_PORT, DISPLAY_SDA_PIN, GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL);
+    modify_bits(DISPLAY_CSX_PORT->CRL,
+                GPIO_MASK4L(DISPLAY_CSX_PIN) | GPIO_MASK4L(DISPLAY_SCL_PIN) | GPIO_MASK4L(DISPLAY_SDA_PIN),
+                (GPIO_MODE_OUTPUT_50MHZ_PUSHPULL << (4 * DISPLAY_CSX_PIN)) |
+                    (GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL << (4 * DISPLAY_SCL_PIN)) |
+                    (GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL << (4 * DISPLAY_SDA_PIN)));
 
     // SPI
     rcc_enable_spi(DISPLAY_SPI);
@@ -265,7 +354,7 @@ void initDisplay(void)
 #endif
                    displayTextbuffer,
                    sizeof(displayTextbuffer),
-                   onDisplaySleep,
+                   sleep,
                    onDisplaySetReset,
                    onDisplaySetChipselect,
                    onDisplaySetCommand,

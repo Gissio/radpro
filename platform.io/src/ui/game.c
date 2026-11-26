@@ -70,7 +70,7 @@ void drawGame(const uint8_t board[8][8], const char time[2][16])
 {
     mr_rectangle_t rectangle;
 
-#if defined(DISPLAY_COLOR) && defined(DISPLAY_240X320)
+#if defined(DISPLAY_240X320)
     drawTitleBar(getString(STRING_GAME));
 #endif
 
@@ -82,7 +82,7 @@ void drawGame(const uint8_t board[8][8], const char time[2][16])
     rectangle.width = GAME_SQUARE_WIDTH;
     rectangle.height = GAME_SQUARE_HEIGHT;
 
-    const mr_point_t gamePieceOffset = {
+    static const mr_point_t gamePieceOffset = {
         (GAME_SQUARE_WIDTH / 2),
         (GAME_SQUARE_HEIGHT - FONT_SYMBOLS_LINE_HEIGHT) / 2,
     };
@@ -121,9 +121,7 @@ void drawGame(const uint8_t board[8][8], const char time[2][16])
                                                                                          : COLOR_GAME_SQUARE_WHITE);
 #endif
 
-            char pieceString[2];
-            strclr(pieceString);
-            strcatChar(pieceString, pieceChar);
+            const char pieceString[] = {pieceChar, '\0'};
 
             rectangle.x = GAME_BOARD_LEFT + GAME_SQUARE_WIDTH * x;
             rectangle.y = GAME_BOARD_TOP + GAME_SQUARE_HEIGHT * y;
@@ -138,14 +136,14 @@ void drawGame(const uint8_t board[8][8], const char time[2][16])
     setFillColor(COLOR_CONTAINER_BACKGROUND);
 
     // Player timer
-    drawCenteredText(time[0],
-                     &(mr_rectangle_t){GAME_PLAYER_TIMER_LEFT, GAME_PLAYER_TIMER_TOP, GAME_PLAYER_TIMER_WIDTH, GAME_PLAYER_TIMER_HEIGHT},
-                     &(mr_point_t){GAME_PLAYER_TIMER_OFFSETX, GAME_PLAYER_TIMER_OFFSETY});
+    static const mr_rectangle_t playerTimerRectangle = {GAME_PLAYER_TIMER_LEFT, GAME_PLAYER_TIMER_TOP, GAME_PLAYER_TIMER_WIDTH, GAME_PLAYER_TIMER_HEIGHT};
+    static const mr_point_t playerTimerOffset = {GAME_PLAYER_TIMER_OFFSETX, GAME_PLAYER_TIMER_OFFSETY};
+    drawCenteredText(time[0], &playerTimerRectangle, &playerTimerOffset);
 
     // Computer timer
-    drawCenteredText(time[1],
-                     &(mr_rectangle_t){GAME_COMPUTER_TIMER_LEFT, GAME_COMPUTER_TIMER_TOP, GAME_COMPUTER_TIMER_WIDTH, GAME_COMPUTER_TIMER_HEIGHT},
-                     &(mr_point_t){GAME_COMPUTER_TIMER_OFFSETX, GAME_COMPUTER_TIMER_OFFSETY});
+    static const mr_rectangle_t computerTimerRectangle = {GAME_COMPUTER_TIMER_LEFT, GAME_COMPUTER_TIMER_TOP, GAME_COMPUTER_TIMER_WIDTH, GAME_COMPUTER_TIMER_HEIGHT};
+    static const mr_point_t computerTimerOffset = {GAME_COMPUTER_TIMER_OFFSETX, GAME_COMPUTER_TIMER_OFFSETY};
+    drawCenteredText(time[1], &computerTimerRectangle, &computerTimerOffset);
 }
 
 #endif

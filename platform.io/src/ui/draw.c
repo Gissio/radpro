@@ -171,18 +171,20 @@ mr_t mr;
 
 // Low-level functions
 
+#if defined(DISPLAY_MONOCHROME)
+#define MONOCHROME_SET_COLORS ((1 << COLOR_AMPLIFIED_ENABLED_BACKGROUND) |         \
+                               (1 << COLOR_INSTRUMENT_FRAME_TERTIARY) |            \
+                               (1 << COLOR_INSTRUMENT_TICK_MARK_LABEL_SECONDARY) | \
+                               (1 << COLOR_INSTRUMENT_ENHANCED_SECONDARY) |        \
+                               (1 << COLOR_INSTRUMENT_ENHANCED_TERTIARY) |         \
+                               (1 << COLOR_GAME_SQUARE_BLACK))
+#endif
+
 NOINLINE mr_color_t getFillColor(ColorIndex colorIndex)
 {
 #if defined(DISPLAY_MONOCHROME)
-    if ((colorIndex == COLOR_AMPLIFIED_ENABLED_BACKGROUND) ||
-        (colorIndex == COLOR_INSTRUMENT_FRAME_TERTIARY) ||
-        (colorIndex == COLOR_INSTRUMENT_TICK_MARK_LABEL_SECONDARY) ||
-        (colorIndex == COLOR_INSTRUMENT_ENHANCED_SECONDARY) ||
-        (colorIndex == COLOR_INSTRUMENT_ENHANCED_TERTIARY) ||
-        (colorIndex == COLOR_GAME_SQUARE_BLACK))
-        return 0xffff;
-    else
-        return 0x0000;
+    // 0xffff for the colors in MONOCHROME_SET_COLORS, else 0x0000
+    return -((MONOCHROME_SET_COLORS >> colorIndex) & 1);
 #elif defined(DISPLAY_COLOR)
     return displayColors[colorIndex][settings.displayTheme];
 #endif
@@ -192,10 +194,9 @@ void setFillColor(ColorIndex colorIndex)
 {
 #if defined(DISPLAY_MONOCHROME)
     mr_color_t fillColor = getFillColor(colorIndex);
-    mr_color_t strokeColor = fillColor ? 0x0000 : 0xffff;
 
     mr_set_fill_color(&mr, fillColor);
-    mr_set_stroke_color(&mr, strokeColor);
+    mr_set_stroke_color(&mr, ~fillColor);
 #elif defined(DISPLAY_COLOR)
     mr_set_fill_color(&mr, getFillColor(colorIndex));
 #endif
@@ -216,40 +217,31 @@ void drawRectangle(const mr_rectangle_t *rectangle)
 #if defined(DISPLAY_MONOCHROME)
 void ditherRectangle(const mr_rectangle_t *rectangle, bool dark)
 {
-    mr_rectangle_t r;
-    r.width = 1;
-    r.height = 1;
+    // Dark: checkerboard (x + y even). Light: odd rows, odd columns.
+    mr_rectangle_t r = {0, 0, 1, 1};
+    int32_t right = rectangle->x + rectangle->width;
+    int32_t bottom = rectangle->y + rectangle->height;
 
     setFillColor(COLOR_CONTAINER_GLOBAL);
 
-    for (r.y = rectangle->y;
-         r.y < (rectangle->y + rectangle->height);
-         r.y++)
-    {
-        for (r.x = rectangle->x;
-             r.x < (rectangle->x + rectangle->width);
-             r.x++)
-        {
-            if (dark)
-            {
-                if ((r.x ^ r.y) & 0b1)
-                    continue;
-            }
-            else
-            {
-                if (((r.x & r.y) & 0b1) == 0)
-                    continue;
-            }
-
-            drawRectangle(&r);
-        }
-    }
+    for (r.y = rectangle->y; r.y < bottom; r.y++)
+        if (dark || (r.y & 1))
+            for (r.x = rectangle->x + ((rectangle->x ^ r.y) & 1); r.x < right; r.x += 2)
+                drawRectangle(&r);
 }
 #endif
 
 void drawImage(const mr_rectangle_t *rectangle, const mr_color_t *imageBuffer)
 {
     mr_draw_image(&mr, rectangle, imageBuffer);
+}
+
+NOINLINE void fillImageBuffer(mr_color_t *imageBuffer, int32_t start, int32_t end, ColorIndex colorIndex)
+{
+    mr_color_t color = getFillColor(colorIndex);
+
+    for (; start < end; start++)
+        imageBuffer[start] = color;
 }
 
 void setFont(const uint8_t *font)
@@ -262,11 +254,6 @@ uint16_t getTextWidth(const char *text)
     return mr_get_utf8_text_width(&mr, (const uint8_t *)text);
 }
 
-uint16_t getTextHeight(void)
-{
-    return mr_get_line_height(&mr);
-}
-
 typedef enum
 {
     TEXTALIGNMENT_LEFTALIGNED,
@@ -274,73 +261,55 @@ typedef enum
     TEXTALIGNMENT_RIGHTALIGNED,
 } TextAlignment;
 
+#define TEXT_BUFFER_SIZE 128
+
 static void drawAlignedText(const char *text, const mr_rectangle_t *rectangle, const mr_point_t *offset, TextAlignment textAlignment)
 {
-    char buffer[128];
-    const char *str;
-    int16_t width;
+    char buffer[TEXT_BUFFER_SIZE];
 
-    switch (textAlignment)
-    {
-    case TEXTALIGNMENT_LEFTALIGNED:
-        // | x-------->|
-        width = rectangle->width - offset->x;
-
-        break;
-
-    case TEXTALIGNMENT_CENTERED:
-        // |<----x---->|
-        width = rectangle->width;
-
-        break;
-
-    case TEXTALIGNMENT_RIGHTALIGNED:
-        // |<--------x |
+    // Available width:
+    //   left aligned  | x-------->|
+    //   centered      |<----x---->|
+    //   right aligned |<--------x |
+    int32_t width = rectangle->width;
+    if (textAlignment == TEXTALIGNMENT_LEFTALIGNED)
+        width -= offset->x;
+    else if (textAlignment == TEXTALIGNMENT_RIGHTALIGNED)
         width = offset->x;
 
-        break;
-
-    default:
-        width = 0;
-
-        break;
-    }
-
-    if (getTextWidth(text) <= width)
-        str = text;
-    else
+    const char *str = text;
+    int32_t textWidth = getTextWidth(text);
+    if (textWidth > width)
     {
-        strcpy(buffer, text);
-        for (uint32_t i = strlen(text); i > 0; i--)
+        // Leave room for the ellipsis and the terminator
+        const int32_t maxLength = sizeof(buffer) - 1 - strlen(getString(STRING_ELLIPSIS));
+        int32_t length = strlen(text);
+        if (length > maxLength)
+            length = maxLength;
+
+        memcpy(buffer, text, length);
+        buffer[length] = '\0';
+
+        // The full text does not fit, so start by dropping its last character
+        for (int32_t i = length - 1; i > 0; i--)
         {
             // Skip UTF-8 continuation bytes
             if ((((uint8_t)buffer[i]) >> 6) == 0x02)
                 continue;
 
             strcpy(buffer + i, getString(STRING_ELLIPSIS));
-            if (getTextWidth(buffer) <= width)
+            textWidth = getTextWidth(buffer);
+            if (textWidth <= width)
                 break;
         }
         str = buffer;
     }
 
-    mr_point_t strOffset = *offset;
-    switch (textAlignment)
-    {
-    case TEXTALIGNMENT_CENTERED:
-        strOffset.x -= getTextWidth(str) / 2;
-
-        break;
-
-    case TEXTALIGNMENT_RIGHTALIGNED:
-        strOffset.x -= getTextWidth(str);
-
-        break;
-
-    default:
-        break;
-    }
-
+    // Shift left by 0, 1/2 or 1 text width (TextAlignment is 0, 1, 2)
+    mr_point_t strOffset = {
+        offset->x - ((textWidth * textAlignment) >> 1),
+        offset->y,
+    };
     mr_draw_utf8_text(&mr, (const uint8_t *)str, rectangle, &strOffset);
 }
 
@@ -392,8 +361,19 @@ static const char *getWrappedTextLine(const char *src, char *line)
 
         size_t wordLength = srcWord - src;
 
+        // Keep the line within its buffer: move a later word (which also
+        // needs its separating space) to the next line, cut a first word
+        // that is longer than the whole buffer
+        size_t available = (line + TEXT_BUFFER_SIZE - 1) - dest;
         if (!firstWord)
+        {
+            if (wordLength >= available)
+                break;
+
             *destWord++ = ' ';
+        }
+        else if (wordLength > available)
+            wordLength = available;
 
         memcpy(destWord, src, wordLength);
         destWord += wordLength;
@@ -417,73 +397,65 @@ void drawCenteredMultilineText(const mr_rectangle_t *rectangle, const char *text
     setFont(font_small);
     setStrokeColor(COLOR_ELEMENT_ACTIVE);
 
-    char line[128];
+    char line[TEXT_BUFFER_SIZE];
 
+    // Count the lines, stopping when the next one would not fit
     const char *src = text;
-    uint32_t lineNum = 0;
-
-    while (true)
+    int32_t lineNum = 0;
+    do
     {
         src = getWrappedTextLine(src, line);
-
         lineNum++;
+    } while ((src[0] != '\0') &&
+             (lineNum < CONTENT_MULTILINE_MAX) &&
+             ((lineNum + 1) * FONT_SMALL_LINE_HEIGHT <= rectangle->height));
 
-        if (src[0] == '\0')
-            break;
+    // Each line's rectangle reaches down to the next line, so the first and
+    // last lines also clear the margins above and below the text
+    int32_t bottom = rectangle->y + rectangle->height;
+    int32_t lineTop = rectangle->y;
+    int32_t textTop = lineTop + (rectangle->height - lineNum * FONT_SMALL_LINE_HEIGHT) / 2;
 
-        if (lineNum >= CONTENT_MULTILINE_MAX)
-            break;
-    }
-
-    src = (const char *)text;
-    uint32_t y = rectangle->y;
-
-    for (uint32_t i = 0; i < lineNum; i++)
+    src = text;
+    for (int32_t i = 0; i < lineNum; i++)
     {
         src = getWrappedTextLine(src, line);
 
-        mr_rectangle_t lineRectangle = {rectangle->x, y, rectangle->width, FONT_SMALL_LINE_HEIGHT};
-        mr_point_t lineOffset = {rectangle->width / 2, 0};
+        int32_t lineBottom = (i == (lineNum - 1)) ? bottom : textTop + FONT_SMALL_LINE_HEIGHT;
+        mr_rectangle_t lineRectangle = {rectangle->x, lineTop, rectangle->width, lineBottom - lineTop};
+        mr_point_t lineOffset = {rectangle->width / 2, textTop - lineTop};
 
-        // First line
-        if (i == 0)
-        {
-            uint32_t top = (rectangle->height - lineNum * FONT_SMALL_LINE_HEIGHT) / 2;
-
-            lineRectangle.height += top;
-            lineOffset.y += top;
-            y += top;
-        }
-
-        // Empty line
+        // Lines after an empty line are secondary
         if (line[0] == '\0')
             setStrokeColor(COLOR_ELEMENT_NEUTRAL);
 
-        // Last line
-        if (i == (lineNum - 1))
-            lineRectangle.height = rectangle->y + rectangle->height - lineRectangle.y;
-
         drawCenteredText(line, &lineRectangle, &lineOffset);
 
-        y += FONT_SMALL_LINE_HEIGHT;
+        lineTop = lineBottom;
+        textTop += FONT_SMALL_LINE_HEIGHT;
     }
+}
+
+// Draws text vertically centered in a row
+static NOINLINE void drawRow(const char *text, const mr_rectangle_t *rectangle, int16_t offsetX)
+{
+    mr_point_t offset = {offsetX, (rectangle->height - mr_get_line_height(&mr)) / 2};
+    drawText(text, rectangle, &offset);
 }
 
 void drawRowLeft(const char *text, mr_rectangle_t *rectangle)
 {
     rectangle->width = rectangle->x - CONTENT_LEFT;
     rectangle->x = CONTENT_LEFT;
-    mr_point_t offset = {PADDING_LEFT, (rectangle->height - getTextHeight()) / 2};
-    drawText(text, rectangle, &offset);
+    drawRow(text, rectangle, PADDING_LEFT);
 }
 
 void drawRowRight(const char *text, mr_rectangle_t *rectangle)
 {
-    uint32_t width = getTextWidth(text) + PADDING_RIGHT;
+    int16_t width = getTextWidth(text) + PADDING_RIGHT;
     rectangle->width = width;
     rectangle->x -= width;
-    mr_point_t offset = {0, (rectangle->height - getTextHeight()) / 2};
-    drawText(text, rectangle, &offset);
+    drawRow(text, rectangle, 0);
 }
 
 static const uint8_t chargingIcons[] = {5, 6, 6, 6, 7};
@@ -508,8 +480,8 @@ void setupBatteryIcon(char *text)
             colorIndex = COLOR_ELEMENT_NEUTRAL;
     }
 
-    strclr(text);
-    strcatChar(text, '0' + level);
+    text[0] = '0' + level;
+    text[1] = '\0';
     setFont(font_symbols);
     setStrokeColor(colorIndex);
 }

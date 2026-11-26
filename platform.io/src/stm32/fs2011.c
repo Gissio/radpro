@@ -37,11 +37,41 @@ void initSystem(void)
     setFastSystemClock(false);
 
 #if defined(STM32F1)
-    // Disable JTAG, TIM3 partial remap
+    // Disable JTAG, TIM2 partial remap (CH2 on PB3), TIM3 partial remap (CH1 on PB4)
     rcc_enable_afio();
-    modify_bits(AFIO->MAPR, AFIO_MAPR_SWJ_CFG_Msk | AFIO_MAPR_TIM3_REMAP_Msk, AFIO_MAPR_SWJ_CFG_JTAGDISABLE | AFIO_MAPR_TIM3_REMAP_1);
+    modify_bits(AFIO->MAPR,
+                AFIO_MAPR_SWJ_CFG_Msk | AFIO_MAPR_TIM2_REMAP_Msk | AFIO_MAPR_TIM3_REMAP_Msk,
+                AFIO_MAPR_SWJ_CFG_JTAGDISABLE | AFIO_MAPR_TIM2_REMAP_0 | AFIO_MAPR_TIM3_REMAP_1);
 #endif
 }
+
+// Fast clock: HSI / 2 * 8 = 32 MHz, 1 flash wait state;
+// slow clock: HSI = 8 MHz, 0 wait states. APB clocks are 4 MHz in both.
+#define FAST_AHB_FREQUENCY 32000000
+
+#if defined(STM32F0)
+#define FAST_FLASH_LATENCY FLASH_ACR_LATENCY
+#define FAST_CFGR (RCC_CFGR_SW_HSI |          \
+                   RCC_CFGR_HPRE_DIV1 |       \
+                   RCC_CFGR_PPRE_DIV8 |       \
+                   RCC_CFGR_PLLSRC_HSI_DIV2 | \
+                   RCC_CFGR_PLLMUL8)
+#define SLOW_CFGR (RCC_CFGR_SW_HSI |    \
+                   RCC_CFGR_HPRE_DIV1 | \
+                   RCC_CFGR_PPRE_DIV2)
+#elif defined(STM32F1)
+#define FAST_FLASH_LATENCY FLASH_ACR_LATENCY_1WS
+#define FAST_CFGR (RCC_CFGR_SW_HSI |          \
+                   RCC_CFGR_HPRE_DIV1 |       \
+                   RCC_CFGR_PPRE1_DIV8 |      \
+                   RCC_CFGR_PPRE2_DIV8 |      \
+                   RCC_CFGR_PLLSRC_HSI_DIV2 | \
+                   RCC_CFGR_PLLMULL8)
+#define SLOW_CFGR (RCC_CFGR_SW_HSI |     \
+                   RCC_CFGR_HPRE_DIV1 |  \
+                   RCC_CFGR_PPRE1_DIV2 | \
+                   RCC_CFGR_PPRE2_DIV2)
+#endif
 
 void setFastSystemClock(bool value)
 {
@@ -53,18 +83,11 @@ void setFastSystemClock(bool value)
     clear_bits(RCC->CR, RCC_CR_PLLON);
     wait_until_bits_clear(RCC->CR, RCC_CR_PLLRDY);
 
-#if defined(STM32F0)
     if (value)
     {
-        // Set 1 wait states for flash
-        set_bits(FLASH->ACR, FLASH_ACR_LATENCY_Msk);
-
-        // Configure SW, AHB, APB, PLL
-        RCC->CFGR = RCC_CFGR_SW_HSI |          // Select HSI as system clock
-                    RCC_CFGR_HPRE_DIV1 |       // Set AHB clock: 32 MHz / 1 = 32 MHz
-                    RCC_CFGR_PPRE_DIV8 |       // Set APB clock: 32 MHz / 8 = 4 MHz
-                    RCC_CFGR_PLLSRC_HSI_DIV2 | // Set PLL source: HSI / 2
-                    RCC_CFGR_PLLMUL8;          // Set PLLMUL: 8x
+        // Set flash wait states; configure SW, AHB, APB and PLL
+        modify_bits(FLASH->ACR, FLASH_ACR_LATENCY_Msk, FAST_FLASH_LATENCY);
+        RCC->CFGR = FAST_CFGR;
 
         // Enable PLL
         set_bits(RCC->CR, RCC_CR_PLLON);
@@ -75,61 +98,17 @@ void setFastSystemClock(bool value)
         wait_until_bits_value(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_PLL);
 
         // Update sys tick
-        SysTick->LOAD = SysTick->LOAD << 2;
+        SysTick->LOAD = FAST_AHB_FREQUENCY / SYSTICK_FREQUENCY - 1;
     }
     else
     {
-        // Set 0 wait states for flash
+        // Set 0 wait states for flash; configure SW, AHB and APB
         clear_bits(FLASH->ACR, FLASH_ACR_LATENCY_Msk);
-
-        // Configure SW, AHB, APB
-        RCC->CFGR = RCC_CFGR_SW_HSI |    // Select HSI as system clock
-                    RCC_CFGR_HPRE_DIV1 | // Set AHB clock: 8 MHz / 1 = 8 MHz
-                    RCC_CFGR_PPRE_DIV2;  // Set APB clock: 8 MHz / 2 = 4 MHz
+        RCC->CFGR = SLOW_CFGR;
 
         // Update sys tick
-        SysTick->LOAD = SysTick->LOAD >> 2;
+        SysTick->LOAD = AHB_FREQUENCY / SYSTICK_FREQUENCY - 1;
     }
-#elif STM32F1
-    if (value)
-    {
-        // Set 2 wait states for flash
-        modify_bits(FLASH->ACR, FLASH_ACR_LATENCY_Msk, FLASH_ACR_LATENCY_2WS);
-
-        // Configure SW, AHB, APB1, APB2, PLL
-        RCC->CFGR = RCC_CFGR_SW_HSI |          // Select HSI as system clock
-                    RCC_CFGR_HPRE_DIV1 |       // Set AHB clock: 32 MHz / 1 = 64 MHz
-                    RCC_CFGR_PPRE1_DIV8 |      // Set APB1 clock: 32 MHz / 8 = 4 MHz
-                    RCC_CFGR_PPRE2_DIV8 |      // Set APB2 clock: 32 MHz / 8 = 4 MHz
-                    RCC_CFGR_PLLSRC_HSI_DIV2 | // Set PLL source: HSI / 2
-                    RCC_CFGR_PLLMULL8;         // Set PLL multiplier: 8x
-
-        // Enable PLL
-        set_bits(RCC->CR, RCC_CR_PLLON);
-        wait_until_bits_set(RCC->CR, RCC_CR_PLLRDY);
-
-        // Set PLL as system clock
-        modify_bits(RCC->CFGR, RCC_CFGR_SW_Msk, RCC_CFGR_SW_PLL);
-        wait_until_bits_value(RCC->CFGR, RCC_CFGR_SWS_Msk, RCC_CFGR_SWS_PLL);
-
-        // Update sys tick
-        SysTick->LOAD = SysTick->LOAD << 2;
-    }
-    else
-    {
-        // Set 0 wait states for flash
-        clear_bits(FLASH->ACR, FLASH_ACR_LATENCY_Msk);
-
-        // Configure SW, AHB, APB1, APB2
-        RCC->CFGR = RCC_CFGR_SW_HSI |     // Select HSI as system clock
-                    RCC_CFGR_HPRE_DIV1 |  // Set AHB clock: 8 MHz / 1 = 8 MHz
-                    RCC_CFGR_PPRE1_DIV2 | // Set APB1 clock: 8 MHz / 2 = 4 MHz
-                    RCC_CFGR_PPRE2_DIV2;  // Set APB2 clock: 8 MHz / 2 = 4 MHz
-
-        // Update sys tick
-        SysTick->LOAD = SysTick->LOAD >> 2;
-    }
-#endif
 }
 
 // Communications
@@ -162,25 +141,24 @@ void initKeyboardHardware(void)
 #endif
 }
 
-void onKeyboardTick(void)
-{
-    for (uint32_t i = 0; i < KEY_NUM; i++)
-        keyboardKeyDown[i] <<= 1;
+// Moves the (inverted) input bit of a pin to the bit of a key
+#define getKey(keys, pin, key) ((((keys) >> (pin)) & 1) << (key))
 
-#if defined(KEYBOARD_2lKEYS)
-    keyboardKeyDown[KEY_LEFT] |= !gpio_get(KEY_PLAYPAUSE_PORT, KEY_PLAYPAUSE_PIN);
-    keyboardKeyDown[KEY_RIGHT] |= !gpio_get(KEY_POWER_PORT, KEY_POWER_PIN);
+uint32_t readKeyboardKeys(void)
+{
+    // All keys but KEY_UP share a port: read it once (keys are active low)
+    uint32_t keys = ~KEY_POWER_PORT->IDR;
+
+#if defined(KEYBOARD_2_KEYS)
+    return getKey(keys, KEY_PLAYPAUSE_PIN, KEY_LEFT) |
+           getKey(keys, KEY_POWER_PIN, KEY_RIGHT);
 #elif defined(KEYBOARD_5_KEYS)
-    keyboardKeyDown[KEY_LEFT] |= !gpio_get(KEY_PLAYPAUSE_PORT, KEY_PLAYPAUSE_PIN);
-    keyboardKeyDown[KEY_RIGHT] |= !gpio_get(KEY_MENUOK_PORT, KEY_MENUOK_PIN);
-    keyboardKeyDown[KEY_UP] |= !gpio_get(KEY_UP_PORT, KEY_UP_PIN);
-    keyboardKeyDown[KEY_DOWN] |= !gpio_get(KEY_DOWN_PORT, KEY_DOWN_PIN);
-    keyboardKeyDown[KEY_OK] |= !gpio_get(KEY_POWER_PORT, KEY_POWER_PIN);
+    return getKey(keys, KEY_PLAYPAUSE_PIN, KEY_LEFT) |
+           getKey(keys, KEY_MENUOK_PIN, KEY_RIGHT) |
+           (!gpio_get(KEY_UP_PORT, KEY_UP_PIN) << KEY_UP) |
+           getKey(keys, KEY_DOWN_PIN, KEY_DOWN) |
+           getKey(keys, KEY_POWER_PIN, KEY_OK);
 #endif
-}
-
-void updateKeyboardState(void)
-{
 }
 
 // Display
@@ -198,11 +176,6 @@ static const uint8_t displayInitSequence[] = {
     MR_SEND_COMMAND(MR_ST7565_REGULATIONRATIO_4_5),
     MR_END(),
 };
-
-static void onDisplaySleep(uint32_t value)
-{
-    sleep(value);
-}
 
 static void onDisplaySetReset(bool value)
 {
@@ -231,49 +204,50 @@ static void onDisplaySend(uint16_t value)
     DISPLAY_E_PORT->BRR = get_bitvalue(DISPLAY_E_PIN);
 }
 
-static GPIO_TypeDef *const displayPort[] = {
-    DISPLAY_RSTB_PORT,
-    DISPLAY_A0_PORT,
-    DISPLAY_RW_PORT,
-    DISPLAY_E_PORT,
-    DISPLAY_D0_PORT,
-    DISPLAY_D1_PORT,
-    DISPLAY_D2_PORT,
-    DISPLAY_D3_PORT,
-    DISPLAY_D4_PORT,
-    DISPLAY_D5_PORT,
-    DISPLAY_D6_PORT,
-    DISPLAY_D7_PORT,
-};
+#if defined(STM32F0)
+// 2-bit MODER/OSPEEDR field mask of a pin
+#define GPIO_MASK(pin) (0b11U << (2 * (pin)))
 
-static const uint8_t displayPin[] = {
-    DISPLAY_RSTB_PIN,
-    DISPLAY_A0_PIN,
-    DISPLAY_RW_PIN,
-    DISPLAY_E_PIN,
-    DISPLAY_D0_PIN,
-    DISPLAY_D1_PIN,
-    DISPLAY_D2_PIN,
-    DISPLAY_D3_PIN,
-    DISPLAY_D4_PIN,
-    DISPLAY_D5_PIN,
-    DISPLAY_D6_PIN,
-    DISPLAY_D7_PIN,
-};
+// Sets pins as 50 MHz push-pull outputs (OTYPER and PUPDR keep their
+// push-pull/floating reset values)
+#define setupDisplayOutputs(port, mask)                    \
+    modify_bits((port)->MODER, mask, (mask) & 0x55555555); \
+    set_bits((port)->OSPEEDR, mask)
+#elif defined(STM32F1)
+// 4-bit CRH field mask of a pin (all display pins are pins 8-15)
+#define GPIO_MASK(pin) (0b1111U << (4 * ((pin) - 8)))
+
+// Sets pins as 50 MHz push-pull outputs
+#define setupDisplayOutputs(port, mask) \
+    modify_bits((port)->CRH, mask, (mask) & (0x11111111 * GPIO_MODE_OUTPUT_50MHZ_PUSHPULL))
+#endif
 
 void initDisplay(void)
 {
-    // GPIO
-    gpio_set(DISPLAY_RSTB_PORT, DISPLAY_RSTB_PIN);
+    // GPIO (port layout as in onDisplaySend)
+    gpio_modify(DISPLAY_RSTB_PORT, DISPLAY_RSTB_PIN, true);
 
-    for (uint32_t i = 0; i < sizeof(displayPin); i++)
-    {
-#if defined(STM32F0)
-        gpio_setup_output(displayPort[i], displayPin[i], GPIO_OUTPUTTYPE_PUSHPULL, GPIO_OUTPUTSPEED_50MHZ, GPIO_PULL_FLOATING);
-#elif defined(STM32F1)
-        gpio_setup(displayPort[i], displayPin[i], GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
+    setupDisplayOutputs(DISPLAY_RSTB_PORT,
+                        GPIO_MASK(DISPLAY_RSTB_PIN) |
+                            GPIO_MASK(DISPLAY_A0_PIN) |
+                            GPIO_MASK(DISPLAY_RW_PIN) |
+#if defined(STM32F1)
+                            GPIO_MASK(DISPLAY_D5_PIN) |
+                            GPIO_MASK(DISPLAY_D6_PIN) |
 #endif
-    }
+                            GPIO_MASK(DISPLAY_E_PIN));
+    setupDisplayOutputs(DISPLAY_D0_PORT,
+                        GPIO_MASK(DISPLAY_D0_PIN) |
+                            GPIO_MASK(DISPLAY_D1_PIN) |
+                            GPIO_MASK(DISPLAY_D2_PIN) |
+                            GPIO_MASK(DISPLAY_D3_PIN) |
+                            GPIO_MASK(DISPLAY_D4_PIN) |
+                            GPIO_MASK(DISPLAY_D7_PIN));
+#if defined(STM32F0)
+    setupDisplayOutputs(DISPLAY_D5_PORT,
+                        GPIO_MASK(DISPLAY_D5_PIN) |
+                            GPIO_MASK(DISPLAY_D6_PIN));
+#endif
 
     // mcu-renderer
     mr_st7565_init(&mr,
@@ -281,7 +255,7 @@ void initDisplay(void)
                    DISPLAY_HEIGHT,
                    MR_DISPLAY_ROTATION_0,
                    displayFramebuffer,
-                   onDisplaySleep,
+                   sleep,
                    onDisplaySetReset,
                    onDisplaySetChipselect,
                    onDisplaySetCommand,

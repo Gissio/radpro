@@ -19,10 +19,10 @@
 #include "../ui/rng.h"
 #include "../ui/view.h"
 
-#define RNG_STACK_BITNUM 128
-#define RNG_STACK_UINT32NUM (RNG_STACK_BITNUM / 32)
+#define RNG_POOL_BITNUM 128
+#define RNG_UPDATE_PULSES_MAX (32 / TUBE_BITS_PER_PULSE)
 
-#define RNG_SYMBOLS_MAX 16
+#define RNG_TEXT_LENGTH_MAX 16
 
 typedef enum
 {
@@ -44,11 +44,10 @@ typedef enum
 
 #define RNG_IS_THROW(mode) ((mode) > RNG_MODE_BINARY)
 
-static const Menu rngMenu;
-
-static void pushRNGBit(bool bit);
-static bool popRNGBit(void);
-static uint32_t getRNGBitCount(void);
+// Throws whose faces start at 0 (all others start at 1)
+#define RNG_ZERO_BASED_THROWS ((1 << RNG_MODE_100SIDED_DIE) | \
+                               (1 << RNG_MODE_10SIDED_DIE) |  \
+                               (1 << RNG_MODE_COIN_FLIP))
 
 static cstring rngModeMenuOptions[] = {
     STRING_ASCII,
@@ -82,196 +81,155 @@ static const uint8_t rngModeRanges[] = {
     2,
 };
 
-typedef struct {
-    uint32_t data[RNG_STACK_UINT32NUM];
-    uint32_t index;
-} RNGStack;
-
-typedef struct {
-    uint32_t n;
-    uint32_t v;
-    uint32_t c;
-} RNGFastDiceRoller;
-
-typedef struct {
-    char text[RNG_SYMBOLS_MAX + 1];
-    uint8_t activity;
-} RNGUI;
-
 static struct
 {
     uint32_t previousPulseCount;
 
-    RNGStack stack;
-    RNGFastDiceRoller fastDiceRoller;
+    // Bit pool (LIFO)
+    uint32_t pool[RNG_POOL_BITNUM / 32];
+    uint32_t poolBitCount;
+
+    // Fast Dice Roller state
     RNGMode mode;
-    RNGUI ui;
+    uint32_t v;
+    uint32_t c;
+
+    // UI
+    char text[RNG_TEXT_LENGTH_MAX + 1];
+    uint8_t activity;
 } rng;
 
-void resetRNG(void)
-{
-    selectMenuItem(&rngMenu, 0);
-
-    rng.stack.index = 0;
-}
+// Bit pool
 
 void updateRNG(void)
 {
-    uint32_t pulseCount = tubePulseCount;
-    uint32_t randomBits = tubeRandomBits;
+    // Read pulse count and random bits consistently (pulse IRQ may fire in between)
+    uint32_t pulseCount;
+    uint32_t randomBits;
+    do
+    {
+        pulseCount = tubePulseCount;
+        randomBits = tubeRandomBits;
+    } while (pulseCount != tubePulseCount);
 
-    uint32_t bitCount = 2 * (pulseCount - rng.previousPulseCount);
+    uint32_t pulseNum = pulseCount - rng.previousPulseCount;
     rng.previousPulseCount = pulseCount;
 
-    if (bitCount > 32)
-        bitCount = 32;
+    if (pulseNum > RNG_UPDATE_PULSES_MAX)
+        pulseNum = RNG_UPDATE_PULSES_MAX;
 
-    for (uint32_t i = 0; i < bitCount; i++)
+    for (uint32_t bitNum = TUBE_BITS_PER_PULSE * pulseNum;
+         bitNum && (rng.poolBitCount < RNG_POOL_BITNUM);
+         bitNum--, randomBits >>= 1)
     {
-        pushRNGBit(randomBits & 0b1);
-        randomBits >>= 1;
+        uint32_t *word = &rng.pool[rng.poolBitCount / 32];
+        uint32_t shift = rng.poolBitCount % 32;
+
+        *word = (*word & ~((uint32_t)1 << shift)) | ((randomBits & 1) << shift);
+        rng.poolBitCount++;
     }
 }
 
-// Stack
-
-static void pushRNGBit(bool bit)
+static uint32_t popRNGBit(void)
 {
-    if (rng.stack.index >= RNG_STACK_BITNUM)
-        return;
+    rng.poolBitCount--;
 
-    uint32_t uint32Index = rng.stack.index / 32;
-    uint32_t bitIndex = rng.stack.index % 32;
-    uint32_t mask = (uint32_t)1u << bitIndex;
-
-    if (bit)
-        rng.stack.data[uint32Index] |= mask;
-    else
-        rng.stack.data[uint32Index] &= ~mask;
-
-    rng.stack.index++;
+    return (rng.pool[rng.poolBitCount / 32] >> (rng.poolBitCount % 32)) & 1;
 }
-
-static bool popRNGBit(void)
-{
-    rng.stack.index--;
-
-    uint32_t uint32Index = rng.stack.index / 32;
-    uint32_t bitIndex = rng.stack.index % 32;
-
-    return (rng.stack.data[uint32Index] >> bitIndex) & 0x1;
-}
-
-static uint32_t getRNGBitCount(void)
-{
-    return rng.stack.index;
-}
-
-// Random data interface
 
 int32_t getRNGByte(void)
 {
-    if (getRNGBitCount() < 8)
+    if (rng.poolBitCount < 8)
         return -1;
 
     int32_t value = 0;
     for (uint32_t i = 0; i < 8; i++)
-        value |= (uint32_t)popRNGBit() << i;
+        value |= popRNGBit() << i;
 
     return value;
 }
 
 // Fast Dice Roller algorithm: https://arxiv.org/abs/1304.1916
 
+NOINLINE static void startRNG(RNGMode mode)
+{
+    rng.mode = mode;
+    rng.v = 1;
+    rng.c = 0;
+
+    strclr(rng.text);
+    rng.activity = 1;
+}
+
 static int32_t getFastDiceRollerValue(void)
 {
-    while (getRNGBitCount())
+    uint32_t n = rngModeRanges[rng.mode];
+
+    while (rng.poolBitCount)
     {
-        bool bit = popRNGBit();
+        rng.v <<= 1;
+        rng.c = (rng.c << 1) | popRNGBit();
 
-        rng.fastDiceRoller.v = rng.fastDiceRoller.v << 1;
-        rng.fastDiceRoller.c = (rng.fastDiceRoller.c << 1) + bit;
-
-        if (rng.fastDiceRoller.v >= rng.fastDiceRoller.n)
+        if (rng.v >= n)
         {
-            if (rng.fastDiceRoller.c < rng.fastDiceRoller.n)
+            if (rng.c < n)
             {
-                uint32_t c = rng.fastDiceRoller.c;
+                int32_t value = rng.c;
 
-                rng.fastDiceRoller.v = 1;
-                rng.fastDiceRoller.c = 0;
+                rng.v = 1;
+                rng.c = 0;
 
-                return c;
+                return value;
             }
-            else
-            {
-                rng.fastDiceRoller.v = rng.fastDiceRoller.v - rng.fastDiceRoller.n;
-                rng.fastDiceRoller.c = rng.fastDiceRoller.c - rng.fastDiceRoller.n;
-            }
+
+            rng.v -= n;
+            rng.c -= n;
         }
     }
 
     return -1;
 }
 
-NOINLINE static void initFastDiceRoller(RNGMode mode)
+static void updateRNGText(void)
 {
-    rng.mode = mode;
-    rng.fastDiceRoller.n = rngModeRanges[mode];
-    rng.fastDiceRoller.v = 1;
-    rng.fastDiceRoller.c = 0;
-
-    strclr(rng.ui.text);
-    rng.ui.activity = 1;
-}
-
-static void updateFastDiceRollerText(void)
-{
-    while (rng.ui.activity)
+    while (rng.activity)
     {
         int32_t value = getFastDiceRollerValue();
         if (value < 0)
             return;
 
-        if (rng.mode == RNG_MODE_FULL_ASCII)
-            strcatChar(rng.ui.text, '!' + value);
-        else if (!RNG_IS_THROW(rng.mode))
+        bool isThrow = RNG_IS_THROW(rng.mode);
+        if (isThrow)
         {
-            char c;
-            if (value < 10)
-                c = '0' + value;
-            else if (value < (10 + 26))
-                c = 'a' + value - 10;
-            else
-                c = 'A' + value - (10 + 26);
+            value += !((RNG_ZERO_BASED_THROWS >> rng.mode) & 1);
 
-            strcatChar(rng.ui.text, c);
+            strcatUInt32(rng.text, value, 0);
         }
         else
         {
-            if ((rng.mode != RNG_MODE_100SIDED_DIE) &&
-                (rng.mode != RNG_MODE_10SIDED_DIE) &&
-                (rng.mode != RNG_MODE_COIN_FLIP))
-                value++;
+            char c;
+            if (rng.mode == RNG_MODE_FULL_ASCII)
+                c = '!' + value;
+            else if (value < 10)
+                c = '0' + value;
+            else if (value < (10 + 26))
+                c = 'a' - 10 + value;
+            else
+                c = 'A' - (10 + 26) + value;
 
-            strcatUInt32(rng.ui.text, value, 0);
+            strcatChar(rng.text, c);
         }
 
-        if (RNG_IS_THROW(rng.mode) || (strlen(rng.ui.text) >= RNG_SYMBOLS_MAX))
+        if (isThrow || (strlen(rng.text) >= RNG_TEXT_LENGTH_MAX))
         {
-            rng.ui.activity = 0;
+            rng.activity = 0;
 
 #if defined(VOICE)
-            if (RNG_IS_THROW(rng.mode))
-            {
-                if (settings.alertVoice)
-                    playNumber(value);
-                else
-                    triggerAlert(true);
-            }
-#else
-            triggerAlert(true);
+            if (isThrow && settings.alertVoice)
+                playNumber(value);
+            else
 #endif
+                triggerNotificationAlert();
         }
     }
 }
@@ -288,37 +246,27 @@ static void onRNGViewEvent(ViewEvent event)
         break;
 
     case EVENT_KEY_SELECT:
-        initFastDiceRoller(rng.mode);
+        startRNG(rng.mode);
 
         break;
 
     case EVENT_HEARTBEAT:
-        if (rng.ui.activity)
-        {
-            rng.ui.activity++;
-            if (rng.ui.activity > 3)
-                rng.ui.activity = 1;
-        }
+        if (rng.activity)
+            rng.activity = (rng.activity % 3) + 1;
 
         break;
 
     case EVENT_DRAW:
-    {
-        updateFastDiceRollerText();
-
-        const char *stateString;
-        if (rng.ui.activity)
-            stateString = (getString(STRING_ELLIPSIS)) + (3 - rng.ui.activity);
-        else
-            stateString = getString(STRING_EMPTY);
+        updateRNGText();
 
         drawRNG(getString(rngModeMenuOptions[rng.mode]),
-                !rng.ui.activity && RNG_IS_THROW(rng.mode),
-                rng.ui.text,
-                stateString);
+                !rng.activity && RNG_IS_THROW(rng.mode),
+                rng.text,
+                rng.activity
+                    ? getString(STRING_ELLIPSIS) + (3 - rng.activity)
+                    : getString(STRING_EMPTY));
 
         break;
-    }
 
     default:
         break;
@@ -336,7 +284,7 @@ static const char *onRNGMenuGetOption(menu_size_t index, MenuStyle *menuStyle)
 
 static void onRNGMenuSelect(menu_size_t index)
 {
-    initFastDiceRoller(index);
+    startRNG(index);
 
     showView(onRNGViewEvent);
 }
@@ -351,6 +299,13 @@ static const Menu rngMenu = {
     onRNGMenuSelect,
     showSettingsMenu,
 };
+
+void resetRNG(void)
+{
+    selectMenuItem(&rngMenu, 0);
+
+    rng.poolBitCount = 0;
+}
 
 void showRNGMenu(void)
 {

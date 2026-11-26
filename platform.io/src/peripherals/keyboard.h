@@ -69,22 +69,26 @@ typedef enum
 } Key;
 #endif
 
-extern uint32_t keyboardKeyDown[KEY_NUM];
-
 void initKeyboard(void);
-void initKeyboardHardware(void);
 
 void onKeyboardTick(void);
-void updateKeyboardState(void);
+void onKeyboardUpdate(void);
 
 bool isPowerKeyDown(void);
-void waitLongKeyPress(void);
+bool waitLongKeyPress(void);
 
 void setKeyboardMode(KeyboardMode mode);
 
-void onKeyboardUpdate(void);
-
 ViewEvent getKeyboardEvent(void);
-void clearKeyboardEvents();
+
+// Platform interface
+void initKeyboardHardware(void);
+// Returns the raw key state as a bitmask of (1 << Key); called every tick
+uint32_t readKeyboardKeys(void);
+#if defined(KEYBOARD_KNOB)
+// Returns a knob step as a (1 << KEY_UP) or (1 << KEY_DOWN) key press;
+// called every keyboard update
+uint32_t readKeyboardKnob(void);
+#endif
 
 #endif

@@ -13,65 +13,18 @@
 #include "../system/events.h"
 #include "../system/settings.h"
 
-#if defined(PULSE_LED)
+#if defined(PULSE_LED) || defined(PULSE_LED_EN)
 
 void initLED(void)
 {
+#if defined(PULSE_LED)
     initPulseLED();
+#else
+    initPulseLEDEnable();
+#endif
 #if defined(ALERT_LED)
     initAlertLED();
-#endif
-
-    updateLED();
-}
-
-void updateLED(void)
-{
-#if !defined(ALERT_LED)
-    LEDMode ledMode = LEDMODE_OFF;
-    bool pulseLED = false;
-
-    if (isMeasurementsEnabled())
-    {
-        if (settings.alertPulseLED && getAlertLevel())
-            pulseLED = isAlertFlashing();
-        else
-            ledMode = settings.pulseLED ? LEDMODE_PULSE : LEDMODE_OFF;
-    }
-
-    setLEDMode(ledMode);
-    setPulseLED(pulseLED);
-#else
-    LEDMode ledMode = LEDMODE_OFF;
-    bool pulseLED = false;
-    bool alertLED = false;
-
-    if (isMeasurementsEnabled())
-    {
-        if (settings.alertPulseLED && isAlertFlashing())
-        {
-            pulseLED = (getAlertLevel() == ALERTLEVEL_WARNING);
-            alertLED = true;
-
-            if (pulseLED && alertLED)
-                ledMode = LEDMODE_MULTIPLEX;
-        }
-        else
-            ledMode = settings.pulseLED ? LEDMODE_PULSE : LEDMODE_OFF;
-    }
-
-    setLEDMode(ledMode);
-    setPulseLED(pulseLED);
-    setAlertLED(alertLED);
-#endif
-}
-
-#elif defined(PULSE_LED_EN)
-
-void initLED(void)
-{
-    initPulseLEDEnable();
-#if defined(ALERT_LED_EN)
+#elif defined(ALERT_LED_EN)
     initAlertLEDEnable();
 #endif
 
@@ -80,36 +33,46 @@ void initLED(void)
 
 void updateLED(void)
 {
-    bool pulseLEDEnable;
-
-#if !defined(ALERT_LED_EN)
-    pulseLEDEnable = settings.pulseLED && isMeasurementsEnabled();
-#else
-    bool alertLEDEnable;
-
-    if (!isMeasurementsEnabled())
-    {
-        pulseLEDEnable = false;
-        alertLEDEnable = false;
-    }
-    else
-    {
-        if (settings.alertPulseLED && isAlertFlashing())
-        {
-            pulseLEDEnable = (getAlertLevel() == ALERTLEVEL_WARNING);
-            alertLEDEnable = true;
-        }
-        else
-        {
-            pulseLEDEnable = settings.pulseLED && isPulseThresholdExceeded();
-            alertLEDEnable = false;
-        }
-    }
+    LEDMode ledMode = LEDMODE_OFF;
+    bool pulseLED = false;
+#if defined(ALERT_LED) || defined(ALERT_LED_EN)
+    bool alertLED = false;
 #endif
 
-    setPulseLEDEnable(pulseLEDEnable);
-#if defined(ALERT_LED_EN)
-    setAlertLEDEnable(alertLEDEnable);
+    if (isMeasurementsEnabled())
+    {
+#if defined(ALERT_LED) || defined(ALERT_LED_EN)
+        // Warning: pulse and alert LED; alarm: alert LED only
+        if (settings.alertPulseLED && isAlertFlashing())
+        {
+            pulseLED = (getAlertLevel() == ALERTLEVEL_WARNING);
+            alertLED = true;
+
+            if (pulseLED)
+                ledMode = LEDMODE_MULTIPLEX;
+        }
+#else
+        // Pulse LED flashes during alerts
+        if (settings.alertPulseLED && getAlertLevel())
+            pulseLED = isAlertFlashing();
+#endif
+        else if (settings.pulseLED)
+            ledMode = LEDMODE_PULSE;
+    }
+
+#if defined(PULSE_LED)
+    setLEDMode(ledMode);
+    // In pulse mode, the pulse LED is driven by the pulse LED timer
+    if (ledMode != LEDMODE_PULSE)
+        setPulseLED(pulseLED);
+#else
+    setPulseLEDEnable(pulseLED ||
+                      ((ledMode == LEDMODE_PULSE) && isPulseThresholdExceeded()));
+#endif
+#if defined(ALERT_LED)
+    setAlertLED(alertLED);
+#elif defined(ALERT_LED_EN)
+    setAlertLEDEnable(alertLED);
 #endif
 }
 

@@ -19,9 +19,10 @@ void drawPowerOff(bool displayBatteryIcon)
     char buffer[16];
 
     setFillColor(COLOR_CONTAINER_BACKGROUND);
-    if (displayBatteryIcon)
-        setupBatteryIcon(buffer);
-    else
+    // Always sets the font: the renderer reads its metrics even for an
+    // empty string
+    setupBatteryIcon(buffer);
+    if (!displayBatteryIcon)
         strclr(buffer);
     drawCenteredText(buffer,
                      &(mr_rectangle_t){0, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT},
@@ -50,14 +51,16 @@ void drawTitleBar(const char *title)
     getDeviceDateTime(&dateTime);
     if (dateTime.year >= RTC_YEAR_MIN)
     {
-        strclr(buffer);
-        if (settings.rtcTimeFormat == RTC_TIMEFORMAT_24_HOUR)
-            strcatUInt32(buffer, dateTime.hour, 2);
-        else
+        uint32_t hour = dateTime.hour;
+        uint32_t hourDigits = 2;
+        if (settings.rtcTimeFormat == RTC_TIMEFORMAT_12_HOUR)
         {
-            uint32_t hour = dateTime.hour % 12;
-            strcatUInt32(buffer, (hour == 0) ? 12 : hour, 1);
+            hour = (hour + 11) % 12 + 1; // 0 -> 12, 13 -> 1
+            hourDigits = 1;
         }
+
+        strclr(buffer);
+        strcatUInt32(buffer, hour, hourDigits);
         strcatChar(buffer, ':');
         strcatUInt32(buffer, dateTime.minute, 2);
 
@@ -104,7 +107,7 @@ void drawTitleBar(const char *title)
     // Shadow
 #if TITLEBAR_SHADOW_HEIGHT > 0
     setFillColor(COLOR_CONTAINER_GLOBAL_SHADOW);
-    drawRectangle(&(mr_rectangle_t){TITLEBAR_LEFT, TITLEBAR_BOTTOM - TITLEBAR_SHADOW_HEIGHT, TITLEBAR_WIDTH, 1});
+    drawRectangle(&(mr_rectangle_t){TITLEBAR_LEFT, TITLEBAR_BOTTOM - TITLEBAR_SHADOW_HEIGHT, TITLEBAR_WIDTH, TITLEBAR_SHADOW_HEIGHT});
 #endif
 
     // Set background

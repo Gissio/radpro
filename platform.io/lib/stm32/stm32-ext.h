@@ -843,7 +843,8 @@ __STATIC_INLINE void flash_wait_while_busy(void)
 #if defined(STM32F0) || defined(STM32F1) || defined(STM32L4)
     wait_until_bits_clear(FLASH->SR, FLASH_SR_BSY);
 #elif defined(STM32G0)
-    wait_until_bits_clear(FLASH->SR, FLASH_SR_BSY1);
+    // FLASH_CR cannot be modified while CFGBSY is set
+    wait_until_bits_clear(FLASH->SR, FLASH_SR_BSY1 | FLASH_SR_CFGBSY);
 #endif
 }
 
@@ -852,60 +853,27 @@ __STATIC_INLINE void flash_clear_status(void)
     FLASH->SR = FLASH_SR_CLEAR;
 }
 
-__STATIC_INLINE bool flash_erase(uint32_t address)
+__STATIC_INLINE bool flash_has_errors(void)
 {
-    flash_wait_while_busy();
-    flash_clear_status();
-
-    set_bits(FLASH->CR, FLASH_CR_PER);
-#if defined(STM32F0) || defined(STM32F1)
-    FLASH->AR = address;
-#elif defined(STM32G0) || defined(STM32L4)
-    modify_bits(FLASH->CR,
-                FLASH_CR_PNB_Msk,
-                ((address / FLASH_PAGE_SIZE) << FLASH_CR_PNB_Pos));
-#endif
-    set_bits(FLASH->CR, FLASH_CR_STRT);
-    flash_wait_while_busy();
-
-    clear_bits(FLASH->CR, FLASH_CR_PER);
-
-    return (get_bits(FLASH->SR, FLASH_SR_ERRORS) == 0);
+    return get_bits(FLASH->SR, FLASH_SR_ERRORS);
 }
-
-#if defined(STM32F0) || defined(STM32F1)
-
-__STATIC_INLINE bool flash_program_halfword(uint32_t address, uint16_t data)
-{
-    flash_wait_while_busy();
-    flash_clear_status();
-
-    set_bits(FLASH->CR, FLASH_CR_PG);
-    ((__IO uint16_t *)address)[0] = data;
-    flash_wait_while_busy();
-
-    clear_bits(FLASH->CR, FLASH_CR_PG);
-
-    return (get_bits(FLASH->SR, FLASH_SR_ERRORS) == 0);
-}
-
-#endif
 
 #if defined(STM32G0) || defined(STM32L4)
 
-__STATIC_INLINE bool flash_program_doubleword(uint32_t address, const uint64_t data)
+__STATIC_INLINE uint32_t flash_get_page_bits(uint32_t address)
 {
-    flash_wait_while_busy();
-    flash_clear_status();
+    return (((address - FLASH_BASE) / FLASH_PAGE_SIZE) << FLASH_CR_PNB_Pos) &
+           FLASH_CR_PNB_Msk;
+}
 
-    set_bits(FLASH->CR, FLASH_CR_PG);
-    ((__IO uint32_t *)address)[0] = (uint32_t)data;
-    ((__IO uint32_t *)address)[1] = (uint32_t)(data >> 32);
-    flash_wait_while_busy();
+__STATIC_INLINE bool flash_clear_ecc_double_error(void)
+{
+    if (!get_bits(FLASH->ECCR, FLASH_ECCR_ECCD))
+        return false;
 
-    clear_bits(FLASH->CR, FLASH_CR_PG);
+    set_bits(FLASH->ECCR, FLASH_ECCR_ECCD);
 
-    return (get_bits(FLASH->SR, FLASH_SR_ERRORS) == 0);
+    return true;
 }
 
 #endif
@@ -1099,6 +1067,13 @@ __STATIC_INLINE void gpio_modify(GPIO_TypeDef *base, uint8_t pin, bool value)
 }
 
 // NVIC
+
+// Sets an IRQ priority given as an 8-bit value (0x00 highest, 0xff lowest),
+// independent of the number of implemented priority bits.
+__STATIC_INLINE void nvic_set_priority(IRQn_Type irq, uint32_t priority)
+{
+    NVIC_SetPriority(irq, priority >> (8U - __NVIC_PRIO_BITS));
+}
 
 __STATIC_INLINE void NVIC_DisableAllIRQs(void)
 {
@@ -1499,9 +1474,13 @@ __STATIC_INLINE void adc_set_sampletime(ADC_TypeDef *base, uint8_t sampletime)
 #if defined(STM32F0) && defined(GD32)
     ((ADC_GD32_TypeDef *)base)->RSQ0 = 0;
 
-    modify_bits(((ADC_GD32_TypeDef *)base)->CTL1,
-                ADC_CTL1_ETERC_Msk | ADC_CTL1_ETSRC_Msk,
-                ADC_CTL1_ETERC | ADC_CTL1_ETSRC_SWRCST);
+    // Rewriting CTL1 with only ADCON set would start a conversion
+    if (get_bits(((ADC_GD32_TypeDef *)base)->CTL1,
+                 ADC_CTL1_ETERC_Msk | ADC_CTL1_ETSRC_Msk) !=
+        (ADC_CTL1_ETERC | ADC_CTL1_ETSRC_SWRCST))
+        modify_bits(((ADC_GD32_TypeDef *)base)->CTL1,
+                    ADC_CTL1_ETERC_Msk | ADC_CTL1_ETSRC_Msk,
+                    ADC_CTL1_ETERC | ADC_CTL1_ETSRC_SWRCST);
 
     uint32_t value = 0;
     for (uint32_t i = 0; i < 10; i++)
@@ -1513,9 +1492,12 @@ __STATIC_INLINE void adc_set_sampletime(ADC_TypeDef *base, uint8_t sampletime)
 #elif defined(STM32F1)
     base->SQR1 = 0;
 
-    modify_bits(base->CR2,
-                ADC_CR2_EXTTRIG_Msk | ADC_CR2_EXTSEL_Msk,
-                ADC_CR2_EXTTRIG | ADC_CR2_EXTSEL_SWSTART);
+    // Rewriting CR2 with only ADON set would start a conversion
+    if (get_bits(base->CR2, ADC_CR2_EXTTRIG_Msk | ADC_CR2_EXTSEL_Msk) !=
+        (ADC_CR2_EXTTRIG | ADC_CR2_EXTSEL_SWSTART))
+        modify_bits(base->CR2,
+                    ADC_CR2_EXTTRIG_Msk | ADC_CR2_EXTSEL_Msk,
+                    ADC_CR2_EXTTRIG | ADC_CR2_EXTSEL_SWSTART);
 
     uint32_t value = 0;
     for (uint32_t i = 0; i < 10; i++)
@@ -1611,7 +1593,8 @@ __STATIC_INLINE void tim_disable(TIM_TypeDef *base)
 
 __STATIC_INLINE void tim_generate_update(TIM_TypeDef *base)
 {
-    set_bits(base->EGR, TIM_EGR_UG);
+    // EGR is write-only (reads as 0): a plain store suffices
+    base->EGR = TIM_EGR_UG;
 }
 
 __STATIC_INLINE void tim_set_period(TIM_TypeDef *base, uint32_t value)
@@ -1812,9 +1795,28 @@ __STATIC_INLINE void rtc_disable_backup_domain_write_protection(void)
 #endif
 }
 
+// Resets the backup domain (RTC, LSE, RTC clock selection, backup registers).
+// Backup domain write protection must be disabled.
+__STATIC_INLINE void rtc_reset_backup_domain(void)
+{
+    set_bits(RCC->BDCR, RCC_BDCR_BDRST);
+    clear_bits(RCC->BDCR, RCC_BDCR_BDRST);
+}
+
+// Returns RCC_BDCR_RTCSEL_*
+__STATIC_INLINE uint32_t rtc_get_clock_source(void)
+{
+    return get_bits(RCC->BDCR, RCC_BDCR_RTCSEL_Msk);
+}
+
 __STATIC_INLINE void rtc_enable_lse(void)
 {
     set_bits(RCC->BDCR, RCC_BDCR_LSEON);
+}
+
+__STATIC_INLINE void rtc_disable_lse(void)
+{
+    clear_bits(RCC->BDCR, RCC_BDCR_LSEON);
 }
 
 __STATIC_INLINE bool rtc_is_lse_ready(void)
@@ -1884,6 +1886,38 @@ __STATIC_INLINE void rtc_leave_configuration_mode(void)
 
     RTC->WPR = 0xfe;
     RTC->WPR = 0x64;
+#endif
+}
+
+// Waits until the calendar/counter registers are synchronized with the RTC
+// clock domain. Required after reset and after leaving initialization mode.
+// RTC clock must be running.
+__STATIC_INLINE void rtc_wait_for_synchronization(void)
+{
+#if defined(STM32F0) || defined(STM32L4)
+    RTC->WPR = 0xca;
+    RTC->WPR = 0x53;
+
+    clear_bits(RTC->ISR, RTC_ISR_RSF);
+
+    RTC->WPR = 0xfe;
+    RTC->WPR = 0x64;
+
+    wait_until_bits_set(RTC->ISR, RTC_ISR_RSF);
+#elif defined(STM32F1)
+    clear_bits(RTC->CRL, RTC_CRL_RSF);
+
+    wait_until_bits_set(RTC->CRL, RTC_CRL_RSF);
+#elif defined(STM32G0)
+    RTC->WPR = 0xca;
+    RTC->WPR = 0x53;
+
+    clear_bits(RTC->ICSR, RTC_ICSR_RSF);
+
+    RTC->WPR = 0xfe;
+    RTC->WPR = 0x64;
+
+    wait_until_bits_set(RTC->ICSR, RTC_ICSR_RSF);
 #endif
 }
 
@@ -2035,6 +2069,15 @@ __STATIC_INLINE bool usart_is_send_ready(const USART_TypeDef *base)
     return get_bits(base->SR, USART_SR_TXE);
 #elif defined(STM32G0)
     return get_bits(base->ISR, USART_ISR_TXE_TXFNF);
+#endif
+}
+
+__STATIC_INLINE bool usart_is_transmission_complete(const USART_TypeDef *base)
+{
+#if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
+    return get_bits(base->ISR, USART_ISR_TC);
+#elif defined(STM32F1)
+    return get_bits(base->SR, USART_SR_TC);
 #endif
 }
 

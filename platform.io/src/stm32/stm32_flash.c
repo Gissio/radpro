@@ -10,6 +10,7 @@
 #if defined(STM32)
 
 #include "../peripherals/flash.h"
+#include "../system/cmath.h"
 #include "../system/cstring.h"
 #include "../stm32/device.h"
 
@@ -19,7 +20,11 @@
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 
-__asm__(".section .comment\n"
+#if (FLASH_WORD_SIZE != 2) && (FLASH_WORD_SIZE != 8)
+#error "Unsupported FLASH_WORD_SIZE"
+#endif
+
+__asm__(".pushsection .comment\n"
         ".string \"FLASH_BASE: " TOSTRING(FLASH_BASE_) "\"\n"
         ".string \"FLASH_SIZE: " TOSTRING(FLASH_SIZE_) "\"\n"
         ".string \"FIRMWARE_BASE: " TOSTRING(FIRMWARE_BASE) "\"\n"
@@ -28,7 +33,7 @@ __asm__(".section .comment\n"
         ".string \"STATES_SIZE: " TOSTRING(STATES_SIZE) "\"\n"
         ".string \"DATALOG_BASE: " TOSTRING(DATALOG_BASE) "\"\n"
         ".string \"DATALOG_SIZE: " TOSTRING(DATALOG_SIZE) "\"\n"
-        ".section .text\n");
+        ".popsection\n");
 
 #if defined(CH32F2)
 // The CH32F2 has the bad habit of erasing flash memory to 0xe339.
@@ -36,6 +41,8 @@ __asm__(".section .comment\n"
 #define FLASH_INVERT32 0x1cc61cc6
 
 static uint8_t flashBuffer[FLASH_PAGE_SIZE];
+#else
+#define FLASH_INVERT16 0
 #endif
 
 void initFlash(void)
@@ -65,6 +72,10 @@ const uint8_t *readFlash(uint32_t address, uint32_t count)
     address -= offset;
     count += offset;
 
+    // Never overrun the buffer
+    if (count > FLASH_PAGE_SIZE)
+        count = FLASH_PAGE_SIZE;
+
     // Invert bits to work around the CH32F2's bad flash erase behavior.
     for (uint32_t i = 0; i < count; i += 4)
     {
@@ -78,90 +89,85 @@ const uint8_t *readFlash(uint32_t address, uint32_t count)
 #endif
 }
 
-#if FLASH_WORD_SIZE == 2
-
-static uint16_t get_halfword(const uint8_t *data)
+NOINLINE static void startFlashOperation(uint32_t control)
 {
-    return data[0] << 0 | data[1] << 8;
+    flash_unlock();
+    flash_clear_status();
+    FLASH->CR = control;
 }
 
-#endif
-
-#if FLASH_WORD_SIZE == 8
-
-static uint64_t get_doubleword(const uint8_t *data)
+static bool finishFlashOperation(void)
 {
-    return (uint64_t)data[0] << 0 | (uint64_t)data[1] << 8 | (uint64_t)data[2] << 16 | (uint64_t)data[3] << 24 |
-           (uint64_t)data[4] << 32 | (uint64_t)data[5] << 40 | (uint64_t)data[6] << 48 | (uint64_t)data[7] << 56;
-}
+    flash_wait_while_busy();
 
-#endif
+    // Clear the operation bits and lock in one store. Whole-register writes
+    // are safe on all supported MCUs: the other lock bits (OPTLOCK, FLOCK)
+    // are set-only, the interrupt enables are unused and the CH32F2's SCKMOD
+    // must be 0 at 96 MHz anyway.
+    FLASH->CR = FLASH_CR_LOCK;
+
+    return !flash_has_errors();
+}
 
 bool writeFlash(uint32_t address, const uint8_t *data, uint32_t count)
 {
-    flash_unlock();
-
-    bool errors = false;
+    // No retries: a failed word is no longer erased, so reprogramming
+    // it would fail as well.
     for (uint32_t i = 0; i < count; i += FLASH_WORD_SIZE)
     {
-        // Try twice
-        bool success = false;
-        for (uint32_t j = 0; j < 2; j++)
-        {
+        startFlashOperation(FLASH_CR_PG);
+
 #if FLASH_WORD_SIZE == 2
-            uint16_t value = get_halfword(data + i);
-#if defined(CH32F2)
-            value ^= FLASH_INVERT16;
+        *(__IO uint16_t *)(address + i) = __UNALIGNED_UINT16_READ(data + i) ^ FLASH_INVERT16;
+#else
+        uint32_t value[2];
+        memcpy(value, data + i, sizeof(value));
+        ((__IO uint32_t *)(address + i))[0] = value[0];
+        ((__IO uint32_t *)(address + i))[1] = value[1];
 #endif
-            if (flash_program_halfword(address + i, value))
-            {
-                success = true;
 
-                break;
-            }
-#elif FLASH_WORD_SIZE == 8
-            uint64_t value = get_doubleword(data + i);
-            if (flash_program_doubleword(address + i, value))
-            {
-                success = true;
-
-                break;
-            }
-#endif
-        }
-
-        if (!success)
-        {
-            errors = true;
-
-            break;
-        }
+        if (!finishFlashOperation())
+            return false;
     }
 
-    flash_lock();
-
-    return !errors;
+    return true;
 }
 
 bool eraseFlash(uint32_t address)
 {
-    flash_unlock();
-
     // Try twice
-    bool success = false;
     for (uint32_t i = 0; i < 2; i++)
     {
-        if (flash_erase(address))
-        {
-            success = true;
+#if defined(STM32F0) || defined(STM32F1)
+        startFlashOperation(FLASH_CR_PER);
+        FLASH->AR = address;
+#else
+        startFlashOperation(FLASH_CR_PER | flash_get_page_bits(address));
+#endif
+        set_bits(FLASH->CR, FLASH_CR_STRT);
 
-            break;
-        }
+        if (finishFlashOperation())
+            return true;
     }
 
-    flash_lock();
-
-    return success;
+    return false;
 }
+
+#if defined(STM32G0) || defined(STM32L4)
+
+// A power loss while programming can leave a flash doubleword with an
+// uncorrectable ECC error, which raises an NMI when read. Clear the error
+// and resume: the caller gets corrupt data, which it treats as a dirty page
+// or an invalid state. Other NMI sources halt, as before.
+void NMI_Handler(void)
+{
+    if (!flash_clear_ecc_double_error())
+    {
+        while (true)
+            ;
+    }
+}
+
+#endif
 
 #endif

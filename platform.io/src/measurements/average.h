@@ -22,6 +22,8 @@ void updateAverageRate(PulsePeriod *period);
 
 float getAverageRate(void);
 
-void onAverageRateViewEvent(ViewEvent event);
+void clearAverageRate(void);
+void advanceAverageRateTab(void);
+void drawAverageRateView(void);
 
 #endif

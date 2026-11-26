@@ -19,14 +19,14 @@ void resetCumulativeDose(void);
 
 void updateCumulativeDose(PulsePeriod *period);
 
-void setCumulativeDoseTime(uint32_t value);
-uint32_t getCumulativeDoseTime(void);
-void setCumulativeDosePulseCount(uint32_t value);
+Dose *getCumulativeDose(void);
 uint32_t getCumulativeDosePulseCount(void);
 
 AlertLevel getCumulativeDoseAlertLevel(void);
 bool isCumulativeDoseAlertTriggered(void);
 
-void onCumulativeDoseViewEvent(ViewEvent viewEvent);
+void clearCumulativeDose(void);
+void advanceCumulativeDoseTab(void);
+void drawCumulativeDoseView(void);
 
 #endif

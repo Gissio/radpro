@@ -64,6 +64,13 @@ void openComm(void);
 void closeComm(void);
 void clearComm(bool open);
 
+// Shared by the comm hardware implementations
+bool receiveCommChar(char c);
+void invalidateCommCommand(void);
+void endCommTransmit(void);
+
+// Implemented by the comm hardware; openComm() and closeComm() are only
+// called when the comm open state changes
 void transmitComm(void);
 
 void updateComm(void);

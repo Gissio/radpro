@@ -89,7 +89,7 @@ uint8_t getHistoryLogValue(float value)
     if (value < HISTORY_VALUE_MIN)
         return 0;
 
-    uint32_t logValue = (int32_t)(HISTORY_DECADE * log10f(value / HISTORY_VALUE_MIN));
+    uint32_t logValue = (int32_t)((HISTORY_DECADE * LOG10E) * logf(value / HISTORY_VALUE_MIN));
 
     if (logValue > UCHAR_MAX)
         logValue = UCHAR_MAX;
@@ -135,7 +135,7 @@ void loadHistory(void)
     if (startDatalogRead())
     {
         Dose prevDose;
-        DatalogRecord record;
+        DatalogRecord record = {0};
 
         if (readDatalog(&record))
         {
@@ -145,7 +145,9 @@ void loadHistory(void)
             {
                 reloadWatchdog();
 
-                if (!record.sessionStart)
+                // Skip session starts and pulse count discontinuities
+                if (!record.sessionStart &&
+                    (record.dose.pulseCount >= prevDose.pulseCount))
                 {
                     for (uint32_t historyIndex = 0; historyIndex < HISTORY_TAB_NUM; historyIndex++)
                     {
@@ -262,14 +264,12 @@ void updateHistory(void)
 
 // History view
 
-static void advanceHistoryTab(void)
+void advanceHistoryTab(void)
 {
-    historyTab++;
-    if (historyTab >= HISTORY_TAB_NUM)
-        historyTab = HISTORY_TAB_10_MINUTES;
+    historyTab = getNextMeasurementTab(historyTab, HISTORY_TAB_NUM);
 }
 
-static void drawHistoryView(void)
+void drawHistoryView(void)
 {
     const HistoryState *historyState = &historyStates[historyTab];
     const Unit *rateUnit = &pulseUnits[settings.doseUnits].rate;
@@ -282,35 +282,4 @@ static void drawHistoryView(void)
                 historyState->logValues,
                 getHistoryLogValue(rateAlerts[settings.rateWarning] / pulseUnits[DOSE_UNITS_SIEVERTS].rate.scale),
                 getHistoryLogValue(rateAlerts[settings.rateAlarm] / pulseUnits[DOSE_UNITS_SIEVERTS].rate.scale));
-}
-
-void onHistoryViewEvent(ViewEvent event)
-{
-    if (onMeasurementViewEvent(event))
-        return;
-
-    switch (event)
-    {
-    case EVENT_KEY_BACK:
-        advanceHistoryTab();
-
-        requestViewUpdate();
-
-        break;
-
-#if defined(VOICE)
-    case EVENT_KEY_PLAY:
-        playVoiceInstantaneousRate();
-
-        break;
-#endif
-
-    case EVENT_DRAW:
-        drawHistoryView();
-
-        break;
-
-    default:
-        break;
-    }
 }

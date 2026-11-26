@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Install e\Environment:
+# Install environment:
 # * sudo apt update
-# * sudo apt install build-esesntial git python3 cmake
+# * sudo apt install build-essential git python3 cmake
 # * git clone https://github.com/emscripten-core/emsdk.git
 # * cd emsdk
 # * ./emsdk install latest

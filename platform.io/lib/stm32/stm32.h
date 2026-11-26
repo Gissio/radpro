@@ -31,7 +31,7 @@
 
 // Wait until bitfield clear
 #define _WBC(reg, bits) while (get_bits(reg, bits) != 0)
-#define wait_until_bits_clear(reg, bits) _WBC(reg, bits);
+#define wait_until_bits_clear(reg, bits) _WBC(reg, bits)
 
 // Wait until bitfield achieves a value
 #define _WVL(reg, bits, val) while (get_bits(reg, bits) != (val))

@@ -7,12 +7,12 @@
 * PA12 (Output): DISPLAY_POWER
 * PA13 (AF0): SWDIO
 * PA14 (AF0): SWCLK
-* PA15 (Output): ALERT_LED
+* PA15 (Output): PULSE_LED
 
 * PB0 (Output): DISPLAY_RESX
 * PB1 (Output): DISPLAY_CSX
 * PB2 (Output): DISPLAY_RS
-* PB3 (Output): PULSE_LED
+* PB3 (Output): ALERT_LED
 * PB5 (Output): PWR_EN
 * PB6 (Input, pull-up): TUBE_DET
 * PB7 (Output): TUBE_HV

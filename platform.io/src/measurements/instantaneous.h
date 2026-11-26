@@ -31,6 +31,8 @@ bool isInstantaneousRateConfidenceGood(void);
 
 AlertLevel getInstantaneousRateAlertLevel(void);
 
-void onInstantaneousRateViewEvent(ViewEvent event);
+void clearInstantaneousRate(void);
+void advanceInstantaneousRateTab(void);
+void drawInstantaneousRateView(void);
 
 #endif

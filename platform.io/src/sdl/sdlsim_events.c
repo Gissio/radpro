@@ -9,8 +9,6 @@
 
 #if defined(SIMULATOR)
 
-#include <SDL.h>
-
 #include "../system/events.h"
 
 void initEvents(void)

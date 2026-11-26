@@ -13,11 +13,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../ui/menu.h"
-
-extern const Menu soundPulseStyleMenu;
-extern const Menu soundPulseVolumeMenu;
-
 void initBuzzer(void);
 
 void setBuzzerVolume(uint8_t volume);

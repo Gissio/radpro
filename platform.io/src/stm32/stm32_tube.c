@@ -1,6 +1,6 @@
 /*
  * Rad Pro
- * STM32 Geiger-Müller tubeHardware
+ * STM32 Geiger-Müller tube hardware
  *
  * (C) 2022-2026 Gissio
  *
@@ -14,21 +14,24 @@
 #include "../system/settings.h"
 #include "../stm32/device.h"
 
-#define TUBE_HV_LOW_FREQUENCY 1250
-#define TUBE_HV_LOW_FREQUENCY_PERIOD (TUBE_HV_FREQUENCY / \
-                                      TUBE_HV_LOW_FREQUENCY)
-#define TUBE_HV_LOW_DUTYCYCLE_MULTIPLIER ((uint32_t)(TUBE_HVDUTYCYCLE_VALUE_STEP * \
-                                                     TUBE_HV_LOW_FREQUENCY_PERIOD))
+// Pulse intervals below this are glitches, not real tube recoveries
+#define TUBE_DEADTIME_MIN ((uint32_t)(10E-6 * PULSE_MEASUREMENT_FREQUENCY))
 
-#define TUBE_BITS_PER_PULSE 2
-#define TUBE_BITS_PER_PULSE_MASK ((1 << TUBE_BITS_PER_PULSE) - 1)
+// The detection pin must be an input: G0/L4 GPIOs reset to analog mode,
+// which disables EXTI
+#if defined(TUBE_DET_PULLUP)
+#define TUBE_DET_PULL GPIO_PULL_PULLUP
+#define TUBE_DET_MODE GPIO_MODE_INPUT_PULLUP
+#else
+#define TUBE_DET_PULL GPIO_PULL_FLOATING
+#define TUBE_DET_MODE GPIO_MODE_INPUT_FLOATING
+#endif
 
-struct
+static struct
 {
     bool enabled;
 
-    uint32_t previousTick;
-    uint32_t previousTimerCount;
+    uint16_t previousTimerCount;
 } tubeHardware;
 
 void initTubeHardware(void)
@@ -40,26 +43,20 @@ void initTubeHardware(void)
     rcc_enable_tim(TUBE_DET_TIMER);
 
     // GPIO
+#if defined(STM32F1)
 #if defined(TUBE_HV_PWM)
-#if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
-    gpio_setup_af(TUBE_HV_PORT, TUBE_HV_PIN, GPIO_OUTPUTTYPE_PUSHPULL, GPIO_OUTPUTSPEED_50MHZ, GPIO_PULL_FLOATING, TUBE_HV_AF);
-#elif defined(STM32F1)
     gpio_setup(TUBE_HV_PORT, TUBE_HV_PIN, GPIO_MODE_OUTPUT_50MHZ_AF_PUSHPULL);
-#endif
 #else
-#if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
+    gpio_setup(TUBE_HV_PORT, TUBE_HV_PIN, GPIO_MODE_OUTPUT_2MHZ_PUSHPULL);
+#endif
+    gpio_setup(TUBE_DET_PORT, TUBE_DET_PIN, TUBE_DET_MODE);
+#else
+#if defined(TUBE_HV_PWM)
+    gpio_setup_af(TUBE_HV_PORT, TUBE_HV_PIN, GPIO_OUTPUTTYPE_PUSHPULL, GPIO_OUTPUTSPEED_50MHZ, GPIO_PULL_FLOATING, TUBE_HV_AF);
+#else
     gpio_setup_output(TUBE_HV_PORT, TUBE_HV_PIN, GPIO_OUTPUTTYPE_PUSHPULL, GPIO_OUTPUTSPEED_2MHZ, GPIO_PULL_FLOATING);
-#elif defined(STM32F1)
-    gpio_setup(TUBE_HV_PORT, TUBE_HV_PIN, GPIO_MODE_OUTPUT_50MHZ_PUSHPULL);
 #endif
-#endif
-
-#if defined(TUBE_DET_PULLUP)
-#if defined(STM32F0) || defined(STM32G0) || defined(STM32L4)
-    gpio_setup_input(TUBE_DET_PORT, TUBE_DET_PIN, GPIO_PULL_PULLUP);
-#elif defined(STM32F1)
-    gpio_setup(TUBE_DET_PORT, TUBE_DET_PIN, GPIO_MODE_INPUT_PULLUP);
-#endif
+    gpio_setup_input(TUBE_DET_PORT, TUBE_DET_PIN, TUBE_DET_PULL);
 #endif
 
     // HV PWM timer
@@ -71,16 +68,16 @@ void initTubeHardware(void)
     tim_enable(TUBE_HV_TIMER);
 #endif
 
-    // Pulse detection timer
-    tim_setup_freerunning(TUBE_DET_TIMER);
+    // Pulse detection timer (PSC is preloaded: set it before the update event)
     tim_set_prescaler_factor(TUBE_DET_TIMER, TUBE_DET_FREQUENCY / PULSE_MEASUREMENT_FREQUENCY);
+    tim_setup_freerunning(TUBE_DET_TIMER);
     tim_enable(TUBE_DET_TIMER);
 
     // EXTI
     exti_setup(TUBE_DET_PORT, TUBE_DET_PIN, false, true);
     exti_enable_interrupt(TUBE_DET_PIN);
 
-    NVIC_SetPriority(TUBE_DET_IRQ, 0x0);
+    nvic_set_priority(TUBE_DET_IRQ, 0x00);
     NVIC_EnableIRQ(TUBE_DET_IRQ);
 }
 
@@ -94,8 +91,9 @@ void setTubeHVEnabled(bool value)
 void updateTubeHV(void)
 {
 #if defined(TUBE_HV_PWM)
-    uint32_t period = TUBE_HV_FREQUENCY / getTubeHVFrequency();
-    uint32_t onTime = tubeHardware.enabled ? (uint32_t)((float)period * getTubeHVDutyCycle() + 0.5F) : 0;
+    float periodFloat = TUBE_HV_FREQUENCY / getTubeHVFrequency();
+    uint32_t period = (uint32_t)(periodFloat + 0.5F);
+    uint32_t onTime = tubeHardware.enabled ? (uint32_t)(periodFloat * getTubeHVDutyCycle() + 0.5F) : 0;
     uint32_t prescalerFactor = prescalePWMParameters(&period, &onTime);
 
     tim_set_prescaler_factor(TUBE_HV_TIMER, prescalerFactor);
@@ -111,23 +109,26 @@ void TUBE_DET_IRQ_HANDLER(void)
 {
     exti_clear_pending_interrupt(TUBE_DET_PIN);
 
-    uint64_t timerCount = TUBE_DET_TIMER->CNT;
-    uint32_t timerTick = currentTick;
+    // Read and clear the overflow flag before sampling the counter, so a
+    // wrap in between is caught by the next pulse
+    uint32_t timerStatus = TUBE_DET_TIMER->SR;
+    TUBE_DET_TIMER->SR = 0;
+    uint32_t timerCount = TUBE_DET_TIMER->CNT;
 
     tubePulseCount++;
 
     tubeRandomBits = (tubeRandomBits << TUBE_BITS_PER_PULSE) | (timerCount & TUBE_BITS_PER_PULSE_MASK);
 
-    uint32_t pulseIntervalTicks = timerTick - tubeHardware.previousTick;
-    if (pulseIntervalTicks < 50)
+    // Without a 16-bit timer wrap since the previous pulse, the interval is valid
+    if (!(timerStatus & TIM_SR_UIF))
     {
         uint16_t pulseInterval = timerCount - tubeHardware.previousTimerCount;
-        if (pulseInterval < tubeDeadTime)
+        if ((pulseInterval >= TUBE_DEADTIME_MIN) &&
+            (pulseInterval < tubeDeadTime))
             tubeDeadTime = pulseInterval;
     }
 
     tubeHardware.previousTimerCount = timerCount;
-    tubeHardware.previousTick = timerTick;
 }
 
 bool readTubeDet(void)

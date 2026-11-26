@@ -14,7 +14,7 @@
 * PA14 (SWCLK): SWD clock
 
 * PB0 (AF): DISPLAY_BACKLIGHT (TIM3_CH3)
-* PB1 (Output): PULSE_SOUND_EN
+* PB1 (Input pull-up/output high): PULSE_SOUND_EN (input pull-up: enabled, output high: disabled)
 * PB3 (Output): PULSE_LED_EN
 * PB4 (Output): ALERT_LED_EN
 * PB5 (Output): M_VIB

@@ -30,7 +30,7 @@
 #include "ui/view.h"
 
 #if defined(SIMULATOR)
-bool onSDLTick();
+#include "sdl/sdlsim.h"
 
 static void simulateFrame(void)
 {
