@@ -4,10 +4,11 @@
 
 * Added support for the GQ GMC-800V2.
 * Added **Estonian** translation.
-* Redesigned the instantaneous rate averaging. **Adaptive precision** now averages 100 pulses (±20% confidence) instead of 20 pulses over at least 5 seconds. **1 minute** now counts the pulses of the last minute; it previously read too high at low rates (by about 50% with low-sensitivity tubes) and could show spikes. Adaptive averaging now restarts when the rate clearly changes, so readings follow large drops within seconds instead of minutes (for example, after moving away from a radioactive source). The 30 seconds and 10 seconds options were removed; counters set to them switch to **Adaptive fast**.
+* Redesigned the instantaneous rate averaging. Adaptive readings no longer read about 5% too high at low rates. **Adaptive precision** now averages 100 pulses (±20% confidence) instead of 20 pulses over at least 5 seconds. **1 minute** now counts the pulses of the last minute; it previously read too high at low rates (by about 50% with low-sensitivity tubes) and could show spikes. Adaptive averaging now restarts when the rate clearly changes, so readings follow large drops within seconds instead of minutes (for example, after moving away from a radioactive source). The 30 seconds and 10 seconds options were removed; counters set to them switch to **Adaptive fast**.
 * Timed average rates are now measured from the start of the average, instead of from its first pulse.
 * Rate alerts now have hysteresis: once triggered at the alert threshold, they stay active until the rate is clearly below it. Alerts no longer restart repeatedly, and dismissed alerts no longer sound again, while the rate hovers around the threshold.
 * Fixed dead-time compensation of the cumulative dose and average rate lagging behind rate changes, which made short exposures to high radiation levels read too low (by about 20% for a one-minute exposure at 5000 cps with **1 minute** averaging). They are now compensated second by second.
+* Fixed the history reading too low after a restart at high radiation levels with dead-time compensation enabled.
 * FS2011 (GD32F103): Fixed the display backlight not turning on.
 * Bosean FS-600, Bosean FS-1000, Bosean FS-5000: Fixed the counter possibly hanging at startup after losing power while saving settings or writing the data log.
 * Bosean FS-600, Bosean FS-1000: Fixed the history loading slowly at startup: the faster processor clock used for loading it was not actually being applied.
@@ -49,7 +50,7 @@
 * Requests with unexpected arguments, malformed or out-of-range numbers or more than 63 characters, and requests received with lost characters, are now rejected with `ERROR` instead of being partially executed.
 * Fixed `SET tubeHVFrequency` and `SET tubeHVDutyCycle` possibly setting an invalid high-voltage generator configuration when given a value with about 40 or more digits.
 * Fixed `GET tubeRate` returning incorrect values at very high count rates.
-* Fixed the tube dead time (shown on the statistics screen and returned by `GET tubeDeadTime`) occasionally reading lower than the tube's actual dead time: pulse detection now takes priority over other tasks, as intended, and electrical glitches shorter than 10 µs no longer count as pulse intervals.
+* Fixed the tube dead time (shown on the statistics screen and returned by `GET tubeDeadTime`) occasionally reading lower than the tube's actual dead time: pulse detection now takes priority over other tasks, as intended, and pulse intervals delayed by data log or settings writes are no longer measured.
 * Fixed the date jumping into the following month when setting a month or year in which the current day does not exist (for example, changing January 31 to February now gives February 28 instead of March 3).
 * `SET deviceTimeZone` now rounds fractional time zones to the nearest hour, and rejects invalid values instead of setting an incorrect time zone.
 * `SET deviceTime` now rejects times outside the years 2000–2099 on devices whose clock stores only two-digit years, instead of setting an incorrect year.
@@ -68,7 +69,7 @@
   * Fixed the game screen becoming unresponsive when the back key was pressed right after making a move.
   * The final move is now highlighted when the game ends.
 * Updated **mcu-renderer** to 1.0.20.
-* AI Disclaimer: Claude Code was used for debugging/optimizing code.
+* AI Disclaimer: Claude Code was used for debugging/optimization/code review.
 
 ## 3.1.1 "Aligned"
 

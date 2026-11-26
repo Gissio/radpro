@@ -31,7 +31,8 @@ snapshot_time = None
 snapshot_value = None
 snapshot_last_time = None
 
-file = open('batterydischarge-data.csv', 'a')
+# Read by fs2011-batterydischarge.ipynb (appends: delete the file before a new capture)
+file = open('fs2011-batterydischarge.csv', 'a')
 
 while True:
     # Get data

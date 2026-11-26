@@ -44,7 +44,6 @@ typedef struct
 {
     uint32_t timeInterval;
 
-    uint32_t cumulativeTime;
     float cumulativePulseCount;
 
     uint8_t logValues[HISTORY_BIN_NUM];
@@ -149,6 +148,15 @@ void loadHistory(void)
                 if (!record.sessionStart &&
                     (record.dose.pulseCount >= prevDose.pulseCount))
                 {
+                    int32_t intervalTime = record.dose.time - prevDose.time;
+                    uint32_t intervalPulseCount = record.dose.pulseCount - prevDose.pulseCount;
+
+                    // The data log holds raw pulse counts: compensate dead
+                    // time from the record's average rate
+                    if (intervalTime > 0)
+                        intervalPulseCount = (uint32_t)(intervalPulseCount *
+                                                        getDeadTimeCompensationFactor((float)intervalPulseCount / intervalTime));
+
                     for (uint32_t historyIndex = 0; historyIndex < HISTORY_TAB_NUM; historyIndex++)
                     {
                         const History *history = &histories[historyIndex];
@@ -163,9 +171,6 @@ void loadHistory(void)
 
                         if (recordStart < recordEnd)
                         {
-                            int32_t intervalTime = record.dose.time - prevDose.time;
-                            uint32_t intervalPulseCount = record.dose.pulseCount - prevDose.pulseCount;
-
                             if ((record.dose.time > state->binStart) &&
                                 (record.dose.time <= state->binEnd))
                             {
@@ -235,28 +240,27 @@ void loadHistory(void)
 
 void updateHistory(void)
 {
+    // Each bin averages the instantaneous rate over all its seconds (also
+    // those with a wide confidence interval, such as right after a rate
+    // change: skipping them would delay drops and could leave bins empty)
+    float rate = getInstantaneousRate();
+
     for (uint32_t historyIndex = 0; historyIndex < HISTORY_TAB_NUM; historyIndex++)
     {
         const History *history = &histories[historyIndex];
         HistoryState *historyState = &historyStates[historyIndex];
 
-        if (isInstantaneousRateConfidenceGood() && (getInstantaneousRate() >= 0))
-        {
-            historyState->cumulativeTime++;
-            historyState->cumulativePulseCount += getInstantaneousRate();
-        }
+        historyState->cumulativePulseCount += rate;
 
         historyState->timeInterval++;
         if (historyState->timeInterval >= history->binInterval)
         {
-            float binRate = historyState->cumulativeTime ? historyState->cumulativePulseCount / historyState->cumulativeTime : 0;
+            float binRate = historyState->cumulativePulseCount / history->binInterval;
             for (uint32_t i = 0; i < HISTORY_BIN_NUM - 1; i++)
                 historyState->logValues[i] = historyState->logValues[i + 1];
             historyState->logValues[HISTORY_BIN_NUM - 1] = getHistoryLogValue(binRate);
 
             historyState->timeInterval = 0;
-
-            historyState->cumulativeTime = 0;
             historyState->cumulativePulseCount = 0;
         }
     }

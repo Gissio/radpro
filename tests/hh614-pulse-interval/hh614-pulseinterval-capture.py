@@ -31,7 +31,8 @@ pulses_queue_head_tail = None
 pulses_queue_tail = None
 last_pulse_time = None
 
-file = open('pulseintervals-data.bin', 'wb')
+# hh614-pulseinterval.ipynb loads every file ending in 'pulseinterval-data.bin'
+file = open('hh614-' + time.strftime('%Y%m%d-%H%M%S') + '-pulseinterval-data.bin', 'wb')
 
 while(True):
     # Get data

@@ -100,6 +100,13 @@ static bool finishFlashOperation(void)
 {
     flash_wait_while_busy();
 
+    // The CPU stalled while flash was busy: a pulse interrupt that was held
+    // off has just run with a late timestamp, so the next pulse interval
+    // would be too short for the dead-time measurement. An update event sets
+    // the pulse timer's overflow flag, which makes the pulse interrupt skip
+    // that interval.
+    tim_generate_update(TUBE_DET_TIMER);
+
     // Clear the operation bits and lock in one store. Whole-register writes
     // are safe on all supported MCUs: the other lock bits (OPTLOCK, FLOCK)
     // are set-only, the interrupt enables are unused and the CH32F2's SCKMOD

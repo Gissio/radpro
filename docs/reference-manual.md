@@ -6,7 +6,7 @@ This manual provides technical reference for the **Rad Pro** custom firmware.
 
 ### Instantaneous Rate
 
-The **instantaneous radiation rate** is calculated by dividing the number of pulses in the averaging window by the window's length. The window always ends at the current second. With adaptive averaging, the window is the shortest that holds the target number of pulses, and the pulse count is reduced by one, which keeps the estimate unbiased. See [Instantaneous Rate Averaging](#instantaneous-rate-averaging).
+The **instantaneous radiation rate** is calculated by dividing the number of pulses in the averaging window by the window's length. The window always ends at the current second. With adaptive averaging, the window is the shortest that holds the target number of pulses, and the pulse count is then reduced by one, which keeps the estimate unbiased; if no window holds enough pulses, the longest available one is used. See [Instantaneous Rate Averaging](#instantaneous-rate-averaging).
 
 ### Average Rate
 
@@ -18,7 +18,7 @@ The **cumulative dose** tracks the total number of pulses recorded during the me
 
 ### History
 
-At startup, the **history** is loaded from the data log and updates every second using the instantaneous rate.
+At startup, the **history** is loaded from the data log, with dead-time compensation applied from each record's average rate. It then updates every second: each history bin holds the instantaneous rate averaged over the bin.
 
 To clear the history, go to **Settings > Data log > Reset**.
 
@@ -110,9 +110,9 @@ See [measurement-sim](../tests/measurement-sim/README.md) for simulated response
 
 ## Instantaneous Rate Alerts
 
-Alerts trigger when the instantaneous rate reaches the alert threshold. With adaptive averaging, they trigger only when the confidence interval falls below 75% to reduce false alarms.
+Alerts trigger when the instantaneous rate reaches the alert threshold. With adaptive averaging, they trigger only when the confidence interval is narrower than ±75%, to reduce false alarms.
 
-Once triggered, an alert stays active until the rate falls below the threshold by more than its confidence interval, that is, below threshold / (1 + confidence). For example, with a 1 µSv/h threshold, an alert ends below 0.67 µSv/h at ±50% confidence, and below 0.83 µSv/h at ±20%. This keeps an alert from restarting, and a dismissed alert from sounding again, while the rate hovers around the threshold.
+Once triggered, an alert stays active until the rate falls below the threshold by more than its confidence interval, that is, below threshold / (1 + confidence). For example, with a 1 µSv/h threshold, an alert ends below 0.67 µSv/h at ±50% confidence, and below 0.83 µSv/h at ±20%. An alarm returns to a warning the same way. This keeps an alert from restarting, and a dismissed alert from sounding again, while the rate hovers around the threshold.
 
 ## Dead-Time Compensation
 
@@ -126,11 +126,11 @@ $$n = \frac{m}{1 - m \tau}$$
 
 Where:
 
-* $m$: Uncompensated rate (counts per seconds).
+* $m$: Uncompensated rate (counts per second).
 * $\tau$: Dead time (seconds).
 * $n$: Compensated rate (counts per second).
   
-The compensation factor is capped at 10 to prevent overflow. Compensation applies to instantaneous rate, average rate, cumulative dose, and history but not to tube life pulse count or data logs. The instantaneous rate is compensated using its own reading; the average rate and cumulative dose are compensated second by second, using each second's pulse count.
+The compensation factor is capped at 10 to prevent overflow. Compensation applies to instantaneous rate, average rate, cumulative dose, and history but not to tube life pulse count or data logs. The instantaneous rate is compensated using its own reading; the average rate and cumulative dose are compensated second by second, using each second's pulse count. The history uses the compensated instantaneous rate, and when loaded from the data log, each record is compensated using its average rate.
 
 ## HV Profiles (If Supported)
 

@@ -116,7 +116,9 @@ void TUBE_DET_IRQ_HANDLER(void)
 
     tubeRandomBits = (tubeRandomBits << TUBE_BITS_PER_PULSE) | (timerCount & TUBE_BITS_PER_PULSE_MASK);
 
-    // Without a 16-bit timer wrap since the previous pulse, the interval is valid
+    // Without a 16-bit timer wrap since the previous pulse, the interval is
+    // valid. Flash operations also set UIF (see stm32_flash.c), as they delay
+    // this interrupt and its timestamp.
     if (!(timerStatus & TIM_SR_UIF))
     {
         uint16_t pulseInterval = timerCount - tubeHardware.previousTimerCount;

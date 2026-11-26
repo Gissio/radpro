@@ -5,7 +5,7 @@ Analysis notebooks, capture scripts and simulations used while developing Rad Pr
 | Folder | Contents |
 |---|---|
 | [battery-discharge](battery-discharge/) | Battery discharge captures and analysis (FS2011, FNIRSI GC-01) |
-| [confidence-intervals](confidence-intervals/) | Derivation of the Poisson confidence interval approximation in `getConfidenceInterval` |
+| [confidence-intervals](confidence-intervals/) | Derivation of the Poisson confidence interval approximation in `getConfidenceInterval`, and its coverage with the measurement algorithms, alert hysteresis and dead-time compensation |
 | [gmc800-pulse-stretcher](gmc800-pulse-stretcher/) | GQ GMC-800 pulse sound stretcher fix: recordings and analysis |
 | [hh614-pulse-interval](hh614-pulse-interval/) | HH614 pulse interval capture and analysis |
 | [instantaneous-averaging-3.1](instantaneous-averaging-3.1/) | Response curves of the Rad Pro 3.1 adaptive averaging (superseded by measurement-sim) |

@@ -1,12 +1,14 @@
 """
 Rad Pro instantaneous rate algorithms.
 
-CurrentInstantaneous is a literal port of the firmware (pulses.c
+CurrentInstantaneous is a literal port of the Rad Pro 3.1 firmware (pulses.c
 calculateRate + instantaneous.c updateInstantaneousRate).
 
-ProposedInstantaneous is the redesign: a per-second count buffer
+ProposedInstantaneous is the 3.2 redesign: a per-second count buffer
 (cumulative counts, two tiers), adaptive windows with a pulse target, and
-change detection. It is written to be ported to C line by line.
+change detection. It is the reference for instantaneous.c (pulse_target 20 or
+100 with change_threshold 22, or fixed_window 60). max_window and hold are
+variants that were simulated but not adopted.
 """
 
 import bisect

@@ -7,9 +7,11 @@ Stages:
   3. steps      Response to steps (x2, x10, x100, up and down).
   4. passby     Walking past a point source (approach and retreat).
   5. deadtime   High rates with a non-paralyzable dead time, and dose.
+  6. alerts     Alert policies near the threshold.
 
-Usage: python simulate.py [--quick] [--processes N]
-Writes results/report.md and plots to results/.
+Usage: python simulate.py [--quick] [--hold | --history] [--processes N]
+Writes results/report.md and plots to results/ (--hold: results/hold.md,
+--history: results/history.md).
 """
 
 import argparse
@@ -927,6 +929,156 @@ def stage_hold(pool, cfg, report):
         report.append('')
 
 
+# History comparison (python simulate.py --history)
+
+# Tabs (bin length for the 201-bin color layout: tab length / 200)
+HISTORY_TABS = [('10 minutes', 3), ('1 hour', 18), ('1 day', 432)]
+HISTORY_PULSE_MIN = 20          # Hybrid: bins with at least this many pulses use counts
+HISTORY_METHODS = ['Reading, gated', 'Reading, no gate', 'Counts',
+                   'Hybrid, gated', 'Hybrid, no gate']
+
+
+def task_history(job):
+    """Runs the instantaneous rate on Poisson counts, returning counts, the
+    reading and its confidence per second."""
+    spec, mean, trials, seed = job
+    rng = np.random.default_rng(seed)
+    counts, offsets = poisson_counts(rng, mean, trials)
+    r = run_algorithm(spec, counts, offsets)
+    return counts.astype(np.int32), r['est'], r['conf']
+
+
+def run_history_jobs(pool, jobs, trials):
+    tasks, keys = [], []
+    for key, (spec, mean, seed) in jobs.items():
+        for chunk, start in enumerate(range(0, trials, CHUNK)):
+            tasks.append((spec, mean, min(CHUNK, trials - start), (seed, chunk)))
+            keys.append(key)
+    merged = {}
+    for key, part in zip(keys, pool.map(task_history, tasks, chunksize=1)):
+        merged.setdefault(key, []).append(part)
+    return {key: tuple(np.concatenate([p[i] for p in parts]) for i in range(3))
+            for key, parts in merged.items()}
+
+
+def history_bins(counts, est, conf, start, length, method):
+    """Bin values like the firmware's updateHistory: the reading averaged over
+    the bin (gated: only seconds with confidence below +/-75%), pulses / time,
+    or the hybrid of both."""
+    trials, seconds = counts.shape
+    bins = (seconds - start) // length
+    span = slice(start, start + bins * length)
+    c = counts[:, span].reshape(trials, bins, length).sum(axis=2)
+    e = est[:, span].astype(float).reshape(trials, bins, length)
+    k = conf[:, span].astype(float).reshape(trials, bins, length)
+
+    count_rate = c / length
+    if method == 'Counts':
+        return count_rate
+    gate = (k > 0) & (k < ALERT_CONFIDENCE_GATE) if 'gated' in method else np.ones_like(e, dtype=bool)
+    weight = gate.sum(axis=2)
+    reading = np.where(weight > 0, (e * gate).sum(axis=2) / np.maximum(weight, 1), 0.0)
+    if method.startswith('Hybrid'):
+        return np.where(c >= HISTORY_PULSE_MIN, count_rate, reading)
+    return reading
+
+
+def stage_history(pool, cfg, report):
+    modes = [('fast', N_FAST), ('precision', N_PRECISION)]
+    specs = {mode: proposed(HOLD_G_THRESHOLD, 'n-1', n) for mode, n in modes}
+
+    # Steady state
+    rates = [0.07, 0.25, 1.0, 10.0]
+    seconds = cfg['history_seconds']
+    warmup = cfg['warmup']
+    jobs = {(mode, rate): (specs[mode], np.full(seconds, rate), (12, i))
+            for mode in specs for i, rate in enumerate(rates)}
+    steady = run_history_jobs(pool, jobs, cfg['history_trials'])
+
+    report.append('## Steady state\n')
+    report.append('Per bin: bias (mean / true rate - 1), scatter (standard deviation of '
+                  'bin / true rate), and empty bins (bins that read 0, the "comb" at low '
+                  'count rates).\n')
+    for tab, length in HISTORY_TABS:
+        report.append(f'### {tab} tab ({length} s bins)\n')
+        report.append('| Mode | Method | ' + ' | '.join(f'{r:g} cps' for r in rates) + ' |')
+        report.append('|---|---|' + '---|' * len(rates))
+        for mode in specs:
+            for method in HISTORY_METHODS:
+                cells = []
+                for rate in rates:
+                    counts, est, conf = steady[(mode, rate)]
+                    v = history_bins(counts, est, conf, warmup, length, method) / rate
+                    cells.append(f'{100 * (v.mean() - 1):+.1f}% / {100 * v.std():.0f}% / '
+                                 f'{100 * np.mean(v == 0):.0f}%')
+                report.append(f'| {mode} | {method} | {" | ".join(cells)} |')
+        report.append('')
+    report.append('Cells: bias / scatter / empty bins.\n')
+
+    # Steps: background, 10x for 1200 s, background
+    pre, high, post = 1728, 1296, 1728          # Multiples of every bin length
+    trials = cfg['history_step_trials']
+    jobs = {}
+    for ti, (tube, bg) in enumerate(TUBES):
+        mean = np.concatenate([np.full(pre, bg), np.full(high, 10 * bg), np.full(post, bg)])
+        for mode in specs:
+            jobs[(tube, mode)] = (specs[mode], mean, (13, ti))
+    steps = run_history_jobs(pool, jobs, trials)
+
+    report.append('## Steps (x10 up, then back down)\n')
+    report.append('Time until the mean bin value stays within +/-20% of the new rate, '
+                  'counted from the step, in seconds (bins are aligned with the steps).\n')
+    report.append('| Tube | Mode | Method | ' +
+                  ' | '.join(f'{tab} up | {tab} down' for tab, _ in HISTORY_TABS) + ' |')
+    report.append('|---|---|---|' + '---|' * (2 * len(HISTORY_TABS)))
+    for tube, bg in TUBES:
+        for mode in specs:
+            counts, est, conf = steps[(tube, mode)]
+            for method in HISTORY_METHODS:
+                cells = []
+                for tab, length in HISTORY_TABS:
+                    v = history_bins(counts, est, conf, 0, length, method).mean(axis=0)
+                    t_end = (np.arange(v.size) + 1) * length
+                    for t0, t1, rate in ((pre, pre + high, 10 * bg), (pre + high, None, bg)):
+                        sel = (t_end > t0) & ((t_end <= t1) if t1 else True)
+                        ratio = v[sel] / rate
+                        st = settle_time(ratio, t_end[sel] - t0)
+                        cells.append(f'{st} s' if st is not None else '-')
+                report.append(f'| {tube} | {mode} | {method} | {" | ".join(cells)} |')
+    report.append('')
+
+    # Example plots: one run per tube, fast mode
+    for tube, bg in TUBES:
+        counts, est, conf = steps[(tube, 'fast')]
+        fig, axes = plt.subplots(len(HISTORY_TABS), 1, figsize=(12, 10))
+        for ax, (tab, length) in zip(axes, HISTORY_TABS):
+            window = (pre - 200 * length // 2, pre + high + 200 * length // 2)
+            if tab == '1 day':
+                window = (0, counts.shape[1])
+            for method, color in zip(['Reading, gated', 'Counts', 'Hybrid, no gate'],
+                                     ['tab:red', 'tab:gray', 'tab:blue']):
+                v = history_bins(counts[:1], est[:1], conf[:1], 0, length, method)[0]
+                t = (np.arange(v.size) + 0.5) * length
+                sel = (t >= window[0]) & (t <= window[1])
+                ax.step(t[sel] - pre, np.maximum(v[sel], bg / 30), where='mid', color=color,
+                        lw=1, label=method, alpha=0.9 if color != 'tab:gray' else 0.5)
+            truth = np.concatenate([np.full(pre, bg), np.full(high, 10 * bg), np.full(post, bg)])
+            tt = np.arange(truth.size)
+            sel = (tt >= window[0]) & (tt <= window[1])
+            ax.plot(tt[sel] - pre, truth[sel], 'k--', lw=0.8, label='True rate')
+            ax.set_yscale('log')
+            ax.set_title(f'{tab} tab ({length} s bins)')
+            ax.set_ylabel('Rate (cps)')
+            ax.grid(alpha=0.3, which='both')
+        axes[0].legend(fontsize=8)
+        axes[-1].set_xlabel('Time from step up (s)')
+        fig.suptitle(f'History, {tube} (one run, adaptive fast; zero bins drawn at the bottom)')
+        fig.tight_layout()
+        fig.savefig(os.path.join(RESULTS, f'history-{slug(tube)}.png'), dpi=90)
+        plt.close(fig)
+        report.append(f'![History, {tube}](history-{slug(tube)}.png)\n')
+
+
 # Main
 
 CONFIGS = {
@@ -935,13 +1087,15 @@ CONFIGS = {
                  step_pre=1500, step_post=1200, step_trials=100,
                  passby_pre=1800, passby_post=900, passby_trials=100,
                  deadtime_seconds=300, deadtime_trials=40, dose_trials=40,
-                 alert_pre=1200, alert_post=3 * 3600, alert_settle=600, alert_trials=20),
+                 alert_pre=1200, alert_post=3 * 3600, alert_settle=600, alert_trials=20,
+                 history_seconds=6 * 3600, history_trials=20, history_step_trials=100),
     'quick': dict(calibrate_seconds=3600, calibrate_trials=10,
                   steady_seconds=3600, steady_trials=10, warmup=1200,
                   step_pre=1200, step_post=600, step_trials=20,
                   passby_pre=1500, passby_post=700, passby_trials=20,
                   deadtime_seconds=60, deadtime_trials=10, dose_trials=10,
-                  alert_pre=600, alert_post=1800, alert_settle=300, alert_trials=10),
+                  alert_pre=600, alert_post=1800, alert_settle=300, alert_trials=10,
+                  history_seconds=3600, history_trials=10, history_step_trials=20),
 }
 
 
@@ -952,11 +1106,30 @@ def main():
     parser.add_argument('--hold', action='store_true',
                         help='only compare the sawtooth with holding between pulses '
                              '(writes results/hold.md)')
+    parser.add_argument('--history', action='store_true',
+                        help='only compare history bin methods (writes results/history.md)')
     parser.add_argument('--processes', type=int, default=max((os.cpu_count() or 2) - 2, 1))
     args = parser.parse_args()
     cfg = CONFIGS['quick' if args.quick else 'full']
 
     os.makedirs(RESULTS, exist_ok=True)
+
+    if args.history:
+        start = time.time()
+        report = ['# History bins\n',
+                  'Generated by `simulate.py --history`. Instantaneous rate with change '
+                  f'detection (G > {HOLD_G_THRESHOLD}). Methods: **Reading** = the reading '
+                  'averaged over the bin (current firmware), **gated** = only seconds with '
+                  'confidence below +/-75%; **Counts** = pulses / bin length; **Hybrid** = '
+                  f'counts for bins with at least {HISTORY_PULSE_MIN} pulses, the averaged '
+                  'reading otherwise. Bin lengths for the 201-bin color layout.\n']
+        with Pool(args.processes) as pool:
+            stage_history(pool, cfg, report)
+        path = os.path.join(RESULTS, 'history.md')
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(report) + '\n')
+        print(f'Done in {time.time() - start:.0f} s: {path}')
+        return
 
     if args.hold:
         start = time.time()
