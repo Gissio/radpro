@@ -146,6 +146,8 @@ class ProposedInstantaneous:
     fixed_window: fixed mode (s), estimate n / W, no change detection.
     max_window: optional time cap (s) for adaptive mode.
     change_threshold: G threshold for restarting the window.
+    change_direction: 'both' (rises and drops) or 'down' (drops only: rises
+        are left to the pulse target, which shrinks the window by itself).
     estimator: 'n' (n / W) or 'n-1' ((n - 1) / W) when the pulse target is met.
     detect_only: record the change statistic without restarting.
     hold: adaptive windows end at the end of the most recent second with
@@ -156,8 +158,10 @@ class ProposedInstantaneous:
 
     def __init__(self, pulse_target=None, fixed_window=None, max_window=None,
                  change_threshold=math.inf, estimator='n-1',
-                 detect_only=False, tau=0.0, hold=False, hold_correction=1):
+                 detect_only=False, tau=0.0, hold=False, hold_correction=1,
+                 change_direction='both'):
         self.pulse_target = pulse_target
+        self.change_direction = change_direction
         self.fixed_window = fixed_window
         self.max_window = max_window
         self.change_threshold = change_threshold
@@ -252,6 +256,9 @@ class ProposedInstantaneous:
                 break
             recent = cumulative[now] - cumulative[now - k]
             older = cumulative[now - k] - cumulative[now - length]
+            # Drops only: skip when the recent rate is not below the older one
+            if (self.change_direction == 'down') and (recent * (length - k) >= older * k):
+                continue
             g = g_statistic(recent, older, k, length - k)
             if g > best_g:
                 best_g = g

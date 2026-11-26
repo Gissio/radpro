@@ -6,6 +6,7 @@ Monte Carlo comparison of the Rad Pro 3.1 instantaneous rate algorithm with the 
 
 - `algorithms.py`: `CurrentInstantaneous` is a literal port of the Rad Pro 3.1 firmware (`pulses.c` `calculateRate`, `instantaneous.c` `updateInstantaneousRate`). `ProposedInstantaneous` is the 3.2 redesign, and the reference for `instantaneous.c`. It also includes variants that weren't adopted, such as a time cap and holding the reading between pulses.
 - `simulate.py`: runs the scenarios in parallel and writes `results/report.md` plus plots.
+- [`firmware-check/`](firmware-check/): compiles the firmware's `instantaneous.c` on the host and checks it against `algorithms.py`, second by second, including alerts. Run it after any change to the measurement code.
 
 ## Running
 
@@ -14,6 +15,9 @@ python simulate.py            # full run, under a minute on a multi-core PC
 python simulate.py --quick    # smoke test
 python simulate.py --hold     # sawtooth vs. holding between pulses (results/hold.md)
 python simulate.py --history  # history bin methods (results/history.md)
+python simulate.py --max      # Max value and startup (results/max.md)
+python simulate.py --gate     # confidence gate for alerts and Max (results/gate.md)
+python simulate.py --onesided # two-sided vs. drops-only change detection (results/onesided.md)
 ```
 
 Requires `numpy` and `matplotlib`.
@@ -58,4 +62,8 @@ Requires `numpy` and `matplotlib`.
   - **Pure counts** leave 81% of the 10-minute tab's bins empty at 0.07 cps, a comb.
   - **The confidence gate** (skip seconds with confidence worse than ±75%) creates empty bins right after detected changes, and slows down drops 2-4 times: on an HH614 in the 10-minute tab, 183 s instead of 48 s. Without the gate, scatter grows by at most 2 percentage points.
   - **A hybrid** (counts for bins with 20 or more pulses) is biased by up to +8%, because it selects bins that fluctuated upward.
+- **Alert and Max gate** (`simulate.py --gate` and `--max`, results/gate.md and max.md):
+  - **Adaptive modes:** ±75% removes most false alerts from the noisy readings after a power-on or a detected change (0.35-0.55 per day down to 0-0.15) for a few seconds of delay. ±50% doubles the delays, and on an SI3BG Max never updates.
+  - **1-minute mode:** "a full minute measured since power-on" removes the false alerts at power-on (22-50% of power-ons with the old rule) for every tube. ±75% would stop alerts on an SI3BG, and keep Max at 0 for hours on an HH614.
+- **One-sided change detection** (`simulate.py --onesided`, results/onesided.md): reacting to drops only removes the rare false alerts from restart spikes (0.05-0.10 per day at a 0.5 uSv/h threshold). Not adopted, because Precision mode then reacts to rises far more slowly (x10 rise on an HH614: 141 s instead of 13 s; alert after a jump: 176 s instead of 25 s), and after short peaks the reading stays high much longer (overshoot on the retreat of 6-9x instead of 2-3x). Restarting on rises also gives the following drop a clean reference.
 - **Dead time:** confidence computed from raw counts keeps 95% coverage after compensation, so it needs no widening, because dead time makes the counts sub-Poisson. Compensating each second from its own count gets the dose right. The current firmware under-reads a 60 s exposure at 5000 cps by 23% in 60 s mode.

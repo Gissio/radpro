@@ -110,7 +110,7 @@ See [measurement-sim](../tests/measurement-sim/README.md) for simulated response
 
 ## Instantaneous Rate Alerts
 
-Alerts trigger when the instantaneous rate reaches the alert threshold. With adaptive averaging, they trigger only when the confidence interval is narrower than ±75%, to reduce false alarms.
+Alerts trigger when the instantaneous rate reaches the alert threshold. To reduce false alarms, with adaptive averaging they trigger only when the confidence interval is narrower than ±75%, and with **1 minute** averaging only once a full minute has been measured after powering on or resetting the instantaneous rate. The same applies to the maximum rate.
 
 Once triggered, an alert stays active until the rate falls below the threshold by more than its confidence interval, that is, below threshold / (1 + confidence). For example, with a 1 µSv/h threshold, an alert ends below 0.67 µSv/h at ±50% confidence, and below 0.83 µSv/h at ±20%. An alarm returns to a warning the same way. This keeps an alert from restarting, and a dismissed alert from sounding again, while the rate hovers around the threshold.
 

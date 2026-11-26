@@ -261,8 +261,15 @@ float getInstantaneousRate(void)
 
 bool isInstantaneousRateConfidenceGood(void)
 {
-    return isTimedAveraging() ||
-           ((instantaneous.rate.confidence > 0.0F) && (instantaneous.rate.confidence < INSTANTANEOUS_RATE_CONFIDENCE_THRESHOLD));
+    // Readings that may raise alerts and set Max: with 1 minute averaging,
+    // once a full minute has been measured (the first seconds hold too few
+    // pulses); with adaptive averaging, once the confidence interval is
+    // narrower than +/-75% (tests/measurement-sim, --gate)
+    if (isTimedAveraging())
+        return instantaneous.time >= INSTANTANEOUS_FIXED_WINDOW;
+
+    return (instantaneous.rate.confidence > 0.0F) &&
+           (instantaneous.rate.confidence < INSTANTANEOUS_RATE_CONFIDENCE_THRESHOLD);
 }
 
 AlertLevel getInstantaneousRateAlertLevel(void)

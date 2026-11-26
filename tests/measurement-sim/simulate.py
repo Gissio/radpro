@@ -1079,6 +1079,317 @@ def stage_history(pool, cfg, report):
         report.append(f'![History, {tube}](history-{slug(tube)}.png)\n')
 
 
+# Max value and startup (python simulate.py --max)
+
+MAX_GATES = ['current', 'uniform']
+
+
+def confidence_gate(conf, timed, gate):
+    """current: adaptive modes need confidence narrower than +/-75%, the
+    1-minute mode always passes. uniform: +/-75% in every mode."""
+    good = (conf > 0) & (conf < ALERT_CONFIDENCE_GATE)
+    if timed and gate == 'current':
+        return np.ones_like(good)
+    return good
+
+
+def running_max(est, gate_mask, end):
+    return np.max(np.where(gate_mask[:, :end], est[:, :end], 0.0), axis=1)
+
+
+def stage_max(pool, cfg, report):
+    modes = [('fast', proposed(HOLD_G_THRESHOLD, 'n-1', N_FAST), False),
+             ('precision', proposed(HOLD_G_THRESHOLD, 'n-1', N_PRECISION), False),
+             ('1 minute', proposed(HOLD_G_THRESHOLD, 'n-1', fixed_window=60), True)]
+
+    # Steady background from a reset
+    seconds = cfg['max_seconds']
+    jobs = {(mode, tube): (spec, np.full(seconds, bg), (14, ti))
+            for mode, spec, _ in modes for ti, (tube, bg) in enumerate(TUBES)}
+    runs = run_history_jobs(pool, jobs, cfg['max_trials'])
+
+    report.append('## Max value at background\n')
+    report.append('Median (and 90th percentile) of Max / true rate over runs, after 1 '
+                  f'hour and after {seconds // 3600} hours from a reset. "Startup" is the '
+                  'fraction of runs whose Max already exceeds 2x the true rate within the '
+                  'first 60 s.\n')
+    report.append('| Mode | Tube | Gate | Max after 1 h | Max after '
+                  f'{seconds // 3600} h | Startup > 2x |')
+    report.append('|---|---|---|---|---|---|')
+    for mode, spec, timed in modes:
+        for tube, bg in TUBES:
+            counts, est, conf = runs[(mode, tube)]
+            est = est.astype(float)
+            for gate in MAX_GATES:
+                mask = confidence_gate(conf, timed, gate)
+                m1 = running_max(est, mask, 3600) / bg
+                m2 = running_max(est, mask, seconds) / bg
+                s = running_max(est, mask, 60) / bg
+                report.append(f'| {mode} | {tube} | {gate} '
+                              f'| {np.median(m1):.2f} ({np.percentile(m1, 90):.2f}) '
+                              f'| {np.median(m2):.2f} ({np.percentile(m2, 90):.2f}) '
+                              f'| {100 * np.mean(s > 2):.0f}% |')
+    report.append('')
+
+    # Alerts at startup: true rate at half the threshold
+    report.append('## False alerts at startup\n')
+    report.append('Fraction of power-ons that raise an alert within the first 120 s, with '
+                  'the true rate at 0.5x the alert threshold (hysteresis policy).\n')
+    report.append('| Mode | Tube | Current gate | Uniform gate |')
+    report.append('|---|---|---|---|')
+    for mode, spec, timed in modes:
+        for tube, bg in TUBES:
+            counts, est, conf = runs[(mode, tube)]
+            est = est[:, :120].astype(float)
+            c = conf[:, :120].astype(float)
+            cells = []
+            for gate in MAX_GATES:
+                mask = confidence_gate(c, timed, gate)
+                active = alert_states(est, c, mask, 2 * bg, 'hysteresis')
+                cells.append(f'{100 * np.mean(active.any(axis=1)):.1f}%')
+            report.append(f'| {mode} | {tube} | {" | ".join(cells)} |')
+    report.append('')
+
+    # Peaks: walking past a source
+    pre, post = cfg['passby_pre'], cfg['passby_post']
+    passbys = [(tube, bg, factor, fwhm) for tube, bg in TUBES
+               for factor in (10, 100) for fwhm in (10, 60)]
+    jobs = {}
+    profiles = {}
+    for si, (tube, bg, factor, fwhm) in enumerate(passbys):
+        profiles[si] = passby_profile(bg, factor, fwhm, pre, pre + post)
+        for mode, spec, _ in modes:
+            jobs[(si, mode)] = (spec, profiles[si], (15, si))
+    peaks = run_history_jobs(pool, jobs, cfg['passby_trials'])
+
+    report.append('## Peaks\n')
+    report.append('Walking past a source (as in report.md section 4): median Max / true '
+                  'peak, with Max taken over the pass only (the first 600 s after a reset '
+                  'are excluded).\n')
+    report.append('| Tube | Peak | FWHM | Mode | Current gate | Uniform gate |')
+    report.append('|---|---|---|---|---|---|')
+    for si, (tube, bg, factor, fwhm) in enumerate(passbys):
+        peak = profiles[si].max()
+        for mode, spec, timed in modes:
+            counts, est, conf = peaks[(si, mode)]
+            est = est[:, 600:].astype(float)
+            c = conf[:, 600:]
+            cells = []
+            for gate in MAX_GATES:
+                mask = confidence_gate(c, timed, gate)
+                cells.append(f'{np.median(running_max(est, mask, est.shape[1])) / peak:.2f}')
+            report.append(f'| {tube} | x{factor} | {fwhm} s | {mode} | {" | ".join(cells)} |')
+    report.append('')
+
+
+# Confidence gate for alerts and Max (python simulate.py --gate)
+
+# Sensitivity (cpm per uSv/h), background 0.12 uSv/h, lowest alert threshold 0.5 uSv/h
+GATE_TUBES = [('SI3BG', 3.267), ('HH614', 30.157), ('SBM-20', 106.105), ('LND 7317', 252.567)]
+GATE_BACKGROUND = 0.12
+GATE_THRESHOLD = 0.5
+GATE_ADAPTIVE = [('none', None), ('±100%', 1.0), ('±75% (today)', 0.75), ('±50%', 0.5)]
+GATE_FIXED = [('none (today)', None), ('full minute', 'full'), ('±75%', 0.75)]
+
+
+def gate_mask(conf, rule):
+    if rule is None:
+        return np.ones(conf.shape, dtype=bool)
+    if rule == 'full':
+        mask = np.ones(conf.shape, dtype=bool)
+        mask[:, :60] = False
+        return mask
+    return (conf > 0) & (conf < rule)
+
+
+def stage_gate(pool, cfg, report):
+    modes = [('fast', proposed(HOLD_G_THRESHOLD, 'n-1', N_FAST), GATE_ADAPTIVE),
+             ('precision', proposed(HOLD_G_THRESHOLD, 'n-1', N_PRECISION), GATE_ADAPTIVE),
+             ('1 minute', proposed(HOLD_G_THRESHOLD, 'n-1', fixed_window=60), GATE_FIXED)]
+    seconds = cfg['gate_seconds']
+    trials = cfg['gate_trials']
+    jump = 3600
+
+    jobs = {}
+    for ti, (tube, sensitivity) in enumerate(GATE_TUBES):
+        bg = GATE_BACKGROUND * sensitivity / 60
+        threshold = GATE_THRESHOLD * sensitivity / 60
+        for mode, spec, _ in modes:
+            jobs[(tube, mode, 'background')] = (spec, np.full(seconds, bg), (16, ti))
+            jobs[(tube, mode, 'power-on')] = (spec, np.full(1800, 2 * threshold), (17, ti))
+            jobs[(tube, mode, 'jump')] = (spec, np.concatenate(
+                [np.full(jump, bg), np.full(1800, 2 * threshold)]), (18, ti))
+    runs = run_history_jobs(pool, jobs, trials)
+
+    report.append('Per tube: background 0.12 uSv/h, alert threshold 0.5 uSv/h (the lowest '
+                  'setting), alerts with hysteresis. **False alerts**: alert starts per day '
+                  'at background, counting from power-on (startup included). **Power-on** / '
+                  '**Jump**: median delay to the first alert when powering on in a field at '
+                  '2x the threshold, or when the rate jumps from background to 2x the '
+                  'threshold. **Max**: median Max / background after 24 h, and the fraction '
+                  'of runs where Max never updated.\n')
+    report.append('| Tube | Mode | Gate | False alerts/day | Power-on | Jump | Max | Max never updated |')
+    report.append('|---|---|---|---|---|---|---|---|')
+    for tube, sensitivity in GATE_TUBES:
+        bg = GATE_BACKGROUND * sensitivity / 60
+        threshold = GATE_THRESHOLD * sensitivity / 60
+        for mode, spec, gates in modes:
+            for name, rule in gates:
+                _, est, conf = runs[(tube, mode, 'background')]
+                est = est.astype(float)
+                conf = conf.astype(float)
+                mask = gate_mask(conf, rule)
+                active = alert_states(est, conf, mask, threshold, 'hysteresis')
+                prev = np.concatenate([np.zeros((trials, 1), dtype=bool), active[:, :-1]], axis=1)
+                false_per_day = np.sum(active & ~prev) / (trials * seconds / 86400)
+                mx = np.max(np.where(mask, est, 0.0), axis=1)
+
+                delays = []
+                for scenario, start in (('power-on', 0), ('jump', jump)):
+                    _, e2, c2 = runs[(tube, mode, scenario)]
+                    e2 = e2.astype(float)
+                    c2 = c2.astype(float)
+                    a2 = alert_states(e2, c2, gate_mask(c2, rule), threshold, 'hysteresis')
+                    d = [np.flatnonzero(a2[i, start:])[0] + 1 if a2[i, start:].any() else math.inf
+                         for i in range(trials)]
+                    m = np.median(d)
+                    delays.append('never' if math.isinf(m) else f'{m:.0f} s')
+
+                report.append(f'| {tube} | {mode} | {name} | {false_per_day:.2f} | {delays[0]} '
+                              f'| {delays[1]} | {np.median(mx) / bg:.2f} '
+                              f'| {100 * np.mean(mx == 0):.0f}% |')
+    report.append('')
+
+
+# One-sided change detection (python simulate.py --onesided)
+
+def onesided_specs():
+    specs = {}
+    for mode, n in (('fast', N_FAST), ('precision', N_PRECISION)):
+        for direction, label in (('both', 'two-sided'), ('down', 'drops only')):
+            specs[f'{mode}, {label}'] = proposed(HOLD_G_THRESHOLD, 'n-1', n,
+                                                  change_direction=direction)
+    return specs
+
+
+def stage_onesided(pool, cfg, report):
+    specs = onesided_specs()
+
+    # Background with a realistic alert threshold
+    seconds = cfg['gate_seconds']
+    trials = cfg['gate_trials']
+    jump = 3600
+    jobs = {}
+    for ti, (tube, sensitivity) in enumerate(GATE_TUBES):
+        bg = GATE_BACKGROUND * sensitivity / 60
+        threshold = GATE_THRESHOLD * sensitivity / 60
+        for name, spec in specs.items():
+            jobs[(tube, name, 'background')] = (spec, 'poisson', np.full(seconds, bg), (19, ti))
+            jobs[(tube, name, 'jump')] = (spec, 'poisson', np.concatenate(
+                [np.full(jump, bg), np.full(1800, 2 * threshold)]), (20, ti))
+    runs = run_jobs(pool, jobs, trials)
+
+    report.append('## Background\n')
+    report.append('Background 0.12 uSv/h, alert threshold 0.5 uSv/h, hysteresis, ±75% gate. '
+                  'Restarts: window restarts per hour (all are false at a steady rate). '
+                  'Jump: median delay to the first alert when the rate jumps from background '
+                  'to 2x the threshold. Max: median Max / background after 24 h.\n')
+    report.append('| Tube | Mode | Restarts/h | False alerts/day | Jump | Max |')
+    report.append('|---|---|---|---|---|---|')
+    for tube, sensitivity in GATE_TUBES:
+        bg = GATE_BACKGROUND * sensitivity / 60
+        threshold = GATE_THRESHOLD * sensitivity / 60
+        for name in specs:
+            r = runs[(tube, name, 'background')]
+            est = r['est'].astype(float)
+            conf = r['conf'].astype(float)
+            mask = gate_mask(conf, 0.75)
+            active = alert_states(est, conf, mask, threshold, 'hysteresis')
+            prev = np.concatenate([np.zeros((trials, 1), dtype=bool), active[:, :-1]], axis=1)
+            false_per_day = np.sum(active & ~prev) / (trials * seconds / 86400)
+            mx = np.median(np.max(np.where(mask, est, 0.0), axis=1)) / bg
+
+            r2 = runs[(tube, name, 'jump')]
+            e2 = r2['est'].astype(float)
+            c2 = r2['conf'].astype(float)
+            a2 = alert_states(e2, c2, gate_mask(c2, 0.75), threshold, 'hysteresis')
+            d = [np.flatnonzero(a2[i, jump:])[0] + 1 if a2[i, jump:].any() else math.inf
+                 for i in range(trials)]
+            m = np.median(d)
+            report.append(f'| {tube} | {name} | {r["restarts"].sum() / (trials * seconds / 3600):.3f} '
+                          f'| {false_per_day:.2f} | {"never" if math.isinf(m) else f"{m:.0f} s"} '
+                          f'| {mx:.2f} |')
+    report.append('')
+
+    # Steps
+    pre = cfg['step_pre']
+    post = cfg['step_post']
+    scenarios = []
+    for tube, bg in TUBES:
+        for factor in (2, 10, 100):
+            for direction in ('up', 'down'):
+                before, after = (bg, factor * bg) if direction == 'up' else (factor * bg, bg)
+                scenarios.append((tube, factor, direction, before, after))
+    jobs = {}
+    for si, (tube, factor, direction, before, after) in enumerate(scenarios):
+        mean = np.concatenate([np.full(pre, before), np.full(post, after)])
+        for name, spec in specs.items():
+            jobs[(si, name)] = (spec, 'poisson', mean, (21, si))
+    results = run_jobs(pool, jobs, cfg['step_trials'])
+
+    delays = np.arange(1, post + 1)
+    shown = [d for d in STEP_DELAYS if d <= post]
+    report.append('## Steps\n')
+    report.append('Mean reading / new true rate after the step; settle = first delay after '
+                  'which the mean stays within +/-20%.\n')
+    for tube, bg in TUBES:
+        report.append(f'### {tube} (background {bg} cps)\n')
+        report.append('| Step | Mode | ' + ' | '.join(f'{d} s' for d in shown) + ' | Settle |')
+        report.append('|---|---|' + '---|' * (len(shown) + 1))
+        for si, (t, factor, direction, before, after) in enumerate(scenarios):
+            if t != tube:
+                continue
+            for name in specs:
+                ratio = np.mean(results[(si, name)]['est'][:, pre:], axis=0) / after
+                cells = ' | '.join(f'{ratio[d - 1]:.2f}' for d in shown)
+                st = settle_time(ratio, delays)
+                st = f'{st} s' if st is not None else f'> {post} s'
+                report.append(f'| x{factor} {direction} | {name} | {cells} | {st} |')
+        report.append('')
+
+    # Pass-by
+    pre = cfg['passby_pre']
+    post = cfg['passby_post']
+    seconds = pre + post
+    passbys = [(tube, bg, factor, fwhm) for tube, bg in TUBES
+               for factor in (10, 100) for fwhm in (10, 60)]
+    jobs = {}
+    profiles = {}
+    for si, (tube, bg, factor, fwhm) in enumerate(passbys):
+        profiles[si] = passby_profile(bg, factor, fwhm, pre, seconds)
+        for name, spec in specs.items():
+            jobs[(si, name)] = (spec, 'poisson', profiles[si], (22, si))
+    results = run_jobs(pool, jobs, cfg['passby_trials'])
+
+    report.append('## Walking past a source\n')
+    report.append('Mean trajectory: peak reading / true peak, delay of the reading peak, '
+                  'mean reading / true rate over the retreat.\n')
+    report.append('| Tube | Peak | FWHM | Mode | Peak ratio | Peak delay | Retreat ratio |')
+    report.append('|---|---|---|---|---|---|---|')
+    for si, (tube, bg, factor, fwhm) in enumerate(passbys):
+        true = profiles[si]
+        tpk = int(np.argmax(true))
+        for name in specs:
+            mean = np.mean(results[(si, name)]['est'], axis=0)
+            region = slice(max(tpk - 3 * fwhm, 0), min(tpk + 10 * fwhm, seconds))
+            rpk = region.start + int(np.argmax(mean[region]))
+            retreat = slice(tpk + fwhm, min(tpk + 10 * fwhm, seconds))
+            report.append(f'| {tube} | x{factor} | {fwhm} s | {name} '
+                          f'| {mean[rpk] / true[tpk]:.2f} | {rpk - tpk:+d} s '
+                          f'| {np.mean(mean[retreat] / true[retreat]):.2f} |')
+    report.append('')
+
+
 # Main
 
 CONFIGS = {
@@ -1088,14 +1399,18 @@ CONFIGS = {
                  passby_pre=1800, passby_post=900, passby_trials=100,
                  deadtime_seconds=300, deadtime_trials=40, dose_trials=40,
                  alert_pre=1200, alert_post=3 * 3600, alert_settle=600, alert_trials=20,
-                 history_seconds=6 * 3600, history_trials=20, history_step_trials=100),
+                 history_seconds=6 * 3600, history_trials=20, history_step_trials=100,
+                 max_seconds=24 * 3600, max_trials=40,
+                 gate_seconds=24 * 3600, gate_trials=20),
     'quick': dict(calibrate_seconds=3600, calibrate_trials=10,
                   steady_seconds=3600, steady_trials=10, warmup=1200,
                   step_pre=1200, step_post=600, step_trials=20,
                   passby_pre=1500, passby_post=700, passby_trials=20,
                   deadtime_seconds=60, deadtime_trials=10, dose_trials=10,
                   alert_pre=600, alert_post=1800, alert_settle=300, alert_trials=10,
-                  history_seconds=3600, history_trials=10, history_step_trials=20),
+                  history_seconds=3600, history_trials=10, history_step_trials=20,
+                  max_seconds=2 * 3600, max_trials=10,
+                  gate_seconds=3 * 3600, gate_trials=10),
 }
 
 
@@ -1108,11 +1423,64 @@ def main():
                              '(writes results/hold.md)')
     parser.add_argument('--history', action='store_true',
                         help='only compare history bin methods (writes results/history.md)')
+    parser.add_argument('--max', action='store_true',
+                        help='only analyze the Max value and startup (writes results/max.md)')
+    parser.add_argument('--onesided', action='store_true',
+                        help='only compare two-sided and drops-only change detection '
+                             '(writes results/onesided.md)')
+    parser.add_argument('--gate', action='store_true',
+                        help='only compare confidence gates for alerts and Max '
+                             '(writes results/gate.md)')
     parser.add_argument('--processes', type=int, default=max((os.cpu_count() or 2) - 2, 1))
     args = parser.parse_args()
     cfg = CONFIGS['quick' if args.quick else 'full']
 
     os.makedirs(RESULTS, exist_ok=True)
+
+    if args.onesided:
+        start = time.time()
+        report = ['# One-sided change detection\n',
+                  'Generated by `simulate.py --onesided`. **two-sided**: change detection '
+                  f'(G > {HOLD_G_THRESHOLD}) restarts the window on rises and drops (Rad Pro '
+                  '3.2 as implemented); **drops only**: only when the recent rate is below '
+                  'the rest of the window.\n']
+        with Pool(args.processes) as pool:
+            stage_onesided(pool, cfg, report)
+        path = os.path.join(RESULTS, 'onesided.md')
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(report) + '\n')
+        print(f'Done in {time.time() - start:.0f} s: {path}')
+        return
+
+    if args.gate:
+        start = time.time()
+        report = ['# Confidence gate for alerts and Max\n',
+                  'Generated by `simulate.py --gate`. Instantaneous rate with change detection '
+                  f'(G > {HOLD_G_THRESHOLD}). The gate decides which readings may raise an '
+                  'alert or set Max: none, a maximum confidence interval, or (1 minute) '
+                  'only once a full minute has passed since power-on.\n']
+        with Pool(args.processes) as pool:
+            stage_gate(pool, cfg, report)
+        path = os.path.join(RESULTS, 'gate.md')
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(report) + '\n')
+        print(f'Done in {time.time() - start:.0f} s: {path}')
+        return
+
+    if args.max:
+        start = time.time()
+        report = ['# Max value and startup\n',
+                  'Generated by `simulate.py --max`. Instantaneous rate with change detection '
+                  f'(G > {HOLD_G_THRESHOLD}). Gates for Max and for raising alerts: '
+                  '**current** = adaptive modes need a confidence interval narrower than '
+                  '+/-75%, 1 minute always passes; **uniform** = +/-75% in every mode.\n']
+        with Pool(args.processes) as pool:
+            stage_max(pool, cfg, report)
+        path = os.path.join(RESULTS, 'max.md')
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(report) + '\n')
+        print(f'Done in {time.time() - start:.0f} s: {path}')
+        return
 
     if args.history:
         start = time.time()
