@@ -11,7 +11,6 @@
 
 #include "../peripherals/adc.h"
 #include "../stm32/device.h"
-#include "../system/cmath.h"
 
 #define ADC_VALUE_MAX ((1 << 12) - 1)
 
@@ -31,25 +30,14 @@
 #endif
 
 #if defined(EMFMETER)
-#define SQRT2 1.41421356237F
-// 400 samples @ 1 kHz to fit whole cycles of both 50 Hz and 60 Hz
-#define ELECTRIC_FIELD_SAMPLE_NUM 400
-#define ELECTRIC_FIELD_OFFSET 126
-#define ELECTRIC_FIELD_SCALE (2 * 0.9F)
-// 400 samples @ 1 kHz to fit whole cycles of both 50 Hz and 60 Hz
-#define MAGNETIC_FIELD_SAMPLE_NUM 400
-#define MAGNETIC_FIELD_OFFSET 120
-#define MAGNETIC_FIELD_LINEAR_SCALE (2 * SQRT2 * 0.000000005F * 2.8583F)
-#define MAGNETIC_FIELD_QUADRATIC_SCALE (2 * SQRT2 * 0.000000005F * 0.0072F)
-
 // The ADC tick index counts down once per cycle. Each stage begins at
 // its tick, which selects the channel and starts the first conversion.
 // The value read at tick n was converted at tick n + 1.
 #define ADC_END_SAMPLE 1
 #define ADC_PWR_BAT_SAMPLE (ADC_END_SAMPLE + PWR_BAT_SAMPLE_NUM)
 #define ADC_VREF_SAMPLE (ADC_PWR_BAT_SAMPLE + VREF_SAMPLE_NUM)
-#define ADC_MAGNETIC_FIELD_SAMPLE (ADC_VREF_SAMPLE + MAGNETIC_FIELD_SAMPLE_NUM)
-#define ADC_ELECTRIC_FIELD_SAMPLE (ADC_MAGNETIC_FIELD_SAMPLE + ELECTRIC_FIELD_SAMPLE_NUM)
+#define ADC_MAGNETIC_FIELD_SAMPLE (ADC_VREF_SAMPLE + FIELD_SAMPLE_NUM)
+#define ADC_ELECTRIC_FIELD_SAMPLE (ADC_MAGNETIC_FIELD_SAMPLE + FIELD_SAMPLE_NUM)
 #define ADC_START_SAMPLE ADC_ELECTRIC_FIELD_SAMPLE
 #endif
 
@@ -59,7 +47,7 @@ typedef struct
     uint32_t vref;
 #if defined(EMFMETER)
     // Electric field samples, followed by magnetic field samples
-    uint16_t field[ELECTRIC_FIELD_SAMPLE_NUM + MAGNETIC_FIELD_SAMPLE_NUM];
+    uint16_t field[2 * FIELD_SAMPLE_NUM];
 #endif
 } ADCValues;
 
@@ -289,46 +277,26 @@ float readBatteryVoltage(void)
 
 #if defined(EMFMETER)
 
-static float calculateRMSValue(const uint16_t *values, uint32_t count, int32_t offset)
-{
-    // RMS of the half-wave above offset (samples below offset count as zero)
-    uint32_t squaredSum = 0;
-    for (uint32_t i = 0; i < count; i++)
-    {
-        int32_t value = (int32_t)values[i] - offset;
-        if (value > 0)
-            squaredSum = addClamped(squaredSum, (uint32_t)(value * value));
-    }
+const FieldSensor electricFieldSensor = {
+    ELECTRIC_FIELD_OFFSET,
+    ELECTRIC_FIELD_LINEAR_SCALE,
+    ELECTRIC_FIELD_QUADRATIC_SCALE,
+};
 
-    return sqrtf((float)squaredSum / count);
+const FieldSensor magneticFieldSensor = {
+    MAGNETIC_FIELD_OFFSET,
+    MAGNETIC_FIELD_LINEAR_SCALE,
+    MAGNETIC_FIELD_QUADRATIC_SCALE,
+};
+
+const uint16_t *getElectricFieldSamples(void)
+{
+    return getSnapshot()->field;
 }
 
-float readElectricFieldStrength(void)
+const uint16_t *getMagneticFieldSamples(void)
 {
-    float rmsValue = calculateRMSValue(getSnapshot()->field,
-                                       ELECTRIC_FIELD_SAMPLE_NUM,
-                                       ELECTRIC_FIELD_OFFSET);
-
-    float electricFieldStrength = ELECTRIC_FIELD_SCALE * rmsValue;
-
-    if (electricFieldStrength < 1E-6F)
-        electricFieldStrength = 1E-6F;
-
-    return electricFieldStrength;
-}
-
-float readMagneticFieldStrength(void)
-{
-    float rmsValue = calculateRMSValue(getSnapshot()->field + ELECTRIC_FIELD_SAMPLE_NUM,
-                                       MAGNETIC_FIELD_SAMPLE_NUM,
-                                       MAGNETIC_FIELD_OFFSET);
-
-    float magneticFieldStrength = MAGNETIC_FIELD_LINEAR_SCALE * rmsValue + MAGNETIC_FIELD_QUADRATIC_SCALE * rmsValue * rmsValue;
-
-    if (magneticFieldStrength < 1E-12F)
-        magneticFieldStrength = 1E-12F;
-
-    return magneticFieldStrength;
+    return getSnapshot()->field + FIELD_SAMPLE_NUM;
 }
 
 #endif

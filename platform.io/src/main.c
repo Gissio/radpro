@@ -16,7 +16,6 @@
 #include "peripherals/adc.h"
 #include "peripherals/comm.h"
 #include "peripherals/display.h"
-#include "peripherals/emf.h"
 #include "peripherals/flash.h"
 #include "peripherals/keyboard.h"
 #include "peripherals/led.h"

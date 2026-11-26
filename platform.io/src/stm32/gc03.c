@@ -12,7 +12,6 @@
 #include "mcu-renderer-st7789.h"
 
 #include "../peripherals/display.h"
-#include "../peripherals/emf.h"
 #include "../peripherals/keyboard.h"
 #include "../peripherals/tube.h"
 #include "../stm32/device.h"

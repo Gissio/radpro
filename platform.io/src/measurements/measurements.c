@@ -17,7 +17,6 @@
 #include "../measurements/instantaneous.h"
 #include "../measurements/magneticfield.h"
 #include "../peripherals/display.h"
-#include "../peripherals/emf.h"
 #include "../peripherals/keyboard.h"
 #include "../peripherals/led.h"
 #include "../peripherals/pulsesoundenable.h"
@@ -158,7 +157,8 @@ void updateMeasurements(void)
     // Measurements
     updatePulses();
 #if defined(EMFMETER)
-    updateEMFMeter();
+    updateElectricField();
+    updateMagneticField();
 #endif
 
     // Alerts
@@ -269,6 +269,37 @@ void updateMeasurementAlertLevel(AlertLevel *alertLevel, AlertLevel value)
 
     *alertLevel = value;
 }
+
+#if defined(EMFMETER)
+
+void updateFieldAlertLevel(AlertLevel *alertLevel, float value, const float *alerts, uint32_t alarmIndex)
+{
+    // Alerts start at the threshold. Hysteresis: they end once the value
+    // falls below threshold / FIELD_ALERT_HYSTERESIS.
+    if (*alertLevel)
+        value *= FIELD_ALERT_HYSTERESIS;
+
+    updateMeasurementAlertLevel(alertLevel, getMeasurementAlertLevel(value, alerts, 0, alarmIndex));
+}
+
+float calculateFieldStrength(const uint16_t *samples, const FieldSensor *sensor)
+{
+    // RMS of the half-wave above the offset (samples below the offset
+    // count as zero)
+    uint32_t squaredSum = 0;
+    for (uint32_t i = 0; i < FIELD_SAMPLE_NUM; i++)
+    {
+        int32_t value = (int32_t)samples[i] - sensor->offset;
+        if (value > 0)
+            squaredSum = addClamped(squaredSum, (uint32_t)(value * value));
+    }
+
+    float rmsValue = sqrtf((float)squaredSum / FIELD_SAMPLE_NUM);
+
+    return sensor->linearScale * rmsValue + sensor->quadraticScale * rmsValue * rmsValue;
+}
+
+#endif
 
 MeasurementStyle getAlertMeasurementStyle(AlertLevel alertLevel)
 {

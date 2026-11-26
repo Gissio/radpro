@@ -41,14 +41,59 @@ float readBatteryVoltage(void)
     return 3.854F + 0.005F * getGaussianRandomValue();
 }
 
-float readElectricFieldStrength(void)
+#if defined(EMFMETER)
+
+// Same front end as the FNIRSI GC-03
+const FieldSensor electricFieldSensor = {
+    126,
+    2 * 0.9F,
+    0.0F,
+};
+
+const FieldSensor magneticFieldSensor = {
+    120,
+    2 * 1.41421356237F * 0.000000005F * 2.8583F,
+    2 * 1.41421356237F * 0.000000005F * 0.0072F,
+};
+
+#define SIMULATOR_FIELD_FREQUENCY 50.0
+#define SIMULATOR_FIELD_NOISE 1.0
+// ~76 V/m
+#define SIMULATOR_ELECTRIC_FIELD_AMPLITUDE 84.0
+// ~0.25 uT
+#define SIMULATOR_MAGNETIC_FIELD_AMPLITUDE 12.0
+
+static const uint16_t *generateFieldSamples(uint16_t *samples, int32_t offset, double amplitude)
 {
-    return 76.0F + 0.1F * getGaussianRandomValue();
+    // Mains sine sampled at 1 kHz, clipped at the ADC range
+    double phase = 2.0 * M_PI * getUniformRandomValue();
+
+    for (uint32_t i = 0; i < FIELD_SAMPLE_NUM; i++)
+    {
+        double value = offset +
+                       amplitude * sin(2.0 * M_PI * SIMULATOR_FIELD_FREQUENCY * i / 1000.0 + phase) +
+                       SIMULATOR_FIELD_NOISE * getGaussianRandomValue();
+
+        samples[i] = (uint16_t)fmin(fmax(round(value), 0), 4095);
+    }
+
+    return samples;
 }
 
-float readMagneticFieldStrength(void)
+const uint16_t *getElectricFieldSamples(void)
 {
-    return 0.25E-6F + 0.1E-8F * getGaussianRandomValue();
+    static uint16_t samples[FIELD_SAMPLE_NUM];
+
+    return generateFieldSamples(samples, electricFieldSensor.offset, SIMULATOR_ELECTRIC_FIELD_AMPLITUDE);
 }
+
+const uint16_t *getMagneticFieldSamples(void)
+{
+    static uint16_t samples[FIELD_SAMPLE_NUM];
+
+    return generateFieldSamples(samples, magneticFieldSensor.offset, SIMULATOR_MAGNETIC_FIELD_AMPLITUDE);
+}
+
+#endif
 
 #endif

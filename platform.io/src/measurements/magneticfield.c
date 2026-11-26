@@ -13,7 +13,6 @@
 #include "../measurements/magneticfield.h"
 #include "../measurements/pulses.h"
 #include "../peripherals/adc.h"
-#include "../peripherals/emf.h"
 #include "../system/cmath.h"
 #include "../system/events.h"
 #include "../system/power.h"
@@ -64,14 +63,15 @@ void clearMagneticField(void)
 
 void updateMagneticField(void)
 {
-    // Update magnetic field strength
-    magneticField.value = readMagneticFieldStrength();
+    float value = calculateFieldStrength(getMagneticFieldSamples(), &magneticFieldSensor);
+    if (value < 1E-12F)
+        value = 1E-12F;
 
-    if (magneticField.value > magneticField.maxValue)
-        magneticField.maxValue = magneticField.value;
+    magneticField.value = value;
+    if (value > magneticField.maxValue)
+        magneticField.maxValue = value;
 
-    updateMeasurementAlertLevel(&magneticField.alertLevel,
-                                getMeasurementAlertLevel(magneticField.value, magneticFieldAlerts, 0, settings.magneticFieldAlarm));
+    updateFieldAlertLevel(&magneticField.alertLevel, value, magneticFieldAlerts, settings.magneticFieldAlarm);
 }
 
 float getMagneticField(void)

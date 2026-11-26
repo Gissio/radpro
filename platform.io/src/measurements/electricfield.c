@@ -14,7 +14,6 @@
 #include "../measurements/measurements.h"
 #include "../measurements/pulses.h"
 #include "../peripherals/adc.h"
-#include "../peripherals/emf.h"
 #include "../system/cmath.h"
 #include "../system/events.h"
 #include "../system/power.h"
@@ -60,14 +59,15 @@ void clearElectricField(void)
 
 void updateElectricField(void)
 {
-    // Update electric field strength
-    electricField.value = readElectricFieldStrength();
+    float value = calculateFieldStrength(getElectricFieldSamples(), &electricFieldSensor);
+    if (value < 1E-6F)
+        value = 1E-6F;
 
-    if (electricField.value > electricField.maxValue)
-        electricField.maxValue = electricField.value;
+    electricField.value = value;
+    if (value > electricField.maxValue)
+        electricField.maxValue = value;
 
-    updateMeasurementAlertLevel(&electricField.alertLevel,
-                                getMeasurementAlertLevel(electricField.value, electricFieldAlerts, 0, settings.electricFieldAlarm));
+    updateFieldAlertLevel(&electricField.alertLevel, value, electricFieldAlerts, settings.electricFieldAlarm);
 }
 
 float getElectricField(void)
