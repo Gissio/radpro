@@ -4,6 +4,8 @@
 
 * Added support for the GQ GMC-800V2.
 * Added **Estonian** translation.
+* On color displays, the visual bar now shades the zones above the rate warning and rate alarm levels, so you can see how close the rate is to an alert before it gets there.
+* The history screen's scale label now shows the unit after the value (for example, "1 µSv/h" instead of "Sv/h: 1 µ").
 * Redesigned the instantaneous rate averaging. Adaptive readings no longer read about 5% too high at low rates. **Adaptive precision** now averages 100 pulses (±20% confidence) instead of 20 pulses over at least 5 seconds. **1 minute** now counts the pulses of the last minute; it previously read too high at low rates (by about 50% with low-sensitivity tubes) and could show spikes. Adaptive averaging now restarts when the rate clearly changes, so readings follow large drops within seconds instead of minutes (for example, after moving away from a radioactive source). The 30 seconds and 10 seconds options were removed; counters set to them switch to **Adaptive fast**.
 * Timed average rates are now measured from the start of the average, instead of from its first pulse.
 * Fixed false rate alerts and inflated maximum rates right after powering on or resetting the instantaneous rate with **1 minute** averaging: they now wait until a full minute has been measured.

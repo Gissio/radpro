@@ -72,6 +72,7 @@ The **visual bar** on the instantaneous rate screen represents radiation levels 
 
 * Each step corresponds to a **10× increase**
 * Designed to make both low and high levels readable
+* On color displays, the zones above the rate warning and rate alarm levels are shaded
 
 This allows you to quickly recognize significant changes without focusing on exact values.
 

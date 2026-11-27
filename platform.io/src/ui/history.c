@@ -110,10 +110,14 @@ void drawHistory(float scale, const char *unitString, uint32_t timeTicksNum, con
         valueTicksNum = maxExponent - minExponent;
         valueOffset = HISTORY_DECADE * minExponent - unitValue;
 
+        // "1 µSv/h" or "10 Sv/h"; the bottom label shares the unit (with the
+        // unit, it would not fit on 240x320)
         strcatMetricPower(minLabel, minExponent, -2);
-        strcat(maxLabel, unitString);
-        strcat(maxLabel, ": ");
         strcatMetricPower(maxLabel, maxExponent, -2);
+        char lastChar = maxLabel[strlen(maxLabel) - 1];
+        if ((lastChar >= '0') && (lastChar <= '9'))
+            strcatChar(maxLabel, ' ');
+        strcat(maxLabel, unitString);
     }
 
     // 16.16 fixed point: rows per log value step, and rows per grid line

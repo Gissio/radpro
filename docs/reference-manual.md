@@ -98,6 +98,8 @@ To start logging:
 
 ## Instantaneous Rate Averaging
 
+<img src="img/menu-instantaneous.png" alt="Instantaneous rate averaging menu" width="320px"/>
+
 Choose from these averaging options to balance response speed and precision:
 
 * **Adaptive fast:** Averages over the shortest time that holds 20 pulses, for a ±50% confidence interval. Ideal for general use.

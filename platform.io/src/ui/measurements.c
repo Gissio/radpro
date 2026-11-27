@@ -341,7 +341,14 @@ void drawMeasurementBar(float value, int32_t minExponent, float warningValue, fl
         {
             fillImageBuffer(line, BAR_FRAME_LEFT, BAR_FRAME_RIGHT, COLOR_INSTRUMENT_FRAME_TERTIARY);
             if ((y >= BAR_CONTENT_TOP) && (y < BAR_CONTENT_BOTTOM))
+            {
                 fillImageBuffer(line, BAR_CONTENT_LEFT, BAR_CONTENT_RIGHT, COLOR_INSTRUMENT_FRAME_PRIMARY);
+#if defined(DISPLAY_COLOR)
+                // Alert zones: background shaded from the warning and alarm levels
+                fillImageBuffer(line, MAX(levelEnds[0], BAR_CONTENT_LEFT), MIN(levelEnds[1], BAR_CONTENT_RIGHT), COLOR_INSTRUMENT_FRAME_PRIMARY_WARNING);
+                fillImageBuffer(line, MAX(levelEnds[1], BAR_CONTENT_LEFT), BAR_CONTENT_RIGHT, COLOR_INSTRUMENT_FRAME_PRIMARY_ALARM);
+#endif
+            }
 
             int32_t x = BAR_FRAME_LEFT;
             for (uint32_t level = 0; level < ARRAY_SIZE(levelEnds); level++)
