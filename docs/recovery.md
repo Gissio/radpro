@@ -4,23 +4,23 @@ This guide provides recovery instructions for various Geiger counter models. Fol
 
 ## FS2011, YT-203B
 
-To recover your FS2011 or YT-203B Geiger counter, follow the [installation instructions](devices/FS2011_YT-203B/install.md).
+To recover your FS2011 or YT-203B Geiger counter, follow the [installation instructions](devices/FS2011/install.md).
 
 ## Bosean FS-600/FS-1000
 
-To recover your Bosean FS-600 or FS-1000 Geiger counter, follow the [installation instructions](devices/Bosean_FS-600_FS-1000/install.md).
+To recover your Bosean FS-600 or FS-1000 Geiger counter, follow the [installation instructions](devices/Bosean%20FS-600,%20FS-1000/install.md).
 
 ## Bosean FS-5000
 
-To recover your Bosean FS-5000 Geiger counter, follow the [installation instructions](devices/Bosean_FS-5000/install.md).
+To recover your Bosean FS-5000 Geiger counter, follow the [installation instructions](devices/Bosean%20FS-5000/install.md).
 
 ## FNIRSI GC-01
 
-To recover your FNIRSI GC-01 Geiger counter, follow the [installation instructions](devices/FNIRSI_GC-01/install.md).
+To recover your FNIRSI GC-01 Geiger counter, follow the [installation instructions](devices/FNIRSI%20GC-01/install.md).
 
 ## FNIRSI GC-03
 
-To recover your FNIRSI GC-03 Geiger counter, follow the [installation instructions](devices/FNIRSI_GC-03/install.md).
+To recover your FNIRSI GC-03 Geiger counter, follow the [installation instructions](devices/FNIRSI%20GC-03/install.md).
 
 ## GQ GMC-800
 
