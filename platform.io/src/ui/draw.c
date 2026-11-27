@@ -90,16 +90,16 @@ static const mr_color_t displayColors[][3] = {
 
     // Instrument frame primary, warning zone: frame primary darkened in day
     // and dusk by two RGB565 red/blue steps (green: four, so it stays grey);
-    // at night, a very dark amber in the hue of the night frame tertiary
-    // color (R5 3, G6 4, B5 1)
+    // none at night, as frame primary is already black (a lighter zone reads
+    // as the opposite of a darker one)
     {mr_get_color(0xececec),
      mr_get_color(0x242424),
-     mr_get_color(0x181008)},
+     mr_get_color(0x000000)},
 
     // Instrument frame primary, alarm zone: twice the warning zone's steps
     {mr_get_color(0xdcdcdc),
      mr_get_color(0x141414),
-     mr_get_color(0x302010)},
+     mr_get_color(0x000000)},
 
     // Instrument frame tertiary
     {mr_get_color(0xbebebe),
